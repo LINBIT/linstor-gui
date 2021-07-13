@@ -1,0 +1,14 @@
+Source: linstor-gui
+Maintainer: LINBIT HA Solutions GmbH <drbd-dev@lists.linbit.com>
+Uploaders: Roland Kammerer <roland.kammerer@linbit.com>
+Section: admin
+Priority: optional
+Build-Depends: debhelper (>= 9),
+Standards-Version: 3.9.6
+
+Package: linstor-gui
+Architecture: all
+Depends: linstor-controller (>= 1.13.1),
+Description: Administration GUI for LINSTOR clusters.
+ This software provides a web GUI for LINSTOR cluster and storage
+ administration.
