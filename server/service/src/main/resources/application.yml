@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: minstor-service
+
+server:
+  port: 23370
+
+webclient:
+  request: true
+  response: true
+
+web:
+  pattern: /**
+  path: web/
+
+linstor:
+  addr: http://127.0.0.1:3370
+  read-only: false

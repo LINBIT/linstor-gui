@@ -1,0 +1,12 @@
+dependencies {
+    implementation "org.springframework.boot:spring-boot-starter-webflux:${springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-validation:${springBootVersion}"
+    implementation "com.github.LiHang941.work-tool:tool-all:${workToolVersion}"
+    implementation "org.apache.commons:commons-lang3:$commonLang3Version"
+    implementation "commons-io:commons-io:$commonIOVersion"
+    implementation "com.alibaba:fastjson:$fastjsonVersion"
+
+    implementation "io.springfox:springfox-swagger2:${springfoxVersion}"
+    implementation "io.springfox:springfox-spring-webflux:${springfoxVersion}"
+    implementation "io.springfox:springfox-swagger-ui:${springfoxVersion}"
+}

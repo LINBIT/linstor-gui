@@ -1,0 +1,1 @@
+ssh root@118.24.22.63  "cd /opt/service/ && sh build.sh"
