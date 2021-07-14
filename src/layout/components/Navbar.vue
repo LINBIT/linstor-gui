@@ -16,6 +16,8 @@
           <size-select id="size-select" class="right-menu-item hover-effect" />
         </el-tooltip>
 
+        <linbit-notice class="right-menu-item hover-effect" />
+
       </template>
 
       <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
@@ -50,6 +52,7 @@ import Hamburger from '@/components/Hamburger'
 import ErrorLog from '@/components/ErrorLog'
 import Screenfull from '@/components/Screenfull'
 import SizeSelect from '@/components/SizeSelect'
+import LinbitNotice from '@/components/LinbitNotice'
 import Search from '@/components/HeaderSearch'
 
 export default {
@@ -59,7 +62,8 @@ export default {
     ErrorLog,
     Screenfull,
     SizeSelect,
-    Search
+    Search,
+    LinbitNotice
   },
   computed: {
     ...mapGetters([
