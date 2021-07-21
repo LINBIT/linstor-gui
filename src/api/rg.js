@@ -50,7 +50,7 @@ export async function rgList(listOpts = {}, filterRec = true) {
         rd_name: '', // Not Impl
         volume_size: 0, //  Not Impl
         definition_only: false,
-        data_copy_mode: it.props['DrbdOptions/Net/protocol'] || 'C'
+        data_copy_mode: it.props ? it.props['DrbdOptions/Net/protocol'] : 'C'
       }
     })
 }

@@ -429,7 +429,7 @@ const lang = [
     zh: "暂停"
   },
   {
-    key: "无",
+    key: "none",
     en: "None",
     zh: "无"
   },

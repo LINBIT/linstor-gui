@@ -76,7 +76,7 @@
         prop="resource_group_name"
       >
         <template slot-scope="{ row }">
-          <span>{{ row.resource_group_name == 'DfltRscGrp' ? $t('无'):row.resource_group_name }} </span>
+          <span>{{ row.resource_group_name == 'DfltRscGrp' ? $t('none'):row.resource_group_name }} </span>
         </template>
       </el-table-column>
 
@@ -162,7 +162,7 @@
             <el-option
               v-for="item in rgList"
               :key="item.name"
-              :label="item.name == 'DfltRscGrp' ? $t('无') : item.name"
+              :label="item.name == 'DfltRscGrp' ? $t('none') : item.name"
               :value="item.name"
             />
           </el-select>
@@ -244,7 +244,7 @@
       </div>
     </el-dialog>
 
-    <!-- 一键部署 -->
+    <!-- Deploy -->
     <el-dialog :visible.sync="dialogPvVisible" :title="$t('one_key_deploy')">
       <el-form
         ref="dataForm"
@@ -423,8 +423,8 @@ export default {
             'size': lodash.get(it, 'volumeDefinition[0].size_kib', '0'),
             'port': lodash.get(it, 'layer_data[0].data.port', ''),
             'storage_pool': lodash.get(it, 'volumeDefinition[0].props.StorPoolName', ''),
-            'state': it.flags.find(item => item === 'DELETE') != null ? 'DELETING' : 'OK',
-            'data_copy_mode': it.props['DrbdOptions/Net/protocol'] || 'C',
+            'state': it.flags?.find(item => item === 'DELETE') != null ? 'DELETING' : 'OK',
+            'data_copy_mode': it.props ? it.props['DrbdOptions/Net/protocol'] : 'C',
             'props': it.props,
             all_data: it
           }
@@ -450,8 +450,8 @@ export default {
         name: '',
         rg_name: '',
         data_copy_mode: 'C',
-        place_count: '1', // 自动分配副本数
-        one_key_deploy: false, // 一键部署
+        place_count: '1',
+        one_key_deploy: false,
         diskless_on_remaining: false,
         size: '0',
         size_unit: 'GiB',
