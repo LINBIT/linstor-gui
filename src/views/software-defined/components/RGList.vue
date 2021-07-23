@@ -86,7 +86,7 @@
         align="center"
       >
         <template slot-scope="{ row }">
-          <span>{{ (row.storage_pool_list || []).length > 0 ? row.storage_pool_list.join(',') : $t('自动') }}</span>
+          <span>{{ (row.storage_pool_list || []).length > 0 ? row.storage_pool_list.join(',') : $t('auto') }}</span>
         </template>
       </el-table-column>
 
@@ -389,7 +389,7 @@
         </el-button>
       </div>
     </el-dialog>
-    <!-- 一键部署 -->
+    <!-- One Key Deploy -->
     <el-dialog :visible.sync="dialogPvVisible" :title="$t('one_key_deploy')">
       <el-form
         ref="dataForm"

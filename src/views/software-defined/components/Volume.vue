@@ -422,7 +422,7 @@ export default {
               'resource': it.info.name,
               volume_number: it.volume_number,
               'usage': 'Unused',
-              'storage_pool': it.storage_pool_name === 'DfltDisklessStorPool' ? '自动分配' : it.storage_pool_name,
+              'storage_pool': it.storage_pool_name === 'DfltDisklessStorPool' ? 'Auto' : it.storage_pool_name,
               'device_name': it.device_path,
               'allocated': it.allocated_size_kib,
               'props': it.props,

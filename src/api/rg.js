@@ -24,12 +24,13 @@ export async function getAll(listOpts = {}) {
 }
 
 export async function rgList(listOpts = {}, filterRec = true) {
-  return Array.from(await getAll()).filter(el => {
-    if (filterRec) {
-      return el.name !== 'DfltRscGrp'
-    }
-    return true
-  })
+  return Array.from(await getAll())
+  // .filter(el => {
+  //   if (filterRec) {
+  //     return el.name !== 'DfltRscGrp'
+  //   }
+  //   return true
+  // })
     .map(it => {
       return {
         props: it.props,

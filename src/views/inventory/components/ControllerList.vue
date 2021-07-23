@@ -1,6 +1,10 @@
 <template>
   <div class="app-container">
+    <div v-if="controllerUnreachable && !listLoading">
+      Can not connect to linstor controller
+    </div>
     <el-table
+      v-else
       :key="tableKey"
       v-loading="listLoading"
       :data="list"
@@ -49,7 +53,8 @@ export default {
       list: [],
       total: 0,
       listLoading: true,
-      current: null
+      current: null,
+      controllerUnreachable: false
     }
   },
   created() {
@@ -57,7 +62,6 @@ export default {
   },
   methods: {
     async saveConfig(data, cb) {
-      console.log(data)
       await controller.modify(data)
       this.$notify({
         title: this.$t('success'),
@@ -80,6 +84,9 @@ export default {
             props
           }
         ]
+      } catch (e) {
+        console.log(e)
+        this.controllerUnreachable = true
       } finally {
         this.listLoading = false
       }
