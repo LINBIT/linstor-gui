@@ -174,11 +174,11 @@ export async function resourcesDefinitionsAll(listOpts = {}) {
     method: 'get',
     params: listOpts
   })).data
-  for (let i = 0; i < list.length; i++) {
-    const data = list[i]
-    const result = await volumeDefinitions(data.name)
-    data.volumeDefinition = result
-  }
+  // for (let i = 0; i < list.length; i++) {
+  //   const data = list[i]
+  //   const result = await volumeDefinitions(data.name)
+  //   data.volumeDefinition = result
+  // }
   return list
 }
 

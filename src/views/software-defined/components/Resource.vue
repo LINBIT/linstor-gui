@@ -387,7 +387,7 @@ export default {
             'resource_group_name': it.resource_group_name,
             'size': lodash.get(it, 'volumeDefinition[0].size_kib', '0'),
             'port': lodash.get(it, 'layer_data[0].data.port', ''),
-            'state': it.flags.find(item => item === 'DELETE') != null ? 'DELETING' : 'OK',
+            'state': it.flags && it.flags.find(item => item === 'DELETE') != null ? 'DELETING' : 'OK',
             'storage_pool_list': [lodash.get(it, 'volumeDefinition[0].props.StorPoolName', '')].filter(item => item !== ''),
             all_data: it
           }

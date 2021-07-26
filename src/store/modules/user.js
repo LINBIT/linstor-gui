@@ -53,7 +53,8 @@ const actions = {
   // get user info
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
-      const data = { "userId": "cb0591c5e19b4fe3a03ea982fa637ce1", "name": "admin", "introduction": "admin", "avatar": "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif", "roles": ["user", "iscsi", "nfs", "volume", "resource", "rd", "rg", "network", "storage-pool", "node", "log", "read"] }
+      // TODO:  "read" readonly mode
+      const data = { "userId": "cb0591c5e19b4fe3a03ea982fa637ce1", "name": "admin", "introduction": "admin", "avatar": "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif", "roles": ["user", "iscsi", "nfs", "volume", "resource", "rd", "rg", "network", "storage-pool", "node", "log"] }
       const { roles, name, avatar, introduction, userId } = data
       commit('SET_ROLES', roles)
       commit('SET_ID', userId)
