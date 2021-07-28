@@ -65,12 +65,11 @@ export default {
   },
   data() {
     return {
-      // TODO: 四个数据源的数据
       panelData: {
-        node_num: 4,
-        resource_num: 29,
-        volume_num: 44,
-        error_num: 8
+        node_num: 0,
+        resource_num: 0,
+        volume_num: 0,
+        error_num: 0
       },
       lineChartData: [120, 82, 91, 154, 162, 140, 145],
       // vinitChart

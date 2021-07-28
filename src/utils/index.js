@@ -5,6 +5,7 @@
 import camelCase from "camelcase"
 
 import propInfo from "@/property"
+import drdboptions from "@/drdboptions"
 import consts from '@/consts.json'
 
 /**
@@ -368,16 +369,25 @@ export function removeClass(ele, cls) {
  */
 export function handlePropsToFormOption(key, prop = {}) {
   let res = []
+  let propsArr = [...propInfo.objects[key]]
 
-  const propsArr = propInfo.objects[key]
-  const propsArrData = Object.entries(propInfo.properties).filter(
+  if (drdboptions.objects[key]) {
+    propsArr = [...propsArr, ...drdboptions.objects[key]]
+  }
+
+  const propsArrData = Object.entries({ ...propInfo.properties, ...drdboptions.properties }).filter(
     el => propsArr.indexOf(el[0]) > -1
   )
 
   res = propsArrData.map(([key, data]) => {
-    const value = prop[data.key.map(name =>
-      consts.data.find(r => r.name === name).value
-    ).join("/")]
+    let propName = ''
+    if (Array.isArray(data.key)) {
+      propName = data.key.map(name => consts.data.find(r => r.name === name).value).join("/")
+    } else {
+      propName = data.key
+    }
+    const value = prop[propName]
+
     const show = typeof value !== 'undefined'
 
     if (data.type === "regex") {
@@ -419,7 +429,7 @@ export function handlePropsToFormOption(key, prop = {}) {
         } : '',
         show
       }
-    } else if (data.type === "symbol") {
+    } else if (data.type === "symbol" || data.type === "numeric-or-symbol") { // TODO：Handle numeric-or-symbol type
       return {
         type: "select",
         field: key,
@@ -455,14 +465,14 @@ export function handlePropsToFormOption(key, prop = {}) {
         col: {
           labelWidth: 220
         },
-        prefix: data.info ? {
+        prefix: {
           type: 'ElTooltip', children: [{
             type: 'ElButton', props: { type: 'warning', circle: true, icon: 'el-icon-info', size: 'small', class: 'icon-class' }
-          }], props: { effect: 'dark', content: data.info }
-        } : '',
+          }], props: { effect: 'dark', content: data.info || data.key }
+        },
         show
       }
-    } else if (data.type === "boolean_true_false") {
+    } else if (data.type === "boolean_true_false" || data.type === "boolean") {
       return {
         type: "switch",
         title: camelCase(key, { pascalCase: true }),

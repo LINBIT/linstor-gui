@@ -8,7 +8,7 @@
       <el-row>
         <el-col :span="8">
           <el-popconfirm
-            :title="$t('确定重置属性')"
+            :title="$t('reset_props')"
             :confirm-button-text="$t('yes')"
             :cancel-button-text="$t('no')"
             @onConfirm="handleResetConfig"
@@ -75,6 +75,7 @@
 <script>
 import { handlePropsToFormOption } from "@/utils"
 import property from "@/property"
+import drdboptions from "@/drdboptions"
 import consts from "@/consts.json"
 
 export default {
@@ -99,8 +100,8 @@ export default {
       selectPropModal: false,
       selectedProps: "",
       addingAuxProps: false,
-      auxProps: [], // TODO: 自定义的属性，需要后面再设置
-      auxPropsSnapshot: [], // TODO: 自定义的属性，需要后面再设置
+      auxProps: [],
+      auxPropsSnapshot: [],
       propsData: {}, // Property Editor Data
       option: { // Property Editor Option
         row: {
@@ -186,7 +187,7 @@ export default {
       this.rule = handlePropsToFormOption(this.type, rowData.props)
       this.auxProps = [] // 反显自定义属性 [{name: '', value: ''}]
       this.auxPropsSnapshot = []
-      for (const propsKey in rowData.props) {
+      for (const propsKey in rowData.props) { // TODO: handle DRBD options
         const strings = propsKey.split('/')
         const first = strings.shift()
         if (strings.length > 0 && first === 'Aux') {
@@ -222,9 +223,12 @@ export default {
       }
 
       deleteProps.map(it => it.replace('_lorem', '')).forEach((it) => {
-        const key = property.properties[it].key
+        const normalPropsObj = property.properties[it]
+
+        // if it's a drbd option
+        const key = normalPropsObj ? property.properties[it].key
           .map((name) => consts.data.find((r) => r.name === name).value)
-          .join("/")
+          .join("/") : drdboptions.properties[it].key
         data.delete_props.push(key)
       })
 
@@ -250,9 +254,12 @@ export default {
         delete_props: []
       }
       Object.keys(formData).filter(it => !/_lorem$/.test(it)).forEach((it) => {
-        const key = property.properties[it].key
+        const normalPropsObj = property.properties[it]
+
+        // if it's a drbd option
+        const key = normalPropsObj ? property.properties[it].key
           .map((name) => consts.data.find((r) => r.name === name).value)
-          .join("/")
+          .join("/") : drdboptions.properties[it].key
 
         if (formData[it] === "") {
           if (this.current[key] != null) {

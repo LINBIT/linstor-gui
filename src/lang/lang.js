@@ -796,7 +796,7 @@ const lang = [
     en: "Add Auxiliary Property"
   },
   {
-    key: "确定重置属性",
+    key: "reset_props",
     zh: "确定重置属性吗？",
     en: "Are you sure to reset all properties?"
   },

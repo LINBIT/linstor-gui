@@ -26,12 +26,12 @@ export default {
   name: "App",
   data() {
     return {
-      appEnable: false,
+      appEnable: true,
       dialogVisible: false
     }
   },
   created() {
-    this.getAppInfo()
+    // this.getAppInfo()
   },
   methods: {
     async getAppInfo() {
