@@ -368,6 +368,7 @@ export function removeClass(ele, cls) {
  * Props转换
  */
 export function handlePropsToFormOption(key, prop = {}) {
+  console.log(prop, 'prop')
   let res = []
   let propsArr = [...propInfo.objects[key]]
 
@@ -380,138 +381,205 @@ export function handlePropsToFormOption(key, prop = {}) {
   )
 
   res = propsArrData.map(([key, data]) => {
-    let propName = ''
+    let field = ''
+    let isNormalProps = false
+
     if (Array.isArray(data.key)) {
-      propName = data.key.map(name => consts.data.find(r => r.name === name).value).join("/")
-    } else {
-      propName = data.key
+      isNormalProps = true
+      field = data.key.map(name => consts.data.find(r => r.name === name).value).join("/")
+    } else { // DRDB Options
+      field = data.key
     }
-    const value = prop[propName]
 
+    const value = prop[field]
     const show = typeof value !== 'undefined'
+    const title = camelCase(key, { pascalCase: true })
 
-    if (data.type === "regex") {
-      return {
-        type: "input",
-        title: camelCase(key, { pascalCase: true }),
-        field: key,
-        value: value || "",
-        col: {
-          labelWidth: 150
-        },
-        props: {
-          type: "text"
-        },
-        validate: [{ pattern: data.value, message: data.info, trigger: "blur" }],
-        prefix: data.info ? {
-          type: 'ElTooltip', children: [{
-            type: 'ElButton', props: { type: 'warning', circle: true, icon: 'el-icon-info', size: 'small', class: 'icon-class' }
-          }], props: { effect: 'dark', content: data.info }
-        } : '',
-        show
-      }
-    } else if (data.type === "string") {
-      return {
-        type: "input",
-        title: camelCase(key, { pascalCase: true }),
-        field: key,
-        value: value || "",
-        col: {
-          labelWidth: 150
-        },
-        props: {
-          type: "text"
-        },
-        prefix: data.info ? {
-          type: 'ElTooltip', children: [{
-            type: 'ElButton', props: { type: 'warning', circle: true, icon: 'el-icon-info', size: 'small', class: 'icon-class' }
-          }], props: { effect: 'dark', content: data.info }
-        } : '',
-        show
-      }
-    } else if (data.type === "symbol" || data.type === "numeric-or-symbol") { // TODO：Handle numeric-or-symbol type
-      return {
-        type: "select",
-        field: key,
-        title: camelCase(key, { pascalCase: true }),
-        value: value || data.values,
-        options: data.values.map(el => ({
-          value: el,
-          label: el,
-          disabled: false
-        })),
-        props: {
-          multiple: false
-        },
-        col: {
-          labelWidth: 220
-        },
-        suffix: data.info ? {
-          type: 'ElAlert', props: { type: 'info', title: data.info }
-        } : '',
-        show
-      }
-    } else if (data.type === "range") {
-      return {
-        type: "slider",
-        field: key,
-        title: camelCase(key, { pascalCase: true }),
-        value: value,
-        props: {
-          min: data.min,
-          max: data.max,
-          showTip: "hover"
-        },
-        col: {
-          labelWidth: 220
-        },
-        prefix: {
-          type: 'ElTooltip', children: [{
-            type: 'ElButton', props: { type: 'warning', circle: true, icon: 'el-icon-info', size: 'small', class: 'icon-class' }
-          }], props: { effect: 'dark', content: data.info || data.key }
-        },
-        show
-      }
-    } else if (data.type === "boolean_true_false" || data.type === "boolean") {
-      return {
-        type: "switch",
-        title: camelCase(key, { pascalCase: true }),
-        field: key,
-        value: value,
-        props: {
-          activeValue: "true",
-          inactiveValue: "false"
-        },
-        col: {
-          labelWidth: 220
-        },
-        suffix: data.info ? {
-          type: 'ElAlert', props: { type: 'info', title: data.info }
-        } : '',
-        show
-      }
-    } else if (data.type === "long") {
-      return {
-        type: "input",
-        title: camelCase(key, { pascalCase: true }),
-        field: key,
-        value: value || "",
-        col: {
-          labelWidth: 150
-        },
-        props: {
-          type: "number"
-        },
-        prefix: data.info ? {
-          type: 'ElTooltip', children: [{
-            type: 'ElButton', props: { type: 'warning', circle: true, icon: 'el-icon-info', size: 'small', class: 'icon-class' }
-          }], props: { effect: 'dark', content: data.info }
-        } : '',
-        show
-      }
-    } else {
-      console.log(data, "??")
+    let formInfo = {}
+
+    switch (data.type) {
+      case "regex":
+        formInfo = {
+          type: "input",
+          title,
+          field,
+          value: value || "",
+          col: {
+            labelWidth: 150
+          },
+          props: {
+            type: "text"
+          },
+          validate: [{ pattern: data.value, message: data.info, trigger: "blur" }],
+          prefix: data.info ? {
+            type: 'ElTooltip', children: [{
+              type: 'ElButton', props: { type: 'warning', circle: true, icon: 'el-icon-info', size: 'small', class: 'icon-class' }
+            }], props: { effect: 'dark', content: data.info }
+          } : '',
+          show,
+          isNormalProps
+        }
+        break
+      case "string":
+        formInfo = {
+          type: "input",
+          title,
+          field,
+          value: value || "",
+          col: {
+            labelWidth: 150
+          },
+          props: {
+            type: "text"
+          },
+          prefix: data.info ? {
+            type: 'ElTooltip', children: [{
+              type: 'ElButton', props: { type: 'warning', circle: true, icon: 'el-icon-info', size: 'small', class: 'icon-class' }
+            }], props: { effect: 'dark', content: data.info }
+          } : '',
+          show,
+          isNormalProps
+        }
+        break
+      case "symbol":
+        formInfo = {
+          type: "select",
+          field,
+          title,
+          value: value || data.values,
+          options: data.values.map(el => ({
+            value: el,
+            label: el,
+            disabled: false
+          })),
+          props: {
+            multiple: false
+          },
+          col: {
+            labelWidth: 220
+          },
+          suffix: data.info ? {
+            type: 'ElAlert', props: { type: 'info', title: data.info }
+          } : '',
+          show,
+          isNormalProps
+        }
+        break
+      case "numeric-or-symbol":
+        formInfo = {
+          type: "select",
+          field,
+          title,
+          value: value || data.values,
+          options: data.values.map(el => ({
+            value: el,
+            label: el,
+            disabled: false
+          })),
+          props: {
+            filterable: true,
+            multiple: false,
+            allowCreate: true
+          },
+          col: {
+            labelWidth: 220
+          },
+          suffix: data.info ? {
+            type: 'ElAlert', props: { type: 'info', title: data.info }
+          } : '',
+          show,
+          isNormalProps
+        }
+        break
+      case "range":
+        formInfo = {
+          type: "slider",
+          field,
+          title,
+          value: value,
+          props: {
+            min: data.min,
+            max: data.max,
+            showTip: "hover"
+          },
+          col: {
+            labelWidth: 220
+          },
+          prefix: {
+            type: 'ElTooltip', children: [{
+              type: 'ElButton', props: { type: 'warning', circle: true, icon: 'el-icon-info', size: 'small', class: 'icon-class' }
+            }], props: { effect: 'dark', content: data.info || data.key }
+          },
+          show,
+          isNormalProps
+        }
+        break
+      case "boolean_true_false":
+        formInfo = {
+          type: "switch",
+          title,
+          field,
+          value: value,
+          props: {
+            activeValue: "true",
+            inactiveValue: "false"
+          },
+          col: {
+            labelWidth: 220
+          },
+          suffix: data.info ? {
+            type: 'ElAlert', props: { type: 'info', title: data.info }
+          } : '',
+          show,
+          isNormalProps
+        }
+        break
+      case "boolean":
+        formInfo = {
+          type: "switch",
+          title,
+          field,
+          value: value,
+          props: {
+            activeValue: "yes",
+            inactiveValue: "no"
+          },
+          col: {
+            labelWidth: 220
+          },
+          suffix: data.info ? {
+            type: 'ElAlert', props: { type: 'info', title: data.info }
+          } : '',
+          show,
+          isNormalProps
+        }
+        break
+      case "long":
+        formInfo = {
+          type: "input",
+          title,
+          field,
+          value: value || "",
+          col: {
+            labelWidth: 150
+          },
+          props: {
+            type: "number"
+          },
+          prefix: data.info ? {
+            type: 'ElTooltip', children: [{
+              type: 'ElButton', props: { type: 'warning', circle: true, icon: 'el-icon-info', size: 'small', class: 'icon-class' }
+            }], props: { effect: 'dark', content: data.info }
+          } : '',
+          show,
+          isNormalProps
+        }
+        break
+      default:
+        console.log("Unknown type", data.type)
     }
+
+    return formInfo
   })
 
   return res

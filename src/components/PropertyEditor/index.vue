@@ -17,11 +17,11 @@
           </el-popconfirm>
         </el-col>
         <el-col :span="8">
-          <el-button type="primary" @click="hanldeSelectProps">{{ $t('add_prop') }}</el-button>
+          <el-button type="primary" @click="handleSelectProps">{{ $t('add_prop') }}</el-button>
         </el-col>
 
         <el-col :span="8">
-          <el-button type="primary" @click="hanldeAuxProps">{{ $t('aux_prop') }}</el-button>
+          <el-button type="primary" @click="handleAuxProps">{{ $t('aux_prop') }}</el-button>
         </el-col>
       </el-row>
 
@@ -61,7 +61,7 @@
     </el-dialog>
 
     <el-dialog :title="$t('select_editor')" :visible.sync="selectPropModal">
-      <el-select v-model="selectedProps" filterable clearable placeholder="Please Select" @change="hanleSelect">
+      <el-select v-model="selectedProps" filterable clearable placeholder="Please Select" @change="handleSelect">
         <el-option
           v-for="item in rule.filter(el => !el.show)"
           :key="item.field"
@@ -74,9 +74,6 @@
 </template>
 <script>
 import { handlePropsToFormOption } from "@/utils"
-import property from "@/property"
-import drdboptions from "@/drdboptions"
-import consts from "@/consts.json"
 
 export default {
   name: 'PropertyEditor',
@@ -102,6 +99,7 @@ export default {
       addingAuxProps: false,
       auxProps: [],
       auxPropsSnapshot: [],
+      normalPropsSnapshot: [],
       propsData: {}, // Property Editor Data
       option: { // Property Editor Option
         row: {
@@ -168,7 +166,7 @@ export default {
     this.rule = handlePropsToFormOption(this.type, JSON.parse(JSON.stringify(this.rowData)).props)
   },
   methods: {
-    hanldeAuxProps() { // 点击添加自定义属性
+    handleAuxProps() { // 点击添加自定义属性
       this.addingAuxProps = true
       this.auxProps.push({
         name: '',
@@ -187,7 +185,8 @@ export default {
       this.rule = handlePropsToFormOption(this.type, rowData.props)
       this.auxProps = [] // 反显自定义属性 [{name: '', value: ''}]
       this.auxPropsSnapshot = []
-      for (const propsKey in rowData.props) { // TODO: handle DRBD options
+      const ruleShowMap = this.ruleShow.map(el => el.field.replace('_lorem', ''))
+      for (const propsKey in rowData.props) {
         const strings = propsKey.split('/')
         const first = strings.shift()
         if (strings.length > 0 && first === 'Aux') {
@@ -199,13 +198,18 @@ export default {
             name: strings.join("/"),
             value: rowData.props[propsKey]
           })
+        } else if (ruleShowMap.indexOf(propsKey) > -1) { // handle normal options
+          this.normalPropsSnapshot.push({
+            name: propsKey,
+            value: rowData.props[propsKey]
+          })
         }
       }
     },
-    hanldeSelectProps() { // 选择属性
+    handleSelectProps() { // 选择属性
       this.selectPropModal = true
     },
-    hanleSelect(val) { // 处理单个添加的属性
+    handleSelect(val) { // 处理单个添加的属性
       this.rule = this.rule.map(el => el.field === val ? { ...el, show: true } : el)
       this.selectPropModal = false
       this.selectedProps = ""
@@ -215,35 +219,36 @@ export default {
       this.auxProps = [] // 重置时需要将临时数据清空
     },
     handleResetConfig() { // 重置（删除）所有属性
-      this.auxProps = []
-      const deleteProps = this.rule.map(e => e.field)
+      console.log(this.auxProps, 'this.auxProps')
+
+      const deleteProps = this.ruleShow.map(e => e.field)
+
       const data = {
         override_props: {},
         delete_props: []
       }
 
       deleteProps.map(it => it.replace('_lorem', '')).forEach((it) => {
-        const normalPropsObj = property.properties[it]
-
-        // if it's a drbd option
-        const key = normalPropsObj ? property.properties[it].key
-          .map((name) => consts.data.find((r) => r.name === name).value)
-          .join("/") : drdboptions.properties[it].key
-        data.delete_props.push(key)
-      })
-
-      this.auxPropsSnapshot.forEach(it => {
-        const res = this.auxProps.find(item => item.name === it.name)
-        if (typeof res === "undefined") {
-          data.delete_props.push(`Aux/${it.name}`)
-        }
+        data.delete_props.push(it)
       })
 
       if (this.auxProps.length) {
         this.auxProps.forEach(it => {
           data.override_props[`Aux/${it.name}`] = it.value
         })
+      } else {
+        this.auxPropsSnapshot.forEach(it => {
+          const res = this.auxProps.find(item => item.name === it.name)
+          if (typeof res === "undefined") {
+            data.delete_props.push(`Aux/${it.name}`)
+          }
+        })
       }
+
+      this.normalPropsSnapshot.forEach(it => {
+        data.delete_props.push(it.name)
+      })
+
       this.$emit('handleSubmit', data, () => {
         this.editPropModal = false
       })
@@ -253,27 +258,24 @@ export default {
         override_props: {},
         delete_props: []
       }
+
       Object.keys(formData).filter(it => !/_lorem$/.test(it)).forEach((it) => {
-        const normalPropsObj = property.properties[it]
-
-        // if it's a drbd option
-        const key = normalPropsObj ? property.properties[it].key
-          .map((name) => consts.data.find((r) => r.name === name).value)
-          .join("/") : drdboptions.properties[it].key
-
-        if (formData[it] === "") {
-          if (this.current[key] != null) {
-            data.delete_props.push(key)
-          }
-        } else {
-          data.override_props[key] = formData[it]
-        }
+        data.override_props[it] = formData[it]
       })
 
       this.auxPropsSnapshot.forEach(it => {
         const res = this.auxProps.find(item => item.name === it.name)
         if (typeof res === "undefined") {
           data.delete_props.push(`Aux/${it.name}`)
+        }
+      })
+
+      console.log(this.normalPropsSnapshot, 'this.normalPropsSnapshot')
+      console.log(formData, 'formData')
+
+      this.normalPropsSnapshot.forEach(it => {
+        if (!(it.name in formData)) {
+          data.delete_props.push(it.name)
         }
       })
 
