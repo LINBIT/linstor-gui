@@ -208,7 +208,7 @@ export async function removeResourcesDefinitions(rsc_name) {
 export async function updateResourcesDefinitions(rsc_name, data) {
   return (await request({
     url: '/v1/resource-definitions/' + rsc_name,
-    method: 'post',
+    method: 'put',
     data: data
   }))
 }
