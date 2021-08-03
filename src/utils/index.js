@@ -393,7 +393,7 @@ export function handlePropsToFormOption(key, prop = {}) {
 
     const value = prop[field]
     const show = typeof value !== 'undefined'
-    const title = camelCase(key, { pascalCase: true })
+    const title = field || camelCase(key, { pascalCase: true })
 
     let formInfo = {}
 

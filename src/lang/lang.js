@@ -575,17 +575,17 @@ const lang = [
   },
   {
     key: "resource_num",
-    en: "Resource",
+    en: "Resources",
     zh: "资源"
   },
   {
     key: "volume_num",
-    en: "Volume",
+    en: "Volumes",
     zh: "卷"
   },
   {
     key: "error_num",
-    en: "Error",
+    en: "Error Reports",
     zh: "错误"
   },
   {
@@ -747,7 +747,7 @@ const lang = [
   },
   {
     key: "disk_creation_record",
-    en: "Disk creation record",
+    en: "Disk creation records",
     zh: "磁盘创建记录"
   },
   {

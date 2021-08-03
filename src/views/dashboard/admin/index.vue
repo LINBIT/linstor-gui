@@ -3,22 +3,22 @@
     <panel-group :panel-data="panelData" />
 
     <el-row :gutter="32">
-      <el-col :xs="24" :sm="24" :lg="8">
+      <el-col v-if="nodeData.length" :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
-          <div>{{ $t('node') }}</div>
-          <pie-chart ref="node" :char-data="nodeData" :title="$t('node')" />
+          <div>{{ $t('node_num') }}</div>
+          <pie-chart ref="node" :char-data="nodeData" :title="$t('node_num')" />
         </div>
       </el-col>
-      <el-col :xs="24" :sm="24" :lg="8">
+      <el-col v-if="resourceData.length" :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
-          <div>{{ $t('resource') }}</div>
-          <pie-chart ref="resource" :char-data="resourceData" :title="$t('resource')" />
+          <div>{{ $t('resource_num') }}</div>
+          <pie-chart ref="resource" :char-data="resourceData" :title="$t('resource_num')" />
         </div>
       </el-col>
-      <el-col :xs="24" :sm="24" :lg="8">
+      <el-col v-if="volumeData.length" :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
-          <div>{{ $t('volume') }}</div>
-          <pie-chart ref="volume" :char-data="volumeData" :title="$t('volume')" />
+          <div>{{ $t('volume_num') }}</div>
+          <pie-chart ref="volume" :char-data="volumeData" :title="$t('volume_num')" />
         </div>
       </el-col>
     </el-row>
@@ -36,7 +36,7 @@
           <div>{{ $t('storage_pool_error_statistics') }}</div>
           <div class="selector">
             <el-radio-group v-model="barchart" @change="hanldeChange">
-              <el-radio-button :label="$t('node')" />
+              <el-radio-button :label="$t('node_num')" />
               <el-radio-button :label="$t('sp')" />
             </el-radio-group>
           </div>
@@ -71,7 +71,7 @@ export default {
         volume_num: 0,
         error_num: 0
       },
-      lineChartData: [120, 82, 91, 154, 162, 140, 145],
+      lineChartData: [0, 0, 0, 0, 0, 0, 0],
       // vinitChart
       // nodeChartData: ['OFFLINE', 'CONNECTED', 'ONLINE', 'VERSION_MISMATCH', 'FULL_SYNC_FAILED', 'AUTHENTICATION_ERROR', 'UNKNOWN', 'HOSTNAME_MISMATCH', 'OTHER_CONTROLLER', 'AUTHENTICATED', 'NO_STLT_CONN'],
       nodeData: [{ value: 0, name: 'OFFLINE' }, { value: 0, name: 'CONNECTED' }],
@@ -161,9 +161,9 @@ export default {
             '-1': self.$t('DUnknown')
           }
           try {
-            return d.match((/linstor_volume_state\{.+node="(.+)",resource.+ ([0-9\.]+)/g))
+            return d.match((/linstor_volume_state\{.+/g))
               .map(it => {
-                const m = it.match((/linstor_volume_state\{.+node="(.+)",resource.+ ([0-9\.]+)/))
+                const m = it.match((/linstor_volume_state\{.+/))
                 return {
                   node: m[1],
                   state: parseInt(m[2]),
@@ -251,62 +251,58 @@ export default {
 
       // lineChartData: [120, 82, 91, 154, 162, 140, 145],
 
-      {
-        let date = new Date().getTime()
-        const lineData = []
-        const resourcesDetail = Array.from(await rgApi.resourcesDetailList())
+      let date = new Date().getTime()
+      const lineData = []
+      const resourcesDetail = Array.from(await rgApi.resourcesDetailList())
 
-        while (lineData.length < 7) {
-          date = date - (1000 * 60 * 60 * 24)
-          lineData.push(resourcesDetail.filter(it => it.created_on <= date).length)
-        }
-        console.log('lineData', lineData.reverse())
-        this.lineChartData = lineData
+      while (lineData.length < 7) {
+        date = date - (1000 * 60 * 60 * 24)
+        lineData.push(resourcesDetail.filter(it => it.created_on <= date).length)
       }
+      console.log('lineData', lineData.reverse())
+      this.lineChartData = lineData
 
-      {
-        const alist = []
-        const blist = []
-        const nodeList = Array.from(new Set(showData.linstor_storage_pool_error_count.map(it => it.node)))
-        const drive = Array.from(new Set(showData.linstor_storage_pool_error_count.map(it => it.driver)))
-        const storage_poolList = Array.from(new Set(showData.linstor_storage_pool_error_count.map(it => it.storage_pool)))
+      const alist = []
+      const blist = []
+      const nodeList = Array.from(new Set(showData.linstor_storage_pool_error_count.map(it => it.node)))
+      const drive = Array.from(new Set(showData.linstor_storage_pool_error_count.map(it => it.driver)))
+      const storage_poolList = Array.from(new Set(showData.linstor_storage_pool_error_count.map(it => it.storage_pool)))
 
-        for (const linstorStoragePoolErrorCountElement of showData.linstor_storage_pool_error_count) {
-          for (const driveElement of drive) {
-            alist.push({
-              name: linstorStoragePoolErrorCountElement.storage_pool,
-              type: 'bar',
-              stack: driveElement,
-              data: nodeList.map(it => {
-                const r = showData.linstor_storage_pool_error_count.find(re => re.storage_pool === linstorStoragePoolErrorCountElement.storage_pool &&
+      for (const linstorStoragePoolErrorCountElement of showData.linstor_storage_pool_error_count) {
+        for (const driveElement of drive) {
+          alist.push({
+            name: linstorStoragePoolErrorCountElement.storage_pool,
+            type: 'bar',
+            stack: driveElement,
+            data: nodeList.map(it => {
+              const r = showData.linstor_storage_pool_error_count.find(re => re.storage_pool === linstorStoragePoolErrorCountElement.storage_pool &&
                   re.driver === driveElement && re.node === it)
-                return r ? r.state : 0
-              })
+              return r ? r.state : 0
             })
-          }
+          })
         }
-
-        for (const node of nodeList) {
-          for (const driveElement of drive) {
-            blist.push({
-              name: node,
-              type: 'bar',
-              stack: driveElement,
-              data: storage_poolList.map(it => {
-                const r = showData.linstor_storage_pool_error_count.find(re => re.storage_pool === it &&
-                    re.driver === driveElement && re.node === node)
-                return r ? r.state : 0
-              })
-            })
-          }
-        }
-
-        this.bar1.data = alist
-        this.bar2.data = blist
-        this.bar1.xValues = [...nodeList]
-        this.bar2.xValues = [...storage_poolList]
-        this.barChatData = this.bar1
       }
+
+      for (const node of nodeList) {
+        for (const driveElement of drive) {
+          blist.push({
+            name: node,
+            type: 'bar',
+            stack: driveElement,
+            data: storage_poolList.map(it => {
+              const r = showData.linstor_storage_pool_error_count.find(re => re.storage_pool === it &&
+                    re.driver === driveElement && re.node === node)
+              return r ? r.state : 0
+            })
+          })
+        }
+      }
+
+      this.bar1.data = alist
+      this.bar2.data = blist
+      this.bar1.xValues = [...nodeList]
+      this.bar2.xValues = [...storage_poolList]
+      this.barChatData = this.bar1
       this.hanldeChange()
       this.initPieChart()
     },
@@ -318,7 +314,7 @@ export default {
       this.$refs.bar.initChart(this.barChatData)
     },
     hanldeChange(val) {
-      if (val === this.$t('node')) {
+      if (val === this.$t('node_num')) {
         this.barChatData = this.bar1
       } else if (val === this.$t('sp')) {
         this.barChatData = this.bar2

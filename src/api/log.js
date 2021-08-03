@@ -15,7 +15,7 @@ export async function detail(id) {
 
 export async function remove(id) {
   return (await request({
-    url: '/v1/error-reports?id=' + id,
+    url: '/v1/error-reports/' + id,
     method: 'delete'
   })).data
 }

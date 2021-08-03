@@ -132,7 +132,7 @@ export async function resourcesDetailList() {
         stateStr = 'DELETING'
       } else if (flags.includes('INACTIVE')) {
         stateStr = 'INACTIVE'
-      } else if (it.state.in_use) {
+      } else if (it.state.in_use) { // TODO
         stateStr = 'InUse'
       } else {
         stateStr = 'Unused'
