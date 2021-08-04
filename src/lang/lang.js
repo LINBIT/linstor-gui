@@ -250,12 +250,12 @@ const lang = [
   },
   {
     key: "async",
-    en: "Async",
+    en: "Asynchronous",
     zh: "异步"
   },
   {
     key: "sync",
-    en: "Sync",
+    en: "Synchronous",
     zh: "同步"
   },
   {
@@ -275,7 +275,7 @@ const lang = [
   },
   {
     key: "data_copy_mode",
-    en: "Data Copy Mode",
+    en: "Replication Mode",
     zh: "数据复制模式"
   },
   {
