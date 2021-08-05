@@ -18,6 +18,9 @@
           <span>{{ row.ip === "::" ? "0.0.0.0" : row.ip }}</span>
         </template>
       </el-table-column>
+      <el-table-column :label="$t('controller_host')" align="center">
+        <span>{{ hostName }}</span>
+      </el-table-column>
       <el-table-column
         :label="$t('table.actions')"
         align="center"
@@ -41,6 +44,8 @@ import * as controller from "@/api/controller"
 import waves from "@/directive/waves" // waves directive
 import PropertyEditor from '@/components/PropertyEditor'
 
+const hostName = window ? window.location.host : ''
+
 export default {
   name: "NodeList",
   directives: { waves },
@@ -54,7 +59,8 @@ export default {
       total: 0,
       listLoading: true,
       current: null,
-      controllerUnreachable: false
+      controllerUnreachable: false,
+      hostName
     }
   },
   created() {

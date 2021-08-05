@@ -777,8 +777,13 @@ const lang = [
   },
   {
     key: "controller_ip",
-    en: "Controller Ip",
+    en: "Binding IP",
     zh: "Controller Ip"
+  },
+  {
+    key: "controller_host",
+    en: "Active on",
+    zh: "Active on"
   },
   {
     key: "delete_all_props",
