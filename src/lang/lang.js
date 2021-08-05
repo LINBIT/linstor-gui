@@ -275,7 +275,7 @@ const lang = [
   },
   {
     key: "data_copy_mode",
-    en: "Replication Mode",
+    en: "Replication",
     zh: "数据复制模式"
   },
   {

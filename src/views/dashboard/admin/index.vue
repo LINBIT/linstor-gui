@@ -3,19 +3,19 @@
     <panel-group :panel-data="panelData" />
 
     <el-row :gutter="32">
-      <el-col v-if="nodeData.length" :xs="24" :sm="24" :lg="8">
+      <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
           <div>{{ $t('node_num') }}</div>
           <pie-chart ref="node" :char-data="nodeData" :title="$t('node_num')" />
         </div>
       </el-col>
-      <el-col v-if="resourceData.length" :xs="24" :sm="24" :lg="8">
+      <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
           <div>{{ $t('resource_num') }}</div>
           <pie-chart ref="resource" :char-data="resourceData" :title="$t('resource_num')" />
         </div>
       </el-col>
-      <el-col v-if="volumeData.length" :xs="24" :sm="24" :lg="8">
+      <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
           <div>{{ $t('volume_num') }}</div>
           <pie-chart ref="volume" :char-data="volumeData" :title="$t('volume_num')" />
@@ -48,6 +48,8 @@
 </template>
 
 <script>
+import _ from 'lodash'
+import parsePrometheusTextFormat from 'parse-prometheus-text-format'
 import PanelGroup from './components/PanelGroup'
 import LineChart from './components/LineChart'
 import PieChart from './components/PieChart'
@@ -81,7 +83,7 @@ export default {
       bar1: { data: [], xValues: [] },
       bar2: { data: [], xValues: [] },
       barChatData: { data: [], xValues: [] },
-      barchart: this.$t('node')
+      barchart: this.$t('node_num')
     }
   },
   mounted() {
@@ -106,42 +108,27 @@ export default {
             10: self.$t('NO_STLT_CONN')
           }
           try {
-            return d.match((/linstor_node_state\{node="(.+)",address.+ ([0-9\.]+)/g))
-              .map(it => {
-                const m = it.match((/linstor_node_state\{node="(.+)",address.+ ([0-9\.]+)/))
-                return {
-                  node: m[1],
-                  state: parseInt(m[2]),
-                  stateStr: c[parseInt(m[2])]
-                }
-              })
+            return d.metrics.map(it => {
+              return {
+                node: it.labels.node,
+                state: parseInt(it.value),
+                stateStr: c[parseInt(it.value).toString()]
+              }
+            })
           } catch (e) {
             return []
-          }
-        },
-        'linstor_resource_definition_count': (d) => {
-          try {
-            return d.match((/linstor_resource_definition_count ([0-9\.]+)/g))
-              .map(it => {
-                const m = it.match((/linstor_resource_definition_count ([0-9\.]+)/))
-                return m[1]
-              })[0]
-          } catch (e) {
-            return 0
           }
         },
         'linstor_resource_state': (d) => {
           const c = { '-1': self.$t('unknown state'), '0': self.$t('secondary'), '1': self.$t('primary') }
           try {
-            return d.match((/linstor_resource_state\{node="(.+)",name.+ ([0-9\.]+)/g))
-              .map(it => {
-                const m = it.match((/linstor_resource_state\{node="(.+)",name.+ ([0-9\.]+)/))
-                return {
-                  node: m[1],
-                  state: parseInt(m[2]),
-                  stateStr: c[parseInt(m[2]).toString()]
-                }
-              })
+            return d.metrics.map(it => (
+              {
+                nnode: it.labels.node,
+                state: parseInt(it.value),
+                stateStr: c[parseInt(it.value).toString()]
+              }
+            ))
           } catch (e) {
             return []
           }
@@ -161,42 +148,38 @@ export default {
             '-1': self.$t('DUnknown')
           }
           try {
-            return d.match((/linstor_volume_state\{.+/g))
-              .map(it => {
-                const m = it.match((/linstor_volume_state\{.+/))
-                return {
-                  node: m[1],
-                  state: parseInt(m[2]),
-                  stateStr: c[parseInt(m[2]).toString()]
-                }
-              })
+            return d.metrics.map(it => ({
+              node: it.labels.node,
+              state: parseInt(it.value),
+              stateStr: c[parseInt(it.value).toString()]
+            }))
           } catch (e) {
             return []
           }
         },
         'linstor_storage_pool_error_count': (d) => {
           try {
-            return d.match((/linstor_storage_pool_error_count\{node="(.+)",driver="(.+)",.+storage_pool="(.+)".+ ([0-9\.]+)/g))
-              .map(it => {
-                const m = it.match((/linstor_storage_pool_error_count\{node="(.+)",driver="(.+)",.+storage_pool="(.+)".+ ([0-9\.]+)/))
-                return {
-                  node: m[1],
-                  driver: (m[2]),
-                  storage_pool: (m[3]),
-                  state: parseInt(m[4])
-                }
-              }).filter(item => item.storage_pool !== 'DfltDisklessStorPool')
+            return d.metrics.map(it => {
+              return {
+                node: it.labels.node,
+                driver: it.labels.driver,
+                storage_pool: it.labels.storage_pool,
+                state: parseInt(it.value)
+              }
+            }).filter(item => item.storage_pool !== 'DfltDisklessStorPool')
           } catch (e) {
             return []
           }
         },
         'linstor_error_reports_count': (d) => {
           try {
-            return d.match((/linstor_error_reports_count ([0-9\.]+)/g))
+            return d.metrics
               .map(it => {
-                const m = it.match((/linstor_error_reports_count ([0-9\.]+)/))
-                return m[1]
-              })[0]
+                return {
+                  value: parseInt(it.value),
+                  hostname: it.labels ? it.labels.hostname : ''
+                }
+              })
           } catch (e) {
             return 0
           }
@@ -204,18 +187,32 @@ export default {
       }
       const showData = {}
       const result = await nodeApi.metrics()
-      result.match(/# TYPE [a-z_]+ \w+[\n\r\w\{\=\",\} \.'-]+/g)
-        .forEach(item => {
-          const key = item.match(/# TYPE ([a-z_]+)/)[1]
-          if (typeof convert[key] === 'function') {
-            showData[key] = convert[key](item)
-          }
-        })
+      const resJSON = parsePrometheusTextFormat(result)
+      console.log(resJSON, 'res')
 
-      this.panelData.error_num = parseInt(showData.linstor_error_reports_count)
-      this.panelData.node_num = showData.linstor_node_state.length
-      this.panelData.resource_num = showData.linstor_resource_state.length
-      this.panelData.volume_num = showData.linstor_volume_state.length
+      const linstor_volume_state = _.find(resJSON, { name: 'linstor_volume_state' })
+      showData.linstor_volume_state = convert.linstor_volume_state(linstor_volume_state)
+
+      const linstor_node_state = _.find(resJSON, { name: 'linstor_node_state' })
+      console.log('linstor_node_state', linstor_node_state)
+      showData.linstor_node_state = convert.linstor_node_state(linstor_node_state)
+
+      const linstor_resource_state = _.find(resJSON, { name: 'linstor_resource_state' })
+      console.log('linstor_resource_state', linstor_resource_state)
+      showData.linstor_resource_state = convert.linstor_resource_state(linstor_resource_state)
+
+      const linstor_storage_pool_error_count = _.find(resJSON, { name: 'linstor_storage_pool_error_count' })
+      console.log('linstor_storage_pool_error_count', linstor_storage_pool_error_count)
+      showData.linstor_storage_pool_error_count = convert.linstor_storage_pool_error_count(linstor_storage_pool_error_count)
+
+      const linstor_error_reports_count = _.find(resJSON, { name: 'linstor_error_reports_count' })
+      console.log(linstor_error_reports_count, 'linstor_error_reports_count')
+      showData.linstor_error_reports_count = convert.linstor_error_reports_count(linstor_error_reports_count)
+
+      this.panelData.error_num = showData.linstor_error_reports_count[0].value
+      this.panelData.node_num = linstor_node_state.metrics.length
+      this.panelData.resource_num = linstor_resource_state.metrics.length
+      this.panelData.volume_num = linstor_volume_state.metrics.length
 
       // [{ value: 4, name: 'OFFLINE' }, { value: 6, name: 'CONNECTED' }],
       this.nodeData = Object.entries(
