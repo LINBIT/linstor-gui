@@ -34,7 +34,7 @@ const lang = [
   },
   {
     key: "node_status",
-    en: "status",
+    en: "Status",
     zh: "连接状态"
   },
   {
@@ -565,8 +565,8 @@ const lang = [
   },
   {
     key: "log_detail",
-    en: "Log Detail",
-    zh: "日志详情"
+    en: "Error Report Detail",
+    zh: "错误日志详情"
   },
   {
     key: "node_num",
@@ -851,9 +851,9 @@ const lang = [
     en: "Do Not Place With"
   },
   {
-    key: "do_not_place_with_rege",
-    zh: "Do Not Place With Rege",
-    en: "Do Not Place With Rege"
+    key: "do_not_place_with_regex",
+    zh: "Do Not Place With Regex",
+    en: "Do Not Place With Regex"
   },
   {
     key: "enable",

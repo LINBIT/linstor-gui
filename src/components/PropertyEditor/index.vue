@@ -61,7 +61,7 @@
     </el-dialog>
 
     <el-dialog :title="$t('select_editor')" :visible.sync="selectPropModal">
-      <el-select v-model="selectedProps" filterable clearable placeholder="Please Select" @change="handleSelect">
+      <el-select v-model="selectedProps" filterable clearable placeholder="Please Select" size="medium" class="my_select" @change="handleSelect">
         <el-option
           v-for="item in rule.filter(el => !el.show)"
           :key="item.field"
@@ -309,5 +309,9 @@ export default {
 
 .sub-title {
   font-weight: 700;
+}
+
+.my_select {
+  min-width: 20rem;
 }
 </style>

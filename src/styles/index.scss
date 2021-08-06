@@ -189,3 +189,7 @@ aside {
 .multiselect--active {
   z-index: 1000 !important;
 }
+
+.el-scrollbar__wrap.el-select-dropdown__wrap {
+  max-height: 400px;
+}
