@@ -70,6 +70,9 @@ const en = {
     detail_title: 'Detalle del informe de errores',
     list_title: 'Lista de informes de errores',
   },
+  dashboard: {
+    title: 'Tablero',
+  },
   resource_group: {
     list: 'Lista de grupos de recursos',
     name: 'Nombre del grupo de recursos',

@@ -70,6 +70,9 @@ const en = {
     detail_title: 'Error Report Detail',
     list_title: 'Error Report List',
   },
+  dashboard: {
+    title: 'Dashboard',
+  },
   resource_group: {
     list: 'Resource Group List',
     name: 'Resource Group Name',

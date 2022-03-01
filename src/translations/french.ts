@@ -70,6 +70,9 @@ const fr = {
     detail_title: "Détails du rapport d'erreur",
     list_title: "Liste des rapports d'erreurs",
   },
+  dashboard: {
+    title: 'Tableau de bord',
+  },
   resource_group: {
     list: 'Liste des groupes de ressources',
     name: 'Nom du groupe de ressources',
