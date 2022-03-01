@@ -15,6 +15,8 @@ const en = {
     error_reports: 'Error Reports',
     disk_creation_records: 'Disk creation records',
     deploy: 'Deploy',
+    submit: 'Submit',
+    cancel: 'Cancel',
   },
   menu: {
     dashboard: 'Dashboard',
@@ -41,6 +43,7 @@ const en = {
     node_type: 'Type',
     node_status: 'Status',
     node_detail: 'Node Detail',
+    create_node: 'Create Node',
   },
   storage_pool: {
     list: 'Storage Pool List',

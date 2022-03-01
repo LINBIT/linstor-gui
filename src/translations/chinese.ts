@@ -14,6 +14,8 @@ const zh = {
     volumes: '卷',
     error_reports: '错误报告',
     disk_creation_records: '硬盘创建记录',
+    submit: '提交',
+    cancel: '取消',
   },
   menu: {
     dashboard: '概览',
@@ -44,6 +46,7 @@ const zh = {
     delete_node: '删除',
     lost_node: '强删',
     node_detail: '节点详情',
+    create_node: '创建节点',
   },
   ip_address: {
     list: 'IP 地址列表',

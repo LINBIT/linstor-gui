@@ -18,6 +18,7 @@ import {
   GridItem,
 } from '@patternfly/react-core';
 import { HelpIcon } from '@patternfly/react-icons';
+import { useTranslation } from 'react-i18next';
 
 import MultiSelect from '@app/components/DynamicForm/MultiSelect';
 import SizeInput from '@app/components/DynamicForm/SizeInput';
@@ -68,6 +69,7 @@ const DynamicForm: React.FunctionComponent<Props> = ({
   } = useForm();
 
   const [isExpanded, setIsExpanded] = useState(false);
+  const { t } = useTranslation('common');
 
   // Handle watch value
   useEffect(() => {
@@ -488,10 +490,10 @@ const DynamicForm: React.FunctionComponent<Props> = ({
       {(!isBlankForm || removable) && ( // removable means isPropertyEditor
         <ActionGroup>
           <Button variant="primary" type="submit" isLoading={submitting}>
-            Submit
+            {t('submit')}
           </Button>
           <Button variant="link" onClick={handleCancelClick}>
-            Cancel
+            {t('cancel')}
           </Button>
         </ActionGroup>
       )}

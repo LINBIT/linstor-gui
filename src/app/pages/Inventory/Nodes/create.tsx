@@ -7,10 +7,12 @@ import NodeForm from './components/NodeForm';
 import service from '@app/requests';
 
 import { NodeInfoType, NodeDTOType } from '@app/interfaces/node';
+import { useTranslation } from 'react-i18next';
 
 const NodeCreate: React.FC = () => {
   const history = useHistory();
   const [alertList, setAlertList] = useState<alertList>([]);
+  const { t } = useTranslation('node');
 
   const { loading, run } = useRequest(
     (data) => {
@@ -70,7 +72,7 @@ const NodeCreate: React.FC = () => {
   };
 
   return (
-    <PageBasic title="Create Node" alerts={alertList}>
+    <PageBasic title={t('create_node')} alerts={alertList}>
       <NodeForm handleSubmit={handleAddNode} loading={loading} />
     </PageBasic>
   );

@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import DynamicForm from '@app/components/DynamicForm';
 import { TYPE_MAP } from '@app/interfaces/dynamicFormType';
@@ -16,13 +17,14 @@ interface Props {
 
 const NodeForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, editing }) => {
   const history = useHistory();
+  const { t } = useTranslation('node');
 
   const formItems = useMemo(() => {
     return [
       {
         name: 'node',
         type: TYPE_MAP.TEXT,
-        label: 'Node Name',
+        label: t('node_name'),
         isDisabled: editing,
         defaultValue: initialVal?.node ?? '',
         validationInfo: {
@@ -34,7 +36,7 @@ const NodeForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, editing 
       {
         name: 'ip',
         type: TYPE_MAP.TEXT,
-        label: 'Default Ip',
+        label: t('default_ip'),
         defaultValue: initialVal?.ip ?? '',
         validationInfo: {
           isRequired: true,
@@ -45,7 +47,7 @@ const NodeForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, editing 
       {
         name: 'port',
         type: TYPE_MAP.INTEGER,
-        label: 'Default Port',
+        label: t('default_port'),
         defaultValue: initialVal?.port || '3366',
         validationInfo: {
           isRequired: true,
@@ -54,7 +56,7 @@ const NodeForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, editing 
         },
       },
     ].map((e) => ({ ...e, id: uniqId() }));
-  }, [initialVal, editing]);
+  }, [t, editing, initialVal?.node, initialVal?.ip, initialVal?.port]);
 
   return (
     <DynamicForm
