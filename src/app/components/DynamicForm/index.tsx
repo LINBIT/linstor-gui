@@ -89,6 +89,11 @@ const DynamicForm: React.FunctionComponent<Props> = ({
     console.log('submitting', data);
     console.log('extra', extra);
 
+    // prevent sending request when double click
+    if (submitting) {
+      return;
+    }
+
     if (extra && Object.keys(extra as any).length > 0) {
       handleSubmitData({ ...data, ...extra });
     } else {

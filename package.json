@@ -86,6 +86,7 @@
     "@patternfly/react-styles": "^4.10.11",
     "@patternfly/react-table": "^4.29.0",
     "@rematch/core": "^2.1.0",
+    "@rematch/loading": "^2.1.2",
     "@storybook/builder-webpack5": "^6.2.9",
     "ahooks": "^2.10.9",
     "axios": "^0.21.1",

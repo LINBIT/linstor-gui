@@ -27,7 +27,6 @@ const PageBasic: React.FC<PropsWithChildren<Props>> = ({ alerts, loading, error,
   // handle alert
   useEffect(() => {
     if (alerts) {
-      console.log('render...');
       setAlertList(alerts);
     }
   }, [alerts]);

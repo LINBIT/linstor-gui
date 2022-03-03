@@ -2,17 +2,13 @@ import service from '@app/requests';
 import { createModel } from '@rematch/core';
 import { RootModel } from '.';
 
-import axios from 'axios';
-
-const LINSTOR = 'LINSTOR';
-
-type NodeItem = {
-  name: string;
-};
+import { NodeItem, NodeInfoType } from '@app/interfaces/node';
+import { AlertType } from '@app/interfaces/error';
 
 type NodeState = {
-  list: Array<NodeItem>;
+  list: NodeItem[];
   pageInfo: PageInfo;
+  alerts: AlertType[];
 };
 
 type PageInfo = {
@@ -29,6 +25,7 @@ export const node = createModel<RootModel>()({
       pageSize: 10,
       currentPage: 1,
     },
+    alerts: [],
   } as NodeState, // initial state
   reducers: {
     // handle state changes with pure functions
@@ -36,6 +33,13 @@ export const node = createModel<RootModel>()({
       return {
         ...state,
         ...payload,
+      };
+    },
+    // handle request error
+    setErrorList(state, payload: AlertType[]) {
+      return {
+        ...state,
+        error: payload,
       };
     },
   },
@@ -58,15 +62,29 @@ export const node = createModel<RootModel>()({
           currentPage: payload.page,
           pageSize: payload.pageSize,
         },
+        alerts: [],
       });
     },
-    async createNode(payload: { page: number; pageSize: number }, state) {
+    async createNode(payload: NodeInfoType, state) {
+      dispatch.node.setErrorList([]);
       try {
-        const res = await service.post('/v1/nodes', { ...payload });
-
-        console.log(res, 'createNode');
+        const data = {
+          name: payload.node,
+          type: 'SATELLITE',
+          net_interfaces: [
+            {
+              name: 'default',
+              address: payload.ip,
+              satellite_port: Number(payload.port),
+              satellite_encryption_type: 'Plain',
+              is_active: true,
+            },
+          ],
+        };
+        await service.post('/v1/nodes', { ...data });
       } catch (error) {
-        console.log(error, '....');
+        console.log(error, 'error....');
+        dispatch.node.setErrorList(error as AlertType[]);
       }
     },
   }),

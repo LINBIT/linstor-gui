@@ -252,13 +252,13 @@ const routes: AppRouteConfig[] = [
     path: '/error-reports/:id',
     title: 'Linstor | Error Report Detail',
   },
-  // {
-  //   component: GeneralSettings,
-  //   exact: true,
-  //   path: '/settings',
-  //   label: 'settings',
-  //   title: 'Linstor | Setting',
-  // },
+  {
+    component: GeneralSettings,
+    exact: true,
+    path: '/settings',
+    label: 'settings',
+    title: 'Linstor | Setting',
+  },
 ];
 
 // a custom hook for sending focus to the primary content container

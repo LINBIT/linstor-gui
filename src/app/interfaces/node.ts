@@ -1,3 +1,5 @@
+import { NetInterfaceType } from '@app/interfaces/net_interface';
+
 const nodeListRes = [
   {
     name: 'node51',
@@ -57,18 +59,12 @@ const NodeTypeData = {
   ],
 };
 
-const interfaceData = [
-  {
-    name: 'default',
-    address: '192.168.124.1',
-    satellite_port: 3366,
-    satellite_encryption_type: 'PLAIN',
-    is_active: true,
-    uuid: 'ec8669b1-dd09-4a18-82af-ace06c36a47d',
-  },
-];
-
-export type NetInterfaceType = typeof interfaceData;
 export type NodeInfoType = { node: string; ip: string; port: number | string };
 export type NodeDTOType = typeof NodeTypeData;
 export type TNodeListType = typeof nodeListRes;
+
+export type NodeItem = {
+  name: string;
+  type: string;
+  net_interfaces: NetInterfaceType[];
+};

@@ -34,6 +34,7 @@ const en = {
     remotes: 'Remotes',
     linstor: 'Linstor',
     s3: 'S3',
+    settings: 'Settings',
   },
   node: {
     node_list: 'Node List',
