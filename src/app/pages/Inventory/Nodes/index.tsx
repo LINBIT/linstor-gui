@@ -11,8 +11,8 @@ import PageBasic from '@app/components/PageBasic';
 import service from '@app/requests';
 import PropertyForm from '@app/components/PropertyForm';
 import { omit } from '@app/utils/object';
-import { useDispatch } from 'react-redux';
-import { Dispatch } from '@app/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { Dispatch, RootState } from '@app/store';
 
 const NodeList: React.FunctionComponent = () => {
   const { t } = useTranslation(['node', 'common']);
@@ -27,6 +27,12 @@ const NodeList: React.FunctionComponent = () => {
   // useEffect(() => {
   //   dispatch.node.getNodeList({ page: 1, pageSize: 10 });
   // }, [dispatch.node]);
+
+  // get loading state and alerts from Redux
+  const { deleting, toast } = useSelector((state: RootState) => ({
+    deleting: state.loading.effects.node.deleteNode,
+    toast: state.notification.toast,
+  }));
 
   // handle batch delete or lost
   const batchSuccessHandler = useCallback(
@@ -177,10 +183,10 @@ const NodeList: React.FunctionComponent = () => {
     },
     {
       title: t('common:delete'),
-      onClick: (event, rowId, rowData, extra) => {
+      onClick: async (event, rowId, rowData, extra) => {
         console.log('clicked on Some action, on row: ', rowData);
         const node = rowData.cells[0];
-        deleteNode(node);
+        dispatch.node.deleteNode([node]);
       },
     },
     {
@@ -245,7 +251,7 @@ const NodeList: React.FunctionComponent = () => {
   }, [deleteNode, fetchList, history, lostNode, t]);
 
   return (
-    <PageBasic title={t('node_list')} alerts={alertList}>
+    <PageBasic title={t('node_list')} alerts={toast} loading={deleting}>
       <FilterList
         url="/v1/nodes"
         showFilter

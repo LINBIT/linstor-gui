@@ -6,7 +6,7 @@ import Dashboard from '@app/pages/Dashboard/Dashboard';
 
 import NodeList from '@app/pages/Inventory/Nodes';
 import NodeDetail from '@app/pages/Inventory/Nodes/detail';
-import { NodeCreate } from '@app/pages/Inventory/Nodes/create';
+import NodeCreate from '@app/pages/Inventory/Nodes/create';
 import NodeEdit from '@app/pages/Inventory/Nodes/edit';
 
 import StoragePoolList from '@app/pages/Inventory/StoragePools';
@@ -66,7 +66,6 @@ const routes: AppRouteConfig[] = [
   {
     component: Dashboard,
     exact: true,
-    label: 'dashboard',
     path: '/',
     title: 'Linstor | Main Dashboard',
   },

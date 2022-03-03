@@ -1,6 +1,5 @@
 import React from 'react';
 import { Alert, AlertGroup, AlertActionCloseButton, AlertVariant } from '@patternfly/react-core';
-
 interface Props {
   alerts?: Array<{ title: string; variant: string; key: string }>;
   handleCloseAlert?: (key: string) => void;

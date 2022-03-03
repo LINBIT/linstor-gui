@@ -3,12 +3,11 @@ import { createModel } from '@rematch/core';
 import { RootModel } from '.';
 
 import { NodeItem, NodeInfoType } from '@app/interfaces/node';
-import { AlertType } from '@app/interfaces/error';
+import { AlertType } from '@app/interfaces/alert';
 
 type NodeState = {
   list: NodeItem[];
   pageInfo: PageInfo;
-  alerts: AlertType[];
 };
 
 type PageInfo = {
@@ -25,7 +24,6 @@ export const node = createModel<RootModel>()({
       pageSize: 10,
       currentPage: 1,
     },
-    alerts: [],
   } as NodeState, // initial state
   reducers: {
     // handle state changes with pure functions
@@ -33,13 +31,6 @@ export const node = createModel<RootModel>()({
       return {
         ...state,
         ...payload,
-      };
-    },
-    // handle request error
-    setErrorList(state, payload: AlertType[]) {
-      return {
-        ...state,
-        error: payload,
       };
     },
   },
@@ -62,11 +53,15 @@ export const node = createModel<RootModel>()({
           currentPage: payload.page,
           pageSize: payload.pageSize,
         },
-        alerts: [],
       });
     },
-    async createNode(payload: NodeInfoType, state) {
-      dispatch.node.setErrorList([]);
+    async createNode(payload: NodeInfoType) {
+      // indicate create success or not
+      let res = false;
+
+      // reset alerts
+      dispatch.notification.setNotificationList([]);
+
       try {
         const data = {
           name: payload.node,
@@ -81,10 +76,32 @@ export const node = createModel<RootModel>()({
             },
           ],
         };
-        await service.post('/v1/nodes', { ...data });
+
+        const result = await service.post('/v1/nodes', { ...data });
+
+        dispatch.notification.setNotificationList(result.data as AlertType[]);
+
+        res = true;
       } catch (error) {
-        console.log(error, 'error....');
-        dispatch.node.setErrorList(error as AlertType[]);
+        dispatch.notification.setNotificationList(error as AlertType[]);
+        res = false;
+      }
+
+      return res;
+    },
+    async deleteNode(payload: string[], state) {
+      try {
+        for (const node of payload) {
+          const res = await service.delete(`/v1/nodes/${node}`);
+          dispatch.notification.setNotificationList(res.data);
+        }
+
+        dispatch.node.getNodeList({
+          page: state.node.pageInfo.currentPage,
+          pageSize: state.node.pageInfo.pageSize,
+        });
+      } catch (error) {
+        dispatch.notification.setNotificationList(error as AlertType[]);
       }
     },
   }),
