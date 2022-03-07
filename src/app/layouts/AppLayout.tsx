@@ -21,6 +21,8 @@ import ConnectStatus from './components/ConnectStatus';
 import LngSelector from './components/LngSelector';
 
 import { useTranslation } from 'react-i18next';
+import { ToastContainer } from 'react-toastify';
+
 import './AppLayout.css';
 
 interface IAppLayout {
@@ -125,15 +127,29 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   );
 
   return (
-    <Page
-      mainContainerId={pageId}
-      header={Header}
-      sidebar={Sidebar}
-      onPageResize={onPageResize}
-      skipToContent={PageSkipToContent}
-    >
-      {children}
-    </Page>
+    <>
+      <Page
+        mainContainerId={pageId}
+        header={Header}
+        sidebar={Sidebar}
+        onPageResize={onPageResize}
+        skipToContent={PageSkipToContent}
+      >
+        {children}
+      </Page>
+
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+    </>
   );
 };
 

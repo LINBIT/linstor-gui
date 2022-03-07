@@ -32,6 +32,7 @@ const zh = {
     volumes: '卷',
     remotes: '远端',
     linstor: 'Linstor',
+    settings: '设置',
   },
   node: {
     node_list: '节点列表',
