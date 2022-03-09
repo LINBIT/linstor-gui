@@ -4,6 +4,7 @@ import { RootModel } from '.';
 
 import { NodeItem, NodeInfoType } from '@app/interfaces/node';
 import { AlertType } from '@app/interfaces/alert';
+import { notify } from '@app/utils/toast';
 
 type NodeState = {
   list: NodeItem[];
@@ -83,7 +84,16 @@ export const node = createModel<RootModel>()({
 
         res = true;
       } catch (error) {
-        dispatch.notification.setNotificationList(error as AlertType[]);
+        console.log(error, '??');
+
+        if (Array.isArray(error)) {
+          for (const item of error) {
+            notify(String(item.message), {
+              type: 'error',
+            });
+          }
+        }
+
         res = false;
       }
 

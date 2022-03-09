@@ -31,15 +31,12 @@ import ErrorReportList from '@app/pages/ErrorReport/index';
 import ErrorReportDetail from '@app/pages/ErrorReport/Detail';
 import ControllerList from '@app/pages/Inventory/Controller';
 
-import LinstorList from '@app/pages/Remotes/Linstor';
-
-import NFSList from '@app/pages/Gateway/nfs';
-
 import { NotFound } from '@app/pages/NotFound/NotFound';
 import GeneralSettings from '@app/pages/Settings/General/GeneralSettings';
 import { useDocumentTitle } from '@app/utils/useDocumentTitle';
 
 import { LastLocationProvider, useLastLocation } from 'react-router-last-location';
+import gateway from './gateway';
 
 let routeFocusTimer: number;
 
@@ -53,11 +50,13 @@ export interface IAppRoute {
   title: string;
   isAsync?: boolean;
   routes?: undefined;
+  hide?: boolean;
 }
 
 export interface IAppRouteGroup {
   label: string;
   routes: IAppRoute[];
+  hide?: boolean;
 }
 
 export type AppRouteConfig = IAppRoute | IAppRouteGroup;
@@ -224,18 +223,7 @@ const routes: AppRouteConfig[] = [
   //     },
   //   ],
   // },
-  // {
-  //   label: 'gateway',
-  //   routes: [
-  //     {
-  //       component: NFSList,
-  //       exact: true,
-  //       label: 'nfs',
-  //       path: '/gateway/nfs',
-  //       title: 'Linstor | NFS',
-  //     },
-  //   ],
-  // },
+  ...gateway,
   {
     component: ErrorReportList,
     exact: true,
@@ -291,10 +279,9 @@ const PageNotFound = ({ title }: { title: string }) => {
   return <Route component={NotFound} />;
 };
 
-const flattenedRoutes: IAppRoute[] = routes.reduce(
-  (flattened, route) => [...flattened, ...(route.routes ? route.routes : [route])],
-  [] as IAppRoute[]
-);
+const flattenedRoutes: IAppRoute[] = routes
+  .reduce((flattened, route) => [...flattened, ...(route.routes ? route.routes : [route])], [] as IAppRoute[])
+  .filter((e) => !e.hide);
 
 const AppRoutes = (): React.ReactElement => (
   <LastLocationProvider>

@@ -15,8 +15,10 @@ const GeneralSettings: React.FC = () => {
   };
 
   useEffect(() => {
-    // Check Gateway Status
-    // dispatch.setting.getGatewayStatus();
+    // Check Settings from Linstor Key-Value-Store
+    dispatch.setting.getSettings();
+    // check if Gateway is available
+    dispatch.setting.getGatewayStatus();
   }, [dispatch.setting]);
 
   return (
@@ -26,9 +28,6 @@ const GeneralSettings: React.FC = () => {
           <Gateway />
         </Tab>
       </Tabs>
-      <div className="">
-        <Button variant="primary">Save</Button>
-      </div>
     </PageBasic>
   );
 };

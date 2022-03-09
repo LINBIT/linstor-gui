@@ -1,5 +1,8 @@
 import * as React from 'react';
 import { NavLink, useLocation, useHistory } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { ToastContainer } from 'react-toastify';
+
 import {
   Nav,
   NavList,
@@ -14,14 +17,12 @@ import {
   PageHeaderToolsItem,
 } from '@patternfly/react-core';
 import { routes, IAppRoute, IAppRouteGroup } from '@app/routes/routes';
-import logo from '@app/bgimages/Linbit_Logo_White-1.png';
 
 import HeaderAboutModal from './components/HeaderAboutModal';
 import ConnectStatus from './components/ConnectStatus';
 import LngSelector from './components/LngSelector';
 
-import { useTranslation } from 'react-i18next';
-import { ToastContainer } from 'react-toastify';
+import logo from '@app/bgimages/Linbit_Logo_White-1.png';
 
 import './AppLayout.css';
 
@@ -102,9 +103,9 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const Navigation = (
     <Nav id="nav-primary-simple" theme="dark">
       <NavList id="nav-list-simple">
-        {routes.map(
-          (route, idx) => route.label && (!route.routes ? renderNavItem(route, idx) : renderNavGroup(route, idx))
-        )}
+        {routes
+          .filter((e) => !e.hide)
+          .map((route, idx) => route.label && (!route.routes ? renderNavItem(route, idx) : renderNavGroup(route, idx)))}
       </NavList>
     </Nav>
   );
