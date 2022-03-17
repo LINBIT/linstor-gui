@@ -133,6 +133,9 @@ const en = {
   linstor: {
     list: 'Linstor List',
   },
+  iscsi: {
+    list: 'iSCSI List',
+  },
 };
 
 export default en;
