@@ -1,19 +1,17 @@
+import { ISCSI } from '@app/interfaces/iscsi';
 import service from '@app/requests';
 import { createModel } from '@rematch/core';
 import { RootModel } from '.';
 
-type Item = {
-  name: string;
-};
-
 type Data = {
   total: number;
-  list: Array<Item>;
+  list: ISCSI[];
 };
 
 export const iscsi = createModel<RootModel>()({
   state: {
     total: 0,
+    list: [],
   } as Data, // initial state
   reducers: {
     // handle state changes with pure functions
