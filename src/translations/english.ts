@@ -135,6 +135,10 @@ const en = {
   },
   iscsi: {
     list: 'iSCSI List',
+    create: 'iSCSI Create',
+    iqn: 'IQN',
+    resource_group: 'Resource Group',
+    service_ips: 'Service IP',
   },
 };
 
