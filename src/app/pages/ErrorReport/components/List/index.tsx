@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   Button,
   OverflowMenu,
@@ -20,9 +20,11 @@ interface Prop {
     onSetPerPage: (perPage: number) => void;
   };
   dataList: Array<any>;
+  onDelete: (id: string) => void;
+  onView: (id: string) => void;
 }
 
-export const SimpleList: React.FunctionComponent<Prop> = ({ pagination, dataList }) => {
+export const SimpleList: React.FunctionComponent<Prop> = ({ pagination, dataList, onDelete, onView }) => {
   const [perPage, setPerPage] = useState(pagination ? pagination.perPage : 10);
   const [page, setPage] = useState(pagination ? pagination.page : 1);
   const { t } = useTranslation(['error_report', 'common']);
@@ -36,8 +38,11 @@ export const SimpleList: React.FunctionComponent<Prop> = ({ pagination, dataList
     action: t('error_report:action'),
   };
 
-  // handle pagination
   const listShow = useMemo(() => dataList.slice((page - 1) * perPage, page * perPage), [dataList, page, perPage]);
+
+  const getId = useCallback((report) => {
+    return report.filename.replace('ErrorReport-', '').replace('.log', '');
+  }, []);
 
   return (
     <>
@@ -61,10 +66,14 @@ export const SimpleList: React.FunctionComponent<Prop> = ({ pagination, dataList
                   <OverflowMenuContent>
                     <OverflowMenuGroup groupType="button">
                       <OverflowMenuItem>
-                        <Button variant="primary">View</Button>
+                        <Button variant="primary" onClick={() => onView(getId(report))}>
+                          {t('common:view')}
+                        </Button>
                       </OverflowMenuItem>
                       <OverflowMenuItem>
-                        <Button variant="danger">Delete</Button>
+                        <Button variant="danger" onClick={() => onDelete(getId(report))}>
+                          {t('common:delete')}
+                        </Button>
                       </OverflowMenuItem>
                     </OverflowMenuGroup>
                   </OverflowMenuContent>

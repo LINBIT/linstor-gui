@@ -1,89 +1,68 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
-import { useRequest } from 'ahooks';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { Alert, AlertActionCloseButton } from '@patternfly/react-core';
-import { headerCol, ICell } from '@patternfly/react-table';
 
-import FilterList from '@app/components/FilterList';
 import PageBasic from '@app/components/PageBasic';
-import { ErrorReportType } from '@app/interfaces/errorReports';
-import { formatTime } from '@app/utils/time';
+import { Dispatch, RootState } from '@app/store';
+import { SimpleList } from './components/List';
 
 const ErrorReportList: React.FunctionComponent = () => {
   const { t } = useTranslation(['error_report', 'common']);
-  const [fetchList, setFetchList] = useState(false);
   const history = useHistory();
-  const [alertShow, setAlertShow] = useState(false);
+  const dispatch = useDispatch<Dispatch>();
 
-  const { run: deleteReport } = useRequest(
-    (reportid) => ({
-      url: `/v1/error-reports/${reportid}`,
-      method: 'delete',
-    }),
-    {
-      manual: true,
-      onSuccess: () => {
-        setAlertShow(true);
-        setFetchList(!fetchList);
-      },
-    }
+  // read error report list from store
+  const { list, pageInfo } = useSelector((state: RootState) => ({
+    list: state.report.list,
+    pageInfo: state.report.pageInfo,
+  }));
+
+  // get list
+  useEffect(() => {
+    dispatch.report.getReportList({ page: 1, pageSize: 10 });
+  }, [dispatch]);
+
+  // handle click on delete button
+  const handleDelete = useCallback(
+    (id: string) => {
+      dispatch.report.deleteReport([id]);
+    },
+    [dispatch.report]
   );
 
-  const columns = [
-    { title: t('error_report:name'), cellTransforms: [headerCol()] },
-    { title: t('error_report:time') },
-    { title: t('error_report:message') },
-    { title: t('error_report:action') },
-  ];
-
-  const cells = (item: unknown) => {
-    const errorReport = item as ErrorReportType;
-    const name = errorReport?.filename.replace('ErrorReport-', '').replace('.log', '');
-
-    return [name, formatTime(errorReport.error_time), errorReport?.exception_message] as ICell[];
-  };
-
-  const listActions = [
-    {
-      title: t('common:view'),
-      onClick: (event, rowId, rowData, extra) => {
-        const errorReport = rowData.cells[0];
-        history.push(`/error-reports/${errorReport}`);
-      },
+  // handle click on view button
+  const handleView = useCallback(
+    (id) => {
+      history.push(`/error-reports/${id}`);
     },
-    {
-      title: t('common:delete'),
-      onClick: (event, rowId, rowData, extra) => {
-        console.log('clicked on Some action, on row: ', rowData);
-        const errorReport = rowData.cells[0];
-        deleteReport(errorReport);
+    [history]
+  );
+
+  // prepare pagination
+  const paginationInfo = useMemo(() => {
+    return {
+      total: pageInfo.total,
+      page: pageInfo.currentPage,
+      perPage: pageInfo.pageSize,
+      onSetPage: function (page: number): void {
+        dispatch.report.setPageInfo({
+          ...pageInfo,
+          currentPage: page,
+        });
       },
-    },
-  ];
+      onSetPerPage: function (perPage: number): void {
+        dispatch.report.setPageInfo({
+          ...pageInfo,
+          pageSize: perPage,
+        });
+      },
+    };
+  }, [dispatch.report, pageInfo]);
 
   return (
     <PageBasic title={t('list_title')}>
-      {alertShow && (
-        <Alert
-          variant="success"
-          title="Success"
-          isInline
-          isLiveRegion
-          actionClose={<AlertActionCloseButton onClose={() => setAlertShow(false)} />}
-        />
-      )}
-
-      <FilterList
-        showSearch={false}
-        showFilter={false}
-        url="/v1/error-reports"
-        actions={listActions}
-        fetchList={fetchList}
-        columns={columns}
-        cells={cells}
-        statsUrl="/v1/stats/error-reports"
-      />
+      <SimpleList pagination={paginationInfo} dataList={list} onDelete={handleDelete} onView={handleView} />
     </PageBasic>
   );
 };

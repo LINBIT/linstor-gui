@@ -4,6 +4,7 @@ import { node } from './node';
 import { setting } from './setting';
 import { notification } from './notification';
 import { iscsi } from './iscsi';
+import { report } from './report';
 
 export interface RootModel extends Models<RootModel> {
   nfs: typeof nfs;
@@ -11,6 +12,7 @@ export interface RootModel extends Models<RootModel> {
   setting: typeof setting;
   notification: typeof notification;
   iscsi: typeof iscsi;
+  report: typeof report;
 }
 
-export const models: RootModel = { nfs, node, setting, notification, iscsi };
+export const models: RootModel = { nfs, node, setting, notification, iscsi, report };
