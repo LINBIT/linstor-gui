@@ -119,27 +119,50 @@ const List: React.FunctionComponent = () => {
     return failStr;
   }, []);
 
+  const getVolumeCellState = (vlm_state, rsc_flags, vlm_flags) => {
+    const state_prefix = vlm_flags.indexOf('RESIZE') > -1 ? 'Resizing, ' : '';
+    let state = state_prefix + 'Unknown';
+    if (vlm_state && vlm_state.disk_state) {
+      const disk_state = vlm_state.disk_state;
+      if (disk_state == 'DUnknown') {
+        state = state_prefix + 'Unknown';
+      } else if (disk_state == 'Diskless') {
+        if (!rsc_flags.includes('DISKLESS')) {
+          state = state_prefix + disk_state;
+        } else if (rsc_flags.includes('TIE_BREAKER')) {
+          state = 'TieBreaker';
+        } else {
+          state = state_prefix + disk_state;
+        }
+      } else {
+        state = state_prefix + disk_state;
+      }
+    }
+    return state;
+  };
+
   const handleResourceStateDisplay = useCallback((resourceItem: ResourceListType[0]) => {
-    let stateStr = '';
+    let stateStr = 'Unknown';
     const flags = resourceItem.flags || [];
+    const rsc_state_obj = resourceItem.state || {};
+    const volumes = resourceItem.volumes || [];
 
     if (flags.includes('DELETE')) {
       stateStr = 'DELETING';
     } else if (flags.includes('INACTIVE')) {
       stateStr = 'INACTIVE';
-    } else if (resourceItem?.state?.in_use) {
-      // TODO: i18n
-      stateStr = 'InUse';
-    } else {
-      stateStr = 'Unused';
-      const disk_state = get(resourceItem, 'volumes[0].state.disk_state', '');
-      if (disk_state === 'Diskless') {
-        if (flags.includes('TIE_BREAKER')) {
-          return null;
+    } else if (rsc_state_obj) {
+      if (typeof rsc_state_obj.in_use !== 'undefined') {
+        for (let i = 0; i < volumes.length; ++i) {
+          const volume = volumes[i];
+          const vlm_state = volume.state || {};
+          const vlm_flags = volume.flags || [];
+          stateStr = getVolumeCellState(vlm_state, flags, vlm_flags);
+
+          if (flags.includes('EVACUATE')) {
+            stateStr += ', Evacuating';
+          }
         }
-        stateStr = disk_state;
-      } else if (disk_state !== '') {
-        stateStr = disk_state;
       }
     }
 
