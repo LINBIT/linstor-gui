@@ -1,5 +1,6 @@
 PROG := linstor-gui
 DESTDIR =
+NODEVERSION = 14
 
 ifndef VERSION
 checkVERSION:
@@ -38,6 +39,6 @@ debrelease: checkVERSION build
 .PHONY: debrelease-docker
 debrelease-docker: checkVERSION ## build a release in a node container
 	tmpdir=$$(mktemp -d) && \
-	docker run -it --rm -v $(PWD):/src:ro -v $$tmpdir:/out node:lts /bin/bash -c \
+	docker run -it --rm -v $(PWD):/src:ro -v $$tmpdir:/out node:$(NODEVERSION) /bin/bash -c \
 		'install /dev/null /usr/local/bin/lbvers.py && cd $$HOME && cp -r /src . && cd ./src && make debrelease VERSION=$(VERSION) && cp $(PROG)-$(VERSION).tar.gz /out' && \
 	mv $$tmpdir/*.tar.gz . && echo "rm -rf $$tmpdir"
