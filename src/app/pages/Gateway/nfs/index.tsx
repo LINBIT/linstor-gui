@@ -9,7 +9,7 @@ const List: React.FunctionComponent = () => {
   const dispatch = useDispatch<Dispatch>();
 
   useEffect(() => {
-    dispatch.nfs.getNFSList({ page: 1, pageSize: 10 });
+    dispatch.nfs.getList({ page: 1, pageSize: 10 });
   }, [dispatch.nfs]);
 
   return <PageBasic title={t('linstor:list')} alerts={[]}></PageBasic>;

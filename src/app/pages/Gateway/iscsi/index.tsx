@@ -41,7 +41,7 @@ const List: React.FunctionComponent = () => {
   console.log(list, 'list...');
 
   return (
-    <PageBasic title={t('iscsi:list')} alerts={[]}>
+    <PageBasic title={t('iscsi:list')}>
       <Button variant="primary" onClick={createISCSI}>
         Create
       </Button>

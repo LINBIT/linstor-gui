@@ -31,7 +31,7 @@ interface Props {
   handleCancelClick?: () => void;
   submitting?: boolean;
   editing?: boolean;
-  initialVal?: { [key: string]: string };
+  initialVal?: { [key: string]: any };
   isHorizontal?: boolean;
   isWidthLimited?: boolean;
   hasAdvancedItems?: boolean;
