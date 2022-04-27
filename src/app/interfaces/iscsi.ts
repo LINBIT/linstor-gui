@@ -38,4 +38,6 @@ const item = {
   },
 };
 
-export type ISCSI = typeof item;
+export type ISCSI = typeof item & {
+  deleting?: boolean;
+};

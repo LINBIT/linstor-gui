@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import DynamicForm from '@app/components/DynamicForm';
 import { TYPE_MAP } from '@app/interfaces/dynamicFormType';
 import { uniqId } from '@app/utils/stringUtils';
+import { convertRoundUp, sizeOptions } from '@app/utils/size';
 
 type ISCSIType = {
   iqn: string;
@@ -63,14 +64,33 @@ const ISCSIForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, editing
           invalidMessage: 'Please provide default service IP',
         },
       },
+      {
+        name: 'size',
+        type: TYPE_MAP.SIZE,
+        label: t('size'),
+        defaultValue: initialVal?.size,
+        extraInfo: {
+          options: sizeOptions.map((e) => ({ ...e, isDisabled: false })),
+        },
+        validationInfo: {
+          isRequired: true,
+          min: 1,
+        },
+      },
     ].map((e) => ({ ...e, id: uniqId() }));
   }, [t, editing, initialVal]);
+
+  const handleData = (data) => {
+    console.log(data, 'data');
+    const size = convertRoundUp(data.size.unit, data.size.number);
+    handleSubmit({ ...data, service_ips: [data.service_ips], volumes: [{ number: 1, size_kib: size }] });
+  };
 
   return (
     <DynamicForm
       initialVal={initialVal}
       submitting={loading}
-      handleSubmitData={(data) => handleSubmit(data)}
+      handleSubmitData={handleData}
       formItems={formItems}
       handleCancelClick={() => history.push('/gateway/iscsi')}
     />

@@ -6,7 +6,7 @@ import { Button } from '@patternfly/react-core';
 import { Dispatch, RootState } from '@app/store';
 import PageBasic from '@app/components/PageBasic';
 
-import { ComposableTableSortableCustom } from './List';
+import { ISCSIList } from './List';
 import { useHistory } from 'react-router-dom';
 
 const List: React.FunctionComponent = () => {
@@ -24,18 +24,15 @@ const List: React.FunctionComponent = () => {
   }, [dispatch.iscsi]);
 
   const createISCSI = () => {
-    // dispatch.iscsi.createISCSI({
-    //   iqn: 'iqn.2019-08.com.linbit:example',
-    //   resource_group: 'my-rg',
-    //   volumes: [
-    //     {
-    //       number: 1,
-    //       size_kib: 1024,
-    //     },
-    //   ],
-    //   service_ips: ['192.168.122.181/24'],
-    // });
     history.push(`/gateway/iscsi/create`);
+  };
+
+  const handleDelete = (iqn: string) => {
+    dispatch.iscsi.deleteISCSI(iqn);
+  };
+
+  const handleStart = (iqn: string) => {
+    dispatch.iscsi.startISCSI(iqn);
   };
 
   console.log(list, 'list...');
@@ -45,7 +42,7 @@ const List: React.FunctionComponent = () => {
       <Button variant="primary" onClick={createISCSI}>
         Create
       </Button>
-      <ComposableTableSortableCustom list={list} />
+      <ISCSIList list={list} handleDelete={handleDelete} handleStart={handleStart} />
     </PageBasic>
   );
 };

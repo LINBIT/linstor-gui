@@ -1,15 +1,27 @@
 import React from 'react';
 import { TableComposable, Thead, Tr, Th, Tbody, Td, ThProps } from '@patternfly/react-table';
-import { Label } from '@patternfly/react-core';
+import { Button, Label } from '@patternfly/react-core';
+import styled from 'styled-components';
 import InfoCircleIcon from '@patternfly/react-icons/dist/esm/icons/info-circle-icon';
 
 import { ISCSI } from '@app/interfaces/iscsi';
 
 interface Data {
   list: ISCSI[];
+  handleDelete: (iqn: string) => void;
+  handleStart: (iqn: string) => void;
 }
 
-export const ComposableTableSortableCustom: React.FunctionComponent<Data> = ({ list }) => {
+const Wrapper = styled.div`
+  padding: 2em 0;
+  display: flex;
+
+  button:not(:last-child) {
+    margin-right: 1em;
+  }
+`;
+
+export const ISCSIList: React.FC<Data> = ({ list, handleDelete, handleStart }) => {
   const columnNames = {
     iqn: 'IQN',
     service_ip: 'Service IP',
@@ -26,6 +38,7 @@ export const ComposableTableSortableCustom: React.FunctionComponent<Data> = ({ l
             <Th>{columnNames.service_ip}</Th>
             <Th>{columnNames.serice_state}</Th>
             <Th>{columnNames.linstor_state}</Th>
+            <Td></Td>
           </Tr>
         </Thead>
         <Tbody>
@@ -43,6 +56,16 @@ export const ComposableTableSortableCustom: React.FunctionComponent<Data> = ({ l
                   {item.status.state}
                 </Label>
               </Th>
+              <Td isActionCell>
+                <Wrapper>
+                  <Button variant="primary" onClick={() => handleStart(item.iqn)}>
+                    Start
+                  </Button>
+                  <Button variant="danger" isDisabled={item.deleting} onClick={() => handleDelete(item.iqn)}>
+                    {item.deleting ? 'Deleting...' : 'Delete'}
+                  </Button>
+                </Wrapper>
+              </Td>
             </Tr>
           ))}
         </Tbody>

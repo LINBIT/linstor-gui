@@ -74,8 +74,26 @@ export const iscsi = createModel<RootModel>()({
     // Delete ISCSI
     async deleteISCSI(payload: string, state) {
       try {
+        dispatch.iscsi.setISCSIList({
+          total: state.iscsi.total - 1,
+          list: state.iscsi.list.map((item) => {
+            if (item.iqn === payload) {
+              return {
+                ...item,
+                deleting: true,
+              };
+            }
+            return item;
+          }),
+        });
         const res = await service.delete(`/api/v2/iscsi/${payload}`);
         console.log(res, 'res');
+        if (res.status === 200) {
+          notify('Deleted Successfully', {
+            type: 'success',
+          });
+          dispatch.iscsi.getList({});
+        }
       } catch (error) {
         console.log(error, 'error');
         notify(String(error.message), {
@@ -88,6 +106,12 @@ export const iscsi = createModel<RootModel>()({
       try {
         const res = await service.post(`/api/v2/iscsi/${payload}/start`);
         console.log(res, 'res');
+        if (res.status === 200) {
+          notify('Started Successfully', {
+            type: 'success',
+          });
+          dispatch.iscsi.getList({});
+        }
       } catch (error) {
         console.log(error, 'error');
         notify(String(error.message), {
