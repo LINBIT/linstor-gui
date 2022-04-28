@@ -1,28 +1,25 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Modal, ModalVariant, Button } from '@patternfly/react-core';
 
-const ActionConfirm = ({ handleDelete }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleModalToggle = () => {
-    setIsModalOpen(!isModalOpen);
-  };
-
+const ActionConfirm = ({ onConfirm, onCancel, isModalOpen }) => {
   return (
     <React.Fragment>
-      <Button variant="danger" onClick={handleDelete}>
-        Delete
-      </Button>
       <Modal
         variant={ModalVariant.small}
-        title="Small modal header"
+        title="Confirm"
         isOpen={isModalOpen}
-        onClose={handleModalToggle}
+        onClose={onCancel}
         actions={[
-          <Button key="confirm" variant="primary" onClick={handleModalToggle}>
+          <Button
+            key="confirm"
+            variant="danger"
+            onClick={() => {
+              onConfirm();
+            }}
+          >
             Confirm
           </Button>,
-          <Button key="cancel" variant="link" onClick={handleModalToggle}>
+          <Button key="cancel" variant="link" onClick={onCancel}>
             Cancel
           </Button>,
         ]}

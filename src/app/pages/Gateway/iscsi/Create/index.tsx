@@ -11,6 +11,7 @@ import ISCSIForm from '../Form';
 const CreateISCSI: React.FunctionComponent = () => {
   const { t } = useTranslation(['iscsi', 'common']);
   const dispatch = useDispatch<Dispatch>();
+  const history = useHistory();
 
   const { loading } = useSelector((state: RootState) => ({
     loading: state.loading.effects.iscsi.createISCSI,
@@ -18,9 +19,12 @@ const CreateISCSI: React.FunctionComponent = () => {
 
   const handleAdd = useCallback(
     async (iscsi) => {
-      await dispatch.iscsi.createISCSI(iscsi);
+      const res = await dispatch.iscsi.createISCSI(iscsi);
+      if (res) {
+        history.push(`/gateway/iscsi`);
+      }
     },
-    [dispatch.iscsi]
+    [dispatch.iscsi, history]
   );
 
   return (

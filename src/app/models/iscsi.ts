@@ -63,7 +63,12 @@ export const iscsi = createModel<RootModel>()({
         const res = await service.post('/api/v2/iscsi', {
           ...payload,
         });
-        console.log(res, 'res');
+        if (res.status === 201) {
+          notify('Created iSCSI successfully', {
+            type: 'success',
+          });
+          return true;
+        }
       } catch (error) {
         console.log(error, 'error');
         notify(String(error.message), {

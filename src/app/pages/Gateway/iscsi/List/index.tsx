@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TableComposable, Thead, Tr, Th, Tbody, Td, ThProps } from '@patternfly/react-table';
 import { Button, Label } from '@patternfly/react-core';
 import styled from 'styled-components';
 import InfoCircleIcon from '@patternfly/react-icons/dist/esm/icons/info-circle-icon';
 
 import { ISCSI } from '@app/interfaces/iscsi';
+import ActionConfirm from '@app/components/ActionConfirm';
 
 interface Data {
   list: ISCSI[];
@@ -22,6 +23,7 @@ const Wrapper = styled.div`
 `;
 
 export const ISCSIList: React.FC<Data> = ({ list, handleDelete, handleStart }) => {
+  const [isOpen, setIsOpen] = useState(false);
   const columnNames = {
     iqn: 'IQN',
     service_ip: 'Service IP',
@@ -61,9 +63,17 @@ export const ISCSIList: React.FC<Data> = ({ list, handleDelete, handleStart }) =
                   <Button variant="primary" onClick={() => handleStart(item.iqn)}>
                     Start
                   </Button>
-                  <Button variant="danger" isDisabled={item.deleting} onClick={() => handleDelete(item.iqn)}>
+                  <Button variant="danger" isDisabled={item.deleting} onClick={() => setIsOpen(true)}>
                     {item.deleting ? 'Deleting...' : 'Delete'}
                   </Button>
+                  <ActionConfirm
+                    onConfirm={() => {
+                      handleDelete(item.iqn);
+                      setIsOpen(false);
+                    }}
+                    onCancel={() => setIsOpen(false)}
+                    isModalOpen={isOpen}
+                  />
                 </Wrapper>
               </Td>
             </Tr>
