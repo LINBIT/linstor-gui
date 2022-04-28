@@ -109,6 +109,18 @@ export const iscsi = createModel<RootModel>()({
     // start ISCSI
     async startISCSI(payload: string, state) {
       try {
+        dispatch.iscsi.setISCSIList({
+          total: state.iscsi.total,
+          list: state.iscsi.list.map((item) => {
+            if (item.iqn === payload) {
+              return {
+                ...item,
+                starting: true,
+              };
+            }
+            return item;
+          }),
+        });
         const res = await service.post(`/api/v2/iscsi/${payload}/start`);
         console.log(res, 'res');
         if (res.status === 200) {
@@ -127,8 +139,26 @@ export const iscsi = createModel<RootModel>()({
     // stop ISCSI
     async stopISCSI(payload: string, state) {
       try {
+        dispatch.iscsi.setISCSIList({
+          total: state.iscsi.total,
+          list: state.iscsi.list.map((item) => {
+            if (item.iqn === payload) {
+              return {
+                ...item,
+                stopping: true,
+              };
+            }
+            return item;
+          }),
+        });
         const res = await service.post(`/api/v2/iscsi/${payload}/stop`);
         console.log(res, 'res');
+        if (res.status === 200) {
+          notify('Stopped Successfully', {
+            type: 'success',
+          });
+          dispatch.iscsi.getList({});
+        }
       } catch (error) {
         console.log(error, 'error');
         notify(String(error.message), {

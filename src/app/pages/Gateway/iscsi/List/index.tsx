@@ -11,6 +11,7 @@ interface Data {
   list: ISCSI[];
   handleDelete: (iqn: string) => void;
   handleStart: (iqn: string) => void;
+  handleStop: (iqn: string) => void;
 }
 
 const Wrapper = styled.div`
@@ -22,7 +23,7 @@ const Wrapper = styled.div`
   }
 `;
 
-export const ISCSIList: React.FC<Data> = ({ list, handleDelete, handleStart }) => {
+export const ISCSIList: React.FC<Data> = ({ list, handleDelete, handleStart, handleStop }) => {
   const [isOpen, setIsOpen] = useState(false);
   const columnNames = {
     iqn: 'IQN',
@@ -44,40 +45,51 @@ export const ISCSIList: React.FC<Data> = ({ list, handleDelete, handleStart }) =
           </Tr>
         </Thead>
         <Tbody>
-          {list.map((item, rowIndex) => (
-            <Tr key={rowIndex} onRowClick={(e) => console.log(e, item)}>
-              <Td dataLabel={columnNames.iqn}>{item.iqn}</Td>
-              <Td dataLabel={columnNames.service_ip}>{item.service_ips.join(',')}</Td>
-              <Th dataLabel={columnNames.serice_state}>
-                <Label color="blue" icon={<InfoCircleIcon />}>
-                  {item.status.service}
-                </Label>
-              </Th>
-              <Th dataLabel={columnNames.linstor_state}>
-                <Label color="green" icon={<InfoCircleIcon />}>
-                  {item.status.state}
-                </Label>
-              </Th>
-              <Td isActionCell>
-                <Wrapper>
-                  <Button variant="primary" onClick={() => handleStart(item.iqn)}>
-                    Start
-                  </Button>
-                  <Button variant="danger" isDisabled={item.deleting} onClick={() => setIsOpen(true)}>
-                    {item.deleting ? 'Deleting...' : 'Delete'}
-                  </Button>
-                  <ActionConfirm
-                    onConfirm={() => {
-                      handleDelete(item.iqn);
-                      setIsOpen(false);
-                    }}
-                    onCancel={() => setIsOpen(false)}
-                    isModalOpen={isOpen}
-                  />
-                </Wrapper>
-              </Td>
-            </Tr>
-          ))}
+          {list.map((item, rowIndex) => {
+            const isStarted = item.status.service === 'Started';
+            console.log(isStarted);
+            return (
+              <Tr key={rowIndex} onRowClick={(e) => console.log(e, item)}>
+                <Td dataLabel={columnNames.iqn}>{item.iqn}</Td>
+                <Td dataLabel={columnNames.service_ip}>{item.service_ips.join(',')}</Td>
+                <Th dataLabel={columnNames.serice_state}>
+                  <Label color="blue" icon={<InfoCircleIcon />}>
+                    {item.status.service}
+                  </Label>
+                </Th>
+                <Th dataLabel={columnNames.linstor_state}>
+                  <Label color="green" icon={<InfoCircleIcon />}>
+                    {item.status.state}
+                  </Label>
+                </Th>
+                <Td isActionCell>
+                  <Wrapper>
+                    <Button
+                      isDisabled={item.starting || item.stopping}
+                      variant="primary"
+                      onClick={() => (isStarted ? handleStop(item.iqn) : handleStart(item.iqn))}
+                    >
+                      {item.starting && 'Starting...'}
+                      {item.stopping && 'Stopping...'}
+                      {!item.starting && !item.stopping && isStarted && 'Stop'}
+                      {!item.starting && !item.stopping && !isStarted && 'Start'}
+                    </Button>
+                    <Button variant="danger" isDisabled={item.deleting} onClick={() => setIsOpen(true)}>
+                      {item.deleting ? 'Deleting...' : 'Delete'}
+                    </Button>
+                    <ActionConfirm
+                      onConfirm={() => {
+                        handleDelete(item.iqn);
+                        setIsOpen(false);
+                      }}
+                      onCancel={() => setIsOpen(false)}
+                      isModalOpen={isOpen}
+                    />
+                  </Wrapper>
+                </Td>
+              </Tr>
+            );
+          })}
         </Tbody>
       </TableComposable>
     </React.Fragment>

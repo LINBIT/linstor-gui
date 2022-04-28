@@ -35,6 +35,10 @@ const List: React.FunctionComponent = () => {
     dispatch.iscsi.startISCSI(iqn);
   };
 
+  const handleStop = (iqn: string) => {
+    dispatch.iscsi.stopISCSI(iqn);
+  };
+
   console.log(list, 'list...');
 
   return (
@@ -42,7 +46,7 @@ const List: React.FunctionComponent = () => {
       <Button variant="primary" onClick={createISCSI}>
         Create
       </Button>
-      <ISCSIList list={list} handleDelete={handleDelete} handleStart={handleStart} />
+      <ISCSIList list={list} handleDelete={handleDelete} handleStart={handleStart} handleStop={handleStop} />
     </PageBasic>
   );
 };

@@ -40,4 +40,6 @@ const item = {
 
 export type ISCSI = typeof item & {
   deleting?: boolean;
+  starting?: boolean;
+  stopping?: boolean;
 };
