@@ -166,5 +166,51 @@ export const iscsi = createModel<RootModel>()({
         });
       }
     },
+    // Add LUN
+    async addLUN(
+      payload: {
+        iqn: string;
+        LUN: number;
+        size_kib: number;
+      },
+      state
+    ) {
+      try {
+        const res = await service.put(`/api/v2/iscsi/${payload.iqn}/${payload.LUN}`, {
+          size_kib: payload.size_kib,
+          number: payload.LUN,
+        });
+        console.log(res, 'res');
+        if (res.status === 200) {
+          notify('Added Successfully', {
+            type: 'success',
+          });
+          dispatch.iscsi.getList({});
+        }
+      } catch (error) {
+        console.log(error, 'error');
+        notify(String(error.message), {
+          type: 'error',
+        });
+      }
+    },
+    // Delete LUN
+    async deleteLUN(payload: Array<string | number>, state) {
+      try {
+        const res = await service.delete(`/api/v2/iscsi/${payload[0]}/${payload[1]}`);
+        console.log(res, 'res');
+        if (res.status === 200) {
+          notify('Deleted Successfully', {
+            type: 'success',
+          });
+          dispatch.iscsi.getList({});
+        }
+      } catch (error) {
+        console.log(error, 'error');
+        notify(String(error.message), {
+          type: 'error',
+        });
+      }
+    },
   }),
 });

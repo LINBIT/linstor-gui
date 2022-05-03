@@ -39,14 +39,31 @@ const List: React.FunctionComponent = () => {
     dispatch.iscsi.stopISCSI(iqn);
   };
 
-  console.log(list, 'list...');
+  const handleDeleteVolume = (iqn: string, lun: number) => {
+    dispatch.iscsi.deleteLUN([iqn, lun]);
+  };
+
+  const handleAddVolume = (iqn: string, LUN: number, size_kib: number) => {
+    dispatch.iscsi.addLUN({
+      iqn,
+      LUN,
+      size_kib,
+    });
+  };
 
   return (
     <PageBasic title={t('iscsi:list')}>
       <Button variant="primary" onClick={createISCSI}>
         Create
       </Button>
-      <ISCSIList list={list} handleDelete={handleDelete} handleStart={handleStart} handleStop={handleStop} />
+      <ISCSIList
+        list={list}
+        handleDelete={handleDelete}
+        handleStart={handleStart}
+        handleStop={handleStop}
+        handleDeleteVolume={handleDeleteVolume}
+        handleAddVolume={handleAddVolume}
+      />
     </PageBasic>
   );
 };

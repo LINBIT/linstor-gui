@@ -223,7 +223,7 @@ const routes: AppRouteConfig[] = [
   //     },
   //   ],
   // },
-  // ...gateway,
+  ...gateway,
   {
     component: ErrorReportList,
     exact: true,
