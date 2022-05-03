@@ -77,6 +77,8 @@ export const setting = createModel<RootModel>()({
           type: 'error',
         });
       }
+
+      window.location.reload();
     },
   }),
 });

@@ -35,6 +35,9 @@ const en = {
     linstor: 'Linstor',
     s3: 'S3',
     settings: 'Settings',
+    gateway: 'Gateway',
+    iscsi: 'ISCSI',
+    nfs: 'NFS',
   },
   node: {
     node_list: 'Node List',

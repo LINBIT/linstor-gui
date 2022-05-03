@@ -25,6 +25,8 @@ import LngSelector from './components/LngSelector';
 import logo from '@app/bgimages/Linbit_Logo_White-1.png';
 
 import './AppLayout.css';
+import { useSelector } from 'react-redux';
+import { RootState } from '@app/store';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -34,6 +36,11 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const [isNavOpen, setIsNavOpen] = React.useState(true);
   const [isMobileView, setIsMobileView] = React.useState(true);
   const [isNavOpenMobile, setIsNavOpenMobile] = React.useState(false);
+
+  const { KVS } = useSelector((state: RootState) => ({
+    KVS: state.setting.KVS,
+  }));
+
   const { t } = useTranslation('menu');
   const onNavToggleMobile = () => {
     setIsNavOpenMobile(!isNavOpenMobile);
@@ -52,6 +59,12 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
     }
     return <img src={logo} className="logo" onClick={handleClick} alt="Linbit Logo" />;
   }
+
+  console.log(routes, 'routes');
+
+  console.log(KVS, 'KVS');
+
+  const filterRoutes = KVS.gatewayEnabled ? routes : routes.filter((route) => route.label !== 'gateway');
 
   const headerTools = (
     <PageHeaderTools>
@@ -103,9 +116,9 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const Navigation = (
     <Nav id="nav-primary-simple" theme="dark">
       <NavList id="nav-list-simple">
-        {routes
-          .filter((e) => !e.hide)
-          .map((route, idx) => route.label && (!route.routes ? renderNavItem(route, idx) : renderNavGroup(route, idx)))}
+        {filterRoutes.map(
+          (route, idx) => route.label && (!route.routes ? renderNavItem(route, idx) : renderNavGroup(route, idx))
+        )}
       </NavList>
     </Nav>
   );
