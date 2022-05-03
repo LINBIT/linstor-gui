@@ -90,7 +90,7 @@ export const setting = createModel<RootModel>()({
         });
       }
 
-      // window.location.reload();
+      window.location.reload();
     },
   }),
 });
