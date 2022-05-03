@@ -140,6 +140,13 @@ const en = {
     resource_group: 'Resource Group',
     service_ips: 'Service IP',
   },
+  nfs: {
+    list: 'NFS List',
+    create: 'NFS Create',
+    name: 'Name',
+    size: 'Size',
+    service_ip: 'Service IP',
+  },
 };
 
 export default en;

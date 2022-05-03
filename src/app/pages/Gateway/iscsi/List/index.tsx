@@ -17,7 +17,7 @@ interface Data {
   handleStart: (iqn: string) => void;
   handleStop: (iqn: string) => void;
   handleDeleteVolume: (iqn: string, lun: number) => void;
-  handleAddVolume: (iqn: string, LUN: number, size_kib: number) => boolean;
+  handleAddVolume: (iqn: string, LUN: number, size_kib: number) => void;
 }
 
 const Wrapper = styled.div`

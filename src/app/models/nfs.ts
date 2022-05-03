@@ -1,4 +1,4 @@
-import { ISCSI } from '@app/interfaces/iscsi';
+import { NFS } from '@app/interfaces/nfs';
 import service from '@app/requests';
 import { createModel } from '@rematch/core';
 import { RootModel } from '.';
@@ -7,7 +7,7 @@ import { notify } from '@app/utils/toast';
 
 type Data = {
   total: number;
-  list: ISCSI[];
+  list: NFS[];
 };
 
 type VolumeType = {
@@ -29,7 +29,7 @@ export const nfs = createModel<RootModel>()({
   } as Data, // initial state
   reducers: {
     // handle state changes with pure functions
-    setISCSIList(state, payload: Data) {
+    setNFSList(state, payload: Data) {
       return {
         ...state,
         ...payload,
@@ -37,33 +37,32 @@ export const nfs = createModel<RootModel>()({
     },
   },
   effects: (dispatch) => ({
-    // getISCSIList
+    // getNFSList
     async getList(payload: any, state) {
       const res = await service.get('/api/v2/nfs');
       const data = res.data ?? [];
       console.log(res.data, '???');
 
       // TODO: handle volumes
-      const iscsiList = [];
+      const NFSList = [];
 
-      for (const item of data) {
-        for (const volume of item.volumes) {
-          iscsiList.push({ ...item, LUN: volume.number });
-        }
-      }
-
-      dispatch.nfs.setISCSIList({
+      dispatch.nfs.setNFSList({
         total: data.length,
         list: data,
       });
     },
-    // Create iSCSI
-    async createISCSI(payload: CreateDataType, state) {
+    // Create NFS
+    async createNFS(payload: CreateDataType, state) {
       try {
         const res = await service.post('/api/v2/nfs', {
           ...payload,
         });
-        console.log(res, 'res');
+        if (res.status === 201) {
+          notify('Created NFS successfully', {
+            type: 'success',
+          });
+          return true;
+        }
       } catch (error) {
         console.log(error, 'error');
         notify(String(error.message), {
@@ -71,11 +70,29 @@ export const nfs = createModel<RootModel>()({
         });
       }
     },
-    // Delete ISCSI
-    async deleteISCSI(payload: string, state) {
+    // Delete NFS
+    async deleteNFS(payload: string, state) {
       try {
+        dispatch.nfs.setNFSList({
+          total: state.nfs.total - 1,
+          list: state.nfs.list.map((item) => {
+            if (item.name === payload) {
+              return {
+                ...item,
+                deleting: true,
+              };
+            }
+            return item;
+          }),
+        });
         const res = await service.delete(`/api/v2/nfs/${payload}`);
         console.log(res, 'res');
+        if (res.status === 200) {
+          notify('Deleted Successfully', {
+            type: 'success',
+          });
+          dispatch.nfs.getList({});
+        }
       } catch (error) {
         console.log(error, 'error');
         notify(String(error.message), {
@@ -83,11 +100,29 @@ export const nfs = createModel<RootModel>()({
         });
       }
     },
-    // start ISCSI
-    async startISCSI(payload: string, state) {
+    // start NFS
+    async startNFS(payload: string, state) {
       try {
+        dispatch.nfs.setNFSList({
+          total: state.nfs.total,
+          list: state.nfs.list.map((item) => {
+            if (item.name === payload) {
+              return {
+                ...item,
+                starting: true,
+              };
+            }
+            return item;
+          }),
+        });
         const res = await service.post(`/api/v2/nfs/${payload}/start`);
         console.log(res, 'res');
+        if (res.status === 200) {
+          notify('Started Successfully', {
+            type: 'success',
+          });
+          dispatch.nfs.getList({});
+        }
       } catch (error) {
         console.log(error, 'error');
         notify(String(error.message), {
@@ -95,11 +130,29 @@ export const nfs = createModel<RootModel>()({
         });
       }
     },
-    // stop ISCSI
-    async stopISCSI(payload: string, state) {
+    // stop NFS
+    async stopNFS(payload: string, state) {
       try {
+        dispatch.nfs.setNFSList({
+          total: state.nfs.total,
+          list: state.nfs.list.map((item) => {
+            if (item.name === payload) {
+              return {
+                ...item,
+                stopping: true,
+              };
+            }
+            return item;
+          }),
+        });
         const res = await service.post(`/api/v2/nfs/${payload}/stop`);
         console.log(res, 'res');
+        if (res.status === 200) {
+          notify('Stopped Successfully', {
+            type: 'success',
+          });
+          dispatch.nfs.getList({});
+        }
       } catch (error) {
         console.log(error, 'error');
         notify(String(error.message), {

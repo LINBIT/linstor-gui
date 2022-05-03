@@ -1,8 +1,9 @@
 import { AppRouteConfig } from './routes';
 
-import NFSList from '@app/pages/Gateway/nfs';
 import ISCSIList from '@app/pages/Gateway/iscsi';
 import ISCSICreate from '@app/pages/Gateway/iscsi/Create';
+import NFSList from '@app/pages/Gateway/nfs';
+import NFSCreate from '@app/pages/Gateway/nfs/Create';
 
 const gateway: AppRouteConfig[] = [
   {
@@ -16,7 +17,7 @@ const gateway: AppRouteConfig[] = [
         title: 'Linstor | NFS',
       },
       {
-        component: ISCSICreate,
+        component: NFSCreate,
         exact: true,
         path: '/gateway/nfs/create',
         title: 'Linstor | NFS',
