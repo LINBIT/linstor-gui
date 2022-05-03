@@ -10,7 +10,7 @@ const SETTING_KEY = 'settings';
 
 type Setting = {
   gatewayAvailable: boolean;
-  KVS: Record<string, boolean>;
+  KVS: Record<string, boolean | string>;
 };
 
 export const setting = createModel<RootModel>()({
@@ -25,7 +25,7 @@ export const setting = createModel<RootModel>()({
         gatewayAvailable: payload,
       };
     },
-    setSettings(state, payload: Record<string, boolean>) {
+    setSettings(state, payload: Record<string, boolean | string>) {
       return {
         ...state,
         KVS: {
@@ -49,7 +49,13 @@ export const setting = createModel<RootModel>()({
 
       // KVS only stores values as string
 
-      dispatch.setting.setSettings(convertToBoolean(settings.props));
+      const props = convertToBoolean(settings.props);
+
+      dispatch.setting.setSettings(props);
+
+      if (props.gatewayHost && props.gatewayHost !== '') {
+        window.localStorage.setItem('GATEWAY_HOST', String(props.gatewayHost));
+      }
     },
     async saveKey(payload: Record<string, number | string | boolean>, state) {
       await service.put(`/v1/key-value-store/${SETTING_KEY}`, {
@@ -63,13 +69,19 @@ export const setting = createModel<RootModel>()({
         delete_props: payload,
       });
     },
-    async setGatewayMode(payload) {
+    async setGatewayMode({ gatewayEnabled, host }: { gatewayEnabled: boolean; host: string }) {
       try {
         await dispatch.setting.saveKey({
-          gatewayEnabled: payload,
+          gatewayEnabled,
         });
 
-        notify(`LINSTOR-Gateway ${payload ? 'enabled' : 'disabled'}!`, {
+        if (gatewayEnabled) {
+          await dispatch.setting.saveKey({
+            gatewayHost: host,
+          });
+        }
+
+        notify(`LINSTOR-Gateway ${gatewayEnabled ? 'enabled' : 'disabled'}!`, {
           type: 'success',
         });
       } catch (error) {
@@ -78,7 +90,7 @@ export const setting = createModel<RootModel>()({
         });
       }
 
-      window.location.reload();
+      // window.location.reload();
     },
   }),
 });

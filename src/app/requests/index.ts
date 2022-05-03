@@ -32,6 +32,16 @@ const handleError = (statsCode, res) => {
   return errorMsg;
 };
 
+// handle gateway request host
+service.interceptors.request.use((req) => {
+  const GATEWAY_HOST = window.localStorage.getItem('GATEWAY_HOST');
+
+  if (req.url?.startsWith('/api/v2/') && GATEWAY_HOST) {
+    req.baseURL = GATEWAY_HOST;
+  }
+  return req;
+});
+
 // response interceptor
 service.interceptors.response.use(
   /**

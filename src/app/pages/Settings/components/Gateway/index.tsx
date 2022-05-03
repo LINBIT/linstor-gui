@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Button, Switch } from '@patternfly/react-core';
+import { Button, Switch, TextInput } from '@patternfly/react-core';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -13,34 +13,61 @@ const Label = styled.span`
   margin-right: 1em;
 `;
 
+const AddressWrapper = styled.div`
+  margin-top: 1em;
+  width: 20em;
+  display: flex;
+  align-items: center;
+`;
+
+const AddressLabelWrapper = styled.div`
+  margin-top: 1em;
+  margin-right: 1em;
+`;
+
 // For setting Gateway related stuff
 const Gateway: React.FC = () => {
+  const OriginHost = window.origin + ':8080/';
   const [isChecked, setIsChecked] = useState(false);
+  const [host, setHost] = useState(OriginHost);
 
   const dispatch = useDispatch<Dispatch>();
 
-  const { gatewayEnabled } = useSelector((state: RootState) => ({
+  const { gatewayEnabled, gatewayHost } = useSelector((state: RootState) => ({
     gatewayEnabled: state.setting.KVS.gatewayEnabled,
+    gatewayHost: state.setting.KVS.gatewayHost,
   }));
 
   useEffect(() => {
     // read state from Linstor KVS
     setIsChecked(gatewayEnabled);
-  }, [gatewayEnabled]);
+
+    if (gatewayHost === '') {
+      setHost(OriginHost);
+    } else {
+      setHost(gatewayHost);
+    }
+  }, [OriginHost, gatewayEnabled, gatewayHost]);
 
   const handleChange = useCallback((isChecked) => {
     setIsChecked(isChecked);
   }, []);
 
   const handleSave = useCallback(() => {
-    dispatch.setting.setGatewayMode(isChecked);
-  }, [dispatch.setting, isChecked]);
+    dispatch.setting.setGatewayMode({ gatewayEnabled: isChecked, host });
+  }, [dispatch.setting, host, isChecked]);
 
   return (
     <>
       <Wrapper>
         <Label>Gateway mode</Label>
         <Switch isChecked={isChecked} onChange={handleChange} aria-label="gateway-mode" />
+        {isChecked && (
+          <AddressWrapper>
+            <AddressLabelWrapper>Address:</AddressLabelWrapper>
+            <TextInput value={host} onChange={(val) => setHost(val)} aria-label="host" />
+          </AddressWrapper>
+        )}
       </Wrapper>
       <Button variant="primary" onClick={handleSave}>
         Save
