@@ -25,8 +25,8 @@ import LngSelector from './components/LngSelector';
 import logo from '@app/bgimages/Linbit_Logo_White-1.png';
 
 import './AppLayout.css';
-import { useSelector } from 'react-redux';
-import { RootState } from '@app/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { Dispatch, RootState } from '@app/store';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -36,6 +36,15 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const [isNavOpen, setIsNavOpen] = React.useState(true);
   const [isMobileView, setIsMobileView] = React.useState(true);
   const [isNavOpenMobile, setIsNavOpenMobile] = React.useState(false);
+
+  const dispatch = useDispatch<Dispatch>();
+
+  React.useEffect(() => {
+    // Check Settings from Linstor Key-Value-Store
+    dispatch.setting.getSettings();
+    // check if Gateway is available
+    dispatch.setting.getGatewayStatus();
+  }, [dispatch.setting]);
 
   const { KVS } = useSelector((state: RootState) => ({
     KVS: state.setting.KVS,
