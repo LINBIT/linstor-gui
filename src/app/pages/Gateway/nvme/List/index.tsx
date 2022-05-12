@@ -4,7 +4,7 @@ import { Button, Label, Modal, ModalVariant } from '@patternfly/react-core';
 import styled from 'styled-components';
 import InfoCircleIcon from '@patternfly/react-icons/dist/esm/icons/info-circle-icon';
 
-import { ISCSI } from '@app/interfaces/iscsi';
+import { NVME } from '@app/interfaces/nvme';
 import ActionConfirm from '@app/components/ActionConfirm';
 import DynamicForm from '@app/components/DynamicForm';
 import { convertRoundUp, sizeOptions } from '@app/utils/size';
@@ -12,12 +12,12 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';
 
 interface Data {
-  list: ISCSI[];
-  handleDelete: (iqn: string) => void;
-  handleStart: (iqn: string) => void;
-  handleStop: (iqn: string) => void;
-  handleDeleteVolume: (iqn: string, lun: number) => void;
-  handleAddVolume: (iqn: string, LUN: number, size_kib: number) => void;
+  list: NVME[];
+  handleDelete: (nqn: string) => void;
+  handleStart: (nqn: string) => void;
+  handleStop: (nqn: string) => void;
+  handleDeleteVolume: (nqn: string, lun: number) => void;
+  handleAddVolume: (nqn: string, LUN: number, size_kib: number) => void;
 }
 
 const Wrapper = styled.div`
@@ -46,21 +46,21 @@ export const ISCSIList: React.FC<Data> = ({
   const [IQN, setIQN] = useState('');
   const [LUN, setLUN] = useState(0);
 
-  const initialExpandedRepoNames = list.map((repo) => repo.iqn); // Default to all expanded
+  const initialExpandedRepoNames = list.map((repo) => repo.nqn); // Default to all expanded
   const [expandedRepoNames, setExpandedRepoNames] = React.useState<string[]>(initialExpandedRepoNames);
-  const setRepoExpanded = (repo: ISCSI, isExpanding = true) =>
+  const setRepoExpanded = (repo: NVME, isExpanding = true) =>
     setExpandedRepoNames((prevExpanded) => {
-      const otherExpandedRepoNames = prevExpanded.filter((r) => r !== repo.iqn);
-      return isExpanding ? [...otherExpandedRepoNames, repo.iqn] : otherExpandedRepoNames;
+      const otherExpandedRepoNames = prevExpanded.filter((r) => r !== repo.nqn);
+      return isExpanding ? [...otherExpandedRepoNames, repo.nqn] : otherExpandedRepoNames;
     });
-  const isRepoExpanded = (repo: ISCSI) => expandedRepoNames.includes(repo.iqn);
+  const isRepoExpanded = (repo: NVME) => expandedRepoNames.includes(repo.nqn);
 
   console.log(initialExpandedRepoNames, 'initialExpandedRepoNames');
 
   const columnNames = {
-    iqn: 'IQN',
+    nqn: 'NQN',
     service_ip: 'Service IP',
-    serice_state: 'Service State',
+    service_state: 'Service State',
     lun: 'LUN',
     linstor_state: 'LINSTOR State',
   };
@@ -71,7 +71,7 @@ export const ISCSIList: React.FC<Data> = ({
         <Thead>
           <Tr>
             <Th />
-            <Th>{columnNames.iqn}</Th>
+            <Th>{columnNames.nqn}</Th>
             <Th>{columnNames.service_ip}</Th>
             <Th>{columnNames.serice_state}</Th>
             <Th>{columnNames.lun}</Th>
@@ -96,9 +96,9 @@ export const ISCSIList: React.FC<Data> = ({
                       : undefined
                   }
                 />
-                <Td dataLabel={columnNames.iqn}>{item.iqn}</Td>
-                <Td dataLabel={columnNames.service_ip}>{item.service_ips.join(',')}</Td>
-                <Th dataLabel={columnNames.serice_state}>
+                <Td dataLabel={columnNames.nqn}>{item.nqn}</Td>
+                <Td dataLabel={columnNames.service_ip}>{item.service_ip}</Td>
+                <Th dataLabel={columnNames.service_state}>
                   <Label color={isStarted ? 'green' : 'grey'} icon={<InfoCircleIcon />}>
                     {item.status.service}
                   </Label>
@@ -114,7 +114,7 @@ export const ISCSIList: React.FC<Data> = ({
                     <Button
                       isDisabled={item.starting || item.stopping}
                       variant="primary"
-                      onClick={() => (isStarted ? handleStop(item.iqn) : handleStart(item.iqn))}
+                      onClick={() => (isStarted ? handleStop(item.nqn) : handleStart(item.nqn))}
                     >
                       {item.starting && 'Starting...'}
                       {item.stopping && 'Stopping...'}
@@ -129,7 +129,7 @@ export const ISCSIList: React.FC<Data> = ({
                     <Button
                       variant="primary"
                       onClick={() => {
-                        setIQN(item.iqn);
+                        setIQN(item.nqn);
                         setLUN(item.volumes[item.volumes.length - 1].number + 1); // TODO: LUN number should be dynamic
                         setLunModal(true);
                       }}
@@ -140,7 +140,7 @@ export const ISCSIList: React.FC<Data> = ({
                       variant="danger"
                       isDisabled={item.deleting}
                       onClick={() => {
-                        handleDeleteVolume(item.iqn, item.volumes[item.volumes.length - 1].number);
+                        handleDeleteVolume(item.nqn, item.volumes[item.volumes.length - 1].number);
                       }}
                     >
                       {item.deleting ? 'Deleting...' : 'Delete Volume'}
@@ -148,7 +148,7 @@ export const ISCSIList: React.FC<Data> = ({
 
                     <ActionConfirm
                       onConfirm={() => {
-                        handleDelete(item.iqn);
+                        handleDelete(item.nqn);
                         setIsOpen(false);
                       }}
                       onCancel={() => setIsOpen(false)}
@@ -162,7 +162,7 @@ export const ISCSIList: React.FC<Data> = ({
                 .map((volume, volumeIndex) => (
                   <Tr key={volumeIndex} isExpanded={isRepoExpanded(item)}>
                     <Td />
-                    <Td dataLabel={columnNames.iqn}></Td>
+                    <Td dataLabel={columnNames.nqn}></Td>
                     <Td dataLabel={columnNames.service_ip}></Td>
                     <Th dataLabel={columnNames.serice_state}>
                       <Label color={isStarted ? 'green' : 'grey'} icon={<InfoCircleIcon />}>
@@ -181,7 +181,7 @@ export const ISCSIList: React.FC<Data> = ({
                           variant="danger"
                           isDisabled={item.deleting}
                           onClick={() => {
-                            handleDeleteVolume(item.iqn, volume.number);
+                            handleDeleteVolume(item.nqn, volume.number);
                           }}
                         >
                           {item.deleting ? 'Deleting...' : 'Delete Volume'}
