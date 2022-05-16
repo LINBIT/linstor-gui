@@ -73,7 +73,7 @@ export const ISCSIList: React.FC<Data> = ({
             <Th />
             <Th>{columnNames.nqn}</Th>
             <Th>{columnNames.service_ip}</Th>
-            <Th>{columnNames.serice_state}</Th>
+            <Th>{columnNames.service_state}</Th>
             <Th>{columnNames.lun}</Th>
             <Th>{columnNames.linstor_state}</Th>
             <Td>Action</Td>

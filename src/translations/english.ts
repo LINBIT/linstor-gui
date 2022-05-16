@@ -38,6 +38,7 @@ const en = {
     gateway: 'Gateway',
     iscsi: 'ISCSI',
     nfs: 'NFS',
+    'nvme-of': 'NVME-OF',
   },
   node: {
     node_list: 'Node List',
@@ -146,6 +147,13 @@ const en = {
   nfs: {
     list: 'NFS List',
     create: 'NFS Create',
+    name: 'Name',
+    size: 'Size',
+    service_ip: 'Service IP',
+  },
+  nvme: {
+    list: 'NVME-Of List',
+    create: 'NVME-Of Create',
     name: 'Name',
     size: 'Size',
     service_ip: 'Service IP',

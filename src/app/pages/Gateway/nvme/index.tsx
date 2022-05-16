@@ -24,19 +24,19 @@ const List: React.FunctionComponent = () => {
   }, [dispatch.nvme]);
 
   const createISCSI = () => {
-    history.push(`/gateway/nvme/create`);
+    history.push(`/gateway/nvme-of/create`);
   };
 
-  const handleDelete = (iqn: string) => {
-    dispatch.nvme.deleteISCSI(iqn);
+  const handleDelete = (nqn: string) => {
+    dispatch.nvme.deleteNvme(nqn);
   };
 
-  const handleStart = (iqn: string) => {
-    dispatch.nvme.startISCSI(iqn);
+  const handleStart = (nqn: string) => {
+    dispatch.nvme.startNvme(nqn);
   };
 
-  const handleStop = (iqn: string) => {
-    dispatch.nvme.stopISCSI(iqn);
+  const handleStop = (nqn: string) => {
+    dispatch.nvme.startNvme(nqn);
   };
 
   const handleDeleteVolume = (iqn: string, lun: number) => {

@@ -5,6 +5,7 @@ import ISCSICreate from '@app/pages/Gateway/iscsi/Create';
 import NFSList from '@app/pages/Gateway/nfs';
 import NFSCreate from '@app/pages/Gateway/nfs/Create';
 import NvmeList from '@app/pages/Gateway/nvme';
+import NvmeCreate from '@app/pages/Gateway/nvme/Create';
 
 const gateway: AppRouteConfig[] = [
   {
@@ -41,6 +42,12 @@ const gateway: AppRouteConfig[] = [
         exact: true,
         label: 'nvme-of',
         path: '/gateway/nvme-of',
+        title: 'Linstor | NVME',
+      },
+      {
+        component: NvmeCreate,
+        exact: true,
+        path: '/gateway/nvme-of/create',
         title: 'Linstor | NVME',
       },
     ],

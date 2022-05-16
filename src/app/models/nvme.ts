@@ -60,7 +60,7 @@ export const nvme = createModel<RootModel>()({
     // Create iSCSI
     async createNvme(payload: CreateDataType, state) {
       try {
-        const res = await service.post('/api/v2/nvme', {
+        const res = await service.post('/api/v2/nvme-of', {
           ...payload,
         });
         if (res.status === 201) {
@@ -82,7 +82,7 @@ export const nvme = createModel<RootModel>()({
         dispatch.nvme.setNvmeList({
           total: state.nvme.total - 1,
           list: state.nvme.list.map((item) => {
-            if (item.iqn === payload) {
+            if (item.nqn === payload) {
               return {
                 ...item,
                 deleting: true,
@@ -91,7 +91,7 @@ export const nvme = createModel<RootModel>()({
             return item;
           }),
         });
-        const res = await service.delete(`/api/v2/nvme/${payload}`);
+        const res = await service.delete(`/api/v2/nvme-of/${payload}`);
         console.log(res, 'res');
         if (res.status === 200) {
           notify('Deleted Successfully', {
@@ -112,7 +112,7 @@ export const nvme = createModel<RootModel>()({
         dispatch.nvme.setNvmeList({
           total: state.nvme.total,
           list: state.nvme.list.map((item) => {
-            if (item.iqn === payload) {
+            if (item.nqn === payload) {
               return {
                 ...item,
                 starting: true,
@@ -121,7 +121,7 @@ export const nvme = createModel<RootModel>()({
             return item;
           }),
         });
-        const res = await service.post(`/api/v2/nvme/${payload}/start`);
+        const res = await service.post(`/api/v2/nvme-of/${payload}/start`);
         console.log(res, 'res');
         if (res.status === 200) {
           notify('Started Successfully', {
@@ -142,7 +142,7 @@ export const nvme = createModel<RootModel>()({
         dispatch.nvme.setNvmeList({
           total: state.nvme.total,
           list: state.nvme.list.map((item) => {
-            if (item.iqn === payload) {
+            if (item.nqn === payload) {
               return {
                 ...item,
                 stopping: true,
@@ -151,7 +151,7 @@ export const nvme = createModel<RootModel>()({
             return item;
           }),
         });
-        const res = await service.post(`/api/v2/nvme/${payload}/stop`);
+        const res = await service.post(`/api/v2/nvme-of/${payload}/stop`);
         console.log(res, 'res');
         if (res.status === 200) {
           notify('Stopped Successfully', {
@@ -176,7 +176,7 @@ export const nvme = createModel<RootModel>()({
       state
     ) {
       try {
-        const res = await service.put(`/api/v2/nvme/${payload.iqn}/${payload.LUN}`, {
+        const res = await service.put(`/api/v2/nvme-of/${payload.iqn}/${payload.LUN}`, {
           size_kib: payload.size_kib,
           number: payload.LUN,
         });
@@ -197,7 +197,7 @@ export const nvme = createModel<RootModel>()({
     // Delete LUN
     async deleteLUN(payload: Array<string | number>, state) {
       try {
-        const res = await service.delete(`/api/v2/nvme/${payload[0]}/${payload[1]}`);
+        const res = await service.delete(`/api/v2/nvme-of/${payload[0]}/${payload[1]}`);
         console.log(res, 'res');
         if (res.status === 200) {
           notify('Deleted Successfully', {
