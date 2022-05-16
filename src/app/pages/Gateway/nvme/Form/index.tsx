@@ -92,7 +92,7 @@ const ISCSIForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, editing
       submitting={loading}
       handleSubmitData={handleData}
       formItems={formItems}
-      handleCancelClick={() => history.push('/gateway/iscsi')}
+      handleCancelClick={() => history.push('/gateway/nvme-of')}
     />
   );
 };

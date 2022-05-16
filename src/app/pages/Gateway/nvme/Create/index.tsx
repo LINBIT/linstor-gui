@@ -6,9 +6,9 @@ import { useHistory } from 'react-router-dom';
 import { Dispatch, RootState } from '@app/store';
 import PageBasic from '@app/components/PageBasic';
 
-import ISCSIForm from '../Form';
+import Form from '../Form';
 
-const CreateISCSI: React.FunctionComponent = () => {
+const Create: React.FunctionComponent = () => {
   const { t } = useTranslation(['nvme', 'common']);
   const dispatch = useDispatch<Dispatch>();
   const history = useHistory();
@@ -29,9 +29,9 @@ const CreateISCSI: React.FunctionComponent = () => {
 
   return (
     <PageBasic title={t('nvme:create')}>
-      <ISCSIForm handleSubmit={handleAdd} loading={loading} />
+      <Form handleSubmit={handleAdd} loading={loading} />
     </PageBasic>
   );
 };
 
-export default CreateISCSI;
+export default Create;
