@@ -61,7 +61,7 @@ export const ISCSIList: React.FC<Data> = ({
     nqn: 'NQN',
     service_ip: 'Service IP',
     service_state: 'Service State',
-    lun: 'LUN',
+    lun: 'Namespace',
     linstor_state: 'LINSTOR State',
   };
 
@@ -134,7 +134,7 @@ export const ISCSIList: React.FC<Data> = ({
                         setLunModal(true);
                       }}
                     >
-                      Add LUN
+                      Add Volume
                     </Button>
                     <Button
                       variant="danger"
@@ -164,7 +164,7 @@ export const ISCSIList: React.FC<Data> = ({
                     <Td />
                     <Td dataLabel={columnNames.nqn}></Td>
                     <Td dataLabel={columnNames.service_ip}></Td>
-                    <Th dataLabel={columnNames.serice_state}>
+                    <Th dataLabel={columnNames.service_state}>
                       <Label color={isStarted ? 'green' : 'grey'} icon={<InfoCircleIcon />}>
                         {item.status.service}
                       </Label>

@@ -9,26 +9,26 @@ import PageBasic from '@app/components/PageBasic';
 import ISCSIForm from '../Form';
 
 const CreateISCSI: React.FunctionComponent = () => {
-  const { t } = useTranslation(['iscsi', 'common']);
+  const { t } = useTranslation(['nvme', 'common']);
   const dispatch = useDispatch<Dispatch>();
   const history = useHistory();
 
   const { loading } = useSelector((state: RootState) => ({
-    loading: state.loading.effects.iscsi.createISCSI,
+    loading: state.loading.effects.nvme.createNvme,
   }));
 
   const handleAdd = useCallback(
-    async (iscsi) => {
-      const res = await dispatch.iscsi.createISCSI(iscsi);
+    async (nvme) => {
+      const res = await dispatch.nvme.createNvme(nvme);
       if (res) {
-        history.push(`/gateway/iscsi`);
+        history.push(`/gateway/nvme-of`);
       }
     },
-    [dispatch.iscsi, history]
+    [dispatch.nvme, history]
   );
 
   return (
-    <PageBasic title={t('iscsi:create')}>
+    <PageBasic title={t('nvme:create')}>
       <ISCSIForm handleSubmit={handleAdd} loading={loading} />
     </PageBasic>
   );
