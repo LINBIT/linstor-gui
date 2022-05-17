@@ -35,7 +35,7 @@ const gateway: AppRouteConfig[] = [
         component: ISCSICreate,
         exact: true,
         path: '/gateway/iscsi/create',
-        title: 'Linstor | ISCSI',
+        title: 'Linstor | ISCSI | Create',
       },
       {
         component: NvmeList,
@@ -48,7 +48,7 @@ const gateway: AppRouteConfig[] = [
         component: NvmeCreate,
         exact: true,
         path: '/gateway/nvme-of/create',
-        title: 'Linstor | NVME',
+        title: 'Linstor | NVME | Create',
       },
     ],
   },
