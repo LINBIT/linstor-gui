@@ -80,7 +80,7 @@ const ISCSIForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, editing
       {
         name: 'size',
         type: TYPE_MAP.SIZE,
-        label: t('size'),
+        label: t('Size'),
         defaultValue: initialVal?.size,
         extraInfo: {
           options: sizeOptions.map((e) => ({ ...e, isDisabled: false })),
@@ -91,7 +91,15 @@ const ISCSIForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, editing
         },
       },
     ].map((e) => ({ ...e, id: uniqId() }));
-  }, [t, editing, initialVal]);
+  }, [
+    t,
+    editing,
+    initialVal?.iqn,
+    initialVal?.resource_group,
+    initialVal?.service_ips,
+    initialVal?.size,
+    resourceGroupList,
+  ]);
 
   const handleData = (data) => {
     console.log(data, 'data');

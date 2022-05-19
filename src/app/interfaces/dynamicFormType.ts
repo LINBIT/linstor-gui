@@ -8,7 +8,8 @@ export type FormItemType =
   | 'radio'
   | 'slider'
   | 'auxiliary'
-  | 'size';
+  | 'size'
+  | 'iqn';
 
 export const TYPE_MAP = {
   TEXT: 'text' as FormItemType,
@@ -21,6 +22,7 @@ export const TYPE_MAP = {
   SLIDER: 'slider' as FormItemType,
   AUXILIARY: 'auxiliary' as FormItemType,
   SIZE: 'size' as FormItemType,
+  IQN: 'iqn' as FormItemType,
 };
 
 export type FormItem = {

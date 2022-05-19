@@ -70,71 +70,20 @@ function convertRoundUp(name: string, size: number): number {
 
 const sizeOptions = [
   {
-    value: 'G',
-    label: 'G',
-  },
-  {
-    value: 'GiB',
-    label: 'GiB',
-  },
-  {
-    value: 'GB',
-    label: 'GB',
-  },
-  {
-    value: 'B',
-    label: 'B',
-  },
-  {
-    value: 'K',
-    label: 'K',
-  },
-  {
-    value: 'kB',
-    label: 'kB',
-  },
-  {
     value: 'KiB',
     label: 'KiB',
-  },
-
-  {
-    value: 'M',
-    label: 'M',
   },
   {
     value: 'MiB',
     label: 'MiB',
   },
   {
-    value: 'MB',
-    label: 'MB',
-  },
-
-  {
-    value: 'T',
-    label: 'T',
+    value: 'GiB',
+    label: 'GiB',
   },
   {
     value: 'TiB',
     label: 'TiB',
-  },
-  {
-    value: 'TB',
-    label: 'TB',
-  },
-
-  {
-    value: 'P',
-    label: 'P',
-  },
-  {
-    value: 'PiB',
-    label: 'PiB',
-  },
-  {
-    value: 'PB',
-    label: 'PB',
   },
 ];
 
