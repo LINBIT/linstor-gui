@@ -17,6 +17,10 @@ const CreateISCSI: React.FunctionComponent = () => {
     loading: state.loading.effects.iscsi.createISCSI,
   }));
 
+  useEffect(() => {
+    dispatch.resourceGroup.getList({});
+  }, [dispatch.resourceGroup]);
+
   const handleAdd = useCallback(
     async (iscsi) => {
       const res = await dispatch.iscsi.createISCSI(iscsi);

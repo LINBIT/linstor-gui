@@ -6,6 +6,8 @@ import DynamicForm from '@app/components/DynamicForm';
 import { TYPE_MAP } from '@app/interfaces/dynamicFormType';
 import { uniqId } from '@app/utils/stringUtils';
 import { convertRoundUp, sizeOptions } from '@app/utils/size';
+import { useSelector } from 'react-redux';
+import { RootState } from '@app/store';
 
 type ISCSIType = {
   iqn: string;
@@ -28,6 +30,10 @@ const ISCSIForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, editing
   const history = useHistory();
   const { t } = useTranslation('iscsi');
 
+  const { resourceGroupList } = useSelector((state: RootState) => ({
+    resourceGroupList: state.resourceGroup.list,
+  }));
+
   const formItems = useMemo(() => {
     return [
       {
@@ -44,13 +50,20 @@ const ISCSIForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, editing
       },
       {
         name: 'resource_group',
-        type: TYPE_MAP.TEXT,
+        type: TYPE_MAP.SINGLE_SELECT,
         label: t('resource_group'),
         defaultValue: initialVal?.resource_group ?? '',
         validationInfo: {
           isRequired: true,
           minLength: 2,
           invalidMessage: 'Please provide resource group',
+        },
+        extraInfo: {
+          options: resourceGroupList.map((e) => ({
+            label: e.name,
+            value: e.name,
+            isDisabled: false,
+          })),
         },
       },
       {
