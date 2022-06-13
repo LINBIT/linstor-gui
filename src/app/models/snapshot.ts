@@ -7,7 +7,7 @@ type Data = {
   list: any[];
 };
 
-export const resourceGroup = createModel<RootModel>()({
+export const snapshot = createModel<RootModel>()({
   state: {
     total: 0,
     list: [],
@@ -23,10 +23,10 @@ export const resourceGroup = createModel<RootModel>()({
   },
   effects: (dispatch) => ({
     async getList(payload: any, state) {
-      const res = await service.get('/v1/resource-groups');
+      const res = await service.get('/v1/view/snapshots');
       const data = res.data ?? [];
-      dispatch.resourceGroup.setList({
-        total: data.length - 1,
+      dispatch.snapshot.setList({
+        total: data.length ? data.length - 1 : 0,
         list: data,
       });
     },

@@ -158,6 +158,13 @@ const en = {
     size: 'Size',
     service_ip: 'Service IP',
   },
+  snapshot: {
+    list: 'Snapshot List',
+    create: 'Create',
+    name: 'Name',
+    size: 'Size',
+    service_ip: 'Service IP',
+  },
 };
 
 export default en;

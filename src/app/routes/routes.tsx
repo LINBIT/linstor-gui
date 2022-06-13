@@ -37,6 +37,7 @@ import { useDocumentTitle } from '@app/utils/useDocumentTitle';
 
 import { LastLocationProvider, useLastLocation } from 'react-router-last-location';
 import gateway from './gateway';
+import snapshot from './snapshot';
 
 let routeFocusTimer: number;
 
@@ -211,6 +212,7 @@ const routes: AppRouteConfig[] = [
       },
     ],
   },
+  ...snapshot,
   // {
   //   label: 'remotes',
   //   routes: [
