@@ -17,6 +17,7 @@ const en = {
     deploy: 'Deploy',
     submit: 'Submit',
     cancel: 'Cancel',
+    snapshot: 'Snapshot',
   },
   menu: {
     dashboard: 'Dashboard',
@@ -38,7 +39,8 @@ const en = {
     gateway: 'Gateway',
     iscsi: 'ISCSI',
     nfs: 'NFS',
-    'nvme-of': 'NVME-OF',
+    'nvme-of': 'Nvme-Of',
+    snapshot: 'Snapshot',
   },
   node: {
     node_list: 'Node List',
