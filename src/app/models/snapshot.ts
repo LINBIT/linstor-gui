@@ -1,4 +1,5 @@
 import service from '@app/requests';
+import { notify } from '@app/utils/toast';
 import { createModel } from '@rematch/core';
 import { RootModel } from '.';
 
@@ -29,6 +30,22 @@ export const snapshot = createModel<RootModel>()({
         total: data.length ? data.length - 1 : 0,
         list: data,
       });
+    },
+    async createSnapshot(payload: { resource: string; name: string }, state) {
+      try {
+        await service.post(`/v1/resource-definitions/${payload.resource}/snapshots`, {
+          name: payload.name,
+        });
+      } catch (error) {
+        console.log(error, 'error');
+        if (Array.isArray(error)) {
+          for (const item of error) {
+            notify(String(item.message), {
+              type: 'error',
+            });
+          }
+        }
+      }
     },
   }),
 });

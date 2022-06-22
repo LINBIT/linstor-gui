@@ -11,17 +11,23 @@ import { ResourceListType } from '@app/interfaces/resource';
 import { formatTime } from '@app/utils/time';
 import PropertyForm from '@app/components/PropertyForm';
 import service from '@app/requests';
+import { useDispatch } from 'react-redux';
+import { Dispatch } from '@app/store';
+import { Button, Modal, ModalVariant } from '@patternfly/react-core';
 
 const List: React.FunctionComponent = () => {
   const { t } = useTranslation(['resource', 'common']);
   const [fetchList, setFetchList] = useState(false);
   const history = useHistory();
+  const dispatch = useDispatch<Dispatch>();
 
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
   const [alertList, setAlertList] = useState<alertList>([]);
   const [current, setCurrent] = useState();
   const [currentNode, setCurrentNode] = useState();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentResource, setCurrentResource] = useState<string>();
 
   const { run: deleteResource } = useRequest(
     (resource, node, _isBatch = false) => ({
@@ -211,6 +217,16 @@ const List: React.FunctionComponent = () => {
       },
     },
     {
+      title: t('common:snapshot'),
+      onClick: async (event, rowId, rowData, extra) => {
+        const resource = rowData.cells[0];
+        const node = rowData.cells[1];
+        console.log('clicked on Some action, on row: ', rowData.cells[0]);
+        setIsModalOpen(true);
+        setCurrentResource(resource);
+      },
+    },
+    {
       title: t('common:edit'),
       onClick: (event, rowId, rowData, extra) => {
         const resource = rowData.cells[0];
@@ -262,6 +278,13 @@ const List: React.FunctionComponent = () => {
     ];
   }, [deleteResource, fetchList, history, t]);
 
+  const handleCreateSnapShot = async () => {
+    if (currentResource) {
+      await dispatch.snapshot.createSnapshot({ resource: currentResource, name: 'snp1' });
+      setIsModalOpen(false);
+    }
+  };
+
   return (
     <PageBasic title={t('list')} alerts={alertList}>
       <FilterList
@@ -281,6 +304,20 @@ const List: React.FunctionComponent = () => {
         handleSubmit={handleUpdateResourceProps}
         handleClose={() => setPropertyModalOpen(!propertyModalOpen)}
       />
+      <Modal
+        variant={ModalVariant.medium}
+        title="Snapshot Name"
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        actions={[
+          <Button key="confirm" variant="primary" onClick={handleCreateSnapShot}>
+            Confirm
+          </Button>,
+          <Button key="cancel" variant="link" onClick={() => setIsModalOpen(false)}>
+            Cancel
+          </Button>,
+        ]}
+      ></Modal>
     </PageBasic>
   );
 };
