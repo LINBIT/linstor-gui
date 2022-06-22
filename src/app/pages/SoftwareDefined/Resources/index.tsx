@@ -13,7 +13,7 @@ import PropertyForm from '@app/components/PropertyForm';
 import service from '@app/requests';
 import { useDispatch } from 'react-redux';
 import { Dispatch } from '@app/store';
-import { Button, Modal, ModalVariant } from '@patternfly/react-core';
+import { Button, Modal, ModalVariant, TextInput } from '@patternfly/react-core';
 
 const List: React.FunctionComponent = () => {
   const { t } = useTranslation(['resource', 'common']);
@@ -28,6 +28,7 @@ const List: React.FunctionComponent = () => {
   const [currentNode, setCurrentNode] = useState();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentResource, setCurrentResource] = useState<string>();
+  const [snapshotName, setSnapshotName] = useState<string>('');
 
   const { run: deleteResource } = useRequest(
     (resource, node, _isBatch = false) => ({
@@ -279,9 +280,10 @@ const List: React.FunctionComponent = () => {
   }, [deleteResource, fetchList, history, t]);
 
   const handleCreateSnapShot = async () => {
-    if (currentResource) {
-      await dispatch.snapshot.createSnapshot({ resource: currentResource, name: 'snp1' });
+    if (currentResource && snapshotName != '') {
+      await dispatch.snapshot.createSnapshot({ resource: currentResource, name: snapshotName });
       setIsModalOpen(false);
+      setSnapshotName('');
     }
   };
 
@@ -306,7 +308,7 @@ const List: React.FunctionComponent = () => {
       />
       <Modal
         variant={ModalVariant.medium}
-        title="Snapshot Name"
+        title="Create Snapshot"
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         actions={[
@@ -317,7 +319,19 @@ const List: React.FunctionComponent = () => {
             Cancel
           </Button>,
         ]}
-      ></Modal>
+      >
+        <TextInput
+          isRequired
+          type="text"
+          id="simple-form-number-01"
+          placeholder="Input snapshot name"
+          name="simple-form-number-01"
+          value={snapshotName}
+          onChange={(text) => {
+            setSnapshotName(text);
+          }}
+        />
+      </Modal>
     </PageBasic>
   );
 };
