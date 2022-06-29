@@ -1,11 +1,12 @@
 import service from '@app/requests';
 import { notify } from '@app/utils/toast';
 import { createModel } from '@rematch/core';
+import { SnapshotList } from '@app/interfaces/snapShot';
 import { RootModel } from '.';
 
 type Data = {
   total: number;
-  list: any[];
+  list: SnapshotList;
 };
 
 export const snapshot = createModel<RootModel>()({
