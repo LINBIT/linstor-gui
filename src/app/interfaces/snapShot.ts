@@ -29,3 +29,5 @@ const listRes = [
 ];
 
 export type SnapshotList = typeof listRes;
+
+export type SnapshotType = typeof listRes[0];

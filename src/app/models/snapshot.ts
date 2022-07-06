@@ -4,16 +4,30 @@ import { createModel } from '@rematch/core';
 import { SnapshotList } from '@app/interfaces/snapShot';
 import { RootModel } from '.';
 
-type Data = {
+type ReportState = {
+  list: SnapshotList;
+  pageInfo: PageInfo;
+};
+
+type PageInfo = {
+  currentPage: number;
+  pageSize: number;
   total: number;
+};
+
+type Data = {
   list: SnapshotList;
 };
 
 export const snapshot = createModel<RootModel>()({
   state: {
-    total: 0,
+    pageInfo: {
+      total: 0,
+      pageSize: 10,
+      currentPage: 1,
+    },
     list: [],
-  } as Data, // initial state
+  } as ReportState, // initial state
   reducers: {
     // handle state changes with pure functions
     setList(state, payload: Data) {
@@ -22,14 +36,33 @@ export const snapshot = createModel<RootModel>()({
         ...payload,
       };
     },
+    setState(state, payload: ReportState) {
+      return {
+        ...state,
+        ...payload,
+      };
+    },
+    setPageInfo(state, payload: PageInfo) {
+      return {
+        ...state,
+        pageInfo: {
+          ...state.pageInfo,
+          ...payload,
+        },
+      };
+    },
   },
   effects: (dispatch) => ({
     async getList(payload: any, state) {
       const res = await service.get('/v1/view/snapshots');
       const data = res.data ?? [];
       dispatch.snapshot.setList({
-        total: data.length ? data.length - 1 : 0,
         list: data,
+      });
+      dispatch.snapshot.setPageInfo({
+        total: data.length ? data.length : 0,
+        pageSize: 10,
+        currentPage: 1,
       });
     },
     async createSnapshot(payload: { resource: string; name: string }, state) {
