@@ -69,13 +69,25 @@ export const setting = createModel<RootModel>()({
         delete_props: payload,
       });
     },
-    async setGatewayMode({ gatewayEnabled, host }: { gatewayEnabled: boolean; host: string }) {
+    async setGatewayMode({
+      gatewayEnabled,
+      customHost,
+      host,
+    }: {
+      gatewayEnabled: boolean;
+      customHost: boolean;
+      host: string;
+    }) {
       try {
         await dispatch.setting.saveKey({
           gatewayEnabled,
         });
 
-        if (gatewayEnabled) {
+        await dispatch.setting.saveKey({
+          customHost: customHost,
+        });
+
+        if (gatewayEnabled && customHost) {
           await dispatch.setting.saveKey({
             gatewayHost: host,
           });

@@ -25,37 +25,46 @@ const AddressLabelWrapper = styled.div`
   margin-right: 1em;
 `;
 
+const CustomHostWrapper = styled.div`
+  margin-top: 1em;
+  display: flex;
+  align-items: center;
+`;
+
 // For setting Gateway related stuff
 const Gateway: React.FC = () => {
   const OriginHost = window.origin + ':8080/';
   const [isChecked, setIsChecked] = useState(false);
+  const [customHost, setCustomHost] = useState(false);
   const [host, setHost] = useState(OriginHost);
 
   const dispatch = useDispatch<Dispatch>();
 
-  const { gatewayEnabled, gatewayHost } = useSelector((state: RootState) => ({
+  const { gatewayEnabled, gatewayHost, customHostFromSetting } = useSelector((state: RootState) => ({
     gatewayEnabled: state.setting.KVS.gatewayEnabled,
     gatewayHost: state.setting.KVS.gatewayHost,
+    customHostFromSetting: state.setting.KVS.customHost,
   }));
 
   useEffect(() => {
     // read state from Linstor KVS
-    setIsChecked(gatewayEnabled);
+    setIsChecked(gatewayEnabled as boolean);
 
     if (gatewayHost === '') {
       setHost(OriginHost);
     } else {
-      setHost(gatewayHost);
+      setHost(gatewayHost as string);
+      setCustomHost(customHostFromSetting as boolean);
     }
-  }, [OriginHost, gatewayEnabled, gatewayHost]);
+  }, [OriginHost, gatewayEnabled, gatewayHost, customHostFromSetting]);
 
   const handleChange = useCallback((isChecked) => {
     setIsChecked(isChecked);
   }, []);
 
   const handleSave = useCallback(() => {
-    dispatch.setting.setGatewayMode({ gatewayEnabled: isChecked, host });
-  }, [dispatch.setting, host, isChecked]);
+    dispatch.setting.setGatewayMode({ gatewayEnabled: isChecked, host, customHost });
+  }, [dispatch.setting, host, isChecked, customHost]);
 
   return (
     <>
@@ -63,6 +72,18 @@ const Gateway: React.FC = () => {
         <Label>Gateway mode</Label>
         <Switch isChecked={isChecked} onChange={handleChange} aria-label="gateway-mode" />
         {isChecked && (
+          <>
+            <CustomHostWrapper>
+              <Label>Custom host</Label>
+              <Switch
+                isChecked={customHost}
+                onChange={(isChecked) => setCustomHost(isChecked)}
+                aria-label="gateway-mode"
+              />
+            </CustomHostWrapper>
+          </>
+        )}
+        {customHost && (
           <AddressWrapper>
             <AddressLabelWrapper>Address:</AddressLabelWrapper>
             <TextInput value={host} onChange={(val) => setHost(val)} aria-label="host" />
