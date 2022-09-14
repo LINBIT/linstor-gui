@@ -67,7 +67,6 @@ service.interceptors.response.use(
       return Promise.reject(new Error(errorMsg));
     } else {
       // normal case
-      console.log(response, 'response');
       return response;
     }
   },

@@ -33,7 +33,7 @@ const CustomHostWrapper = styled.div`
 
 // For setting Gateway related stuff
 const Gateway: React.FC = () => {
-  const OriginHost = window.location.host + ':8080/';
+  const OriginHost = window.location.protocol + '//' + window.location.hostname + ':8080/';
   const [isChecked, setIsChecked] = useState(false);
   const [customHost, setCustomHost] = useState(false);
   const [host, setHost] = useState(OriginHost);
@@ -54,8 +54,9 @@ const Gateway: React.FC = () => {
       setHost(OriginHost);
     } else {
       setHost(gatewayHost as string);
-      setCustomHost(customHostFromSetting as boolean);
     }
+
+    setCustomHost(customHostFromSetting as boolean);
   }, [OriginHost, gatewayEnabled, gatewayHost, customHostFromSetting]);
 
   const handleChange = useCallback((isChecked) => {
@@ -83,7 +84,7 @@ const Gateway: React.FC = () => {
             </CustomHostWrapper>
           </>
         )}
-        {customHost && (
+        {isChecked && customHost && (
           <AddressWrapper>
             <AddressLabelWrapper>Address:</AddressLabelWrapper>
             <TextInput value={host} onChange={(val) => setHost(val)} aria-label="host" />

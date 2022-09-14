@@ -11,16 +11,9 @@ export function handlePropsToFormOption(key: string, prop = {}): FormItem[] {
   if (!key || key === '') {
     return [];
   }
-  console.log(properties, 'properties');
-  console.log(prop, 'prop');
-  console.log(key, 'key');
   const propInfo = properties.objects[key];
 
-  console.log(propInfo, 'propInfo');
-
   let propsArr = [...properties.objects[key]];
-
-  console.log(propsArr, 'propsArr');
 
   if (drbdOptions.objects[key]) {
     propsArr = [...propsArr, ...drbdOptions.objects[key]];

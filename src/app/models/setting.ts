@@ -7,6 +7,7 @@ import { RootModel } from '.';
 // Use "settings" namespace of key-value-store(KVS) for saving settings
 // KVS only stores values as string
 const SETTING_KEY = 'settings';
+const GATEWAY_HOST = 'GATEWAY_HOST';
 
 type Setting = {
   gatewayAvailable: boolean;
@@ -48,13 +49,19 @@ export const setting = createModel<RootModel>()({
       const settings = res.data.find((e) => e.name === SETTING_KEY) || { props: {} };
 
       // KVS only stores values as string
-
       const props = convertToBoolean(settings.props);
-
+      // keep store info in redux
       dispatch.setting.setSettings(props);
 
-      if (props.gatewayHost && props.gatewayHost !== '') {
-        window.localStorage.setItem('GATEWAY_HOST', String(props.gatewayHost));
+      if (props.gatewayEnabled) {
+        const defaultGatewayHost = window.location.protocol + '//' + window.location.hostname + ':8080/';
+        if (props.gatewayHost !== '') {
+          window.localStorage.setItem(GATEWAY_HOST, String(props.gatewayHost));
+        } else {
+          window.localStorage.setItem(GATEWAY_HOST, defaultGatewayHost);
+        }
+      } else {
+        window.localStorage.removeItem(GATEWAY_HOST);
       }
     },
     async saveKey(payload: Record<string, number | string | boolean>, state) {
@@ -81,12 +88,17 @@ export const setting = createModel<RootModel>()({
       try {
         await dispatch.setting.saveKey({
           gatewayEnabled,
-          customHost: customHost,
+          customHost: gatewayEnabled && customHost,
         });
 
         if (gatewayEnabled && customHost) {
           await dispatch.setting.saveKey({
             gatewayHost: host,
+          });
+        } else {
+          await dispatch.setting.saveKey({
+            gatewayHost: '',
+            customHost: false,
           });
         }
 

@@ -69,8 +69,6 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
     return <img src={logo} className="logo" onClick={handleClick} alt="Linbit Logo" />;
   }
 
-  console.log(routes, 'routes');
-
   console.log(KVS, 'KVS');
 
   const filterRoutes = KVS.gatewayEnabled ? routes : routes.filter((route) => route.label !== 'gateway');
