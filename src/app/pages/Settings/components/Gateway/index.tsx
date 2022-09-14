@@ -33,7 +33,7 @@ const CustomHostWrapper = styled.div`
 
 // For setting Gateway related stuff
 const Gateway: React.FC = () => {
-  const OriginHost = window.origin + ':8080/';
+  const OriginHost = window.location.host + ':8080/';
   const [isChecked, setIsChecked] = useState(false);
   const [customHost, setCustomHost] = useState(false);
   const [host, setHost] = useState(OriginHost);

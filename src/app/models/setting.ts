@@ -81,9 +81,6 @@ export const setting = createModel<RootModel>()({
       try {
         await dispatch.setting.saveKey({
           gatewayEnabled,
-        });
-
-        await dispatch.setting.saveKey({
           customHost: customHost,
         });
 
@@ -96,13 +93,15 @@ export const setting = createModel<RootModel>()({
         notify(`LINSTOR-Gateway ${gatewayEnabled ? 'enabled' : 'disabled'}!`, {
           type: 'success',
         });
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       } catch (error) {
         notify('Cannot connect to LINSTOR-Gateway', {
           type: 'error',
         });
       }
-
-      window.location.reload();
     },
   }),
 });
