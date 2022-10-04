@@ -102,7 +102,7 @@ const ResourceDefinitionForm: React.FC<Props> = ({ initialVal, handleSubmit, loa
           isRequired: true,
           invalidMessage: 'Please select',
         },
-        defaultValue: initialVal?.replication_mode ?? 'A',
+        defaultValue: initialVal?.replication_mode ?? 'C',
         extraInfo: {
           options: [
             {

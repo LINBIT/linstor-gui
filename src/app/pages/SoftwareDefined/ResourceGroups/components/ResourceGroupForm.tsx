@@ -137,7 +137,7 @@ const ResourceGroupForm: React.FC<Props> = ({ initialVal, handleSubmit, editing 
           isRequired: true,
           invalidMessage: 'Please select',
         },
-        defaultValue: initialVal?.data_copy_mode ?? 'A',
+        defaultValue: initialVal?.data_copy_mode ?? 'C',
         extraInfo: {
           options: [
             {
