@@ -174,7 +174,6 @@ const ResourceDefinitionList: React.FunctionComponent = () => {
   const listActions = [
     {
       title: t('common:deploy'),
-      isOutsideDropdown: true,
       onClick: (event, rowId, rowData, extra) => {
         console.log('clicked on Some action, on row: ', rowData);
         setShowDeployModal(true);
@@ -192,7 +191,6 @@ const ResourceDefinitionList: React.FunctionComponent = () => {
           'NVMe/TRType',
           'DrbdOptions/auto-verify-alg'
         );
-        console.log(currentData, 'currentData');
         setInitialProps(currentData);
         setPropertyModalOpen(true);
         setCurrent(resourceGroup);
