@@ -140,11 +140,10 @@ const NodeList: React.FunctionComponent = () => {
         title: (
           <div>
             {item?.connection_status === 'ONLINE' ? (
-              <CheckCircleIcon color="green" />
+              <CheckCircleIcon size="md" color="green" />
             ) : (
-              <ExclamationCircleIcon color="red" />
+              <ExclamationCircleIcon size="md" color="red" />
             )}
-
             <span> {item?.connection_status}</span>
           </div>
         ),

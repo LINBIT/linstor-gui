@@ -62,7 +62,7 @@ const en = {
     capacity: 'Capacity',
     free_capacity: 'Free Capacity',
     total_capacity: 'Total Capacity',
-    supports_snapshots: 'Snapshot',
+    supports_snapshots: 'Supports Snapshots',
   },
   ip_address: {
     list: 'IP Address List',
@@ -70,7 +70,7 @@ const en = {
     ip_address: 'IP Address',
     tcp_port: 'TCP Port',
     alias: 'Alias',
-    is_management_network: 'Is Management Network',
+    is_management_network: 'Active',
   },
   error_report: {
     name: 'ID',

@@ -2,14 +2,14 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useRequest } from 'ahooks';
 import { useTranslation } from 'react-i18next';
-import { Button, Progress, ProgressSize } from '@patternfly/react-core';
+import { Label, Progress, ProgressSize } from '@patternfly/react-core';
 import { headerCol, ICell } from '@patternfly/react-table';
 
+import YesOrNo from '@app/components/YesOrNo';
 import FilterList from '@app/components/FilterList';
 import PageBasic from '@app/components/PageBasic';
-
-import { TSPList } from '@app/interfaces/storagePools';
 import PropertyForm from '@app/components/PropertyForm';
+import { TSPList } from '@app/interfaces/storagePools';
 import service from '@app/requests';
 
 const StoragePoolList: React.FunctionComponent = () => {
@@ -84,7 +84,6 @@ const StoragePoolList: React.FunctionComponent = () => {
   const columns = [
     { title: t('name'), cellTransforms: [headerCol()] },
     { title: t('node_name') },
-    { title: t('network_preference') },
     { title: t('provider_kind') },
     { title: t('disk') },
     { title: t('capacity') },
@@ -92,39 +91,46 @@ const StoragePoolList: React.FunctionComponent = () => {
     { title: '' },
   ];
 
+  const providerKindColorMap = {
+    LVM: 'orange',
+    ZFS: 'blue',
+    LVM_THIN: 'green',
+    ZFS_THIN: 'purple',
+  };
+
   const cells = (cell: unknown) => {
     const item = cell as TSPList[0];
     const props = item.props || {};
     return [
       item?.storage_pool_name,
       item?.node_name,
-      props?.['PrefNic'] ?? '--',
-      item?.provider_kind,
+      {
+        title: (
+          <div>
+            {item?.provider_kind ? (
+              <Label color={providerKindColorMap[item.provider_kind]}>{item?.provider_kind}</Label>
+            ) : (
+              '--'
+            )}
+          </div>
+        ),
+      },
       props?.['StorDriver/StorPoolName'],
       {
         title:
           item.total_capacity && item.free_capacity ? (
             <div>
-              <div>
-                <Progress
-                  value={((item.total_capacity - item.free_capacity) / item.total_capacity) * 100}
-                  title={`
-                    Free: ${Math.round(item.free_capacity / 1024 / 1024)} GB
-                    Total: ${Math.round(item.total_capacity / 1024 / 1024)} GB`}
-                  size={ProgressSize.lg}
-                />
-              </div>
+              <Progress
+                value={((item.total_capacity - item.free_capacity) / item.total_capacity) * 100}
+                size={ProgressSize.md}
+              />
             </div>
           ) : (
             '--'
           ),
       },
       {
-        title: (
-          <Button variant="secondary" isDisabled>
-            {item?.supports_snapshots ? 'Support' : 'Not Support'}
-          </Button>
-        ),
+        title: <YesOrNo value={item?.supports_snapshots} />,
       },
       { ...props },
     ] as ICell[];
@@ -135,7 +141,6 @@ const StoragePoolList: React.FunctionComponent = () => {
       title: t('common:property'),
       onClick: (event, rowId, rowData, extra) => {
         const storagePool = rowData.cells[0];
-        console.log('clicked on Some action, on row: ', rowData.cells[0]);
         const currentNode = rowData.cells[1];
         const currentData = rowData.cells[7] ?? {};
         console.log(currentData, 'currentData');
@@ -150,14 +155,12 @@ const StoragePoolList: React.FunctionComponent = () => {
       onClick: (event, rowId, rowData, extra) => {
         const storagePool = rowData.cells[0];
         const node = rowData.cells[1];
-        console.log('clicked on Some action, on row: ', rowData.cells[0]);
         history.push(`/inventory/storage-pools/${node}/${storagePool}/edit`);
       },
     },
     {
       title: t('common:delete'),
       onClick: async (event, rowId, rowData, extra) => {
-        console.log('clicked on Some action, on row: ', rowData);
         const node = rowData.cells[1];
         const storagePoolName = rowData.cells[0];
         await deleteStoragePool(node, storagePoolName);
@@ -177,11 +180,9 @@ const StoragePoolList: React.FunctionComponent = () => {
         label: t('common:delete'),
         variant: 'danger',
         onClick: (selected) => {
-          console.log('Will delete', selected);
           const batchDeleteRequests = selected.map((e) => deleteStoragePool(e.cells[1], e.cells[0], true));
 
           Promise.all(batchDeleteRequests).then((res) => {
-            console.log(res, 'res');
             setAlertList([
               {
                 title: 'Success',
@@ -209,7 +210,6 @@ const StoragePoolList: React.FunctionComponent = () => {
         toolButtons={toolButtons}
         columns={columns}
         cells={cells}
-        filterFunc={filterFunc}
         statsUrl="/v1/stats/storage-pools"
       />
       <PropertyForm

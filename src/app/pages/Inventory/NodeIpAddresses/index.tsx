@@ -5,9 +5,10 @@ import { headerCol, ICell } from '@patternfly/react-table';
 
 import FilterList from '@app/components/FilterList';
 import PageBasic from '@app/components/PageBasic';
-import { NetInterfaceType } from '@app/interfaces/node';
+import { NetInterfaceType } from '@app/interfaces/net_interface';
 import { useRequest } from 'ahooks';
 import service from '@app/requests';
+import YesOrNo from '@app/components/YesOrNo';
 
 const List: React.FunctionComponent = () => {
   const { t } = useTranslation(['ip_address', 'common']);
@@ -63,7 +64,7 @@ const List: React.FunctionComponent = () => {
   ];
 
   const cells = (cell: unknown) => {
-    const item = cell as NetInterfaceType[0] & {
+    const item = cell as NetInterfaceType & {
       node_name: string;
     };
     return [
@@ -71,7 +72,9 @@ const List: React.FunctionComponent = () => {
       item.address,
       item.satellite_port,
       item.name,
-      item.is_active ? t('Management Network') : '',
+      {
+        title: <YesOrNo value={item?.is_active} position="left" />,
+      },
     ] as ICell[];
   };
 
@@ -135,7 +138,6 @@ const List: React.FunctionComponent = () => {
   const filterFunc = useCallback((item) => Array.isArray(item.net_interfaces) && item.net_interfaces.length > 0, []);
 
   const customHandler = useCallback((data) => {
-    console.log(data, 'hi');
     const net_interfaces: NetInterfaceType = [];
 
     for (const item of data) {
@@ -146,8 +148,6 @@ const List: React.FunctionComponent = () => {
         }))
       );
     }
-
-    console.log(net_interfaces, 'net_interfaces');
 
     return net_interfaces;
   }, []);
