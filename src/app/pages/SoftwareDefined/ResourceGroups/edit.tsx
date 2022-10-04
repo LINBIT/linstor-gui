@@ -62,7 +62,6 @@ const ResourceGroupEdit: React.FC = () => {
   );
 
   useEffect(() => {
-    console.log(resourceGroup);
     (async function () {
       if (resourceGroup) {
         await getResourceGroupDetail(resourceGroup);
@@ -103,7 +102,6 @@ const ResourceGroupEdit: React.FC = () => {
         diskless_on_remaining: diskless_on_remaining ?? false,
       },
     };
-    console.log(submitData, 'data');
     await updateResourceGroup(submitData);
   };
 
@@ -114,7 +112,6 @@ const ResourceGroupEdit: React.FC = () => {
     return Array.isArray(data) && data.length === 0;
   }, [data]);
 
-  // FIXME: remove loading and error state
   const initialVal =
     !loading && !emptyState
       ? {
@@ -129,8 +126,11 @@ const ResourceGroupEdit: React.FC = () => {
           replicas_on_different: get(data?.[0], 'select_filter.replicas_on_different', []),
           not_place_with_rsc: get(data?.[0], 'select_filter.not_place_with_rsc', ''),
           not_place_with_rsc_regex: get(data?.[0], 'select_filter.not_place_with_rsc_regex', ''),
+          place_count: get(data?.[0], 'select_filter.place_count', 2),
         }
       : undefined;
+
+  console.log(initialVal, 'initialVal');
 
   return (
     <PageBasic title="Edit Resource Group" loading={loading} error={error || emptyState} alerts={alertList}>
