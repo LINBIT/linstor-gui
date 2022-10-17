@@ -1,5 +1,3 @@
-import BigNumber from 'bignumber.js';
-
 export const isValidRegex = (regexp: string): boolean => {
   let isReg;
   try {
@@ -30,3 +28,12 @@ export function getString(originString: string): string {
 
   return res;
 }
+
+// capitalize the first letter of a string, and lowercase the rest
+export const capitalize = (s: string): string => {
+  if (typeof s !== 'string') {
+    return '';
+  }
+
+  return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+};

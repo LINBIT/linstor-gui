@@ -2,7 +2,8 @@ import * as React from 'react';
 import { NavLink, useLocation, useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ToastContainer } from 'react-toastify';
-
+import { useDispatch, useSelector } from 'react-redux';
+import { Dispatch, RootState } from '@app/store';
 import {
   Nav,
   NavList,
@@ -25,8 +26,6 @@ import LngSelector from './components/LngSelector';
 import logo from '@app/bgimages/Linbit_Logo_White-1.png';
 
 import './AppLayout.css';
-import { useDispatch, useSelector } from 'react-redux';
-import { Dispatch, RootState } from '@app/store';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -68,8 +67,6 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
     }
     return <img src={logo} className="logo" onClick={handleClick} alt="Linbit Logo" />;
   }
-
-  console.log(KVS, 'KVS');
 
   const filterRoutes = KVS.gatewayEnabled ? routes : routes.filter((route) => route.label !== 'gateway');
 

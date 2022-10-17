@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useRequest } from 'ahooks';
 import { useTranslation } from 'react-i18next';
@@ -13,6 +13,8 @@ import PropertyForm from '@app/components/PropertyForm';
 import { omit } from '@app/utils/object';
 import { useDispatch, useSelector } from 'react-redux';
 import { Dispatch, RootState } from '@app/store';
+import { StatusLabel } from '@app/components/StatusLabel';
+import { capitalize } from '@app/utils/stringUtils';
 
 const NodeList: React.FunctionComponent = () => {
   const { t } = useTranslation(['node', 'common']);
@@ -24,9 +26,9 @@ const NodeList: React.FunctionComponent = () => {
   const [currentNode, setCurrentNode] = useState();
   const dispatch = useDispatch<Dispatch>();
 
-  // useEffect(() => {
-  //   dispatch.node.getNodeList({ page: 1, pageSize: 10 });
-  // }, [dispatch.node]);
+  useEffect(() => {
+    console.log('???', capitalize('TTEST'));
+  }, []);
 
   // get loading state and alerts from Redux
   const { deleting, toast } = useSelector((state: RootState) => ({
@@ -135,16 +137,18 @@ const NodeList: React.FunctionComponent = () => {
       item?.name,
       net_interface?.address,
       net_interface?.satellite_port,
-      item?.type,
+      {
+        title: <StatusLabel status={'info'} label={capitalize(item?.type)} />,
+      },
       {
         title: (
           <div>
             {item?.connection_status === 'ONLINE' ? (
-              <CheckCircleIcon size="md" color="green" />
+              <CheckCircleIcon size="sm" color="green" />
             ) : (
-              <ExclamationCircleIcon size="md" color="red" />
+              <ExclamationCircleIcon size="sm" color="red" />
             )}
-            <span> {item?.connection_status}</span>
+            <span> {capitalize(item?.connection_status)}</span>
           </div>
         ),
       },
@@ -234,7 +238,6 @@ const NodeList: React.FunctionComponent = () => {
           const batchLostRequests = selected.map((e) => lostNode(e.cells[0], true));
 
           Promise.all(batchLostRequests).then((res) => {
-            console.log(res, 'res');
             setAlertList([
               {
                 title: 'Success',
