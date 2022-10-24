@@ -1,0 +1,1230 @@
+---
+openapi: 3.0.2
+info:
+  title: LINSTOR Gateway REST API
+  description: |
+    LINSTOR Gateway REST API v2
+
+    The v2 REST API should stay compatible; only additions are made to the API.
+    If there are breaking changes or redesigned a new major REST API version will be issued.
+
+    By default, the server runs on port `8080`.
+
+    To change the bind address or port you can use the `--addr` option to linstor-gateway:
+    ```
+    linstor-gateway server --addr=":8080"
+    ```
+
+    Changelog:
+    * 2.0.0
+      - Initial REST API v2
+  contact:
+    email: christoph.boehmwalder@linbit.com
+  license:
+    name: GPLv3
+    url: https://www.gnu.org/licenses/gpl-3.0.html
+  version: 2.0.0
+servers:
+- url: http://localhost:8080
+  description: Local LINSTOR Gateway server
+tags:
+- name: iscsi
+- name: nfs
+- name: nvme-of
+paths:
+  /api/v2/iscsi:
+    get:
+      tags:
+      - iscsi
+      summary: Lists all iSCSI targets
+      description: Returns a list of all iSCSI targets created by LINSTOR Gateway
+      operationId: iscsiList
+      responses:
+        "200":
+          description: Array of iSCSI target resource configs.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ISCSIResourceConfig'
+        "500":
+          description: Some error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+      - iscsi
+      summary: Creates a new iSCSI target
+      description: Creates a new iSCSI target
+      operationId: iscsiCreate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ISCSIResourceConfig'
+        required: true
+      responses:
+        "201":
+          description: The iSCSI target was successfully created. The created target is returned.
+          headers:
+            Location:
+              description: The URL where the newly created target can be found
+              style: simple
+              explode: false
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ISCSIResourceConfig'
+        "400":
+          description: Invalid input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v2/iscsi/{iqn}:
+    get:
+      tags:
+      - iscsi
+      summary: Gets an iSCSI target
+      description: Gets the resource config of a single iSCSI target.
+      operationId: iscsiGet
+      parameters:
+      - name: iqn
+        in: path
+        description: IQN of the target
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: iqn.1998-06.com.linbit:vmstorage
+      responses:
+        "200":
+          description: A single iSCSI target resource config
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ISCSIResourceConfig'
+        "400":
+          description: The given IQN has an invalid format.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: No iSCSI target with the given IQN can be found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+      - iscsi
+      summary: Deletes an iSCSI target
+      description: Deletes an iSCSI target, along with all its LUNs
+      operationId: iscsiDelete
+      parameters:
+      - name: iqn
+        in: path
+        description: IQN of the target
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: iqn.1998-06.com.linbit:vmstorage
+      responses:
+        "200":
+          description: The target was successfully deleted. The response body is empty.
+        "400":
+          description: The given IQN has an invalid format.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: No iSCSI target with the given IQN can be found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Some error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v2/iscsi/{iqn}/start:
+    post:
+      tags:
+      - iscsi
+      summary: Starts an iSCSI target
+      description: Starts an iSCSI target.
+      operationId: iscsiStart
+      parameters:
+      - name: iqn
+        in: path
+        description: IQN of the target
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: iqn.1998-06.com.linbit:vmstorage
+      responses:
+        "200":
+          description: The iSCSI target was successfully started
+          headers:
+            Location:
+              description: The URL to the target that was just started
+              style: simple
+              explode: false
+              schema:
+                type: string
+        "400":
+          description: The given IQN has an invalid format.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: No iSCSI target with the given IQN can be found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Some error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v2/iscsi/{iqn}/stop:
+    post:
+      tags:
+      - iscsi
+      summary: Stops an iSCSI target
+      description: Stops an iSCSI target.
+      operationId: iscsiStop
+      parameters:
+      - name: iqn
+        in: path
+        description: IQN of the target
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: iqn.1998-06.com.linbit:vmstorage
+      responses:
+        "200":
+          description: The iSCSI target was successfully stopped
+          headers:
+            Location:
+              description: The URL to the target that was just stopped
+              style: simple
+              explode: false
+              schema:
+                type: string
+        "400":
+          description: The given IQN has an invalid format.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: No iSCSI target with the given IQN can be found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Some error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v2/iscsi/{iqn}/{lun}:
+    get:
+      tags:
+      - iscsi
+      summary: Gets a logical unit of an iSCSI target
+      description: Gets the resource config for a single logical unit of an iSCSI target.
+      operationId: iscsiGetLu
+      parameters:
+      - name: iqn
+        in: path
+        description: IQN of the target
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: iqn.1998-06.com.linbit:vmstorage
+      - name: lun
+        in: path
+        description: Logical unit number
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+        example: 0
+      responses:
+        "200":
+          description: A single volume config
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VolumeConfig'
+              examples: {}
+        "400":
+          description: The given IQN has an invalid format.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: No iSCSI target with the given IQN can be found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Some error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      tags:
+      - iscsi
+      summary: Adds a logical unit to an iSCSI target
+      description: Adds a logical unit to an iSCSI target. The target must be stopped when this operation is run.
+      operationId: iscsiAddLu
+      parameters:
+      - name: iqn
+        in: path
+        description: IQN of the target
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: iqn.1998-06.com.linbit:vmstorage
+      - name: lun
+        in: path
+        description: Logical unit number
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+        example: 0
+      responses:
+        "200":
+          description: The VolumeConfig of the logical unit that was just added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VolumeConfig'
+        "400":
+          description: The given IQN has an invalid format.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: No iSCSI target with the given IQN can be found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Some error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+      - iscsi
+      summary: Deletes a logical unit of an iSCSI target
+      description: Deletes a single logical unit from an iSCSI target. The target must be stopped when this operation is run.
+      operationId: iscsiDeleteLu
+      parameters:
+      - name: iqn
+        in: path
+        description: IQN of the target
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: iqn.1998-06.com.linbit:vmstorage
+      - name: lun
+        in: path
+        description: Logical unit number
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+        example: 0
+      responses:
+        "200":
+          description: The logical unit was successfully deleted. The response body is empty.
+        "400":
+          description: The given IQN has an invalid format.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: No iSCSI target with the given IQN can be found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Some error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v2/nfs:
+    get:
+      tags:
+      - nfs
+      summary: Lists all NFS exports
+      description: Lists all NFS exports created by LINSTOR Gateway
+      operationId: nfsList
+      responses:
+        "200":
+          description: Array of NFS export resource configs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NFSResourceConfig'
+        "500":
+          description: Some error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+      - nfs
+      summary: ""
+      description: Creates a new NFS export
+      operationId: nfsCreate
+      responses:
+        "201":
+          description: The export was successfully created
+          headers:
+            Location:
+              description: The URL where the newly created export can be found
+              style: simple
+              explode: false
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NFSResourceConfig'
+              examples: {}
+        "400":
+          description: Invalid input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v2/nfs/{name}:
+    get:
+      tags:
+      - nfs
+      summary: Gets an NFS export
+      description: Gets details and status information about an NFS export.
+      operationId: nfsGet
+      parameters:
+      - name: name
+        in: path
+        description: Name of the NFS export
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NFSResourceConfig'
+        "404":
+          description: Example response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Some error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+      - nfs
+      summary: ""
+      description: Delete an NFS export, including all its volumes.
+      operationId: nfsDelete
+      parameters:
+      - name: name
+        in: path
+        description: Name of the NFS export
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The export was deleted. The body is empty.
+        "500":
+          description: Some error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v2/nfs/{name}/start:
+    post:
+      tags:
+      - nfs
+      summary: Starts an NFS export
+      description: Starts an NFS export. This is only possible if the export is currently stopped, otherwise this operation does nothing.
+      operationId: nfsStart
+      parameters:
+      - name: name
+        in: path
+        description: Name of the NFS export
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The export was successfully started. Returns the resource config of the started export.
+          headers:
+            Location:
+              description: The URL to the NFS export
+              style: simple
+              explode: false
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NFSResourceConfig'
+        "404":
+          description: Example response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Some error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v2/nfs/{name}/stop:
+    post:
+      tags:
+      - nfs
+      summary: Stops an NFS export
+      description: Stops an NFS export. Stopping an export makes it unavailable to its consumers while not fully deleting it. This is only possible if the export is currently started, otherwise this operation does nothing.
+      operationId: nfsStop
+      parameters:
+      - name: name
+        in: path
+        description: Name of the NFS export
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The export was successfully stopped. Returns the resource config of the stopped export.
+          headers:
+            Location:
+              description: The URL to the NFS export
+              style: simple
+              explode: false
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NFSResourceConfig'
+        "404":
+          description: Example response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Some error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v2/nfs/{name}/{volume}:
+    get:
+      tags:
+      - nfs
+      summary: Gets a volume of an NFS export
+      description: Gets information about a single volume of an NFS export
+      operationId: nfsGetVolume
+      parameters:
+      - name: name
+        in: path
+        description: Name of the NFS export
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: volume
+        in: path
+        description: Volume ID
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VolumeConfig'
+        "400":
+          description: Invalid volume ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: Example response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+      - nfs
+      summary: Deletes a volume of an NFS export
+      description: Deletes a single volume from an NFS export. The export must be stopped before this operation can be executed.
+      operationId: nfsDeleteVolume
+      parameters:
+      - name: name
+        in: path
+        description: Name of the NFS export
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: volume
+        in: path
+        description: Volume ID
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The volume was deleted. The body is empty.
+        "404":
+          description: Example response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Some error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v2/nvme-of:
+    get:
+      tags:
+      - nvme-of
+      summary: Lists all NVMe-oF targets
+      description: Lists all NVMe-oF targets created by LINSTOR Gateway
+      operationId: nvmeOfList
+      responses:
+        "200":
+          description: List of targets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NvmeOfResourceConfig'
+        "500":
+          description: Some error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+      - nvme-of
+      summary: Creates a new NVMe-oF target
+      description: Creates a new NVMe-oF target
+      operationId: nvmeOfCreate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NvmeOfResourceConfig'
+      responses:
+        "201":
+          description: Created
+          headers:
+            Location:
+              description: The URL to the newly created target
+              style: simple
+              explode: false
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NvmeOfResourceConfig'
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v2/nvme-of/{nqn}:
+    get:
+      tags:
+      - nvme-of
+      summary: Get an NVMe-oF target
+      description: Get information about a single NVMe-oF target
+      operationId: nvmeOfGet
+      parameters:
+      - name: nqn
+        in: path
+        description: The NQN of the target
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NvmeOfResourceConfig'
+        "400":
+          description: The given NQN has an invalid format.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: No NVMe-oF target with the given NQN can be found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Some error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+      - nvme-of
+      summary: Delete an NVMe-oF target
+      description: Deletes an NVMe-oF target, along with all its volumes.
+      operationId: nvmeOfDelete
+      parameters:
+      - name: nqn
+        in: path
+        description: The NQN of the target
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: The given NQN has an invalid format.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: No NVMe-oF target with the given NQN can be found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Some error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v2/nvme-of/{nqn}/start:
+    post:
+      tags:
+      - nvme-of
+      summary: Starts an NVMe-oF target
+      description: Starts an NVMe-oF target. This is only possible if the target is currently stopped, otherwise this operation does nothing.
+      operationId: nvmeOfStart
+      parameters:
+      - name: nqn
+        in: path
+        description: The NQN of the target
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          headers:
+            Location:
+              description: URL to the started NVMe-oF target
+              style: simple
+              explode: false
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NvmeOfResourceConfig'
+        "400":
+          description: The given NQN has an invalid format.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: No NVMe-oF target with the given NQN can be found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Some error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v2/nvme-of/{nqn}/stop:
+    post:
+      tags:
+      - nvme-of
+      summary: Stops an NVMe-oF target
+      description: Stops an NVMe-oF target. This is only possible if the target is currently started, otherwise this operation does nothing.
+      operationId: nvmeOfStop
+      parameters:
+      - name: nqn
+        in: path
+        description: The NQN of the target
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          headers:
+            Location:
+              description: URL to the stopped NVMe-oF target
+              style: simple
+              explode: false
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NvmeOfResourceConfig'
+        "400":
+          description: The given NQN has an invalid format.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: No NVMe-oF target with the given NQN can be found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Some error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v2/nvme-of/{nqn}/{nsid}:
+    get:
+      tags:
+      - nvme-of
+      summary: Delete ad
+      description: Gets a single volume from an NVMe-oF target
+      operationId: nvmeOfGetVolume
+      parameters:
+      - name: nqn
+        in: path
+        description: The NQN of the target
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: nsid
+        in: path
+        description: The ID of the namespace
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: number
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VolumeConfig'
+        "400":
+          description: The given NQN has an invalid format.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: No NVMe-oF target with the given NQN can be found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Some error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+      - nvme-of
+      summary: Add a volume to an NVMe-oF target
+      description: Adds a volume to an existing NVMe-oF target. The target must be stopped before executing this operation, or it will fail.
+      operationId: nvmeOfAddVolume
+      parameters:
+      - name: nqn
+        in: path
+        description: The NQN of the target
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: nsid
+        in: path
+        description: The ID of the namespace
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: number
+      requestBody:
+        description: The new volume
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VolumeConfig'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VolumeConfig'
+        "400":
+          description: The given NQN has an invalid format.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: Not Found
+        "500":
+          description: Some error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+      - nvme-of
+      summary: Delete a volume from an NVMe-oF target
+      description: Deletes a volume from an existing NVMe-oF target. The target must be stopped before executing this operation, or it will fail.
+      operationId: nvmeOfVolumeDelete
+      parameters:
+      - name: nqn
+        in: path
+        description: The NQN of the target
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: nsid
+        in: path
+        description: The ID of the namespace
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: number
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: The given NQN has an invalid format.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: No NVMe-oF target with the given NQN can be found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Some error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    IQN:
+      type: string
+    NQN:
+      title: NQN
+      type: string
+      description: ""
+      x-examples: {}
+    IPCidr:
+      type: string
+    ResourceState:
+      type: string
+      enum:
+      - OK
+      - Degraded
+      - Bad
+    ServiceState:
+      type: string
+      enum:
+      - Started
+      - Stopped
+    VolumeState:
+      type: object
+      properties:
+        number:
+          type: number
+        state:
+          $ref: '#/components/schemas/ResourceState'
+    ResourceStatus:
+      type: object
+      properties:
+        state:
+          $ref: '#/components/schemas/ResourceState'
+        service:
+          $ref: '#/components/schemas/ServiceState'
+        primary:
+          type: string
+        nodes:
+          type: array
+          items:
+            type: string
+        volumes:
+          type: array
+          items:
+            $ref: '#/components/schemas/VolumeState'
+    VolumeConfig:
+      type: object
+      properties:
+        number:
+          type: integer
+        size_kib:
+          type: integer
+          example: 1048576
+    ISCSIResourceConfig:
+      required:
+      - iqn
+      - resource_group
+      - service_ips
+      - volumes
+      type: object
+      properties:
+        iqn:
+          $ref: '#/components/schemas/IQN'
+        allowed_initiators:
+          type: array
+          items:
+            $ref: '#/components/schemas/IQN'
+        resource_group:
+          type: string
+        volumes:
+          type: array
+          items:
+            $ref: '#/components/schemas/VolumeConfig'
+        username:
+          type: string
+        password:
+          type: string
+        service_ips:
+          type: array
+          items:
+            $ref: '#/components/schemas/IPCidr'
+        status:
+          $ref: '#/components/schemas/ResourceStatus'
+    NFSResourceConfig:
+      type: object
+      properties:
+        name:
+          type: string
+        service_ip:
+          $ref: '#/components/schemas/IPCidr'
+        allowed_ips:
+          type: array
+          items:
+            $ref: '#/components/schemas/IPCidr'
+        resource_group:
+          type: string
+        volumes:
+          type: array
+          items:
+            $ref: '#/components/schemas/VolumeConfig'
+        status:
+          $ref: '#/components/schemas/ResourceStatus'
+    Error:
+      title: Error
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      x-examples:
+        example:
+          code: Internal Server Error
+          message: Something went wrong
+    NvmeOfResourceConfig:
+      title: NvmeOfResourceConfig
+      type: object
+      properties:
+        nqn:
+          $ref: '#/components/schemas/NQN'
+        service_ip:
+          $ref: '#/components/schemas/IPCidr'
+        resource_group:
+          type: string
+        volumes:
+          type: array
+          items:
+            $ref: '#/components/schemas/VolumeConfig'
+        status:
+          $ref: '#/components/schemas/ResourceStatus'
+  responses:
+    InvalidIQN:
+      description: The given IQN has an invalid format.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    IQNNotFound:
+      description: No iSCSI target with the given IQN can be found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalServerError:
+      description: Some error occurred
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ExportNotFound:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NQNNotFound:
+      description: No NVMe-oF target with the given NQN can be found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InvalidNQN:
+      description: The given NQN has an invalid format.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    IQN:
+      name: iqn
+      in: path
+      description: IQN of the target
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+      example: iqn.1998-06.com.linbit:vmstorage
+    LUN:
+      name: lun
+      in: path
+      description: Logical unit number
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: integer
+      example: 0
