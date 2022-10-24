@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useEffect, useState } from 'react';
+import React, { PropsWithChildren, useEffect, useRef, useState } from 'react';
 import {
   Bullseye,
   EmptyState,
@@ -10,8 +10,6 @@ import {
   PageSectionVariants,
 } from '@patternfly/react-core';
 
-import ToastAlertGroup from '@app/components/ToastAlertGroup';
-
 import './index.css';
 
 interface Props {
@@ -22,15 +20,6 @@ interface Props {
 }
 
 const PageBasic: React.FC<PropsWithChildren<Props>> = ({ alerts, loading, error, title, children }) => {
-  const [alertList, setAlertList] = useState<alertList>([]);
-
-  // handle alert
-  useEffect(() => {
-    if (alerts) {
-      setAlertList(alerts);
-    }
-  }, [alerts]);
-
   // loading state
   if (loading) {
     return (
@@ -58,14 +47,8 @@ const PageBasic: React.FC<PropsWithChildren<Props>> = ({ alerts, loading, error,
     );
   }
 
-  // close an alert
-  const handleCloseAlert = (key: string) => {
-    setAlertList(alertList.filter((e) => e.key !== key));
-  };
-
   return (
     <PageSection variant={PageSectionVariants.light}>
-      <ToastAlertGroup alerts={alertList} handleCloseAlert={handleCloseAlert} />
       <Title headingLevel="h1" size="lg">
         {title}
       </Title>

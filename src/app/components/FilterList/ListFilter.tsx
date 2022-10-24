@@ -12,6 +12,7 @@ import {
 } from '@patternfly/react-core';
 import { SearchIcon } from '@patternfly/react-icons';
 import { FilterIcon } from '@patternfly/react-icons';
+import { capitalize } from '@app/utils/stringUtils';
 
 interface Prop {
   handleSearch: (node: string) => void;
@@ -44,7 +45,7 @@ const ListFilter: React.FC<Prop> = ({ handleSearch, handleFilter, showFilter, to
   ];
 
   const statusOptions = NODE_STATUS_MAP.map((e) => ({
-    value: e,
+    value: capitalize(e),
     disabled: false,
   }));
 

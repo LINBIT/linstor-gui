@@ -11,6 +11,8 @@ import { TableComposable, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-tab
 import { formatTime } from '@app/utils/time';
 import { useTranslation } from 'react-i18next';
 
+import { ListPagination } from '@app/components/ListPagination';
+
 interface Prop {
   pagination: {
     total: number;

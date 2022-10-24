@@ -24,9 +24,8 @@ const NodeCreate: React.FC = () => {
   // add node
   const handleAddNode = useCallback(
     async (node: NodeInfoType) => {
-      const success = await dispatch.node.createNode(node);
-
-      if (success) {
+      const done = await dispatch.node.createNode(node);
+      if (done) {
         history.push('/inventory/nodes');
       }
     },

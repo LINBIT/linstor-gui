@@ -30,7 +30,7 @@ export function getString(originString: string): string {
 }
 
 // capitalize the first letter of a string, and lowercase the rest
-export const capitalize = (s: string): string => {
+export const capitalize = (s?: string): string => {
   if (typeof s !== 'string') {
     return '';
   }

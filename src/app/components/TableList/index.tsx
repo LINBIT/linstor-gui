@@ -11,7 +11,7 @@ import { TableComposable, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-tab
 import { formatTime } from '@app/utils/time';
 import { useTranslation } from 'react-i18next';
 
-interface Prop {
+interface SimpleListProp<T> {
   pagination: {
     total: number;
     page: number;
@@ -19,10 +19,10 @@ interface Prop {
     onSetPage: (page: number) => void;
     onSetPerPage: (perPage: number) => void;
   };
-  dataList: Array<any>;
+  dataList: T[];
 }
 
-export const SimpleList: React.FunctionComponent<Prop> = ({ pagination, dataList }) => {
+function TableList<T>({ pagination, dataList }: SimpleListProp<T>) {
   const [perPage, setPerPage] = useState(pagination ? pagination.perPage : 10);
   const [page, setPage] = useState(pagination ? pagination.page : 1);
   const { t } = useTranslation(['error_report', 'common']);
@@ -92,4 +92,6 @@ export const SimpleList: React.FunctionComponent<Prop> = ({ pagination, dataList
       />
     </>
   );
-};
+}
+
+export { TableList };

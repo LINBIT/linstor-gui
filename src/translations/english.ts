@@ -45,8 +45,8 @@ const en = {
   node: {
     node_list: 'Node List',
     node_name: 'Name',
-    default_ip: 'Default IP',
-    default_port: 'Default Port',
+    default_ip: 'IP',
+    default_port: 'Port',
     node_type: 'Type',
     node_status: 'Status',
     node_detail: 'Node Detail',

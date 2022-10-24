@@ -1,13 +1,13 @@
-import service from '@app/requests';
 import { createModel } from '@rematch/core';
 import { RootModel } from '.';
-
-import { NodeItem, NodeInfoType } from '@app/interfaces/node';
-import { AlertType } from '@app/interfaces/alert';
+import service from '@app/requests';
+import { NodeDeleteRequest, NodeInfoType, NodeLitResponse } from '@app/interfaces/node';
+import { ApiCallRcList } from '@app/interfaces/common';
 import { notify } from '@app/utils/toast';
+import { fetchNodeList, fetchNodeStats, lostNodeRequest } from '@app/requests/node';
 
 type NodeState = {
-  list: NodeItem[];
+  list: NodeLitResponse;
   pageInfo: PageInfo;
 };
 
@@ -27,27 +27,31 @@ export const node = createModel<RootModel>()({
     },
   } as NodeState, // initial state
   reducers: {
-    // handle state changes with pure functions
     setNodeList(state, payload: NodeState) {
       return {
         ...state,
         ...payload,
       };
     },
+    setPageInfo(state, payload: PageInfo) {
+      return {
+        ...state,
+        pageInfo: {
+          ...state.pageInfo,
+          ...payload,
+        },
+      };
+    },
   },
   effects: (dispatch) => ({
     async getNodeList(payload: { page: number; pageSize: number }, state) {
-      const nodeStats = await service.get('/v1/stats/nodes');
+      const { page, pageSize } = payload;
 
-      const res = await service.get('/v1/nodes', {
-        params: {
-          limit: payload.page - 1,
-          offset: payload.pageSize,
-        },
-      });
+      const nodeStats = await fetchNodeStats();
+      const nodeList = await fetchNodeList({ offset: pageSize, limit: page - 1 });
 
       dispatch.node.setNodeList({
-        list: res.data,
+        list: nodeList.data,
         pageInfo: {
           ...state.node.pageInfo,
           total: nodeStats.data.count,
@@ -78,14 +82,16 @@ export const node = createModel<RootModel>()({
           ],
         };
 
-        const result = await service.post('/v1/nodes', { ...data });
+        const result = await service.post<unknown, { data: ApiCallRcList }>('/v1/nodes', { ...data });
 
-        dispatch.notification.setNotificationList(result.data as AlertType[]);
+        for (const item of result.data) {
+          notify(String(item.message), {
+            type: item.ret_code > 0 ? 'success' : 'error',
+          });
+        }
 
         res = true;
       } catch (error) {
-        console.log(error, '??');
-
         if (Array.isArray(error)) {
           for (const item of error) {
             notify(String(item.message), {
@@ -102,8 +108,12 @@ export const node = createModel<RootModel>()({
     async deleteNode(payload: string[], state) {
       try {
         for (const node of payload) {
-          const res = await service.delete(`/v1/nodes/${node}`);
-          dispatch.notification.setNotificationList(res.data);
+          const res = await service.delete<NodeDeleteRequest, { data: ApiCallRcList }>(`/v1/nodes/${node}`);
+          for (const item of res.data) {
+            notify(String(item.message), {
+              type: item.ret_code > 0 ? 'success' : 'error',
+            });
+          }
         }
 
         dispatch.node.getNodeList({
@@ -111,7 +121,30 @@ export const node = createModel<RootModel>()({
           pageSize: state.node.pageInfo.pageSize,
         });
       } catch (error) {
-        dispatch.notification.setNotificationList(error as AlertType[]);
+        notify('Error', {
+          type: 'error',
+        });
+      }
+    },
+    async lostNode(payload: string[], state) {
+      try {
+        for (const node of payload) {
+          const res = await lostNodeRequest({ node });
+          for (const item of res.data) {
+            notify(String(item.message), {
+              type: item.ret_code > 0 ? 'success' : 'error',
+            });
+          }
+        }
+
+        dispatch.node.getNodeList({
+          page: state.node.pageInfo.currentPage,
+          pageSize: state.node.pageInfo.pageSize,
+        });
+      } catch (error) {
+        notify('Error', {
+          type: 'error',
+        });
       }
     },
   }),

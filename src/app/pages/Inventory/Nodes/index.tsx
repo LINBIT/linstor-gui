@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useRequest } from 'ahooks';
 import { useTranslation } from 'react-i18next';
@@ -6,15 +6,18 @@ import { headerCol, ICell } from '@patternfly/react-table';
 
 import { CheckCircleIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
 
-import FilterList from '@app/components/FilterList';
 import PageBasic from '@app/components/PageBasic';
 import service from '@app/requests';
 import PropertyForm from '@app/components/PropertyForm';
+import FilterList from '@app/components/FilterList';
 import { omit } from '@app/utils/object';
 import { useDispatch, useSelector } from 'react-redux';
 import { Dispatch, RootState } from '@app/store';
 import { StatusLabel } from '@app/components/StatusLabel';
 import { capitalize } from '@app/utils/stringUtils';
+import { ListPagination } from '@app/components/ListPagination';
+import List from './components/List';
+import { Button, ToolbarItem } from '@patternfly/react-core';
 
 const NodeList: React.FunctionComponent = () => {
   const { t } = useTranslation(['node', 'common']);
@@ -25,67 +28,19 @@ const NodeList: React.FunctionComponent = () => {
   const [alertList, setAlertList] = useState<alertList>([]);
   const [currentNode, setCurrentNode] = useState();
   const dispatch = useDispatch<Dispatch>();
-
-  useEffect(() => {
-    console.log('???', capitalize('TTEST'));
-  }, []);
-
   // get loading state and alerts from Redux
-  const { deleting, toast } = useSelector((state: RootState) => ({
+  const { deleting, toast, nodeList, pagination } = useSelector((state: RootState) => ({
     deleting: state.loading.effects.node.deleteNode,
     toast: state.notification.toast,
+    nodeList: state.node.list,
+    pagination: state.node.pageInfo,
   }));
 
-  // handle batch delete or lost
-  const batchSuccessHandler = useCallback(
-    (isBatch) => {
-      if (isBatch) {
-        setFetchList(!fetchList);
-      } else {
-        setAlertList([
-          {
-            title: 'Success',
-            variant: 'success',
-            key: new Date().toString(),
-          },
-        ]);
-      }
-    },
-    [setFetchList, fetchList]
-  );
+  useEffect(() => {
+    dispatch.node.getNodeList({ page: 1, pageSize: 10 });
+  }, [dispatch.node]);
 
-  // lost a node
-  const { run: lostNode } = useRequest(
-    (node, isBatch = false) => ({
-      url: `/v1/nodes/${node}/lost`,
-      method: 'delete',
-    }),
-    {
-      manual: true,
-      onSuccess: (data, params) => {
-        console.log(params, 'params');
-        // params from useRequest like [node, isBatch]
-        batchSuccessHandler(params[1]);
-      },
-    }
-  );
-
-  // delete a node
-  const { run: deleteNode } = useRequest(
-    (node, isBatch = false) => ({
-      url: `/v1/nodes/${node}`,
-      method: 'delete',
-    }),
-    {
-      manual: true,
-      onSuccess: (data, params) => {
-        console.log(params, 'params');
-        batchSuccessHandler(params[1]);
-      },
-    }
-  );
-
-  const { loading: updatingNode, run: handleUpdateNode } = useRequest(
+  const { run: handleUpdateNode } = useRequest(
     (body) => ({
       url: `/v1/nodes/${currentNode}`,
       body,
@@ -197,7 +152,7 @@ const NodeList: React.FunctionComponent = () => {
       onClick: (event, rowId, rowData, extra) => {
         console.log('clicked on Some action, on row: ', rowData);
         const node = rowData.cells[0];
-        lostNode(node);
+        dispatch.node.lostNode([node]);
       },
     },
   ];
@@ -214,57 +169,36 @@ const NodeList: React.FunctionComponent = () => {
         label: t('common:delete'),
         variant: 'warning',
         onClick: (selected) => {
-          console.log('Will delete', selected);
-          const batchDeleteRequests = selected.map((e) => deleteNode(e.cells[0], true));
-
-          Promise.all(batchDeleteRequests).then((res) => {
-            console.log(res, 'res');
-            setAlertList([
-              {
-                title: 'Success',
-                variant: 'success',
-                key: new Date().toString(),
-              },
-            ]);
-            setFetchList(!fetchList);
-          });
+          dispatch.node.deleteNode(selected.map((e) => e.cells[0]));
         },
       },
       {
         label: t('common:lost'),
         variant: 'danger',
         onClick: (selected) => {
-          console.log('Will lost', selected);
-          const batchLostRequests = selected.map((e) => lostNode(e.cells[0], true));
-
-          Promise.all(batchLostRequests).then((res) => {
-            setAlertList([
-              {
-                title: 'Success',
-                variant: 'success',
-                key: new Date().toString(),
-              },
-            ]);
-            setFetchList(!fetchList);
-          });
+          dispatch.node.lostNode(selected.map((e) => e.cells[0]));
         },
       },
     ];
-  }, [deleteNode, fetchList, history, lostNode, t]);
+  }, [dispatch.node, history, t]);
 
   return (
     <PageBasic title={t('node_list')} alerts={toast} loading={deleting}>
-      <FilterList
-        url="/v1/nodes"
-        showFilter
-        showSearch
-        filerField="connection_status"
-        actions={listActions}
-        fetchList={fetchList}
-        toolButtons={toolButtons}
-        columns={columns}
-        cells={cells}
-        statsUrl="/v1/stats/nodes"
+      <List nodes={nodeList} />
+      <ListPagination
+        {...pagination}
+        onSetPage={function (currentPage: number): void {
+          dispatch.node.setPageInfo({
+            ...pagination,
+            currentPage,
+          });
+        }}
+        onSetPerPage={function (pageSize: number): void {
+          dispatch.node.setPageInfo({
+            ...pagination,
+            pageSize,
+          });
+        }}
       />
       <PropertyForm
         initialVal={initialProps}
