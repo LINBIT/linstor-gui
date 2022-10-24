@@ -1,3 +1,9 @@
+linstor-gui (1.1.1~rc.1-1) experimental; urgency=medium
+
+  * new upstream release
+
+ -- Christoph Böhmwalder <christoph.boehmwalder@linbit.com>  Mon, 24 Oct 2022 15:37:51 +0200
+
 linstor-gui (1.1.0-1) experimental; urgency=medium
 
   * new upstream release
