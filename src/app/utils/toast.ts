@@ -13,4 +13,15 @@ const notify = (content: string, options?: ToastOptions): void => {
   });
 };
 
-export { notify, handleLinstorMessage };
+const notifyList = (list: { message: string; ret_code: number }[], options?: ToastOptions): void => {
+  if (!list) {
+    return;
+  }
+  for (const item of list) {
+    notify(String(item.message), {
+      type: item.ret_code > 0 ? 'success' : 'error',
+    });
+  }
+};
+
+export { notify, handleLinstorMessage, notifyList };

@@ -14,6 +14,12 @@ type Setting = {
   KVS: Record<string, boolean | string>;
 };
 
+type GatewaySettings = {
+  gatewayEnabled?: boolean;
+  customHost?: boolean;
+  host?: string;
+};
+
 export const setting = createModel<RootModel>()({
   state: {
     gatewayAvailable: false,

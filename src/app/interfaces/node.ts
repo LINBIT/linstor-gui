@@ -6,6 +6,7 @@ export type NodeListRequest = operations['nodeList']['parameters']['query'];
 export type NodeListStatsResponse = operations['nodeStats']['responses']['200']['content']['application/json'];
 export type NodeLostRequest = operations['nodeLost']['parameters']['path'];
 export type NodeDeleteRequest = operations['nodeDelete']['parameters']['path'];
+export type NodeModifyRequest = operations['nodeModify']['requestBody']['content']['application/json'];
 
 import { NetInterfaceType } from '@app/interfaces/net_interface';
 

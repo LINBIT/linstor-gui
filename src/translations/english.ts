@@ -2,7 +2,7 @@ const en = {
   common: {
     disconnected: 'DISCONNECTED',
     connected: 'CONNECTED',
-    search: 'Search by name',
+    search: 'Search',
     property: 'Properties',
     add: 'Add',
     view: 'View',

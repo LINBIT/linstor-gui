@@ -1,10 +1,10 @@
 import { createModel } from '@rematch/core';
 import { RootModel } from '.';
 import service from '@app/requests';
-import { NodeDeleteRequest, NodeInfoType, NodeLitResponse } from '@app/interfaces/node';
+import { NodeDeleteRequest, NodeInfoType, NodeLitResponse, NodeModifyRequest } from '@app/interfaces/node';
 import { ApiCallRcList } from '@app/interfaces/common';
-import { notify } from '@app/utils/toast';
-import { fetchNodeList, fetchNodeStats, lostNodeRequest } from '@app/requests/node';
+import { notify, notifyList } from '@app/utils/toast';
+import { fetchNodeList, fetchNodeStats, lostNodeRequest, updateNodeRequest } from '@app/requests/node';
 
 type NodeState = {
   list: NodeLitResponse;
@@ -44,11 +44,11 @@ export const node = createModel<RootModel>()({
     },
   },
   effects: (dispatch) => ({
-    async getNodeList(payload: { page: number; pageSize: number }, state) {
-      const { page, pageSize } = payload;
+    async getNodeList(payload: { page: number; pageSize: number; nodes?: string[] }, state) {
+      const { page, pageSize, nodes } = payload;
 
       const nodeStats = await fetchNodeStats();
-      const nodeList = await fetchNodeList({ offset: pageSize, limit: page - 1 });
+      const nodeList = await fetchNodeList({ offset: pageSize, limit: page - 1, nodes });
 
       dispatch.node.setNodeList({
         list: nodeList.data,
@@ -84,11 +84,7 @@ export const node = createModel<RootModel>()({
 
         const result = await service.post<unknown, { data: ApiCallRcList }>('/v1/nodes', { ...data });
 
-        for (const item of result.data) {
-          notify(String(item.message), {
-            type: item.ret_code > 0 ? 'success' : 'error',
-          });
-        }
+        notifyList(result.data);
 
         res = true;
       } catch (error) {
@@ -105,15 +101,25 @@ export const node = createModel<RootModel>()({
 
       return res;
     },
+
+    async updateNode(payload: { node: string; data: NodeModifyRequest }, state) {
+      try {
+        const result = await updateNodeRequest(payload.node, payload.data);
+        dispatch.node.getNodeList({
+          page: state.node.pageInfo.currentPage,
+          pageSize: state.node.pageInfo.pageSize,
+        });
+        notifyList(result.data);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
     async deleteNode(payload: string[], state) {
       try {
         for (const node of payload) {
-          const res = await service.delete<NodeDeleteRequest, { data: ApiCallRcList }>(`/v1/nodes/${node}`);
-          for (const item of res.data) {
-            notify(String(item.message), {
-              type: item.ret_code > 0 ? 'success' : 'error',
-            });
-          }
+          const result = await service.delete<NodeDeleteRequest, { data: ApiCallRcList }>(`/v1/nodes/${node}`);
+          notifyList(result.data);
         }
 
         dispatch.node.getNodeList({
@@ -129,12 +135,8 @@ export const node = createModel<RootModel>()({
     async lostNode(payload: string[], state) {
       try {
         for (const node of payload) {
-          const res = await lostNodeRequest({ node });
-          for (const item of res.data) {
-            notify(String(item.message), {
-              type: item.ret_code > 0 ? 'success' : 'error',
-            });
-          }
+          const result = await lostNodeRequest({ node });
+          notifyList(result.data);
         }
 
         dispatch.node.getNodeList({
