@@ -204,7 +204,11 @@ const List: React.FC<NodeListProps> = ({ nodes = [] }) => {
           </ToolbarItem>
           <ToolbarItem variant="separator" />
           <ToolbarItem>
-            <Button variant="primary" onClick={() => history.push('/inventory/nodes/create')}>
+            <Button
+              variant="primary"
+              onClick={() => history.push('/inventory/nodes/create')}
+              isDisabled={gatewayEnabled}
+            >
               {t('common:add')}
             </Button>
           </ToolbarItem>
@@ -236,8 +240,8 @@ const List: React.FC<NodeListProps> = ({ nodes = [] }) => {
             />
             <Th sort={getSortParams(0)}>{columnNames.name}</Th>
             <Th sort={getSortParams(1)}>{columnNames.default_ip}</Th>
-            <Th>{columnNames.default_port}</Th>
-            <Th>{columnNames.node_type}</Th>
+            {!gatewayEnabled && <Th>{columnNames.default_port}</Th>}
+            {!gatewayEnabled && <Th>{columnNames.node_type}</Th>}
             <Th>{columnNames.node_status}</Th>
             <Td></Td>
           </Tr>
@@ -291,10 +295,13 @@ const List: React.FC<NodeListProps> = ({ nodes = [] }) => {
                   />
                   <Td dataLabel={columnNames.name}>{node.name}</Td>
                   <Td dataLabel={columnNames.default_ip}>{net_interface?.address}</Td>
-                  <Td dataLabel={columnNames.default_ip}>{net_interface?.satellite_port}</Td>
-                  <Td dataLabel={columnNames.node_type}>
-                    <StatusLabel status={'info'} label={capitalize(node?.type)} />
-                  </Td>
+                  {!gatewayEnabled && <Td dataLabel={columnNames.default_port}>{net_interface?.satellite_port}</Td>}
+
+                  {!gatewayEnabled && (
+                    <Td dataLabel={columnNames.node_type}>
+                      <StatusLabel status={'info'} label={capitalize(node?.type)} />
+                    </Td>
+                  )}
                   <Td dataLabel={columnNames.node_status}>
                     {node.connection_status === 'ONLINE' ? (
                       <CheckCircleIcon size="sm" color="green" />

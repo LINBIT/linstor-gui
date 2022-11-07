@@ -11,6 +11,7 @@ import PageBasic from '@app/components/PageBasic';
 import PropertyForm from '@app/components/PropertyForm';
 import { TSPList } from '@app/interfaces/storagePools';
 import service from '@app/requests';
+import { useKVStore } from '@app/hooks';
 
 const StoragePoolList: React.FunctionComponent = () => {
   const { t } = useTranslation(['storage_pool', 'common']);
@@ -21,6 +22,9 @@ const StoragePoolList: React.FunctionComponent = () => {
   const [current, setCurrent] = useState();
   const [currentNode, setCurrentNode] = useState();
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
+
+  const kvs = useKVStore();
+  const gatewayEnabled = kvs.gatewayEnabled as boolean;
 
   const { run: deleteStoragePool } = useRequest(
     (node, storagePool, _isBatch = false) => ({
@@ -149,6 +153,7 @@ const StoragePoolList: React.FunctionComponent = () => {
         setCurrent(storagePool);
         setCurrentNode(currentNode);
       },
+      isDisabled: !gatewayEnabled,
     },
     {
       title: t('common:edit'),
