@@ -1,4 +1,4 @@
-import React, { useEffect, FunctionComponent, useMemo, useState } from 'react';
+import React, { FunctionComponent } from 'react';
 import { useParams } from 'react-router-dom';
 import { useRequest } from 'ahooks';
 
@@ -6,10 +6,10 @@ import PageBasic from '@app/components/PageBasic';
 import ResourceForm from './components/ResourceForm';
 import get from 'lodash.get';
 import service from '@app/requests';
+import { notifyList } from '@app/utils/toast';
 
 const ResourceEdit: FunctionComponent = () => {
   const { resource } = useParams() as { resource: string };
-  const [alertList, setAlertList] = useState<alertList>([]);
 
   const {
     data: initialVal,
@@ -41,13 +41,7 @@ const ResourceEdit: FunctionComponent = () => {
       requestMethod: ({ url, body }) => {
         return service.put(url, body).then((res) => {
           if (res.data) {
-            setAlertList(
-              res.data.map((e) => ({
-                variant: e.ret_code > 0 ? 'success' : 'danger',
-                key: (e.ret_code + new Date()).toString(),
-                title: e.message,
-              }))
-            );
+            notifyList(res.data);
           }
         });
       },
@@ -79,7 +73,7 @@ const ResourceEdit: FunctionComponent = () => {
   };
 
   return (
-    <PageBasic title="Edit Resource" loading={loading} error={error} alerts={alertList}>
+    <PageBasic title="Edit Resource" loading={loading} error={error}>
       <ResourceForm initialVal={initialVal} handleSubmit={handleEditNode} editing />
     </PageBasic>
   );

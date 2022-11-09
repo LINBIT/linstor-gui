@@ -1,15 +1,15 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import React from 'react';
+import { useParams } from 'react-router-dom';
 import { useRequest } from 'ahooks';
 
 import PageBasic from '@app/components/PageBasic';
 import ResourceDefinitionForm from './components/ResourceDefinitionForm';
 import service from '@app/requests';
 import get from 'lodash.get';
+import { notify, notifyList } from '@app/utils/toast';
 
 const Edit: React.FC = () => {
   const { resourceDefinition } = useParams() as { resourceDefinition: string };
-  const [alertList, setAlertList] = useState<alertList>([]);
 
   const {
     data: initialVal,
@@ -38,24 +38,14 @@ const Edit: React.FC = () => {
           .put(param.url, param.body)
           .then((res) => {
             if (res) {
-              setAlertList([
-                {
-                  variant: 'success',
-                  key: new Date().toString(),
-                  title: 'Success',
-                },
-              ]);
+              notify('Success', {
+                type: 'success',
+              });
             }
           })
           .catch((errorArray) => {
             if (errorArray) {
-              setAlertList(
-                errorArray.map((e) => ({
-                  variant: e.ret_code > 0 ? 'success' : 'danger',
-                  key: (e.ret_code + new Date()).toString(),
-                  title: e.message,
-                }))
-              );
+              notifyList(errorArray);
             }
           });
       },
@@ -75,7 +65,7 @@ const Edit: React.FC = () => {
   };
 
   return (
-    <PageBasic title="Edit Resource Definition" loading={loading} error={error} alerts={alertList}>
+    <PageBasic title="Edit Resource Definition" loading={loading} error={error}>
       <ResourceDefinitionForm initialVal={initialVal} handleSubmit={handleEditResourceDefinition} editing={true} />
     </PageBasic>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { useRequest } from 'ahooks';
 
@@ -6,9 +6,9 @@ import PageBasic from '@app/components/PageBasic';
 import StoragePoolForm from './components/StoragePoolForm';
 
 import service from '@app/requests';
+import { notifyList } from '@app/utils/toast';
 
 const StoragePoolCreate: React.FC = () => {
-  const [alertList, setAlertList] = useState<alertList>([]);
   const history = useHistory();
 
   const { loading, run: handleAddStoragePool } = useRequest(
@@ -21,13 +21,7 @@ const StoragePoolCreate: React.FC = () => {
       requestMethod: (param) => {
         return service.post(param.url, param.body).catch((errorArray) => {
           if (errorArray) {
-            setAlertList(
-              errorArray.map((e) => ({
-                variant: e.ret_code > 0 ? 'success' : 'danger',
-                key: (e.ret_code + new Date()).toString(),
-                title: e.message,
-              }))
-            );
+            notifyList(errorArray);
           }
         });
       },
@@ -40,7 +34,7 @@ const StoragePoolCreate: React.FC = () => {
   );
 
   return (
-    <PageBasic title="Add Storage Pool" alerts={alertList}>
+    <PageBasic title="Add Storage Pool">
       <StoragePoolForm handleSubmit={handleAddStoragePool} loading={loading} />
     </PageBasic>
   );

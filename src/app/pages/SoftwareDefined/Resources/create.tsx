@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { useRequest } from 'ahooks';
 
@@ -6,10 +6,13 @@ import PageBasic from '@app/components/PageBasic';
 
 import ResourceForm from './components/ResourceForm';
 import service from '@app/requests';
+import { notify, notifyList } from '@app/utils/toast';
+import { useTranslation } from 'react-i18next';
 
 const ResourceCreate: React.FC = () => {
   const history = useHistory();
-  const [alertList, setAlertList] = useState<alertList>([]);
+
+  const { t } = useTranslation(['common']);
 
   const { loading, run: createResource } = useRequest(
     (resourceDefinition, node, body) => ({
@@ -21,26 +24,15 @@ const ResourceCreate: React.FC = () => {
       requestMethod: (params) => {
         return service.post(params.url, params.body).catch((errorArray) => {
           if (errorArray) {
-            setAlertList(
-              errorArray.map((e) => ({
-                variant: 'danger',
-                key: (e.ret_code + new Date()).toString(),
-                title: e.message,
-                show: true,
-              }))
-            );
+            notifyList(errorArray);
           }
         });
       },
       onSuccess: (data) => {
         if (data) {
-          setAlertList([
-            {
-              title: 'Success',
-              variant: 'success',
-              key: new Date().toString(),
-            },
-          ]);
+          notify('Success', {
+            type: 'success',
+          });
           setTimeout(() => {
             history.push('/software-defined/resources');
           }, 500);
@@ -59,14 +51,7 @@ const ResourceCreate: React.FC = () => {
       requestMethod: (params) => {
         return service.post(params.url, params.body).catch((errorArray) => {
           if (errorArray) {
-            setAlertList(
-              errorArray.map((e) => ({
-                variant: 'danger',
-                key: (e.ret_code + new Date()).toString(),
-                title: e.message,
-                show: true,
-              }))
-            );
+            notifyList(errorArray);
           }
         });
       },
@@ -74,7 +59,6 @@ const ResourceCreate: React.FC = () => {
   );
 
   const handleAdd = async (data) => {
-    console.log(data, 'Resource');
     if (data.allocate_method === 'manual') {
       const resourceData = {
         resource: {
@@ -105,7 +89,7 @@ const ResourceCreate: React.FC = () => {
   };
 
   return (
-    <PageBasic title="Create Resource" alerts={alertList}>
+    <PageBasic title="Create Resource">
       <ResourceForm handleSubmit={handleAdd} loading={loading} />
     </PageBasic>
   );

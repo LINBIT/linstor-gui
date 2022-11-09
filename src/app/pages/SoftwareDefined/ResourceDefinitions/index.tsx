@@ -15,6 +15,7 @@ import { Modal, ModalVariant } from '@patternfly/react-core';
 import DynamicForm from '@app/components/DynamicForm';
 import { uniqId } from '@app/utils/stringUtils';
 import { TYPE_MAP } from '@app/interfaces/dynamicFormType';
+import { notify, notifyList } from '@app/utils/toast';
 
 const ResourceDefinitionList: React.FunctionComponent = () => {
   const { t } = useTranslation(['resource_definition', 'common']);
@@ -23,7 +24,6 @@ const ResourceDefinitionList: React.FunctionComponent = () => {
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
   const history = useHistory();
-  const [alertList, setAlertList] = useState<alertList>([]);
   const [current, setCurrent] = useState();
   const [showDeployModal, setShowDeployModal] = useState(false);
 
@@ -39,25 +39,13 @@ const ResourceDefinitionList: React.FunctionComponent = () => {
           .delete(params.url)
           .then((res) => {
             if (res) {
-              setAlertList(
-                res.data.map((e) => ({
-                  variant: e.ret_code > 0 ? 'success' : 'danger',
-                  key: (e.ret_code + new Date()).toString(),
-                  title: e.message,
-                }))
-              );
+              notifyList(res.data);
               setFetchList(!fetchList);
             }
           })
           .catch((errorArray) => {
             if (errorArray) {
-              setAlertList(
-                errorArray.map((e) => ({
-                  variant: e.ret_code > 0 ? 'success' : 'danger',
-                  key: (e.ret_code + new Date()).toString(),
-                  title: e.message,
-                }))
-              );
+              notifyList(errorArray);
             }
             if (params._isBatch) {
               setFetchList(!fetchList);
@@ -81,26 +69,12 @@ const ResourceDefinitionList: React.FunctionComponent = () => {
           .post(params.url, params.placeData)
           .then((res) => {
             if (res.data) {
-              setAlertList(
-                res.data.map((e) => ({
-                  variant: e.ret_code > 0 ? 'success' : 'danger',
-                  key: (e.ret_code + new Date()).toString(),
-                  title: e.message,
-                  show: true,
-                }))
-              );
+              notifyList(res.data);
             }
           })
           .catch((errorArray) => {
             if (errorArray) {
-              setAlertList(
-                errorArray.map((e) => ({
-                  variant: 'danger',
-                  key: (e.ret_code + new Date()).toString(),
-                  title: e.message,
-                  show: true,
-                }))
-              );
+              notifyList(errorArray);
             }
           });
       },
@@ -117,25 +91,15 @@ const ResourceDefinitionList: React.FunctionComponent = () => {
       requestMethod: (param) => {
         return service.put(param.url, param.body).catch((errorArray) => {
           if (errorArray) {
-            setAlertList(
-              errorArray.map((e) => ({
-                variant: e.ret_code > 0 ? 'success' : 'danger',
-                key: (e.ret_code + new Date()).toString(),
-                title: e.message,
-              }))
-            );
+            notifyList(errorArray);
           }
         });
       },
       onSuccess: (data) => {
         if (data) {
-          setAlertList([
-            {
-              title: 'Success',
-              variant: 'success',
-              key: new Date().toString(),
-            },
-          ]);
+          notify('Success', {
+            type: 'success',
+          });
           setFetchList(!fetchList);
           setPropertyModalOpen(false);
         }
@@ -231,13 +195,9 @@ const ResourceDefinitionList: React.FunctionComponent = () => {
 
           Promise.all(batchDeleteRequests).then((res) => {
             if (res.filter((e) => e).length > 0) {
-              setAlertList([
-                {
-                  title: 'Success',
-                  variant: 'success',
-                  key: new Date().toString(),
-                },
-              ]);
+              notify('Success', {
+                type: 'success',
+              });
               setFetchList(!fetchList);
             }
           });
@@ -247,7 +207,7 @@ const ResourceDefinitionList: React.FunctionComponent = () => {
   }, [deleteResourceDefinition, fetchList, history, t]);
 
   return (
-    <PageBasic title={t('list')} alerts={alertList}>
+    <PageBasic title={t('list')}>
       <FilterList
         showSearch
         url="/v1/resource-definitions"

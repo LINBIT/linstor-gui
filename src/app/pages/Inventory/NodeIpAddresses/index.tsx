@@ -9,10 +9,10 @@ import { NetInterfaceType } from '@app/interfaces/net_interface';
 import { useRequest } from 'ahooks';
 import service from '@app/requests';
 import YesOrNo from '@app/components/YesOrNo';
+import { notify, notifyList } from '@app/utils/toast';
 
 const List: React.FunctionComponent = () => {
   const { t } = useTranslation(['ip_address', 'common']);
-  const [alertList, setAlertList] = useState<alertList>([]);
   const history = useHistory();
   const [fetchList, setFetchList] = useState(false);
 
@@ -27,25 +27,13 @@ const List: React.FunctionComponent = () => {
           .delete(params.url)
           .then((res) => {
             if (res) {
-              setAlertList(
-                res.data.map((e) => ({
-                  variant: e.ret_code > 0 ? 'success' : 'danger',
-                  key: (e.ret_code + new Date()).toString(),
-                  title: e.message,
-                }))
-              );
+              notifyList(res.data);
               setFetchList(!fetchList);
             }
           })
           .catch((errorArray) => {
             if (errorArray) {
-              setAlertList(
-                errorArray.map((e) => ({
-                  variant: e.ret_code > 0 ? 'success' : 'danger',
-                  key: (e.ret_code + new Date()).toString(),
-                  title: e.message,
-                }))
-              );
+              notifyList(errorArray);
             }
             if (params._isBatch) {
               setFetchList(!fetchList);
@@ -120,14 +108,11 @@ const List: React.FunctionComponent = () => {
           });
 
           Promise.all(batchDeleteRequests).then((res) => {
-            console.log(res, 'res');
-            setAlertList([
-              {
-                title: 'Success',
-                variant: 'success',
-                key: new Date().toString(),
-              },
-            ]);
+            if (res) {
+              notify('Success', {
+                type: 'success',
+              });
+            }
             setFetchList(!fetchList);
           });
         },
@@ -153,7 +138,7 @@ const List: React.FunctionComponent = () => {
   }, []);
 
   return (
-    <PageBasic title={t('list')} alerts={alertList}>
+    <PageBasic title={t('list')}>
       <FilterList
         fetchList={fetchList}
         showSearch

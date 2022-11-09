@@ -15,12 +15,6 @@ import List from './components/List';
 
 const NodeList: React.FunctionComponent = () => {
   const { t } = useTranslation(['node', 'common']);
-  const [fetchList, setFetchList] = useState(false);
-  const [propertyModalOpen, setPropertyModalOpen] = useState(false);
-  const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
-  const history = useHistory();
-  const [alertList, setAlertList] = useState<alertList>([]);
-  const [currentNode, setCurrentNode] = useState();
   const dispatch = useDispatch<Dispatch>();
   // get loading state and alerts from Redux
   const { nodeList, pagination } = useSelector((state: RootState) => ({

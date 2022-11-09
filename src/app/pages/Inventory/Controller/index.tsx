@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useRequest } from 'ahooks';
 import { useTranslation } from 'react-i18next';
@@ -6,19 +6,15 @@ import { headerCol, ICell } from '@patternfly/react-table';
 
 import { CheckCircleIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
 
-import FilterList from '@app/components/FilterList';
 import PageBasic from '@app/components/PageBasic';
-import service from '@app/requests';
 import PropertyForm from '@app/components/PropertyForm';
 import { omit } from '@app/utils/object';
 
 const NodeList: React.FunctionComponent = () => {
   const { t } = useTranslation(['node', 'common']);
-  const [fetchList, setFetchList] = useState(false);
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
   const history = useHistory();
-  const [alertList, setAlertList] = useState<alertList>([]);
   const [currentNode, setCurrentNode] = useState();
 
   const { loading: updatingNode, run: handleUpdateNode } = useRequest(() => ({
@@ -70,7 +66,7 @@ const NodeList: React.FunctionComponent = () => {
   }, [t]);
 
   return (
-    <PageBasic title={t('controller_list')} alerts={alertList}>
+    <PageBasic title={t('controller_list')}>
       <PropertyForm
         initialVal={initialProps}
         openStatus={propertyModalOpen}

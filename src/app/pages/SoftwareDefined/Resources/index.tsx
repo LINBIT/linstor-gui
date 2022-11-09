@@ -14,6 +14,7 @@ import service from '@app/requests';
 import { useDispatch } from 'react-redux';
 import { Dispatch } from '@app/store';
 import { Button, Modal, ModalVariant, TextInput } from '@patternfly/react-core';
+import { notify, notifyList } from '@app/utils/toast';
 
 const List: React.FunctionComponent = () => {
   const { t } = useTranslation(['resource', 'common']);
@@ -23,7 +24,6 @@ const List: React.FunctionComponent = () => {
 
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
-  const [alertList, setAlertList] = useState<alertList>([]);
   const [current, setCurrent] = useState();
   const [currentNode, setCurrentNode] = useState();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -42,25 +42,13 @@ const List: React.FunctionComponent = () => {
           .delete(params.url)
           .then((res) => {
             if (res) {
-              setAlertList(
-                res.data.map((e) => ({
-                  variant: e.ret_code > 0 ? 'success' : 'danger',
-                  key: (e.ret_code + new Date()).toString(),
-                  title: e.message,
-                }))
-              );
+              notifyList(res.data);
               setFetchList(!fetchList);
             }
           })
           .catch((errorArray) => {
             if (errorArray) {
-              setAlertList(
-                errorArray.map((e) => ({
-                  variant: e.ret_code > 0 ? 'success' : 'danger',
-                  key: (e.ret_code + new Date()).toString(),
-                  title: e.message,
-                }))
-              );
+              notifyList(errorArray);
             }
             if (params._isBatch) {
               setFetchList(!fetchList);
@@ -80,25 +68,15 @@ const List: React.FunctionComponent = () => {
       requestMethod: (param) => {
         return service.put(param.url, param.body).catch((errorArray) => {
           if (errorArray) {
-            setAlertList(
-              errorArray.map((e) => ({
-                variant: e.ret_code > 0 ? 'success' : 'danger',
-                key: (e.ret_code + new Date()).toString(),
-                title: e.message,
-              }))
-            );
+            notifyList(errorArray);
           }
         });
       },
       onSuccess: (data) => {
         if (data) {
-          setAlertList([
-            {
-              title: 'Success',
-              variant: 'success',
-              key: new Date().toString(),
-            },
-          ]);
+          notify('Success', {
+            type: 'success',
+          });
           setFetchList(!fetchList);
           setPropertyModalOpen(false);
         }
@@ -264,13 +242,9 @@ const List: React.FunctionComponent = () => {
 
           Promise.all(batchDeleteRequests).then((res) => {
             if (res.filter((e) => e).length > 0) {
-              setAlertList([
-                {
-                  title: 'Success',
-                  variant: 'success',
-                  key: new Date().toString(),
-                },
-              ]);
+              notify('Success', {
+                type: 'success',
+              });
               setFetchList(!fetchList);
             }
           });
@@ -288,7 +262,7 @@ const List: React.FunctionComponent = () => {
   };
 
   return (
-    <PageBasic title={t('list')} alerts={alertList}>
+    <PageBasic title={t('list')}>
       <FilterList
         showSearch
         url="/v1/view/resources"

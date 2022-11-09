@@ -6,12 +6,12 @@ import PageBasic from '@app/components/PageBasic';
 import NodeForm from './components/NodeForm';
 import { NetInterfaceType, NodeInfoType } from '@app/interfaces/node';
 import service from '@app/requests';
+import { notify, notifyList } from '@app/utils/toast';
 
 const NodeEdit: React.FC = () => {
   const { node } = useParams() as { node: string };
   const { data, loading, error } = useRequest(`/v1/nodes/${node}/net-interfaces`);
   const history = useHistory();
-  const [alertList, setAlertList] = useState<alertList>([]);
 
   const { loading: editing, run } = useRequest(
     (nodeName, networkName, body) => ({
@@ -23,27 +23,15 @@ const NodeEdit: React.FC = () => {
       requestMethod: (param) => {
         return service.put(param.url, param.body).catch((errorArray) => {
           if (errorArray) {
-            setAlertList(
-              errorArray.map((e) => ({
-                variant: 'danger',
-                key: (e.ret_code + new Date()).toString(),
-                title: e.message,
-                show: true,
-              }))
-            );
+            notifyList(errorArray);
           }
         });
       },
       onSuccess: (data) => {
-        console.log(data, 'data');
         if (data) {
-          setAlertList([
-            {
-              title: 'Success',
-              variant: 'success',
-              key: new Date().toString(),
-            },
-          ]);
+          notify('Success', {
+            type: 'success',
+          });
           setTimeout(() => {
             history.goBack();
           }, 1000);
@@ -71,7 +59,7 @@ const NodeEdit: React.FC = () => {
       : { node: '', ip: '', port: '3306' };
 
   return (
-    <PageBasic title="Edit Node" loading={loading} error={error} alerts={alertList}>
+    <PageBasic title="Edit Node" loading={loading} error={error}>
       <NodeForm initialVal={initialVal} handleSubmit={handleEditNode} loading={editing} editing={true} />
     </PageBasic>
   );

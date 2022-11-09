@@ -6,9 +6,9 @@ import PageBasic from '@app/components/PageBasic';
 import ResourceGroupForm from './components/ResourceGroupForm';
 import get from 'lodash.get';
 import service from '@app/requests';
+import { notifyList } from '@app/utils/toast';
 
 const ResourceGroupEdit: React.FC = () => {
-  const [alertList, setAlertList] = useState<alertList>([]);
   const { resourceGroup } = useParams() as { resourceGroup: string };
 
   const {
@@ -37,24 +37,12 @@ const ResourceGroupEdit: React.FC = () => {
           .put(param.url, param.body)
           .then((res) => {
             if (res) {
-              setAlertList(
-                res.data.map((e) => ({
-                  variant: e.ret_code > 0 ? 'success' : 'danger',
-                  key: (e.ret_code + new Date()).toString(),
-                  title: e.message,
-                }))
-              );
+              notifyList(res.data);
             }
           })
           .catch((errorArray) => {
             if (errorArray) {
-              setAlertList(
-                errorArray.map((e) => ({
-                  variant: e.ret_code > 0 ? 'success' : 'danger',
-                  key: (e.ret_code + new Date()).toString(),
-                  title: e.message,
-                }))
-              );
+              notifyList(errorArray);
             }
           });
       },
@@ -130,10 +118,8 @@ const ResourceGroupEdit: React.FC = () => {
         }
       : undefined;
 
-  console.log(initialVal, 'initialVal');
-
   return (
-    <PageBasic title="Edit Resource Group" loading={loading} error={error || emptyState} alerts={alertList}>
+    <PageBasic title="Edit Resource Group" loading={loading} error={error || emptyState}>
       <ResourceGroupForm initialVal={initialVal} handleSubmit={handleEditNode} editing={true} />
     </PageBasic>
   );

@@ -12,12 +12,12 @@ import PropertyForm from '@app/components/PropertyForm';
 import { TSPList } from '@app/interfaces/storagePools';
 import service from '@app/requests';
 import { useKVStore } from '@app/hooks';
+import { notify, notifyList } from '@app/utils/toast';
 
 const StoragePoolList: React.FunctionComponent = () => {
   const { t } = useTranslation(['storage_pool', 'common']);
   const [fetchList, setFetchList] = useState(false);
   const history = useHistory();
-  const [alertList, setAlertList] = useState<alertList>([]);
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
   const [current, setCurrent] = useState();
   const [currentNode, setCurrentNode] = useState();
@@ -37,13 +37,9 @@ const StoragePoolList: React.FunctionComponent = () => {
         if (params[2]) {
           setFetchList(!fetchList);
         } else {
-          setAlertList([
-            {
-              title: 'Success',
-              variant: 'success',
-              key: new Date().toString(),
-            },
-          ]);
+          notify('Success', {
+            type: 'success',
+          });
         }
       },
     }
@@ -59,25 +55,15 @@ const StoragePoolList: React.FunctionComponent = () => {
       requestMethod: (param) => {
         return service.put(param.url, param.body).catch((errorArray) => {
           if (errorArray) {
-            setAlertList(
-              errorArray.map((e) => ({
-                variant: e.ret_code > 0 ? 'success' : 'danger',
-                key: (e.ret_code + new Date()).toString(),
-                title: e.message,
-              }))
-            );
+            notifyList(errorArray);
           }
         });
       },
       onSuccess: (data) => {
         if (data) {
-          setAlertList([
-            {
-              title: 'Success',
-              variant: 'success',
-              key: new Date().toString(),
-            },
-          ]);
+          notify('Success', {
+            type: 'success',
+          });
           setFetchList(!fetchList);
           setPropertyModalOpen(false);
         }
@@ -188,13 +174,9 @@ const StoragePoolList: React.FunctionComponent = () => {
           const batchDeleteRequests = selected.map((e) => deleteStoragePool(e.cells[1], e.cells[0], true));
 
           Promise.all(batchDeleteRequests).then((res) => {
-            setAlertList([
-              {
-                title: 'Success',
-                variant: 'success',
-                key: new Date().toString(),
-              },
-            ]);
+            notify('Success', {
+              type: 'success',
+            });
             setFetchList(!fetchList);
           });
         },
@@ -202,10 +184,8 @@ const StoragePoolList: React.FunctionComponent = () => {
     ];
   }, [deleteStoragePool, fetchList, history, t]);
 
-  const filterFunc = useCallback((item) => item.storage_pool_name !== 'DfltDisklessStorPool', []);
-
   return (
-    <PageBasic title={t('list')} alerts={alertList}>
+    <PageBasic title={t('list')}>
       <FilterList
         showSearch
         url="/v1/view/storage-pools"

@@ -6,9 +6,9 @@ import PageBasic from '@app/components/PageBasic';
 
 import NodeIpAddressForm from './components/NodeIpAddressForm';
 import service from '@app/requests';
+import { notifyList } from '@app/utils/toast';
 
 const NodeIpAddressCreate: React.FC = () => {
-  const [alertList, setAlertList] = useState<alertList>([]);
   const history = useHistory();
 
   const { loading, run: handleAddIpAddress } = useRequest(
@@ -21,13 +21,7 @@ const NodeIpAddressCreate: React.FC = () => {
       requestMethod: (param) => {
         return service.post(param.url, param.body).catch((errorArray) => {
           if (errorArray) {
-            setAlertList(
-              errorArray.map((e) => ({
-                variant: e.ret_code > 0 ? 'success' : 'danger',
-                key: (e.ret_code + new Date()).toString(),
-                title: e.message,
-              }))
-            );
+            notifyList(errorArray);
           }
         });
       },
@@ -40,7 +34,7 @@ const NodeIpAddressCreate: React.FC = () => {
   );
 
   return (
-    <PageBasic title="Add Ip Address" alerts={alertList}>
+    <PageBasic title="Add Ip Address">
       <NodeIpAddressForm handleSubmit={handleAddIpAddress} loading={loading} />
     </PageBasic>
   );

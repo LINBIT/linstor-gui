@@ -18,6 +18,7 @@ const en = {
     submit: 'Submit',
     cancel: 'Cancel',
     snapshot: 'Snapshot',
+    success: 'Success',
   },
   menu: {
     dashboard: 'Dashboard',

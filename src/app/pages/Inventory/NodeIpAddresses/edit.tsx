@@ -5,9 +5,9 @@ import { useRequest } from 'ahooks';
 import PageBasic from '@app/components/PageBasic';
 import NodeIpAddressForm from './components/NodeIpAddressForm';
 import service from '@app/requests';
+import { notifyList } from '@app/utils/toast';
 
 const IpAddressEdit: FunctionComponent = () => {
-  const [alertList, setAlertList] = useState<alertList>([]);
   const { node, ip } = useParams() as { node: string; ip: string };
 
   const { data, loading, error } = useRequest(
@@ -31,24 +31,12 @@ const IpAddressEdit: FunctionComponent = () => {
           .put(param.url, param.body)
           .then((res) => {
             if (res) {
-              setAlertList(
-                res.data.map((e) => ({
-                  variant: e.ret_code > 0 ? 'success' : 'danger',
-                  key: (e.ret_code + new Date()).toString(),
-                  title: e.message,
-                }))
-              );
+              notifyList(res.data);
             }
           })
           .catch((errorArray) => {
             if (errorArray) {
-              setAlertList(
-                errorArray.map((e) => ({
-                  variant: e.ret_code > 0 ? 'success' : 'danger',
-                  key: (e.ret_code + new Date()).toString(),
-                  title: e.message,
-                }))
-              );
+              notifyList(errorArray);
             }
           });
       },
@@ -85,7 +73,7 @@ const IpAddressEdit: FunctionComponent = () => {
   }, [data?.data, ip, loading, node]);
 
   return (
-    <PageBasic title="Edit Ip Address" loading={loading} error={error || emptyState} alerts={alertList}>
+    <PageBasic title="Edit Ip Address" loading={loading} error={error || emptyState}>
       <NodeIpAddressForm initialVal={initialVal} handleSubmit={handleEditNode} editing={true} />
     </PageBasic>
   );

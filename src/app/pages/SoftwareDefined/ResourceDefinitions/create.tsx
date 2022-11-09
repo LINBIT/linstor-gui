@@ -6,10 +6,10 @@ import PageBasic from '@app/components/PageBasic';
 import ResourceDefinitionForm from './components/ResourceDefinitionForm';
 import { convertRoundUp } from '@app/utils/size';
 import service from '@app/requests';
+import { notifyList } from '@app/utils/toast';
 
 const Create: React.FC = () => {
   const history = useHistory();
-  const [alertList, setAlertList] = useState<alertList>([]);
 
   const { run: createVolumeDefinition } = useRequest(
     (resourceDefinition, body) => ({
@@ -21,14 +21,7 @@ const Create: React.FC = () => {
       requestMethod: (params) => {
         return service.post(params.url, params.body).catch((errorArray) => {
           if (errorArray) {
-            setAlertList(
-              errorArray.map((e) => ({
-                variant: 'danger',
-                key: (e.ret_code + new Date()).toString(),
-                title: e.message,
-                show: true,
-              }))
-            );
+            notifyList(errorArray);
           }
         });
       },
@@ -45,14 +38,7 @@ const Create: React.FC = () => {
       requestMethod: (params) => {
         return service.post(params.url, params.body).catch((errorArray) => {
           if (errorArray) {
-            setAlertList(
-              errorArray.map((e) => ({
-                variant: 'danger',
-                key: (e.ret_code + new Date()).toString(),
-                title: e.message,
-                show: true,
-              }))
-            );
+            notifyList(errorArray);
           }
         });
       },
@@ -71,14 +57,7 @@ const Create: React.FC = () => {
       requestMethod: (params) => {
         return service.post(params.url, params.placeData).catch((errorArray) => {
           if (errorArray) {
-            setAlertList(
-              errorArray.map((e) => ({
-                variant: 'danger',
-                key: (e.ret_code + new Date()).toString(),
-                title: e.message,
-                show: true,
-              }))
-            );
+            notifyList(errorArray);
           }
         });
       },
@@ -86,8 +65,6 @@ const Create: React.FC = () => {
   );
 
   const submitResourceDefinition = async (data) => {
-    console.log(data, 'dynamic form data');
-
     const submitData = {
       resource_definition: {
         name: data.name,
@@ -132,7 +109,7 @@ const Create: React.FC = () => {
   };
 
   return (
-    <PageBasic title="Create Resource Definition" alerts={alertList}>
+    <PageBasic title="Create Resource Definition">
       <ResourceDefinitionForm handleSubmit={submitResourceDefinition} loading={loading} />
     </PageBasic>
   );

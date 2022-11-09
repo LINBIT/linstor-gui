@@ -5,10 +5,10 @@ import { useRequest } from 'ahooks';
 import PageBasic from '@app/components/PageBasic';
 import StoragePoolForm from './components/StoragePoolForm';
 import service from '@app/requests';
+import { notifyList } from '@app/utils/toast';
 
 const StoragePoolEdit: React.FC = () => {
   const { node, storagePool } = useParams() as { node: string; storagePool: string };
-  const [alertList, setAlertList] = useState<alertList>();
   const { data = [], loading, error } = useRequest(`/v1/nodes/${node}/storage-pools`);
   const history = useHistory();
 
@@ -23,13 +23,7 @@ const StoragePoolEdit: React.FC = () => {
       requestMethod: (param) => {
         return service.put(param.url, param.body).catch((errorArray) => {
           if (errorArray) {
-            setAlertList(
-              errorArray.map((e) => ({
-                variant: e.ret_code > 0 ? 'success' : 'danger',
-                key: (e.ret_code + new Date()).toString(),
-                title: e.message,
-              }))
-            );
+            notifyList(errorArray);
           }
         });
       },
@@ -44,8 +38,6 @@ const StoragePoolEdit: React.FC = () => {
   );
 
   const handleEditStoragePool = async (node, storagePool) => {
-    console.log(node, 'node');
-    console.log(storagePool, 'storagePool');
     await handleStoragePoolEdit(node, storagePool.storage_pool_name, {
       delete_namespaces: [],
       delete_props: [],
@@ -56,8 +48,6 @@ const StoragePoolEdit: React.FC = () => {
   };
 
   const originalData = data.find((e) => e.storage_pool_name === storagePool);
-
-  console.log(originalData, 'originalData');
 
   // FIXME: remove loading and error state
   const initialVal =
@@ -78,7 +68,7 @@ const StoragePoolEdit: React.FC = () => {
         };
 
   return (
-    <PageBasic title="Edit Storage Pool" loading={loading} error={error} alerts={alertList}>
+    <PageBasic title="Edit Storage Pool" loading={loading} error={error}>
       <StoragePoolForm initialVal={initialVal} handleSubmit={handleEditStoragePool} loading={editing} editing />
     </PageBasic>
   );

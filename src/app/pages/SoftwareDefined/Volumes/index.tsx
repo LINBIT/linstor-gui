@@ -11,15 +11,14 @@ import { VolumeType } from '@app/interfaces/resource';
 import { formatBytes } from '@app/utils/size';
 import PropertyForm from '@app/components/PropertyForm';
 import service from '@app/requests';
+import { notify, notifyList } from '@app/utils/toast';
 
 const List: React.FunctionComponent = () => {
   const { t } = useTranslation(['volume', 'common']);
   const [fetchList, setFetchList] = useState(false);
-  const history = useHistory();
 
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
-  const [alertList, setAlertList] = useState<alertList>([]);
   const [current, setCurrent] = useState();
   const [currentNode, setCurrentNode] = useState();
   const [currentVolume, setCurrentVolume] = useState();
@@ -82,25 +81,15 @@ const List: React.FunctionComponent = () => {
       requestMethod: (param) => {
         return service.put(param.url, param.body).catch((errorArray) => {
           if (errorArray) {
-            setAlertList(
-              errorArray.map((e) => ({
-                variant: e.ret_code > 0 ? 'success' : 'danger',
-                key: (e.ret_code + new Date()).toString(),
-                title: e.message,
-              }))
-            );
+            notifyList(errorArray);
           }
         });
       },
       onSuccess: (data) => {
         if (data) {
-          setAlertList([
-            {
-              title: 'Success',
-              variant: 'success',
-              key: new Date().toString(),
-            },
-          ]);
+          notify('Success', {
+            type: 'success',
+          });
           setFetchList(!fetchList);
           setPropertyModalOpen(false);
         }
@@ -111,7 +100,6 @@ const List: React.FunctionComponent = () => {
   const filterFunc = useCallback((item) => Array.isArray(item.volumes) && item.volumes.length > 0, []);
 
   const customHandler = useCallback((data) => {
-    console.log(data, 'hi');
     const volumes: VolumeType[] = [];
 
     for (const item of data) {
@@ -126,7 +114,7 @@ const List: React.FunctionComponent = () => {
   }, []);
 
   return (
-    <PageBasic title={t('list')} alerts={alertList}>
+    <PageBasic title={t('list')}>
       <FilterList
         showSearch
         url="/v1/view/resources"

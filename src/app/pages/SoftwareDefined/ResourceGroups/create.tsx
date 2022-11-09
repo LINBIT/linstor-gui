@@ -6,10 +6,12 @@ import PageBasic from '@app/components/PageBasic';
 
 import ResourceGroupForm from './components/ResourceGroupForm';
 import service from '@app/requests';
+import { notify, notifyList } from '@app/utils/toast';
+import { useTranslation } from 'react-i18next';
 
 const ResourceGroupCreate: React.FC = () => {
+  const { t } = useTranslation(['common']);
   const [pass, setPass] = useState(false);
-  const [alertList, setAlertList] = useState<alertList>([]);
   const history = useHistory();
 
   const { run: createVolume } = useRequest(
@@ -32,13 +34,9 @@ const ResourceGroupCreate: React.FC = () => {
       requestMethod: (params) => service.put(params.url, params.data),
       onSuccess: (data) => {
         if (data) {
-          setAlertList([
-            {
-              title: 'Success',
-              variant: 'success',
-              key: new Date().toString(),
-            },
-          ]);
+          notify('Success', {
+            type: 'success',
+          });
           setTimeout(() => {
             history.push('/software-defined/resource-groups');
           }, 500);
@@ -58,13 +56,7 @@ const ResourceGroupCreate: React.FC = () => {
         return service.post(param.url, param.body).catch((errorArray) => {
           if (errorArray) {
             setPass(true);
-            setAlertList(
-              errorArray.map((e) => ({
-                variant: e.ret_code > 0 ? 'success' : 'danger',
-                key: (e.ret_code + new Date()).toString(),
-                title: e.message,
-              }))
-            );
+            notifyList(errorArray);
           }
         });
       },
@@ -110,7 +102,7 @@ const ResourceGroupCreate: React.FC = () => {
   };
 
   return (
-    <PageBasic title="Create Resource Group" alerts={alertList}>
+    <PageBasic title="Create Resource Group">
       <ResourceGroupForm handleSubmit={handleAdd} loading={loading} />
     </PageBasic>
   );
