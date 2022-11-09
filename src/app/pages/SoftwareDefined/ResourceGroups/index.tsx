@@ -68,6 +68,7 @@ const ResourceGroupList: React.FunctionComponent = () => {
           .then((res) => {
             if (res.data) {
               notifyList(res.data);
+              setShowDeployModal(false);
             }
           })
           .catch((errorArray) => {
