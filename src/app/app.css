@@ -137,6 +137,12 @@ body,
   border: 1px solid #f79133;
 }
 
+.pf-c-button:disabled,
+.pf-c-button.pf-m-disabled,
+.pf-c-button.pf-m-aria-disabled {
+  border: 1px solid transparent;
+}
+
 .pf-c-button.pf-m-link {
   --pf-c-button--m-link--BackgroundColor: white;
   --pf-c-button--m-link--Color: #1e2939;
