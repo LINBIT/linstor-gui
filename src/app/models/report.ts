@@ -2,9 +2,9 @@ import service from '@app/requests';
 import { createModel } from '@rematch/core';
 import { RootModel } from '.';
 
-import { ReportType } from '@app/interfaces/report';
-import { AlertType } from '@app/interfaces/alert';
-import { notify } from '@app/utils/toast';
+import { ErrorReportDeleteRequest, ReportType } from '@app/interfaces/report';
+import { notify, notifyList } from '@app/utils/toast';
+import { ApiCallRcList } from '@app/interfaces/common';
 
 type ReportState = {
   list: ReportType[];
@@ -64,22 +64,39 @@ export const report = createModel<RootModel>()({
         },
       });
     },
-    async deleteReport(payload: string[], state) {
+    async deleteReport(
+      payload: {
+        ids?: string[];
+        deleteAll?: boolean;
+      },
+      state
+    ) {
       try {
-        for (const report of payload) {
-          const res = await service.delete(`/v1/error-reports/${report}`);
-          dispatch.notification.setNotificationList(res.data);
+        let req = {};
+        const { ids, deleteAll } = payload;
+        if (deleteAll) {
+          req = {
+            since: 1000000000000,
+            to: new Date().getTime(),
+          };
+        } else {
+          req = {
+            ids,
+          };
         }
+
+        const result = await service.patch<ErrorReportDeleteRequest, { data: ApiCallRcList }>(`/v1/error-reports`, req);
+
+        notifyList(result.data);
 
         dispatch.report.getReportList({
           page: state.report.pageInfo.currentPage,
           pageSize: state.report.pageInfo.pageSize,
         });
-
-        // TODO: i18n
-        notify('Deleted', { type: 'success' });
       } catch (error) {
-        dispatch.notification.setNotificationList(error as AlertType[]);
+        notify('Error', {
+          type: 'error',
+        });
       }
     },
   }),
