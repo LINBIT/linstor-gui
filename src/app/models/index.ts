@@ -8,6 +8,7 @@ import { nvme } from './nvme';
 import { report } from './report';
 import { resourceGroup } from './resourceGroup';
 import { snapshot } from './snapshot';
+import { storagePools } from './storagePools';
 
 export interface RootModel extends Models<RootModel> {
   nfs: typeof nfs;
@@ -19,6 +20,18 @@ export interface RootModel extends Models<RootModel> {
   nvme: typeof nvme;
   resourceGroup: typeof resourceGroup;
   snapshot: typeof snapshot;
+  storagePools: typeof storagePools;
 }
 
-export const models: RootModel = { nfs, node, setting, notification, iscsi, report, nvme, resourceGroup, snapshot };
+export const models: RootModel = {
+  nfs,
+  node,
+  setting,
+  notification,
+  iscsi,
+  report,
+  nvme,
+  resourceGroup,
+  snapshot,
+  storagePools,
+};

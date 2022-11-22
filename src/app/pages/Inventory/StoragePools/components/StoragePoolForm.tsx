@@ -5,6 +5,8 @@ import { useRequest } from 'ahooks';
 import { TYPE_MAP } from '@app/interfaces/dynamicFormType';
 import DynamicForm from '@app/components/DynamicForm';
 import { uniqId } from '@app/utils/stringUtils';
+import { useDispatch } from 'react-redux';
+import { Dispatch } from '@app/store';
 
 // TODO
 type StoragePoolType = {
@@ -32,6 +34,8 @@ const TYPE_LIST = [
 const StoragePoolForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, editing }) => {
   const [nodeList, setNodeList] = useState<SelectOptions>([]);
   const [nodeNetWorksList, setNodeNetWorksList] = useState<SelectOptions>([]);
+
+  const dispatch = useDispatch<Dispatch>();
 
   const { loading: nodeListLoading } = useRequest(() => ({ url: `/v1/nodes` }), {
     onSuccess: (data) => {
@@ -89,6 +93,7 @@ const StoragePoolForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, e
           if (val !== 'Select a node') {
             console.log(val, 'val');
             await getNodeNetworkLists(val);
+            await dispatch.storagePools.getPhysicalStorageList({ node: val });
           } else {
             setNodeNetWorksList([{ value: '', label: 'Select a node first', isDisabled: true, isPlaceholder: true }]);
           }

@@ -9,7 +9,7 @@ import YesOrNo from '@app/components/YesOrNo';
 import FilterList from '@app/components/FilterList';
 import PageBasic from '@app/components/PageBasic';
 import PropertyForm from '@app/components/PropertyForm';
-import { TSPList } from '@app/interfaces/storagePools';
+import { storagePoolList } from '@app/interfaces/storagePools';
 import service from '@app/requests';
 import { useKVStore } from '@app/hooks';
 import { notify, notifyList } from '@app/utils/toast';
@@ -89,7 +89,7 @@ const StoragePoolList: React.FunctionComponent = () => {
   };
 
   const cells = (cell: unknown) => {
-    const item = cell as TSPList[0];
+    const item = cell as storagePoolList[0];
     const props = item.props || {};
     return [
       item?.storage_pool_name,
