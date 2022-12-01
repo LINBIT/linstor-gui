@@ -123,10 +123,7 @@ module.exports = (env) => {
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, 'src', 'index.html'),
       }),
-      new Dotenv({
-        systemvars: true,
-        silent: true,
-      }),
+      new Dotenv({}),
       new CopyPlugin({
         patterns: [{ from: './src/favicon.png', to: 'images' }],
       }),

@@ -1,6 +1,17 @@
+# Linstor GUI
 
+## Development process env
+
+```
+LISNTOR_API_HOST: http://10.10.10.10:43375
+GATEWAY_API_HOST: http://10.10.10.10:48080
+HOST: localhost
+PORT: 8000
+NODE_ENV: development
+```
 
 ## Development scripts
+
 ```sh
 # Install development/build dependencies
 npm install

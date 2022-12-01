@@ -2,11 +2,12 @@ const path = require('path');
 const { merge } = require('webpack-merge');
 const common = require('./webpack.common.js');
 const { stylePaths } = require('./stylePaths');
+
 const HOST = process.env.HOST || 'localhost';
 const PORT = process.env.PORT || '8000';
 
-const API_HOST = process.env.APP_BASE_API || 'http://139.155.73.188:43375/';
-const GATEWAY_API_HOST = process.env.GATEWAY_API_HOST || 'http://139.155.73.188:48080/';
+const API_HOST = process.env.LISNTOR_API_HOST || 'http://139.155.73.188:43375';
+const GATEWAY_API_HOST = process.env.GATEWAY_API_HOST || 'http://139.155.73.188:48080';
 
 module.exports = merge(common('development'), {
   mode: 'development',

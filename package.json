@@ -10,7 +10,7 @@
     "prebuild": "npm run clean",
     "build": "webpack --config webpack.prod.js",
     "start": "sirv dist --cors --single --host --port 8080",
-    "start:dev": "webpack serve --color --progress --config webpack.dev.js",
+    "start:dev": "NODE_ENV=development webpack serve --color --progress --config webpack.dev.js",
     "test": "jest --watch",
     "test:coverage": "jest --coverage",
     "eslint": "eslint --ext .tsx,.js ./src/",
@@ -105,6 +105,7 @@
     "lodash.get": "^4.4.2",
     "lodash.uniqby": "^4.7.0",
     "openapi-typescript": "^5.4.1",
+    "openapi-typescript-fetch": "^1.1.3",
     "parse-prometheus-text-format": "^1.1.1",
     "react": "^17.0.2",
     "react-apexcharts": "^1.4.0",
@@ -119,7 +120,8 @@
     "react-toastify": "^8.2.0",
     "sirv-cli": "^1.0.12",
     "string": "^3.3.3",
-    "styled-components": "^5.3.3"
+    "styled-components": "^5.3.3",
+    "whatwg-fetch": "^3.6.2"
   },
   "config": {
     "commitizen": {

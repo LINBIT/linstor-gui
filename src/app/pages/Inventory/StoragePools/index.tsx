@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useRequest } from 'ahooks';
 import { useTranslation } from 'react-i18next';
@@ -9,10 +9,11 @@ import YesOrNo from '@app/components/YesOrNo';
 import FilterList from '@app/components/FilterList';
 import PageBasic from '@app/components/PageBasic';
 import PropertyForm from '@app/components/PropertyForm';
-import { storagePoolList } from '@app/interfaces/storagePools';
+import { StoragePoolList } from '@app/interfaces/storagePools';
 import service from '@app/requests';
 import { useKVStore } from '@app/hooks';
 import { notify, notifyList } from '@app/utils/toast';
+import { formatBytes } from '@app/utils/size';
 
 const StoragePoolList: React.FunctionComponent = () => {
   const { t } = useTranslation(['storage_pool', 'common']);
@@ -76,7 +77,8 @@ const StoragePoolList: React.FunctionComponent = () => {
     { title: t('node_name') },
     { title: t('provider_kind') },
     { title: t('disk') },
-    { title: t('capacity') },
+    { title: t('free_capacity') },
+    { title: t('total_capacity') },
     { title: t('supports_snapshots') },
     { title: '' },
   ];
@@ -89,7 +91,7 @@ const StoragePoolList: React.FunctionComponent = () => {
   };
 
   const cells = (cell: unknown) => {
-    const item = cell as storagePoolList[0];
+    const item = cell as StoragePoolList[0];
     const props = item.props || {};
     return [
       item?.storage_pool_name,
@@ -108,17 +110,37 @@ const StoragePoolList: React.FunctionComponent = () => {
       props?.['StorDriver/StorPoolName'],
       {
         title:
-          item.total_capacity && item.free_capacity ? (
-            <div>
-              <Progress
-                value={((item.total_capacity - item.free_capacity) / item.total_capacity) * 100}
-                size={ProgressSize.md}
-              />
-            </div>
+          item.total_capacity && item.free_capacity && item.provider_kind !== 'DISKLESS' ? (
+            <div>{formatBytes(item.free_capacity)}</div>
           ) : (
             '--'
           ),
       },
+      {
+        title:
+          item.total_capacity && item.free_capacity && item.provider_kind !== 'DISKLESS' ? (
+            <div>{formatBytes(item.total_capacity)}</div>
+          ) : (
+            '--'
+          ),
+      },
+      // {
+      //   title:
+      //     item.total_capacity && item.free_capacity && item.provider_kind !== 'DISKLESS' ? (
+      //       <div>
+      //         <Progress
+      //           value={((item.total_capacity - item.free_capacity) / item.total_capacity) * 100}
+      //           label={`
+      //               Free: ${formatBytes(item.free_capacity)} \n
+      //               Total: ${formatBytes(item.total_capacity)}`}
+      //           size={ProgressSize.sm}
+      //           measureLocation="outside"
+      //         />
+      //       </div>
+      //     ) : (
+      //       '--'
+      //     ),
+      // },
       {
         title: <YesOrNo value={item?.supports_snapshots} />,
       },
@@ -139,7 +161,7 @@ const StoragePoolList: React.FunctionComponent = () => {
         setCurrent(storagePool);
         setCurrentNode(currentNode);
       },
-      isDisabled: !gatewayEnabled,
+      isDisabled: gatewayEnabled,
     },
     {
       title: t('common:edit'),

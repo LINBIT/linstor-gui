@@ -24,6 +24,7 @@ import MultiSelect from '@app/components/DynamicForm/MultiSelect';
 import SizeInput from '@app/components/DynamicForm/SizeInput';
 import { TYPE_MAP, FormItem } from '@app/interfaces/dynamicFormType';
 import './index.css';
+import { SwitchInput } from './SwitchInput';
 
 interface Props {
   formItems: Array<FormItem>;
@@ -437,6 +438,8 @@ const DynamicForm: React.FunctionComponent<Props> = ({
               )}
             />
           );
+        case TYPE_MAP.SWITCH_INPUT:
+          return <SwitchInput name={''} label={''} id={''} control={control} />;
         default:
           return null;
       }

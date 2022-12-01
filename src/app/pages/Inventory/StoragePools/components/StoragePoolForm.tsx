@@ -7,19 +7,19 @@ import DynamicForm from '@app/components/DynamicForm';
 import { uniqId } from '@app/utils/stringUtils';
 import { useDispatch } from 'react-redux';
 import { Dispatch } from '@app/store';
+import { getPhysicalStoragePoolByNode } from '@app/services';
 
-// TODO
 type StoragePoolType = {
   node: string;
   name?: string;
   type?: string;
   network_preference?: string;
   storage_driver_name?: string;
+  device_path?: string;
 };
 
-// TODO
 interface Props {
-  handleSubmit: (node: string, data: { [key: string]: string | { [key: string]: string } }) => void;
+  handleSubmit: (data: { [key: string]: string | { [key: string]: string } }) => void;
   initialVal?: StoragePoolType;
   loading?: boolean;
   editing?: boolean;
@@ -34,8 +34,7 @@ const TYPE_LIST = [
 const StoragePoolForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, editing }) => {
   const [nodeList, setNodeList] = useState<SelectOptions>([]);
   const [nodeNetWorksList, setNodeNetWorksList] = useState<SelectOptions>([]);
-
-  const dispatch = useDispatch<Dispatch>();
+  const [nodeStorageDriverList, setNodeStorageDriverList] = useState<SelectOptions>([]);
 
   const { loading: nodeListLoading } = useRequest(() => ({ url: `/v1/nodes` }), {
     onSuccess: (data) => {
@@ -66,7 +65,7 @@ const StoragePoolForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, e
     return [
       {
         id: uniqId(),
-        name: 'name',
+        name: 'pool_name',
         type: TYPE_MAP.TEXT,
         isDisabled: editing,
         label: 'Storage Pool Name',
@@ -91,9 +90,16 @@ const StoragePoolForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, e
         needWatch: true,
         watchCallback: async (val) => {
           if (val !== 'Select a node') {
-            console.log(val, 'val');
             await getNodeNetworkLists(val);
-            await dispatch.storagePools.getPhysicalStorageList({ node: val });
+            const { data } = await getPhysicalStoragePoolByNode({ node: val });
+            const devices = data.map((e) => ({
+              value: e.device,
+              label: e.device,
+              isDisabled: false,
+              isPlaceholder: false,
+            }));
+            devices.unshift({ value: '', label: 'Select a device path', isDisabled: true, isPlaceholder: true });
+            setNodeStorageDriverList(devices);
           } else {
             setNodeNetWorksList([{ value: '', label: 'Select a node first', isDisabled: true, isPlaceholder: true }]);
           }
@@ -125,30 +131,17 @@ const StoragePoolForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, e
       },
       {
         id: uniqId(),
-        name: 'storage_driver_name',
-        type: TYPE_MAP.TEXT,
-        label: 'Storage Driver Name',
-        defaultValue: initialVal?.storage_driver_name ?? '',
-        isDisabled: editing,
-        validationInfo: {
-          isRequired: true,
-          minLength: 2,
-          invalidMessage: 'Storage driver name is required',
-        },
-      },
-      {
-        id: uniqId(),
-        name: 'network_preference',
+        name: 'device_path',
         type: TYPE_MAP.SINGLE_SELECT,
-        label: 'Network Preference',
-        defaultValue: initialVal?.network_preference ?? '',
+        label: 'Device Path',
+        defaultValue: initialVal?.device_path ?? '',
         validationInfo: {
           isRequired: false,
         },
         extraInfo: {
           options: nodeNetworkListLoading
             ? []
-            : nodeNetWorksList.map((e) => ({
+            : nodeStorageDriverList.map((e) => ({
                 label: e.label,
                 value: e.value,
                 isDisabled: e.isDisabled || false,
@@ -156,28 +149,28 @@ const StoragePoolForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, e
         },
       },
     ];
-  }, [editing, getNodeNetworkLists, initialVal, nodeList, nodeListLoading, nodeNetWorksList, nodeNetworkListLoading]);
-
-  useEffect(() => {
-    (async function () {
-      await getNodeNetworkLists(initialVal?.node);
-    })();
-  }, [getNodeNetworkLists, initialVal?.node]);
+  }, [
+    editing,
+    getNodeNetworkLists,
+    initialVal,
+    nodeList,
+    nodeListLoading,
+    nodeNetworkListLoading,
+    nodeStorageDriverList,
+  ]);
 
   const handleSubmitClick = (data) => {
     if (!loading) {
-      const { node, name, type, storage_driver_name, network_preference } = data;
+      const { node, pool_name, type, device_path } = data;
 
       const spData = {
-        storage_pool_name: name,
+        pool_name,
         provider_kind: type,
-        props: {
-          'StorDriver/StorPoolName': storage_driver_name,
-          PrefNic: network_preference,
-        },
+        device_path: device_path,
+        node,
       };
 
-      handleSubmit(node, spData);
+      handleSubmit(spData);
     }
   };
 

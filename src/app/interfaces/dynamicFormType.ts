@@ -23,6 +23,7 @@ export const TYPE_MAP = {
   AUXILIARY: 'auxiliary' as FormItemType,
   SIZE: 'size' as FormItemType,
   IQN: 'iqn' as FormItemType,
+  SWITCH_INPUT: 'switch_input' as FormItemType,
 };
 
 export type FormItem = {

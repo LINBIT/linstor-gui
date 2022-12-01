@@ -22,4 +22,4 @@ const resErrorData = {
 
 type resError = typeof resErrorData;
 type alertList = Array<{ title: string; variant: string; key: string }>;
-type SelectOptions = Array<{ value: string; label: string; isDisabled: boolean; isPlaceholder?: boolean }>;
+type SelectOptions = Array<{ value?: string; label?: string; isDisabled?: boolean; isPlaceholder?: boolean }>;

@@ -49,8 +49,6 @@ const FilterList: React.FC<Props> = ({
     (search?: string, page?: number, perPage?: number) => {
       let actualUrl = '';
       let query = '';
-
-      // FIXME: Search and pagination
       if (typeof search === 'undefined' || search === '') {
         actualUrl = url;
         if (typeof page !== 'undefined' && typeof perPage !== 'undefined') {
