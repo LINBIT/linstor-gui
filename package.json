@@ -122,7 +122,8 @@
     "string": "^3.3.3",
     "styled-components": "^5.3.3",
     "whatwg-fetch": "^3.6.2",
-    "string": "^3.3.3"
+    "string": "^3.3.3",
+    "whatwg-fetch": "^3.6.2"
   },
   "config": {
     "commitizen": {
