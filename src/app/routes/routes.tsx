@@ -32,7 +32,7 @@ import ErrorReportDetail from '@app/pages/ErrorReport/Detail';
 import ControllerList from '@app/pages/Inventory/Controller';
 
 import { NotFound } from '@app/pages/NotFound/NotFound';
-import GeneralSettings from '@app/pages/Settings/General/GeneralSettings';
+import GeneralSettings from '@app/pages/Settings';
 import { useDocumentTitle } from '@app/utils/useDocumentTitle';
 
 import { LastLocationProvider, useLastLocation } from 'react-router-last-location';

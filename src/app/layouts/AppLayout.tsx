@@ -17,6 +17,9 @@ import {
   PageHeaderToolsGroup,
   PageHeaderToolsItem,
 } from '@patternfly/react-core';
+
+import SVG from 'react-inlinesvg';
+
 import { routes, IAppRoute, IAppRouteGroup } from '@app/routes/routes';
 
 import HeaderAboutModal from './components/HeaderAboutModal';
@@ -26,6 +29,7 @@ import LngSelector from './components/LngSelector';
 import logo from '@app/bgimages/Linbit_Logo_White-1.png';
 
 import './AppLayout.css';
+import isSvg from 'is-svg';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -60,15 +64,23 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
     setIsMobileView(props.mobileView);
   };
 
+  const filterRoutes = KVS.gatewayEnabled ? routes : routes.filter((route) => route.label !== 'gateway');
+
+  const customizedLogo = isSvg(KVS.logoSrc as any) ? KVS.logoSrc : null;
+
   function LogoImg() {
     const history = useHistory();
     function handleClick() {
       history.push('/');
     }
-    return <img src={logo} className="logo" onClick={handleClick} alt="Linbit Logo" />;
+    return (
+      <>
+        <img src={logo} className="logo" onClick={handleClick} alt="Linbit Logo" />
+        {'  '}
+        {customizedLogo && <SVG src={customizedLogo as any} className="customizedLogo" />}
+      </>
+    );
   }
-
-  const filterRoutes = KVS.gatewayEnabled ? routes : routes.filter((route) => route.label !== 'gateway');
 
   const headerTools = (
     <PageHeaderTools>

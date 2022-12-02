@@ -1,4 +1,6 @@
 @import url('react-toastify/dist/ReactToastify.css');
+@import url('react-dropzone-uploader/dist/styles.css');
+@import url('antd/dist/antd.css');
 
 html,
 body,

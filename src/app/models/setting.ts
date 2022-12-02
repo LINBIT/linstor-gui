@@ -2,6 +2,8 @@ import service from '@app/requests';
 import { convertToBoolean } from '@app/utils/object';
 import { notify } from '@app/utils/toast';
 import { createModel } from '@rematch/core';
+import isSvg from 'is-svg';
+import S from 'string';
 import { RootModel } from '.';
 
 // Use "settings" namespace of key-value-store(KVS) for saving settings
@@ -12,12 +14,6 @@ const GATEWAY_HOST = 'GATEWAY_HOST';
 type Setting = {
   gatewayAvailable: boolean;
   KVS: Record<string, boolean | string>;
-};
-
-type GatewaySettings = {
-  gatewayEnabled?: boolean;
-  customHost?: boolean;
-  host?: string;
 };
 
 export const setting = createModel<RootModel>()({
@@ -49,6 +45,7 @@ export const setting = createModel<RootModel>()({
         dispatch.setting.setGatewayAvailable(true);
       }
     },
+
     async getSettings() {
       const res = await service.get(`/v1/key-value-store/${SETTING_KEY}`);
 
@@ -68,6 +65,16 @@ export const setting = createModel<RootModel>()({
         }
       } else {
         window.localStorage.removeItem(GATEWAY_HOST);
+      }
+      // put logo string together
+      if (props.logoStr) {
+        const arr = S(props.logoStr).parseCSV();
+        const logoSrc = arr.map((e) => props[e]).join('');
+
+        dispatch.setting.setSettings({
+          logoSrc,
+          logoStr: props.logoStr,
+        });
       }
     },
     async saveKey(payload: Record<string, number | string | boolean>, state) {
@@ -120,6 +127,54 @@ export const setting = createModel<RootModel>()({
           type: 'error',
         });
       }
+    },
+
+    async setLogo(payload: { logoSvg: string }, state) {
+      // delete old logo
+      const { logoStr } = state.setting.KVS;
+      if (logoStr) {
+        const arr = S(logoStr).parseCSV();
+        await dispatch.setting.deleteKey([...arr, 'logoStr']);
+      }
+
+      const splitString = (str: string) => {
+        const strArr: string[] = [];
+        let index = 0;
+        while (index < str.length) {
+          strArr.push(str.slice(index, index + 4096));
+          index += 4096;
+        }
+        return strArr;
+      };
+
+      if (isSvg(payload.logoSvg)) {
+        const chunks = splitString(payload.logoSvg);
+        const keyStr = chunks.map((_, i) => `logoSvg_${i}`).join(',');
+
+        for (let i = 0; i < chunks.length; i++) {
+          const element = chunks[i];
+          await dispatch.setting.saveKey({
+            [`logoSvg_${i}`]: element,
+          });
+        }
+
+        await dispatch.setting.saveKey({
+          logoStr: keyStr,
+        });
+
+        // get settings again to update logoSrc
+        await dispatch.setting.getSettings();
+
+        notify('Logo updated!', {
+          type: 'success',
+        });
+      }
+    },
+
+    async getLogo(payload: string) {
+      await dispatch.setting.saveKey({
+        logo: payload,
+      });
     },
   }),
 });
