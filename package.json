@@ -121,7 +121,8 @@
     "sirv-cli": "^1.0.12",
     "string": "^3.3.3",
     "styled-components": "^5.3.3",
-    "whatwg-fetch": "^3.6.2"
+    "whatwg-fetch": "^3.6.2",
+    "string": "^3.3.3"
   },
   "config": {
     "commitizen": {
