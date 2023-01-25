@@ -42,6 +42,7 @@ const en = {
     nfs: 'NFS',
     'nvme-of': 'Nvme-Of',
     snapshot: 'Snapshot',
+    grafana: 'Grafana',
   },
   node: {
     node_list: 'Node List',

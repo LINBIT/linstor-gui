@@ -6,6 +6,7 @@ import PageBasic from '@app/components/PageBasic';
 import { Dispatch } from '@app/store';
 import Gateway from './components/Gateway';
 import Logo from './components/Logo';
+import Dashboard from './components/Dashboard';
 
 const GeneralSettings: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -30,6 +31,10 @@ const GeneralSettings: React.FC = () => {
         </Tab>
         <Tab eventKey={1} title={<TabTitleText>Gateway</TabTitleText>}>
           <Gateway />
+        </Tab>
+
+        <Tab eventKey={2} title={<TabTitleText>Dashboard</TabTitleText>}>
+          <Dashboard />
         </Tab>
       </Tabs>
     </PageBasic>

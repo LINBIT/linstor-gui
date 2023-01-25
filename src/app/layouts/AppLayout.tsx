@@ -20,7 +20,7 @@ import {
 
 import SVG from 'react-inlinesvg';
 
-import { routes, IAppRoute, IAppRouteGroup } from '@app/routes/routes';
+import { routes, IAppRoute, IAppRouteGroup, AppRouteConfig } from '@app/routes/routes';
 
 import HeaderAboutModal from './components/HeaderAboutModal';
 import ConnectStatus from './components/ConnectStatus';
@@ -34,6 +34,15 @@ import isSvg from 'is-svg';
 interface IAppLayout {
   children: React.ReactNode;
 }
+
+const hideRoutes = (label, routes) => {
+  return routes.filter((route) => {
+    if (route.routes) {
+      return hideRoutes(label, route.routes);
+    }
+    return route.label !== label;
+  });
+};
 
 const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const [isNavOpen, setIsNavOpen] = React.useState(true);
@@ -64,7 +73,15 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
     setIsMobileView(props.mobileView);
   };
 
-  const filterRoutes = KVS.gatewayEnabled ? routes : routes.filter((route) => route.label !== 'gateway');
+  let filteredRoutes = KVS.gatewayEnabled ? routes : routes.filter((route) => route.label !== 'gateway');
+
+  if (!KVS.gatewayEnabled) {
+    filteredRoutes = hideRoutes('gateway', filteredRoutes);
+  }
+
+  if (!KVS.dashboardEnabled) {
+    filteredRoutes = hideRoutes('grafana', filteredRoutes);
+  }
 
   const customizedLogo = isSvg(KVS.logoSrc as any) ? KVS.logoSrc : null;
 
@@ -132,7 +149,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const Navigation = (
     <Nav id="nav-primary-simple" theme="dark">
       <NavList id="nav-list-simple">
-        {filterRoutes.map(
+        {filteredRoutes.map(
           (route, idx) => route.label && (!route.routes ? renderNavItem(route, idx) : renderNavGroup(route, idx))
         )}
       </NavList>

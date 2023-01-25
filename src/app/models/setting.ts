@@ -129,6 +129,27 @@ export const setting = createModel<RootModel>()({
       }
     },
 
+    async setDashboard({ dashboardEnabled, host }: { dashboardEnabled: boolean; host: string }) {
+      try {
+        await dispatch.setting.saveKey({
+          dashboardEnabled,
+          dashboardURL: host,
+        });
+
+        notify('Success', {
+          type: 'success',
+        });
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      } catch (error) {
+        notify('Error', {
+          type: 'error',
+        });
+      }
+    },
+
     async setLogo(payload: { logoSvg: string }, state) {
       // delete old logo
       const { logoStr } = state.setting.KVS;

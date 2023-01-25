@@ -39,6 +39,8 @@ import { LastLocationProvider, useLastLocation } from 'react-router-last-locatio
 import gateway from './gateway';
 import snapshot from './snapshot';
 
+import { GrafanaDashboard } from '@app/pages/Granfana';
+
 let routeFocusTimer: number;
 
 export interface IAppRoute {
@@ -68,6 +70,13 @@ const routes: AppRouteConfig[] = [
     exact: true,
     path: '/',
     title: 'LINSTOR | Main Dashboard',
+  },
+  {
+    component: GrafanaDashboard,
+    exact: true,
+    path: '/dashboard',
+    title: 'LINSTOR | Grafana Dashboard',
+    label: 'grafana',
   },
   {
     label: 'inventory',
