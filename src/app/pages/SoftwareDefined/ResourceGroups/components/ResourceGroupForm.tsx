@@ -19,7 +19,7 @@ interface Props {
 /**
  * options of layers
  */
-const layerList = ['cache', 'storage', 'drdb', 'nvme', 'luks', 'writechache', 'openflex', 'exos'];
+const layerList = ['cache', 'storage', 'drbd', 'nvme', 'luks', 'writechache', 'openflex', 'exos'];
 /**
  * options of providers
  */
