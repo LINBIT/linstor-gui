@@ -10,9 +10,6 @@ import { fetchMetrics } from '@app/requests/dashboard';
 import get from 'lodash.get';
 import parsePrometheusTextFormat from 'parse-prometheus-text-format';
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore next-line
-import pckConf from '../../../../package.json';
 import PropertyForm from '@app/components/PropertyForm';
 import service from '@app/requests';
 
@@ -56,7 +53,6 @@ const HeaderAboutModal: React.FC = () => {
   };
 
   const hostName = window ? window.location.host : '';
-  const version = pckConf.version;
 
   const linstorVersion = useMemo(() => {
     let data: any = {};
@@ -89,7 +85,7 @@ const HeaderAboutModal: React.FC = () => {
             <TextListItem component="dt">Linstor Version</TextListItem>
             <TextListItem component="dd">{linstorVersion}</TextListItem>
             <TextListItem component="dt">UI Version</TextListItem>
-            <TextListItem component="dd">{version}</TextListItem>
+            <TextListItem component="dd">{process.env.VERSION}</TextListItem>
             <TextListItem component="dt">Controller Binding IP</TextListItem>
             <TextListItem component="dd">0.0.0.0</TextListItem>
             <TextListItem component="dt">Controller Active On</TextListItem>

@@ -123,7 +123,7 @@ module.exports = (env) => {
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, 'src', 'index.html'),
       }),
-      new Dotenv({}),
+      new Dotenv(), // Makefile writes VERSION=$x to .env when building releases
       new CopyPlugin({
         patterns: [{ from: './src/favicon.png', to: 'images' }],
       }),

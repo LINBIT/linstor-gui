@@ -8,12 +8,15 @@ checkVERSION:
 else
 checkVERSION:
 	lbvers.py check --base=$(BASE) --build=$(BUILD) --build-nr=$(BUILD_NR) --pkg-nr=$(PKG_NR) \
-		--node-package-json=package.json \
 		--debian-changelog=debian/changelog --rpm-spec=$(PROG).spec
 endif
 
+.PHONY: .env
+.env:
+	echo $(VERSION) > $@
+
 .PHONY: build
-build: deps ## build project
+build: deps .env ## build project
 	npm run build
 
 .PHONY: install
