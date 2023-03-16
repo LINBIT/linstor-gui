@@ -35,6 +35,8 @@ const StoragePoolForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, e
   const [nodeList, setNodeList] = useState<SelectOptions>([]);
   const [nodeNetWorksList, setNodeNetWorksList] = useState<SelectOptions>([]);
   const [nodeStorageDriverList, setNodeStorageDriverList] = useState<SelectOptions>([]);
+  const [hasStorageDevice, setHasStorageDevice] = useState<boolean>(false);
+  const [newDevice, setNewDevice] = useState<boolean>(false);
 
   const { loading: nodeListLoading } = useRequest(() => ({ url: `/v1/nodes` }), {
     onSuccess: (data) => {
@@ -60,8 +62,7 @@ const StoragePoolForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, e
 
   const history = useHistory();
 
-  const formItems = useMemo(() => {
-    console.log(initialVal, 'initialVal');
+  let formItems = useMemo(() => {
     return [
       {
         id: uniqId(),
@@ -92,14 +93,22 @@ const StoragePoolForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, e
           if (val !== 'Select a node') {
             await getNodeNetworkLists(val);
             const { data } = await getPhysicalStoragePoolByNode({ node: val });
-            const devices = data.map((e) => ({
-              value: e.device,
-              label: e.device,
-              isDisabled: false,
-              isPlaceholder: false,
-            }));
-            devices.unshift({ value: '', label: 'Select a device path', isDisabled: true, isPlaceholder: true });
-            setNodeStorageDriverList(devices);
+
+            if (data.length > 0) {
+              setHasStorageDevice(true);
+              const devices = data.map((e) => ({
+                value: e.device,
+                label: e.device,
+                isDisabled: false,
+                isPlaceholder: false,
+              }));
+
+              devices.unshift({ value: '', label: 'Select a device path', isDisabled: true, isPlaceholder: true });
+              setNodeStorageDriverList(devices);
+            } else {
+              setHasStorageDevice(false);
+              setNodeStorageDriverList([]);
+            }
           } else {
             setNodeNetWorksList([{ value: '', label: 'Select a node first', isDisabled: true, isPlaceholder: true }]);
           }
@@ -131,6 +140,34 @@ const StoragePoolForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, e
       },
       {
         id: uniqId(),
+        name: 'new_device',
+        type: TYPE_MAP.CHECKBOX,
+        label: 'New Device',
+        defaultValue: newDevice,
+        needWatch: true,
+        validationInfo: {
+          isRequired: false,
+        },
+        watchCallback: (val) => {
+          setNewDevice(val);
+        },
+      },
+    ];
+  }, [
+    editing,
+    getNodeNetworkLists,
+    initialVal?.name,
+    initialVal?.node,
+    initialVal?.type,
+    newDevice,
+    nodeList,
+    nodeListLoading,
+  ]);
+
+  if (newDevice) {
+    formItems = formItems.concat([
+      {
+        id: uniqId(),
         name: 'device_path',
         type: TYPE_MAP.SINGLE_SELECT,
         label: 'Device Path',
@@ -148,27 +185,71 @@ const StoragePoolForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, e
               })),
         },
       },
-    ];
-  }, [
-    editing,
-    getNodeNetworkLists,
-    initialVal,
-    nodeList,
-    nodeListLoading,
-    nodeNetworkListLoading,
-    nodeStorageDriverList,
-  ]);
+    ]);
+  } else {
+    formItems = formItems.concat([
+      {
+        id: uniqId(),
+        name: 'storage_driver_name',
+        type: TYPE_MAP.TEXT,
+        label: 'Storage Driver Name',
+        defaultValue: initialVal?.storage_driver_name ?? '',
+        isDisabled: editing,
+        validationInfo: {
+          isRequired: true,
+          minLength: 2,
+          invalidMessage: 'Storage driver name is required',
+        },
+      },
+      {
+        id: uniqId(),
+        name: 'network_preference',
+        type: TYPE_MAP.SINGLE_SELECT,
+        label: 'Network Preference',
+        defaultValue: initialVal?.network_preference ?? '',
+        validationInfo: {
+          isRequired: false,
+        },
+        extraInfo: {
+          options: nodeNetworkListLoading
+            ? []
+            : nodeNetWorksList.map((e) => ({
+                label: e.label,
+                value: e.value,
+                isDisabled: e.isDisabled || false,
+              })),
+        },
+      },
+    ]);
+  }
 
   const handleSubmitClick = (data) => {
     if (!loading) {
-      const { node, pool_name, type, device_path } = data;
+      let spData;
+      if (!newDevice) {
+        const { node, pool_name, type, storage_driver_name, network_preference } = data;
+        spData = {
+          createType: 'regular',
+          pool_name,
+          provider_kind: type,
+          node,
 
-      const spData = {
-        pool_name,
-        provider_kind: type,
-        device_path: device_path,
-        node,
-      };
+          props: {
+            'StorDriver/StorPoolName': storage_driver_name,
+            PrefNic: network_preference,
+          },
+        };
+      } else {
+        const { node, pool_name, type, device_path } = data;
+
+        spData = {
+          createType: 'device',
+          pool_name,
+          provider_kind: type,
+          device_path: device_path,
+          node,
+        };
+      }
 
       handleSubmit(spData);
     }
