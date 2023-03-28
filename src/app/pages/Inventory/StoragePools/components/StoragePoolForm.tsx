@@ -35,7 +35,6 @@ const StoragePoolForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, e
   const [nodeList, setNodeList] = useState<SelectOptions>([]);
   const [nodeNetWorksList, setNodeNetWorksList] = useState<SelectOptions>([]);
   const [nodeStorageDriverList, setNodeStorageDriverList] = useState<SelectOptions>([]);
-  const [hasStorageDevice, setHasStorageDevice] = useState<boolean>(false);
   const [newDevice, setNewDevice] = useState<boolean>(false);
 
   const { loading: nodeListLoading } = useRequest(() => ({ url: `/v1/nodes` }), {
@@ -95,7 +94,6 @@ const StoragePoolForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, e
             const { data } = await getPhysicalStoragePoolByNode({ node: val });
 
             if (data.length > 0) {
-              setHasStorageDevice(true);
               const devices = data.map((e) => ({
                 value: e.device,
                 label: e.device,
@@ -106,7 +104,6 @@ const StoragePoolForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, e
               devices.unshift({ value: '', label: 'Select a device path', isDisabled: true, isPlaceholder: true });
               setNodeStorageDriverList(devices);
             } else {
-              setHasStorageDevice(false);
               setNodeStorageDriverList([]);
             }
           } else {
@@ -144,6 +141,7 @@ const StoragePoolForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, e
         type: TYPE_MAP.CHECKBOX,
         label: 'New Device',
         defaultValue: newDevice,
+        hide: editing,
         needWatch: true,
         validationInfo: {
           isRequired: false,
