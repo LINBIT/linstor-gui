@@ -8,6 +8,7 @@ import { TYPE_MAP, FormItem } from '@app/interfaces/dynamicFormType';
 import { uniqId } from '@app/utils/stringUtils';
 
 import './index.css';
+import { toast } from 'react-toastify';
 
 interface Props {
   handleSubmit: (data: { [key: string]: string | number | boolean | Array<string> }) => void;
@@ -94,6 +95,14 @@ const ResourceGroupForm: React.FC<Props> = ({ initialVal, handleSubmit, editing 
             value: e,
             isDisabled: false,
           })),
+        },
+        needWatch: true,
+        watchCallback: (layers: Array<string>) => {
+          if (layers.includes('drbd')) {
+            toast('Please make sure you have drbd-kmod installed on the nodes you wish to use DRBD on', {
+              type: 'info',
+            });
+          }
         },
       },
       {
