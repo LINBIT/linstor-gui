@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, FileUpload } from '@patternfly/react-core';
 import SVG from 'react-inlinesvg';
 import isSvg from 'is-svg';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 
 import { useDispatch } from 'react-redux';
 

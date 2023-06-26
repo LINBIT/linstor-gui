@@ -20,12 +20,25 @@ info:
 
     Changelog:
 
+    * 1.19.0
+      - Added POST /v1/queries/resource-groups/query-all-size-info
+      - Added QueryAllSizeInfoRequest and QueryAllSizeInfoResponse objects
+    * 1.18.0
+      - Added POST /v1/action/snapshot/multi as well as CreateMultiSnapshotRequest and CreateMultiSnapshotResponse objects
+    * 1.17.0
+      - Added POST /v1/resource-groups/{resource_group}/query-size-info
+      - Added QuerySizeInfoRequest and QuerySizeInfoResponse objects
+    * 1.16.0
+      - Added GET /v1/node-connections/  with filter-options ?node_a and ?node_b
+      - Added PUT /v1/node-connections/{nodeA}/{nodeB}
+      - Added NodeConnection and NodeConnectionModify objects
     * 1.15.0
       - Added GET, POST /v1/remotes/ebs
       - Added PUT /v1/remotes/ebs/{remoteName}
       - Extended RemoteList with ebs_remotes
       - Added POST /v1/nodes/ebs
       - Extended SatelliteConfig with ebs boolean
+      - Added SnapshotVolumeNode which includes an optional state
     * 1.14.0
       - Added /v1/physical-storage/{node} to view devices for a single node
       - Added /v1/schedules/ and /v1/schedules/{scheduleName} endpoints as well as Schedule to create, delete, modify and list schedules
@@ -193,7 +206,7 @@ info:
   license:
     name: GPLv3
     url: https://www.gnu.org/licenses/gpl-3.0.html
-  version: 1.15.0
+  version: 1.19.0
 servers:
 - url: http://localhost:3370
   description: Local Linstor controller
@@ -201,6 +214,41 @@ tags:
 - name: developers
   description: Operations available to regular developers
 paths:
+  /v1/action/snapshot/multi:
+    post:
+      tags:
+      - developers
+      summary: creates one snapshot for multiple resources each
+      description: |
+        Suspends IO for all given resources before taking the snapshots on
+        all participating nodes before resuming IO again.
+      operationId: createMultiSnapshot
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMultiSnapshotRequest'
+            example:
+              name: snap1
+      responses:
+        "201":
+          description: Snapshot created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateMultiSnapshotResponse'
+        "400":
+          description: "invalid input, or request failed"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiCallRcList'
+        "500":
+          description: operation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiCallRc'
   /v1/storage-pool-definitions:
     get:
       tags:
@@ -262,7 +310,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -398,7 +446,7 @@ paths:
       parameters:
       - name: nodes
         in: query
-        description: Filter only for the specified nodes, if not specified, no filtering.
+        description: "Filter only for the specified nodes, if not specified, no filtering."
         required: false
         style: form
         explode: true
@@ -408,7 +456,7 @@ paths:
             type: string
       - name: props
         in: query
-        description: filter by given properties, full property path
+        description: "filter by given properties, full property path"
         required: false
         style: form
         explode: true
@@ -447,7 +495,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Node'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -486,7 +534,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -513,7 +561,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/NodeStats'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -769,12 +817,12 @@ paths:
                 Cache/Cachesize:
                   info: Size of the cache in % (0-100) or KiB otherwise.
                   prop_type: regex
-                  value: ^100%|[0-9]{1,2}([.][0-9]*)?%|[1-9][0-9]{2,}$
+                  value: "^100%|[0-9]{1,2}([.][0-9]*)?%|[1-9][0-9]{2,}$"
                   dflt: 5%
                 StorPoolName:
                   info: Linstor storage pool name to use.
                   prop_type: regex
-                  value: ^[a-zA-Z0-9_][a-zA-Z0-9_-]{2,47}$
+                  value: "^[a-zA-Z0-9_][a-zA-Z0-9_-]{2,47}$"
   /v1/nodes/{node}/lost:
     delete:
       tags:
@@ -917,7 +965,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -965,7 +1013,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -1030,7 +1078,7 @@ paths:
           type: string
       - name: nodes
         in: query
-        description: Filter only for the specified nodes, if not specified, no filtering.
+        description: "Filter only for the specified nodes, if not specified, no filtering."
         required: false
         style: form
         explode: true
@@ -1040,7 +1088,7 @@ paths:
             type: string
       - name: storage_pools
         in: query
-        description: Filter only for the specified storage pools, if not specified no filtering.
+        description: "Filter only for the specified storage pools, if not specified no filtering."
         required: false
         style: form
         explode: true
@@ -1376,7 +1424,7 @@ paths:
                 PrefNic:
                   info: Preferred network interface to use
                   prop_type: regex
-                  value: ^[a-zA-Z0-9_][a-zA-Z0-9_-]{2,47}$
+                  value: "^[a-zA-Z0-9_][a-zA-Z0-9_-]{2,47}$"
                 StorDriver/LvcreateType:
                   prop_type: regex
                   value: (?:linear|lz4|lzma|mirror|raid0|raid1|raid10|raid4|raid5|raid6|striped)
@@ -1475,7 +1523,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -1542,7 +1590,101 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiCallRcList'
+        "500":
+          description: operation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiCallRc'
+  /v1/node-connections:
+    get:
+      tags:
+      - developers
+      summary: list all node connections
+      description: List all node connections resource
+      operationId: nodeConnectionsList
+      parameters:
+      - name: node_a
+        in: query
+        description: Filter only for node-connections from or to the given node
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: node_b
+        in: query
+        description: Filter only for node-connections from or to the given node
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: list of node connections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NodeConnection'
+        "500":
+          description: operation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiCallRc'
+  /v1/node-connections/{node_a}/{node_b}:
+    put:
+      tags:
+      - developers
+      summary: modify a node connection
+      description: |
+        Sets or modifies properties
+      operationId: nodeConnectionModify
+      parameters:
+      - name: node_a
+        in: path
+        description: source node of the connection
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: node_b
+        in: path
+        description: target node of the connection
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NodeConnectionModify'
+      responses:
+        "200":
+          description: node connection modified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiCallRcList'
+        "400":
+          description: "invalid input, or request failed"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiCallRcList'
+        "404":
+          description: object not found
           content:
             application/json:
               schema:
@@ -1569,7 +1711,7 @@ paths:
       parameters:
       - name: resource_definitions
         in: query
-        description: Filter only for the specified resource definitions, if not specified no filtering.
+        description: "Filter only for the specified resource definitions, if not specified no filtering."
         required: false
         style: form
         explode: true
@@ -1579,7 +1721,7 @@ paths:
             type: string
       - name: props
         in: query
-        description: filter by given properties, full property path
+        description: "filter by given properties, full property path"
         required: false
         style: form
         explode: true
@@ -1643,7 +1785,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -1670,7 +1812,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ResourceDefinitionStats'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -1878,7 +2020,7 @@ paths:
 
         - `SnapshotShipping/Keep` - long
 
-            Keeps the last X sihpped snapshots. Removing this property or having a value <= 0 disables auto-cleanup, all auto-snapshots will be kept
+            Keeps the last X shipped snapshots. Removing this property or having a value <= 0 disables auto-cleanup, all auto-snapshots will be kept
 
         - `AutoSnapshot/RunEvery` - long
 
@@ -2116,7 +2258,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ResourceDefinitionCloneStarted'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -2395,7 +2537,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -2779,7 +2921,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -2936,7 +3078,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -3295,7 +3437,7 @@ paths:
                 StorPoolNameDrbdMeta:
                   info: Linstor storage pool name to use for external metadata.
                   prop_type: regex
-                  value: ^|.internal|[a-zA-Z0-9_][a-zA-Z0-9_-]{2,47}$
+                  value: "^|.internal|[a-zA-Z0-9_][a-zA-Z0-9_-]{2,47}$"
                 sys/fs/blkio_throttle_write:
                   info: Sets the /sys/fs/cgroup/blkio/blkio.throttle.write_bps_device
                   prop_type: long
@@ -3331,7 +3473,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -3383,7 +3525,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -3438,7 +3580,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -3500,7 +3642,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -3563,7 +3705,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -3623,7 +3765,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -3668,7 +3810,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -3883,7 +4025,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -3992,7 +4134,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -4117,7 +4259,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -4165,7 +4307,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -4263,7 +4405,7 @@ paths:
       parameters:
       - name: resource_groups
         in: query
-        description: Filter only for the specified resource groups, if not specified no filtering.
+        description: "Filter only for the specified resource groups, if not specified no filtering."
         required: false
         style: form
         explode: true
@@ -4273,7 +4415,7 @@ paths:
             type: string
       - name: props
         in: query
-        description: filter by given properties, full property path
+        description: "filter by given properties, full property path"
         required: false
         style: form
         explode: true
@@ -4336,7 +4478,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -4363,7 +4505,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ResourceGroupStats'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -4615,9 +4757,9 @@ paths:
                   $ref: '#/components/schemas/PropsInfo'
               example:
                 Writecache/Options/AutocommitBlocks:
-                  info: when the application writes this amount of blocks without issuing the FLUSH request, the blocks are automatically committed
+                  info: "when the application writes this amount of blocks without issuing the FLUSH request, the blocks are automatically committed"
                   prop_type: long
-                  dflt: 64 for pmem, 65536 for ssd
+                  dflt: "64 for pmem, 65536 for ssd"
                 DrbdOptions/Resource/peer-ack-delay:
                   prop_type: range
                   value: (1 - 10000)
@@ -4658,7 +4800,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -4750,7 +4892,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -4940,7 +5082,7 @@ paths:
                 StorPoolNameDrbdMeta:
                   info: Linstor storage pool name to use for external metadata.
                   prop_type: regex
-                  value: ^|.internal|[a-zA-Z0-9_][a-zA-Z0-9_-]{2,47}$
+                  value: "^|.internal|[a-zA-Z0-9_][a-zA-Z0-9_-]{2,47}$"
   /v1/resource-groups/{resource_group}/query-max-volume-size:
     get:
       tags:
@@ -4964,6 +5106,43 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MaxVolumeSizes'
+        "500":
+          description: operation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiCallRc'
+      deprecated: true
+  /v1/resource-groups/{resource_group}/query-size-info:
+    post:
+      tags:
+      - developers
+      summary: query size information of the current resource group
+      description: |
+        Query size information like maximum volume size for the next
+        spawn command. The result will include the selected storage pools.
+      operationId: querySizeInfo
+      parameters:
+      - name: resource_group
+        in: path
+        description: resource group to use
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuerySizeInfoRequest'
+      responses:
+        "200":
+          description: collection of size info and list of usable storage pools
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuerySizeInfoResponse'
         "500":
           description: operation failed
           content:
@@ -5000,7 +5179,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -5032,7 +5211,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -5469,7 +5648,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -5535,7 +5714,7 @@ paths:
                 Autoplacer/Weights/MinReservedSpace:
                   info: Weight of 'MinReservedSpace' autoplacer-strategy
                   prop_type: regex
-                  value: ^[0-9]+([.][0-9]+)?
+                  value: "^[0-9]+([.][0-9]+)?"
                   dflt: "0.0"
   /v1/controller/properties/info/all:
     get:
@@ -5566,7 +5745,7 @@ paths:
                   Cache/CachePool:
                     info: Name of the storage pool used for the cache cache device
                     prop_type: regex
-                    value: ^[a-zA-Z0-9_][a-zA-Z0-9_-]{2,47}$
+                    value: "^[a-zA-Z0-9_][a-zA-Z0-9_-]{2,47}$"
                   Writecache/Options/LowWatermark:
                     info: stop writeback when the number of used blocks drops below this watermark
                     prop_type: long
@@ -5580,7 +5759,7 @@ paths:
                   Autoplacer/Weights/MinReservedSpace:
                     info: Weight of 'MinReservedSpace' autoplacer-strategy
                     prop_type: regex
-                    value: ^[0-9]+([.][0-9]+)?
+                    value: "^[0-9]+([.][0-9]+)?"
                     dflt: "0.0"
   /v1/controller/config:
     get:
@@ -5621,7 +5800,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -5738,7 +5917,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -5912,7 +6091,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -5941,7 +6120,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -5970,7 +6149,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -6102,7 +6281,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorReportStats'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -6305,7 +6484,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -6379,7 +6558,7 @@ paths:
       parameters:
       - name: nodes
         in: query
-        description: Filter only for the specified nodes, if not specified, no filtering.
+        description: "Filter only for the specified nodes, if not specified, no filtering."
         required: false
         style: form
         explode: true
@@ -6389,7 +6568,7 @@ paths:
             type: string
       - name: resources
         in: query
-        description: Filter only for the specified resources, if not specified, no filtering.
+        description: "Filter only for the specified resources, if not specified, no filtering."
         required: false
         style: form
         explode: true
@@ -6399,7 +6578,7 @@ paths:
             type: string
       - name: storage_pools
         in: query
-        description: Filter only for the specified storage pools, if not specified no filtering.
+        description: "Filter only for the specified storage pools, if not specified no filtering."
         required: false
         style: form
         explode: true
@@ -6409,7 +6588,7 @@ paths:
             type: string
       - name: props
         in: query
-        description: filter by given properties, full property path
+        description: "filter by given properties, full property path"
         required: false
         style: form
         explode: true
@@ -6463,7 +6642,7 @@ paths:
       parameters:
       - name: nodes
         in: query
-        description: Filter only for the specified nodes, if not specified, no filtering.
+        description: "Filter only for the specified nodes, if not specified, no filtering."
         required: false
         style: form
         explode: true
@@ -6473,7 +6652,7 @@ paths:
             type: string
       - name: storage_pools
         in: query
-        description: Filter only for the specified storage pools, if not specified no filtering.
+        description: "Filter only for the specified storage pools, if not specified no filtering."
         required: false
         style: form
         explode: true
@@ -6483,7 +6662,7 @@ paths:
             type: string
       - name: props
         in: query
-        description: filter by given properties, full property path
+        description: "filter by given properties, full property path"
         required: false
         style: form
         explode: true
@@ -6545,7 +6724,7 @@ paths:
       parameters:
       - name: nodes
         in: query
-        description: Filter only for the specified nodes, if not specified, no filtering.
+        description: "Filter only for the specified nodes, if not specified, no filtering."
         required: false
         style: form
         explode: true
@@ -6555,7 +6734,7 @@ paths:
             type: string
       - name: resources
         in: query
-        description: Filter only for the specified resources, if not specified, no filtering.
+        description: "Filter only for the specified resources, if not specified, no filtering."
         required: false
         style: form
         explode: true
@@ -6608,7 +6787,7 @@ paths:
       parameters:
       - name: nodes
         in: query
-        description: Filter only for the specified nodes, if not specified, no filtering.
+        description: "Filter only for the specified nodes, if not specified, no filtering."
         required: false
         style: form
         explode: true
@@ -6618,7 +6797,7 @@ paths:
             type: string
       - name: resources
         in: query
-        description: Filter only for the specified resources, if not specified, no filtering.
+        description: "Filter only for the specified resources, if not specified, no filtering."
         required: false
         style: form
         explode: true
@@ -6628,7 +6807,7 @@ paths:
             type: string
       - name: snapshots
         in: query
-        description: Filter only for the specified snapshots, if not specified, no filtering.
+        description: "Filter only for the specified snapshots, if not specified, no filtering."
         required: false
         style: form
         explode: true
@@ -6638,7 +6817,7 @@ paths:
             type: string
       - name: status
         in: query
-        description: Filter only for the specified status, if not specified, no filtering.
+        description: "Filter only for the specified status, if not specified, no filtering."
         required: false
         style: form
         explode: true
@@ -6769,7 +6948,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ResourceStats'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -6790,7 +6969,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/StoragePoolStats'
         "400":
-          description: invalid input, or request failed
+          description: "invalid input, or request failed"
           content:
             application/json:
               schema:
@@ -6799,7 +6978,7 @@ paths:
     get:
       tags:
       - developers
-      summary: show physical storage on nodes, to be used with LINSTOR
+      summary: "show physical storage on nodes, to be used with LINSTOR"
       description: Gives a grouped list of physical storage that can be turned into a LINSTOR storage-pool
       operationId: viewPhysicaStorage
       parameters:
@@ -6874,7 +7053,7 @@ paths:
     post:
       tags:
       - developers
-      summary: creates an LVM, LVM-thin or ZFS pool, optional VDO under it
+      summary: "creates an LVM, LVM-thin or ZFS pool, optional VDO under it"
       description: |
         Creates a LVM/LVM-thin, ZFS pool on the given device and if supported VDO(optional) under it.
         logcal_size_kib parameter is only needed if LVM-thin or vdo is used.
@@ -7952,7 +8131,7 @@ paths:
       parameters:
       - name: content
         in: query
-        description: Include file content in response. If not given, defaults to false.
+        description: "Include file content in response. If not given, defaults to false."
         required: false
         style: form
         explode: true
@@ -8042,6 +8221,33 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
+  /v1/queries/resource-groups/query-all-size-info:
+    post:
+      tags:
+      - developers
+      summary: Queries size information from all available resource groups
+      description: |
+        Unlike /v1/resource-groups/{resource_group}/query-size-info, this API
+        returns the QSI result for all currently available resource groups
+      operationId: QryAllSizeInfo
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryAllSizeInfoRequest'
+      responses:
+        "200":
+          description: map of QSI result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryAllSizeInfoResponse'
+        "500":
+          description: operation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiCallRc'
 components:
   schemas:
     ApiCallRc:
@@ -8288,7 +8494,7 @@ components:
           description: Name of the shared space or null if none given
         external_locking:
           type: boolean
-          description: true if a shared storage pool uses linstor-external locking, like cLVM
+          description: "true if a shared storage pool uses linstor-external locking, like cLVM"
           default: false
       description: |
         Contains information about a storage pool.
@@ -8375,7 +8581,7 @@ components:
           example: e8ef8d6b-17bc-42f0-9367-4aae40c78ecb
         resource_group_name:
           type: string
-          description: name of the linked resource group, if there is a link
+          description: "name of the linked resource group, if there is a link"
         volume_definitions:
           type: array
           items:
@@ -9176,6 +9382,84 @@ components:
         default_max_oversubscription_ratio:
           type: number
           format: double
+    QuerySizeInfoRequest:
+      type: object
+      properties:
+        select_filter:
+          $ref: '#/components/schemas/AutoSelectFilter'
+        ignore_cache_older_than_sec:
+          type: integer
+          format: int32
+          default: -1
+    QuerySizeInfoResponse:
+      type: object
+      properties:
+        space_info:
+          $ref: '#/components/schemas/QuerySizeInfoResponseSpaceInfo'
+        reports:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiCallRc'
+    QueryAllSizeInfoRequest:
+      type: object
+      properties:
+        select_filter:
+          $ref: '#/components/schemas/AutoSelectFilter'
+        ignore_cache_older_than_sec:
+          type: integer
+          format: int32
+          default: -1
+    QueryAllSizeInfoResponse:
+      type: object
+      properties:
+        result:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/QuerySizeInfoResponse'
+        reports:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiCallRc'
+    QuerySizeInfoResponseSpaceInfo:
+      required:
+      - max_vlm_size_in_kib
+      type: object
+      properties:
+        max_vlm_size_in_kib:
+          type: integer
+          description: maximum size in KiB
+          format: int64
+          example: 3194880
+        available_size_in_kib:
+          type: integer
+          description: available size of the storage pools in KiB
+          format: int64
+          example: 319488000
+        capacity_in_kib:
+          type: integer
+          description: capacity of the storage pools in KiB
+          format: int64
+          example: 319488000
+        default_max_oversubscription_ratio:
+          type: number
+          format: double
+        next_spawn_result:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuerySizeInfoSpawnResult'
+    QuerySizeInfoSpawnResult:
+      required:
+      - node_name
+      - stor_pool_name
+      type: object
+      properties:
+        node_name:
+          type: string
+        stor_pool_name:
+          type: string
+        stor_pool_oversubscription_ratio:
+          type: number
+          format: double
     ControllerPropsModify:
       type: object
       properties:
@@ -9455,7 +9739,7 @@ components:
           format: int64
         nodes:
           type: array
-          description: on which nodes to delete error-reports, if empty/null all nodes
+          description: "on which nodes to delete error-reports, if empty/null all nodes"
           items:
             type: string
         exception:
@@ -9478,6 +9762,30 @@ components:
         props:
           $ref: '#/components/schemas/Properties'
     KeyValueStoreModify:
+      type: object
+      properties:
+        override_props:
+          $ref: '#/components/schemas/Properties'
+        delete_props:
+          type: array
+          items:
+            type: string
+        delete_namespaces:
+          type: array
+          items:
+            type: string
+    NodeConnection:
+      type: object
+      properties:
+        node_a:
+          type: string
+          description: source node of the connection
+        node_b:
+          type: string
+          description: target node of the connection
+        props:
+          $ref: '#/components/schemas/Properties'
+    NodeConnectionModify:
       type: object
       properties:
         override_props:
@@ -9520,6 +9828,18 @@ components:
           type: array
           items:
             type: string
+    CreateMultiSnapshotRequest:
+      type: object
+      properties:
+        snapshots:
+          type: array
+          items:
+            $ref: '#/components/schemas/Snapshot'
+    CreateMultiSnapshotResponse:
+      type: object
+      properties:
+        messages:
+          $ref: '#/components/schemas/ApiCallRcList'
     Snapshot:
       type: object
       properties:
@@ -9584,6 +9904,27 @@ components:
           type: string
           description: unique object id
           example: e8ef8d6b-17bc-42f0-9367-4aae40c78ecb
+        snapshot_volumes:
+          type: array
+          items:
+            $ref: '#/components/schemas/SnapshotVolumeNode'
+      description: Objects holding one or multiple SnapshotVolumeNode objects for the given node
+    SnapshotVolumeNode:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: unique object id
+          example: e8ef8d6b-17bc-42f0-9367-4aae40c78ecb
+        vlm_nr:
+          type: integer
+          description: Volume number of the snapshot
+          format: int32
+        props:
+          $ref: '#/components/schemas/Properties'
+        state:
+          type: string
+          description: Optional state for the given snapshot
       description: Actual snapshot data from a node
     SnapshotVolumeDefinition:
       type: object
@@ -10073,7 +10414,7 @@ components:
           description: Name of the shared space
         external_locking:
           type: boolean
-          description: true if a shared storage pool uses linstor-external locking, like cLVM
+          description: "true if a shared storage pool uses linstor-external locking, like cLVM"
           default: false
       description: This structure is used for create physical-storage
     PhysicalStorageCreate:
@@ -10173,7 +10514,7 @@ components:
           type: string
         health_reason:
           type: string
-      description: EXOS enclosure name, controller IPs and health status
+      description: "EXOS enclosure name, controller IPs and health status"
     ExosEnclosure:
       type: object
       properties:
@@ -10233,7 +10574,7 @@ components:
           example: /etc/some.conf
         content:
           type: string
-          description: The contents of the file, in base64 encoding
+          description: "The contents of the file, in base64 encoding"
           example: SGVsbG8sIFdvcmxkIQo=
       description: External file which can be configured to be deployed by Linstor
     ToggleDiskDiskful:
@@ -10545,7 +10886,7 @@ components:
         description: node-modified
   responses:
     InvalidInput:
-      description: invalid input, or request failed
+      description: "invalid input, or request failed"
       content:
         application/json:
           schema:
@@ -10602,7 +10943,7 @@ components:
     Nodes:
       name: nodes
       in: query
-      description: Filter only for the specified nodes, if not specified, no filtering.
+      description: "Filter only for the specified nodes, if not specified, no filtering."
       required: false
       style: form
       explode: true
@@ -10613,7 +10954,7 @@ components:
     Resources:
       name: resources
       in: query
-      description: Filter only for the specified resources, if not specified, no filtering.
+      description: "Filter only for the specified resources, if not specified, no filtering."
       required: false
       style: form
       explode: true
@@ -10674,7 +11015,7 @@ components:
     Props:
       name: props
       in: query
-      description: filter by given properties, full property path
+      description: "filter by given properties, full property path"
       required: false
       style: form
       explode: true

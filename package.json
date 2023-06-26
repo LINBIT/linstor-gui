@@ -22,7 +22,8 @@
     "clean": "rimraf dist",
     "storybook": "start-storybook -p 6006",
     "build:storybook": "build-storybook",
-    "generate-api:linstor": "openapi-typescript ./src/app/apis/Linstor-Linstor-1.15.0-resolved.yaml --output ./src/app/apis/schema.ts",
+    "generate-api": "npm run generate-api:linstor && npm run generate-api:gateway",
+    "generate-api:linstor": "openapi-typescript ./src/app/apis/Linstor-Linstor-1.19.0-resolved.yaml --output ./src/app/apis/schema.ts",
     "generate-api:gateway": "openapi-typescript ./src/app/apis/Linstor-linstor-gateway-2.0.0-resolved.yaml --output ./src/app/apis/gatewayschema.ts"
   },
   "devDependencies": {
@@ -57,6 +58,7 @@
     "imagemin": "^8.0.0",
     "jest": "^27.0.4",
     "mini-css-extract-plugin": "^1.6.0",
+    "openapi-typescript": "^6.2.6",
     "postcss": "^8.3.1",
     "prettier": "^2.3.1",
     "prop-types": "^15.7.2",
@@ -82,9 +84,9 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
+    "@ant-design/icons": "^5.1.4",
     "@emotion/react": "^11.10.4",
     "@emotion/styled": "^11.10.4",
-    "@mui/material": "^5.10.10",
     "@patternfly/react-charts": "^6.15.14",
     "@patternfly/react-core": "^4.128.2",
     "@patternfly/react-icons": "^4.10.11",
@@ -93,8 +95,9 @@
     "@rematch/core": "^2.1.0",
     "@rematch/loading": "^2.1.2",
     "@storybook/builder-webpack5": "^6.2.9",
+    "@tanstack/react-query": "^4.29.12",
     "ahooks": "^2.10.9",
-    "antd": "^4.24.4",
+    "antd": "^5.6.1",
     "apexcharts": "^3.36.0",
     "axios": "^0.21.1",
     "bignumber.js": "^9.0.1",
@@ -103,8 +106,7 @@
     "is-svg": "^4.3.2",
     "lodash.get": "^4.4.2",
     "lodash.uniqby": "^4.7.0",
-    "openapi-typescript": "^5.4.1",
-    "openapi-typescript-fetch": "^1.1.3",
+    "openapi-fetch": "^0.2.1",
     "parse-prometheus-text-format": "^1.1.1",
     "react": "^17.0.2",
     "react-apexcharts": "^1.4.0",
@@ -118,9 +120,7 @@
     "react-svg": "^15.1.14",
     "react-toastify": "^8.2.0",
     "sirv-cli": "^1.0.12",
-    "string": "^3.3.3",
-    "styled-components": "^5.3.3",
-    "whatwg-fetch": "^3.6.2"
+    "string": "^3.3.3"
   },
   "config": {
     "commitizen": {

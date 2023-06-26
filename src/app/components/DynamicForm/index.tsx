@@ -77,7 +77,6 @@ const DynamicForm: React.FunctionComponent<Props> = ({
     const subscription = watch((value, { name, type }) => {
       const item = formItems.find((e) => e.name === name);
       if (item?.needWatch && value) {
-        console.log(value, name, type);
         item.watchCallback && item.watchCallback(value[name as string]);
       }
     });
@@ -86,10 +85,6 @@ const DynamicForm: React.FunctionComponent<Props> = ({
 
   // Submit form data
   const onSubmit = (data) => {
-    console.log(errors, 'errors');
-    console.log('submitting', data);
-    console.log('extra', extra);
-
     // prevent sending request when double click
     if (submitting) {
       return;
@@ -153,6 +148,18 @@ const DynamicForm: React.FunctionComponent<Props> = ({
           }
         : {};
 
+      const hasPattern = item?.validationInfo?.pattern;
+      const rules = hasPattern
+        ? {
+            required: item?.validationInfo?.isRequired,
+            pattern: {
+              value: item?.validationInfo?.pattern,
+              message: item?.validationInfo?.invalidMessage,
+              minLength: item?.validationInfo?.minLength,
+            },
+          }
+        : { required: item?.validationInfo?.isRequired, minLength: item?.validationInfo?.minLength };
+
       switch (item.type) {
         case TYPE_MAP.TEXT:
           return (
@@ -160,11 +167,7 @@ const DynamicForm: React.FunctionComponent<Props> = ({
               key={item.name}
               name={item.name}
               control={control}
-              rules={{
-                required: item?.validationInfo?.isRequired,
-                minLength: item?.validationInfo?.minLength,
-                pattern: item?.validationInfo?.pattern,
-              }}
+              rules={rules}
               defaultValue={item.defaultValue}
               render={({ field }) => (
                 <FormGroup
@@ -451,8 +454,6 @@ const DynamicForm: React.FunctionComponent<Props> = ({
   const isBlankForm = useMemo(() => {
     return Array.isArray(formItems) && formItems.length === 0;
   }, [formItems]);
-
-  console.log(className, 'className');
 
   return (
     <Form

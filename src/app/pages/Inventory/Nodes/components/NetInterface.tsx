@@ -11,11 +11,14 @@ import {
   DropdownPosition,
   KebabToggle,
   Switch,
+  Icon,
 } from '@patternfly/react-core';
-import { NetInterfaceType } from '@app/interfaces/node';
+import { NetInterfaceType } from '@app/interfaces/net_interface';
+import { CheckCircleIcon, TimesCircleIcon } from '@patternfly/react-icons';
+import { Centered } from './styled';
 
 interface ActionsProps {
-  item: NetInterfaceType[0]
+  item: NetInterfaceType;
 }
 
 const Actions: React.FC<ActionsProps> = ({ item }) => {
@@ -23,32 +26,32 @@ const Actions: React.FC<ActionsProps> = ({ item }) => {
 
   return (
     <DataListAction
-    aria-labelledby="check-action-item1 check-action-action1"
-    id="check-action-action1"
-    aria-label="Actions"
-    isPlainButtonAction
-  >
-    <Dropdown
-      isPlain
-      position={DropdownPosition.right}
-      isOpen={isOpen}
-      onSelect={() => setIsOpen(!isOpen)}
-      toggle={<KebabToggle onToggle={() => setIsOpen(!isOpen)} />}
-      dropdownItems={[
-        <DropdownItem key="link" component="button">
-          View
-        </DropdownItem>,
-        <DropdownItem key="action" component="button" isDisabled={item.is_active}>
-          Activate
-        </DropdownItem>,
-      ]}
-    />
-  </DataListAction>
-  )
-}
+      aria-labelledby="check-action-item1 check-action-action1"
+      id="check-action-action1"
+      aria-label="Actions"
+      isPlainButtonAction
+    >
+      <Dropdown
+        isPlain
+        position={DropdownPosition.right}
+        isOpen={isOpen}
+        onSelect={() => setIsOpen(!isOpen)}
+        toggle={<KebabToggle onToggle={() => setIsOpen(!isOpen)} />}
+        dropdownItems={[
+          <DropdownItem key="link" component="button">
+            View
+          </DropdownItem>,
+          <DropdownItem key="action" component="button" isDisabled={item.is_active}>
+            Activate
+          </DropdownItem>,
+        ]}
+      />
+    </DataListAction>
+  );
+};
 
 interface Props {
-  list: NetInterfaceType;
+  list: NetInterfaceType[];
 }
 
 const NetInterfaceList: React.FC<Props> = ({ list }) => {
@@ -73,13 +76,20 @@ const NetInterfaceList: React.FC<Props> = ({ list }) => {
                 </DataListCell>,
                 <DataListCell key="status">
                   <div>Active: </div>
-                  <div>
-                    <Switch id="no-label-switch-on" aria-label="Message when on" isChecked={e.is_active} />
-                  </div>
+                  <Centered>
+                    {e.is_active ? (
+                      <Icon status="success">
+                        <CheckCircleIcon />
+                      </Icon>
+                    ) : (
+                      <Icon status="warning">
+                        <TimesCircleIcon />
+                      </Icon>
+                    )}
+                  </Centered>
                 </DataListCell>,
               ]}
             />
-            <Actions item={e} />
           </DataListItemRow>
         </DataListItem>
       ))}

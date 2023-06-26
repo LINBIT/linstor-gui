@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Button, Switch, TextInput } from '@patternfly/react-core';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Dispatch, RootState } from '@app/store';

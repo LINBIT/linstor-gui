@@ -132,7 +132,7 @@ const ResourceGroupForm: React.FC<Props> = ({ initialVal, handleSubmit, editing 
         defaultValue: initialVal?.storage_pool_list ?? [],
         validationInfo: {
           isRequired: true,
-          invalidMessage: 'Replication mode is required',
+          invalidMessage: 'Storage pool name is required',
         },
         extraInfo: {
           options: storagePoolListLoading ? [] : uniqby(handledStorageList, 'value'),

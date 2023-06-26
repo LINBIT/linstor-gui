@@ -1,13 +1,11 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 
 import { useHistory } from 'react-router-dom';
 import { useRequest } from 'ahooks';
 import { TYPE_MAP } from '@app/interfaces/dynamicFormType';
 import DynamicForm from '@app/components/DynamicForm';
 import { uniqId } from '@app/utils/stringUtils';
-import { useDispatch } from 'react-redux';
-import { Dispatch } from '@app/store';
-import { getPhysicalStoragePoolByNode } from '@app/services';
+import { getPhysicalStoragePoolByNode } from '@app/features/storagePool';
 
 type StoragePoolType = {
   node: string;
@@ -36,6 +34,7 @@ const StoragePoolForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, e
   const [nodeNetWorksList, setNodeNetWorksList] = useState<SelectOptions>([]);
   const [nodeStorageDriverList, setNodeStorageDriverList] = useState<SelectOptions>([]);
   const [newDevice, setNewDevice] = useState<boolean>(false);
+  const [driverLabel, setDriverLabel] = useState<string>('Volume Group');
 
   const { loading: nodeListLoading } = useRequest(() => ({ url: `/v1/nodes` }), {
     onSuccess: (data) => {
@@ -79,7 +78,7 @@ const StoragePoolForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, e
       {
         id: uniqId(),
         name: 'node',
-        type: TYPE_MAP.SINGLE_SELECT,
+        type: newDevice ? TYPE_MAP.SINGLE_SELECT : TYPE_MAP.MULTIPLE_SELECT,
         label: 'Node',
         isDisabled: editing,
         defaultValue: initialVal?.node ?? '',
@@ -93,7 +92,7 @@ const StoragePoolForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, e
             await getNodeNetworkLists(val);
             const { data } = await getPhysicalStoragePoolByNode({ node: val });
 
-            if (data.length > 0) {
+            if (data) {
               const devices = data.map((e) => ({
                 value: e.device,
                 label: e.device,
@@ -133,6 +132,15 @@ const StoragePoolForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, e
         },
         extraInfo: {
           options: TYPE_LIST,
+        },
+        needWatch: true,
+        watchCallback: (val) => {
+          console.log(val, 'val');
+          if (val === 'LVM') {
+            setDriverLabel('Volume Group');
+          } else if (val === 'LVM_THIN') {
+            setDriverLabel('Volume Group/Thin Pool');
+          }
         },
       },
       {
@@ -190,7 +198,7 @@ const StoragePoolForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, e
         id: uniqId(),
         name: 'storage_driver_name',
         type: TYPE_MAP.TEXT,
-        label: 'Storage Driver Name',
+        label: driverLabel,
         defaultValue: initialVal?.storage_driver_name ?? '',
         isDisabled: editing,
         validationInfo: {

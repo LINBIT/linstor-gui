@@ -1,6 +1,6 @@
 import React from 'react';
 import SVG from 'react-inlinesvg';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 import { useSelector } from 'react-redux';
 import isSvg from 'is-svg';
 

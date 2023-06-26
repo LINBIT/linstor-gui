@@ -1,0 +1,1 @@
+export { CreateResourceForm } from './CreateResourceForm';

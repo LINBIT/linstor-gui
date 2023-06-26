@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { TableComposable, Thead, Tr, Th, Tbody, Td, ThProps } from '@patternfly/react-table';
 import { Button, Label, Modal, ModalVariant, Pagination } from '@patternfly/react-core';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 import InfoCircleIcon from '@patternfly/react-icons/dist/esm/icons/info-circle-icon';
 
 import ActionConfirm from '@app/components/ActionConfirm';

@@ -3,90 +3,165 @@
  * Do not make direct changes to the file.
  */
 
+
 export interface paths {
   "/api/v2/iscsi": {
-    /** Returns a list of all iSCSI targets created by LINSTOR Gateway */
+    /**
+     * Lists all iSCSI targets 
+     * @description Returns a list of all iSCSI targets created by LINSTOR Gateway
+     */
     get: operations["iscsiList"];
-    /** Creates a new iSCSI target */
+    /**
+     * Creates a new iSCSI target 
+     * @description Creates a new iSCSI target
+     */
     post: operations["iscsiCreate"];
   };
   "/api/v2/iscsi/{iqn}": {
-    /** Gets the resource config of a single iSCSI target. */
+    /**
+     * Gets an iSCSI target 
+     * @description Gets the resource config of a single iSCSI target.
+     */
     get: operations["iscsiGet"];
-    /** Deletes an iSCSI target, along with all its LUNs */
+    /**
+     * Deletes an iSCSI target 
+     * @description Deletes an iSCSI target, along with all its LUNs
+     */
     delete: operations["iscsiDelete"];
   };
   "/api/v2/iscsi/{iqn}/start": {
-    /** Starts an iSCSI target. */
+    /**
+     * Starts an iSCSI target 
+     * @description Starts an iSCSI target.
+     */
     post: operations["iscsiStart"];
   };
   "/api/v2/iscsi/{iqn}/stop": {
-    /** Stops an iSCSI target. */
+    /**
+     * Stops an iSCSI target 
+     * @description Stops an iSCSI target.
+     */
     post: operations["iscsiStop"];
   };
   "/api/v2/iscsi/{iqn}/{lun}": {
-    /** Gets the resource config for a single logical unit of an iSCSI target. */
+    /**
+     * Gets a logical unit of an iSCSI target 
+     * @description Gets the resource config for a single logical unit of an iSCSI target.
+     */
     get: operations["iscsiGetLu"];
-    /** Adds a logical unit to an iSCSI target. The target must be stopped when this operation is run. */
+    /**
+     * Adds a logical unit to an iSCSI target 
+     * @description Adds a logical unit to an iSCSI target. The target must be stopped when this operation is run.
+     */
     put: operations["iscsiAddLu"];
-    /** Deletes a single logical unit from an iSCSI target. The target must be stopped when this operation is run. */
+    /**
+     * Deletes a logical unit of an iSCSI target 
+     * @description Deletes a single logical unit from an iSCSI target. The target must be stopped when this operation is run.
+     */
     delete: operations["iscsiDeleteLu"];
   };
   "/api/v2/nfs": {
-    /** Lists all NFS exports created by LINSTOR Gateway */
+    /**
+     * Lists all NFS exports 
+     * @description Lists all NFS exports created by LINSTOR Gateway
+     */
     get: operations["nfsList"];
-    /** Creates a new NFS export */
+    /** @description Creates a new NFS export */
     post: operations["nfsCreate"];
   };
   "/api/v2/nfs/{name}": {
-    /** Gets details and status information about an NFS export. */
+    /**
+     * Gets an NFS export 
+     * @description Gets details and status information about an NFS export.
+     */
     get: operations["nfsGet"];
-    /** Delete an NFS export, including all its volumes. */
+    /** @description Delete an NFS export, including all its volumes. */
     delete: operations["nfsDelete"];
   };
   "/api/v2/nfs/{name}/start": {
-    /** Starts an NFS export. This is only possible if the export is currently stopped, otherwise this operation does nothing. */
+    /**
+     * Starts an NFS export 
+     * @description Starts an NFS export. This is only possible if the export is currently stopped, otherwise this operation does nothing.
+     */
     post: operations["nfsStart"];
   };
   "/api/v2/nfs/{name}/stop": {
-    /** Stops an NFS export. Stopping an export makes it unavailable to its consumers while not fully deleting it. This is only possible if the export is currently started, otherwise this operation does nothing. */
+    /**
+     * Stops an NFS export 
+     * @description Stops an NFS export. Stopping an export makes it unavailable to its consumers while not fully deleting it. This is only possible if the export is currently started, otherwise this operation does nothing.
+     */
     post: operations["nfsStop"];
   };
   "/api/v2/nfs/{name}/{volume}": {
-    /** Gets information about a single volume of an NFS export */
+    /**
+     * Gets a volume of an NFS export 
+     * @description Gets information about a single volume of an NFS export
+     */
     get: operations["nfsGetVolume"];
-    /** Deletes a single volume from an NFS export. The export must be stopped before this operation can be executed. */
+    /**
+     * Deletes a volume of an NFS export 
+     * @description Deletes a single volume from an NFS export. The export must be stopped before this operation can be executed.
+     */
     delete: operations["nfsDeleteVolume"];
   };
   "/api/v2/nvme-of": {
-    /** Lists all NVMe-oF targets created by LINSTOR Gateway */
+    /**
+     * Lists all NVMe-oF targets 
+     * @description Lists all NVMe-oF targets created by LINSTOR Gateway
+     */
     get: operations["nvmeOfList"];
-    /** Creates a new NVMe-oF target */
+    /**
+     * Creates a new NVMe-oF target 
+     * @description Creates a new NVMe-oF target
+     */
     post: operations["nvmeOfCreate"];
   };
   "/api/v2/nvme-of/{nqn}": {
-    /** Get information about a single NVMe-oF target */
+    /**
+     * Get an NVMe-oF target 
+     * @description Get information about a single NVMe-oF target
+     */
     get: operations["nvmeOfGet"];
-    /** Deletes an NVMe-oF target, along with all its volumes. */
+    /**
+     * Delete an NVMe-oF target 
+     * @description Deletes an NVMe-oF target, along with all its volumes.
+     */
     delete: operations["nvmeOfDelete"];
   };
   "/api/v2/nvme-of/{nqn}/start": {
-    /** Starts an NVMe-oF target. This is only possible if the target is currently stopped, otherwise this operation does nothing. */
+    /**
+     * Starts an NVMe-oF target 
+     * @description Starts an NVMe-oF target. This is only possible if the target is currently stopped, otherwise this operation does nothing.
+     */
     post: operations["nvmeOfStart"];
   };
   "/api/v2/nvme-of/{nqn}/stop": {
-    /** Stops an NVMe-oF target. This is only possible if the target is currently started, otherwise this operation does nothing. */
+    /**
+     * Stops an NVMe-oF target 
+     * @description Stops an NVMe-oF target. This is only possible if the target is currently started, otherwise this operation does nothing.
+     */
     post: operations["nvmeOfStop"];
   };
   "/api/v2/nvme-of/{nqn}/{nsid}": {
-    /** Gets a single volume from an NVMe-oF target */
+    /**
+     * Delete ad 
+     * @description Gets a single volume from an NVMe-oF target
+     */
     get: operations["nvmeOfGetVolume"];
-    /** Adds a volume to an existing NVMe-oF target. The target must be stopped before executing this operation, or it will fail. */
+    /**
+     * Add a volume to an NVMe-oF target 
+     * @description Adds a volume to an existing NVMe-oF target. The target must be stopped before executing this operation, or it will fail.
+     */
     post: operations["nvmeOfAddVolume"];
-    /** Deletes a volume from an existing NVMe-oF target. The target must be stopped before executing this operation, or it will fail. */
+    /**
+     * Delete a volume from an NVMe-oF target 
+     * @description Deletes a volume from an existing NVMe-oF target. The target must be stopped before executing this operation, or it will fail.
+     */
     delete: operations["nvmeOfVolumeDelete"];
   };
 }
+
+export type webhooks = Record<string, never>;
 
 export interface components {
   schemas: {
@@ -106,8 +181,8 @@ export interface components {
       state?: components["schemas"]["ResourceState"];
       service?: components["schemas"]["ServiceState"];
       primary?: string;
-      nodes?: string[];
-      volumes?: components["schemas"]["VolumeState"][];
+      nodes?: (string)[];
+      volumes?: (components["schemas"]["VolumeState"])[];
     };
     VolumeConfig: {
       number?: number;
@@ -116,20 +191,20 @@ export interface components {
     };
     ISCSIResourceConfig: {
       iqn: components["schemas"]["IQN"];
-      allowed_initiators?: components["schemas"]["IQN"][];
+      allowed_initiators?: (components["schemas"]["IQN"])[];
       resource_group: string;
-      volumes: components["schemas"]["VolumeConfig"][];
+      volumes: (components["schemas"]["VolumeConfig"])[];
       username?: string;
       password?: string;
-      service_ips: components["schemas"]["IPCidr"][];
+      service_ips: (components["schemas"]["IPCidr"])[];
       status?: components["schemas"]["ResourceStatus"];
     };
     NFSResourceConfig: {
       name?: string;
       service_ip?: components["schemas"]["IPCidr"];
-      allowed_ips?: components["schemas"]["IPCidr"][];
+      allowed_ips?: (components["schemas"]["IPCidr"])[];
       resource_group?: string;
-      volumes?: components["schemas"]["VolumeConfig"][];
+      volumes?: (components["schemas"]["VolumeConfig"])[];
       status?: components["schemas"]["ResourceStatus"];
     };
     /** Error */
@@ -142,42 +217,42 @@ export interface components {
       nqn?: components["schemas"]["NQN"];
       service_ip?: components["schemas"]["IPCidr"];
       resource_group?: string;
-      volumes?: components["schemas"]["VolumeConfig"][];
+      volumes?: (components["schemas"]["VolumeConfig"])[];
       status?: components["schemas"]["ResourceStatus"];
     };
   };
   responses: {
-    /** The given IQN has an invalid format. */
+    /** @description The given IQN has an invalid format. */
     InvalidIQN: {
       content: {
         "application/json": components["schemas"]["Error"];
       };
     };
-    /** No iSCSI target with the given IQN can be found. */
+    /** @description No iSCSI target with the given IQN can be found. */
     IQNNotFound: {
       content: {
         "application/json": components["schemas"]["Error"];
       };
     };
-    /** Some error occurred */
+    /** @description Some error occurred */
     InternalServerError: {
       content: {
         "application/json": components["schemas"]["Error"];
       };
     };
-    /** Example response */
+    /** @description Example response */
     ExportNotFound: {
       content: {
         "application/json": components["schemas"]["Error"];
       };
     };
-    /** No NVMe-oF target with the given NQN can be found. */
+    /** @description No NVMe-oF target with the given NQN can be found. */
     NQNNotFound: {
       content: {
         "application/json": components["schemas"]["Error"];
       };
     };
-    /** The given NQN has an invalid format. */
+    /** @description The given NQN has an invalid format. */
     InvalidNQN: {
       content: {
         "application/json": components["schemas"]["Error"];
@@ -186,29 +261,38 @@ export interface components {
   };
   parameters: {
     /**
-     * @description IQN of the target
+     * @description IQN of the target 
      * @example iqn.1998-06.com.linbit:vmstorage
      */
     IQN: string;
     /**
-     * @description Logical unit number
+     * @description Logical unit number 
      * @example 0
      */
     LUN: number;
   };
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 
+export type external = Record<string, never>;
+
 export interface operations {
-  /** Returns a list of all iSCSI targets created by LINSTOR Gateway */
+
+  /**
+   * Lists all iSCSI targets 
+   * @description Returns a list of all iSCSI targets created by LINSTOR Gateway
+   */
   iscsiList: {
     responses: {
-      /** Array of iSCSI target resource configs. */
+      /** @description Array of iSCSI target resource configs. */
       200: {
         content: {
-          "application/json": components["schemas"]["ISCSIResourceConfig"][];
+          "application/json": (components["schemas"]["ISCSIResourceConfig"])[];
         };
       };
-      /** Some error occurred */
+      /** @description Some error occurred */
       500: {
         content: {
           "application/json": components["schemas"]["Error"];
@@ -216,54 +300,63 @@ export interface operations {
       };
     };
   };
-  /** Creates a new iSCSI target */
+  /**
+   * Creates a new iSCSI target 
+   * @description Creates a new iSCSI target
+   */
   iscsiCreate: {
-    responses: {
-      /** The iSCSI target was successfully created. The created target is returned. */
-      201: {
-        headers: {
-          /** The URL where the newly created target can be found */
-          Location?: string;
-        };
-        content: {
-          "application/json": components["schemas"]["ISCSIResourceConfig"];
-        };
-      };
-      /** Invalid input parameters */
-      400: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
     requestBody: {
       content: {
         "application/json": components["schemas"]["ISCSIResourceConfig"];
       };
     };
+    responses: {
+      /** @description The iSCSI target was successfully created. The created target is returned. */
+      201: {
+        headers: {
+          /** @description The URL where the newly created target can be found */
+          Location?: string;
+        };
+        content: {
+          "application/json": components["schemas"]["ISCSIResourceConfig"];
+        };
+      };
+      /** @description Invalid input parameters */
+      400: {
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
   };
-  /** Gets the resource config of a single iSCSI target. */
+  /**
+   * Gets an iSCSI target 
+   * @description Gets the resource config of a single iSCSI target.
+   */
   iscsiGet: {
     parameters: {
       path: {
-        /** IQN of the target */
+        /**
+         * @description IQN of the target 
+         * @example iqn.1998-06.com.linbit:vmstorage
+         */
         iqn: string;
       };
     };
     responses: {
-      /** A single iSCSI target resource config */
+      /** @description A single iSCSI target resource config */
       200: {
         content: {
           "application/json": components["schemas"]["ISCSIResourceConfig"];
         };
       };
-      /** The given IQN has an invalid format. */
+      /** @description The given IQN has an invalid format. */
       400: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** No iSCSI target with the given IQN can be found. */
+      /** @description No iSCSI target with the given IQN can be found. */
       404: {
         content: {
           "application/json": components["schemas"]["Error"];
@@ -271,30 +364,36 @@ export interface operations {
       };
     };
   };
-  /** Deletes an iSCSI target, along with all its LUNs */
+  /**
+   * Deletes an iSCSI target 
+   * @description Deletes an iSCSI target, along with all its LUNs
+   */
   iscsiDelete: {
     parameters: {
       path: {
-        /** IQN of the target */
+        /**
+         * @description IQN of the target 
+         * @example iqn.1998-06.com.linbit:vmstorage
+         */
         iqn: string;
       };
     };
     responses: {
-      /** The target was successfully deleted. The response body is empty. */
-      200: unknown;
-      /** The given IQN has an invalid format. */
+      /** @description The target was successfully deleted. The response body is empty. */
+      200: never;
+      /** @description The given IQN has an invalid format. */
       400: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** No iSCSI target with the given IQN can be found. */
+      /** @description No iSCSI target with the given IQN can be found. */
       404: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** Some error occurred */
+      /** @description Some error occurred */
       500: {
         content: {
           "application/json": components["schemas"]["Error"];
@@ -302,30 +401,36 @@ export interface operations {
       };
     };
   };
-  /** Starts an iSCSI target. */
+  /**
+   * Starts an iSCSI target 
+   * @description Starts an iSCSI target.
+   */
   iscsiStart: {
     parameters: {
       path: {
-        /** IQN of the target */
+        /**
+         * @description IQN of the target 
+         * @example iqn.1998-06.com.linbit:vmstorage
+         */
         iqn: string;
       };
     };
     responses: {
-      /** The iSCSI target was successfully started */
-      200: unknown;
-      /** The given IQN has an invalid format. */
+      /** @description The iSCSI target was successfully started */
+      200: never;
+      /** @description The given IQN has an invalid format. */
       400: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** No iSCSI target with the given IQN can be found. */
+      /** @description No iSCSI target with the given IQN can be found. */
       404: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** Some error occurred */
+      /** @description Some error occurred */
       500: {
         content: {
           "application/json": components["schemas"]["Error"];
@@ -333,30 +438,36 @@ export interface operations {
       };
     };
   };
-  /** Stops an iSCSI target. */
+  /**
+   * Stops an iSCSI target 
+   * @description Stops an iSCSI target.
+   */
   iscsiStop: {
     parameters: {
       path: {
-        /** IQN of the target */
+        /**
+         * @description IQN of the target 
+         * @example iqn.1998-06.com.linbit:vmstorage
+         */
         iqn: string;
       };
     };
     responses: {
-      /** The iSCSI target was successfully stopped */
-      200: unknown;
-      /** The given IQN has an invalid format. */
+      /** @description The iSCSI target was successfully stopped */
+      200: never;
+      /** @description The given IQN has an invalid format. */
       400: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** No iSCSI target with the given IQN can be found. */
+      /** @description No iSCSI target with the given IQN can be found. */
       404: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** Some error occurred */
+      /** @description Some error occurred */
       500: {
         content: {
           "application/json": components["schemas"]["Error"];
@@ -364,36 +475,45 @@ export interface operations {
       };
     };
   };
-  /** Gets the resource config for a single logical unit of an iSCSI target. */
+  /**
+   * Gets a logical unit of an iSCSI target 
+   * @description Gets the resource config for a single logical unit of an iSCSI target.
+   */
   iscsiGetLu: {
     parameters: {
       path: {
-        /** IQN of the target */
+        /**
+         * @description IQN of the target 
+         * @example iqn.1998-06.com.linbit:vmstorage
+         */
         iqn: string;
-        /** Logical unit number */
+        /**
+         * @description Logical unit number 
+         * @example 0
+         */
         lun: number;
       };
     };
     responses: {
-      /** A single volume config */
+      /** @description A single volume config */
       200: {
         content: {
           "application/json": components["schemas"]["VolumeConfig"];
         };
       };
-      /** The given IQN has an invalid format. */
+      /** @description The given IQN has an invalid format. */
       400: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** No iSCSI target with the given IQN can be found. */
+      /** @description No iSCSI target with the given IQN can be found. */
       404: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** Some error occurred */
+      /** @description Some error occurred */
       500: {
         content: {
           "application/json": components["schemas"]["Error"];
@@ -401,36 +521,45 @@ export interface operations {
       };
     };
   };
-  /** Adds a logical unit to an iSCSI target. The target must be stopped when this operation is run. */
+  /**
+   * Adds a logical unit to an iSCSI target 
+   * @description Adds a logical unit to an iSCSI target. The target must be stopped when this operation is run.
+   */
   iscsiAddLu: {
     parameters: {
       path: {
-        /** IQN of the target */
+        /**
+         * @description IQN of the target 
+         * @example iqn.1998-06.com.linbit:vmstorage
+         */
         iqn: string;
-        /** Logical unit number */
+        /**
+         * @description Logical unit number 
+         * @example 0
+         */
         lun: number;
       };
     };
     responses: {
-      /** The VolumeConfig of the logical unit that was just added */
+      /** @description The VolumeConfig of the logical unit that was just added */
       200: {
         content: {
           "application/json": components["schemas"]["VolumeConfig"];
         };
       };
-      /** The given IQN has an invalid format. */
+      /** @description The given IQN has an invalid format. */
       400: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** No iSCSI target with the given IQN can be found. */
+      /** @description No iSCSI target with the given IQN can be found. */
       404: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** Some error occurred */
+      /** @description Some error occurred */
       500: {
         content: {
           "application/json": components["schemas"]["Error"];
@@ -438,32 +567,41 @@ export interface operations {
       };
     };
   };
-  /** Deletes a single logical unit from an iSCSI target. The target must be stopped when this operation is run. */
+  /**
+   * Deletes a logical unit of an iSCSI target 
+   * @description Deletes a single logical unit from an iSCSI target. The target must be stopped when this operation is run.
+   */
   iscsiDeleteLu: {
     parameters: {
       path: {
-        /** IQN of the target */
+        /**
+         * @description IQN of the target 
+         * @example iqn.1998-06.com.linbit:vmstorage
+         */
         iqn: string;
-        /** Logical unit number */
+        /**
+         * @description Logical unit number 
+         * @example 0
+         */
         lun: number;
       };
     };
     responses: {
-      /** The logical unit was successfully deleted. The response body is empty. */
-      200: unknown;
-      /** The given IQN has an invalid format. */
+      /** @description The logical unit was successfully deleted. The response body is empty. */
+      200: never;
+      /** @description The given IQN has an invalid format. */
       400: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** No iSCSI target with the given IQN can be found. */
+      /** @description No iSCSI target with the given IQN can be found. */
       404: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** Some error occurred */
+      /** @description Some error occurred */
       500: {
         content: {
           "application/json": components["schemas"]["Error"];
@@ -471,16 +609,19 @@ export interface operations {
       };
     };
   };
-  /** Lists all NFS exports created by LINSTOR Gateway */
+  /**
+   * Lists all NFS exports 
+   * @description Lists all NFS exports created by LINSTOR Gateway
+   */
   nfsList: {
     responses: {
-      /** Array of NFS export resource configs */
+      /** @description Array of NFS export resource configs */
       200: {
         content: {
-          "application/json": components["schemas"]["NFSResourceConfig"][];
+          "application/json": (components["schemas"]["NFSResourceConfig"])[];
         };
       };
-      /** Some error occurred */
+      /** @description Some error occurred */
       500: {
         content: {
           "application/json": components["schemas"]["Error"];
@@ -488,20 +629,20 @@ export interface operations {
       };
     };
   };
-  /** Creates a new NFS export */
+  /** @description Creates a new NFS export */
   nfsCreate: {
     responses: {
-      /** The export was successfully created */
+      /** @description The export was successfully created */
       201: {
         headers: {
-          /** The URL where the newly created export can be found */
+          /** @description The URL where the newly created export can be found */
           Location?: string;
         };
         content: {
           "application/json": components["schemas"]["NFSResourceConfig"];
         };
       };
-      /** Invalid input parameters */
+      /** @description Invalid input parameters */
       400: {
         content: {
           "application/json": components["schemas"]["Error"];
@@ -509,28 +650,31 @@ export interface operations {
       };
     };
   };
-  /** Gets details and status information about an NFS export. */
+  /**
+   * Gets an NFS export 
+   * @description Gets details and status information about an NFS export.
+   */
   nfsGet: {
     parameters: {
       path: {
-        /** Name of the NFS export */
+        /** @description Name of the NFS export */
         name: string;
       };
     };
     responses: {
-      /** OK */
+      /** @description OK */
       200: {
         content: {
           "application/json": components["schemas"]["NFSResourceConfig"];
         };
       };
-      /** Example response */
+      /** @description Example response */
       404: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** Some error occurred */
+      /** @description Some error occurred */
       500: {
         content: {
           "application/json": components["schemas"]["Error"];
@@ -538,18 +682,18 @@ export interface operations {
       };
     };
   };
-  /** Delete an NFS export, including all its volumes. */
+  /** @description Delete an NFS export, including all its volumes. */
   nfsDelete: {
     parameters: {
       path: {
-        /** Name of the NFS export */
+        /** @description Name of the NFS export */
         name: string;
       };
     };
     responses: {
-      /** The export was deleted. The body is empty. */
-      200: unknown;
-      /** Some error occurred */
+      /** @description The export was deleted. The body is empty. */
+      200: never;
+      /** @description Some error occurred */
       500: {
         content: {
           "application/json": components["schemas"]["Error"];
@@ -557,32 +701,35 @@ export interface operations {
       };
     };
   };
-  /** Starts an NFS export. This is only possible if the export is currently stopped, otherwise this operation does nothing. */
+  /**
+   * Starts an NFS export 
+   * @description Starts an NFS export. This is only possible if the export is currently stopped, otherwise this operation does nothing.
+   */
   nfsStart: {
     parameters: {
       path: {
-        /** Name of the NFS export */
+        /** @description Name of the NFS export */
         name: string;
       };
     };
     responses: {
-      /** The export was successfully started. Returns the resource config of the started export. */
+      /** @description The export was successfully started. Returns the resource config of the started export. */
       200: {
         headers: {
-          /** The URL to the NFS export */
+          /** @description The URL to the NFS export */
           Location?: string;
         };
         content: {
           "application/json": components["schemas"]["NFSResourceConfig"];
         };
       };
-      /** Example response */
+      /** @description Example response */
       404: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** Some error occurred */
+      /** @description Some error occurred */
       500: {
         content: {
           "application/json": components["schemas"]["Error"];
@@ -590,32 +737,35 @@ export interface operations {
       };
     };
   };
-  /** Stops an NFS export. Stopping an export makes it unavailable to its consumers while not fully deleting it. This is only possible if the export is currently started, otherwise this operation does nothing. */
+  /**
+   * Stops an NFS export 
+   * @description Stops an NFS export. Stopping an export makes it unavailable to its consumers while not fully deleting it. This is only possible if the export is currently started, otherwise this operation does nothing.
+   */
   nfsStop: {
     parameters: {
       path: {
-        /** Name of the NFS export */
+        /** @description Name of the NFS export */
         name: string;
       };
     };
     responses: {
-      /** The export was successfully stopped. Returns the resource config of the stopped export. */
+      /** @description The export was successfully stopped. Returns the resource config of the stopped export. */
       200: {
         headers: {
-          /** The URL to the NFS export */
+          /** @description The URL to the NFS export */
           Location?: string;
         };
         content: {
           "application/json": components["schemas"]["NFSResourceConfig"];
         };
       };
-      /** Example response */
+      /** @description Example response */
       404: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** Some error occurred */
+      /** @description Some error occurred */
       500: {
         content: {
           "application/json": components["schemas"]["Error"];
@@ -623,30 +773,33 @@ export interface operations {
       };
     };
   };
-  /** Gets information about a single volume of an NFS export */
+  /**
+   * Gets a volume of an NFS export 
+   * @description Gets information about a single volume of an NFS export
+   */
   nfsGetVolume: {
     parameters: {
       path: {
-        /** Name of the NFS export */
+        /** @description Name of the NFS export */
         name: string;
-        /** Volume ID */
+        /** @description Volume ID */
         volume: string;
       };
     };
     responses: {
-      /** OK */
+      /** @description OK */
       200: {
         content: {
           "application/json": components["schemas"]["VolumeConfig"];
         };
       };
-      /** Invalid volume ID */
+      /** @description Invalid volume ID */
       400: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** Example response */
+      /** @description Example response */
       404: {
         content: {
           "application/json": components["schemas"]["Error"];
@@ -654,26 +807,29 @@ export interface operations {
       };
     };
   };
-  /** Deletes a single volume from an NFS export. The export must be stopped before this operation can be executed. */
+  /**
+   * Deletes a volume of an NFS export 
+   * @description Deletes a single volume from an NFS export. The export must be stopped before this operation can be executed.
+   */
   nfsDeleteVolume: {
     parameters: {
       path: {
-        /** Name of the NFS export */
+        /** @description Name of the NFS export */
         name: string;
-        /** Volume ID */
+        /** @description Volume ID */
         volume: string;
       };
     };
     responses: {
-      /** The volume was deleted. The body is empty. */
-      200: unknown;
-      /** Example response */
+      /** @description The volume was deleted. The body is empty. */
+      200: never;
+      /** @description Example response */
       404: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** Some error occurred */
+      /** @description Some error occurred */
       500: {
         content: {
           "application/json": components["schemas"]["Error"];
@@ -681,16 +837,19 @@ export interface operations {
       };
     };
   };
-  /** Lists all NVMe-oF targets created by LINSTOR Gateway */
+  /**
+   * Lists all NVMe-oF targets 
+   * @description Lists all NVMe-oF targets created by LINSTOR Gateway
+   */
   nvmeOfList: {
     responses: {
-      /** List of targets */
+      /** @description List of targets */
       200: {
         content: {
-          "application/json": components["schemas"]["NvmeOfResourceConfig"][];
+          "application/json": (components["schemas"]["NvmeOfResourceConfig"])[];
         };
       };
-      /** Some error occurred */
+      /** @description Some error occurred */
       500: {
         content: {
           "application/json": components["schemas"]["Error"];
@@ -698,60 +857,66 @@ export interface operations {
       };
     };
   };
-  /** Creates a new NVMe-oF target */
+  /**
+   * Creates a new NVMe-oF target 
+   * @description Creates a new NVMe-oF target
+   */
   nvmeOfCreate: {
-    responses: {
-      /** Created */
-      201: {
-        headers: {
-          /** The URL to the newly created target */
-          Location?: string;
-        };
-        content: {
-          "application/json": components["schemas"]["NvmeOfResourceConfig"];
-        };
-      };
-      /** Invalid parameters */
-      400: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-    requestBody: {
+    requestBody?: {
       content: {
         "application/json": components["schemas"]["NvmeOfResourceConfig"];
       };
     };
+    responses: {
+      /** @description Created */
+      201: {
+        headers: {
+          /** @description The URL to the newly created target */
+          Location?: string;
+        };
+        content: {
+          "application/json": components["schemas"]["NvmeOfResourceConfig"];
+        };
+      };
+      /** @description Invalid parameters */
+      400: {
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
   };
-  /** Get information about a single NVMe-oF target */
+  /**
+   * Get an NVMe-oF target 
+   * @description Get information about a single NVMe-oF target
+   */
   nvmeOfGet: {
     parameters: {
       path: {
-        /** The NQN of the target */
+        /** @description The NQN of the target */
         nqn: string;
       };
     };
     responses: {
-      /** OK */
+      /** @description OK */
       200: {
         content: {
           "application/json": components["schemas"]["NvmeOfResourceConfig"];
         };
       };
-      /** The given NQN has an invalid format. */
+      /** @description The given NQN has an invalid format. */
       400: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** No NVMe-oF target with the given NQN can be found. */
+      /** @description No NVMe-oF target with the given NQN can be found. */
       404: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** Some error occurred */
+      /** @description Some error occurred */
       500: {
         content: {
           "application/json": components["schemas"]["Error"];
@@ -759,30 +924,33 @@ export interface operations {
       };
     };
   };
-  /** Deletes an NVMe-oF target, along with all its volumes. */
+  /**
+   * Delete an NVMe-oF target 
+   * @description Deletes an NVMe-oF target, along with all its volumes.
+   */
   nvmeOfDelete: {
     parameters: {
       path: {
-        /** The NQN of the target */
+        /** @description The NQN of the target */
         nqn: string;
       };
     };
     responses: {
-      /** OK */
-      200: unknown;
-      /** The given NQN has an invalid format. */
+      /** @description OK */
+      200: never;
+      /** @description The given NQN has an invalid format. */
       400: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** No NVMe-oF target with the given NQN can be found. */
+      /** @description No NVMe-oF target with the given NQN can be found. */
       404: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** Some error occurred */
+      /** @description Some error occurred */
       500: {
         content: {
           "application/json": components["schemas"]["Error"];
@@ -790,38 +958,41 @@ export interface operations {
       };
     };
   };
-  /** Starts an NVMe-oF target. This is only possible if the target is currently stopped, otherwise this operation does nothing. */
+  /**
+   * Starts an NVMe-oF target 
+   * @description Starts an NVMe-oF target. This is only possible if the target is currently stopped, otherwise this operation does nothing.
+   */
   nvmeOfStart: {
     parameters: {
       path: {
-        /** The NQN of the target */
+        /** @description The NQN of the target */
         nqn: string;
       };
     };
     responses: {
-      /** OK */
+      /** @description OK */
       200: {
         headers: {
-          /** URL to the started NVMe-oF target */
+          /** @description URL to the started NVMe-oF target */
           Location?: string;
         };
         content: {
           "application/json": components["schemas"]["NvmeOfResourceConfig"];
         };
       };
-      /** The given NQN has an invalid format. */
+      /** @description The given NQN has an invalid format. */
       400: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** No NVMe-oF target with the given NQN can be found. */
+      /** @description No NVMe-oF target with the given NQN can be found. */
       404: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** Some error occurred */
+      /** @description Some error occurred */
       500: {
         content: {
           "application/json": components["schemas"]["Error"];
@@ -829,38 +1000,41 @@ export interface operations {
       };
     };
   };
-  /** Stops an NVMe-oF target. This is only possible if the target is currently started, otherwise this operation does nothing. */
+  /**
+   * Stops an NVMe-oF target 
+   * @description Stops an NVMe-oF target. This is only possible if the target is currently started, otherwise this operation does nothing.
+   */
   nvmeOfStop: {
     parameters: {
       path: {
-        /** The NQN of the target */
+        /** @description The NQN of the target */
         nqn: string;
       };
     };
     responses: {
-      /** OK */
+      /** @description OK */
       200: {
         headers: {
-          /** URL to the stopped NVMe-oF target */
+          /** @description URL to the stopped NVMe-oF target */
           Location?: string;
         };
         content: {
           "application/json": components["schemas"]["NvmeOfResourceConfig"];
         };
       };
-      /** The given NQN has an invalid format. */
+      /** @description The given NQN has an invalid format. */
       400: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** No NVMe-oF target with the given NQN can be found. */
+      /** @description No NVMe-oF target with the given NQN can be found. */
       404: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** Some error occurred */
+      /** @description Some error occurred */
       500: {
         content: {
           "application/json": components["schemas"]["Error"];
@@ -868,36 +1042,39 @@ export interface operations {
       };
     };
   };
-  /** Gets a single volume from an NVMe-oF target */
+  /**
+   * Delete ad 
+   * @description Gets a single volume from an NVMe-oF target
+   */
   nvmeOfGetVolume: {
     parameters: {
       path: {
-        /** The NQN of the target */
+        /** @description The NQN of the target */
         nqn: string;
-        /** The ID of the namespace */
+        /** @description The ID of the namespace */
         nsid: number;
       };
     };
     responses: {
-      /** OK */
+      /** @description OK */
       200: {
         content: {
           "application/json": components["schemas"]["VolumeConfig"];
         };
       };
-      /** The given NQN has an invalid format. */
+      /** @description The given NQN has an invalid format. */
       400: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** No NVMe-oF target with the given NQN can be found. */
+      /** @description No NVMe-oF target with the given NQN can be found. */
       404: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** Some error occurred */
+      /** @description Some error occurred */
       500: {
         content: {
           "application/json": components["schemas"]["Error"];
@@ -905,71 +1082,77 @@ export interface operations {
       };
     };
   };
-  /** Adds a volume to an existing NVMe-oF target. The target must be stopped before executing this operation, or it will fail. */
+  /**
+   * Add a volume to an NVMe-oF target 
+   * @description Adds a volume to an existing NVMe-oF target. The target must be stopped before executing this operation, or it will fail.
+   */
   nvmeOfAddVolume: {
     parameters: {
       path: {
-        /** The NQN of the target */
+        /** @description The NQN of the target */
         nqn: string;
-        /** The ID of the namespace */
+        /** @description The ID of the namespace */
         nsid: number;
       };
     };
-    responses: {
-      /** OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["VolumeConfig"];
-        };
-      };
-      /** The given NQN has an invalid format. */
-      400: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-      /** Not Found */
-      404: unknown;
-      /** Some error occurred */
-      500: {
-        content: {
-          "application/json": components["schemas"]["Error"];
-        };
-      };
-    };
-    /** The new volume */
-    requestBody: {
+    /** @description The new volume */
+    requestBody?: {
       content: {
         "application/json": components["schemas"]["VolumeConfig"];
       };
     };
-  };
-  /** Deletes a volume from an existing NVMe-oF target. The target must be stopped before executing this operation, or it will fail. */
-  nvmeOfVolumeDelete: {
-    parameters: {
-      path: {
-        /** The NQN of the target */
-        nqn: string;
-        /** The ID of the namespace */
-        nsid: number;
-      };
-    };
     responses: {
-      /** OK */
-      200: unknown;
-      /** The given NQN has an invalid format. */
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["VolumeConfig"];
+        };
+      };
+      /** @description The given NQN has an invalid format. */
       400: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** No NVMe-oF target with the given NQN can be found. */
+      /** @description Not Found */
+      404: never;
+      /** @description Some error occurred */
+      500: {
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
+  };
+  /**
+   * Delete a volume from an NVMe-oF target 
+   * @description Deletes a volume from an existing NVMe-oF target. The target must be stopped before executing this operation, or it will fail.
+   */
+  nvmeOfVolumeDelete: {
+    parameters: {
+      path: {
+        /** @description The NQN of the target */
+        nqn: string;
+        /** @description The ID of the namespace */
+        nsid: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: never;
+      /** @description The given NQN has an invalid format. */
+      400: {
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+      /** @description No NVMe-oF target with the given NQN can be found. */
       404: {
         content: {
           "application/json": components["schemas"]["Error"];
         };
       };
-      /** Some error occurred */
+      /** @description Some error occurred */
       500: {
         content: {
           "application/json": components["schemas"]["Error"];
@@ -978,5 +1161,3 @@ export interface operations {
     };
   };
 }
-
-export interface external {}

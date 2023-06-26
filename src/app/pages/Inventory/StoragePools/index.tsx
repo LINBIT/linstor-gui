@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useRequest } from 'ahooks';
 import { useTranslation } from 'react-i18next';
-import { Label, Progress, ProgressSize } from '@patternfly/react-core';
+import { Label } from '@patternfly/react-core';
 import { headerCol, ICell } from '@patternfly/react-table';
 
 import YesOrNo from '@app/components/YesOrNo';
@@ -14,6 +14,7 @@ import service from '@app/requests';
 import { useKVStore } from '@app/hooks';
 import { notify, notifyList } from '@app/utils/toast';
 import { formatBytes } from '@app/utils/size';
+import { deleteStoragePoolV2 } from '@app/features/storagePool';
 
 const StoragePoolList: React.FunctionComponent = () => {
   const { t } = useTranslation(['storage_pool', 'common']);
@@ -27,26 +28,7 @@ const StoragePoolList: React.FunctionComponent = () => {
   const kvs = useKVStore();
   const gatewayEnabled = kvs.gatewayEnabled as boolean;
 
-  const { run: deleteStoragePool } = useRequest(
-    (node, storagePool, _isBatch = false) => ({
-      url: `/v1/nodes/${node}/storage-pools/${storagePool}`,
-      method: 'delete',
-    }),
-    {
-      manual: true,
-      onSuccess: (data, params) => {
-        if (params[2]) {
-          setFetchList(!fetchList);
-        } else {
-          notify('Success', {
-            type: 'success',
-          });
-        }
-      },
-    }
-  );
-
-  const { loading: updatingStoragePool, run: handleUpdateStoragePool } = useRequest(
+  const { run: handleUpdateStoragePool } = useRequest(
     (body) => ({
       url: `/v1/nodes/${currentNode}/storage-pools/${current}`,
       body,
@@ -176,7 +158,10 @@ const StoragePoolList: React.FunctionComponent = () => {
       onClick: async (event, rowId, rowData, extra) => {
         const node = rowData.cells[1];
         const storagePoolName = rowData.cells[0];
-        await deleteStoragePool(node, storagePoolName);
+        const data = await deleteStoragePoolV2({ node, storagepool: storagePoolName });
+        if (!data.error) {
+          setFetchList(!fetchList);
+        }
       },
     },
   ];
@@ -193,18 +178,17 @@ const StoragePoolList: React.FunctionComponent = () => {
         label: t('common:delete'),
         variant: 'danger',
         onClick: (selected) => {
-          const batchDeleteRequests = selected.map((e) => deleteStoragePool(e.cells[1], e.cells[0], true));
+          const batchDeleteRequests = selected.map((e) =>
+            deleteStoragePoolV2({ node: e.cells[1], storagepool: e.cells[0] })
+          );
 
-          Promise.all(batchDeleteRequests).then((res) => {
-            notify('Success', {
-              type: 'success',
-            });
+          Promise.all(batchDeleteRequests).finally(() => {
             setFetchList(!fetchList);
           });
         },
       },
     ];
-  }, [deleteStoragePool, fetchList, history, t]);
+  }, [fetchList, history, t]);
 
   return (
     <PageBasic title={t('list')}>

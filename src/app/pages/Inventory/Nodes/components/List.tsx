@@ -36,6 +36,7 @@ import { omit } from '@app/utils/object';
 import { Dispatch } from '@app/store';
 import { useDispatch } from 'react-redux';
 import { useKVStore } from '@app/hooks';
+import { ListAction } from './ListAction';
 
 type NodeListProps = {
   nodes: NodeType[];
@@ -175,6 +176,16 @@ const List: React.FC<NodeListProps> = ({ nodes = [] }) => {
     },
   ];
 
+  const handleBatchDelete = () => {
+    dispatch.node.deleteNode(selectedNodes);
+    setSelectedNodes([]);
+  };
+
+  const handleBatchDLost = () => {
+    dispatch.node.lostNode(selectedNodes);
+    setSelectedNodes([]);
+  };
+
   return (
     <>
       <Toolbar id="toolbar-items">
@@ -215,14 +226,18 @@ const List: React.FC<NodeListProps> = ({ nodes = [] }) => {
           {!gatewayEnabled && selectedNodes.length > 0 && (
             <>
               <ToolbarItem>
-                <Button variant="warning" onClick={() => history.push('/inventory/nodes/create')}>
-                  {t('common:delete')}
-                </Button>
+                <ListAction
+                  action={t('common:delete')}
+                  message="Are you sure to delete selected nodes?"
+                  onConfirm={handleBatchDelete}
+                />
               </ToolbarItem>
               <ToolbarItem>
-                <Button variant="danger" onClick={() => history.push('/inventory/nodes/create')}>
-                  {t('common:lost')}
-                </Button>
+                <ListAction
+                  action={t('common:lost')}
+                  message="Are you sure to lost selected nodes?"
+                  onConfirm={handleBatchDLost}
+                />
               </ToolbarItem>
             </>
           )}

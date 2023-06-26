@@ -1,16 +1,22 @@
 import { createModel } from '@rematch/core';
 import { RootModel } from '.';
 
-import { createPhysicalStoragePool } from '../services';
+import { createPhysicalStorage } from '@app/features/storagePool';
 
 export const storagePools = createModel<RootModel>()({
   state: {},
   reducers: {},
-  effects: (dispatch) => ({
-    async createPhysicalStoragePool(payload, rootState) {
+  effects: () => ({
+    async createPhysicalStoragePool(payload) {
       const { node, ...params } = payload;
-      const { data } = await createPhysicalStoragePool({ node, ...params });
-      return data.ret_code > 0;
+      const { data } = await createPhysicalStorage(node, {
+        ...params,
+        node,
+      });
+      if (data) {
+        return data[0].ret_code > 0;
+      }
+      return false;
     },
   }),
 });

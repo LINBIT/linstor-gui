@@ -73,6 +73,7 @@ const ResourceDefinitionForm: React.FC<Props> = ({ initialVal, handleSubmit, loa
         defaultValue: initialVal?.name ?? '',
         type: TYPE_MAP.TEXT,
         validationInfo: {
+          pattern: /^[A-Za-z0-9.,+-]+$/,
           isRequired: true,
           minLength: 2,
           invalidMessage: 'Resource definition name is invalid',

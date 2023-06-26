@@ -47,33 +47,40 @@ export const setting = createModel<RootModel>()({
     },
 
     async getSettings() {
-      const res = await service.get(`/v1/key-value-store/${SETTING_KEY}`);
+      try {
+        const res = await service.get(`/v1/key-value-store/${SETTING_KEY}`);
 
-      const settings = res.data.find((e) => e.name === SETTING_KEY) || { props: {} };
+        const settings = res.data.find((e) => e.name === SETTING_KEY) || { props: {} };
 
-      // KVS only stores values as string
-      const props = convertToBoolean(settings.props);
-      // keep store info in redux
-      dispatch.setting.setSettings(props);
+        // KVS only stores values as string
+        const props = convertToBoolean(settings.props);
+        // keep store info in redux
+        dispatch.setting.setSettings(props);
 
-      if (props.gatewayEnabled) {
-        const defaultGatewayHost = window.location.protocol + '//' + window.location.hostname + ':8080/';
-        if (props.gatewayHost !== '') {
-          window.localStorage.setItem(GATEWAY_HOST, String(props.gatewayHost));
+        if (props.gatewayEnabled) {
+          const defaultGatewayHost = window.location.protocol + '//' + window.location.hostname + ':8080/';
+          if (props.gatewayHost !== '') {
+            window.localStorage.setItem(GATEWAY_HOST, String(props.gatewayHost));
+          } else {
+            window.localStorage.setItem(GATEWAY_HOST, defaultGatewayHost);
+          }
         } else {
-          window.localStorage.setItem(GATEWAY_HOST, defaultGatewayHost);
+          window.localStorage.removeItem(GATEWAY_HOST);
         }
-      } else {
-        window.localStorage.removeItem(GATEWAY_HOST);
-      }
-      // put logo string together
-      if (props.logoStr) {
-        const arr = S(props.logoStr).parseCSV();
-        const logoSrc = arr.map((e) => props[e]).join('');
+        // put logo string together
+        if (props.logoStr) {
+          const arr = S(props.logoStr).parseCSV();
+          const logoSrc = arr.map((e) => props[e]).join('');
 
+          dispatch.setting.setSettings({
+            logoSrc,
+            logoStr: props.logoStr,
+          });
+        }
+      } catch (error) {
         dispatch.setting.setSettings({
-          logoSrc,
-          logoStr: props.logoStr,
+          dashboardEnabled: false,
+          gatewayEnabled: false,
         });
       }
     },

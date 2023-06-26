@@ -23,7 +23,7 @@ import { ErrorReportList, ReportType } from '@app/interfaces/report';
 import { useDispatch } from 'react-redux';
 import { Dispatch } from '@app/store';
 
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 
 interface Prop {

@@ -20,7 +20,7 @@ import {
 
 import SVG from 'react-inlinesvg';
 
-import { routes, IAppRoute, IAppRouteGroup, AppRouteConfig } from '@app/routes/routes';
+import { routes, IAppRoute, IAppRouteGroup } from '@app/routes/routes';
 
 import HeaderAboutModal from './components/HeaderAboutModal';
 import ConnectStatus from './components/ConnectStatus';
@@ -187,7 +187,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
 
       <ToastContainer
         position="top-right"
-        autoClose={2000}
+        autoClose={6000}
         hideProgressBar={false}
         newestOnTop={false}
         closeOnClick

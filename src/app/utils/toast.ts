@@ -1,4 +1,5 @@
 import { toast, ToastOptions } from 'react-toastify';
+import { APICALLRCLIST } from '@app/features/requests';
 
 const handleLinstorMessage = (e: { message: string; ret_code: number }) => {
   return { title: e.message, type: e.ret_code > 0 ? 'success' : 'error' };
@@ -13,6 +14,17 @@ const notify = (content: string, options?: ToastOptions): void => {
   });
 };
 
+const handleAPICallRes = (callRes?: APICALLRCLIST) => {
+  if (!callRes || !callRes.length) {
+    return;
+  }
+  callRes.forEach((res) => {
+    notify(res.message, {
+      type: res.ret_code > 0 ? 'success' : 'error',
+    });
+  });
+};
+
 const notifyList = (list: { message: string; ret_code: number }[], options?: ToastOptions): void => {
   if (!list) {
     return;
@@ -24,4 +36,4 @@ const notifyList = (list: { message: string; ret_code: number }[], options?: Toa
   }
 };
 
-export { notify, handleLinstorMessage, notifyList };
+export { notify, handleLinstorMessage, notifyList, handleAPICallRes };

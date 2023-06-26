@@ -2,13 +2,13 @@ const path = require('path');
 const { merge } = require('webpack-merge');
 const common = require('./webpack.common.js');
 const { stylePaths } = require('./stylePaths');
-const {DefinePlugin} = require("webpack");
+const { DefinePlugin } = require('webpack');
 
 const HOST = process.env.HOST || 'localhost';
 const PORT = process.env.PORT || '8000';
 
-const API_HOST = process.env.LISNTOR_API_HOST || 'http://139.155.73.188:43375';
-const GATEWAY_API_HOST = process.env.GATEWAY_API_HOST || 'http://139.155.73.188:48080';
+const API_HOST = process.env.LISNTOR_API_HOST || 'http://192.168.123.115:3370';
+const GATEWAY_API_HOST = process.env.GATEWAY_API_HOST || 'http://192.168.123.115:8080';
 
 module.exports = merge(common('development'), {
   mode: 'development',
@@ -37,7 +37,7 @@ module.exports = merge(common('development'), {
   plugins: [
     new DefinePlugin({
       'process.env.VERSION': 'DEV', // "mock" version in development environment
-    })
+    }),
   ],
   module: {
     rules: [

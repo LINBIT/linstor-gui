@@ -8,8 +8,8 @@ import {
   DescriptionListGroup,
   DescriptionListTermHelpText,
   DescriptionListTermHelpTextButton,
-  SimpleList,
-  SimpleListItem,
+  List,
+  ListItem,
 } from '@patternfly/react-core';
 
 import PageBasic from '@app/components/PageBasic';
@@ -64,11 +64,11 @@ const NodeDetail: React.FC = () => {
             <DescriptionListTermHelpTextButton> Resource Layers </DescriptionListTermHelpTextButton>
           </DescriptionListTermHelpText>
           <DescriptionListDescription>
-            <SimpleList aria-label="Resource Layers List">
+            <List aria-label="Resource Layers List">
               {nodeData?.resource_layers?.map((e) => (
-                <SimpleListItem key={e}>{e}</SimpleListItem>
+                <ListItem key={e}>{e}</ListItem>
               ))}
-            </SimpleList>
+            </List>
           </DescriptionListDescription>
         </DescriptionListGroup>
 
@@ -77,11 +77,11 @@ const NodeDetail: React.FC = () => {
             <DescriptionListTermHelpTextButton> Storage Providers </DescriptionListTermHelpTextButton>
           </DescriptionListTermHelpText>
           <DescriptionListDescription>
-            <SimpleList aria-label="Resource Layers List">
+            <List aria-label="Resource Layers List">
               {nodeData?.storage_providers?.map((e) => (
-                <SimpleListItem key={e}>{e}</SimpleListItem>
+                <ListItem key={e}>{e}</ListItem>
               ))}
-            </SimpleList>
+            </List>
           </DescriptionListDescription>
         </DescriptionListGroup>
         {nodeData?.props &&

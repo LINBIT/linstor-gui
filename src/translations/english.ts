@@ -27,7 +27,7 @@ const en = {
     node: 'Nodes',
     storage_pools: 'Storage Pools',
     error_reports: 'Error Reports',
-    software_defined: 'Software Defined',
+    software_defined: 'Storage Configuration',
     resource_groups: 'Resource Groups',
     resource_definitions: 'Resource Definitions',
     resources: 'Resources',
@@ -133,6 +133,7 @@ const en = {
     allocated: 'Allocated',
     in_use: 'In Use',
     state: 'State',
+    un_used: 'UnUsed',
   },
   controller: {
     controller_detail: 'Controller Detail',

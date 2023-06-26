@@ -36,8 +36,6 @@ const ResourceForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, edit
     }
   );
 
-  console.log(initialVal, 'initialVal');
-
   const formItems = useMemo(() => {
     return [
       {

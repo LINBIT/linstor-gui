@@ -109,11 +109,8 @@ const List: React.FunctionComponent = () => {
 
           Promise.all(batchDeleteRequests).then((res) => {
             if (res) {
-              notify('Success', {
-                type: 'success',
-              });
+              setFetchList(!fetchList);
             }
-            setFetchList(!fetchList);
           });
         },
       },

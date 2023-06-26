@@ -58,9 +58,7 @@ const List: React.FunctionComponent = () => {
       onClick: (event, rowId, rowData, extra) => {
         const resource = rowData.cells[0];
         const node = rowData.cells[1];
-        console.log('clicked on Some action, on row: ', rowData.cells[0]);
         const currentData = rowData.cells[7] ?? {};
-        console.log(currentData, 'currentData');
         setInitialProps(currentData);
         setCurrentVolume(currentData.volume_number);
         setPropertyModalOpen(true);
@@ -72,7 +70,6 @@ const List: React.FunctionComponent = () => {
 
   const { run: handleUpdateVolumeProps } = useRequest(
     (body) => ({
-      // /v1/resource-definitions/MyRD02/resources/node104/volumes/0
       url: `/v1/resource-definitions/${current}/resources/${currentNode}/volumes/${currentVolume}`,
       body,
     }),
@@ -107,8 +104,6 @@ const List: React.FunctionComponent = () => {
         ...item.volumes.map((e) => ({ ...e, node_name: item.node_name, resource_name: item.name, in_use: item.in_use }))
       );
     }
-
-    console.log(volumes, 'volumes');
 
     return volumes;
   }, []);
