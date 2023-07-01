@@ -8,7 +8,7 @@ const snapshot: AppRouteConfig[] = [
     exact: true,
     label: 'snapshot',
     path: '/snapshot',
-    title: 'Linstor | Snapshot',
+    title: 'LINSTOR | Snapshot',
   },
 ];
 
