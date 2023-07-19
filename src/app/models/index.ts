@@ -9,6 +9,7 @@ import { report } from './report';
 import { resourceGroup } from './resourceGroup';
 import { snapshot } from './snapshot';
 import { storagePools } from './storagePools';
+import { auth } from './auth';
 
 export interface RootModel extends Models<RootModel> {
   nfs: typeof nfs;
@@ -21,6 +22,7 @@ export interface RootModel extends Models<RootModel> {
   resourceGroup: typeof resourceGroup;
   snapshot: typeof snapshot;
   storagePools: typeof storagePools;
+  auth: typeof auth;
 }
 
 export const models: RootModel = {
@@ -34,4 +36,5 @@ export const models: RootModel = {
   resourceGroup,
   snapshot,
   storagePools,
+  auth,
 };

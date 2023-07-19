@@ -40,6 +40,7 @@ import gateway from './gateway';
 import snapshot from './snapshot';
 
 import { GrafanaDashboard } from '@app/pages/Granfana';
+import { UserManagement } from '@app/features/authentication';
 
 let routeFocusTimer: number;
 
@@ -159,65 +160,65 @@ const routes: AppRouteConfig[] = [
         component: ResourceGroupList,
         exact: true,
         label: 'resource_groups',
-        path: '/software-defined/resource-groups',
-        title: 'LINSTOR | Software Defined | Resource Groups',
+        path: '/storage-configuration/resource-groups',
+        title: 'LINSTOR | Storage Configuration | Resource Groups',
       },
       {
         component: ResourceGroupEdit,
         exact: true,
-        path: '/software-defined/resource-groups/:resourceGroup/edit',
-        title: 'LINSTOR | Software Defined | Resource Groups | Edit',
+        path: '/storage-configuration/resource-groups/:resourceGroup/edit',
+        title: 'LINSTOR | Storage Configuration | Resource Groups | Edit',
       },
       {
         component: ResourceGroupCreate,
         exact: true,
-        path: '/software-defined/resource-groups/create',
-        title: 'LINSTOR | Software Defined | Resource Groups | Create',
+        path: '/storage-configuration/resource-groups/create',
+        title: 'LINSTOR | Storage Configuration | Resource Groups | Create',
       },
       {
         component: ResourceDefinitionList,
         exact: true,
         label: 'resource_definitions',
-        path: '/software-defined/resource-definitions',
-        title: 'LINSTOR | Software Defined | Resource Definitions',
+        path: '/storage-configuration/resource-definitions',
+        title: 'LINSTOR | Storage Configuration | Resource Definitions',
       },
       {
         component: ResourceDefinitionCreate,
         exact: true,
-        path: '/software-defined/resource-definitions/create',
-        title: 'LINSTOR | Software Defined | Resource Definitions | Create',
+        path: '/storage-configuration/resource-definitions/create',
+        title: 'LINSTOR | Storage Configuration | Resource Definitions | Create',
       },
       {
         component: ResourceDefinitionEdit,
         exact: true,
-        path: '/software-defined/resource-definitions/:resourceDefinition/edit',
-        title: 'LINSTOR | Software Defined | Resource Definitions | Edit',
+        path: '/storage-configuration/resource-definitions/:resourceDefinition/edit',
+        title: 'LINSTOR | Storage Configuration | Resource Definitions | Edit',
       },
       {
         component: ResourceList,
         exact: true,
         label: 'resources',
-        path: '/software-defined/resources',
-        title: 'LINSTOR | Software Defined | Resources',
+        path: '/storage-configuration/resources',
+        title: 'LINSTOR | Storage Configuration | Resources',
       },
       {
         component: ResourceCreate,
         exact: true,
-        path: '/software-defined/resources/create',
-        title: 'LINSTOR | Software Defined | Resources | Create',
+        path: '/storage-configuration/resources/create',
+        title: 'LINSTOR | Storage Configuration | Resources | Create',
       },
       {
         component: ResourceEdit,
         exact: true,
-        path: '/software-defined/resources/:resource/edit',
-        title: 'LINSTOR | Software Defined | Resources | Edit',
+        path: '/storage-configuration/resources/:resource/edit',
+        title: 'LINSTOR | Storage Configuration | Resources | Edit',
       },
       {
         component: VolumeList,
         exact: true,
         label: 'volumes',
-        path: '/software-defined/volumes',
-        title: 'LINSTOR | Software Defined | Volumes',
+        path: '/storage-configuration/volumes',
+        title: 'LINSTOR | Storage Configuration | Volumes',
       },
     ],
   },
@@ -256,6 +257,14 @@ const routes: AppRouteConfig[] = [
     path: '/settings',
     label: 'settings',
     title: 'LINSTOR | Setting',
+  },
+
+  {
+    component: UserManagement,
+    exact: true,
+    path: '/users',
+    label: 'users',
+    title: 'LINSTOR | Users',
   },
 ];
 

@@ -212,7 +212,7 @@ const ResourceForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, edit
   }, [getNodeNetworkLists, initialVal?.node]);
 
   const cancelClick = useCallback(() => {
-    history.push('/software-defined/resources');
+    history.push('/storage-configuration/resources');
   }, [history]);
 
   return (

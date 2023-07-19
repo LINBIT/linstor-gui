@@ -18,6 +18,8 @@ import {
   PageHeaderToolsItem,
 } from '@patternfly/react-core';
 
+import { Avatar, Dropdown } from 'antd';
+
 import SVG from 'react-inlinesvg';
 
 import { routes, IAppRoute, IAppRouteGroup } from '@app/routes/routes';
@@ -30,6 +32,7 @@ import logo from '@app/bgimages/Linbit_Logo_White-1.png';
 
 import './AppLayout.css';
 import isSvg from 'is-svg';
+import { AuthForm, Login } from '@app/features/authentication';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -52,14 +55,15 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const dispatch = useDispatch<Dispatch>();
 
   React.useEffect(() => {
-    // Check Settings from Linstor Key-Value-Store
-    dispatch.setting.getSettings();
-    // check if Gateway is available
+    dispatch.setting.initSettingStore();
+    dispatch.auth.checkLoginStatus();
     dispatch.setting.getGatewayStatus();
-  }, [dispatch.setting]);
+  }, [dispatch.auth, dispatch.setting]);
 
-  const { KVS } = useSelector((state: RootState) => ({
+  const { KVS, authInfo, logoSrc } = useSelector((state: RootState) => ({
     KVS: state.setting.KVS,
+    authInfo: state.auth,
+    logoSrc: state.setting.logo,
   }));
 
   const { t } = useTranslation('menu');
@@ -73,17 +77,17 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
     setIsMobileView(props.mobileView);
   };
 
-  let filteredRoutes = KVS.gatewayEnabled ? routes : routes.filter((route) => route.label !== 'gateway');
+  let filteredRoutes = KVS?.gatewayEnabled ? routes : routes.filter((route) => route.label !== 'gateway');
 
-  if (!KVS.gatewayEnabled) {
+  if (!KVS?.gatewayEnabled) {
     filteredRoutes = hideRoutes('gateway', filteredRoutes);
   }
 
-  if (!KVS.dashboardEnabled) {
+  if (!KVS?.dashboardEnabled) {
     filteredRoutes = hideRoutes('grafana', filteredRoutes);
   }
 
-  const customizedLogo = isSvg(KVS.logoSrc as any) ? KVS.logoSrc : null;
+  const customizedLogo = isSvg(logoSrc as any) ? logoSrc : null;
 
   function LogoImg() {
     const history = useHistory();
@@ -110,6 +114,34 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
         </PageHeaderToolsItem>
         <PageHeaderToolsItem>
           <LngSelector />
+        </PageHeaderToolsItem>
+        <PageHeaderToolsItem>
+          <Dropdown
+            menu={{
+              items: [
+                {
+                  key: 'logout',
+                  label: (
+                    <a
+                      rel="noopener noreferrer"
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        dispatch.auth.logout();
+                      }}
+                    >
+                      Logout
+                    </a>
+                  ),
+                },
+              ],
+            }}
+            placement="bottom"
+          >
+            <Avatar size={40} style={{ backgroundColor: '#f7a75c', color: '#1e2939', cursor: 'pointer' }}>
+              {authInfo.username?.charAt(0).toUpperCase()}
+            </Avatar>
+          </Dropdown>
         </PageHeaderToolsItem>
       </PageHeaderToolsGroup>
     </PageHeaderTools>
@@ -172,6 +204,27 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
       Skip to Content
     </SkipToContent>
   );
+
+  console.log(authInfo, 'authInfo');
+
+  if (!authInfo.isLoggedIn) {
+    return (
+      <>
+        <Login />
+        <ToastContainer
+          position="top-right"
+          autoClose={2000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
+      </>
+    );
+  }
 
   return (
     <>

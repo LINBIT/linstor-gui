@@ -185,13 +185,13 @@ const Dashboard: React.FunctionComponent = () => {
           title={t('common:resources')}
           value={summeryData?.resource ?? 0}
           icon={<ResourcePoolIcon />}
-          url="/software-defined/resources"
+          url="/storage-configuration/resources"
         />
         <SummeryCard
           title={t('common:volumes')}
           value={summeryData?.volume ?? 0}
           icon={<ContainerNodeIcon />}
-          url="/software-defined/volumes"
+          url="/storage-configuration/volumes"
         />
         <SummeryCard
           title={t('common:error_reports')}

@@ -163,7 +163,7 @@ const ResourceGroupList: React.FunctionComponent = () => {
       title: t('common:edit'),
       onClick: (event, rowId, rowData, extra) => {
         const resource_group = rowData.cells[0];
-        history.push(`/software-defined/resource-groups/${resource_group}/edit`);
+        history.push(`/storage-configuration/resource-groups/${resource_group}/edit`);
       },
     },
     {
@@ -181,7 +181,7 @@ const ResourceGroupList: React.FunctionComponent = () => {
         label: t('common:add'),
         variant: 'primary',
         alwaysShow: true,
-        onClick: () => history.push('/software-defined/resource-groups/create'),
+        onClick: () => history.push('/storage-configuration/resource-groups/create'),
       },
       {
         label: t('common:delete'),

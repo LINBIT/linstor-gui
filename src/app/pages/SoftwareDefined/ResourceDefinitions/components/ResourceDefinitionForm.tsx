@@ -199,7 +199,7 @@ const ResourceDefinitionForm: React.FC<Props> = ({ initialVal, handleSubmit, loa
   ]);
 
   const cancelClick = useCallback(() => {
-    history.push('/software-defined/resource-definitions');
+    history.push('/storage-configuration/resource-definitions');
   }, [history]);
 
   return <DynamicForm formItems={formItems} handleSubmitData={handleSubmit} handleCancelClick={cancelClick} />;

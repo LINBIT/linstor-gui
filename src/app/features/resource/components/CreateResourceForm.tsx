@@ -35,7 +35,7 @@ const CreateResourceForm = () => {
   const node = Form.useWatch('node', form);
 
   const backToList = () => {
-    history.push('/software-defined/resources');
+    history.push('/storage-configuration/resources');
   };
 
   const { data: networks } = useQuery({

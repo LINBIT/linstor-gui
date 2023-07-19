@@ -165,7 +165,7 @@ const ResourceDefinitionList: React.FunctionComponent = () => {
       onClick: (event, rowId, rowData, extra) => {
         const resourceDefinitionName = rowData.cells[0];
         console.log('clicked on Some action, on row: ', rowData.cells[0]);
-        history.push(`/software-defined/resource-definitions/${resourceDefinitionName}/edit`);
+        history.push(`/storage-configuration/resource-definitions/${resourceDefinitionName}/edit`);
       },
     },
     {
@@ -184,7 +184,7 @@ const ResourceDefinitionList: React.FunctionComponent = () => {
         label: t('common:add'),
         variant: 'primary',
         alwaysShow: true,
-        onClick: () => history.push('/software-defined/resource-definitions/create'),
+        onClick: () => history.push('/storage-configuration/resource-definitions/create'),
       },
       {
         label: t('common:delete'),

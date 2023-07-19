@@ -6,20 +6,27 @@ import isSvg from 'is-svg';
 import S from 'string';
 import { RootModel } from '.';
 
-// Use "settings" namespace of key-value-store(KVS) for saving settings
+import { settingAPI, SettingsAPI, SettingsProps } from '@app/features/settings';
+import { kvStore } from '@app/features/keyValueStore';
+
+// Use "__gui__settings" namespace of key-value-store(KVS) for saving settings
 // KVS only stores values as string
-const SETTING_KEY = 'settings';
+const SETTING_KEY = '__gui__settings';
 const GATEWAY_HOST = 'GATEWAY_HOST';
 
 type Setting = {
-  gatewayAvailable: boolean;
-  KVS: Record<string, boolean | string>;
+  gatewayAvailable?: boolean;
+  KVS?: SettingsProps;
+  initialized?: boolean;
+  logo?: string;
 };
 
 export const setting = createModel<RootModel>()({
   state: {
     gatewayAvailable: false,
     KVS: {},
+    initialized: false,
+    logo: '',
   } as Setting,
   reducers: {
     setGatewayAvailable(state, payload: boolean) {
@@ -28,12 +35,24 @@ export const setting = createModel<RootModel>()({
         gatewayAvailable: payload,
       };
     },
-    setSettings(state, payload: Record<string, boolean | string>) {
+    setSettings(state, payload: SettingsProps) {
       return {
         ...state,
         KVS: {
           ...payload,
         },
+      };
+    },
+    setInitialized(state, payload: boolean) {
+      return {
+        ...state,
+        initialized: payload,
+      };
+    },
+    updateLogo(state, payload: string) {
+      return {
+        ...state,
+        logo: payload,
       };
     },
   },
@@ -46,42 +65,47 @@ export const setting = createModel<RootModel>()({
       }
     },
 
+    async initSettingStore() {
+      const res = await SettingsAPI.instanceExists();
+      dispatch.setting.setInitialized(res);
+
+      if (res) {
+        await dispatch.setting.getSettings();
+      } else {
+        await SettingsAPI.init();
+      }
+    },
+
     async getSettings() {
       try {
-        const res = await service.get(`/v1/key-value-store/${SETTING_KEY}`);
+        const props = await settingAPI.getProps();
+        console.log(props, 'props');
 
-        const settings = res.data.find((e) => e.name === SETTING_KEY) || { props: {} };
-
-        // KVS only stores values as string
-        const props = convertToBoolean(settings.props);
         // keep store info in redux
         dispatch.setting.setSettings(props);
 
         if (props.gatewayEnabled) {
           const defaultGatewayHost = window.location.protocol + '//' + window.location.hostname + ':8080/';
-          if (props.gatewayHost !== '') {
-            window.localStorage.setItem(GATEWAY_HOST, String(props.gatewayHost));
+          if (props.gatewayHostAddress !== '') {
+            window.localStorage.setItem(GATEWAY_HOST, String(props.gatewayHostAddress));
           } else {
             window.localStorage.setItem(GATEWAY_HOST, defaultGatewayHost);
           }
         } else {
           window.localStorage.removeItem(GATEWAY_HOST);
         }
-        // put logo string together
-        if (props.logoStr) {
-          const arr = S(props.logoStr).parseCSV();
-          const logoSrc = arr.map((e) => props[e]).join('');
+        // // put logo string together
+        if (props.customLogoEnabled) {
+          const logoProps = await kvStore.get('logo');
+          console.log(logoProps, 'logoProps');
+          const logoStr = logoProps?.props?.['logoStr'] ?? '';
+          const arr = S(logoStr).parseCSV();
+          const logoSrc = arr.map((e) => logoProps?.props?.[e]).join('');
 
-          dispatch.setting.setSettings({
-            logoSrc,
-            logoStr: props.logoStr,
-          });
+          dispatch.setting.updateLogo(logoSrc);
         }
       } catch (error) {
-        dispatch.setting.setSettings({
-          dashboardEnabled: false,
-          gatewayEnabled: false,
-        });
+        console.log(error);
       }
     },
     async saveKey(payload: Record<string, number | string | boolean>, state) {
@@ -159,11 +183,17 @@ export const setting = createModel<RootModel>()({
 
     async setLogo(payload: { logoSvg: string }, state) {
       // delete old logo
-      const { logoStr } = state.setting.KVS;
-      if (logoStr) {
-        const arr = S(logoStr).parseCSV();
-        await dispatch.setting.deleteKey([...arr, 'logoStr']);
-      }
+      // const { logoStr } = state.setting.KVS;
+      // if (logoStr) {
+      //   const arr = S(logoStr).parseCSV();
+      //   await dispatch.setting.deleteKey([...arr, 'logoStr']);
+      // }
+
+      // check logo store is exist
+
+      const override_props = {
+        logoStr: '',
+      };
 
       const splitString = (str: string) => {
         const strArr: string[] = [];
@@ -181,22 +211,19 @@ export const setting = createModel<RootModel>()({
 
         for (let i = 0; i < chunks.length; i++) {
           const element = chunks[i];
-          await dispatch.setting.saveKey({
-            [`logoSvg_${i}`]: element,
-          });
+          override_props[`logoSvg_${i}`] = element;
         }
 
-        await dispatch.setting.saveKey({
-          logoStr: keyStr,
-        });
-
-        // get settings again to update logoSrc
-        await dispatch.setting.getSettings();
-
-        notify('Logo updated!', {
-          type: 'success',
-        });
+        override_props['logoStr'] = keyStr;
       }
+
+      await kvStore.create('logo', {
+        override_props,
+      });
+
+      await settingAPI.setProps({
+        customLogoEnabled: true,
+      });
     },
 
     async getLogo(payload: string) {

@@ -37,6 +37,7 @@ import { Dispatch } from '@app/store';
 import { useDispatch } from 'react-redux';
 import { useKVStore } from '@app/hooks';
 import { ListAction } from './ListAction';
+import { Modal } from 'antd';
 
 type NodeListProps = {
   nodes: NodeType[];
@@ -53,6 +54,8 @@ const List: React.FC<NodeListProps> = ({ nodes = [] }) => {
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
   const [searchValue, setSearchValue] = useState<string>();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentNode, setCurrentNode] = useState('');
 
   const columnNames = {
     name: t('node_name'),
@@ -164,10 +167,14 @@ const List: React.FC<NodeListProps> = ({ nodes = [] }) => {
       },
       isDisabled: gatewayEnabled,
     },
+
     {
       title: <div>{t('common:delete')}</div>,
-      onClick: () => dispatch.node.deleteNode([node.name]),
       isDisabled: gatewayEnabled,
+      onClick: () => {
+        setIsModalOpen(true);
+        setCurrentNode(node.name);
+      },
     },
     {
       title: <div>{t('common:lost')}</div>,
@@ -347,6 +354,26 @@ const List: React.FC<NodeListProps> = ({ nodes = [] }) => {
           setPropertyModalOpen(false);
         }}
       />
+
+      <Modal
+        title="Delete"
+        open={isModalOpen}
+        onCancel={() => setIsModalOpen(false)}
+        onOk={() => {
+          if (currentNode) {
+            dispatch.node.deleteNode([currentNode]);
+            setIsModalOpen(false);
+          }
+        }}
+      >
+        {currentNode && (
+          <p>
+            Are you sure you want to delete {currentNode} from the LINSTOR cluster? Doing so will remove all LINSTOR
+            objects related to this node. The backing storage for any LINSTOR storage-pools on {currentNode} will not be
+            altered, and must be cleaned up manually.
+          </p>
+        )}
+      </Modal>
     </>
   );
 };

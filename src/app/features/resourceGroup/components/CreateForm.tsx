@@ -60,7 +60,7 @@ const CreateForm = () => {
   const layer_stack = Form.useWatch('layer_stack', form);
 
   const backToList = () => {
-    history.push('/software-defined/resource-groups');
+    history.push('/storage-configuration/resource-groups');
   };
 
   const { isLoading: storagePoolsIsLoading, data: storagePools } = useStoragePools();

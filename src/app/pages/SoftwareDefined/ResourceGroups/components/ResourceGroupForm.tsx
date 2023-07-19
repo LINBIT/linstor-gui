@@ -291,7 +291,7 @@ const ResourceGroupForm: React.FC<Props> = ({ initialVal, handleSubmit, editing 
   ]);
 
   const cancelClick = useCallback(() => {
-    history.push('/software-defined/resource-groups');
+    history.push('/storage-configuration/resource-groups');
   }, [history]);
 
   return (

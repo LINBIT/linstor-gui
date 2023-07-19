@@ -210,7 +210,7 @@ const List: React.FunctionComponent = () => {
       onClick: (event, rowId, rowData, extra) => {
         const resource = rowData.cells[0];
         console.log('clicked on Some action, on row: ', rowData.cells[0]);
-        history.push(`/software-defined/resources/${resource}/edit`);
+        history.push(`/storage-configuration/resources/${resource}/edit`);
       },
     },
     {
@@ -231,7 +231,7 @@ const List: React.FunctionComponent = () => {
         label: t('common:add'),
         variant: 'primary',
         alwaysShow: true,
-        onClick: () => history.push('/software-defined/resources/create'),
+        onClick: () => history.push('/storage-configuration/resources/create'),
       },
       {
         label: t('common:delete'),

@@ -22,7 +22,7 @@ const LogoWrapper = styled.div``;
 // For setting Logo related stuff
 const Logo: React.FC = () => {
   const { logoSrc } = useSelector((state: RootState) => ({
-    logoSrc: state.setting.KVS.logoSrc,
+    logoSrc: state.setting.logo,
   }));
   return (
     <Wrapper>

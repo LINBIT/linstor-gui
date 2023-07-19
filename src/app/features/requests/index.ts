@@ -17,7 +17,9 @@ window.fetch = new Proxy(window.fetch, {
             .clone()
             .json()
             .then((data) => {
-              handleAPICallRes(data);
+              if (!res.url?.includes('key-value-store')) {
+                handleAPICallRes(data);
+              }
             });
         } catch (error) {
           return res;

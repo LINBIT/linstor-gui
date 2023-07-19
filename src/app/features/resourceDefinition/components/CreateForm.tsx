@@ -29,7 +29,7 @@ const CreateForm = () => {
   const deploy = Form.useWatch('deploy', form);
 
   const backToList = () => {
-    history.push('/software-defined/resource-definitions');
+    history.push('/storage-configuration/resource-definitions');
   };
 
   const { isLoading: resourceGroupsIsLoading, data: resourceGroups } = useResourceGroups();
