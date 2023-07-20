@@ -1,3 +1,9 @@
+linstor-gui (1.4.0~rc.2-1) experimental; urgency=medium
+
+  * New upstream release
+
+ -- Roland Kammerer <roland.kammerer@linbit.com>  Thu, 20 Jul 2023 08:30:07 +0200
+
 linstor-gui (1.4.0~rc.1-1) experimental; urgency=medium
 
   * New upstream release
