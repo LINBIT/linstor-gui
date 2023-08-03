@@ -303,22 +303,33 @@ const flattenedRoutes: IAppRoute[] = routes
   .reduce((flattened, route) => [...flattened, ...(route.routes ? route.routes : [route])], [] as IAppRoute[])
   .filter((e) => !e.hide);
 
-const AppRoutes = (): React.ReactElement => (
-  <LastLocationProvider>
-    <Switch>
-      {flattenedRoutes.map(({ path, exact, component, title, isAsync }, idx) => (
-        <RouteWithTitleUpdates
-          path={path}
-          exact={exact}
-          component={component}
-          key={idx}
-          title={title}
-          isAsync={isAsync}
-        />
-      ))}
-      <PageNotFound title="404 Page Not Found" />
-    </Switch>
-  </LastLocationProvider>
-);
+const AppRoutes = (): React.ReactElement => {
+  const [displayedRoutes, setDisplayedRoutes] = React.useState(flattenedRoutes);
+
+  React.useEffect(() => {
+    if (localStorage.getItem('linstorname') !== 'admin') {
+      const routes = flattenedRoutes.filter((e) => e.label !== 'users');
+      setDisplayedRoutes(routes);
+    }
+  }, []);
+
+  return (
+    <LastLocationProvider>
+      <Switch>
+        {displayedRoutes.map(({ path, exact, component, title, isAsync }, idx) => (
+          <RouteWithTitleUpdates
+            path={path}
+            exact={exact}
+            component={component}
+            key={idx}
+            title={title}
+            isAsync={isAsync}
+          />
+        ))}
+        <PageNotFound title="404 Page Not Found" />
+      </Switch>
+    </LastLocationProvider>
+  );
+};
 
 export { AppRoutes, routes };

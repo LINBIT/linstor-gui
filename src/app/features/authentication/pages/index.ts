@@ -1,2 +1,2 @@
-export { UserManagement } from './UserManagement';
+export { UserManagement } from './UserManegment/UserManagement';
 export { Login } from './Login';

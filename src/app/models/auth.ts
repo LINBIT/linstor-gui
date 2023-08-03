@@ -11,6 +11,8 @@ interface AuthState {
   isLoggedIn: boolean;
   username: string | null;
   users: string[];
+  needsPasswordChange?: boolean;
+  isAdmin?: boolean;
 }
 
 export const auth = createModel<RootModel>()({
@@ -18,6 +20,8 @@ export const auth = createModel<RootModel>()({
     isLoggedIn: false,
     username: null,
     users: [],
+    needsPasswordChange: false,
+    isAdmin: false,
   } as AuthState,
   reducers: {
     setLoggedIn(state, payload: boolean) {
@@ -27,12 +31,21 @@ export const auth = createModel<RootModel>()({
       return { ...state, username: payload };
     },
     setUsers(state, payload: string[]) {
-      return { ...state, users: payload };
+      return { ...state, users: payload.filter((user) => user !== 'admin' && user !== '__updated__') };
+    },
+    setNeedsPasswordChange(state, payload: boolean) {
+      return { ...state, needsPasswordChange: payload };
+    },
+    setIsAdmin(state, payload: boolean) {
+      return { ...state, isAdmin: payload };
     },
   },
   effects: (dispatch) => ({
     async register(user: UserAuth) {
       const success = await authAPI.register(user);
+      if (success) {
+        dispatch.auth.getUsers();
+      }
       return success;
     },
     async login(user: UserAuth) {
@@ -40,6 +53,14 @@ export const auth = createModel<RootModel>()({
       if (success) {
         dispatch.auth.setLoggedIn(true);
         dispatch.auth.setUsername(user.username);
+        if (user.username === 'admin') {
+          dispatch.auth.setIsAdmin(true);
+
+          if (user.password === 'admin') {
+            // TODO: Remove this once we have a proper password change
+            dispatch.auth.setNeedsPasswordChange(true);
+          }
+        }
         localStorage.setItem('linstorname', user.username);
       }
       return success;
@@ -57,9 +78,18 @@ export const auth = createModel<RootModel>()({
         dispatch.auth.setUsername(null);
         localStorage.removeItem('linstorname');
       }
+      dispatch.auth.getUsers();
     },
-    async changePassword({ user, newPassword }) {
-      const success = await authAPI.changePassword(user.username, user.password, newPassword);
+
+    async resetPassword({ user, newPassword }) {
+      const success = await authAPI.resetPassword(user, newPassword);
+      return success;
+    },
+    async changePassword({ user, oldPassword, newPassword }) {
+      const success = await authAPI.changePassword(user, oldPassword, newPassword);
+      if (success) {
+        dispatch.auth.setNeedsPasswordChange(false);
+      }
       return success;
     },
 

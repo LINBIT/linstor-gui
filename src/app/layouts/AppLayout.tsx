@@ -29,10 +29,13 @@ import ConnectStatus from './components/ConnectStatus';
 import LngSelector from './components/LngSelector';
 
 import logo from '@app/bgimages/Linbit_Logo_White-1.png';
+import logout from '@app/assets/logout.svg';
+import user from '@app/assets/user.svg';
 
 import './AppLayout.css';
 import isSvg from 'is-svg';
-import { AuthForm, Login } from '@app/features/authentication';
+import { ChangePassword, Login } from '@app/features/authentication';
+import { ImgIcon } from './styled';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -120,6 +123,25 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
             menu={{
               items: [
                 {
+                  key: 'userinfo',
+                  label: (
+                    <a
+                      rel="noopener noreferrer"
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                      }}
+                    >
+                      <ImgIcon src={user} alt="user" />
+                      <span>{authInfo.username}</span>
+                    </a>
+                  ),
+                },
+                {
+                  key: 'changepassword',
+                  label: <ChangePassword />,
+                },
+                {
                   key: 'logout',
                   label: (
                     <a
@@ -130,7 +152,8 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
                         dispatch.auth.logout();
                       }}
                     >
-                      Logout
+                      <ImgIcon src={logout} alt="logout" />
+                      <span>Logout</span>
                     </a>
                   ),
                 },

@@ -9,3 +9,7 @@
 .customizedLogo {
   width: 8rem;
 }
+
+.change-password-modal .ant-modal-content {
+  padding: 0 !important;
+}

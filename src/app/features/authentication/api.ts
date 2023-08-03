@@ -41,6 +41,13 @@ export class UserAuthAPI {
     return success;
   }
 
+  // reset the password for a user
+  public async resetPassword(username: string, newPassword: string): Promise<boolean> {
+    const encryptedNewPassword = await this.encrypt(newPassword);
+    await this.store.setProperty(this.usersInstance, username, encryptedNewPassword);
+    return true;
+  }
+
   public async changePassword(username: string, oldPassword: string, newPassword: string): Promise<boolean> {
     // Verify the old password
     const encryptedOldPassword = await this.store.getProperty(this.usersInstance, username);

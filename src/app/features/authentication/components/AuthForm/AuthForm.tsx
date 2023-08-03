@@ -1,9 +1,8 @@
-import React from 'react';
-import { Button, Form, Input } from 'antd';
+import React, { useState } from 'react';
+import { Alert, Button, Form, Input } from 'antd';
 import { useDispatch } from 'react-redux';
 import { Dispatch } from '@app/store';
 import { useHistory } from 'react-router-dom';
-import { notify } from '@app/utils/toast';
 
 type FormType = {
   username: string;
@@ -11,19 +10,25 @@ type FormType = {
   password_validate: string;
 };
 
+// TODO: read from env
+const isDefaultCredentials = (values: FormType) => {
+  return values.username === 'admin' && values.password === 'admin';
+};
+
 const AuthForm: React.FC = () => {
+  const [isError, setIsError] = useState(false);
   const history = useHistory();
   const dispatch = useDispatch<Dispatch>();
 
   const onFinish = async (values: FormType) => {
     const res = await dispatch.auth.login({ username: values.username, password: values.password });
-    console.log(res, 'res');
     if (res) {
+      if (isDefaultCredentials(values)) {
+        dispatch.auth.setNeedsPasswordChange(true);
+      }
       history.push('/');
     } else {
-      notify('Login failed', {
-        type: 'error',
-      });
+      setIsError(true);
     }
   };
 
@@ -38,6 +43,19 @@ const AuthForm: React.FC = () => {
       autoComplete="off"
       layout="vertical"
     >
+      {isError && (
+        <Alert
+          description="Please check your username and password and try again"
+          type="error"
+          closable
+          onClose={() => setIsError(false)}
+          style={{
+            marginBottom: 16,
+            marginTop: 16,
+            width: '80%',
+          }}
+        />
+      )}
       <Form.Item label="Username" name="username" rules={[{ required: true, message: 'Please input your username!' }]}>
         <Input />
       </Form.Item>

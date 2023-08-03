@@ -1,5 +1,5 @@
 import React from 'react';
-import { AuthForm } from '../../components/AuthForm';
+import { AuthForm } from '../../components/AuthForm/AuthForm';
 import bgImg from '@app/assets/login_bg.png';
 import logo from '@app/assets/login_logo.svg';
 import { LoginContainer, LoginImg, LoginLeft, LoginRight, LoginTitle, Logo } from './styled';
