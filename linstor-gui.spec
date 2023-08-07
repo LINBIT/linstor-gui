@@ -1,7 +1,7 @@
 %define debug_package %{nil}
 
 Name:		linstor-gui
-Version:	1.4.0~rc.2
+Version:	1.4.0~rc.3
 Release:	1
 Summary:	GUI for LINSTOR
 %global	tarball_version %(echo "%{version}" | sed -e 's/~rc/-rc/' -e 's/~alpha/-alpha/')
@@ -32,6 +32,9 @@ make install DESTDIR=%{buildroot}
 
 
 %changelog
+* Mon Aug 07 2023 Christoph Böhmwalder <christoph.boehmwalder@linbit.com> - 1.4.0~rc.3-1
+-  New upstream release
+
 * Thu Jul 20 2023 Roland Kammerer <roland.kammerer@linbit.com> - 1.4.0~rc.2-1
 -  New upstream release
 
