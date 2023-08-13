@@ -37,45 +37,48 @@ export const UserManagement = () => {
         <img src={bg} />
         <MainContent>
           {users && users.length > 0 ? (
-            <List
-              itemLayout="horizontal"
-              dataSource={users.map((user) => ({ title: user }))}
-              renderItem={(user, index) => (
-                <List.Item
-                  actions={[
-                    <ChangePassword key="change" admin user={user.title} />,
+            <>
+              <CreateUser />
+              <List
+                itemLayout="horizontal"
+                dataSource={users.map((user) => ({ title: user }))}
+                renderItem={(user, index) => (
+                  <List.Item
+                    actions={[
+                      <ChangePassword key="change" admin user={user.title} />,
 
-                    <Popconfirm
-                      key="delete"
-                      title="Delete the user"
-                      description="Are you sure to delete this user?"
-                      okText="Yes"
-                      cancelText="No"
-                      icon={<QuestionCircleOutlined style={{ color: 'red' }} rev={null} />}
-                      onConfirm={() => {
-                        dispatch.auth.deleteUser(user.title);
-                      }}
-                    >
-                      <Button danger>Delete User</Button>
-                    </Popconfirm>,
-                  ]}
-                >
-                  <List.Item.Meta
-                    avatar={
-                      <Avatar style={{ backgroundColor: '#f7a75c', verticalAlign: 'middle' }} size="large">
-                        {user.title.slice(0, 1).toUpperCase()}
-                      </Avatar>
-                    }
-                    title={
-                      <a href="#" onClick={(e) => e.preventDefault()}>
-                        {user.title}
-                      </a>
-                    }
-                    description={`User ${index + 1}`}
-                  />
-                </List.Item>
-              )}
-            />
+                      <Popconfirm
+                        key="delete"
+                        title="Delete the user"
+                        description="Are you sure to delete this user?"
+                        okText="Yes"
+                        cancelText="No"
+                        icon={<QuestionCircleOutlined style={{ color: 'red' }} rev={null} />}
+                        onConfirm={() => {
+                          dispatch.auth.deleteUser(user.title);
+                        }}
+                      >
+                        <Button danger>Delete User</Button>
+                      </Popconfirm>,
+                    ]}
+                  >
+                    <List.Item.Meta
+                      avatar={
+                        <Avatar style={{ backgroundColor: '#f7a75c', verticalAlign: 'middle' }} size="large">
+                          {user.title.slice(0, 1).toUpperCase()}
+                        </Avatar>
+                      }
+                      title={
+                        <a href="#" onClick={(e) => e.preventDefault()}>
+                          {user.title}
+                        </a>
+                      }
+                      description={`User ${index + 1}`}
+                    />
+                  </List.Item>
+                )}
+              />
+            </>
           ) : (
             <div>
               There are no users created yet.

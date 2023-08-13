@@ -103,7 +103,7 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onCreate, onCance
 
             <Form.Item>
               <Button type="primary" htmlType="submit">
-                Add user
+                Add
               </Button>
             </Form.Item>
           </Form>
@@ -132,7 +132,7 @@ const CreateUser: React.FC = () => {
           setOpen(true);
         }}
       >
-        <Button>Create an User</Button>
+        <Button type="primary">Add an user</Button>
       </div>
       <CreateUserForm
         open={open}
