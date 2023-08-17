@@ -26,7 +26,9 @@ const ErrorReportList: React.FunctionComponent = () => {
   // handle click on delete button
   const handleDelete = useCallback(
     (id: string) => {
-      dispatch.report.deleteReport([id]);
+      dispatch.report.deleteReport({
+        ids: [id],
+      });
     },
     [dispatch.report]
   );
