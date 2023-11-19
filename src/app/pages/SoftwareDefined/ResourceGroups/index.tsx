@@ -153,7 +153,6 @@ const ResourceGroupList: React.FunctionComponent = () => {
       onClick: (event, rowId, rowData, extra) => {
         const resourceGroup = rowData.cells[0];
         const currentData = rowData.cells[6] ?? {};
-        console.log(currentData, 'currentData');
         setInitialProps(currentData);
         setPropertyModalOpen(true);
         setCurrent(resourceGroup);

@@ -41,7 +41,6 @@ export const nvme = createModel<RootModel>()({
     async getList(payload: any, state) {
       const res = await service.get('/api/v2/nvme-of');
       const data = res.data ?? [];
-      console.log(res.data, '???');
 
       // TODO: handle volumes
       const iscsiList = [];
@@ -92,7 +91,7 @@ export const nvme = createModel<RootModel>()({
           }),
         });
         const res = await service.delete(`/api/v2/nvme-of/${payload}`);
-        console.log(res, 'res');
+
         if (res.status === 200) {
           notify('Deleted Successfully', {
             type: 'success',
@@ -122,7 +121,7 @@ export const nvme = createModel<RootModel>()({
           }),
         });
         const res = await service.post(`/api/v2/nvme-of/${payload}/start`);
-        console.log(res, 'res');
+
         if (res.status === 200) {
           notify('Started Successfully', {
             type: 'success',
@@ -152,7 +151,7 @@ export const nvme = createModel<RootModel>()({
           }),
         });
         const res = await service.post(`/api/v2/nvme-of/${payload}/stop`);
-        console.log(res, 'res');
+
         if (res.status === 200) {
           notify('Stopped Successfully', {
             type: 'success',
@@ -180,7 +179,7 @@ export const nvme = createModel<RootModel>()({
           size_kib: payload.size_kib,
           number: payload.LUN,
         });
-        console.log(res, 'res');
+
         if (res.status === 200) {
           notify('Added Successfully', {
             type: 'success',
@@ -198,7 +197,7 @@ export const nvme = createModel<RootModel>()({
     async deleteLUN(payload: Array<string | number>, state) {
       try {
         const res = await service.delete(`/api/v2/nvme-of/${payload[0]}/${payload[1]}`);
-        console.log(res, 'res');
+
         if (res.status === 200) {
           notify('Deleted Successfully', {
             type: 'success',

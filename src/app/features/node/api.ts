@@ -1,9 +1,18 @@
 import { get, post, put } from '@app/features/requests';
 
 import { NodeListQuery, NodeCreateRequestBody, UpdateNetInterfaceRequestBody, UpdateNodeRequestBody } from './types';
+import service from '@app/requests';
 
 const getNodes = async (query: NodeListQuery) => {
   return get('/v1/nodes', {
+    params: {
+      query,
+    },
+  });
+};
+
+const getNodesFromVSAN = async (query: NodeListQuery) => {
+  return service.get('/api/frontend/v1/nodes', {
     params: {
       query,
     },
@@ -57,4 +66,4 @@ const updateNetwork = async ({
   });
 };
 
-export { getNodes, getNetworksByNode, createNode, updateNetwork, updateNode };
+export { getNodes, getNetworksByNode, createNode, updateNetwork, updateNode, getNodesFromVSAN };

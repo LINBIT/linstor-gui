@@ -41,9 +41,9 @@ const Gateway: React.FC = () => {
   const dispatch = useDispatch<Dispatch>();
 
   const { gatewayEnabled, gatewayHost, customHostFromSetting } = useSelector((state: RootState) => ({
-    gatewayEnabled: state.setting.KVS.gatewayEnabled,
-    gatewayHost: state.setting.KVS.gatewayHost,
-    customHostFromSetting: state.setting.KVS.customHost,
+    gatewayEnabled: state?.setting?.KVS?.gatewayEnabled,
+    gatewayHost: state?.setting?.KVS?.gatewayHost,
+    customHostFromSetting: state?.setting?.KVS?.gatewayCustomHost,
   }));
 
   useEffect(() => {
@@ -64,7 +64,7 @@ const Gateway: React.FC = () => {
   }, []);
 
   const handleSave = useCallback(() => {
-    dispatch.setting.setGatewayMode({ gatewayEnabled: isChecked, host, customHost });
+    dispatch.setting.setGatewayMode({ gatewayEnabled: isChecked, host, customHost, showToast: true });
   }, [dispatch.setting, host, isChecked, customHost]);
 
   return (

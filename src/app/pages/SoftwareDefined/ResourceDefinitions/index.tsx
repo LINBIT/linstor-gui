@@ -139,7 +139,6 @@ const ResourceDefinitionList: React.FunctionComponent = () => {
     {
       title: t('common:deploy'),
       onClick: (event, rowId, rowData, extra) => {
-        console.log('clicked on Some action, on row: ', rowData);
         setShowDeployModal(true);
         setCurrent(rowData.cells[0]);
       },
@@ -148,7 +147,6 @@ const ResourceDefinitionList: React.FunctionComponent = () => {
       title: t('common:property'),
       onClick: (event, rowId, rowData, extra) => {
         const resourceGroup = rowData.cells[0];
-        console.log('clicked on Some action, on row: ', rowData.cells[0]);
         const currentData = omit(
           rowData.cells[5] ?? {},
           'DrbdPrimarySetOn',
@@ -164,14 +162,12 @@ const ResourceDefinitionList: React.FunctionComponent = () => {
       title: t('common:edit'),
       onClick: (event, rowId, rowData, extra) => {
         const resourceDefinitionName = rowData.cells[0];
-        console.log('clicked on Some action, on row: ', rowData.cells[0]);
         history.push(`/storage-configuration/resource-definitions/${resourceDefinitionName}/edit`);
       },
     },
     {
       title: t('common:delete'),
       onClick: async (event, rowId, rowData, extra) => {
-        console.log('clicked on Some action, on row: ', rowData);
         const resourceDefinitionName = rowData.cells[0];
         await deleteResourceDefinition(resourceDefinitionName);
       },
@@ -190,7 +186,6 @@ const ResourceDefinitionList: React.FunctionComponent = () => {
         label: t('common:delete'),
         variant: 'danger',
         onClick: (selected) => {
-          console.log('Will delete', selected);
           const batchDeleteRequests = selected.map((e) => deleteResourceDefinition(e.cells[0], true));
 
           Promise.all(batchDeleteRequests).then((res) => {

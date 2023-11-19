@@ -53,7 +53,6 @@ const Edit: React.FC = () => {
   );
 
   const handleEditResourceDefinition = async (data) => {
-    console.log(data, 'data');
     const updateData = {
       override_props: {
         'DrbdOptions/Net/protocol': data.replication_mode,

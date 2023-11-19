@@ -41,10 +41,6 @@ export const nfs = createModel<RootModel>()({
     async getList(payload: any, state) {
       const res = await service.get('/api/v2/nfs');
       const data = res.data ?? [];
-      console.log(res.data, '???');
-
-      // TODO: handle volumes
-      const NFSList = [];
 
       dispatch.nfs.setNFSList({
         total: data.length,
@@ -86,7 +82,7 @@ export const nfs = createModel<RootModel>()({
           }),
         });
         const res = await service.delete(`/api/v2/nfs/${payload}`);
-        console.log(res, 'res');
+
         if (res.status === 200) {
           notify('Deleted Successfully', {
             type: 'success',
@@ -116,7 +112,7 @@ export const nfs = createModel<RootModel>()({
           }),
         });
         const res = await service.post(`/api/v2/nfs/${payload}/start`);
-        console.log(res, 'res');
+
         if (res.status === 200) {
           notify('Started Successfully', {
             type: 'success',
@@ -146,7 +142,7 @@ export const nfs = createModel<RootModel>()({
           }),
         });
         const res = await service.post(`/api/v2/nfs/${payload}/stop`);
-        console.log(res, 'res');
+
         if (res.status === 200) {
           notify('Stopped Successfully', {
             type: 'success',

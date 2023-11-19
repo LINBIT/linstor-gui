@@ -11,7 +11,6 @@ type SwitchInputProps = {
 };
 
 export const SwitchInput: React.FunctionComponent<SwitchInputProps> = ({ id, name, label, labelOff, control }) => {
-  console.log(control, 'control');
   return (
     <Controller
       control={control}

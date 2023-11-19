@@ -68,7 +68,6 @@ const NFSForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, editing }
   }, [t, editing, initialVal]);
 
   const handleData = (data) => {
-    console.log(data, 'data');
     const size = convertRoundUp(data.size.unit, data.size.number);
     handleSubmit({ ...data, volumes: [{ number: 1, size_kib: size, export_path: data.name }] });
   };

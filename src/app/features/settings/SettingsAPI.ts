@@ -1,10 +1,10 @@
 import { authAPI } from '../authentication';
-import { KeyValueStore, kvStore } from '../keyValueStore';
+import { KeyValueStoreType, kvStore } from '../keyValueStore';
 
 import { SettingsProps } from './types';
 
 export class SettingsAPI {
-  private store: KeyValueStore;
+  private store: KeyValueStoreType;
   static instance = '__gui__settings';
 
   constructor() {
@@ -22,10 +22,10 @@ export class SettingsAPI {
       const props: SettingsProps = {
         gatewayEnabled: false,
         dashboardEnabled: false,
-        gatewayCustomHost: '',
-        gatewayHostAddress: '',
-        dashboardHost: '',
-        authenticationEnabled: true, // TODO: how do we handle this?
+        gatewayCustomHost: false,
+        vsanMode: false,
+        dashboardURL: '',
+        authenticationEnabled: true,
       };
       const propsAsString: { [key: string]: string } = {};
       for (const [key, value] of Object.entries(props)) {
@@ -63,18 +63,20 @@ export class SettingsAPI {
         gatewayEnabled,
         dashboardEnabled,
         gatewayCustomHost,
-        gatewayHostAddress,
-        dashboardHost,
+        vsanMode,
+        dashboardURL,
         authenticationEnabled,
         customLogoEnabled,
+        gatewayHost,
       } = storeProps.props;
       if (gatewayEnabled !== undefined) props.gatewayEnabled = gatewayEnabled === 'true';
       if (dashboardEnabled !== undefined) props.dashboardEnabled = dashboardEnabled === 'true';
-      if (gatewayCustomHost !== undefined) props.gatewayCustomHost = gatewayCustomHost;
-      if (gatewayHostAddress !== undefined) props.gatewayHostAddress = gatewayHostAddress;
-      if (dashboardHost !== undefined) props.dashboardHost = dashboardHost;
+      if (gatewayCustomHost !== undefined) props.gatewayCustomHost = gatewayCustomHost === 'true';
+      if (vsanMode !== undefined) props.vsanMode = vsanMode === 'true';
+      if (dashboardURL !== undefined) props.dashboardURL = dashboardURL;
       if (authenticationEnabled !== undefined) props.authenticationEnabled = authenticationEnabled === 'true';
       if (customLogoEnabled !== undefined) props.customLogoEnabled = customLogoEnabled === 'true';
+      if (gatewayHost !== undefined) props.gatewayHost = gatewayHost;
     }
     return props;
   }
@@ -88,18 +90,18 @@ export class SettingsAPI {
     if (props.dashboardEnabled !== undefined)
       storeProps.override_props.dashboardEnabled = props.dashboardEnabled.toString();
     if (props.gatewayCustomHost !== undefined) {
-      if (props.gatewayEnabled && props.gatewayCustomHost === '') {
+      if (props.gatewayEnabled && typeof props.gatewayCustomHost === 'undefined') {
         throw new Error('gatewayCustomHost must be a non-empty string when gatewayEnabled is true');
       }
-      storeProps.override_props.gatewayCustomHost = props.gatewayCustomHost;
+      storeProps.override_props.gatewayCustomHost = props.gatewayCustomHost ? 'true' : 'false';
     }
-    if (props.gatewayHostAddress !== undefined) {
-      if (props.gatewayCustomHost === '') {
-        throw new Error('gatewayCustomHost must be a non-empty string before gatewayHostAddress can be set');
+    if (props.gatewayHost !== undefined) {
+      if (props.gatewayCustomHost) {
+        throw new Error('gatewayCustomHost must be a non-empty string before gatewayHost can be set');
       }
-      storeProps.override_props.gatewayHostAddress = props.gatewayHostAddress;
+      storeProps.override_props.gatewayHost = props.gatewayHost;
     }
-    if (props.dashboardHost !== undefined) storeProps.override_props.dashboardHost = props.dashboardHost;
+    if (props.dashboardURL !== undefined) storeProps.override_props.dashboardURL = props.dashboardURL;
     if (props.authenticationEnabled !== undefined)
       storeProps.override_props.authenticationEnabled = props.authenticationEnabled.toString();
     storeProps.override_props.__updated__ = new Date().toISOString();
@@ -107,6 +109,8 @@ export class SettingsAPI {
     if (props.customLogoEnabled !== undefined) {
       storeProps.override_props.customLogoEnabled = props.customLogoEnabled.toString();
     }
+
+    if (props.vsanMode !== undefined) storeProps.override_props.vsanMode = props.vsanMode.toString();
 
     const response = await this.store.modify(SettingsAPI.instance, storeProps);
     if (!response.every((e) => e.ret_code > 0)) {

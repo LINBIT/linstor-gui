@@ -55,8 +55,6 @@ export const ISCSIList: React.FC<Data> = ({
     });
   const isRepoExpanded = (repo: NVME) => expandedRepoNames.includes(repo.nqn);
 
-  console.log(initialExpandedRepoNames, 'initialExpandedRepoNames');
-
   const columnNames = {
     nqn: 'NQN',
     service_ip: 'Service IP',

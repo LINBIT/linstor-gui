@@ -39,11 +39,9 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ type, initialVal, handleClo
   const [deleteProps, setDeleteProps] = useState<Array<string>>([]);
 
   useEffect(() => {
-    console.log(initialVal, 'initialVal');
     const nodePropertyList: FormItem[] = handlePropsToFormOption(type, initialVal);
     const displayItems = nodePropertyList.filter((e) => !e.hide);
     setFormItemList(nodePropertyList);
-    console.log(displayItems, 'displayItems');
     setFormItems(displayItems);
 
     /**
@@ -73,10 +71,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ type, initialVal, handleClo
 
   const handleRemoveProperty = useCallback(
     (propertyName: string) => {
-      console.log(formItems, 'formItems');
-      console.log(propertyName, 'deleting...');
       const newFormItem = formItems.map((e) => (e.name === propertyName ? { ...e, hide: true } : e));
-      console.log(newFormItem, 'newFormItem');
       setFormItems(newFormItem);
       setFormItemList(formItemList.map((e) => (e.name === propertyName ? { ...e, hide: true } : e)));
       setDeleteProps([...deleteProps, propertyName]);

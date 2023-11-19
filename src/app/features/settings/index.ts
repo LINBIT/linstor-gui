@@ -1,2 +1,2 @@
 export { SettingsAPI, default as settingAPI } from './SettingsAPI';
-export { SettingsProps } from './types';
+export type * from './types';

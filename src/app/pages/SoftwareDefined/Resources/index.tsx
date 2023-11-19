@@ -186,9 +186,7 @@ const List: React.FunctionComponent = () => {
       onClick: (event, rowId, rowData, extra) => {
         const resource = rowData.cells[0];
         const node = rowData.cells[1];
-        console.log('clicked on Some action, on row: ', rowData.cells[0]);
         const currentData = rowData.cells[7] ?? {};
-        console.log(currentData, 'currentData');
         setInitialProps(currentData);
         setPropertyModalOpen(true);
         setCurrent(resource);
@@ -199,8 +197,6 @@ const List: React.FunctionComponent = () => {
       title: t('common:snapshot'),
       onClick: async (event, rowId, rowData, extra) => {
         const resource = rowData.cells[0];
-        const node = rowData.cells[1];
-        console.log('clicked on Some action, on row: ', rowData.cells[0]);
         setIsModalOpen(true);
         setCurrentResource(resource);
       },
@@ -209,18 +205,14 @@ const List: React.FunctionComponent = () => {
       title: t('common:edit'),
       onClick: (event, rowId, rowData, extra) => {
         const resource = rowData.cells[0];
-        console.log('clicked on Some action, on row: ', rowData.cells[0]);
         history.push(`/storage-configuration/resources/${resource}/edit`);
       },
     },
     {
       title: t('common:delete'),
       onClick: async (event, rowId, rowData, extra) => {
-        console.log('clicked on Some action, on row: ', rowData);
         const node = rowData.cells[1];
         const resource = rowData.cells[0];
-        // await deleteStoragePool(node, storagePoolName);
-        console.log('deleting', node, resource);
       },
     },
   ];

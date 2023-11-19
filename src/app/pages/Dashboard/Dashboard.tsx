@@ -64,7 +64,6 @@ const Dashboard: React.FunctionComponent = () => {
   useRequest(resourcesDetailList, {
     throwOnError: true,
     onSuccess: (resourcesDetail) => {
-      console.log(resourcesDetail, 'resourcesDetailList');
       let date = new Date().getTime();
       const lineData: { x: string; y: number }[] = [];
 
@@ -142,17 +141,10 @@ const Dashboard: React.FunctionComponent = () => {
 
       try {
         data = parsePrometheusTextFormat(metrics);
-
-        console.log(data, 'parsed data');
-
         const nodeData = handleStateData(NODE, data);
         const resourceData = handleStateData(RESOURCE, data);
         const volumeData = handleStateData(VOLUME, data);
         const errorReportData = data.find((e) => e.name === ERROR_REPORT);
-
-        console.log(nodeData, 'nodeData');
-        console.log(resourceData, 'resourceData');
-        console.log(volumeData, 'volumeData');
 
         // Summery data
         const summery = {

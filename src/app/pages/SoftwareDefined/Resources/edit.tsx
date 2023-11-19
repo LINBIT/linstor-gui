@@ -49,13 +49,6 @@ const ResourceEdit: FunctionComponent = () => {
   );
 
   const handleEditNode = async (data) => {
-    //   {
-    //     "resource_definition_name": "create",
-    //     "node": "node101",
-    //     "storage_pool": "MySP",
-    //     "network_preference": "default"
-    // }
-
     let updateData;
 
     if (data.network_preference !== '') {
@@ -66,8 +59,6 @@ const ResourceEdit: FunctionComponent = () => {
     } else {
       updateData = { override_props: { StorPoolName: data.storage_pool }, delete_props: ['PrefNic'] };
     }
-
-    console.log(data, 'data');
 
     await updateResource(data.node, updateData);
   };

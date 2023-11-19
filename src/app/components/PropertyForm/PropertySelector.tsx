@@ -45,7 +45,6 @@ const PropertySelector: React.FC<PropertySelectorProps> = ({
   };
 
   const handleAdd = () => {
-    console.log(selected, 'selected');
     if (typeof selected !== 'undefined') {
       handleAddProperty(selected || '');
       setSelected(undefined);

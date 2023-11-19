@@ -137,7 +137,6 @@ const StoragePoolList: React.FunctionComponent = () => {
         const storagePool = rowData.cells[0];
         const currentNode = rowData.cells[1];
         const currentData = rowData.cells[7] ?? {};
-        console.log(currentData, 'currentData');
         setInitialProps(currentData);
         setPropertyModalOpen(true);
         setCurrent(storagePool);

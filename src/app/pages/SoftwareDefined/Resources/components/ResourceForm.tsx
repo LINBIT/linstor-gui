@@ -114,7 +114,6 @@ const ResourceForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, edit
         needWatch: true,
         watchCallback: async (val) => {
           if (val !== 'Select a node') {
-            console.log(val, 'val');
             await getNodeNetworkLists(val);
           } else {
             setNodeNetWorksList([{ value: '', label: 'Select a node first', isDisabled: true, isPlaceholder: true }]);

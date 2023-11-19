@@ -57,9 +57,7 @@ const List: React.FunctionComponent = () => {
       onClick: (event, rowId, rowData, extra) => {
         const resource = rowData.cells[0];
         const node = rowData.cells[1];
-        console.log('clicked on Some action, on row: ', rowData.cells[0]);
         const currentData = rowData.cells[7] ?? {};
-        console.log(currentData, 'currentData');
         setInitialProps(currentData);
         setCurrentVolume(currentData.volume_number);
         setPropertyModalOpen(true);

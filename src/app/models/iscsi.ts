@@ -92,7 +92,6 @@ export const iscsi = createModel<RootModel>()({
           }),
         });
         const res = await service.delete(`/api/v2/iscsi/${payload}`);
-        console.log(res, 'res');
         if (res.status === 200) {
           notify('Deleted Successfully', {
             type: 'success',
@@ -122,7 +121,7 @@ export const iscsi = createModel<RootModel>()({
           }),
         });
         const res = await service.post(`/api/v2/iscsi/${payload}/start`);
-        console.log(res, 'res');
+
         if (res.status === 200) {
           notify('Started Successfully', {
             type: 'success',
@@ -152,7 +151,7 @@ export const iscsi = createModel<RootModel>()({
           }),
         });
         const res = await service.post(`/api/v2/iscsi/${payload}/stop`);
-        console.log(res, 'res');
+
         if (res.status === 200) {
           notify('Stopped Successfully', {
             type: 'success',
@@ -180,7 +179,7 @@ export const iscsi = createModel<RootModel>()({
           size_kib: payload.size_kib,
           number: payload.LUN,
         });
-        console.log(res, 'res');
+
         if (res.status === 200) {
           notify('Added Successfully', {
             type: 'success',
@@ -198,7 +197,7 @@ export const iscsi = createModel<RootModel>()({
     async deleteLUN(payload: Array<string | number>, state) {
       try {
         const res = await service.delete(`/api/v2/iscsi/${payload[0]}/${payload[1]}`);
-        console.log(res, 'res');
+
         if (res.status === 200) {
           notify('Deleted Successfully', {
             type: 'success',

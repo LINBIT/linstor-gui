@@ -11,13 +11,11 @@ const handleError = (statsCode, res) => {
   let errorMsg = 'Error';
   switch (statsCode) {
     case 400: {
-      console.log(res.msg, res.res);
       errorMsg = i18n.t(res.msg, res.res || {});
       break;
     }
     case 500: {
       if (Array.isArray(res)) {
-        console.log(res, 'res');
         const errorObj = res[res.length - 1] || {};
         errorMsg = errorObj['message'];
         if (errorObj['details']) {
@@ -35,10 +33,14 @@ const handleError = (statsCode, res) => {
 // handle gateway request host
 service.interceptors.request.use((req) => {
   const GATEWAY_HOST = window.localStorage.getItem('GATEWAY_HOST');
+  const vsanMode = window.localStorage.getItem('__gui__vsan');
 
   if (req.url?.startsWith('/api/v2/') && GATEWAY_HOST) {
     req.baseURL = GATEWAY_HOST;
+  } else if (req.url?.startsWith('/api/frontend/v1') && vsanMode === 'true') {
+    req.baseURL = window.location.origin.split(':')[0] + '443';
   }
+
   return req;
 });
 

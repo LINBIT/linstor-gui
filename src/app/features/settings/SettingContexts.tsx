@@ -5,8 +5,8 @@ interface SettingsProps {
   gatewayEnabled?: boolean;
   dashboardEnabled?: boolean;
   gatewayCustomHost?: string;
-  gatewayHostAddress?: string;
-  dashboardHost?: string;
+  vsanMode?: string;
+  dashboardURL?: string;
   authenticationEnabled?: boolean;
 }
 

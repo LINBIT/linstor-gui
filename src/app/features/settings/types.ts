@@ -1,9 +1,10 @@
 export interface SettingsProps {
   gatewayEnabled?: boolean;
   dashboardEnabled?: boolean;
-  gatewayCustomHost?: string;
-  gatewayHostAddress?: string;
-  dashboardHost?: string;
+  gatewayCustomHost?: boolean;
+  vsanMode?: boolean;
+  dashboardURL?: string;
   authenticationEnabled?: boolean;
   customLogoEnabled?: boolean;
+  gatewayHost?: string;
 }

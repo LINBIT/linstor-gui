@@ -132,5 +132,3 @@ export class KeyValueStore {
 }
 
 export default new KeyValueStore();
-
-export type KeyValueStoreType = typeof KeyValueStore;

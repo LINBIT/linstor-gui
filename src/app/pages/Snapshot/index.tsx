@@ -74,7 +74,6 @@ const SnapShot: React.FunctionComponent = () => {
           setOpen(false);
         }}
         onCreate={(values) => {
-          console.log(values, 'values');
           createResourceMutation.mutate(values);
         }}
       />

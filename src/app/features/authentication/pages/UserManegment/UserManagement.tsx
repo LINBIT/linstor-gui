@@ -16,8 +16,6 @@ export const UserManagement = () => {
     users: state.auth.users,
   }));
 
-  console.log(users, 'users');
-
   useEffect(() => {
     dispatch.auth.getUsers();
   }, [dispatch.auth]);

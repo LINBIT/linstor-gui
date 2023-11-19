@@ -105,7 +105,6 @@ const FilterList: React.FC<Props> = ({
   };
 
   const handleSelectChange = (data) => {
-    console.log(data, '...');
     setSelected(data.filter((e: { selected: boolean }) => e.selected));
   };
 
@@ -128,9 +127,7 @@ const FilterList: React.FC<Props> = ({
     });
   }, [selected, toolButtons]);
 
-  const handleClear = useCallback(() => {
-    console.log('clear'); // TODO:
-  }, []);
+  const handleClear = useCallback(() => {}, []);
 
   return (
     <>

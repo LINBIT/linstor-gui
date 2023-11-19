@@ -56,12 +56,16 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const [isNavOpenMobile, setIsNavOpenMobile] = React.useState(false);
 
   const dispatch = useDispatch<Dispatch>();
+  const history = useHistory();
 
   React.useEffect(() => {
     dispatch.setting.initSettingStore();
     dispatch.auth.checkLoginStatus();
-    dispatch.setting.getGatewayStatus();
-  }, [dispatch.auth, dispatch.setting]);
+    const vSANMode = history.location.search.includes('vsan');
+    if (vSANMode) {
+      dispatch.setting.setVSANMode();
+    }
+  }, [dispatch.auth, dispatch.setting, history]);
 
   const { KVS, authInfo, logoSrc } = useSelector((state: RootState) => ({
     KVS: state.setting.KVS,
@@ -227,8 +231,6 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
       Skip to Content
     </SkipToContent>
   );
-
-  console.log(authInfo, 'authInfo');
 
   if (!authInfo.isLoggedIn) {
     return (

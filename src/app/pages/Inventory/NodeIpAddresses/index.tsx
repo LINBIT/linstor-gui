@@ -72,15 +72,12 @@ const List: React.FunctionComponent = () => {
       onClick: (event, rowId, rowData, extra) => {
         const ip = rowData.cells[3];
         const node = rowData.cells[0];
-        console.log('clicked on Some action, on row: ', rowData.cells[0]);
-
         history.push(`/inventory/ip/${node}/${ip}/edit`);
       },
     },
     {
       title: t('common:delete'),
       onClick: async (event, rowId, rowData, extra) => {
-        console.log('clicked on Some action, on row: ', rowData);
         const node = rowData.cells[0];
         const resource = rowData.cells[3];
         await deleteIpAddress(node, resource, false);
@@ -100,7 +97,6 @@ const List: React.FunctionComponent = () => {
         label: t('common:delete'),
         variant: 'danger',
         onClick: (selected) => {
-          console.log('Will delete', selected);
           const batchDeleteRequests = selected.map((e) => {
             const node = e.cells[0];
             const resource = e.cells[3];

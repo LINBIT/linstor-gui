@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Button, Switch, TextInput } from '@patternfly/react-core';
+import { Button, Switch } from '@patternfly/react-core';
+import { Input, Tooltip } from 'antd';
 import styled from '@emotion/styled';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -21,7 +22,6 @@ const AddressWrapper = styled.div`
 `;
 
 const AddressLabelWrapper = styled.div`
-  margin-top: 1em;
   margin-right: 1em;
 `;
 
@@ -33,12 +33,12 @@ const Dashboard: React.FC = () => {
   const dispatch = useDispatch<Dispatch>();
 
   const { dashboardEnabled, dashboardURL } = useSelector((state: RootState) => ({
-    dashboardEnabled: state.setting.KVS.dashboardEnabled,
-    dashboardURL: state.setting.KVS.dashboardURL,
+    dashboardEnabled: state?.setting?.KVS?.dashboardEnabled,
+    dashboardURL: state?.setting?.KVS?.dashboardURL,
   }));
 
   useEffect(() => {
-    // read state from Linstor KVS
+    // read state from LINSTOR KVS
     setIsChecked(dashboardEnabled as boolean);
     setHost(dashboardURL as string);
   }, [dashboardEnabled, dashboardURL]);
@@ -59,8 +59,16 @@ const Dashboard: React.FC = () => {
 
         {isChecked && (
           <AddressWrapper>
-            <AddressLabelWrapper>Address:</AddressLabelWrapper>
-            <TextInput value={host} onChange={(val) => setHost(val)} aria-label="host" />
+            <Tooltip title="This field is for the Grafana URL">
+              <AddressLabelWrapper>Address:</AddressLabelWrapper>
+            </Tooltip>
+            <Input
+              value={host}
+              onChange={(e) => {
+                setHost(e.target.value);
+              }}
+              aria-label="host"
+            />
           </AddressWrapper>
         )}
       </Wrapper>

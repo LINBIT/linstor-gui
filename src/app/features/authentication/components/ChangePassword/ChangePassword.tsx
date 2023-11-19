@@ -84,8 +84,6 @@ const ChangePassword = ({ admin, user }: ChangePasswordProps) => {
   const dispatch = useDispatch<Dispatch>();
 
   const onCreate = (values: any) => {
-    console.log('Received values of form: ', { user: user, newPassword: values.newPassword });
-
     if (admin) {
       dispatch.auth.resetPassword({ user: user, newPassword: values.newPassword });
     } else {

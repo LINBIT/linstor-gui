@@ -135,7 +135,6 @@ const StoragePoolForm: React.FC<Props> = ({ initialVal, handleSubmit, loading, e
         },
         needWatch: true,
         watchCallback: (val) => {
-          console.log(val, 'val');
           if (val === 'LVM') {
             setDriverLabel('Volume Group');
           } else if (val === 'LVM_THIN') {

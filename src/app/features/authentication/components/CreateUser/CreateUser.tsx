@@ -118,8 +118,6 @@ const CreateUser: React.FC = () => {
   const dispatch = useDispatch<Dispatch>();
 
   const onCreate = (values: any) => {
-    console.log('Received values of form: ', values);
-
     dispatch.auth.register(values);
 
     setOpen(false);

@@ -19,6 +19,7 @@ type Setting = {
   KVS?: SettingsProps;
   initialized?: boolean;
   logo?: string;
+  vsanMode?: boolean;
 };
 
 export const setting = createModel<RootModel>()({
@@ -27,6 +28,7 @@ export const setting = createModel<RootModel>()({
     KVS: {},
     initialized: false,
     logo: '',
+    vsanMode: false,
   } as Setting,
   reducers: {
     setGatewayAvailable(state, payload: boolean) {
@@ -79,6 +81,7 @@ export const setting = createModel<RootModel>()({
     async getSettings() {
       try {
         const props = await settingAPI.getProps();
+
         console.log(props, 'props');
 
         // keep store info in redux
@@ -86,8 +89,8 @@ export const setting = createModel<RootModel>()({
 
         if (props.gatewayEnabled) {
           const defaultGatewayHost = window.location.protocol + '//' + window.location.hostname + ':8080/';
-          if (props.gatewayHostAddress !== '') {
-            window.localStorage.setItem(GATEWAY_HOST, String(props.gatewayHostAddress));
+          if (props.gatewayHost !== '') {
+            window.localStorage.setItem(GATEWAY_HOST, String(props.gatewayHost));
           } else {
             window.localStorage.setItem(GATEWAY_HOST, defaultGatewayHost);
           }
@@ -97,7 +100,7 @@ export const setting = createModel<RootModel>()({
         // // put logo string together
         if (props.customLogoEnabled) {
           const logoProps = await kvStore.get('logo');
-          console.log(logoProps, 'logoProps');
+
           const logoStr = logoProps?.props?.['logoStr'] ?? '';
           const arr = S(logoStr).parseCSV();
           const logoSrc = arr.map((e) => logoProps?.props?.[e]).join('');
@@ -124,15 +127,17 @@ export const setting = createModel<RootModel>()({
       gatewayEnabled,
       customHost,
       host,
+      showToast,
     }: {
       gatewayEnabled: boolean;
       customHost: boolean;
       host: string;
+      showToast?: boolean;
     }) {
       try {
         await dispatch.setting.saveKey({
           gatewayEnabled,
-          customHost: gatewayEnabled && customHost,
+          gatewayCustomHost: gatewayEnabled && customHost,
         });
 
         if (gatewayEnabled && customHost) {
@@ -142,13 +147,15 @@ export const setting = createModel<RootModel>()({
         } else {
           await dispatch.setting.saveKey({
             gatewayHost: '',
-            customHost: false,
+            gatewayCustomHost: false,
           });
         }
 
-        notify(`LINSTOR-Gateway ${gatewayEnabled ? 'enabled' : 'disabled'}!`, {
-          type: 'success',
-        });
+        if (showToast) {
+          notify(`LINSTOR-Gateway ${gatewayEnabled ? 'enabled' : 'disabled'}!`, {
+            type: 'success',
+          });
+        }
 
         setTimeout(() => {
           window.location.reload();
@@ -158,6 +165,15 @@ export const setting = createModel<RootModel>()({
           type: 'error',
         });
       }
+    },
+
+    async setVSANMode() {
+      await dispatch.setting.saveKey({
+        vsanMode: true,
+        gatewayEnabled: true,
+        gatewayHost: '',
+        gatewayCustomHost: true,
+      });
     },
 
     async setDashboard({ dashboardEnabled, host }: { dashboardEnabled: boolean; host: string }) {
