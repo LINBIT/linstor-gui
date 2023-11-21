@@ -70,6 +70,9 @@ export const snapshot = createModel<RootModel>()({
         await service.post(`/v1/resource-definitions/${payload.resource}/snapshots`, {
           name: payload.name,
         });
+        notify(`${payload.resource} has been created`, {
+          type: 'success',
+        });
       } catch (error) {
         console.log(error, 'error');
         if (Array.isArray(error)) {

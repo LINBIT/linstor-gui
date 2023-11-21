@@ -17,7 +17,10 @@ window.fetch = new Proxy(window.fetch, {
             .clone()
             .json()
             .then((data) => {
-              if (!res.url?.includes('key-value-store')) {
+              // add a rule for not calling handleAPICallRes when url includes some strings
+              const excludeList = ['key-value-store', 'snapshots'];
+
+              if (!excludeList.some((item) => res.url?.includes(item))) {
                 handleAPICallRes(data);
               }
             });

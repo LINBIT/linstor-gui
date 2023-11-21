@@ -9,6 +9,7 @@ import PageBasic from '@app/components/PageBasic';
 
 import List from './List';
 import { CreateSnapshotForm, CreateSnapshotRequestBody, createSnapshot } from '@app/features/snapshot';
+import { notify } from '@app/utils/toast';
 
 const SnapShot: React.FunctionComponent = () => {
   const { t } = useTranslation(['snapshot', 'common']);
@@ -54,6 +55,9 @@ const SnapShot: React.FunctionComponent = () => {
     onSettled: () => {
       setOpen(false);
       dispatch.snapshot.getList({});
+      notify(`Snapshot has been created`, {
+        type: 'success',
+      });
     },
   });
 
