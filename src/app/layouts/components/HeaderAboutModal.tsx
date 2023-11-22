@@ -67,6 +67,12 @@ const HeaderAboutModal: React.FC = () => {
     return data;
   }, [metrics]);
 
+  let VERSION = "DEV"
+
+  if (typeof process !== "undefined") {
+    VERSION = process?.env?.VERSION ?? "DEV";
+  }
+
   return (
     <React.Fragment>
       <img title="logo" className="connected__img" src={FEATHER_INFO} onClick={handleModalToggle} />
@@ -85,7 +91,7 @@ const HeaderAboutModal: React.FC = () => {
             <TextListItem component="dt">Linstor Version</TextListItem>
             <TextListItem component="dd">{linstorVersion}</TextListItem>
             <TextListItem component="dt">UI Version</TextListItem>
-            <TextListItem component="dd">{process.env.VERSION}</TextListItem>
+            <TextListItem component="dd">{VERSION}</TextListItem>
             <TextListItem component="dt">Controller Binding IP</TextListItem>
             <TextListItem component="dd">0.0.0.0</TextListItem>
             <TextListItem component="dt">Controller Active On</TextListItem>
