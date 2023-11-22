@@ -1,5 +1,4 @@
 import service from '@app/requests';
-import { convertToBoolean } from '@app/utils/object';
 import { notify } from '@app/utils/toast';
 import { createModel } from '@rematch/core';
 import isSvg from 'is-svg';
@@ -9,10 +8,13 @@ import { RootModel } from '.';
 import { settingAPI, SettingsAPI, SettingsProps } from '@app/features/settings';
 import { kvStore } from '@app/features/keyValueStore';
 
+const defaultGatewayHost = window.location.protocol + '//' + window.location.hostname + ':8080/';
+
 // Use "__gui__settings" namespace of key-value-store(KVS) for saving settings
 // KVS only stores values as string
 const SETTING_KEY = '__gui__settings';
 const GATEWAY_HOST = 'GATEWAY_HOST';
+const VSAN_HOST = 'VSAN_HOST';
 
 type Setting = {
   gatewayAvailable?: boolean;
@@ -82,13 +84,14 @@ export const setting = createModel<RootModel>()({
       try {
         const props = await settingAPI.getProps();
 
-        console.log(props, 'props');
-
         // keep store info in redux
         dispatch.setting.setSettings(props);
 
+        if (props.vsanMode) {
+          window.localStorage.setItem(VSAN_HOST, 'https://' + window.location.hostname);
+        }
+
         if (props.gatewayEnabled) {
-          const defaultGatewayHost = window.location.protocol + '//' + window.location.hostname + ':8080/';
           if (props.gatewayHost !== '') {
             window.localStorage.setItem(GATEWAY_HOST, String(props.gatewayHost));
           } else {
@@ -171,9 +174,11 @@ export const setting = createModel<RootModel>()({
       await dispatch.setting.saveKey({
         vsanMode: true,
         gatewayEnabled: true,
-        gatewayHost: '',
+        gatewayHost: defaultGatewayHost,
         gatewayCustomHost: true,
       });
+      // reload page and remove search params
+      window.history.replaceState({}, document.title, window.location.pathname);
     },
 
     async setDashboard({ dashboardEnabled, host }: { dashboardEnabled: boolean; host: string }) {

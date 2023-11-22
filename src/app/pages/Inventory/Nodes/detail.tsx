@@ -23,7 +23,6 @@ const NodeDetail: React.FC = () => {
   const nodeInfo = useRequest(`/v1/nodes?nodes=${node}`);
   const nodeInterfaceInfo = useRequest(`/v1/nodes/${node}/net-interfaces`);
   const nodeStoragePoolInfo = useRequest(`/v1/nodes/${node}/storage-pools`);
-  // const nodeConfigInfo = useRequest(`/v1/nodes/${node}/config`); // TODO: We don't need this now
 
   const nodeData = nodeInfo.data ? nodeInfo.data[0] : {};
   const loading = nodeInfo.loading || nodeInterfaceInfo.loading || nodeStoragePoolInfo.loading;

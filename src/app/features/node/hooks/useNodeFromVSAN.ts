@@ -5,7 +5,7 @@ import { NodeListQuery } from '../types';
 const useNodesFromVSAN = (query?: NodeListQuery) => {
   const { isLoading, error, data } = useQuery({
     queryKey: ['getNodes', query],
-    queryFn: () => getNodesFromVSAN(query),
+    queryFn: () => getNodesFromVSAN(),
   });
 
   return {

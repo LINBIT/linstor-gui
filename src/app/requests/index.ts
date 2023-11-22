@@ -33,12 +33,14 @@ const handleError = (statsCode, res) => {
 // handle gateway request host
 service.interceptors.request.use((req) => {
   const GATEWAY_HOST = window.localStorage.getItem('GATEWAY_HOST');
-  const vsanMode = window.localStorage.getItem('__gui__vsan');
+  const VSAN_HOST = window.localStorage.getItem('VSAN_HOST');
 
   if (req.url?.startsWith('/api/v2/') && GATEWAY_HOST) {
+    // For gateway mode, use gateway host
     req.baseURL = GATEWAY_HOST;
-  } else if (req.url?.startsWith('/api/frontend/v1') && vsanMode === 'true') {
-    req.baseURL = window.location.origin.split(':')[0] + '443';
+  } else if (req.url?.startsWith('/api/frontend/v1') && VSAN_HOST) {
+    // FOR VSAM Mode, use https and hostname
+    req.baseURL = VSAN_HOST;
   }
 
   return req;

@@ -18,3 +18,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Massive toasts for creating snapshots
 - Fix displaying settings value back
+- Change "Nodes" to "Node" on creating storage pool

@@ -11,11 +11,13 @@ const getNodes = async (query: NodeListQuery) => {
   });
 };
 
-const getNodesFromVSAN = async (query: NodeListQuery) => {
-  return service.get('/api/frontend/v1/nodes', {
-    params: {
-      query,
-    },
+const getNodesFromVSAN = async () => {
+  return service.get('/api/frontend/v1/nodes');
+};
+
+const setNodeStandBy = (hostname: string, standby: boolean) => {
+  return service.post(`/api/frontend/v1/nodes/${hostname}/standby`, {
+    standby,
   });
 };
 
@@ -66,4 +68,4 @@ const updateNetwork = async ({
   });
 };
 
-export { getNodes, getNetworksByNode, createNode, updateNetwork, updateNode, getNodesFromVSAN };
+export { getNodes, getNetworksByNode, createNode, updateNetwork, updateNode, getNodesFromVSAN, setNodeStandBy };

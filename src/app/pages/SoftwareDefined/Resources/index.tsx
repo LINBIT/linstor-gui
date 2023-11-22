@@ -229,7 +229,6 @@ const List: React.FunctionComponent = () => {
         label: t('common:delete'),
         variant: 'danger',
         onClick: (selected) => {
-          console.log('Will delete', selected);
           const batchDeleteRequests = selected.map((e) => deleteResource(e.cells[0], e.cells[1], true));
 
           Promise.all(batchDeleteRequests).then((res) => {

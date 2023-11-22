@@ -41,7 +41,6 @@ export const iscsi = createModel<RootModel>()({
     async getList(payload: any, state) {
       const res = await service.get('/api/v2/iscsi');
       const data = res.data ?? [];
-      console.log(res.data, '???');
 
       // TODO: handle volumes
       const iscsiList = [];

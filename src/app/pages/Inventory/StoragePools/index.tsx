@@ -26,7 +26,7 @@ const StoragePoolList: React.FunctionComponent = () => {
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
 
   const kvs = useKVStore();
-  const gatewayEnabled = kvs.gatewayEnabled as boolean;
+  const gatewayEnabled = kvs.vsanMode as boolean;
 
   const { run: handleUpdateStoragePool } = useRequest(
     (body) => ({

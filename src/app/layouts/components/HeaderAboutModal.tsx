@@ -55,10 +55,10 @@ const HeaderAboutModal: React.FC = () => {
   const hostName = window ? window.location.host : '';
 
   const linstorVersion = useMemo(() => {
-    let data: any = {};
+    let data: any = [];
     try {
-      data = parsePrometheusTextFormat(metrics || []);
-      const linstorInfo = data.find((e) => e.name === 'linstor_info');
+      data = metrics && parsePrometheusTextFormat(metrics || []);
+      const linstorInfo = data?.find((e) => e.name === 'linstor_info');
       return get(linstorInfo, 'metrics[0].labels.version', 'unknown');
     } catch (error) {
       console.log(error, 'error');
@@ -69,7 +69,7 @@ const HeaderAboutModal: React.FC = () => {
 
   return (
     <React.Fragment>
-      <img className="connected__img" src={FEATHER_INFO} onClick={handleModalToggle} />
+      <img title="logo" className="connected__img" src={FEATHER_INFO} onClick={handleModalToggle} />
 
       <AboutModal
         isOpen={isModalOpen}

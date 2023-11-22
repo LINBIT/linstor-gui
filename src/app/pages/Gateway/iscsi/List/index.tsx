@@ -55,8 +55,6 @@ export const ISCSIList: React.FC<Data> = ({
     });
   const isRepoExpanded = (repo: ISCSI) => expandedRepoNames.includes(repo.iqn);
 
-  console.log(initialExpandedRepoNames, 'initialExpandedRepoNames');
-
   const columnNames = {
     iqn: 'IQN',
     service_ip: 'Service IP',

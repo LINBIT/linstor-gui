@@ -159,7 +159,7 @@ const CreateForm = () => {
         <Input placeholder="Please input storage pool name" />
       </Form.Item>
 
-      <Form.Item label="Nodes" name="node" required rules={[{ required: true, message: 'Please select nodes!' }]}>
+      <Form.Item label="Node" name="node" required rules={[{ required: true, message: 'Please select nodes!' }]}>
         <Select
           allowClear
           placeholder="Please select"
