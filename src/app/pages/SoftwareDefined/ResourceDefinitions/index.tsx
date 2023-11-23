@@ -16,6 +16,7 @@ import DynamicForm from '@app/components/DynamicForm';
 import { uniqId } from '@app/utils/stringUtils';
 import { TYPE_MAP } from '@app/interfaces/dynamicFormType';
 import { notify, notifyList } from '@app/utils/toast';
+import { useKVStore } from '@app/hooks';
 
 const ResourceDefinitionList: React.FunctionComponent = () => {
   const { t } = useTranslation(['resource_definition', 'common']);
@@ -26,6 +27,9 @@ const ResourceDefinitionList: React.FunctionComponent = () => {
   const history = useHistory();
   const [current, setCurrent] = useState();
   const [showDeployModal, setShowDeployModal] = useState(false);
+
+  const kvs = useKVStore();
+  const vsanMode = kvs?.vsanMode as boolean;
 
   const { run: deleteResourceDefinition } = useRequest(
     (resourceDefinitionName, _isBatch = false) => ({
@@ -207,9 +211,9 @@ const ResourceDefinitionList: React.FunctionComponent = () => {
         showSearch
         url="/v1/resource-definitions"
         filerField="connection_status"
-        actions={listActions}
+        actions={vsanMode ? [] : listActions}
         fetchList={fetchList}
-        toolButtons={toolButtons}
+        toolButtons={vsanMode ? [] : toolButtons}
         columns={columns}
         cells={cells}
         statsUrl="/v1/stats/resource-definitions"

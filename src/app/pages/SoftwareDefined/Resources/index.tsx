@@ -15,6 +15,7 @@ import { useDispatch } from 'react-redux';
 import { Dispatch } from '@app/store';
 import { Button, Modal, ModalVariant, TextInput } from '@patternfly/react-core';
 import { notify, notifyList } from '@app/utils/toast';
+import { useKVStore } from '@app/hooks';
 
 const List: React.FunctionComponent = () => {
   const { t } = useTranslation(['resource', 'common']);
@@ -29,6 +30,8 @@ const List: React.FunctionComponent = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentResource, setCurrentResource] = useState<string>();
   const [snapshotName, setSnapshotName] = useState<string>('');
+  const kvs = useKVStore();
+  const vsanMode = kvs?.vsanMode as boolean;
 
   const { run: deleteResource } = useRequest(
     (resource, node, _isBatch = false) => ({
@@ -257,9 +260,9 @@ const List: React.FunctionComponent = () => {
       <FilterList
         showSearch
         url="/v1/view/resources"
-        actions={listActions}
+        actions={vsanMode ? [] : listActions}
         fetchList={fetchList}
-        toolButtons={toolButtons}
+        toolButtons={vsanMode ? [] : toolButtons}
         columns={columns}
         cells={cells}
         statsUrl="/v1/stats/resources"

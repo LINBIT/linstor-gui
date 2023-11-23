@@ -15,6 +15,7 @@ import { uniqId } from '@app/utils/stringUtils';
 import { TYPE_MAP } from '@app/interfaces/dynamicFormType';
 import { convertRoundUp, sizeOptions } from '@app/utils/size';
 import { notify, notifyList } from '@app/utils/toast';
+import { useKVStore } from '@app/hooks';
 
 const ResourceGroupList: React.FunctionComponent = () => {
   const { t } = useTranslation(['resource_group', 'common']);
@@ -24,6 +25,8 @@ const ResourceGroupList: React.FunctionComponent = () => {
   const [current, setCurrent] = useState();
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
   const [showDeployModal, setShowDeployModal] = useState(false);
+  const kvs = useKVStore();
+  const vsanMode = kvs?.vsanMode as boolean;
 
   const { run: deleteResourceGroup } = useRequest(
     (resourceGroup, _isBatch = false) => ({
@@ -220,9 +223,9 @@ const ResourceGroupList: React.FunctionComponent = () => {
         showSearch
         url="/v1/resource-groups"
         filerField="connection_status"
-        actions={listActions}
+        actions={vsanMode ? [] : listActions}
         fetchList={fetchList}
-        toolButtons={toolButtons}
+        toolButtons={vsanMode ? [] : toolButtons}
         columns={columns}
         cells={cells}
         statsUrl="/v1/stats/resource-groups"

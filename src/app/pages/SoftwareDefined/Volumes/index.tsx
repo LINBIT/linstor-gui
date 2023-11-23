@@ -12,6 +12,7 @@ import { formatBytes } from '@app/utils/size';
 import PropertyForm from '@app/components/PropertyForm';
 import service from '@app/requests';
 import { notify, notifyList } from '@app/utils/toast';
+import { useKVStore } from '@app/hooks';
 
 const List: React.FunctionComponent = () => {
   const { t } = useTranslation(['volume', 'common']);
@@ -22,6 +23,9 @@ const List: React.FunctionComponent = () => {
   const [current, setCurrent] = useState();
   const [currentNode, setCurrentNode] = useState();
   const [currentVolume, setCurrentVolume] = useState();
+
+  const kvs = useKVStore();
+  const vsanMode = kvs?.vsanMode as boolean;
 
   const columns = [
     { title: t('resource') },
@@ -113,7 +117,7 @@ const List: React.FunctionComponent = () => {
       <FilterList
         showSearch
         url="/v1/view/resources"
-        actions={listActions}
+        actions={vsanMode ? [] : listActions}
         fetchList={fetchList}
         filterFunc={filterFunc}
         customHandler={customHandler}
