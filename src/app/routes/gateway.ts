@@ -29,13 +29,13 @@ const gateway: AppRouteConfig[] = [
         exact: true,
         label: 'iscsi',
         path: '/gateway/iscsi',
-        title: 'Linstor | ISCSI',
+        title: 'Linstor | iSCSI',
       },
       {
         component: ISCSICreate,
         exact: true,
         path: '/gateway/iscsi/create',
-        title: 'Linstor | ISCSI | Create',
+        title: 'Linstor | iSCSI | Create',
       },
       {
         component: NvmeList,

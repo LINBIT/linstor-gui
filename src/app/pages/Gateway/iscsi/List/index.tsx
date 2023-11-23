@@ -1,6 +1,16 @@
 import React, { useState } from 'react';
 import { TableComposable, Thead, Tr, Th, Tbody, Td, ThProps } from '@patternfly/react-table';
-import { Button, Label, Modal, ModalVariant } from '@patternfly/react-core';
+import {
+  Bullseye,
+  Button,
+  EmptyState,
+  EmptyStateIcon,
+  EmptyStateVariant,
+  Label,
+  Modal,
+  ModalVariant,
+  Title,
+} from '@patternfly/react-core';
 import styled from '@emotion/styled';
 import InfoCircleIcon from '@patternfly/react-icons/dist/esm/icons/info-circle-icon';
 
@@ -10,6 +20,7 @@ import DynamicForm from '@app/components/DynamicForm';
 import { convertRoundUp, sizeOptions } from '@app/utils/size';
 import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';
+import { SearchIcon } from '@patternfly/react-icons';
 
 interface Data {
   list: ISCSI[];
@@ -132,7 +143,7 @@ export const ISCSIList: React.FC<Data> = ({
                         setLunModal(true);
                       }}
                     >
-                      Add LUN
+                      Add Volume
                     </Button>
                     <Button
                       variant="danger"
@@ -191,8 +202,21 @@ export const ISCSIList: React.FC<Data> = ({
             </Tbody>
           );
         })}
+
+        {list.length === 0 && (
+          <Td colSpan={8}>
+            <Bullseye>
+              <EmptyState variant={EmptyStateVariant.small}>
+                <EmptyStateIcon icon={SearchIcon} />
+                <Title headingLevel="h2" size="lg">
+                  No results found
+                </Title>
+              </EmptyState>
+            </Bullseye>
+          </Td>
+        )}
       </TableComposable>
-      <Modal isOpen={lunModal} variant={ModalVariant.small} title="Add LUN" onClose={() => setLunModal(false)}>
+      <Modal isOpen={lunModal} variant={ModalVariant.small} title="Add Volume" onClose={() => setLunModal(false)}>
         <DynamicForm
           initialVal={[]}
           submitting={addingVolume}

@@ -7,6 +7,7 @@ import { Dispatch, RootState } from '@app/store';
 import PageBasic from '@app/components/PageBasic';
 
 import NFSForm from '../Form';
+import { CreateNFForm, CreateNVMEOfForm } from '@app/features/gateway';
 
 const CreateNFS: React.FunctionComponent = () => {
   const { t } = useTranslation(['nfs', 'common']);
@@ -21,7 +22,7 @@ const CreateNFS: React.FunctionComponent = () => {
     async (NFS) => {
       const res = await dispatch.nfs.createNFS(NFS);
       if (res) {
-        history.push(`/gateway/nfs`);
+        history.push(`/gateway/nvme-of`);
       }
     },
     [dispatch.nfs, history]
@@ -29,7 +30,7 @@ const CreateNFS: React.FunctionComponent = () => {
 
   return (
     <PageBasic title={t('nfs:create')}>
-      <NFSForm handleSubmit={handleAdd} loading={loading} />
+      <CreateNVMEOfForm />
     </PageBasic>
   );
 };

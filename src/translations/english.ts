@@ -38,7 +38,7 @@ const en = {
     s3: 'S3',
     settings: 'Settings',
     gateway: 'Gateway',
-    iscsi: 'ISCSI',
+    iscsi: 'iSCSI',
     nfs: 'NFS',
     'nvme-of': 'Nvme-Of',
     snapshot: 'Snapshot',

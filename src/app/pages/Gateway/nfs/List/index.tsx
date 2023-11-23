@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
-import { TableComposable, Thead, Tr, Th, Tbody, Td, ThProps } from '@patternfly/react-table';
-import { Button, Label, Modal, ModalVariant } from '@patternfly/react-core';
+import { TableComposable, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
+import {
+  Bullseye,
+  Button,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateIcon,
+  EmptyStateVariant,
+  Label,
+  Title,
+} from '@patternfly/react-core';
 import styled from '@emotion/styled';
 import InfoCircleIcon from '@patternfly/react-icons/dist/esm/icons/info-circle-icon';
 
 import { NFS } from '@app/interfaces/nfs';
 import ActionConfirm from '@app/components/ActionConfirm';
-import DynamicForm from '@app/components/DynamicForm';
-import { convertRoundUp, sizeOptions } from '@app/utils/size';
-import { useSelector } from 'react-redux';
-import { RootState } from '@app/store';
+import { SearchIcon } from '@patternfly/react-icons';
 
 interface Data {
   list: NFS[];
@@ -33,6 +39,7 @@ export const NFSList: React.FC<Data> = ({ list, handleDelete, handleStart, handl
   const columnNames = {
     resource: 'Resource',
     service_ip: 'Service IP',
+    on_node: 'On Node',
     service_state: 'Service State',
     nfs_export: 'NFS export',
     linstor_state: 'LINSTOR State',
@@ -44,6 +51,7 @@ export const NFSList: React.FC<Data> = ({ list, handleDelete, handleStart, handl
         <Thead>
           <Tr>
             <Th>{columnNames.resource}</Th>
+            <Th>{columnNames.on_node}</Th>
             <Th>{columnNames.service_ip}</Th>
             <Th>{columnNames.service_state}</Th>
             <Th>{columnNames.nfs_export}</Th>
@@ -58,6 +66,7 @@ export const NFSList: React.FC<Data> = ({ list, handleDelete, handleStart, handl
             <Tbody key={rowIndex}>
               <Tr>
                 <Td dataLabel={columnNames.resource}>{item.name}</Td>
+                <Td dataLabel={columnNames.on_node}>{item.status.primary}</Td>
                 <Td dataLabel={columnNames.service_ip}>{item.service_ip}</Td>
                 <Th dataLabel={columnNames.service_state}>
                   <Label color={isStarted ? 'green' : 'grey'} icon={<InfoCircleIcon />}>
@@ -101,6 +110,19 @@ export const NFSList: React.FC<Data> = ({ list, handleDelete, handleStart, handl
             </Tbody>
           );
         })}
+
+        {list.length === 0 && (
+          <Td colSpan={8}>
+            <Bullseye>
+              <EmptyState variant={EmptyStateVariant.small}>
+                <EmptyStateIcon icon={SearchIcon} />
+                <Title headingLevel="h2" size="lg">
+                  No results found
+                </Title>
+              </EmptyState>
+            </Bullseye>
+          </Td>
+        )}
       </TableComposable>
     </React.Fragment>
   );

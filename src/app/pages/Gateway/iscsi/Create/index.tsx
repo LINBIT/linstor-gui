@@ -7,6 +7,7 @@ import { Dispatch, RootState } from '@app/store';
 import PageBasic from '@app/components/PageBasic';
 
 import ISCSIForm from '../Form';
+import { CreateISCSIForm } from '@app/features/gateway';
 
 const CreateISCSI: React.FunctionComponent = () => {
   const { t } = useTranslation(['iscsi', 'common']);
@@ -33,7 +34,7 @@ const CreateISCSI: React.FunctionComponent = () => {
 
   return (
     <PageBasic title={t('iscsi:create')}>
-      <ISCSIForm handleSubmit={handleAdd} loading={loading} />
+      <CreateISCSIForm />
     </PageBasic>
   );
 };
