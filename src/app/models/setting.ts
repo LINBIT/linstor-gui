@@ -181,6 +181,14 @@ export const setting = createModel<RootModel>()({
       window.history.replaceState({}, document.title, window.location.pathname);
     },
 
+    async exitVSANMode() {
+      await dispatch.setting.saveKey({
+        vsanMode: false,
+      });
+      // reload page and remove search params
+      window.location.reload();
+    },
+
     async setDashboard({ dashboardEnabled, host }: { dashboardEnabled: boolean; host: string }) {
       try {
         await dispatch.setting.saveKey({
