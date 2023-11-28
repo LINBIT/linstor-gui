@@ -7,6 +7,7 @@ const en = {
     add: 'Add',
     view: 'View',
     edit: 'Edit',
+    migrate: 'Migrate',
     delete: 'Delete',
     lost: 'Lost',
     nodes: 'Nodes',

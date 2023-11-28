@@ -246,6 +246,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
           pauseOnFocusLoss
           draggable
           pauseOnHover
+          limit={3}
         />
       </>
     );
@@ -273,6 +274,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
+        limit={3}
       />
     </>
   );

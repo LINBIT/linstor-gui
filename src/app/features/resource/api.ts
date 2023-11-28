@@ -59,4 +59,24 @@ const resourceModify = async (resource_name: string, node: string, body: Resourc
   });
 };
 
-export { createResourceDefinition, createVolumeDefinition, autoPlace, resourceModify, resourceCreateOnNode };
+const resourceMigration = async (data: { resource: string; node: string; fromnode: string }) => {
+  const { resource, node, fromnode } = data;
+  return put('/v1/resource-definitions/{resource}/resources/{node}/migrate-disk/{fromnode}', {
+    params: {
+      path: {
+        resource,
+        node,
+        fromnode,
+      },
+    },
+  });
+};
+
+export {
+  createResourceDefinition,
+  createVolumeDefinition,
+  autoPlace,
+  resourceModify,
+  resourceCreateOnNode,
+  resourceMigration,
+};

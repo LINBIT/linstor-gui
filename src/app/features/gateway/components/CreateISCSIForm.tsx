@@ -6,7 +6,7 @@ import { useHistory } from 'react-router-dom';
 import { useNodeNetWorkInterface } from '../hooks';
 import { useResourceGroups } from '@app/features/resourceGroup';
 import { SizeInput } from '@app/components/SizeInput';
-import { createNFSExport, createiSCSIExport } from '../api';
+import { createiSCSIExport } from '../api';
 import { notify } from '@app/utils/toast';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 

@@ -16,6 +16,8 @@ import { Dispatch } from '@app/store';
 import { Button, Modal, ModalVariant, TextInput } from '@patternfly/react-core';
 import { notify, notifyList } from '@app/utils/toast';
 import { useKVStore } from '@app/hooks';
+import { ResourceMigrateForm, resourceMigration } from '@app/features/resource';
+import { useMutation } from '@tanstack/react-query';
 
 const List: React.FunctionComponent = () => {
   const { t } = useTranslation(['resource', 'common']);
@@ -28,10 +30,22 @@ const List: React.FunctionComponent = () => {
   const [current, setCurrent] = useState();
   const [currentNode, setCurrentNode] = useState();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [migrateModalOpen, setMigrateModalOpen] = useState(false);
   const [currentResource, setCurrentResource] = useState<string>();
   const [snapshotName, setSnapshotName] = useState<string>('');
+  const [migrationInfo, setMigrationInfo] = useState<{
+    resource: string;
+    node: string;
+  }>({
+    resource: '',
+    node: '',
+  });
   const kvs = useKVStore();
   const vsanMode = kvs?.vsanMode as boolean;
+
+  const migrateResourceMutation = useMutation({
+    mutationFn: resourceMigration,
+  });
 
   const { run: deleteResource } = useRequest(
     (resource, node, _isBatch = false) => ({
@@ -103,7 +117,7 @@ const List: React.FunctionComponent = () => {
       }
     }
     fail = count === 0 ? true : fail;
-    failStr = fail ? failStr : 'CONNECTED'; // TODO: i18n
+    failStr = fail ? failStr : 'CONNECTED';
     return failStr;
   }, []);
 
@@ -212,10 +226,19 @@ const List: React.FunctionComponent = () => {
       },
     },
     {
+      title: t('common:migrate'),
+      onClick: (event, rowId, rowData, extra) => {
+        const resource = rowData.cells[0];
+        const node = rowData.cells[1];
+        handleOpenMigrate(resource, node);
+      },
+    },
+    {
       title: t('common:delete'),
       onClick: async (event, rowId, rowData, extra) => {
         const node = rowData.cells[1];
         const resource = rowData.cells[0];
+        await deleteResource(resource, node);
       },
     },
   ];
@@ -253,6 +276,11 @@ const List: React.FunctionComponent = () => {
       setIsModalOpen(false);
       setSnapshotName('');
     }
+  };
+
+  const handleOpenMigrate = (resource, node) => {
+    setMigrateModalOpen(true);
+    setMigrationInfo({ resource, node });
   };
 
   return (
@@ -300,6 +328,21 @@ const List: React.FunctionComponent = () => {
           }}
         />
       </Modal>
+      <ResourceMigrateForm
+        open={migrateModalOpen}
+        migrationInfo={migrationInfo}
+        onCancel={() => {
+          setMigrateModalOpen(false);
+        }}
+        onCreate={(val) => {
+          migrateResourceMutation.mutate({
+            resource: migrationInfo.resource,
+            fromnode: migrationInfo.node,
+            node: val.node,
+          });
+          setMigrateModalOpen(false);
+        }}
+      />
     </PageBasic>
   );
 };
