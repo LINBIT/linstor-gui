@@ -47,8 +47,8 @@ export const VSANNodeList = () => {
     },
     {
       title: 'Default IP',
-      dataIndex: 'ip',
-      key: 'ip',
+      dataIndex: 'service_ip',
+      key: 'service_ip',
     },
     {
       title: 'Status',
