@@ -1,5 +1,17 @@
 # Changelog
 
+# 1.5.1 - 2024-01-10
+
+### Added
+
+- exit VSAN mode on settings pages only if the VSAN mode is enabled
+- migrate resource from one node to another
+- no need to clear cache when update to latest version
+
+### Fixed
+
+- VSAN Mode node list ip error
+
 ## 1.5.0 - 2023-11-23
 
 ### Added
