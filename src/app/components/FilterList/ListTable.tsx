@@ -24,6 +24,7 @@ interface Props {
   actions?: Array<any>;
   onClear?: () => void;
   handleSelectChange?: (rows: IRow[]) => void;
+  noSelect?: boolean
 }
 
 const ListTable: React.FC<Props> = ({
@@ -35,6 +36,7 @@ const ListTable: React.FC<Props> = ({
   cells,
   onClear,
   handleSelectChange,
+  noSelect
 }) => {
   const [rows, setRows] = useState<IRow[]>([]);
 
@@ -132,11 +134,13 @@ const ListTable: React.FC<Props> = ({
     handleSelectChange && handleSelectChange(newRows);
   };
 
+
+
   const extra =
     loading || !listData.length
       ? {}
       : {
-          onSelect,
+          onSelect: noSelect ? undefined : onSelect,
           actions,
           canSelectAll: true,
         };

@@ -28,8 +28,8 @@ export const VSAN = () => {
 
   if (vsanMode) {
     return (
-      <div>
-        <span>VSAN Mode:</span>
+      <div style={{ padding: 10 }}>
+        <span style={{ marginRight: 8 }}>VSAN Mode:</span>
         <Switch
           checked={checked}
           onChange={(val) => {

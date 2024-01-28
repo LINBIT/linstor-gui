@@ -1,5 +1,14 @@
 # Changelog
 
+# 1.5.2 - 2024-01-
+
+### Added
+
+### Fixed
+
+- disable select volume since we don't not support delete the volume
+
+
 # 1.5.1 - 2024-01-10
 
 ### Added

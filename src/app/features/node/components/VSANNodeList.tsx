@@ -1,30 +1,36 @@
-import React, { useEffect } from 'react';
-import { useNodesFromVSAN } from '../hooks';
-import { Space, Table, Tag, Switch } from 'antd';
+import React from 'react';
+import { Table, Tag, Switch, Button } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { setNodeStandBy } from '../api';
+import { getNodesFromVSAN, setNodeStandBy } from '../api';
 import { notify } from '@app/utils/toast';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { useHistory } from 'react-router-dom';
 
 interface DataType {
   hostname: string;
   ip: string;
   online: boolean;
   standby: boolean;
-  hasLinstorController: boolean;
+  has_linstor_controller: boolean;
 }
 
 export const VSANNodeList = () => {
-  const { data: nodesFromVSAN, error } = useNodesFromVSAN();
+  const history = useHistory();
+  const nodesFromVSAN = useQuery({
+    queryKey: ['nodesFromVSAN'],
+    queryFn: () => getNodesFromVSAN(),
+  });
 
   const standByMutation = useMutation({
     mutationFn: ({ hostname, status }: { hostname: string; status: boolean }) => {
       return setNodeStandBy(hostname, status);
     },
     onSuccess: () => {
-      notify('StandBy status changed!', {
+      notify('Standby status changed!', {
         type: 'success',
       });
+
+      nodesFromVSAN.refetch();
     },
     onError: () => {
       notify('Standby status change failed!', {
@@ -33,11 +39,9 @@ export const VSANNodeList = () => {
     },
   });
 
-  useEffect(() => {
-    notify('Fetch node list failed!', {
-      type: 'error',
-    });
-  }, [error]);
+  const goToDetailPage = (node) => {
+    history.push(`/inventory/nodes/${node}`);
+  };
 
   const columns: ColumnsType<DataType> = [
     {
@@ -57,18 +61,19 @@ export const VSANNodeList = () => {
       render: (_, record) => {
         return (
           <>
-            <Tag color="success">{record.online ? 'Online' : 'Offline'}</Tag>
-            {record.hasLinstorController && <Tag color="success">LINSTOR Controller</Tag>}
+            <Tag color={record.online ? 'success' : 'yellow'}>{record.online ? 'Online' : 'Offline'}</Tag>
+            {record.has_linstor_controller && <Tag color="success">LINSTOR Controller</Tag>}
           </>
         );
       },
     },
     {
-      title: 'StandBy',
-      key: 'action',
+      title: 'Standby',
+      key: 'standby',
       render: (_, record) => {
         return (
           <Switch
+            checked={record.standby}
             onChange={(checked) => {
               standByMutation.mutateAsync({
                 hostname: record.hostname,
@@ -79,11 +84,22 @@ export const VSANNodeList = () => {
         );
       },
     },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (_, record) => {
+        return (
+          <Button type="primary" onClick={() => goToDetailPage(record.hostname)}>
+            View
+          </Button>
+        );
+      },
+    },
   ];
 
   return (
     <div>
-      <Table columns={columns} dataSource={nodesFromVSAN} />
+      <Table columns={columns} dataSource={nodesFromVSAN.data?.data} />
     </div>
   );
 };

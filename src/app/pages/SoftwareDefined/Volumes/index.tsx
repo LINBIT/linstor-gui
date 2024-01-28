@@ -124,6 +124,7 @@ const List: React.FunctionComponent = () => {
         columns={columns}
         cells={cells}
         statsUrl="/v1/stats/resources"
+        noSelect={true}
       />
       <PropertyForm
         initialVal={initialProps}

@@ -20,6 +20,7 @@ interface Props {
   filterFunc?: (data: any) => boolean;
   customHandler?: (data) => Array<any>;
   statsUrl?: string;
+  noSelect?: boolean;
 }
 
 const FilterList: React.FC<Props> = ({
