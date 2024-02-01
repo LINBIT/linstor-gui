@@ -145,7 +145,7 @@ const List: React.FC<NodeListProps> = ({ nodes = [] }) => {
     });
 
   const kvs = useKVStore();
-  const gatewayEnabled = kvs.gatewayEnabled as boolean;
+  const vsanMode = kvs.vsanMode as boolean;
 
   const lastRowActions = (node: NodeType): IAction[] => [
     {
@@ -158,19 +158,19 @@ const List: React.FC<NodeListProps> = ({ nodes = [] }) => {
           name: node.name,
         });
       },
-      isDisabled: gatewayEnabled,
+      isDisabled: vsanMode,
     },
     {
       title: <div>{t('common:edit')}</div>,
       onClick: () => {
         history.push(`/inventory/nodes/edit/${node.name}`);
       },
-      isDisabled: gatewayEnabled,
+      isDisabled: vsanMode,
     },
 
     {
       title: <div>{t('common:delete')}</div>,
-      isDisabled: gatewayEnabled,
+      isDisabled: vsanMode,
       onClick: () => {
         setIsModalOpen(true);
         setCurrentNode(node.name);
@@ -179,7 +179,7 @@ const List: React.FC<NodeListProps> = ({ nodes = [] }) => {
     {
       title: <div>{t('common:lost')}</div>,
       onClick: () => dispatch.node.lostNode([node.name]),
-      isDisabled: gatewayEnabled,
+      isDisabled: vsanMode,
     },
   ];
 
@@ -222,15 +222,11 @@ const List: React.FC<NodeListProps> = ({ nodes = [] }) => {
           </ToolbarItem>
           <ToolbarItem variant="separator" />
           <ToolbarItem>
-            <Button
-              variant="primary"
-              onClick={() => history.push('/inventory/nodes/create')}
-              isDisabled={gatewayEnabled}
-            >
+            <Button variant="primary" onClick={() => history.push('/inventory/nodes/create')} isDisabled={vsanMode}>
               {t('common:add')}
             </Button>
           </ToolbarItem>
-          {!gatewayEnabled && selectedNodes.length > 0 && (
+          {!vsanMode && selectedNodes.length > 0 && (
             <>
               <ToolbarItem>
                 <ListAction
@@ -262,8 +258,8 @@ const List: React.FC<NodeListProps> = ({ nodes = [] }) => {
             />
             <Th sort={getSortParams(0)}>{columnNames.name}</Th>
             <Th sort={getSortParams(1)}>{columnNames.default_ip}</Th>
-            {!gatewayEnabled && <Th>{columnNames.default_port}</Th>}
-            {!gatewayEnabled && <Th>{columnNames.node_type}</Th>}
+            {!vsanMode && <Th>{columnNames.default_port}</Th>}
+            {!vsanMode && <Th>{columnNames.node_type}</Th>}
             <Th>{columnNames.node_status}</Th>
             <Td></Td>
           </Tr>
@@ -317,9 +313,9 @@ const List: React.FC<NodeListProps> = ({ nodes = [] }) => {
                   />
                   <Td dataLabel={columnNames.name}>{node.name}</Td>
                   <Td dataLabel={columnNames.default_ip}>{net_interface?.address}</Td>
-                  {!gatewayEnabled && <Td dataLabel={columnNames.default_port}>{net_interface?.satellite_port}</Td>}
+                  {!vsanMode && <Td dataLabel={columnNames.default_port}>{net_interface?.satellite_port}</Td>}
 
-                  {!gatewayEnabled && (
+                  {!vsanMode && (
                     <Td dataLabel={columnNames.node_type}>
                       <StatusLabel status={'info'} label={capitalize(node?.type)} />
                     </Td>
