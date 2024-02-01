@@ -1,12 +1,13 @@
 # Changelog
 
-# 1.5.2 - 2024-01-30
+# 1.5.2 - 2024-02-01
 
 ### Fixed
 
 - disable select volume since we don't not support delete the volume
 - default credentials for user authentication
 - fetch node list error on VSAN mode
+- cannot add node after exiting VSAN mode
 
 # 1.5.1 - 2024-01-10
 
