@@ -1,4 +1,4 @@
-import { KeyValueStore, kvStore } from '@app/features/keyValueStore';
+import { KeyValueStoreType, kvStore } from '@app/features/keyValueStore';
 import CryptoJS from 'crypto-js';
 
 export interface UserAuth {
@@ -7,7 +7,7 @@ export interface UserAuth {
 }
 
 export class UserAuthAPI {
-  private store: KeyValueStore;
+  private store: KeyValueStoreType;
   private usersInstance = 'users';
   private key;
   private iv;

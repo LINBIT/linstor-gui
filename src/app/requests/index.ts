@@ -35,12 +35,14 @@ service.interceptors.request.use((req) => {
   const GATEWAY_HOST = window.localStorage.getItem('GATEWAY_HOST');
   const VSAN_HOST = window.localStorage.getItem('VSAN_HOST');
 
-  if (req.url?.startsWith('/api/v2/') && GATEWAY_HOST) {
-    // For gateway mode, use gateway host
-    req.baseURL = GATEWAY_HOST;
-  } else if (req.url?.startsWith('/api/frontend/v1') && VSAN_HOST) {
-    // FOR VSAM Mode, use https and hostname
-    req.baseURL = VSAN_HOST;
+  if (process.env.NODE_ENV !== 'development') {
+    if (req.url?.startsWith('/api/v2/') && GATEWAY_HOST) {
+      // For gateway mode, use gateway host
+      req.baseURL = GATEWAY_HOST;
+    } else if (req.url?.startsWith('/api/frontend/v1') && VSAN_HOST) {
+      // FOR VSAN Mode, use https and hostname
+      req.baseURL = VSAN_HOST;
+    }
   }
 
   return req;

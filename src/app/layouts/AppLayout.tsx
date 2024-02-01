@@ -61,7 +61,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   React.useEffect(() => {
     dispatch.setting.initSettingStore();
     dispatch.auth.checkLoginStatus();
-    const vSANMode = history.location.search.includes('vsan');
+    const vSANMode = window.location.search.includes('vsan');
     if (vSANMode) {
       dispatch.setting.setVSANMode();
     }
