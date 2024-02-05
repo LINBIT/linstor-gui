@@ -1,6 +1,6 @@
 # Changelog
 
-# 1.5.2 - 2024-02-01
+# 1.5.1 - 2024-02-01
 
 ### Fixed
 
@@ -9,7 +9,7 @@
 - fetch node list error on VSAN mode
 - cannot add node after exiting VSAN mode
 
-# 1.5.1 - 2024-01-10
+# 1.5.1~rc.1 - 2024-01-10
 
 ### Added
 
