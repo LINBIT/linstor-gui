@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import PageBasic from '@app/components/PageBasic';
 import { Dispatch, RootState } from '@app/store';
 import { SimpleList } from './components/List';
+import { List } from '@app/features/report';
 
 const ErrorReportList: React.FunctionComponent = () => {
   const { t } = useTranslation(['error_report', 'common']);
@@ -64,7 +65,7 @@ const ErrorReportList: React.FunctionComponent = () => {
 
   return (
     <PageBasic title={t('list_title')}>
-      <SimpleList pagination={paginationInfo} dataList={list} onDelete={handleDelete} onView={handleView} />
+      <List />
     </PageBasic>
   );
 };

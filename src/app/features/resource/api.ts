@@ -1,10 +1,12 @@
-import { post, put } from '../requests';
+import { get, post, put } from '../requests';
 import {
   CreateResourceDefinitionRequestBody,
   CreateVolumeDefinitionRequestBody,
   AutoPlaceRequestBody,
   ResourceModifyRequestBody,
   ResourceCreateRequestBody,
+  GetResourcesRequestBody,
+  GetResourcesResponseBody,
 } from './types';
 
 const createResourceDefinition = async (body: CreateResourceDefinitionRequestBody) => {

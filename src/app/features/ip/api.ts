@@ -1,4 +1,4 @@
-import { get, post, put } from '../requests';
+import { get, post, put, del } from '../requests';
 import { CreateNetWorkInterfaceRequestBody, GetNetWorkInterfaceRequestQuery } from './types';
 
 const createNetWorkInterface = async (node: string, body: CreateNetWorkInterfaceRequestBody) => {
@@ -24,6 +24,17 @@ const updateNetWorkInterface = async (node: string, body: CreateNetWorkInterface
   });
 };
 
+const deleteNetWorkInterface = async (node: string, netinterface: string) => {
+  return del('/v1/nodes/{node}/net-interfaces/{netinterface}', {
+    params: {
+      path: {
+        node,
+        netinterface,
+      },
+    },
+  });
+};
+
 const getNetWorkInterfaceByNode = async (node: string, query?: GetNetWorkInterfaceRequestQuery) => {
   return get('/v1/nodes/{node}/net-interfaces', {
     params: {
@@ -35,4 +46,4 @@ const getNetWorkInterfaceByNode = async (node: string, query?: GetNetWorkInterfa
   });
 };
 
-export { createNetWorkInterface, getNetWorkInterfaceByNode, updateNetWorkInterface };
+export { createNetWorkInterface, getNetWorkInterfaceByNode, updateNetWorkInterface, deleteNetWorkInterface };

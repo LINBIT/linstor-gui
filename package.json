@@ -9,7 +9,7 @@
     "prebuild": "npm run clean",
     "build": "webpack --config webpack.prod.js",
     "start": "sirv dist --cors --single --host --port 8080",
-    "start:dev": "cross-env NODE_ENV=development VERSION=DEV webpack serve --color --progress --config webpack.dev.js",
+    "start:dev": "cross-env NODE_ENV=development webpack serve --color --progress --config webpack.dev.js",
     "test": "jest --watch",
     "test:coverage": "jest --coverage",
     "eslint": "eslint --ext .tsx,.js ./src/",
@@ -86,6 +86,7 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
+    "@ant-design/charts": "^2.0.3",
     "@ant-design/icons": "^5.1.4",
     "@emotion/react": "^11.10.4",
     "@emotion/styled": "^11.10.4",
@@ -107,6 +108,7 @@
     "dayjs": "^1.10.7",
     "i18next": "^20.4.0",
     "is-svg": "^4.3.2",
+    "lodash-es": "^4.17.21",
     "lodash.get": "^4.4.2",
     "lodash.uniqby": "^4.7.0",
     "openapi-fetch": "^0.2.1",

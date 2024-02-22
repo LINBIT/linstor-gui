@@ -120,4 +120,9 @@ function formatBytes(bytes: number) {
     else return new BigNumber(bytes).dividedBy('1048576').toFixed(2) + ' GiB'*/
 }
 
-export { convertRoundUp, volumeSize, checkPort, sizeOptions, formatBytes };
+function kibToGib(kib: number) {
+  const gib = kib / (1024 * 1024);
+  return Number(gib.toFixed(2));
+}
+
+export { convertRoundUp, volumeSize, checkPort, sizeOptions, formatBytes, kibToGib };

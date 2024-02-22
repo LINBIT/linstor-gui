@@ -13,7 +13,7 @@ endif
 
 .PHONY: .env
 .env:
-	echo $(VERSION) > $@
+  echo VERSION=$(VERSION) > $@
 
 .PHONY: build
 build: deps .env ## build project

@@ -1,5 +1,20 @@
 # Changelog
 
+# 1.5.2 - 2024-02-22
+
+### Fixed
+
+- resolved an issue with the node detail page displaying errors
+- error report pagination issue
+- wrong error number in about modal
+- new version cache issue
+
+### Added
+
+- added the ability to view storage pool and resource information for individual nodes
+- implemented the ability to search error reports by node
+- introduced the functionality to search error reports within a specific time range
+
 # 1.5.1 - 2024-02-01
 
 ### Fixed

@@ -3,7 +3,7 @@ import { getNodes } from '../api';
 import { NodeListQuery } from '../types';
 
 const useNodes = (query?: NodeListQuery) => {
-  const { isLoading, error, data } = useQuery({
+  const { isLoading, error, data, refetch } = useQuery({
     queryKey: ['getNodes', query],
     queryFn: () => getNodes(query),
   });
@@ -12,6 +12,7 @@ const useNodes = (query?: NodeListQuery) => {
     isLoading,
     error,
     data: data?.data,
+    refetch,
   };
 };
 

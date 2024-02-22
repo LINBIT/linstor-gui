@@ -49,7 +49,7 @@ export const report = createModel<RootModel>()({
 
       const res = await service.get('/v1/error-reports', {
         params: {
-          limit: payload.page - 1,
+          limit: payload.page - 1 || 10,
           offset: payload.pageSize,
         },
       });

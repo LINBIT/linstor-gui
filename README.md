@@ -1,13 +1,15 @@
-# Linstor GUI
+# LINSTOR GUI
 
-## Development process env
+## Create a .env file in the root directory
 
 ```
-LISNTOR_API_HOST: http://10.10.10.10:43375
-GATEWAY_API_HOST: http://10.10.10.10:48080
-HOST: localhost
-PORT: 8000
-NODE_ENV: development
+HOST=127.0.0.1
+PORT=8000
+VERSION=DEV
+LINSTOR_API_HOST=http://192.168.123.214:3370
+GATEWAY_API_HOST=http://192.168.123.214:8080
+VSAN_API_HOST=https://192.168.123.214
+
 ```
 
 ## Development scripts

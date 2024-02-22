@@ -1,108 +1,261 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { useRequest } from 'ahooks';
-
-import {
-  DescriptionList,
-  DescriptionListDescription,
-  DescriptionListGroup,
-  DescriptionListTermHelpText,
-  DescriptionListTermHelpTextButton,
-  List,
-  ListItem,
-} from '@patternfly/react-core';
+import { useTranslation } from 'react-i18next';
+import { Card, Col, Row, Space, Tag } from 'antd';
+import { CheckCircleOutlined } from '@ant-design/icons';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 import PageBasic from '@app/components/PageBasic';
-import { useTranslation } from 'react-i18next';
-import CheckboxActionDataList from './components/NetInterface';
+import { Resource, StoragePool, useNodes } from '@app/features/node';
+import {
+  CreateNetWorkInterfaceRequestBody,
+  deleteNetWorkInterface,
+  getNetWorkInterfaceByNode,
+  updateNetWorkInterface,
+} from '@app/features/ip';
+import { fullySuccess } from '@app/features/requests';
+import { useStoragePools } from '@app/features/storagePool';
+import { kibToGib } from '@app/utils/size';
+import { useResources } from '@app/features/snapshot';
+
+import NetInterfaceList from './components/NetInterfaceList';
+import { Container, LabelText, TagContainer } from './detail.styled';
+
+const isValidArray = (nodeRes) => {
+  return Array.isArray(nodeRes) && nodeRes.length > 0;
+};
+
+const DEFAULT_SP = 'DfltDisklessStorPool';
+
+const handleStorageData = (storagePool, node) => {
+  const validData = storagePool?.filter((item) => item.storage_pool_name !== DEFAULT_SP);
+
+  if (!isValidArray(validData)) {
+    return [];
+  }
+
+  const storagePoolUsedData = validData.map((item) => {
+    return {
+      storagePool: item.storage_pool_name,
+      type: 'Used',
+      value: kibToGib(item.total_capacity - item.free_capacity),
+    };
+  });
+
+  const storagePoolFreeData = validData.map((item) => {
+    return {
+      storagePool: item.storage_pool_name,
+      type: 'Total',
+      value: kibToGib(item.total_capacity),
+    };
+  });
+
+  const nodeFreeCapacity = validData.reduce((acc, curr) => {
+    if (curr.free_capacity) {
+      return acc + curr.free_capacity;
+    } else {
+      return acc;
+    }
+  }, 0);
+
+  const nodeTotalCapacity = validData.reduce((acc, curr) => {
+    if (curr.total_capacity) {
+      return acc + curr.total_capacity;
+    } else {
+      return acc;
+    }
+  }, 0);
+
+  const storagePoolOnNodeTotalData = {
+    storagePool: `Total on ${node}`,
+    type: 'Total',
+    value: kibToGib(nodeTotalCapacity),
+  };
+
+  const storagePoolOnNodeFreeData = {
+    storagePool: `Total on ${node}`,
+    type: 'Used',
+    value: kibToGib(nodeTotalCapacity - nodeFreeCapacity),
+  };
+
+  return [...storagePoolUsedData, ...storagePoolFreeData, storagePoolOnNodeFreeData, storagePoolOnNodeTotalData];
+};
+
+const handleResourceData = (resource) => {
+  if (!isValidArray(resource)) {
+    return [];
+  }
+
+  const resourceData =
+    resource.reduce((acc, curr) => {
+      const inUse = curr.state?.in_use;
+      const inUseType = inUse ? 'in use' : 'not in use';
+
+      const existingItem = acc.find((item) => item.type === inUseType);
+      if (existingItem) {
+        existingItem.value++;
+      } else {
+        acc.push({ type: inUseType, value: 1 });
+      }
+
+      return acc;
+    }, []) || [];
+
+  return resourceData;
+};
 
 const NodeDetail: React.FC = () => {
   const { t } = useTranslation('node');
   const { node } = useParams() as { node: string };
 
-  const nodeInfo = useRequest(`/v1/nodes?nodes=${node}`);
-  const nodeInterfaceInfo = useRequest(`/v1/nodes/${node}/net-interfaces`);
-  const nodeStoragePoolInfo = useRequest(`/v1/nodes/${node}/storage-pools`);
+  const { data: nodeInfo } = useNodes({
+    nodes: [node],
+  });
 
-  const nodeData = nodeInfo.data ? nodeInfo.data[0] : {};
-  const loading = nodeInfo.loading || nodeInterfaceInfo.loading || nodeStoragePoolInfo.loading;
+  const { data: nodeInterfaceInfo, refetch } = useQuery({
+    queryKey: ['getNetworkByNode', node],
+    queryFn: () => getNetWorkInterfaceByNode(node),
+  });
+
+  const nodeStoragePoolInfo = useStoragePools({
+    nodes: [node],
+  });
+
+  const resourceInfo = useResources({
+    nodes: [node],
+  });
+
+  const nodeData = nodeInfo?.[0];
+  const storagePoolData = handleStorageData(nodeStoragePoolInfo?.data, node) || [];
+  const resourceData = handleResourceData(resourceInfo?.data) || [];
+
+  const deleteNetWorkInterfaceMutation = useMutation({
+    mutationFn: (data: { node: string; netinterface: string }) => {
+      const { node, netinterface } = data;
+
+      return deleteNetWorkInterface(node, netinterface);
+    },
+    onSuccess: (data) => {
+      if (fullySuccess(data?.data)) {
+        refetch();
+      }
+    },
+  });
+
+  const updateNetWorkInterfaceMutation = useMutation({
+    mutationFn: (
+      data: CreateNetWorkInterfaceRequestBody & {
+        node: string;
+      }
+    ) => {
+      const { node, ...rest } = data;
+
+      return updateNetWorkInterface(node, rest);
+    },
+    onSuccess: (data) => {
+      if (fullySuccess(data?.data)) {
+        refetch();
+      }
+    },
+  });
+
+  const handleDeleteNetWorkInterface = (netinterface: string) => {
+    deleteNetWorkInterfaceMutation.mutate({
+      node,
+      netinterface,
+    });
+  };
+
+  const handleUpdateNetWorkInterface = (data: CreateNetWorkInterfaceRequestBody) => {
+    updateNetWorkInterfaceMutation.mutate({
+      node,
+      ...data,
+      is_active: true,
+    });
+  };
 
   return (
-    <PageBasic title={t('node_detail')} loading={loading}>
-      <DescriptionList
-        columnModifier={{
-          default: '2Col',
-        }}
-      >
-        <DescriptionListGroup>
-          <DescriptionListTermHelpText>
-            <DescriptionListTermHelpTextButton> Name </DescriptionListTermHelpTextButton>
-          </DescriptionListTermHelpText>
-          <DescriptionListDescription>{node}</DescriptionListDescription>
-        </DescriptionListGroup>
-        <DescriptionListGroup>
-          <DescriptionListTermHelpText>
-            <DescriptionListTermHelpTextButton> Connection Status </DescriptionListTermHelpTextButton>
-          </DescriptionListTermHelpText>
-          <DescriptionListDescription>{nodeData?.connection_status}</DescriptionListDescription>
-        </DescriptionListGroup>
-        <DescriptionListGroup>
-          <DescriptionListTermHelpText>
-            <DescriptionListTermHelpTextButton> Type </DescriptionListTermHelpTextButton>
-          </DescriptionListTermHelpText>
-          <DescriptionListDescription>{nodeData?.type}</DescriptionListDescription>
-        </DescriptionListGroup>
-        <DescriptionListGroup>
-          <DescriptionListTermHelpText>
-            <DescriptionListTermHelpTextButton> UUID </DescriptionListTermHelpTextButton>
-          </DescriptionListTermHelpText>
-          <DescriptionListDescription>{nodeData?.uuid}</DescriptionListDescription>
-        </DescriptionListGroup>
-        <DescriptionListGroup>
-          <DescriptionListTermHelpText>
-            <DescriptionListTermHelpTextButton> Resource Layers </DescriptionListTermHelpTextButton>
-          </DescriptionListTermHelpText>
-          <DescriptionListDescription>
-            <List aria-label="Resource Layers List">
-              {nodeData?.resource_layers?.map((e) => (
-                <ListItem key={e}>{e}</ListItem>
-              ))}
-            </List>
-          </DescriptionListDescription>
-        </DescriptionListGroup>
+    <PageBasic title={t('node_detail')}>
+      <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
+        <Card title="Basic Info" size="small">
+          <Space direction="vertical" size="small" style={{ display: 'flex' }}>
+            <div>
+              <LabelText>Node name:</LabelText>
+              {nodeData?.name}
+            </div>
+            <div>
+              <LabelText>Node type:</LabelText> {nodeData?.type?.toLowerCase()}
+            </div>
+            <div>
+              <LabelText>Connection status: </LabelText>
+              {nodeData?.connection_status === 'ONLINE' && (
+                <CheckCircleOutlined rev={null} style={{ color: 'green', marginRight: 4 }} />
+              )}
+              {nodeData?.connection_status?.toLowerCase()}
+            </div>
+            <TagContainer>
+              <LabelText>Resource layers:</LabelText>
 
-        <DescriptionListGroup>
-          <DescriptionListTermHelpText>
-            <DescriptionListTermHelpTextButton> Storage Providers </DescriptionListTermHelpTextButton>
-          </DescriptionListTermHelpText>
-          <DescriptionListDescription>
-            <List aria-label="Resource Layers List">
-              {nodeData?.storage_providers?.map((e) => (
-                <ListItem key={e}>{e}</ListItem>
-              ))}
-            </List>
-          </DescriptionListDescription>
-        </DescriptionListGroup>
-        {nodeData?.props &&
-          Object.keys(nodeData?.props).map((key) => {
-            return (
-              <DescriptionListGroup key={key}>
-                <DescriptionListTermHelpText>
-                  <DescriptionListTermHelpTextButton> {key} </DescriptionListTermHelpTextButton>
-                </DescriptionListTermHelpText>
-                <DescriptionListDescription>{nodeData?.props[key]}</DescriptionListDescription>
-              </DescriptionListGroup>
-            );
-          })}
-        <DescriptionListGroup>
-          <DescriptionListTermHelpText>
-            <DescriptionListTermHelpTextButton> Net Interfaces </DescriptionListTermHelpTextButton>
-          </DescriptionListTermHelpText>
-          <DescriptionListDescription>
-            <CheckboxActionDataList list={nodeInterfaceInfo?.data} />
-          </DescriptionListDescription>
-        </DescriptionListGroup>
-      </DescriptionList>
+              {nodeData
+                ? nodeData?.resource_layers?.map((e) => (
+                    <Tag key={e} color="success">
+                      {e}
+                    </Tag>
+                  ))
+                : null}
+              {nodeData
+                ? Object.keys(nodeData?.unsupported_layers ?? {}).map((e) => (
+                    <Tag key={e} color="error">
+                      {e}
+                    </Tag>
+                  ))
+                : null}
+            </TagContainer>
+
+            <TagContainer>
+              <LabelText>Storage providers:</LabelText>
+              {nodeData
+                ? nodeData?.storage_providers?.map((e) => (
+                    <Tag key={e} color="success">
+                      {e}
+                    </Tag>
+                  ))
+                : null}
+              {nodeData
+                ? Object.keys(nodeData?.unsupported_providers ?? {}).map((e) => (
+                    <Tag key={e} color="error">
+                      {e}
+                    </Tag>
+                  ))
+                : null}
+            </TagContainer>
+          </Space>
+        </Card>
+
+        <Card title="Network interfaces" size="small">
+          <NetInterfaceList
+            list={nodeInterfaceInfo?.data || []}
+            handleDeleteNetWorkInterface={handleDeleteNetWorkInterface}
+            handleSetActiveNetWorkInterface={handleUpdateNetWorkInterface}
+          />
+        </Card>
+
+        <Row gutter={16}>
+          <Col span={12}>
+            <Card title="Storage pool info" size="small">
+              <Container>
+                <StoragePool data={storagePoolData} />
+              </Container>
+            </Card>
+          </Col>
+
+          <Col span={12}>
+            <Card title="Resource info" size="small">
+              {resourceData.length > 0 && <Resource data={resourceData} />}
+            </Card>
+          </Col>
+        </Row>
+      </Space>
     </PageBasic>
   );
 };
