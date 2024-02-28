@@ -98,21 +98,49 @@ export const List = () => {
       title: 'Time',
       key: 'time',
       render: (_, record) => <span>{formatTime(record.error_time)}</span>,
+      defaultSortOrder: 'descend',
+      sorter: (a, b) => a.error_time - b.error_time,
     },
     {
-      title: 'Content',
-      dataIndex: 'exception_message',
-      key: 'exception_message',
+      title: 'Node',
+      key: 'node_name',
+      dataIndex: 'node_name',
     },
     {
       title: 'Module',
       key: 'module',
       dataIndex: 'module',
+      filters: [
+        {
+          text: 'Satellite',
+          value: 'SATELLITE',
+        },
+        {
+          text: 'Controller',
+          value: 'CONTROLLER',
+        },
+      ],
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      onFilter: (value: string, record) => record.module?.indexOf(value) === 0,
       render: (_, { module }) => <Tag color={module === 'SATELLITE' ? 'cyan' : 'geekblue'}>{module}</Tag>,
+    },
+    {
+      title: 'Content',
+      dataIndex: 'exception_message',
+      key: 'exception_message',
+      render: (_, { exception, exception_message }) => (
+        <div>
+          <p>{exception_message}</p>
+          <Tag color="red">{exception}</Tag>
+        </div>
+      ),
     },
     {
       title: 'Action',
       key: 'action',
+      width: 150,
+      fixed: 'right',
       render: (_, record) => (
         <Space size="small">
           <Button type="primary" onClick={() => handleView(getId(record))}>

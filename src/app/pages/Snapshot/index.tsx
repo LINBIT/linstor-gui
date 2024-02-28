@@ -52,11 +52,21 @@ const SnapShot: React.FunctionComponent = () => {
       const { resource_name, ...rest } = data;
       return createSnapshot(resource_name || '', rest);
     },
-    onSettled: () => {
-      setOpen(false);
-      dispatch.snapshot.getList({});
-      notify(`Snapshot has been created`, {
-        type: 'success',
+    onSuccess: (data) => {
+      if (data?.data && Array.isArray(data?.data)) {
+        notify('Snapshot created!', {
+          type: 'success',
+        });
+      }
+
+      setTimeout(() => {
+        setOpen(false);
+        dispatch.snapshot.getList({});
+      }, 200);
+    },
+    onError: () => {
+      notify('Create snapshot failed!', {
+        type: 'error',
       });
     },
   });

@@ -4,8 +4,8 @@ import { useSelector } from 'react-redux';
 
 export const GrafanaDashboard = () => {
   const { dashboardEnabled, dashboardURL } = useSelector((state: RootState) => ({
-    dashboardEnabled: state.setting.KVS.dashboardEnabled,
-    dashboardURL: state.setting.KVS.dashboardURL,
+    dashboardEnabled: state.setting?.KVS?.dashboardEnabled,
+    dashboardURL: state.setting?.KVS?.dashboardURL,
   }));
   if (!dashboardEnabled) {
     return null;

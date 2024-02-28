@@ -1,5 +1,18 @@
 # Changelog
 
+# 1.5.3 - 2024-02-28
+
+### Fixed
+
+- no notifications when creating snapshot
+- cannot enter VSAN mode error from URL
+
+### Added
+
+- added back to list on node detail page and error report detail page
+- added node name / exception type fields on error report list page
+- added sort by time, filter by controller/satellite type
+
 # 1.5.2 - 2024-02-22
 
 ### Fixed

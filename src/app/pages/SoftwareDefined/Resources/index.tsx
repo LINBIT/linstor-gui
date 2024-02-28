@@ -13,11 +13,15 @@ import PropertyForm from '@app/components/PropertyForm';
 import service from '@app/requests';
 import { useDispatch } from 'react-redux';
 import { Dispatch } from '@app/store';
-import { Button, Modal, ModalVariant, TextInput } from '@patternfly/react-core';
 import { notify, notifyList } from '@app/utils/toast';
 import { useKVStore } from '@app/hooks';
 import { ResourceMigrateForm, resourceMigration } from '@app/features/resource';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
+
+import { Input, Modal } from 'antd';
+import { getNodes } from '@app/features/node';
+import { getAllResources } from '@app/features/snapshot';
+import { getStoragePool } from '@app/features/storagePool';
 
 const List: React.FunctionComponent = () => {
   const { t } = useTranslation(['resource', 'common']);
@@ -42,6 +46,8 @@ const List: React.FunctionComponent = () => {
   });
   const kvs = useKVStore();
   const vsanMode = kvs?.vsanMode as boolean;
+
+  const [storagePool, setStoragePool] = useState('');
 
   const migrateResourceMutation = useMutation({
     mutationFn: resourceMigration,
@@ -213,7 +219,7 @@ const List: React.FunctionComponent = () => {
     {
       title: t('common:snapshot'),
       onClick: async (event, rowId, rowData, extra) => {
-        const resource = rowData.cells[0];
+        const resource = rowData;
         setIsModalOpen(true);
         setCurrentResource(resource);
       },
@@ -303,28 +309,17 @@ const List: React.FunctionComponent = () => {
         handleClose={() => setPropertyModalOpen(!propertyModalOpen)}
       />
       <Modal
-        variant={ModalVariant.medium}
         title="Create Snapshot"
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        actions={[
-          <Button key="confirm" variant="primary" onClick={handleCreateSnapShot}>
-            Confirm
-          </Button>,
-          <Button key="cancel" variant="link" onClick={() => setIsModalOpen(false)}>
-            Cancel
-          </Button>,
-        ]}
+        open={isModalOpen}
+        onCancel={() => setIsModalOpen(false)}
+        onOk={handleCreateSnapShot}
       >
-        <TextInput
-          isRequired
+        <Input
           type="text"
-          id="simple-form-number-01"
-          placeholder="Input snapshot name"
-          name="simple-form-number-01"
+          placeholder="Please input snapshot name here..."
           value={snapshotName}
-          onChange={(text) => {
-            setSnapshotName(text);
+          onChange={(evt) => {
+            setSnapshotName(evt.target.value);
           }}
         />
       </Modal>

@@ -16,8 +16,17 @@ export const Resource = ({ data }: ResourceProp) => {
     angleField: 'value',
     colorField: 'type',
     label: {
-      text: (d) => `${d.type}\n ${d.value}`,
-      position: 'spider',
+      text: 'value',
+      style: {
+        fontWeight: 'bold',
+      },
+    },
+    legend: {
+      color: {
+        title: false,
+        position: 'right',
+        rowPadding: 5,
+      },
     },
   };
 

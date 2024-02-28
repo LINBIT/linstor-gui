@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useEffect, useRef, useState } from 'react';
+import React, { PropsWithChildren } from 'react';
 import {
   Bullseye,
   EmptyState,
@@ -9,17 +9,22 @@ import {
   Title,
   PageSectionVariants,
 } from '@patternfly/react-core';
+import { Button } from 'antd';
 
-import './index.css';
+import { MainContent, SectionHead } from './styled';
+import { useHistory } from 'react-router-dom';
 
 interface Props {
   title: string;
   loading?: boolean;
   error?: Error | undefined | boolean;
   alerts?: alertList;
+  showBack?: boolean;
 }
 
-const PageBasic: React.FC<PropsWithChildren<Props>> = ({ alerts, loading, error, title, children }) => {
+const PageBasic: React.FC<PropsWithChildren<Props>> = ({ showBack, loading, error, title, children }) => {
+  const history = useHistory();
+
   // loading state
   if (loading) {
     return (
@@ -49,10 +54,15 @@ const PageBasic: React.FC<PropsWithChildren<Props>> = ({ alerts, loading, error,
 
   return (
     <PageSection variant={PageSectionVariants.light}>
-      <Title headingLevel="h1" size="lg">
-        {title}
-      </Title>
-      <div className="content">{children}</div>
+      <SectionHead>
+        <Title headingLevel="h1" size="lg">
+          {title}
+        </Title>
+
+        {showBack && <Button onClick={() => history.goBack()}>&#8592;&nbsp;back</Button>}
+      </SectionHead>
+
+      <MainContent className="content">{children}</MainContent>
     </PageSection>
   );
 };

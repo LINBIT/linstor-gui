@@ -1,15 +1,8 @@
 import React, { useState } from 'react';
-import { TableComposable, Thead, Tr, Th, Tbody, Td, ThProps } from '@patternfly/react-table';
-import { Button, Label, Modal, ModalVariant, Pagination } from '@patternfly/react-core';
-import styled from '@emotion/styled';
-import InfoCircleIcon from '@patternfly/react-icons/dist/esm/icons/info-circle-icon';
-
-import ActionConfirm from '@app/components/ActionConfirm';
-import DynamicForm from '@app/components/DynamicForm';
-import { convertRoundUp, formatBytes, sizeOptions } from '@app/utils/size';
-import { useSelector } from 'react-redux';
-import { RootState } from '@app/store';
-import { SnapshotList, SnapshotType } from '@app/interfaces/snapShot';
+import { TableComposable, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
+import { Pagination } from '@patternfly/react-core';
+import { formatBytes } from '@app/utils/size';
+import { SnapshotList } from '@app/interfaces/snapShot';
 import { formatTime } from '@app/utils/time';
 
 interface Data {
@@ -67,7 +60,7 @@ const List: React.FC<Data> = ({ pagination, list }) => {
               </Td>
               <Td dataLabel={columnNames.created}>{formatTime(snapshot.snapshots[0].create_timestamp)}</Td>
               <Td dataLabel={columnNames.snapshotName}>
-                {snapshot.flags.includes('SUCCESSFUL') ? 'SUCCESSFUL' : 'FAILED'}
+                {snapshot.flags.includes('SUCCESSFUL') ? 'Successful' : 'Failed'}
               </Td>
             </Tr>
           ))}

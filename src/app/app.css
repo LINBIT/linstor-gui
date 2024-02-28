@@ -155,3 +155,7 @@ body,
 .pf-c-button.pf-m-link.pf-m-inline {
   padding: 10px;
 }
+
+iframe {
+  min-height: 400px;
+}

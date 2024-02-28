@@ -12,7 +12,7 @@ const ErrorReportDetail: React.FC = () => {
   const { t } = useTranslation('error_report');
 
   return (
-    <PageBasic title={t('detail_title')} loading={loading} error={!loading && data.length === 0}>
+    <PageBasic title={t('detail_title')} loading={loading} error={!loading && data.length === 0} showBack>
       <CodeBlock>
         <CodeBlockCode>{data[0]?.text}</CodeBlockCode>
       </CodeBlock>

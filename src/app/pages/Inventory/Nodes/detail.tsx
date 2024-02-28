@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Card, Col, Row, Space, Tag } from 'antd';
+import { Card, Col, Input, Modal, Row, Space, Tag } from 'antd';
 import { CheckCircleOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
@@ -19,7 +19,7 @@ import { kibToGib } from '@app/utils/size';
 import { useResources } from '@app/features/snapshot';
 
 import NetInterfaceList from './components/NetInterfaceList';
-import { Container, LabelText, TagContainer } from './detail.styled';
+import { Container, DashboardContainer, EmptyDashboard, LabelText, TagContainer } from './detail.styled';
 
 const isValidArray = (nodeRes) => {
   return Array.isArray(nodeRes) && nodeRes.length > 0;
@@ -107,6 +107,10 @@ const handleResourceData = (resource) => {
 const NodeDetail: React.FC = () => {
   const { t } = useTranslation('node');
   const { node } = useParams() as { node: string };
+  const [dashboardUrl, setDashboardUrl] = useState('');
+  const [showDashboard, setShowDashboard] = useState(false);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data: nodeInfo } = useNodes({
     nodes: [node],
@@ -174,8 +178,30 @@ const NodeDetail: React.FC = () => {
     });
   };
 
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleOk = () => {
+    setIsModalOpen(false);
+
+    if (dashboardUrl) {
+      setShowDashboard(true);
+    }
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
+  const createIFrame = () => {
+    return {
+      __html: dashboardUrl,
+    };
+  };
+
   return (
-    <PageBasic title={t('node_detail')}>
+    <PageBasic title={t('node_detail')} showBack>
       <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
         <Card title="Basic Info" size="small">
           <Space direction="vertical" size="small" style={{ display: 'flex' }}>
@@ -256,6 +282,27 @@ const NodeDetail: React.FC = () => {
           </Col>
         </Row>
       </Space>
+      {/* TODO: add grafana dashboard here */}
+
+      {/* <br />
+
+      <Card title="Dashboard" size="small">
+        {showDashboard ? (
+          <div dangerouslySetInnerHTML={createIFrame()}></div>
+        ) : (
+          <EmptyDashboard onClick={showModal}>+</EmptyDashboard>
+        )}
+      </Card> */}
+
+      <Modal title="Import Grafana Dashboard" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+        <DashboardContainer>
+          <Input.TextArea
+            placeholder="Paste your grafana dashboard link here..."
+            rows={6}
+            onChange={(e) => setDashboardUrl(e.target.value)}
+          />
+        </DashboardContainer>
+      </Modal>
     </PageBasic>
   );
 };

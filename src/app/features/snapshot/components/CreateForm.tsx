@@ -4,6 +4,8 @@ import uniqby from 'lodash.uniqby';
 
 import { useNodes } from '@app/features/node';
 import { useResources } from '../hooks';
+import { useQuery } from '@tanstack/react-query';
+import { getStoragePool } from '@app/features/storagePool';
 
 type FormType = {
   name: string;
@@ -22,13 +24,36 @@ const CreateSnapshotForm = ({ open, onCancel, onCreate }: CollectionCreateFormPr
   const { data: nodes } = useNodes();
   const { data: resources } = useResources();
 
+  const resourceList = uniqby(resources, 'name')?.map((e) => ({
+    label: e.name,
+    value: e.name,
+  }));
+
+  const resource = Form.useWatch('resource_name', form);
+  const resourceObj = resources?.find((e) => e.name === resource);
+  const resourceStoragePool = resourceObj?.props?.StorPoolName;
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['getStoragePool', resourceStoragePool],
+    queryFn: () =>
+      getStoragePool({
+        storage_pools: [resourceStoragePool || ''],
+      }),
+    enabled: !!resourceStoragePool,
+  });
+
+  const canDoSnapshot = data?.data?.every((e) => e.supports_snapshots);
+
   return (
     <Modal
       open={open}
       title="Create new snapshot"
       okText="Create"
       cancelText="Cancel"
-      onCancel={onCancel}
+      onCancel={() => {
+        form.resetFields();
+        onCancel();
+      }}
       onOk={() => {
         form
           .validateFields()
@@ -49,6 +74,11 @@ const CreateSnapshotForm = ({ open, onCancel, onCreate }: CollectionCreateFormPr
         layout="horizontal"
         form={form}
       >
+        {resource && !canDoSnapshot && !isLoading && (
+          <div style={{ color: 'red', marginBottom: 20 }}>
+            The storage pool does not support snapshots, please select another resource
+          </div>
+        )}
         <Form.Item name="name" label="Snapshot Name" required>
           <Input placeholder="Please input snapshot name" />
         </Form.Item>
@@ -59,14 +89,7 @@ const CreateSnapshotForm = ({ open, onCancel, onCreate }: CollectionCreateFormPr
           required
           rules={[{ required: true, message: 'Please select nodes!' }]}
         >
-          <Select
-            allowClear
-            placeholder="Please select resource"
-            options={uniqby(resources, 'name')?.map((e) => ({
-              label: e.name,
-              value: e.name,
-            }))}
-          />
+          <Select allowClear placeholder="Please select resource" options={resourceList} />
         </Form.Item>
 
         <Form.Item label="Nodes" name="nodes">
