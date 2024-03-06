@@ -30,7 +30,7 @@ const fr = {
     volumes: 'Volumes',
     node_ip_addrs: 'Adresses IP',
     remotes: 'Télécommandes',
-    linstor: 'Linstor',
+    linstor: 'LINSTOR',
     s3: 'S3',
   },
   node: {

@@ -30,7 +30,7 @@ const en = {
     volumes: 'Volumenes',
     node_ip_addrs: 'Direcciones IP',
     remotes: 'Controles remotos',
-    linstor: 'Linstor',
+    linstor: 'LINSTOR',
     s3: 'S3',
   },
   node: {
@@ -127,7 +127,7 @@ const en = {
   },
   // Remote / Linstor
   linstor: {
-    list: 'Linstor List',
+    list: 'LINSTOR List',
   },
 };
 

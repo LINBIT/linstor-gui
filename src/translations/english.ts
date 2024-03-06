@@ -35,13 +35,13 @@ const en = {
     volumes: 'Volumes',
     node_ip_addrs: 'IP Addresses',
     remotes: 'Remotes',
-    linstor: 'Linstor',
+    linstor: 'LINSTOR',
     s3: 'S3',
     settings: 'Settings',
     gateway: 'Gateway',
     iscsi: 'iSCSI',
     nfs: 'NFS',
-    'nvme-of': 'Nvme-Of',
+    'nvme-of': 'NVMe-oF',
     snapshot: 'Snapshot',
     grafana: 'Grafana',
     users: 'Users',
@@ -69,7 +69,7 @@ const en = {
     supports_snapshots: 'Supports Snapshots',
   },
   ip_address: {
-    list: 'IP Address List',
+    list: 'IP Addresses List',
     node: 'Node',
     ip_address: 'IP Address',
     tcp_port: 'TCP Port',
@@ -142,7 +142,7 @@ const en = {
   },
   // Remote / Linstor
   linstor: {
-    list: 'Linstor List',
+    list: 'LINSTOR List',
   },
   iscsi: {
     list: 'iSCSI List',
@@ -159,8 +159,8 @@ const en = {
     service_ip: 'Service IP',
   },
   nvme: {
-    list: 'NVME-Of List',
-    create: 'NVME-Of Create',
+    list: 'NVMe-oF List',
+    create: 'NVMe-oF Create',
     name: 'Name',
     size: 'Size',
     service_ip: 'Service IP',

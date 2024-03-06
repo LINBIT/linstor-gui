@@ -31,7 +31,7 @@ const zh = {
     resources: '资源',
     volumes: '卷',
     remotes: '远端',
-    linstor: 'Linstor',
+    linstor: 'LINSTOR',
     settings: '设置',
   },
   node: {

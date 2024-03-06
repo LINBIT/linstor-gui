@@ -32,7 +32,7 @@ const CreateForm = () => {
     history.push('/storage-configuration/resource-definitions');
   };
 
-  const { isLoading: resourceGroupsIsLoading, data: resourceGroups } = useResourceGroups();
+  const { isLoading: resourceGroupsIsLoading, data: resourceGroups } = useResourceGroups({});
   const { isLoading: storagePoolsIsLoading, data: storagePools } = useStoragePools();
 
   const createResourceDefinitionMutation = useMutation({

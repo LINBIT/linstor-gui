@@ -1,14 +1,18 @@
-import React, { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { Button, Form, Input, Select, Space } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { Button, Checkbox, Form, Input, Select, Space } from 'antd';
 import { useHistory } from 'react-router-dom';
 
 import { useNodeNetWorkInterface } from '../hooks';
-import { useResourceGroups } from '@app/features/resourceGroup';
 import { SizeInput } from '@app/components/SizeInput';
-import { createNFSExport } from '../api';
+import { createNFSExport, getResourceGroups } from '../api';
 import { notify } from '@app/utils/toast';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { formatBytes } from '@app/utils/size';
+import { clusterPrivateVolumeSizeKib } from '../const';
+import { useResourceGroups } from '@app/features/resourceGroup';
+import { useSelector } from 'react-redux';
+import { RootState } from '@app/store';
 
 type FormType = {
   name: string;
@@ -24,11 +28,21 @@ const CreateNFSForm = () => {
   const history = useHistory();
   const [form] = Form.useForm<FormType>();
   const { data: ipPrefixes } = useNodeNetWorkInterface();
-  const { data: resourceGroups } = useResourceGroups();
+  const { data: resourceGroupsFromLinstor } = useResourceGroups({ excludeDefault: true });
+  const { data: resourceGroupsFromVSAN } = useQuery({
+    queryKey: ['getResourceGroupDataFromVSAN'],
+    queryFn: () => getResourceGroups(),
+  });
   const [mask, setMask] = useState(0);
   const [prefix, setPrefix] = useState();
 
+  const { vsanMode } = useSelector((state: RootState) => ({
+    vsanMode: state.setting.KVS?.vsanMode,
+  }));
+
   const service_ip = Form.useWatch('service_ip', form);
+  const use_all = Form.useWatch('use_all', form);
+  const resource_group = Form.useWatch('resource_group', form);
 
   const ipServiceOptions = React.useMemo(() => {
     return ipPrefixes?.map((e) => ({
@@ -37,6 +51,18 @@ const CreateNFSForm = () => {
       mask: e.mask,
     }));
   }, [ipPrefixes]);
+
+  useEffect(() => {
+    let maxVolumeSize = 0;
+    const selectedRG = resourceGroupsFromVSAN?.data?.find((e) => e.name === resource_group);
+    if (selectedRG) {
+      maxVolumeSize = selectedRG?.max_volume_size - clusterPrivateVolumeSizeKib;
+    }
+
+    if (use_all) {
+      form.setFieldValue('size', maxVolumeSize);
+    }
+  }, [form, resourceGroupsFromVSAN, resource_group, use_all]);
 
   const backToList = () => {
     history.push('/gateway/NFS');
@@ -61,20 +87,6 @@ const CreateNFSForm = () => {
   });
 
   const onFinish = async (values: FormType) => {
-    // currentExport: {
-    //   name: "",
-    //   service_ip: "",
-    //   allowed_ips: [],
-    //   resource_group: "",
-    //   volumes: [{
-    //       number: 1,
-    //       export_path: "",
-    //       size_kib: 0,
-    //       file_system: "ext4",
-    //   }],
-    //   gross_size: false,
-    // },
-    console.log(values, 'values');
     const service_ip_str = prefix + service_ip + '/' + mask;
 
     const volumes = [
@@ -88,10 +100,11 @@ const CreateNFSForm = () => {
 
     const currentExport = {
       name: values.name,
-      service_ip: service_ip_str,
+      service_ip: vsanMode ? service_ip_str : values.service_ip,
       resource_group: values.resource_group,
       volumes,
       allowed_ips: values.allowed_ips || [],
+      gross_size: false,
     };
 
     createNFTMutation.mutate(currentExport);
@@ -140,22 +153,33 @@ const CreateNFSForm = () => {
           },
         ]}
       >
-        <Input placeholder="Please input name" />
+        <Input placeholder="Please input name: my_export" />
       </Form.Item>
       <Form.Item
         label="Resource Group"
-        name="resource_group_name"
+        name="resource_group"
         required
         rules={[{ required: true, message: 'Please select resource group!' }]}
       >
-        <Select
-          allowClear
-          placeholder="Please select resource group"
-          options={resourceGroups?.map((e) => ({
-            label: e.name,
-            value: e.name,
-          }))}
-        />
+        {vsanMode ? (
+          <Select
+            allowClear
+            placeholder="Please select resource group"
+            options={resourceGroupsFromVSAN?.data?.map((e) => ({
+              label: `${e.name} (${formatBytes(e.max_volume_size)} available)`,
+              value: e.name,
+            }))}
+          />
+        ) : (
+          <Select
+            allowClear
+            placeholder="Please select resource group"
+            options={resourceGroupsFromLinstor?.map((e) => ({
+              label: `${e.name}`,
+              value: e.name,
+            }))}
+          />
+        )}
       </Form.Item>
 
       <Form.Item
@@ -165,30 +189,36 @@ const CreateNFSForm = () => {
         rules={[
           {
             required: true,
-            message: 'IP address is required!',
+            message: 'Service IP is required!',
           },
         ]}
-        tooltip="Must be valid IP address, like 192.168.1.1, 10.10.1.1"
+        tooltip="Must be valid service IP address, like 192.168.1.1/24, 10.10.1.1/24"
       >
-        <Space.Compact>
-          <Select
-            options={ipServiceOptions}
-            onChange={(val, option) => {
-              setPrefix(val);
-              setMask((option as any)?.mask as number);
-            }}
-          />
-          <Input placeholder="0.0" />
-        </Space.Compact>
+        {vsanMode ? (
+          <Space.Compact>
+            <Select
+              options={ipServiceOptions}
+              onChange={(val, option) => {
+                setPrefix(val);
+                setMask((option as any)?.mask as number);
+              }}
+            />
+            <Input placeholder="0.0" />
+          </Space.Compact>
+        ) : (
+          <Input placeholder="192.168.1.1/24" />
+        )}
       </Form.Item>
 
       <Form.Item name="size" label="Size" required>
-        <SizeInput />
+        {use_all ? <SizeInput disabled={use_all} /> : <SizeInput />}
       </Form.Item>
 
-      {/* <Form.Item name="use_all" valuePropName="checked" wrapperCol={{ offset: 6, span: 16 }}>
-        <Checkbox>Use all available</Checkbox>
-      </Form.Item> */}
+      {vsanMode && (
+        <Form.Item name="use_all" valuePropName="checked" wrapperCol={{ offset: 6, span: 16 }}>
+          <Checkbox>Use all available</Checkbox>
+        </Form.Item>
+      )}
 
       <Form.Item name="export_path" label="Export Path" required>
         <Input placeholder="Please input export path" />
@@ -259,7 +289,7 @@ const CreateNFSForm = () => {
       </Form.List>
 
       <Form.Item wrapperCol={{ offset: 6, span: 18 }}>
-        <Button type="primary" htmlType="submit">
+        <Button type="primary" htmlType="submit" loading={createNFTMutation.isLoading}>
           Submit
         </Button>
 

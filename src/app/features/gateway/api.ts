@@ -17,4 +17,8 @@ const createNVMEExport = async (data: NVMEOFResource) => {
   return service.post('/api/v2/nvme-of', data);
 };
 
-export { getNetWorkInterfaces, createNFSExport, createiSCSIExport, createNVMEExport };
+const getResourceGroups = async () => {
+  return service.get('/api/frontend/v1/linstor/resource-groups');
+};
+
+export { getNetWorkInterfaces, createNFSExport, createiSCSIExport, createNVMEExport, getResourceGroups };

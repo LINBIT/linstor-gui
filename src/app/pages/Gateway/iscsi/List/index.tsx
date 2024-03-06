@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TableComposable, Thead, Tr, Th, Tbody, Td, ThProps } from '@patternfly/react-table';
+import { TableComposable, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
 import {
   Bullseye,
   Button,

@@ -30,7 +30,7 @@ const ru = {
     volumes: 'Количество',
     node_ip_addrs: 'Адресы « IP »',
     remotes: 'Пулты',
-    linstor: 'Линстор  « Linstor »',
+    linstor: 'Линстор  « LINSTOR »',
     s3: 'С3 « Linstor »',
   },
   node: {

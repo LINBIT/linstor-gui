@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Input, Select } from 'antd';
 import { convertRoundUp, sizeOptions } from '@app/utils/size';
 
@@ -6,9 +6,10 @@ type SizeInputProps = {
   value?: number;
   onChange?: (value: number) => void;
   placeholder?: string;
+  disabled?: boolean;
 };
 
-export const SizeInput = ({ value, onChange, placeholder }: SizeInputProps) => {
+export const SizeInput = ({ value, onChange, placeholder, disabled }: SizeInputProps) => {
   const [sizeUnit, setSizeUnit] = useState('GiB');
   const [inputVal, setInputVal] = useState(value || '');
 
@@ -19,10 +20,18 @@ export const SizeInput = ({ value, onChange, placeholder }: SizeInputProps) => {
     onChange && onChange(size);
   };
 
+  useEffect(() => {
+    if (disabled) {
+      setSizeUnit('KiB');
+      setInputVal(value ?? 0);
+    }
+  }, [value, disabled]);
+
   return (
     <Input
       addonAfter={
         <Select
+          disabled={disabled}
           options={sizeOptions?.map((e) => ({
             label: e.label,
             value: e.value,
@@ -39,6 +48,7 @@ export const SizeInput = ({ value, onChange, placeholder }: SizeInputProps) => {
       placeholder={placeholder || 'Please input size'}
       value={inputVal}
       onChange={handleInputChange}
+      disabled={disabled}
     />
   );
 };

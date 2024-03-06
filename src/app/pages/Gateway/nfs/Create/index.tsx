@@ -6,8 +6,7 @@ import { useHistory } from 'react-router-dom';
 import { Dispatch, RootState } from '@app/store';
 import PageBasic from '@app/components/PageBasic';
 
-import NFSForm from '../Form';
-import { CreateNFForm, CreateNVMEOfForm } from '@app/features/gateway';
+import { CreateNFSForm } from '@app/features/gateway';
 
 const CreateNFS: React.FunctionComponent = () => {
   const { t } = useTranslation(['nfs', 'common']);
@@ -30,7 +29,7 @@ const CreateNFS: React.FunctionComponent = () => {
 
   return (
     <PageBasic title={t('nfs:create')}>
-      <CreateNVMEOfForm />
+      <CreateNFSForm />
     </PageBasic>
   );
 };
