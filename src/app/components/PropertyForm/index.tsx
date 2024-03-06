@@ -8,6 +8,7 @@ import { uniqId } from '@app/utils/stringUtils';
 import SingleSelectDescription from './PropertySelector';
 import DynamicForm from '../DynamicForm';
 import AuxiliaryPropInput from './AuxiliaryPropInput';
+import { Properties } from '@app/features/property';
 
 interface PropertyFormProps {
   type:
@@ -22,7 +23,7 @@ interface PropertyFormProps {
   initialVal?: Record<string, unknown>;
   handleClose: () => void;
   openStatus: boolean;
-  handleSubmit: (data: { override_props: Array<{ [x: string]: string }>; delete_props: Array<string> }) => void;
+  handleSubmit: (data: { override_props?: Properties; delete_props?: Array<string> }) => void;
 }
 
 type AuxProp = {

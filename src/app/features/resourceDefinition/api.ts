@@ -7,13 +7,13 @@ import {
   ResourceDefinitionListQuery,
 } from './types';
 
-const createResourceDefinition = async (body: CreateResourceDefinitionRequestBody) => {
+const createResourceDefinition = (body: CreateResourceDefinitionRequestBody) => {
   return post('/v1/resource-definitions', {
     body,
   });
 };
 
-const createVolumeDefinition = async (resource: string, body: CreateVolumeDefinitionRequestBody) => {
+const createVolumeDefinition = (resource: string, body: CreateVolumeDefinitionRequestBody) => {
   return post('/v1/resource-definitions/{resource}/volume-definitions', {
     params: {
       path: {
@@ -24,7 +24,7 @@ const createVolumeDefinition = async (resource: string, body: CreateVolumeDefini
   });
 };
 
-const autoPlace = async (resource: string, body: AutoPlaceRequestBody) => {
+const autoPlace = (resource: string, body: AutoPlaceRequestBody) => {
   return post('/v1/resource-definitions/{resource}/autoplace', {
     params: {
       path: {
@@ -35,7 +35,7 @@ const autoPlace = async (resource: string, body: AutoPlaceRequestBody) => {
   });
 };
 
-const getResourceDefinition = async (query: ResourceDefinitionListQuery) => {
+const getResourceDefinition = (query: ResourceDefinitionListQuery) => {
   return get('/v1/resource-definitions', {
     params: {
       query,

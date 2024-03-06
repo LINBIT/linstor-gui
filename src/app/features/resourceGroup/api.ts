@@ -7,7 +7,7 @@ import {
   AddVolumeRequestBody,
 } from './types';
 
-const getResourceGroups = async (query: ResourceGroupQuery) => {
+const getResourceGroups = (query: ResourceGroupQuery) => {
   return get('/v1/resource-groups', {
     params: {
       query,
@@ -15,13 +15,13 @@ const getResourceGroups = async (query: ResourceGroupQuery) => {
   });
 };
 
-const createResourceGroup = async (body: ResourceGroupCreateRequestBody) => {
+const createResourceGroup = (body: ResourceGroupCreateRequestBody) => {
   return post('/v1/resource-groups', {
     body,
   });
 };
 
-const updateResourceGroup = async (resource_group: string, body: ResourceGroupModifyRequestBody) => {
+const updateResourceGroup = (resource_group: string, body: ResourceGroupModifyRequestBody) => {
   return put('/v1/resource-groups/{resource_group}', {
     params: {
       path: {
@@ -32,7 +32,7 @@ const updateResourceGroup = async (resource_group: string, body: ResourceGroupMo
   });
 };
 
-const addVolumeToResourceGroup = async (resource_group: string, body: AddVolumeRequestBody) => {
+const addVolumeToResourceGroup = (resource_group: string, body: AddVolumeRequestBody) => {
   return post('/v1/resource-groups/{resource_group}/volume-groups', {
     params: {
       path: {

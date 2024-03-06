@@ -1,7 +1,7 @@
 import { get, del, patch } from '../requests';
 import { ErrorReportDeleteRangeRequest, GetErrorReportRequestQuery } from './types';
 
-const deleteReport = async (reportid: string) => {
+const deleteReport = (reportid: string) => {
   return del('/v1/error-reports/{reportid}', {
     params: {
       path: {
@@ -11,14 +11,14 @@ const deleteReport = async (reportid: string) => {
   });
 };
 
-const deleteReportBulk = async (body: ErrorReportDeleteRangeRequest) => {
+const deleteReportBulk = (body: ErrorReportDeleteRangeRequest) => {
   return patch('/v1/error-reports', {
     params: {},
     body,
   });
 };
 
-const getErrorReportById = async (reportid: string) => {
+const getErrorReportById = (reportid: string) => {
   return get('/v1/error-reports/{reportid}', {
     params: {
       path: {
@@ -28,7 +28,7 @@ const getErrorReportById = async (reportid: string) => {
   });
 };
 
-const getErrorReports = async (query: GetErrorReportRequestQuery) => {
+const getErrorReports = (query: GetErrorReportRequestQuery) => {
   return get('/v1/error-reports', {
     params: {
       query,

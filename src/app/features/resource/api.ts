@@ -9,13 +9,13 @@ import {
   GetResourcesResponseBody,
 } from './types';
 
-const createResourceDefinition = async (body: CreateResourceDefinitionRequestBody) => {
+const createResourceDefinition = (body: CreateResourceDefinitionRequestBody) => {
   return post('/v1/resource-definitions', {
     body,
   });
 };
 
-const createVolumeDefinition = async (resource: string, body: CreateVolumeDefinitionRequestBody) => {
+const createVolumeDefinition = (resource: string, body: CreateVolumeDefinitionRequestBody) => {
   return post('/v1/resource-definitions/{resource}/volume-definitions', {
     params: {
       path: {
@@ -26,7 +26,7 @@ const createVolumeDefinition = async (resource: string, body: CreateVolumeDefini
   });
 };
 
-const autoPlace = async (resource: string, body: AutoPlaceRequestBody) => {
+const autoPlace = (resource: string, body: AutoPlaceRequestBody) => {
   return post('/v1/resource-definitions/{resource}/autoplace', {
     params: {
       path: {
@@ -37,7 +37,7 @@ const autoPlace = async (resource: string, body: AutoPlaceRequestBody) => {
   });
 };
 
-const resourceCreateOnNode = async (resource_name: string, node: string, body: ResourceCreateRequestBody) => {
+const resourceCreateOnNode = (resource_name: string, node: string, body: ResourceCreateRequestBody) => {
   return post('/v1/resource-definitions/{resource}/resources/{node}', {
     params: {
       path: {
@@ -49,7 +49,7 @@ const resourceCreateOnNode = async (resource_name: string, node: string, body: R
   });
 };
 
-const resourceModify = async (resource_name: string, node: string, body: ResourceModifyRequestBody) => {
+const resourceModify = (resource_name: string, node: string, body: ResourceModifyRequestBody) => {
   return put('/v1/resource-definitions/{resource}/resources/{node}', {
     params: {
       path: {
@@ -61,7 +61,7 @@ const resourceModify = async (resource_name: string, node: string, body: Resourc
   });
 };
 
-const resourceMigration = async (data: { resource: string; node: string; fromnode: string }) => {
+const resourceMigration = (data: { resource: string; node: string; fromnode: string }) => {
   const { resource, node, fromnode } = data;
   return put('/v1/resource-definitions/{resource}/resources/{node}/migrate-disk/{fromnode}', {
     params: {

@@ -13,3 +13,4 @@ export type UpdateStoragePoolRequestBody = components['schemas']['StoragePoolDef
 export type UpdateStoragePoolRequest = operations['nodeStoragePoolModify']['parameters']['path'];
 
 export type GetStoragePoolRequestQuery = operations['nodeStoragePoolList']['parameters']['query'];
+export type StoragePool = components['schemas']['StoragePool'];

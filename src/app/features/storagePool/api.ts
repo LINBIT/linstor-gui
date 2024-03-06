@@ -9,10 +9,7 @@ import {
   GetStoragePoolRequestQuery,
 } from './types';
 
-const updateStoragePool = async (
-  { node, storagepool }: UpdateStoragePoolRequest,
-  body: UpdateStoragePoolRequestBody
-) => {
+const updateStoragePool = ({ node, storagepool }: UpdateStoragePoolRequest, body: UpdateStoragePoolRequestBody) => {
   return put('/v1/nodes/{node}/storage-pools/{storagepool}', {
     params: {
       path: {
@@ -24,7 +21,7 @@ const updateStoragePool = async (
   });
 };
 
-const deleteStoragePoolV2 = async ({ node, storagepool }: DeleteStoragePoolRequest) => {
+const deleteStoragePoolV2 = ({ node, storagepool }: DeleteStoragePoolRequest) => {
   return del('/v1/nodes/{node}/storage-pools/{storagepool}', {
     params: {
       path: {
@@ -44,7 +41,7 @@ const getPhysicalStoragePoolByNode = ({ node }: { node: string }) =>
     },
   });
 
-const createPhysicalStorage = async (node: string, body: CreatePhysicalStorageRequestBody) => {
+const createPhysicalStorage = (node: string, body: CreatePhysicalStorageRequestBody) => {
   return post('/v1/physical-storage/{node}', {
     params: {
       path: {
@@ -55,7 +52,7 @@ const createPhysicalStorage = async (node: string, body: CreatePhysicalStorageRe
   });
 };
 
-const createStoragePool = async (node: string, body: CreateStoragePoolRequestBody) => {
+const createStoragePool = (node: string, body: CreateStoragePoolRequestBody) => {
   return post('/v1/nodes/{node}/storage-pools', {
     params: {
       path: {
@@ -84,6 +81,10 @@ const getStoragePool = (query?: GetStoragePoolQuery) =>
     },
   });
 
+const getStoragePoolCount = () => {
+  return get('/v1/stats/storage-pools');
+};
+
 export {
   deleteStoragePoolV2,
   createPhysicalStorage,
@@ -92,4 +93,5 @@ export {
   getStoragePool,
   updateStoragePool,
   getStoragePoolByNode,
+  getStoragePoolCount,
 };

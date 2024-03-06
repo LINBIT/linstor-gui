@@ -66,7 +66,27 @@ const partiallySuccess = (res?: APICALLRCLIST) => {
   return res.some((item) => item.ret_code < 0) && res.some((item) => item.ret_code > 0);
 };
 
-const { get, post, del, put, patch, head, trace, options } = createClient<paths>({ baseUrl: '', fetch: window.fetch });
+const { GET, POST, DELETE, PUT, PATCH, HEAD, TRACE, OPTIONS } = createClient<paths>({
+  baseUrl: '',
+  fetch: window.fetch,
+  querySerializer: {
+    array: {
+      style: 'form',
+      explode: true,
+    },
+  },
+});
 
-export { get, post, del, put, patch, head, trace, options, fullySuccess, partiallySuccess };
+export {
+  GET as get,
+  POST as post,
+  DELETE as del,
+  PUT as put,
+  PATCH as patch,
+  HEAD as head,
+  TRACE as trace,
+  OPTIONS as options,
+  fullySuccess,
+  partiallySuccess,
+};
 export type { APICALLRC, APICALLRCLIST };

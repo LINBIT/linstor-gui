@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Form, Space, Table, Tag, DatePicker, Select, Popconfirm } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -18,9 +18,12 @@ export const List = () => {
   const [form] = Form.useForm();
   const [query, setQuery] = useState({});
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [displayData, setDisplayData] = useState<ErrorReport[]>([]);
   const nodes = useNodes();
 
   const history = useHistory();
+
+  const module = Form.useWatch('module', form);
 
   const { data, refetch } = useQuery(['getErrors', query], () => {
     return getErrorReports(query);
@@ -40,12 +43,26 @@ export const List = () => {
     },
   });
 
-  const displayData = data?.data
-    ?.map((item) => ({
-      ...item,
-      id: getId(item),
-    }))
-    .reverse();
+  useEffect(() => {
+    let displayData = data?.data
+      ?.map((item) => ({
+        ...item,
+        id: getId(item),
+      }))
+      .reverse();
+
+    if (module) {
+      displayData = data?.data
+        ?.map((item) => ({
+          ...item,
+          id: getId(item),
+        }))
+        .reverse()
+        .filter((e) => e.module === module);
+    }
+
+    setDisplayData(displayData);
+  }, [module, data?.data]);
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
     setSelectedRowKeys(newSelectedRowKeys);
@@ -100,6 +117,7 @@ export const List = () => {
       render: (_, record) => <span>{formatTime(record.error_time)}</span>,
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.error_time - b.error_time,
+      showSorterTooltip: false,
     },
     {
       title: 'Node',
@@ -110,19 +128,6 @@ export const List = () => {
       title: 'Module',
       key: 'module',
       dataIndex: 'module',
-      filters: [
-        {
-          text: 'Satellite',
-          value: 'SATELLITE',
-        },
-        {
-          text: 'Controller',
-          value: 'CONTROLLER',
-        },
-      ],
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      onFilter: (value: string, record) => record.module?.indexOf(value) === 0,
       render: (_, { module }) => <Tag color={module === 'SATELLITE' ? 'cyan' : 'geekblue'}>{module}</Tag>,
     },
     {
@@ -171,6 +176,17 @@ export const List = () => {
     });
   };
 
+  const modules = [
+    {
+      text: 'Satellite',
+      value: 'SATELLITE',
+    },
+    {
+      text: 'Controller',
+      value: 'CONTROLLER',
+    },
+  ];
+
   return (
     <>
       <Form form={form} name="error_report" layout="inline">
@@ -182,6 +198,18 @@ export const List = () => {
             options={nodes?.data?.map((e) => ({
               label: e.name,
               value: e.name,
+            }))}
+          />
+        </Form.Item>
+
+        <Form.Item name="module" label="Module">
+          <Select
+            style={{ width: 180 }}
+            allowClear
+            placeholder="Please select module"
+            options={modules.map((e) => ({
+              label: e.text,
+              value: e.value,
             }))}
           />
         </Form.Item>
@@ -226,6 +254,10 @@ export const List = () => {
         dataSource={displayData}
         rowSelection={rowSelection}
         rowKey={(item) => item?.filename || ''}
+        pagination={{
+          showSizeChanger: true,
+          showTotal: (total) => `Total ${total} items`,
+        }}
       />
     </>
   );

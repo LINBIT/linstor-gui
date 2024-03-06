@@ -1,23 +1,23 @@
 import service from '@app/requests';
 import { ISCSIResource, NFSResource, NVMEOFResource } from './types';
 
-const getNetWorkInterfaces = async () => {
+const getNetWorkInterfaces = () => {
   return service.get('/api/frontend/v1/system/interfaces');
 };
 
-const createNFSExport = async (data: NFSResource) => {
+const createNFSExport = (data: NFSResource) => {
   return service.post('/api/v2/nfs', data);
 };
 
-const createiSCSIExport = async (data: ISCSIResource) => {
+const createiSCSIExport = (data: ISCSIResource) => {
   return service.post('/api/v2/iscsi', data);
 };
 
-const createNVMEExport = async (data: NVMEOFResource) => {
+const createNVMEExport = (data: NVMEOFResource) => {
   return service.post('/api/v2/nvme-of', data);
 };
 
-const getResourceGroups = async () => {
+const getResourceGroups = () => {
   return service.get('/api/frontend/v1/linstor/resource-groups');
 };
 

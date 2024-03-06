@@ -1,11 +1,11 @@
 import { get, put, del } from '../requests';
 import { KeyValueStoreModify } from './types';
 
-const getKVStore = async () => {
+const getKVStore = () => {
   return get('/v1/key-value-store', {});
 };
 
-const getKVInstance = async (instance: string) => {
+const getKVInstance = (instance: string) => {
   return get('/v1/key-value-store/{instance}', {
     params: {
       path: {
@@ -15,7 +15,7 @@ const getKVInstance = async (instance: string) => {
   });
 };
 
-const deleteKVInstance = async (instance: string) => {
+const deleteKVInstance = (instance: string) => {
   return del('/v1/key-value-store/{instance}', {
     params: {
       path: {
@@ -25,7 +25,7 @@ const deleteKVInstance = async (instance: string) => {
   });
 };
 
-const createOrModifyKVInstance = async (instance: string, store: KeyValueStoreModify) => {
+const createOrModifyKVInstance = (instance: string, store: KeyValueStoreModify) => {
   return put('/v1/key-value-store/{instance}', {
     params: {
       path: {

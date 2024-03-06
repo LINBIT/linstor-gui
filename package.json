@@ -111,7 +111,7 @@
     "lodash-es": "^4.17.21",
     "lodash.get": "^4.4.2",
     "lodash.uniqby": "^4.7.0",
-    "openapi-fetch": "^0.2.1",
+    "openapi-fetch": "^0.9.3",
     "parse-prometheus-text-format": "^1.1.1",
     "react": "^17.0.2",
     "react-apexcharts": "^1.4.0",

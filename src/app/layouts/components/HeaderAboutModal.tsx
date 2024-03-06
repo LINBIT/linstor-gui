@@ -64,7 +64,7 @@ const HeaderAboutModal: React.FC = () => {
   }, [metrics]);
 
   return (
-    <React.Fragment>
+    <div style={{ cursor: 'pointer' }}>
       <img title="logo" className="connected__img" src={FEATHER_INFO} onClick={handleModalToggle} />
 
       <AboutModal
@@ -109,7 +109,7 @@ const HeaderAboutModal: React.FC = () => {
         handleSubmit={handleUpdateController}
         handleClose={() => setPropertyModalOpen(!propertyModalOpen)}
       />
-    </React.Fragment>
+    </div>
   );
 };
 

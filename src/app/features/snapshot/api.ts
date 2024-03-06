@@ -1,7 +1,7 @@
 import { post, get } from '../requests';
 import { CreateSnapshotRequestBody, ResourceListQuery } from './types';
 
-const getAllResources = async (query?: ResourceListQuery) => {
+const getAllResources = (query?: ResourceListQuery) => {
   return get('/v1/view/resources', {
     params: {
       query,
@@ -9,7 +9,7 @@ const getAllResources = async (query?: ResourceListQuery) => {
   });
 };
 
-const createSnapshot = async (resource: string, body: CreateSnapshotRequestBody) => {
+const createSnapshot = (resource: string, body: CreateSnapshotRequestBody) => {
   return post('/v1/resource-definitions/{resource}/snapshots', {
     params: {
       path: {
