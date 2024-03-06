@@ -12,6 +12,7 @@ import parsePrometheusTextFormat from 'parse-prometheus-text-format';
 
 import PropertyForm from '@app/components/PropertyForm';
 import service from '@app/requests';
+import { InfoIcon } from './styled';
 
 const HeaderAboutModal: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -64,8 +65,8 @@ const HeaderAboutModal: React.FC = () => {
   }, [metrics]);
 
   return (
-    <div style={{ cursor: 'pointer' }}>
-      <img title="logo" className="connected__img" src={FEATHER_INFO} onClick={handleModalToggle} />
+    <div>
+      <InfoIcon title="LINSTOR GUI Info" src={FEATHER_INFO} onClick={handleModalToggle} />
 
       <AboutModal
         isOpen={isModalOpen}

@@ -18,7 +18,7 @@ import {
   PageHeaderToolsItem,
 } from '@patternfly/react-core';
 
-import { Avatar, Dropdown } from 'antd';
+import { Avatar, Dropdown, Radio } from 'antd';
 
 import SVG from 'react-inlinesvg';
 
@@ -35,7 +35,8 @@ import user from '@app/assets/user.svg';
 import './AppLayout.css';
 import isSvg from 'is-svg';
 import { ChangePassword, Login } from '@app/features/authentication';
-import { ImgIcon } from './styled';
+import { ImgIcon, ModeSelector } from './styled';
+import { usePersistentMenuState } from '@app/hooks';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -51,7 +52,7 @@ const hideRoutes = (label, routes) => {
 };
 
 const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
-  const [isNavOpen, setIsNavOpen] = React.useState(true);
+  const [isNavOpen, setIsNavOpen] = usePersistentMenuState(true);
   const [isMobileView, setIsMobileView] = React.useState(true);
   const [isNavOpenMobile, setIsNavOpenMobile] = React.useState(false);
 
@@ -114,6 +115,14 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const headerTools = (
     <PageHeaderTools>
       <PageHeaderToolsGroup>
+        {/* <PageHeaderToolsItem>
+          <ModeSelector>
+            <Radio.Group defaultValue="a" buttonStyle="solid" size="small">
+              <Radio.Button value="a">VSAN Mode</Radio.Button>
+              <Radio.Button value="b">Regular Mode</Radio.Button>
+            </Radio.Group>
+          </ModeSelector>
+        </PageHeaderToolsItem> */}
         <PageHeaderToolsItem>
           <ConnectStatus />
         </PageHeaderToolsItem>

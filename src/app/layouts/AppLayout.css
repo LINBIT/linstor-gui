@@ -13,3 +13,7 @@
 .change-password-modal .ant-modal-content {
   padding: 0 !important;
 }
+
+.pf-c-about-modal-box {
+  border-radius: 20px;
+}

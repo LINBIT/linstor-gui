@@ -1,11 +1,12 @@
 .connect__status {
   display: flex;
   align-items: center;
-  margin-right: 20px;
+  margin-right: 16px;
   color: #d3d2d2;
-  cursor: pointer;
 }
 
 .connected__img {
-  margin-right: 16px;
+  margin-right: 4px;
+  width: 1.4rem;
+  height: 1.4rem;
 }
