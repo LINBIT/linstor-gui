@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 import { Route, RouteComponentProps, Switch } from 'react-router-dom';
 import { accessibleRouteChangeHandler } from '@app/utils/utils';
 
@@ -36,11 +37,17 @@ import GeneralSettings from '@app/pages/Settings';
 import { useDocumentTitle } from '@app/utils/useDocumentTitle';
 
 import { LastLocationProvider, useLastLocation } from 'react-router-last-location';
-import gateway from './gateway';
-import snapshot from './snapshot';
 
 import { GrafanaDashboard } from '@app/pages/Granfana';
 import { UserManagement } from '@app/features/authentication';
+import { useModeStorage } from '@app/hooks';
+
+import gateway from './gateway';
+import snapshot from './snapshot';
+import { Dashboard as VSANDashboard } from '@app/pages/VSAN/Dashboard';
+import { NVMeoF } from '@app/pages/VSAN/NVMeoF';
+import { NFS } from '@app/pages/VSAN/NFS';
+import { ISCSI } from '@app/pages/VSAN/ISCSI';
 
 let routeFocusTimer: number;
 
@@ -99,7 +106,7 @@ const routes: AppRouteConfig[] = [
         component: NodeCreate,
         exact: true,
         path: '/inventory/nodes/create',
-        title: 'LINSTOR | Inventory | Nodes ｜ Create',
+        title: 'LINSTOR | Inventory | Nodes | Create',
       },
       {
         component: NodeDetail,
@@ -111,7 +118,7 @@ const routes: AppRouteConfig[] = [
         component: NodeEdit,
         exact: true,
         path: '/inventory/nodes/edit/:node',
-        title: 'LINSTOR | Inventory | Nodes ｜ Edit',
+        title: 'LINSTOR | Inventory | Nodes | Edit',
       },
       {
         component: StoragePoolEdit,
@@ -303,15 +310,51 @@ const flattenedRoutes: IAppRoute[] = routes
   .reduce((flattened, route) => [...flattened, ...(route.routes ? route.routes : [route])], [] as IAppRoute[])
   .filter((e) => !e.hide);
 
-const AppRoutes = (): React.ReactElement => {
-  const [displayedRoutes, setDisplayedRoutes] = React.useState(flattenedRoutes);
+const vsanRoutes: IAppRoute[] = [
+  {
+    component: VSANDashboard,
+    path: '/vsan/dashboard',
+    title: 'VSAN | Dashboard',
+  },
+  {
+    component: NVMeoF,
+    path: '/vsan/nvmeof',
+    title: 'VSAN | NVMe-oF',
+  },
+  {
+    component: ISCSI,
+    path: '/vsan/iscsi',
+    title: 'VSAN | iSCSI',
+  },
+  {
+    component: NFS,
+    path: '/vsan/nfs',
+    title: 'VSAN | NFS',
+  },
+  {
+    component: NodeDetail,
+    exact: true,
+    path: '/vsan/nodes/:node',
+    title: 'LINSTOR | VSAN | Nodes',
+  },
+];
 
-  React.useEffect(() => {
-    if (localStorage.getItem('linstorname') !== 'admin') {
-      const routes = flattenedRoutes.filter((e) => e.label !== 'users');
-      setDisplayedRoutes(routes);
+const AppRoutes = (): React.ReactElement => {
+  const [displayedRoutes, setDisplayedRoutes] = useState(flattenedRoutes);
+  const { mode } = useModeStorage();
+
+  useEffect(() => {
+    const VSAN_MODE = mode === 'VSAN';
+
+    if (VSAN_MODE) {
+      setDisplayedRoutes(vsanRoutes);
+    } else {
+      if (localStorage.getItem('linstorname') !== 'admin') {
+        const routes = flattenedRoutes.filter((e) => e.label !== 'users');
+        setDisplayedRoutes(routes);
+      }
     }
-  }, []);
+  }, [mode]);
 
   return (
     <LastLocationProvider>

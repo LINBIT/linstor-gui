@@ -8,6 +8,8 @@ import { useHistory } from 'react-router-dom';
 import { compareIPv4 } from '@app/utils/ip';
 import { InfoCircleOutlined, SettingOutlined } from '@ant-design/icons';
 import { ActionContainer } from './styled';
+import { ERROR_COLOR, SUCCESS_COLOR } from '@app/config/color';
+import { REFETCH_INTERVAL } from '@app/config/time';
 
 interface DataType {
   hostname: string;
@@ -20,13 +22,13 @@ interface DataType {
 export const VSANNodeList = () => {
   const history = useHistory();
   const [intervalModal, setIntervalModal] = useState(false);
-  const [refetchInterval, setRefetchInterval] = useState<number | null>(60);
+  const [refetchInterval, setRefetchInterval] = useState<number | null>(10);
   const [tempIntervalVal, setTempIntervalVal] = useState<number | null>(null);
 
   const nodesFromVSAN = useQuery({
     queryKey: ['nodesFromVSAN'],
     queryFn: () => getNodesFromVSAN(),
-    refetchInterval: 10,
+    refetchInterval: REFETCH_INTERVAL,
   });
 
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -55,7 +57,7 @@ export const VSANNodeList = () => {
   });
 
   const goToDetailPage = (node) => {
-    history.push(`/inventory/nodes/${node}`);
+    history.push(`/vsan/nodes/${node}`);
   };
 
   const doStandBy = (host: { hostname: string; checked: boolean }) => {
@@ -125,11 +127,11 @@ export const VSANNodeList = () => {
       dataIndex: 'address',
       key: 'online',
       render: (_, record) => {
-        let color = 'success';
+        let color = SUCCESS_COLOR;
         let statusText = 'Online';
 
         if (record.online) {
-          color = 'success';
+          color = SUCCESS_COLOR;
           statusText = 'Online';
 
           if (record.standby) {
@@ -137,14 +139,14 @@ export const VSANNodeList = () => {
             statusText = 'Standby';
           }
         } else {
-          color = 'red';
+          color = ERROR_COLOR;
           statusText = 'Error';
         }
 
         return (
           <>
             <Tag color={color}>{statusText}</Tag>
-            {record.has_linstor_controller && <Tag color="#f79133">LINSTOR Controller</Tag>}
+            {record.has_linstor_controller && <Tag color="#f79133">Controller</Tag>}
           </>
         );
       },
@@ -212,7 +214,7 @@ export const VSANNodeList = () => {
     <div>
       <ActionContainer>
         <Space>
-          <Button type="default" onClick={() => nodesFromVSAN.refetch()} loading={nodesFromVSAN.isLoading}>
+          <Button type="default" onClick={() => nodesFromVSAN.refetch()}>
             Reload
           </Button>
 
@@ -229,7 +231,12 @@ export const VSANNodeList = () => {
         />
       </ActionContainer>
 
-      <Table columns={columns} dataSource={nodesFromVSAN.data?.data} rowSelection={rowSelection} />
+      <Table
+        columns={columns}
+        dataSource={nodesFromVSAN.data?.data}
+        rowSelection={rowSelection}
+        loading={nodesFromVSAN.isLoading}
+      />
 
       <Modal
         title="Warning"

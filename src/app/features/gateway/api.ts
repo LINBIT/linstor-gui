@@ -9,7 +9,7 @@ const createNFSExport = (data: NFSResource) => {
   return service.post('/api/v2/nfs', data);
 };
 
-const createiSCSIExport = (data: ISCSIResource) => {
+const createISCSIExport = (data: ISCSIResource) => {
   return service.post('/api/v2/iscsi', data);
 };
 
@@ -21,4 +21,4 @@ const getResourceGroups = () => {
   return service.get('/api/frontend/v1/linstor/resource-groups');
 };
 
-export { getNetWorkInterfaces, createNFSExport, createiSCSIExport, createNVMEExport, getResourceGroups };
+export { getNetWorkInterfaces, createNFSExport, createISCSIExport, createNVMEExport, getResourceGroups };

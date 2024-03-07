@@ -11,6 +11,11 @@ body,
   --pf-c-divider--m-vertical--after--Width: 0;
 
   height: 100%;
+  background-color: #1e2939;
+}
+
+.pf-c-page {
+  background-color: #1e2939;
 }
 
 .pf-c-card {
@@ -45,7 +50,7 @@ body,
 }
 
 .pf-c-page__sidebar-body {
-  padding-top: 44px;
+  padding-top: 30px;
 }
 
 .pf-c-page__sidebar.pf-m-expanded {

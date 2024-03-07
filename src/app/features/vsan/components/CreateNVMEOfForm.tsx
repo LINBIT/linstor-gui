@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { Button, Form, Input, Select, Space } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { Button, Checkbox, Form, Input, Select, Space } from 'antd';
 import { useHistory } from 'react-router-dom';
 
-import { notify } from '@app/utils/toast';
+import { useNodeNetWorkInterface } from '../hooks';
 import { SizeInput } from '@app/components/SizeInput';
-import { useResourceGroups } from '@app/features/resourceGroup';
-
-import { createNVMEExport } from '../api';
+import { createNVMEExport, getResourceGroups } from '../api';
+import { notify } from '@app/utils/toast';
+import { formatBytes } from '@app/utils/size';
+import { clusterPrivateVolumeSizeKib } from '../const';
 
 type FormType = {
   name: string;
@@ -23,13 +24,43 @@ type FormType = {
 const CreateNVMEOfForm = () => {
   const history = useHistory();
   const [form] = Form.useForm<FormType>();
-  const { data: resourceGroupsFromLinstor } = useResourceGroups({ excludeDefault: true });
-
+  const { data: ipPrefixes } = useNodeNetWorkInterface();
+  const [mask, setMask] = useState(0);
+  const [prefix, setPrefix] = useState();
   const [time, setTime] = useState('');
   const [domain, setDomain] = useState('');
 
+  const { data: resourceGroupsFromVSAN } = useQuery({
+    queryKey: ['getResourceGroupDataFromVSAN'],
+    queryFn: () => getResourceGroups(),
+  });
+
+  const service_ip = Form.useWatch('service_ip', form);
+  const use_all = Form.useWatch('use_all', form);
+  const resource_group = Form.useWatch('resource_group', form);
+
+  const ipServiceOptions = React.useMemo(() => {
+    return ipPrefixes?.map((e) => ({
+      label: e.prefix,
+      value: e.prefix,
+      mask: e.mask,
+    }));
+  }, [ipPrefixes]);
+
+  useEffect(() => {
+    let maxVolumeSize = 0;
+    const selectedRG = resourceGroupsFromVSAN?.data?.find((e) => e.name === resource_group);
+    if (selectedRG) {
+      maxVolumeSize = selectedRG?.max_volume_size - clusterPrivateVolumeSizeKib;
+    }
+
+    if (use_all) {
+      form.setFieldValue('size', maxVolumeSize);
+    }
+  }, [form, resourceGroupsFromVSAN, resource_group, use_all]);
+
   const backToList = () => {
-    history.push('/gateway/nvme-of');
+    history.push('/vsan/nvmeof');
   };
 
   const createMutation = useMutation({
@@ -42,18 +73,16 @@ const CreateNVMEOfForm = () => {
         backToList();
       }, 300);
     },
-    onError: (err: { code: string; message: string }) => {
-      let message = 'Create NVMe-oF Export failed';
-      if (err.message) {
-        message = err.message;
-      }
-      notify(message, {
+    onError: (err) => {
+      console.log(err);
+      notify('Create NVMe-oF Export failed', {
         type: 'error',
       });
     },
   });
 
   const onFinish = async (values: FormType) => {
+    const service_ip_str = prefix + service_ip + '/' + mask;
     const nqn = 'nqn.' + time + '.' + domain + ':nvme:' + values.nqn;
 
     const volumes = [
@@ -65,7 +94,7 @@ const CreateNVMEOfForm = () => {
 
     const currentExport = {
       nqn,
-      service_ip: values.service_ip,
+      service_ip: service_ip_str,
       resource_group: values.resource_group,
       volumes,
       gross_size: false,
@@ -117,13 +146,12 @@ const CreateNVMEOfForm = () => {
         <Select
           allowClear
           placeholder="Please select resource group"
-          options={resourceGroupsFromLinstor?.map((e) => ({
-            label: `${e.name}`,
+          options={resourceGroupsFromVSAN?.data?.map((e) => ({
+            label: `${e.name} (${formatBytes(e.max_volume_size)} available)`,
             value: e.name,
           }))}
         />
       </Form.Item>
-
       <Form.Item
         label="Service IP"
         name="service_ip"
@@ -137,11 +165,23 @@ const CreateNVMEOfForm = () => {
         tooltip="This is the IP address under which the NVMe-oF target will be reachable. This must be an address within one of the hosts subnets.
         The service IP is a newly assigned address and should not already belong to a host."
       >
-        <Input placeholder="192.168.1.1/24" />
+        <Space.Compact>
+          <Select
+            options={ipServiceOptions}
+            onChange={(val, option) => {
+              setPrefix(val);
+              setMask((option as any)?.mask as number);
+            }}
+          />
+          <Input placeholder="0.0" />
+        </Space.Compact>
+      </Form.Item>
+      <Form.Item name="size" label="Size" required>
+        {use_all ? <SizeInput disabled={use_all} /> : <SizeInput />}
       </Form.Item>
 
-      <Form.Item name="size" label="Size" required>
-        <SizeInput />
+      <Form.Item name="use_all" valuePropName="checked" wrapperCol={{ offset: 6, span: 16 }}>
+        <Checkbox>Use all available</Checkbox>
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 6, span: 18 }}>

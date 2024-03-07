@@ -73,7 +73,7 @@ export const NFSList: React.FC<Data> = ({ list, handleDelete, handleStart, handl
                     {item.status.service}
                   </Label>
                 </Th>
-                <Th dataLabel={columnNames.nfs_export}>{`/srv/gateway-exports/${item.name}`}</Th>
+                <Th dataLabel={columnNames.nfs_export}>{item.volumes[1].export_path}</Th>
                 <Th dataLabel={columnNames.linstor_state}>
                   <Label color={item.status.state === 'OK' ? 'green' : 'red'} icon={<InfoCircleIcon />}>
                     {item.status.state}

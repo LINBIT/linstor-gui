@@ -18,7 +18,7 @@ import {
   PageHeaderToolsItem,
 } from '@patternfly/react-core';
 
-import { Avatar, Dropdown, Radio } from 'antd';
+import { Avatar, Dropdown, Menu, MenuProps, Radio, RadioChangeEvent } from 'antd';
 
 import SVG from 'react-inlinesvg';
 
@@ -36,7 +36,15 @@ import './AppLayout.css';
 import isSvg from 'is-svg';
 import { ChangePassword, Login } from '@app/features/authentication';
 import { ImgIcon, ModeSelector } from './styled';
-import { usePersistentMenuState } from '@app/hooks';
+import { useModeStorage, usePersistentMenuState } from '@app/hooks';
+import { useEffect, useState } from 'react';
+import {
+  AppstoreOutlined,
+  ContainerOutlined,
+  DesktopOutlined,
+  MailOutlined,
+  PieChartOutlined,
+} from '@ant-design/icons';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -51,15 +59,48 @@ const hideRoutes = (label, routes) => {
   });
 };
 
+type MenuItem = Required<MenuProps>['items'][number];
+
+function getItem(
+  label: React.ReactNode,
+  key: React.Key,
+  icon?: React.ReactNode,
+  children?: MenuItem[],
+  type?: 'group'
+): MenuItem {
+  return {
+    key,
+    icon,
+    children,
+    label,
+    type,
+  } as MenuItem;
+}
+
 const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const [isNavOpen, setIsNavOpen] = usePersistentMenuState(true);
-  const [isMobileView, setIsMobileView] = React.useState(true);
-  const [isNavOpenMobile, setIsNavOpenMobile] = React.useState(false);
+  const [isMobileView, setIsMobileView] = useState(true);
+  const [isNavOpenMobile, setIsNavOpenMobile] = useState(false);
+  const { mode, updateMode } = useModeStorage();
+  const [selectedMenu, setSelectedMenu] = useState('/vsan/dashboard');
+
+  const onModeChange = (e: RadioChangeEvent) => {
+    updateMode(e.target.value);
+    setIsNavOpen(true);
+
+    if (e.target.value === 'VSAN') {
+      window.location.href = '/#/vsan/dashboard';
+    } else {
+      window.location.href = '/#';
+    }
+
+    window.location.reload();
+  };
 
   const dispatch = useDispatch<Dispatch>();
   const history = useHistory();
 
-  React.useEffect(() => {
+  useEffect(() => {
     dispatch.setting.initSettingStore();
     dispatch.auth.checkLoginStatus();
     const vSANMode = history.location.search.includes('vsan');
@@ -67,7 +108,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
     if (vSANMode) {
       dispatch.setting.setVSANMode();
     }
-  }, [dispatch.auth, dispatch.setting, history]);
+  }, [dispatch.auth, dispatch.setting, history, mode]);
 
   const { KVS, authInfo, logoSrc } = useSelector((state: RootState) => ({
     KVS: state.setting.KVS,
@@ -80,7 +121,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
     setIsNavOpenMobile(!isNavOpenMobile);
   };
   const onNavToggle = () => {
-    setIsNavOpen(!isNavOpen);
+    setIsNavOpen && setIsNavOpen(!isNavOpen);
   };
   const onPageResize = (props: { mobileView: boolean; windowSize: number }) => {
     setIsMobileView(props.mobileView);
@@ -107,7 +148,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
       <>
         <img src={logo} className="logo" onClick={handleClick} alt="Linbit Logo" />
         {'  '}
-        {customizedLogo && <SVG src={customizedLogo as any} className="customizedLogo" />}
+        {customizedLogo && <SVG src={customizedLogo} className="Customized Logo" />}
       </>
     );
   }
@@ -115,14 +156,14 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const headerTools = (
     <PageHeaderTools>
       <PageHeaderToolsGroup>
-        {/* <PageHeaderToolsItem>
+        <PageHeaderToolsItem>
           <ModeSelector>
-            <Radio.Group defaultValue="a" buttonStyle="solid" size="small">
-              <Radio.Button value="a">VSAN Mode</Radio.Button>
-              <Radio.Button value="b">Regular Mode</Radio.Button>
+            <Radio.Group value={mode} buttonStyle="solid" size="small" onChange={onModeChange}>
+              <Radio.Button value="VSAN">VSAN</Radio.Button>
+              <Radio.Button value="REGULAR">LINSTOR GUI</Radio.Button>
             </Radio.Group>
           </ModeSelector>
-        </PageHeaderToolsItem> */}
+        </PageHeaderToolsItem>
         <PageHeaderToolsItem>
           <ConnectStatus />
         </PageHeaderToolsItem>
@@ -189,7 +230,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
       logo={<LogoImg />}
       showNavToggle
       headerTools={headerTools}
-      isNavOpen={isNavOpen}
+      isNavOpen={Boolean(isNavOpen)}
       onNavToggle={isMobileView ? onNavToggleMobile : onNavToggle}
     />
   );
@@ -225,7 +266,47 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
     </Nav>
   );
 
-  const Sidebar = <PageSidebar theme="dark" nav={Navigation} isNavOpen={isMobileView ? isNavOpenMobile : isNavOpen} />;
+  const items: MenuItem[] = React.useMemo(() => {
+    return [
+      getItem(<a href="/#!/vsan/dashboard">Dashboard</a>, '/vsan/dashboard', <PieChartOutlined rev={null} />),
+      getItem('Physical Storage', '2', <DesktopOutlined rev={null} />),
+      getItem('Resource Group', '3', <ContainerOutlined rev={null} />),
+      getItem(<a href="/#!/vsan/iscsi">iSCSI</a>, '/vsan/iscsi', <MailOutlined rev={null} />),
+      getItem(<a href="/#!/vsan/nvmeof">NVMe-oF</a>, '/vsan/nvmeof', <AppstoreOutlined rev={null} />),
+      getItem(<a href="/#!/vsan/nfs">NFS</a>, '/vsan/nfs', <AppstoreOutlined rev={null} />),
+      getItem('Users', 'users', <AppstoreOutlined rev={null} />),
+      getItem('About', 'about', <AppstoreOutlined rev={null} />),
+    ];
+  }, []);
+
+  useEffect(() => {
+    const currentMenu = items.find((e) => e?.key === location.pathname);
+    if (currentMenu) {
+      setSelectedMenu(currentMenu?.key as string);
+    }
+  }, [location, items]);
+
+  const VSANNavigation = (
+    <div>
+      <Menu
+        defaultSelectedKeys={[selectedMenu]}
+        mode="inline"
+        theme="dark"
+        inlineCollapsed={false}
+        items={items}
+        style={{ backgroundColor: 'transparent' }}
+        selectedKeys={[selectedMenu]}
+      />
+    </div>
+  );
+
+  const Sidebar = (
+    <PageSidebar
+      theme="dark"
+      nav={mode === 'VSAN' ? VSANNavigation : Navigation}
+      isNavOpen={isMobileView ? isNavOpenMobile : isNavOpen}
+    />
+  );
 
   const pageId = 'primary-app-container';
 

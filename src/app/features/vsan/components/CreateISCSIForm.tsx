@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { Button, Form, Input, Select, Space } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { Button, Checkbox, Form, Input, Select, Space } from 'antd';
 import { useHistory } from 'react-router-dom';
 
+import { useNodeNetWorkInterface } from '../hooks';
 import { SizeInput } from '@app/components/SizeInput';
-import { createISCSIExport } from '../api';
+import { createISCSIExport, getResourceGroups } from '../api';
 import { notify } from '@app/utils/toast';
-
-import { useResourceGroups } from '@app/features/resourceGroup';
+import { formatBytes } from '@app/utils/size';
+import { clusterPrivateVolumeSizeKib } from '../const';
 
 type FormType = {
   name: string;
@@ -23,13 +24,28 @@ type FormType = {
 const CreateISCSIForm = () => {
   const history = useHistory();
   const [form] = Form.useForm<FormType>();
-
-  const { data: resourceGroupsFromLinstor } = useResourceGroups({ excludeDefault: true });
+  const { data: ipPrefixes } = useNodeNetWorkInterface();
+  const { data: resourceGroupsFromVSAN } = useQuery({
+    queryKey: ['getResourceGroupDataFromVSAN'],
+    queryFn: () => getResourceGroups(),
+  });
+  const [mask, setMask] = useState(0);
+  const [prefix, setPrefix] = useState();
   const [time, setTime] = useState('');
   const [domain, setDomain] = useState('');
 
+  const service_ip = Form.useWatch('service_ip', form);
+
+  const ipServiceOptions = React.useMemo(() => {
+    return ipPrefixes?.map((e) => ({
+      label: e.prefix,
+      value: e.prefix,
+      mask: e.mask,
+    }));
+  }, [ipPrefixes]);
+
   const backToList = () => {
-    history.push('/gateway/iscsi');
+    history.push('/vsan/iscsi');
   };
 
   const createMutation = useMutation({
@@ -42,18 +58,19 @@ const CreateISCSIForm = () => {
         backToList();
       }, 300);
     },
-    onError: (err: { code: string; message: string }) => {
-      let message = 'Create iSCSI export target failed';
-      if (err.message) {
-        message = err.message;
-      }
-      notify(message, {
+    onError: (err) => {
+      console.log(err);
+      notify('Create iSCSI Export failed', {
         type: 'error',
       });
     },
   });
 
+  const use_all = Form.useWatch('use_all', form);
+  const resource_group = Form.useWatch('resource_group', form);
+
   const onFinish = async (values: FormType) => {
+    const service_ip_str = prefix + service_ip + '/' + mask;
     const iqn = 'iqn.' + time + '.' + domain + ':' + values.iqn;
 
     const volumes = [
@@ -65,7 +82,7 @@ const CreateISCSIForm = () => {
 
     const currentExport = {
       iqn,
-      service_ips: [values.service_ip],
+      service_ips: [service_ip_str],
       resource_group: values.resource_group,
       volumes,
       username: '',
@@ -74,6 +91,18 @@ const CreateISCSIForm = () => {
 
     createMutation.mutate(currentExport);
   };
+
+  useEffect(() => {
+    let maxVolumeSize = 0;
+    const selectedRG = resourceGroupsFromVSAN?.data?.find((e) => e.name === resource_group);
+    if (selectedRG) {
+      maxVolumeSize = selectedRG?.max_volume_size - clusterPrivateVolumeSizeKib;
+    }
+
+    if (use_all) {
+      form.setFieldValue('size', maxVolumeSize);
+    }
+  }, [form, resourceGroupsFromVSAN, resource_group, use_all]);
 
   return (
     <Form<FormType>
@@ -116,8 +145,8 @@ const CreateISCSIForm = () => {
         <Select
           allowClear
           placeholder="Please select resource group"
-          options={resourceGroupsFromLinstor?.map((e) => ({
-            label: `${e.name}`,
+          options={resourceGroupsFromVSAN?.data?.map((e) => ({
+            label: `${e.name} (${formatBytes(e.max_volume_size)} available)`,
             value: e.name,
           }))}
         />
@@ -135,11 +164,24 @@ const CreateISCSIForm = () => {
         ]}
         tooltip="Must be valid IP address, like 192.168.1.1, 10.10.1.1"
       >
-        <Input placeholder="192.168.1.1/24" />
+        <Space.Compact>
+          <Select
+            options={ipServiceOptions}
+            onChange={(val, option) => {
+              setPrefix(val);
+              setMask((option as any)?.mask as number);
+            }}
+          />
+          <Input placeholder="0.0" />
+        </Space.Compact>
       </Form.Item>
 
       <Form.Item name="size" label="Size" required>
-        <SizeInput />
+        {use_all ? <SizeInput disabled={use_all} /> : <SizeInput />}
+      </Form.Item>
+
+      <Form.Item name="use_all" valuePropName="checked" wrapperCol={{ offset: 6, span: 16 }}>
+        <Checkbox>Use all available</Checkbox>
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 6, span: 18 }}>

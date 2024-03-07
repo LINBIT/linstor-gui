@@ -1,7 +1,7 @@
 import { get, post, put } from '@app/features/requests';
+import service from '@app/requests';
 
 import { NodeListQuery, NodeCreateRequestBody, UpdateNetInterfaceRequestBody, UpdateNodeRequestBody } from './types';
-import service from '@app/requests';
 
 const getNodes = (query: NodeListQuery) => {
   return get('/v1/nodes', {

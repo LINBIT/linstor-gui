@@ -1,13 +1,15 @@
-import React from 'react';
-import { useMutation } from '@tanstack/react-query';
+import React, { useEffect, useState } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { Button, Checkbox, Form, Input, Select, Space } from 'antd';
 import { useHistory } from 'react-router-dom';
-import { Button, Form, Input, Select } from 'antd';
-import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 
-import { useResourceGroups } from '@app/features/resourceGroup';
+import { useNodeNetWorkInterface } from '../hooks';
 import { SizeInput } from '@app/components/SizeInput';
+import { createNFSExport, getResourceGroups } from '../api';
 import { notify } from '@app/utils/toast';
-import { createNFSExport } from '../api';
+import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { formatBytes } from '@app/utils/size';
+import { clusterPrivateVolumeSizeKib } from '../const';
 
 type FormType = {
   name: string;
@@ -22,10 +24,40 @@ type FormType = {
 const CreateNFSForm = () => {
   const history = useHistory();
   const [form] = Form.useForm<FormType>();
-  const { data: resourceGroupsFromLinstor } = useResourceGroups({ excludeDefault: true });
+  const { data: ipPrefixes } = useNodeNetWorkInterface();
+  const { data: resourceGroupsFromVSAN } = useQuery({
+    queryKey: ['getResourceGroupDataFromVSAN'],
+    queryFn: () => getResourceGroups(),
+  });
+  const [mask, setMask] = useState(0);
+  const [prefix, setPrefix] = useState();
+
+  const service_ip = Form.useWatch('service_ip', form);
+  const use_all = Form.useWatch('use_all', form);
+  const resource_group = Form.useWatch('resource_group', form);
+
+  const ipServiceOptions = React.useMemo(() => {
+    return ipPrefixes?.map((e) => ({
+      label: e.prefix,
+      value: e.prefix,
+      mask: e.mask,
+    }));
+  }, [ipPrefixes]);
+
+  useEffect(() => {
+    let maxVolumeSize = 0;
+    const selectedRG = resourceGroupsFromVSAN?.data?.find((e) => e.name === resource_group);
+    if (selectedRG) {
+      maxVolumeSize = selectedRG?.max_volume_size - clusterPrivateVolumeSizeKib;
+    }
+
+    if (use_all) {
+      form.setFieldValue('size', maxVolumeSize);
+    }
+  }, [form, resourceGroupsFromVSAN, resource_group, use_all]);
 
   const backToList = () => {
-    history.push('/gateway/NFS');
+    history.push('/vsan/nfs');
   };
 
   const createNFTMutation = useMutation({
@@ -38,19 +70,17 @@ const CreateNFSForm = () => {
         backToList();
       }, 300);
     },
-    onError: (err: { code: string; message: string }) => {
+    onError: (err) => {
       console.log(err);
-      let message = 'Create NFS Export failed';
-      if (err.message) {
-        message = err.message;
-      }
-      notify(message, {
+      notify('Create NFS Export failed', {
         type: 'error',
       });
     },
   });
 
   const onFinish = async (values: FormType) => {
+    const service_ip_str = prefix + service_ip + '/' + mask;
+
     const volumes = [
       {
         number: 1,
@@ -62,7 +92,7 @@ const CreateNFSForm = () => {
 
     const currentExport = {
       name: values.name,
-      service_ip: values.service_ip,
+      service_ip: service_ip_str,
       resource_group: values.resource_group,
       volumes,
       allowed_ips: values.allowed_ips || [],
@@ -126,8 +156,8 @@ const CreateNFSForm = () => {
         <Select
           allowClear
           placeholder="Please select resource group"
-          options={resourceGroupsFromLinstor?.map((e) => ({
-            label: `${e.name}`,
+          options={resourceGroupsFromVSAN?.data?.map((e) => ({
+            label: `${e.name} (${formatBytes(e.max_volume_size)} available)`,
             value: e.name,
           }))}
         />
@@ -145,15 +175,28 @@ const CreateNFSForm = () => {
         ]}
         tooltip="Must be valid service IP address, like 192.168.1.1/24, 10.10.1.1/24"
       >
-        <Input placeholder="192.168.1.1/24" />
+        <Space.Compact>
+          <Select
+            options={ipServiceOptions}
+            onChange={(val, option) => {
+              setPrefix(val);
+              setMask((option as any)?.mask as number);
+            }}
+          />
+          <Input placeholder="0.0" />
+        </Space.Compact>
       </Form.Item>
 
       <Form.Item name="size" label="Size" required>
-        <SizeInput />
+        {use_all ? <SizeInput disabled={use_all} /> : <SizeInput />}
+      </Form.Item>
+
+      <Form.Item name="use_all" valuePropName="checked" wrapperCol={{ offset: 6, span: 16 }}>
+        <Checkbox>Use all available</Checkbox>
       </Form.Item>
 
       <Form.Item name="export_path" label="Export Path" required>
-        <Input placeholder="Please input export path: /" />
+        <Input placeholder="/" />
       </Form.Item>
 
       <Form.Item
