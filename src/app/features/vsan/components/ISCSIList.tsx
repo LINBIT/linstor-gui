@@ -1,13 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
 import React from 'react';
-import { Table, Tag } from 'antd';
+import { Button, Space, Table, Tag } from 'antd';
 import type { TableProps } from 'antd';
 
-import { ERROR_COLOR, SUCCESS_COLOR } from '@app/config/color';
+import { ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
 
 import { ISCSITarget } from '../types';
 import { getISCSITarget } from '../api';
-import { REFETCH_INTERVAL } from '@app/config/time';
+import { REFETCH_INTERVAL } from '@app/const/time';
+import { CreateISCSIForm } from './CreateISCSIForm';
+import { formatBytes } from '@app/utils/size';
 
 interface DataType {
   iqn: string;
@@ -34,6 +36,20 @@ export const ISCSIList = () => {
       key: 'node',
     },
     {
+      title: 'Service IP',
+      dataIndex: 'service_ip',
+      key: 'service_ip',
+    },
+    {
+      title: 'Size',
+      dataIndex: 'size',
+      key: 'size',
+      render: (size) => {
+        console.log(size, 'size');
+        return <span>{formatBytes(size)}</span>;
+      },
+    },
+    {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
@@ -43,9 +59,22 @@ export const ISCSIList = () => {
       },
       align: 'center',
     },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (_, target) => {
+        return (
+          <Space>
+            <Button type="primary">Grow Volume</Button>
+            <Button danger>Delete</Button>
+          </Space>
+        );
+      },
+      align: 'center',
+    },
   ];
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ['getISCSITarget'],
     queryFn: () => getISCSITarget(),
     refetchInterval: REFETCH_INTERVAL,
@@ -65,6 +94,8 @@ export const ISCSIList = () => {
               lun: l.number,
               node: t?.status?.primary ?? '-',
               status: l.state,
+              service_ip: t.service_ips[0] ?? '',
+              size: t.volumes[1].size_kib,
             }));
 
           res.push(...temp);
@@ -76,13 +107,20 @@ export const ISCSIList = () => {
   };
 
   return (
-    <Table
-      bordered={false}
-      columns={columns}
-      dataSource={handleTargetData(data?.data) ?? []}
-      pagination={false}
-      size="small"
-      loading={isLoading}
-    />
+    <div>
+      <p>
+        Here, the new storage managed by LINSTOR can be exposed as an iSCSI target. This allows you to use the
+        replicated storage with an iSCSI initiator.
+      </p>
+
+      <div style={{ marginBottom: 10 }}>
+        <Button onClick={() => refetch()} style={{ marginRight: 10 }}>
+          Reload
+        </Button>
+        <CreateISCSIForm />
+      </div>
+
+      <Table bordered={false} columns={columns} dataSource={handleTargetData(data?.data) ?? []} loading={isLoading} />
+    </div>
   );
 };

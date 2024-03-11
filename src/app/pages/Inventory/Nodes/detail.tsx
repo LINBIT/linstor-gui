@@ -27,6 +27,8 @@ const isValidArray = (nodeRes) => {
 
 const DEFAULT_SP = 'DfltDisklessStorPool';
 
+// 
+
 const handleStorageData = (storagePool, node) => {
   const validData = storagePool?.filter((item) => item.storage_pool_name !== DEFAULT_SP);
 

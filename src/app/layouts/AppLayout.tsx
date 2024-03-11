@@ -18,7 +18,7 @@ import {
   PageHeaderToolsItem,
 } from '@patternfly/react-core';
 
-import { Avatar, Dropdown, Menu, MenuProps, Radio, RadioChangeEvent } from 'antd';
+import { Avatar, Dropdown, Menu, MenuProps } from 'antd';
 
 import SVG from 'react-inlinesvg';
 
@@ -35,16 +35,19 @@ import user from '@app/assets/user.svg';
 import './AppLayout.css';
 import isSvg from 'is-svg';
 import { ChangePassword, Login } from '@app/features/authentication';
-import { ImgIcon, ModeSelector } from './styled';
+import { ImgIcon } from './styled';
 import { useModeStorage, usePersistentMenuState } from '@app/hooks';
 import { useEffect, useState } from 'react';
 import {
   AppstoreOutlined,
   ContainerOutlined,
+  DeploymentUnitOutlined,
   DesktopOutlined,
   MailOutlined,
   PieChartOutlined,
 } from '@ant-design/icons';
+import { BRAND_COLOR } from '@app/const/color';
+import { VSAN_ADVANCED_MODE, VSAN_SIMPLE_MODE } from '@app/const/mode';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -84,11 +87,11 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const { mode, updateMode } = useModeStorage();
   const [selectedMenu, setSelectedMenu] = useState('/vsan/dashboard');
 
-  const onModeChange = (e: RadioChangeEvent) => {
-    updateMode(e.target.value);
+  const onModeChange = (mode) => {
+    updateMode(mode);
     setIsNavOpen(true);
 
-    if (e.target.value === 'VSAN') {
+    if (mode === VSAN_SIMPLE_MODE) {
       window.location.href = '/#/vsan/dashboard';
     } else {
       window.location.href = '/#';
@@ -157,14 +160,6 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
     <PageHeaderTools>
       <PageHeaderToolsGroup>
         <PageHeaderToolsItem>
-          <ModeSelector>
-            <Radio.Group value={mode} buttonStyle="solid" size="small" onChange={onModeChange}>
-              <Radio.Button value="VSAN">VSAN</Radio.Button>
-              <Radio.Button value="REGULAR">LINSTOR GUI</Radio.Button>
-            </Radio.Group>
-          </ModeSelector>
-        </PageHeaderToolsItem>
-        <PageHeaderToolsItem>
           <ConnectStatus />
         </PageHeaderToolsItem>
         <PageHeaderToolsItem>
@@ -188,13 +183,33 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
                       }}
                     >
                       <ImgIcon src={user} alt="user" />
-                      <span>{authInfo.username}</span>
+                      <span>User: {authInfo.username}</span>
                     </a>
                   ),
                 },
                 {
                   key: 'changepassword',
                   label: <ChangePassword />,
+                },
+                {
+                  key: 'changemode',
+                  label: (
+                    <a
+                      rel="noopener noreferrer"
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        onModeChange(mode === VSAN_SIMPLE_MODE ? VSAN_ADVANCED_MODE : VSAN_SIMPLE_MODE);
+                      }}
+                    >
+                      <DeploymentUnitOutlined
+                        rev={null}
+                        style={{ color: BRAND_COLOR, marginLeft: 2, marginRight: '1rem' }}
+                      />
+
+                      <span>Switch to {mode === VSAN_SIMPLE_MODE ? 'advanced' : 'simple'} mode</span>
+                    </a>
+                  ),
                 },
                 {
                   key: 'logout',
@@ -274,7 +289,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
       getItem(<a href="/#!/vsan/iscsi">iSCSI</a>, '/vsan/iscsi', <MailOutlined rev={null} />),
       getItem(<a href="/#!/vsan/nvmeof">NVMe-oF</a>, '/vsan/nvmeof', <AppstoreOutlined rev={null} />),
       getItem(<a href="/#!/vsan/nfs">NFS</a>, '/vsan/nfs', <AppstoreOutlined rev={null} />),
-      getItem('Users', 'users', <AppstoreOutlined rev={null} />),
+      getItem(<a href="/#!/vsan/users">Users</a>, '/vsan/users', <AppstoreOutlined rev={null} />),
       getItem('About', 'about', <AppstoreOutlined rev={null} />),
     ];
   }, []);
@@ -303,7 +318,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const Sidebar = (
     <PageSidebar
       theme="dark"
-      nav={mode === 'VSAN' ? VSANNavigation : Navigation}
+      nav={mode === VSAN_SIMPLE_MODE ? VSANNavigation : Navigation}
       isNavOpen={isMobileView ? isNavOpenMobile : isNavOpen}
     />
   );

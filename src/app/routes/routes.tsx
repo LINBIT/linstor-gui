@@ -48,6 +48,7 @@ import { Dashboard as VSANDashboard } from '@app/pages/VSAN/Dashboard';
 import { NVMeoF } from '@app/pages/VSAN/NVMeoF';
 import { NFS } from '@app/pages/VSAN/NFS';
 import { ISCSI } from '@app/pages/VSAN/ISCSI';
+import { VSAN_SIMPLE_MODE } from '@app/const/mode';
 
 let routeFocusTimer: number;
 
@@ -332,6 +333,11 @@ const vsanRoutes: IAppRoute[] = [
     title: 'VSAN | NFS',
   },
   {
+    component: UserManagement,
+    path: '/vsan/users',
+    title: 'VSAN | Users',
+  },
+  {
     component: NodeDetail,
     exact: true,
     path: '/vsan/nodes/:node',
@@ -344,7 +350,7 @@ const AppRoutes = (): React.ReactElement => {
   const { mode } = useModeStorage();
 
   useEffect(() => {
-    const VSAN_MODE = mode === 'VSAN';
+    const VSAN_MODE = mode === VSAN_SIMPLE_MODE;
 
     if (VSAN_MODE) {
       setDisplayedRoutes(vsanRoutes);

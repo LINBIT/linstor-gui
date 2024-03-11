@@ -2,17 +2,21 @@ import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import { getNFSExport } from '../api';
 
-import { Table, Tag } from 'antd';
+import { Button, Popconfirm, Space, Table, Tag } from 'antd';
 import type { TableProps } from 'antd';
 import { NFSExport } from '../types';
-import { ERROR_COLOR, SUCCESS_COLOR } from '@app/config/color';
-import { REFETCH_INTERVAL } from '@app/config/time';
+import { ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
+import { REFETCH_INTERVAL } from '@app/const/time';
+import { CreateISCSIForm } from './CreateISCSIForm';
+import { formatBytes } from '@app/utils/size';
 
 interface DataType {
   name: string;
   path: string;
   node: string;
   status: string;
+  service_ip: string;
+  size: number;
 }
 
 export const NFSExportList = () => {
@@ -36,6 +40,19 @@ export const NFSExportList = () => {
       key: 'node',
     },
     {
+      title: 'Service IP',
+      dataIndex: 'service_ip',
+      key: 'service_ip',
+    },
+    {
+      title: 'Size',
+      dataIndex: 'size',
+      key: 'size',
+      render: (size) => {
+        return <span>{formatBytes(size)}</span>;
+      },
+    },
+    {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
@@ -45,9 +62,32 @@ export const NFSExportList = () => {
       },
       align: 'center',
     },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (_, target) => {
+        return (
+          <Space>
+            <Button type="primary">Grow Volume</Button>
+            <Popconfirm
+              title="Delete the target"
+              description="Are you sure to delete this target?"
+              onConfirm={() => {
+                console.log('');
+              }}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button danger>Delete</Button>
+            </Popconfirm>
+          </Space>
+        );
+      },
+      align: 'center',
+    },
   ];
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ['getNFSExport'],
     queryFn: () => getNFSExport(),
     refetchInterval: REFETCH_INTERVAL,
@@ -70,6 +110,8 @@ export const NFSExportList = () => {
             path: exportPath(t),
             node: t.status ? t.status.primary : '-',
             status: l.state,
+            service_ip: t.service_ip,
+            size: t.volumes[1].size_kib,
           });
         }
       });
@@ -79,13 +121,15 @@ export const NFSExportList = () => {
   };
 
   return (
-    <Table
-      bordered={false}
-      columns={columns}
-      dataSource={handleTargetData(data?.data) ?? []}
-      pagination={false}
-      size="small"
-      loading={isLoading}
-    />
+    <div>
+      <p>This module allows exporting the highly available storage managed by LINSTOR via an NFS export.</p>
+      <div style={{ marginBottom: 10 }}>
+        <Button onClick={() => refetch()} style={{ marginRight: 10 }}>
+          Reload
+        </Button>
+        <CreateISCSIForm />
+      </div>
+      <Table bordered={false} columns={columns} dataSource={handleTargetData(data?.data) ?? []} loading={isLoading} />
+    </div>
   );
 };

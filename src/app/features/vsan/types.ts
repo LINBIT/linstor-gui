@@ -96,3 +96,8 @@ export interface NFSExport {
   gross_size: boolean;
   status?: NfsStatus;
 }
+
+export interface VSANError {
+  detail: string;
+  message: string;
+}

@@ -33,6 +33,10 @@ const getResourceGroups = () => {
   return service.get('/api/frontend/v1/linstor/resource-groups');
 };
 
+const deleteNVMeExport = (nqn: string) => {
+  return service.delete(`/api/frontend/v1/nvme/${nqn}`);
+};
+
 export {
   getNetWorkInterfaces,
   createNFSExport,
@@ -42,4 +46,5 @@ export {
   getNVMeoFTarget,
   getISCSITarget,
   getNFSExport,
+  deleteNVMeExport,
 };

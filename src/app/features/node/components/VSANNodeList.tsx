@@ -8,8 +8,8 @@ import { useHistory } from 'react-router-dom';
 import { compareIPv4 } from '@app/utils/ip';
 import { InfoCircleOutlined, SettingOutlined } from '@ant-design/icons';
 import { ActionContainer } from './styled';
-import { ERROR_COLOR, SUCCESS_COLOR } from '@app/config/color';
-import { REFETCH_INTERVAL } from '@app/config/time';
+import { ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
+import { REFETCH_INTERVAL } from '@app/const/time';
 
 interface DataType {
   hostname: string;
@@ -188,6 +188,9 @@ export const VSANNodeList = () => {
           <Space>
             <Button type="primary" onClick={() => goToDetailPage(record.hostname)}>
               View
+            </Button>
+            <Button type="default" disabled={!record.standby}>
+              Update
             </Button>
             <Button danger type="default" onClick={() => console.log(record.hostname)}>
               Delete

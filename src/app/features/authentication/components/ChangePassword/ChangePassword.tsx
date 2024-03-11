@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Form, Input, Modal, Radio } from 'antd';
+import { Button, Form, Input, Modal } from 'antd';
 
 import changePassword from '@app/assets/changepassword.svg';
 import changePasswordBG from '@app/assets/changepassword-bg.svg';
@@ -105,11 +105,11 @@ const ChangePassword = ({ admin, user }: ChangePasswordProps) => {
         }}
       >
         {admin ? (
-          <Button> Reset Password </Button>
+          <Button> Reset password </Button>
         ) : (
           <>
             <ImgIcon src={changePassword} alt="changepassword" />
-            <span>Change Password</span>
+            <span>Change password</span>
           </>
         )}
       </div>
