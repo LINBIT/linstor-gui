@@ -162,9 +162,13 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
         <PageHeaderToolsItem>
           <ConnectStatus />
         </PageHeaderToolsItem>
-        <PageHeaderToolsItem>
-          <HeaderAboutModal />
-        </PageHeaderToolsItem>
+
+        {mode !== VSAN_SIMPLE_MODE && (
+          <PageHeaderToolsItem>
+            <HeaderAboutModal />
+          </PageHeaderToolsItem>
+        )}
+
         <PageHeaderToolsItem>
           <LngSelector />
         </PageHeaderToolsItem>
@@ -207,7 +211,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
                         style={{ color: BRAND_COLOR, marginLeft: 2, marginRight: '1rem' }}
                       />
 
-                      <span>Switch to {mode === VSAN_SIMPLE_MODE ? 'advanced' : 'simple'} mode</span>
+                      <span>{mode === VSAN_SIMPLE_MODE ? 'Switch to advanced mode' : 'Leave advanced mode'}</span>
                     </a>
                   ),
                 },
@@ -284,13 +288,26 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const items: MenuItem[] = React.useMemo(() => {
     return [
       getItem(<a href="/#!/vsan/dashboard">Dashboard</a>, '/vsan/dashboard', <PieChartOutlined rev={null} />),
-      getItem('Physical Storage', '2', <DesktopOutlined rev={null} />),
-      getItem('Resource Group', '3', <ContainerOutlined rev={null} />),
+      getItem(
+        <a href="/#!/vsan/physical-storage">Physical Storage</a>,
+        '/vsan/physical-storage',
+        <DesktopOutlined rev={null} />
+      ),
+      getItem(
+        <a href="/#!/vsan/resource-groups">Resource Groups</a>,
+        '/vsan/resource-groups',
+        <ContainerOutlined rev={null} />
+      ),
       getItem(<a href="/#!/vsan/iscsi">iSCSI</a>, '/vsan/iscsi', <MailOutlined rev={null} />),
       getItem(<a href="/#!/vsan/nvmeof">NVMe-oF</a>, '/vsan/nvmeof', <AppstoreOutlined rev={null} />),
       getItem(<a href="/#!/vsan/nfs">NFS</a>, '/vsan/nfs', <AppstoreOutlined rev={null} />),
+      getItem(
+        <a href="/#!/vsan/error-reports">Error Reports</a>,
+        '/vsan/error-reports',
+        <AppstoreOutlined rev={null} />
+      ),
       getItem(<a href="/#!/vsan/users">Users</a>, '/vsan/users', <AppstoreOutlined rev={null} />),
-      getItem('About', 'about', <AppstoreOutlined rev={null} />),
+      getItem(<a href="/#!/vsan/about">About</a>, '/vsan/about', <AppstoreOutlined rev={null} />),
     ];
   }, []);
 

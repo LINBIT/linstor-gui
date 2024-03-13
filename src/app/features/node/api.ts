@@ -15,6 +15,13 @@ const getNodesFromVSAN = () => {
   return service.get('/api/frontend/v1/nodes');
 };
 
+// delete node from VSAN
+const deleteNodeFromVSAN = (node: string) => {
+  return service.delete(`/api/frontend/v1/nodes/${node}`);
+};
+
+const UPDATE_WITH_REBOOT_PATH = '/api/frontend/v1/system/update-with-reboot/';
+
 const setNodeStandBy = (hostname: string, standby: boolean) => {
   return service.post(`/api/frontend/v1/nodes/${hostname}/standby`, {
     standby,
@@ -68,4 +75,14 @@ const updateNetwork = ({
   });
 };
 
-export { getNodes, getNetworksByNode, createNode, updateNetwork, updateNode, getNodesFromVSAN, setNodeStandBy };
+export {
+  getNodes,
+  getNetworksByNode,
+  createNode,
+  updateNetwork,
+  updateNode,
+  getNodesFromVSAN,
+  setNodeStandBy,
+  deleteNodeFromVSAN,
+  UPDATE_WITH_REBOOT_PATH,
+};

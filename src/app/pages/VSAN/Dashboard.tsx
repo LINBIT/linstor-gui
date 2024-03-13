@@ -2,7 +2,7 @@ import React from 'react';
 import { Tabs, TabsProps } from 'antd';
 
 import PageBasic from '@app/components/PageBasic';
-import { VSANNodeList } from '@app/features/node';
+import { VSANNodeList } from '@app/features/vsan';
 import { ISCSIList, NVMeoFList, NFSExportList } from '@app/features/vsan';
 
 const items: TabsProps['items'] = [

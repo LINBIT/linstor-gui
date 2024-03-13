@@ -4,3 +4,6 @@ export { CreateNVMEOfForm } from './CreateNVMEOfForm';
 export { NVMeoFList } from './NVMeoFList';
 export { ISCSIList } from './ISCSIList';
 export { NFSExportList } from './NFSExportList';
+export { VSANNodeList } from './VSANNodeList';
+export { PhysicalStorageList } from './PhysicalStorageList';
+export { ResourceGroupList } from './ResourceGroupList';

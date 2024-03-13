@@ -49,6 +49,10 @@ import { NVMeoF } from '@app/pages/VSAN/NVMeoF';
 import { NFS } from '@app/pages/VSAN/NFS';
 import { ISCSI } from '@app/pages/VSAN/ISCSI';
 import { VSAN_SIMPLE_MODE } from '@app/const/mode';
+import { PhysicalStorage } from '@app/pages/VSAN/PhysicalStorage';
+import { About } from '@app/pages/VSAN/About';
+import { resourceGroup } from '@app/models/resourceGroup';
+import { ResourceGroup } from '@app/pages/VSAN/ResourceGroup';
 
 let routeFocusTimer: number;
 
@@ -341,7 +345,40 @@ const vsanRoutes: IAppRoute[] = [
     component: NodeDetail,
     exact: true,
     path: '/vsan/nodes/:node',
-    title: 'LINSTOR | VSAN | Nodes',
+    title: 'VSAN | Nodes',
+  },
+  {
+    component: PhysicalStorage,
+    exact: true,
+    path: '/vsan/physical-storage',
+    title: 'VSAN | Physical Storage',
+  },
+  {
+    component: ResourceGroup,
+    exact: true,
+    path: '/vsan/resource-groups',
+    title: 'VSAN | Resource Groups',
+  },
+  {
+    component: ErrorReportList,
+    exact: true,
+    isAsync: true,
+    label: 'error_reports',
+    path: '/vsan/error-reports',
+    title: 'VSAN | Error Reports',
+  },
+  {
+    component: ErrorReportDetail,
+    exact: true,
+    isAsync: true,
+    path: '/vsan/error-reports/:id',
+    title: 'VSAN | Error Report Detail',
+  },
+  {
+    component: About,
+    exact: true,
+    path: '/vsan/about',
+    title: 'VSAN | About',
   },
 ];
 

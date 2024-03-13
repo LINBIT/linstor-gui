@@ -1,5 +1,22 @@
 import service from '@app/requests';
-import { ISCSIResource, NFSResource, NVMEOFResource } from './types';
+import { ISCSIResource, NFSResource, NVMEOFResource, ResourceGroup } from './types';
+
+const getNodesFromVSAN = () => {
+  return service.get('/api/frontend/v1/nodes');
+};
+
+// delete node from VSAN
+const deleteNodeFromVSAN = (node: string) => {
+  return service.delete(`/api/frontend/v1/nodes/${node}`);
+};
+
+const UPDATE_WITH_REBOOT_PATH = '/api/frontend/v1/system/update-with-reboot/';
+
+const setNodeStandBy = (hostname: string, standby: boolean) => {
+  return service.post(`/api/frontend/v1/nodes/${hostname}/standby`, {
+    standby,
+  });
+};
 
 const getNVMeoFTarget = () => {
   return service.get('/api/frontend/v1/nvme');
@@ -37,6 +54,22 @@ const deleteNVMeExport = (nqn: string) => {
   return service.delete(`/api/frontend/v1/nvme/${nqn}`);
 };
 
+const getPhysicalStorage = () => {
+  return service.get('/api/frontend/v1/physical-storage');
+};
+
+const getStoragePool = () => {
+  return service.get('/api/frontend/v1/linstor/storage-pools');
+};
+
+const createResourceGroup = (data: ResourceGroup) => {
+  return service.post('/api/frontend/v1/linstor/resource-groups', data);
+};
+
+const deleteResourceGroup = (name: string) => {
+  return service.delete(`/api/frontend/v1/linstor/resource-groups/${name}`);
+};
+
 export {
   getNetWorkInterfaces,
   createNFSExport,
@@ -47,4 +80,12 @@ export {
   getISCSITarget,
   getNFSExport,
   deleteNVMeExport,
+  getNodesFromVSAN,
+  deleteNodeFromVSAN,
+  setNodeStandBy,
+  UPDATE_WITH_REBOOT_PATH,
+  getPhysicalStorage,
+  getStoragePool,
+  createResourceGroup,
+  deleteResourceGroup,
 };

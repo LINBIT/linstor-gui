@@ -16,31 +16,37 @@ module.exports = merge(common('development'), {
   mode: 'development',
   devtool: 'eval-source-map',
   devServer: {
-    contentBase: './dist',
+    allowedHosts: 'all',
     host: HOST,
     port: PORT,
-    compress: true,
-    inline: true,
-    historyApiFallback: true,
-    overlay: true,
-    open: true,
-    proxy: {
-      '/v1': {
+    proxy: [
+      {
+        context: ['/v1'],
         target: API_HOST,
       },
-      '/metrics': {
+      {
+        context: ['/metrics'],
         target: API_HOST,
       },
-      '/api/v2': {
+      {
+        context: ['/api/v2'],
         target: GATEWAY_API_HOST,
         changeOrigin: true,
       },
-      '/api/frontend/v1': {
+      {
+        context: ['/api/frontend/v1'],
         target: VSAN_API_HOST,
         secure: false,
         changeOrigin: true,
       },
-    },
+      {
+        context: [`ws://${HOST}:${PORT}/api/frontend/v1/system/update-with-reboot`],
+        target: `${VSAN_API_HOST.replace('https', 'wss')}/api/frontend/v1/system/update-with-reboot`,
+        ws: true,
+        changeOrigin: true,
+        secure: false,
+      },
+    ],
   },
   module: {
     rules: [

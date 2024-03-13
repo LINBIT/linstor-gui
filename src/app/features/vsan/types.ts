@@ -101,3 +101,19 @@ export interface VSANError {
   detail: string;
   message: string;
 }
+
+export interface DiskNode {
+  device: string;
+}
+
+export interface Disk {
+  size: number;
+  rotational: boolean;
+  nodes: Record<string, DiskNode[]>;
+}
+
+export interface ResourceGroup {
+  name: string;
+  placeCount: number;
+  poolName: string | null;
+}

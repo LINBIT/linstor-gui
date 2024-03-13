@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Table, Tag, Switch, Button, Popover, Space, Modal, InputNumber } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { getNodesFromVSAN, setNodeStandBy } from '../api';
@@ -31,12 +31,64 @@ export const VSANNodeList = () => {
     refetchInterval: REFETCH_INTERVAL,
   });
 
+  const [nodesWithProgressInfo, setNodesWithProgressInfo] = useState(nodesFromVSAN.data?.data);
+
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [showStandbyWarning, setShowStandbyWarning] = useState(false);
   const [standbyHost, setStandbyHost] = useState<{ hostname: string; checked: boolean }>({
     hostname: '',
     checked: false,
   });
+
+  useEffect(() => {
+    if (nodesFromVSAN.data?.data) {
+      setNodesWithProgressInfo(nodesFromVSAN.data?.data);
+    }
+  }, [nodesFromVSAN.data?.data]);
+
+  //   const downloading = {
+  //     "type": "Downloading",
+  //     "packageName": "kernel-modules-5.14.0-362.18.1.el9_3.x",
+  //     "number": 23,
+  //     "of": 77
+  // };
+
+  // const installing = {
+  //   "type": "Installing",
+  //   "packageName": "openssh-clients-8.7p1-34.el9_3.3.x86_64",
+  //   "number": 70,
+  //   "of": 144
+  // }
+
+  const upgradeNode = (nodeName: string) => {
+    const socket = new WebSocket(
+      location.origin.replace(/^http/, 'ws') + '/api/frontend/v1/system/update-with-reboot/' + nodeName
+    );
+
+    const nodes = nodesWithProgressInfo;
+
+    const nodeIdx = nodesWithProgressInfo?.findIndex((n) => n.hostname === nodeName);
+
+    socket.addEventListener('message', (event) => {
+      console.log('Message from server ', event.data);
+      const progress = JSON.parse(event.data);
+
+      nodes[nodeIdx].upgradeProgress = { maxSteps: progress.of, curStep: progress.number, label: progress.type };
+      setNodesWithProgressInfo(nodes);
+    });
+
+    socket.addEventListener('close', () => {
+      console.log('Update finished for node: ' + nodeName);
+
+      nodes[nodeIdx].upgradeProgress = { maxSteps: 10, curStep: 0, label: 'rebooting' };
+      setNodesWithProgressInfo(nodes);
+
+      // maybe shows red dot, because of reboot, until there was no package to update
+      setTimeout(() => {
+        nodesFromVSAN.refetch();
+      }, 2000);
+    });
+  };
 
   const standByMutation = useMutation({
     mutationFn: ({ hostname, status }: { hostname: string; status: boolean }) => {
@@ -189,10 +241,10 @@ export const VSANNodeList = () => {
             <Button type="primary" onClick={() => goToDetailPage(record.hostname)}>
               View
             </Button>
-            <Button type="default" disabled={!record.standby}>
+            <Button type="default" disabled={!record.standby} onClick={() => upgradeNode(record.hostname)}>
               Update
             </Button>
-            <Button danger type="default" onClick={() => console.log(record.hostname)}>
+            <Button danger type="default">
               Delete
             </Button>
           </Space>
@@ -236,7 +288,7 @@ export const VSANNodeList = () => {
 
       <Table
         columns={columns}
-        dataSource={nodesFromVSAN.data?.data}
+        dataSource={nodesWithProgressInfo ?? []}
         rowSelection={rowSelection}
         loading={nodesFromVSAN.isLoading}
       />
