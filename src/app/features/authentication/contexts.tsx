@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { UserAuthAPI } from './api';
+import { USER_LOCAL_STORAGE_KEY } from '@app/const/settings';
 
 interface UserAuth {
   username: string;
@@ -44,7 +45,7 @@ const UserAuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
 
   useEffect(() => {
     const checkLoggedIn = async () => {
-      const username = localStorage.getItem('linstorname');
+      const username = localStorage.getItem(USER_LOCAL_STORAGE_KEY);
       if (username) {
         setAuthState({ isLoggedIn: true, username });
       } else {
@@ -65,21 +66,21 @@ const UserAuthProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     const success = await authAPI.login(user);
     if (success) {
       setAuthState({ isLoggedIn: true, username: user.username });
-      localStorage.setItem('linstorname', user.username);
+      localStorage.setItem(USER_LOCAL_STORAGE_KEY, user.username);
     }
     return success;
   };
 
   const logout = (): void => {
     setAuthState({ isLoggedIn: false, username: null });
-    localStorage.removeItem('linstorname');
+    localStorage.removeItem(USER_LOCAL_STORAGE_KEY);
   };
 
   const deleteUser = async (username: string): Promise<void> => {
     await authAPI.deleteUser(username);
     if (authState.username === username) {
       setAuthState({ isLoggedIn: false, username: null });
-      localStorage.removeItem('linstorname');
+      localStorage.removeItem(USER_LOCAL_STORAGE_KEY);
     }
   };
 

@@ -65,11 +65,6 @@ service.interceptors.response.use(
     const res = response.data;
     if (statsCode !== 200 && statsCode !== 201) {
       const errorMsg = handleError(statsCode, res);
-      // Message({
-      //   message: errorMsg,
-      //   type: 'error',
-      //   duration: 5 * 1000
-      // })
       return Promise.reject(new Error(errorMsg));
     } else {
       // normal case
@@ -77,11 +72,6 @@ service.interceptors.response.use(
     }
   },
   (error) => {
-    try {
-      console.log(error, 'error');
-    } catch (e) {
-      console.error(e);
-    }
     return Promise.reject(error?.response?.data ?? error);
   }
 );

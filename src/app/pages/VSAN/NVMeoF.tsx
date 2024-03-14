@@ -6,7 +6,7 @@ import { NVMeoFList } from '@app/features/vsan';
 export const NVMeoF = () => {
   return (
     <PageBasic title="NVMe-oF Target Configuration">
-      <NVMeoFList />
+      <NVMeoFList complex />
     </PageBasic>
   );
 };

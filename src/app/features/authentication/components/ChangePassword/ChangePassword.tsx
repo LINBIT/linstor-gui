@@ -6,6 +6,7 @@ import changePasswordBG from '@app/assets/changepassword-bg.svg';
 import { BGImg, Content, ImgIcon, MainSection } from './styled';
 import { Dispatch } from '@app/store';
 import { useDispatch } from 'react-redux';
+import { USER_LOCAL_STORAGE_KEY } from '@app/const/settings';
 
 interface Values {
   title: string;
@@ -88,7 +89,7 @@ const ChangePassword = ({ admin, user }: ChangePasswordProps) => {
       dispatch.auth.resetPassword({ user: user, newPassword: values.newPassword });
     } else {
       dispatch.auth.changePassword({
-        user: localStorage.getItem('linstorname'),
+        user: localStorage.getItem(USER_LOCAL_STORAGE_KEY),
         newPassword: values.newPassword,
         oldPassword: values.currentPassword,
       });

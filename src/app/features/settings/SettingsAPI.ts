@@ -17,16 +17,21 @@ export class SettingsAPI {
     return response.includes(this.instance);
   }
 
-  public static async init(): Promise<void> {
+  public static async init(vsanMode: boolean): Promise<void> {
+    const props: SettingsProps = {
+      gatewayEnabled: false,
+      dashboardEnabled: false,
+      gatewayCustomHost: false,
+      vsanMode: false,
+      dashboardURL: '',
+      authenticationEnabled: false,
+    };
+
+    if (vsanMode) {
+      props.vsanMode = true;
+    }
+
     if (!(await kvStore.instanceExists(SettingsAPI.instance))) {
-      const props: SettingsProps = {
-        gatewayEnabled: false,
-        dashboardEnabled: false,
-        gatewayCustomHost: false,
-        vsanMode: false,
-        dashboardURL: '',
-        authenticationEnabled: true,
-      };
       const propsAsString: { [key: string]: string } = {};
       for (const [key, value] of Object.entries(props)) {
         propsAsString[key] = value?.toString() ?? '';
@@ -39,19 +44,10 @@ export class SettingsAPI {
         },
         delete_props: [],
       });
+    }
 
-      // TODO: create users instance
-      await kvStore.create('users', {
-        override_props: {
-          __updated__: new Date().toISOString(),
-        },
-      });
-
-      // TODO: create super admin
-      await authAPI.register({
-        username: 'admin',
-        password: 'admin',
-      });
+    if (!(await kvStore.instanceExists(authAPI.usersInstance))) {
+      authAPI.initUserStore();
     }
   }
 
@@ -81,8 +77,8 @@ export class SettingsAPI {
     return props;
   }
 
-  public async setProps(props: Partial<SettingsProps>): Promise<void> {
-    const storeProps: { override_props: Record<string, string>; delete_props: string[] } = {
+  public async setProps(props: Partial<SettingsProps>): Promise<boolean> {
+    const storeProps: { override_props: Record<string, string | undefined>; delete_props: string[] } = {
       override_props: {},
       delete_props: [],
     };
@@ -114,7 +110,9 @@ export class SettingsAPI {
 
     const response = await this.store.modify(SettingsAPI.instance, storeProps);
     if (!response.every((e) => e.ret_code > 0)) {
-      throw new Error(`Failed to set properties of key value store ${SettingsAPI.instance}`);
+      return false;
+    } else {
+      return true;
     }
   }
 

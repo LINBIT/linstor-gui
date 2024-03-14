@@ -7,9 +7,10 @@ type SizeInputProps = {
   onChange?: (value: number) => void;
   placeholder?: string;
   disabled?: boolean;
+  defaultUnit?: string;
 };
 
-export const SizeInput = ({ value, onChange, placeholder, disabled }: SizeInputProps) => {
+export const SizeInput = ({ value, onChange, placeholder, disabled, defaultUnit }: SizeInputProps) => {
   const [sizeUnit, setSizeUnit] = useState('GiB');
   const [inputVal, setInputVal] = useState(value || '');
 
@@ -25,7 +26,11 @@ export const SizeInput = ({ value, onChange, placeholder, disabled }: SizeInputP
       setSizeUnit('KiB');
       setInputVal(value ?? 0);
     }
-  }, [value, disabled]);
+
+    if (defaultUnit) {
+      setSizeUnit(defaultUnit);
+    }
+  }, [value, disabled, defaultUnit]);
 
   return (
     <Input

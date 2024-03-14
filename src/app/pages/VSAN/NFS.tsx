@@ -6,7 +6,7 @@ import { NFSExportList } from '@app/features/vsan';
 export const NFS = () => {
   return (
     <PageBasic title="NFS Export Configuration">
-      <NFSExportList />
+      <NFSExportList complex />
     </PageBasic>
   );
 };

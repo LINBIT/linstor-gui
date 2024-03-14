@@ -10,6 +10,7 @@ import { REFETCH_INTERVAL } from '@app/const/time';
 import { CreateNVMEOfForm } from './CreateNVMEOfForm';
 import { formatBytes } from '@app/utils/size';
 import { notify } from '@app/utils/toast';
+import { GrowVolume } from './GrowVolume';
 
 interface DataType {
   nqn: string;
@@ -18,9 +19,14 @@ interface DataType {
   status: string;
   service_ip: string;
   size: number;
+  resource_group: string;
 }
 
-export const NVMeoFList = () => {
+type NVMeoFListProp = {
+  complex?: boolean;
+};
+
+export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['getNVMeoFTarget'],
     queryFn: () => getNVMeoFTarget(),
@@ -76,19 +82,21 @@ export const NVMeoFList = () => {
       },
       align: 'center',
     },
-    {
+  ];
+
+  if (complex) {
+    columns.push({
       title: 'Action',
       key: 'action',
       render: (_, target) => {
+        const names = target.nqn.split(':');
+        const resourceName = names[names.length - 1];
         return (
           <Space>
-            <Button type="primary">Grow Volume</Button>
+            <GrowVolume resource={resourceName} resource_group={target.resource_group} current_kib={target.size} />
             <Popconfirm
-              title="Delete the target"
-              description="Are you sure to delete this target?"
-              onConfirm={() => {
-                deleteTarget.mutate(target.nqn);
-              }}
+              title="Are you sure to delete this target?"
+              onConfirm={() => deleteTarget.mutate(target.nqn)}
               okText="Yes"
               cancelText="No"
             >
@@ -98,8 +106,8 @@ export const NVMeoFList = () => {
         );
       },
       align: 'center',
-    },
-  ];
+    });
+  }
 
   const handleTargetData = (data: NVMeTarget[]): DataType[] => {
     const res: DataType[] = [];
@@ -117,6 +125,7 @@ export const NVMeoFList = () => {
               status: l.state,
               service_ip: t.service_ip,
               size: t.volumes[1].size_kib,
+              resource_group: t.resource_group,
             }));
 
           res.push(...temp);
@@ -129,14 +138,24 @@ export const NVMeoFList = () => {
 
   return (
     <div>
-      <p>This module allows exporting the highly available storage managed by LINSTOR via NVMe-oF.</p>
-      <div style={{ marginBottom: 10 }}>
-        <Button onClick={() => refetch()} style={{ marginRight: 10 }}>
-          Reload
-        </Button>
-        <CreateNVMEOfForm />
-      </div>
-      <Table bordered={false} columns={columns} dataSource={handleTargetData(data?.data) ?? []} loading={isLoading} />
+      {complex && (
+        <>
+          <p>This module allows exporting the highly available storage managed by LINSTOR via NVMe-oF.</p>
+          <div style={{ marginBottom: 10 }}>
+            <Button onClick={() => refetch()} style={{ marginRight: 10 }}>
+              Reload
+            </Button>
+            <CreateNVMEOfForm />
+          </div>
+        </>
+      )}
+      <Table
+        bordered={false}
+        columns={columns}
+        dataSource={handleTargetData(data?.data) ?? []}
+        loading={isLoading}
+        pagination={false}
+      />
     </div>
   );
 };

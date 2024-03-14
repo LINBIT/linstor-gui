@@ -113,7 +113,11 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onCreate, onCance
   );
 };
 
-const CreateUser: React.FC = () => {
+type CreateUserProp = {
+  disabled?: boolean;
+};
+
+const CreateUser = ({ disabled }: CreateUserProp) => {
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch<Dispatch>();
 
@@ -130,7 +134,9 @@ const CreateUser: React.FC = () => {
           setOpen(true);
         }}
       >
-        <Button type="primary">Add an user</Button>
+        <Button type="primary" disabled={disabled}>
+          Add an user
+        </Button>
       </div>
       <CreateUserForm
         open={open}

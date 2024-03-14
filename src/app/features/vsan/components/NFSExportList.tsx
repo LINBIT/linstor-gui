@@ -9,6 +9,7 @@ import { ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
 import { REFETCH_INTERVAL } from '@app/const/time';
 import { CreateISCSIForm } from './CreateISCSIForm';
 import { formatBytes } from '@app/utils/size';
+import { GrowVolume } from './GrowVolume';
 
 interface DataType {
   name: string;
@@ -17,9 +18,14 @@ interface DataType {
   status: string;
   service_ip: string;
   size: number;
+  resource_group: string;
 }
 
-export const NFSExportList = () => {
+type NFSExportListProp = {
+  complex?: boolean;
+};
+
+export const NFSExportList = ({ complex }: NFSExportListProp) => {
   const columns: TableProps<DataType>['columns'] = [
     {
       title: 'Name',
@@ -62,13 +68,16 @@ export const NFSExportList = () => {
       },
       align: 'center',
     },
-    {
+  ];
+
+  if (complex) {
+    columns.push({
       title: 'Action',
       key: 'action',
       render: (_, target) => {
         return (
           <Space>
-            <Button type="primary">Grow Volume</Button>
+            <GrowVolume resource={target.name} resource_group={target.resource_group} current_kib={target.size} />
             <Popconfirm
               title="Delete the target"
               description="Are you sure to delete this target?"
@@ -84,8 +93,8 @@ export const NFSExportList = () => {
         );
       },
       align: 'center',
-    },
-  ];
+    });
+  }
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['getNFSExport'],
@@ -112,6 +121,7 @@ export const NFSExportList = () => {
             status: l.state,
             service_ip: t.service_ip,
             size: t.volumes[1].size_kib,
+            resource_group: t.resource_group,
           });
         }
       });
@@ -122,14 +132,24 @@ export const NFSExportList = () => {
 
   return (
     <div>
-      <p>This module allows exporting the highly available storage managed by LINSTOR via an NFS export.</p>
-      <div style={{ marginBottom: 10 }}>
-        <Button onClick={() => refetch()} style={{ marginRight: 10 }}>
-          Reload
-        </Button>
-        <CreateISCSIForm />
-      </div>
-      <Table bordered={false} columns={columns} dataSource={handleTargetData(data?.data) ?? []} loading={isLoading} />
+      {complex && (
+        <>
+          <p>This module allows exporting the highly available storage managed by LINSTOR via an NFS export.</p>
+          <div style={{ marginBottom: 10 }}>
+            <Button onClick={() => refetch()} style={{ marginRight: 10 }}>
+              Reload
+            </Button>
+            <CreateISCSIForm />
+          </div>
+        </>
+      )}
+      <Table
+        bordered={false}
+        columns={columns}
+        dataSource={handleTargetData(data?.data) ?? []}
+        loading={isLoading}
+        pagination={false}
+      />
     </div>
   );
 };

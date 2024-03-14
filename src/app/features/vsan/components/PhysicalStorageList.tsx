@@ -1,14 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import React from 'react';
-import { getPhysicalStorage, getStoragePool } from '../api';
+import { getStoragePool } from '../api';
 
 import { Button, Table } from 'antd';
 import type { TableProps } from 'antd';
 import { REFETCH_INTERVAL } from '@app/const/time';
 import { formatBytes } from '@app/utils/size';
 import { DEFAULT_SP } from '@app/const/type';
-import Create from '@app/pages/SoftwareDefined/ResourceDefinitions/create';
-import { CreateResourceGroupFrom } from '@app/features/resourceGroup';
 
 interface DataType {
   name: string;
@@ -36,6 +34,7 @@ export const PhysicalStorageList = () => {
       dataIndex: 'providerKind',
       key: 'providerKind',
     },
+    Table.EXPAND_COLUMN,
     {
       title: 'Deployed on Nodes',
       dataIndex: 'capacities',
@@ -47,7 +46,7 @@ export const PhysicalStorageList = () => {
             {nodes.map((node) => {
               return (
                 <span key={node}>
-                  {node}: {formatBytes(capacities[node])} &nbsp;
+                  {node}: {formatBytes(capacities[node])} &nbsp; &nbsp;
                 </span>
               );
             })}
@@ -69,6 +68,23 @@ export const PhysicalStorageList = () => {
         columns={columns}
         dataSource={data?.data?.filter((item) => item.name !== DEFAULT_SP) ?? []}
         loading={isLoading}
+        expandable={{
+          expandedRowRender: (record) => {
+            const nodes = Object.keys(record?.capacities) ?? [];
+            return (
+              <p style={{ margin: 0 }}>
+                {nodes.map((node) => {
+                  return (
+                    <div key={node}>
+                      {node}: {formatBytes(record?.capacities[node])}
+                    </div>
+                  );
+                })}
+              </p>
+            );
+          },
+        }}
+        pagination={false}
       />
     </div>
   );

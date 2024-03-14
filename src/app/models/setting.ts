@@ -47,6 +47,12 @@ export const setting = createModel<RootModel>()({
         },
       };
     },
+    setVSANMode(state, payload: boolean) {
+      return {
+        ...state,
+        vsanMode: payload,
+      };
+    },
     setInitialized(state, payload: boolean) {
       return {
         ...state,
@@ -69,15 +75,21 @@ export const setting = createModel<RootModel>()({
       }
     },
 
-    async initSettingStore() {
+    async initSettingStore(vsanMode: boolean) {
       const res = await SettingsAPI.instanceExists();
-      dispatch.setting.setInitialized(res);
 
       if (res) {
+        if (vsanMode) {
+          await settingAPI.setProps({
+            vsanMode: true,
+          });
+        }
         await dispatch.setting.getSettings();
       } else {
-        await SettingsAPI.init();
+        await SettingsAPI.init(vsanMode);
       }
+
+      dispatch.setting.setInitialized(res);
     },
 
     async getSettings() {
@@ -88,6 +100,10 @@ export const setting = createModel<RootModel>()({
         dispatch.setting.setSettings(props);
 
         if (props.vsanMode) {
+          const gui_mode = localStorage.getItem('__gui_mode');
+          if (gui_mode === 'VSAN') {
+            dispatch.setting.setVSANMode(true);
+          }
           window.localStorage.setItem(VSAN_HOST, 'https://' + window.location.hostname);
         }
 
@@ -169,22 +185,11 @@ export const setting = createModel<RootModel>()({
         });
       }
     },
-
-    async setVSANMode() {
-      await dispatch.setting.saveKey({
-        vsanMode: true,
-        gatewayEnabled: true,
-        gatewayHost: defaultGatewayHost,
-        gatewayCustomHost: true,
-      });
-      // reload page and remove search params
-      window.history.replaceState({}, document.title, window.location.pathname);
-    },
-
     async exitVSANMode() {
       await dispatch.setting.saveKey({
         vsanMode: false,
       });
+      dispatch.setting.setVSANMode(false);
       // reload page and remove search params
       window.location.reload();
     },

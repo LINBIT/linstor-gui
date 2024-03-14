@@ -10,7 +10,7 @@ import { notify } from '@app/utils/toast';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { formatBytes } from '@app/utils/size';
 import { clusterPrivateVolumeSizeKib } from '../const';
-import { NFSResource, VSANError } from '../types';
+import { VSANError } from '../types';
 
 type FormType = {
   name: string;
@@ -23,7 +23,6 @@ type FormType = {
 };
 
 const CreateNFSForm = () => {
-  const history = useHistory();
   const [form] = Form.useForm<FormType>();
   const { data: ipPrefixes } = useNodeNetWorkInterface();
   const [createFormModal, setCreateFormModal] = useState(false);

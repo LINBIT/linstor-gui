@@ -10,15 +10,21 @@ import { getISCSITarget } from '../api';
 import { REFETCH_INTERVAL } from '@app/const/time';
 import { CreateISCSIForm } from './CreateISCSIForm';
 import { formatBytes } from '@app/utils/size';
-
+import { GrowVolume } from './GrowVolume';
 interface DataType {
   iqn: string;
   lun: number;
   node: string;
   status: string;
+  resource_group: string;
+  size: number;
 }
 
-export const ISCSIList = () => {
+type ISCSIListProp = {
+  complex?: boolean;
+};
+
+export const ISCSIList = ({ complex }: ISCSIListProp) => {
   const columns: TableProps<DataType>['columns'] = [
     {
       title: 'IQN',
@@ -45,7 +51,6 @@ export const ISCSIList = () => {
       dataIndex: 'size',
       key: 'size',
       render: (size) => {
-        console.log(size, 'size');
         return <span>{formatBytes(size)}</span>;
       },
     },
@@ -59,20 +64,27 @@ export const ISCSIList = () => {
       },
       align: 'center',
     },
-    {
+  ];
+
+  if (complex) {
+    columns.push({
       title: 'Action',
       key: 'action',
       render: (_, target) => {
         return (
           <Space>
-            <Button type="primary">Grow Volume</Button>
+            <GrowVolume
+              resource_group={target.resource_group}
+              current_kib={target.size}
+              resource={target.iqn.split(':')[1]}
+            />
             <Button danger>Delete</Button>
           </Space>
         );
       },
       align: 'center',
-    },
-  ];
+    });
+  }
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['getISCSITarget'],
@@ -96,6 +108,7 @@ export const ISCSIList = () => {
               status: l.state,
               service_ip: t.service_ips[0] ?? '',
               size: t.volumes[1].size_kib,
+              resource_group: t.resource_group,
             }));
 
           res.push(...temp);
@@ -108,19 +121,29 @@ export const ISCSIList = () => {
 
   return (
     <div>
-      <p>
-        Here, the new storage managed by LINSTOR can be exposed as an iSCSI target. This allows you to use the
-        replicated storage with an iSCSI initiator.
-      </p>
+      {complex && (
+        <>
+          <p>
+            Here, the new storage managed by LINSTOR can be exposed as an iSCSI target. This allows you to use the
+            replicated storage with an iSCSI initiator.
+          </p>
 
-      <div style={{ marginBottom: 10 }}>
-        <Button onClick={() => refetch()} style={{ marginRight: 10 }}>
-          Reload
-        </Button>
-        <CreateISCSIForm />
-      </div>
+          <div style={{ marginBottom: 10 }}>
+            <Button onClick={() => refetch()} style={{ marginRight: 10 }}>
+              Reload
+            </Button>
+            <CreateISCSIForm />
+          </div>
+        </>
+      )}
 
-      <Table bordered={false} columns={columns} dataSource={handleTargetData(data?.data) ?? []} loading={isLoading} />
+      <Table
+        bordered={false}
+        columns={columns}
+        dataSource={handleTargetData(data?.data) ?? []}
+        loading={isLoading}
+        pagination={false}
+      />
     </div>
   );
 };

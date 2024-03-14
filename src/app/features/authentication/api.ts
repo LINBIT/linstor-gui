@@ -1,3 +1,4 @@
+import { USER_LOCAL_STORAGE_KEY } from '@app/const/settings';
 import { KeyValueStoreType, kvStore } from '@app/features/keyValueStore';
 import CryptoJS from 'crypto-js';
 
@@ -8,7 +9,7 @@ export interface UserAuth {
 
 export class UserAuthAPI {
   private store: KeyValueStoreType;
-  private usersInstance = 'users';
+  public usersInstance = 'users';
   private key;
   private iv;
 
@@ -36,7 +37,7 @@ export class UserAuthAPI {
     const decryptedPassword = await this.decrypt(encryptedPassword);
     const success = decryptedPassword === user.password;
     if (success) {
-      localStorage.setItem('linstorname', user.username);
+      localStorage.setItem(USER_LOCAL_STORAGE_KEY, user.username);
     }
     return success;
   }
@@ -126,6 +127,30 @@ export class UserAuthAPI {
   public async getUsers(): Promise<string[]> {
     const users = await this.store.listKeys(this.usersInstance);
     return users;
+  }
+
+  public logout() {
+    localStorage.removeItem(USER_LOCAL_STORAGE_KEY);
+  }
+
+  public getCurrentUser(): string | null {
+    return localStorage.getItem(USER_LOCAL_STORAGE_KEY);
+  }
+
+  public isLoggedIn(): boolean {
+    return !!this.getCurrentUser();
+  }
+
+  public initUserStore() {
+    this.store
+      .create(this.usersInstance, {
+        override_props: {
+          __updated__: new Date().toISOString(),
+        },
+      })
+      .then(() => {
+        this.register({ username: 'admin', password: 'admin' });
+      });
   }
 }
 

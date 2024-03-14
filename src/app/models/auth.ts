@@ -1,6 +1,7 @@
 import { createModel } from '@rematch/core';
 import { RootModel } from '.';
 import { authAPI } from '@app/features/authentication';
+import { USER_LOCAL_STORAGE_KEY } from '@app/const/settings';
 
 interface UserAuth {
   username: string;
@@ -61,14 +62,14 @@ export const auth = createModel<RootModel>()({
             dispatch.auth.setNeedsPasswordChange(true);
           }
         }
-        localStorage.setItem('linstorname', user.username);
+        localStorage.setItem(USER_LOCAL_STORAGE_KEY, user.username);
       }
       return success;
     },
     logout() {
       dispatch.auth.setLoggedIn(false);
       dispatch.auth.setUsername(null);
-      localStorage.removeItem('linstorname');
+      localStorage.removeItem(USER_LOCAL_STORAGE_KEY);
     },
     async deleteUser(username: string, state) {
       await authAPI.deleteUser(username);
@@ -76,7 +77,7 @@ export const auth = createModel<RootModel>()({
       if (current.username === username) {
         dispatch.auth.setLoggedIn(false);
         dispatch.auth.setUsername(null);
-        localStorage.removeItem('linstorname');
+        localStorage.removeItem(USER_LOCAL_STORAGE_KEY);
       }
       dispatch.auth.getUsers();
     },
@@ -94,7 +95,7 @@ export const auth = createModel<RootModel>()({
     },
 
     async checkLoginStatus() {
-      const username = localStorage.getItem('linstorname');
+      const username = localStorage.getItem(USER_LOCAL_STORAGE_KEY);
       if (username) {
         dispatch.auth.setLoggedIn(true);
         dispatch.auth.setUsername(username);

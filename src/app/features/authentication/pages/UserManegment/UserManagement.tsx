@@ -1,42 +1,86 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PageBasic from '@app/components/PageBasic';
 import { Dispatch, RootState } from '@app/store';
 import { useDispatch, useSelector } from 'react-redux';
-import { Avatar, Button, Form, Input, List, Popconfirm } from 'antd';
-import { UserFormType } from '../../types';
-import { notify } from '@app/utils/toast';
+import { Avatar, Button, List, Popconfirm, Switch, Divider } from 'antd';
 import bg from '@app/assets/user_bg.svg';
 import { MainContent, StyledSection } from './styled';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { ChangePassword, CreateUser } from '../../components';
+import { settingAPI } from '@app/features/settings';
+import { notify } from '@app/utils/toast';
+import { useMutation } from '@tanstack/react-query';
 
 export const UserManagement = () => {
   const dispatch = useDispatch<Dispatch>();
-  const { users } = useSelector((state: RootState) => ({
+  const { users, KVS } = useSelector((state: RootState) => ({
     users: state.auth.users,
+    KVS: state.setting.KVS,
   }));
 
-  useEffect(() => {
-    dispatch.auth.getUsers();
-  }, [dispatch.auth]);
-
-  const onFinish = async (values: UserFormType) => {
-    const res = await dispatch.auth.register({ username: values.username, password: values.password });
-    if (res) {
-      notify('User added', {
+  const toggleMutation = useMutation({
+    mutationFn: (enable: boolean) => {
+      return settingAPI.setProps({
+        authenticationEnabled: enable,
+      });
+    },
+    onError: (error, newProps, context) => {
+      console.log(error);
+      notify('Failed to update the authentication status', { type: 'error' });
+    },
+    onSuccess: (data, newProps, context) => {
+      notify('Authentication is now ' + (newProps ? 'enabled' : 'disabled') + ' successfully', {
         type: 'success',
       });
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+    },
+  });
+
+  const [checked, setChecked] = useState(false);
+
+  const authenticationEnabled = KVS?.authenticationEnabled;
+
+  useEffect(() => {
+    if (authenticationEnabled) {
+      dispatch.auth.getUsers();
     }
+  }, [dispatch.auth, authenticationEnabled]);
+
+  const handleToggleEnableAuthentication = (checked: boolean) => {
+    setChecked(checked);
+    toggleMutation.mutate(checked);
   };
+
+  useEffect(() => {
+    setChecked(Boolean(authenticationEnabled));
+  }, [authenticationEnabled]);
 
   return (
     <PageBasic title="">
       <StyledSection>
-        <img src={bg} />
+        <img src={bg} title="bg" />
+
         <MainContent>
+          <div>
+            <p>You could enable/disable authentication from here </p>
+            <span>User authentication: &nbsp;</span>
+            <Switch
+              checkedChildren="On"
+              unCheckedChildren="Off"
+              checked={checked}
+              onChange={handleToggleEnableAuthentication}
+              loading={toggleMutation.isLoading}
+            />
+          </div>
+          <Divider />
+          <div>
+            <CreateUser />
+          </div>
           {users && users.length > 0 ? (
             <>
-              <CreateUser />
               <List
                 itemLayout="horizontal"
                 dataSource={users.map((user) => ({ title: user }))}
@@ -78,11 +122,7 @@ export const UserManagement = () => {
               />
             </>
           ) : (
-            <div>
-              There are no users created yet.
-              <br />
-              <CreateUser />
-            </div>
+            <p style={{ marginTop: 10 }}>There are no users created yet.</p>
           )}
         </MainContent>
       </StyledSection>

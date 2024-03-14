@@ -6,7 +6,7 @@ import { ISCSIList } from '@app/features/vsan';
 export const ISCSI = () => {
   return (
     <PageBasic title="iSCSI Target Configuration">
-      <ISCSIList />
+      <ISCSIList complex />
     </PageBasic>
   );
 };

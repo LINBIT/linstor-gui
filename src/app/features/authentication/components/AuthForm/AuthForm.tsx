@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Alert, Button, Form, Input } from 'antd';
-import { useDispatch } from 'react-redux';
-import { Dispatch } from '@app/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { Dispatch, RootState } from '@app/store';
 import { useHistory } from 'react-router-dom';
 
 type FormType = {
@@ -19,6 +19,10 @@ const AuthForm: React.FC = () => {
   const [isError, setIsError] = useState(false);
   const history = useHistory();
   const dispatch = useDispatch<Dispatch>();
+  const { KVS, vsanModeFromSetting } = useSelector((state: RootState) => ({
+    KVS: state.setting.KVS,
+    vsanModeFromSetting: state.setting.vsanMode,
+  }));
 
   const onFinish = async (values: FormType) => {
     const res = await dispatch.auth.login({ username: values.username, password: values.password });
@@ -26,7 +30,12 @@ const AuthForm: React.FC = () => {
       if (isDefaultCredentials(values)) {
         dispatch.auth.setNeedsPasswordChange(true);
       }
-      history.push('/');
+
+      if (vsanModeFromSetting && KVS?.vsanMode) {
+        history.push('/vsan/dashboard');
+      } else {
+        history.push('/');
+      }
     } else {
       setIsError(true);
     }

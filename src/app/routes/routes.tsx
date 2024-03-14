@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { Route, RouteComponentProps, Switch } from 'react-router-dom';
+import { Route, RouteComponentProps, Switch, useHistory, useLocation } from 'react-router-dom';
 import { accessibleRouteChangeHandler } from '@app/utils/utils';
 
 import Dashboard from '@app/pages/Dashboard/Dashboard';
@@ -40,7 +40,7 @@ import { LastLocationProvider, useLastLocation } from 'react-router-last-locatio
 
 import { GrafanaDashboard } from '@app/pages/Granfana';
 import { UserManagement } from '@app/features/authentication';
-import { useModeStorage } from '@app/hooks';
+import { useUIModeStorage } from '@app/hooks';
 
 import gateway from './gateway';
 import snapshot from './snapshot';
@@ -48,11 +48,11 @@ import { Dashboard as VSANDashboard } from '@app/pages/VSAN/Dashboard';
 import { NVMeoF } from '@app/pages/VSAN/NVMeoF';
 import { NFS } from '@app/pages/VSAN/NFS';
 import { ISCSI } from '@app/pages/VSAN/ISCSI';
-import { VSAN_SIMPLE_MODE } from '@app/const/mode';
 import { PhysicalStorage } from '@app/pages/VSAN/PhysicalStorage';
 import { About } from '@app/pages/VSAN/About';
-import { resourceGroup } from '@app/models/resourceGroup';
 import { ResourceGroup } from '@app/pages/VSAN/ResourceGroup';
+import { useDispatch, useSelector } from 'react-redux';
+import { Dispatch, RootState } from '@app/store';
 
 let routeFocusTimer: number;
 
@@ -371,7 +371,7 @@ const vsanRoutes: IAppRoute[] = [
     component: ErrorReportDetail,
     exact: true,
     isAsync: true,
-    path: '/vsan/error-reports/:id',
+    path: '/error-reports/:id',
     title: 'VSAN | Error Report Detail',
   },
   {
@@ -384,20 +384,29 @@ const vsanRoutes: IAppRoute[] = [
 
 const AppRoutes = (): React.ReactElement => {
   const [displayedRoutes, setDisplayedRoutes] = useState(flattenedRoutes);
-  const { mode } = useModeStorage();
+  const history = useHistory();
+
+  const { KVS, vsanModeFromSettings } = useSelector((state: RootState) => ({
+    KVS: state.setting.KVS,
+    vsanModeFromSettings: state.setting.vsanMode,
+  }));
+
+  const dispatch = useDispatch<Dispatch>();
 
   useEffect(() => {
-    const VSAN_MODE = mode === VSAN_SIMPLE_MODE;
+    const vsanModeFromKVS = KVS?.vsanMode;
+
+    const initialOpenFromVSAN =
+      history.location.pathname === '/vsan/dashboard' && history.location.search === '?vsan=true';
+
+    const VSAN_MODE = (vsanModeFromSettings && vsanModeFromKVS) || initialOpenFromVSAN;
 
     if (VSAN_MODE) {
       setDisplayedRoutes(vsanRoutes);
     } else {
-      if (localStorage.getItem('linstorname') !== 'admin') {
-        const routes = flattenedRoutes.filter((e) => e.label !== 'users');
-        setDisplayedRoutes(routes);
-      }
+      setDisplayedRoutes(flattenedRoutes);
     }
-  }, [mode]);
+  }, [dispatch.setting, history, KVS?.vsanMode, vsanModeFromSettings]);
 
   return (
     <LastLocationProvider>

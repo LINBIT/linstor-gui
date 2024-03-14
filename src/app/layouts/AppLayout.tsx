@@ -36,7 +36,7 @@ import './AppLayout.css';
 import isSvg from 'is-svg';
 import { ChangePassword, Login } from '@app/features/authentication';
 import { ImgIcon } from './styled';
-import { useModeStorage, usePersistentMenuState } from '@app/hooks';
+import { useUIModeStorage, usePersistentMenuState } from '@app/hooks';
 import { useEffect, useState } from 'react';
 import {
   AppstoreOutlined,
@@ -47,7 +47,6 @@ import {
   PieChartOutlined,
 } from '@ant-design/icons';
 import { BRAND_COLOR } from '@app/const/color';
-import { VSAN_ADVANCED_MODE, VSAN_SIMPLE_MODE } from '@app/const/mode';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -84,40 +83,48 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const [isNavOpen, setIsNavOpen] = usePersistentMenuState(true);
   const [isMobileView, setIsMobileView] = useState(true);
   const [isNavOpenMobile, setIsNavOpenMobile] = useState(false);
-  const { mode, updateMode } = useModeStorage();
+  const { UIMode, updateUIMode } = useUIModeStorage();
   const [selectedMenu, setSelectedMenu] = useState('/vsan/dashboard');
-
-  const onModeChange = (mode) => {
-    updateMode(mode);
-    setIsNavOpen(true);
-
-    if (mode === VSAN_SIMPLE_MODE) {
-      window.location.href = '/#/vsan/dashboard';
-    } else {
-      window.location.href = '/#';
-    }
-
-    window.location.reload();
-  };
-
   const dispatch = useDispatch<Dispatch>();
   const history = useHistory();
 
+  const onModeChange = (mode) => {
+    setIsNavOpen(true);
+    updateUIMode(mode);
+    dispatch.setting.setVSANMode(mode === 'VSAN');
+    history.push(mode === 'VSAN' ? '/vsan/dashboard' : '/');
+  };
+
   useEffect(() => {
-    dispatch.setting.initSettingStore();
     dispatch.auth.checkLoginStatus();
-    const vSANMode = history.location.search.includes('vsan');
+  }, [dispatch.auth]);
 
-    if (vSANMode) {
-      dispatch.setting.setVSANMode();
-    }
-  }, [dispatch.auth, dispatch.setting, history, mode]);
-
-  const { KVS, authInfo, logoSrc } = useSelector((state: RootState) => ({
+  const { KVS, authInfo, logoSrc, vsanModeFromSetting } = useSelector((state: RootState) => ({
     KVS: state.setting.KVS,
     authInfo: state.auth,
     logoSrc: state.setting.logo,
+    vsanModeFromSetting: state.setting.vsanMode,
   }));
+  // if authenticationEnabled is false then just enter the page
+  const authenticationEnabled = KVS?.authenticationEnabled;
+
+  useEffect(() => {
+    const VSAN_URL = history.location.pathname.includes('/vsan');
+    const initialOpenFromVSAN =
+      history.location.pathname === '/vsan/dashboard' && history.location.search === '?vsan=true';
+
+    if (initialOpenFromVSAN) {
+      dispatch.setting.initSettingStore(VSAN_URL);
+    }
+
+    if (VSAN_URL) {
+      dispatch.setting.setVSANMode(true);
+    }
+  }, [dispatch.setting, history.location.pathname, history.location.search]);
+
+  useEffect(() => {
+    dispatch.setting.getSettings();
+  }, [dispatch.setting]);
 
   const { t } = useTranslation('menu');
   const onNavToggleMobile = () => {
@@ -144,17 +151,115 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
 
   function LogoImg() {
     const history = useHistory();
+
     function handleClick() {
-      history.push('/');
+      history.push(vsanModeFromSetting && KVS?.vsanMode ? '/vsan/dashboard' : '/');
     }
     return (
       <>
-        <img src={logo} className="logo" onClick={handleClick} alt="Linbit Logo" />
+        <img src={logo} className="logo" onClick={handleClick} alt="LINBIT Logo" />
         {'  '}
         {customizedLogo && <SVG src={customizedLogo} className="Customized Logo" />}
       </>
     );
   }
+
+  const menu = KVS?.vsanMode
+    ? {
+        items: [
+          {
+            key: 'userinfo',
+            label: (
+              <a
+                rel="noopener noreferrer"
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                }}
+              >
+                <ImgIcon src={user} alt="user" />
+                <span>User: {authInfo.username}</span>
+              </a>
+            ),
+          },
+          {
+            key: 'changepassword',
+            label: <ChangePassword />,
+          },
+          {
+            key: 'changemode',
+            label: (
+              <a
+                rel="noopener noreferrer"
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onModeChange(UIMode === 'VSAN' ? 'NORMAL' : 'VSAN');
+                }}
+              >
+                <DeploymentUnitOutlined rev={null} style={{ color: BRAND_COLOR, marginLeft: 2, marginRight: '1rem' }} />
+
+                <span>{UIMode === 'VSAN' ? 'Switch to advanced mode' : 'Leave advanced mode'}</span>
+              </a>
+            ),
+          },
+          {
+            key: 'logout',
+            label: (
+              <a
+                rel="noopener noreferrer"
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  dispatch.auth.logout();
+                }}
+              >
+                <ImgIcon src={logout} alt="logout" />
+                <span>Logout</span>
+              </a>
+            ),
+          },
+        ],
+      }
+    : {
+        items: [
+          {
+            key: 'userinfo',
+            label: (
+              <a
+                rel="noopener noreferrer"
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                }}
+              >
+                <ImgIcon src={user} alt="user" />
+                <span>User: {authInfo.username}</span>
+              </a>
+            ),
+          },
+          {
+            key: 'changepassword',
+            label: <ChangePassword />,
+          },
+          {
+            key: 'logout',
+            label: (
+              <a
+                rel="noopener noreferrer"
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  dispatch.auth.logout();
+                }}
+              >
+                <ImgIcon src={logout} alt="logout" />
+                <span>Logout</span>
+              </a>
+            ),
+          },
+        ],
+      };
 
   const headerTools = (
     <PageHeaderTools>
@@ -163,7 +268,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
           <ConnectStatus />
         </PageHeaderToolsItem>
 
-        {mode !== VSAN_SIMPLE_MODE && (
+        {!vsanModeFromSetting && (
           <PageHeaderToolsItem>
             <HeaderAboutModal />
           </PageHeaderToolsItem>
@@ -172,74 +277,15 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
         <PageHeaderToolsItem>
           <LngSelector />
         </PageHeaderToolsItem>
-        <PageHeaderToolsItem>
-          <Dropdown
-            menu={{
-              items: [
-                {
-                  key: 'userinfo',
-                  label: (
-                    <a
-                      rel="noopener noreferrer"
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                      }}
-                    >
-                      <ImgIcon src={user} alt="user" />
-                      <span>User: {authInfo.username}</span>
-                    </a>
-                  ),
-                },
-                {
-                  key: 'changepassword',
-                  label: <ChangePassword />,
-                },
-                {
-                  key: 'changemode',
-                  label: (
-                    <a
-                      rel="noopener noreferrer"
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        onModeChange(mode === VSAN_SIMPLE_MODE ? VSAN_ADVANCED_MODE : VSAN_SIMPLE_MODE);
-                      }}
-                    >
-                      <DeploymentUnitOutlined
-                        rev={null}
-                        style={{ color: BRAND_COLOR, marginLeft: 2, marginRight: '1rem' }}
-                      />
-
-                      <span>{mode === VSAN_SIMPLE_MODE ? 'Switch to advanced mode' : 'Leave advanced mode'}</span>
-                    </a>
-                  ),
-                },
-                {
-                  key: 'logout',
-                  label: (
-                    <a
-                      rel="noopener noreferrer"
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        dispatch.auth.logout();
-                      }}
-                    >
-                      <ImgIcon src={logout} alt="logout" />
-                      <span>Logout</span>
-                    </a>
-                  ),
-                },
-              ],
-            }}
-            placement="bottom"
-          >
-            <Avatar size={40} style={{ backgroundColor: '#f7a75c', color: '#1e2939', cursor: 'pointer' }}>
-              {authInfo.username?.charAt(0).toUpperCase()}
-            </Avatar>
-          </Dropdown>
-        </PageHeaderToolsItem>
+        {authenticationEnabled && (
+          <PageHeaderToolsItem>
+            <Dropdown menu={menu} placement="bottom">
+              <Avatar size={40} style={{ backgroundColor: '#f7a75c', color: '#1e2939', cursor: 'pointer' }}>
+                {authInfo.username?.charAt(0).toUpperCase()}
+              </Avatar>
+            </Dropdown>
+          </PageHeaderToolsItem>
+        )}
       </PageHeaderToolsGroup>
     </PageHeaderTools>
   );
@@ -335,7 +381,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const Sidebar = (
     <PageSidebar
       theme="dark"
-      nav={mode === VSAN_SIMPLE_MODE ? VSANNavigation : Navigation}
+      nav={vsanModeFromSetting ? VSANNavigation : Navigation}
       isNavOpen={isMobileView ? isNavOpenMobile : isNavOpen}
     />
   );
@@ -355,7 +401,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
     </SkipToContent>
   );
 
-  if (!authInfo.isLoggedIn) {
+  if (authenticationEnabled && !authInfo.isLoggedIn) {
     return (
       <>
         <Login />

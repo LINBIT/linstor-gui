@@ -32,8 +32,6 @@ export const VSANNodeList = () => {
   });
 
   const [nodesWithProgressInfo, setNodesWithProgressInfo] = useState(nodesFromVSAN.data?.data);
-
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [showStandbyWarning, setShowStandbyWarning] = useState(false);
   const [standbyHost, setStandbyHost] = useState<{ hostname: string; checked: boolean }>({
     hostname: '',
@@ -160,13 +158,13 @@ export const VSANNodeList = () => {
           content={() => (
             <div>
               <p>
-                <Tag color="success">Online</Tag>:Everything is ok
+                <Tag color={SUCCESS_COLOR}>Online</Tag>: Everything is ok
               </p>
               <p>
                 <Tag color="yellow">Standby</Tag>: Node is in standby
               </p>
               <p>
-                <Tag color="red">Error</Tag>: Something is wrong
+                <Tag color={ERROR_COLOR}>Error</Tag>: Something is wrong
               </p>
             </div>
           )}
@@ -244,26 +242,11 @@ export const VSANNodeList = () => {
             <Button type="default" disabled={!record.standby} onClick={() => upgradeNode(record.hostname)}>
               Update
             </Button>
-            <Button danger type="default">
-              Delete
-            </Button>
           </Space>
         );
       },
     },
   ];
-
-  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
-    console.log('selectedRowKeys changed: ', newSelectedRowKeys);
-    setSelectedRowKeys(newSelectedRowKeys);
-  };
-
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: onSelectChange,
-  };
-
-  const hasSelected = selectedRowKeys.length > 0;
 
   return (
     <div>
@@ -273,7 +256,7 @@ export const VSANNodeList = () => {
             Reload
           </Button>
 
-          <Button danger type="default" disabled={!hasSelected}>
+          <Button danger type="default">
             Delete
           </Button>
         </Space>
@@ -289,8 +272,8 @@ export const VSANNodeList = () => {
       <Table
         columns={columns}
         dataSource={nodesWithProgressInfo ?? []}
-        rowSelection={rowSelection}
         loading={nodesFromVSAN.isLoading}
+        pagination={false}
       />
 
       <Modal

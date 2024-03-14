@@ -2,7 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import React from 'react';
 import { deleteResourceGroup, getResourceGroups } from '../api';
 
-import { Button, Popconfirm, Space, Table } from 'antd';
+import { Button, Popconfirm, Table } from 'antd';
 import type { TableProps } from 'antd';
 import { REFETCH_INTERVAL } from '@app/const/time';
 import { DEFAULT_SP } from '@app/const/type';
@@ -69,8 +69,8 @@ export const ResourceGroupList = () => {
         return (
           <Popconfirm
             key="delete"
-            title="Delete the error report"
-            description="Are you sure to delete this error report?"
+            title="Delete the resource group"
+            description="Are you sure to delete this resource group?"
             okText="Yes"
             cancelText="No"
             onConfirm={() => {
@@ -100,6 +100,7 @@ export const ResourceGroupList = () => {
         columns={columns}
         dataSource={data?.data?.filter((item) => item.name !== DEFAULT_SP) ?? []}
         loading={isLoading}
+        pagination={false}
       />
     </div>
   );

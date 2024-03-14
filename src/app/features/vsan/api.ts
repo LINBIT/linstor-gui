@@ -70,6 +70,10 @@ const deleteResourceGroup = (name: string) => {
   return service.delete(`/api/frontend/v1/linstor/resource-groups/${name}`);
 };
 
+const resizeTarget = (resource: string, data: { size: number }) => {
+  return service.put(`/api/frontend/v1/linstor/resource/${resource}/resize`, data);
+};
+
 export {
   getNetWorkInterfaces,
   createNFSExport,
@@ -88,4 +92,5 @@ export {
   getStoragePool,
   createResourceGroup,
   deleteResourceGroup,
+  resizeTarget,
 };
