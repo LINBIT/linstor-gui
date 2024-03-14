@@ -35,7 +35,6 @@ import PropertyForm from '@app/components/PropertyForm';
 import { omit } from '@app/utils/object';
 import { Dispatch } from '@app/store';
 import { useDispatch } from 'react-redux';
-import { useKVStore } from '@app/hooks';
 import { ListAction } from './ListAction';
 import { Modal } from 'antd';
 
@@ -144,9 +143,6 @@ const List: React.FC<NodeListProps> = ({ nodes = [] }) => {
       return isSelecting ? [...otherSelectedRepoNames, node.name] : otherSelectedRepoNames;
     });
 
-  const kvs = useKVStore();
-  const vsanMode = kvs.vsanMode as boolean;
-
   const lastRowActions = (node: NodeType): IAction[] => [
     {
       title: <div>{t('common:property')}</div>,
@@ -158,19 +154,16 @@ const List: React.FC<NodeListProps> = ({ nodes = [] }) => {
           name: node.name,
         });
       },
-      isDisabled: vsanMode,
     },
     {
       title: <div>{t('common:edit')}</div>,
       onClick: () => {
         history.push(`/inventory/nodes/edit/${node.name}`);
       },
-      isDisabled: vsanMode,
     },
 
     {
       title: <div>{t('common:delete')}</div>,
-      isDisabled: vsanMode,
       onClick: () => {
         setIsModalOpen(true);
         setCurrentNode(node.name);
@@ -179,7 +172,6 @@ const List: React.FC<NodeListProps> = ({ nodes = [] }) => {
     {
       title: <div>{t('common:lost')}</div>,
       onClick: () => dispatch.node.lostNode([node.name]),
-      isDisabled: vsanMode,
     },
   ];
 
@@ -222,11 +214,11 @@ const List: React.FC<NodeListProps> = ({ nodes = [] }) => {
           </ToolbarItem>
           <ToolbarItem variant="separator" />
           <ToolbarItem>
-            <Button variant="primary" onClick={() => history.push('/inventory/nodes/create')} isDisabled={vsanMode}>
+            <Button variant="primary" onClick={() => history.push('/inventory/nodes/create')}>
               {t('common:add')}
             </Button>
           </ToolbarItem>
-          {!vsanMode && selectedNodes.length > 0 && (
+          {selectedNodes.length > 0 && (
             <>
               <ToolbarItem>
                 <ListAction
@@ -258,8 +250,8 @@ const List: React.FC<NodeListProps> = ({ nodes = [] }) => {
             />
             <Th sort={getSortParams(0)}>{columnNames.name}</Th>
             <Th sort={getSortParams(1)}>{columnNames.default_ip}</Th>
-            {!vsanMode && <Th>{columnNames.default_port}</Th>}
-            {!vsanMode && <Th>{columnNames.node_type}</Th>}
+            {<Th>{columnNames.default_port}</Th>}
+            {<Th>{columnNames.node_type}</Th>}
             <Th>{columnNames.node_status}</Th>
             <Td></Td>
           </Tr>
@@ -313,13 +305,12 @@ const List: React.FC<NodeListProps> = ({ nodes = [] }) => {
                   />
                   <Td dataLabel={columnNames.name}>{node.name}</Td>
                   <Td dataLabel={columnNames.default_ip}>{net_interface?.address}</Td>
-                  {!vsanMode && <Td dataLabel={columnNames.default_port}>{net_interface?.satellite_port}</Td>}
+                  <Td dataLabel={columnNames.default_port}>{net_interface?.satellite_port}</Td>
 
-                  {!vsanMode && (
-                    <Td dataLabel={columnNames.node_type}>
-                      <StatusLabel status={'info'} label={capitalize(node?.type)} />
-                    </Td>
-                  )}
+                  <Td dataLabel={columnNames.node_type}>
+                    <StatusLabel status={'info'} label={capitalize(node?.type)} />
+                  </Td>
+
                   <Td dataLabel={columnNames.node_status}>
                     {node.connection_status === 'ONLINE' ? (
                       <CheckCircleIcon size="sm" color="green" />

@@ -14,14 +14,10 @@ import service from '@app/requests';
 import { useDispatch } from 'react-redux';
 import { Dispatch } from '@app/store';
 import { notify, notifyList } from '@app/utils/toast';
-import { useKVStore } from '@app/hooks';
 import { ResourceMigrateForm, resourceMigration } from '@app/features/resource';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 
 import { Input, Modal } from 'antd';
-import { getNodes } from '@app/features/node';
-import { getAllResources } from '@app/features/snapshot';
-import { getStoragePool } from '@app/features/storagePool';
 
 const List: React.FunctionComponent = () => {
   const { t } = useTranslation(['resource', 'common']);
@@ -44,10 +40,6 @@ const List: React.FunctionComponent = () => {
     resource: '',
     node: '',
   });
-  const kvs = useKVStore();
-  const vsanMode = kvs?.vsanMode as boolean;
-
-  const [storagePool, setStoragePool] = useState('');
 
   const migrateResourceMutation = useMutation({
     mutationFn: resourceMigration,
@@ -294,9 +286,9 @@ const List: React.FunctionComponent = () => {
       <FilterList
         showSearch
         url="/v1/view/resources"
-        actions={vsanMode ? [] : listActions}
+        actions={listActions}
         fetchList={fetchList}
-        toolButtons={vsanMode ? [] : toolButtons}
+        toolButtons={toolButtons}
         columns={columns}
         cells={cells}
         statsUrl="/v1/stats/resources"

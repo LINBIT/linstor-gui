@@ -24,9 +24,6 @@ const List: React.FunctionComponent = () => {
   const [currentNode, setCurrentNode] = useState();
   const [currentVolume, setCurrentVolume] = useState();
 
-  const kvs = useKVStore();
-  const vsanMode = kvs?.vsanMode as boolean;
-
   const columns = [
     { title: t('resource') },
     { title: t('node'), cellTransforms: [headerCol()] },
@@ -117,7 +114,7 @@ const List: React.FunctionComponent = () => {
       <FilterList
         showSearch
         url="/v1/view/resources"
-        actions={vsanMode ? [] : listActions}
+        actions={listActions}
         fetchList={fetchList}
         filterFunc={filterFunc}
         customHandler={customHandler}
