@@ -256,8 +256,16 @@ export const VSANNodeList = () => {
             Reload
           </Button>
 
+          <Button type="primary">
+            <a href={'https://' + window.location.host + '/addnode.html'} target="_blank" rel="noreferrer">
+              Add Node
+            </a>
+          </Button>
+
           <Button danger type="default">
-            Delete
+            <a href={'https://' + window.location.host + '/delnode.html'} target="_blank" rel="noreferrer">
+              Delete
+            </a>
           </Button>
         </Space>
 
