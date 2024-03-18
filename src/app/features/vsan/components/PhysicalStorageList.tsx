@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import React from 'react';
+import React, { useState } from 'react';
 import { getStoragePool } from '../api';
 
 import { Button, Table } from 'antd';
@@ -7,6 +7,7 @@ import type { TableProps } from 'antd';
 import { REFETCH_INTERVAL } from '@app/const/time';
 import { formatBytes } from '@app/utils/size';
 import { DEFAULT_SP } from '@app/const/type';
+import { CreateStoragePoolForm } from '@app/features/vsan';
 
 interface DataType {
   name: string;
@@ -22,6 +23,12 @@ export const PhysicalStorageList = () => {
     queryFn: () => getStoragePool(),
     refetchInterval: REFETCH_INTERVAL,
   });
+
+  const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
+
+  const handleExpand = (expanded, record) => {
+    setExpandedRowKeys(expanded ? [record.name] : []);
+  };
 
   const columns: TableProps<DataType>['columns'] = [
     {
@@ -62,6 +69,8 @@ export const PhysicalStorageList = () => {
         <Button onClick={() => refetch()} style={{ marginRight: 10 }}>
           Reload
         </Button>
+
+        <CreateStoragePoolForm />
       </div>
       <Table
         bordered={false}
@@ -83,8 +92,12 @@ export const PhysicalStorageList = () => {
               </p>
             );
           },
+          expandRowByClick: true,
+          expandedRowKeys,
+          onExpand: handleExpand,
         }}
         pagination={false}
+        rowKey="name"
       />
     </div>
   );

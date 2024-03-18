@@ -117,3 +117,48 @@ export interface ResourceGroup {
   placeCount: number;
   poolName: string | null;
 }
+
+export interface DiskNode {
+  device: string;
+}
+
+export interface DiskEntry {
+  size: number;
+  rotational: boolean;
+  nodeDevices: { [node: string]: string };
+}
+
+export interface Disk {
+  size: number;
+  rotational: boolean;
+  nodes: Record<string, DiskNode[]>;
+}
+
+export interface Node {
+  hostname: string;
+  service_ip: string;
+  online?: boolean;
+  has_linstor_controller?: boolean;
+  standby?: boolean;
+  upgradeProgress?: UpgradeProgress;
+}
+
+export interface UpgradeProgress {
+  maxSteps: number;
+  curStep: number;
+  label?: string;
+}
+
+export interface PhysicalStoragePoolRequest {
+  poolName: string;
+  // key: node, value: device paths
+  diskPaths: Map<string, Set<string>>;
+  nodes: Set<string>;
+  providerKind: string;
+}
+
+export interface PhysicalStorageChangeEvent {
+  nodeName: string;
+  disk: string;
+  checked: boolean;
+}

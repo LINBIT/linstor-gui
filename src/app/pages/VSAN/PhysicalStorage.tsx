@@ -15,7 +15,7 @@ export const PhysicalStorage = () => {
         <p>Hover over the entries to see the path for each device on a particular node.</p>
         <b>Important:</b> To appear on this list, a storage device:
         <StyledUL>
-          <li>Must be greater than 1GiB.</li>
+          <li>Must be greater than 1 GiB.</li>
           <li>
             Must be <b>completely empty</b>. This includes file systems, LVM signatures, and others. If there is
             existing data on the device, wipe it first (for example, using <code>wipefs -a</code>).

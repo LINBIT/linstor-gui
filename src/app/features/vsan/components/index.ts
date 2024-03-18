@@ -7,3 +7,4 @@ export { NFSExportList } from './NFSExportList';
 export { VSANNodeList } from './VSANNodeList';
 export { PhysicalStorageList } from './PhysicalStorageList';
 export { ResourceGroupList } from './ResourceGroupList';
+export { CreateStoragePoolForm } from './CreateStoragePoolForm';

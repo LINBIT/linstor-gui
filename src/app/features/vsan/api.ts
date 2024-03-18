@@ -74,6 +74,10 @@ const resizeTarget = (resource: string, data: { size: number }) => {
   return service.put(`/api/frontend/v1/linstor/resource/${resource}/resize`, data);
 };
 
+const createPool = (data) => {
+  return service.post('/api/frontend/v1/linstor/physical-storage-pools', data);
+};
+
 export {
   getNetWorkInterfaces,
   createNFSExport,
@@ -93,4 +97,5 @@ export {
   createResourceGroup,
   deleteResourceGroup,
   resizeTarget,
+  createPool,
 };
