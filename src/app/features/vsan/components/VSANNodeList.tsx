@@ -284,13 +284,13 @@ export const VSANNodeList = () => {
           </Button>
 
           <Button type="primary">
-            <a href={'https://' + window.location.host + '/addnode.html'} target="_blank" rel="noreferrer">
+            <a href={'https://' + window.location.hostname + '/addnode.html'} target="_blank" rel="noreferrer">
               Add Node
             </a>
           </Button>
 
           <Button danger type="default">
-            <a href={'https://' + window.location.host + '/delnode.html'} target="_blank" rel="noreferrer">
+            <a href={'https://' + window.location.hostname + '/delnode.html'} target="_blank" rel="noreferrer">
               Delete
             </a>
           </Button>
