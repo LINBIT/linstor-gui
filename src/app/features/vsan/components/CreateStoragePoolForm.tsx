@@ -152,10 +152,6 @@ const CreateStoragePoolForm = () => {
     return false;
   };
 
-  useEffect(() => {
-    console.log(checkboxStates, 'checkboxStates');
-  }, [checkboxStates]);
-
   const columns: TableProps<DataType>['columns'] = [
     {
       title: '',
@@ -369,6 +365,9 @@ const CreateStoragePoolForm = () => {
           }}
         >
           <Form.Item
+            tooltip="The name of a resource group has to be at least 3 characters long and can not be longer than 48 characters.
+Valid characters are a-z, A-Z, and 0-9 as well as _ and -
+Be aware that the name cannot start or end with - and cannot start with a number."
             name="poolName"
             label="Storage Pool Name"
             required
@@ -399,13 +398,31 @@ const CreateStoragePoolForm = () => {
             )}
           </Form.Item>
 
-          <Form.Item name="add_to_existing" valuePropName="checked" wrapperCol={{ offset: 6, span: 18 }}>
+          <Form.Item
+            label="Add or create new pool"
+            tooltip="You can choose whether to create a new storage pool from the selected disks or to add them to an existing storage pool."
+            name="add_to_existing"
+            valuePropName="checked"
+          >
             <Checkbox>Add to existing pool</Checkbox>
           </Form.Item>
 
           <Form.Item
             label="Storage Pool Type"
             name="providerKind"
+            tooltip={
+              <div>
+                <p>LVM: Simply allocate storage using LVM, the Logical Volume Manager.</p>
+                <p>
+                  LVM Thin: Instead of allocating all blocks on a backing device immediately, only create a block when
+                  it is written. This is known as thin provisioning and is our recommendation for LINSTOR storage pools.
+                </p>
+                <p>
+                  LVM+VDO: VDO offers additional deduplication and compression features for LVM volumes. At least 10 GiB
+                  per disk are neccessary for VDO.
+                </p>
+              </div>
+            }
             required
             rules={[
               {
