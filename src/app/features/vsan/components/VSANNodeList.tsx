@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Tag, Switch, Button, Popover, Space, Modal, InputNumber } from 'antd';
+import { Table, Tag, Switch, Button, Popover, Space, Modal, InputNumber, Progress, Tooltip, Popconfirm } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { getNodesFromVSAN, setNodeStandBy } from '../api';
 import { notify } from '@app/utils/toast';
@@ -8,7 +8,7 @@ import { useHistory } from 'react-router-dom';
 import { compareIPv4 } from '@app/utils/ip';
 import { InfoCircleOutlined, SettingOutlined } from '@ant-design/icons';
 import { ActionContainer } from './styled';
-import { ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
+import { BRAND_COLOR, ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
 import { REFETCH_INTERVAL } from '@app/const/time';
 
 interface DataType {
@@ -17,6 +17,8 @@ interface DataType {
   online: boolean;
   standby: boolean;
   has_linstor_controller: boolean;
+  upgradeProgress: { maxSteps: number; curStep: number; label: string } | null;
+  updating?: boolean;
 }
 
 export const VSANNodeList = () => {
@@ -44,28 +46,19 @@ export const VSANNodeList = () => {
     }
   }, [nodesFromVSAN.data?.data]);
 
-  //   const downloading = {
-  //     "type": "Downloading",
-  //     "packageName": "kernel-modules-5.14.0-362.18.1.el9_3.x",
-  //     "number": 23,
-  //     "of": 77
-  // };
-
-  // const installing = {
-  //   "type": "Installing",
-  //   "packageName": "openssh-clients-8.7p1-34.el9_3.3.x86_64",
-  //   "number": 70,
-  //   "of": 144
-  // }
-
   const upgradeNode = (nodeName: string) => {
-    const socket = new WebSocket(
-      location.origin.replace(/^http/, 'ws') + '/api/frontend/v1/system/update-with-reboot/' + nodeName
+    const url = new URL(
+      location.origin.replace(/^http/, 'wss') + '/api/frontend/v1/system/update-with-reboot/' + nodeName
     );
+    url.port = '';
+    const updatedUrl = url.toString();
+    const socket = new WebSocket(updatedUrl);
 
-    const nodes = nodesWithProgressInfo;
-
+    const nodes = nodesWithProgressInfo ? [...nodesWithProgressInfo] : [];
     const nodeIdx = nodesWithProgressInfo?.findIndex((n) => n.hostname === nodeName);
+
+    nodes[nodeIdx].updating = true;
+    setNodesWithProgressInfo(nodes);
 
     socket.addEventListener('message', (event) => {
       console.log('Message from server ', event.data);
@@ -83,6 +76,8 @@ export const VSANNodeList = () => {
 
       // maybe shows red dot, because of reboot, until there was no package to update
       setTimeout(() => {
+        nodes[nodeIdx].updating = false;
+        setNodesWithProgressInfo(nodes);
         nodesFromVSAN.refetch();
       }, 2000);
     });
@@ -234,15 +229,47 @@ export const VSANNodeList = () => {
       title: 'Action',
       key: 'action',
       render: (_, record) => {
+        const updateProcess = record.upgradeProgress;
+        const progress = updateProcess?.curStep ?? 0 / (updateProcess?.maxSteps ?? 100);
+
+        const tooltip =
+          updateProcess?.label === 'Downloading' || updateProcess?.label === 'Installing'
+            ? `${updateProcess?.label}  ${updateProcess?.curStep} of ${updateProcess?.maxSteps}`
+            : updateProcess?.label;
+
+        const color =
+          updateProcess?.label === 'Downloading' || updateProcess?.label === 'Installing' ? BRAND_COLOR : SUCCESS_COLOR;
+
         return (
-          <Space>
-            <Button type="primary" onClick={() => goToDetailPage(record.hostname)}>
-              View
-            </Button>
-            <Button type="default" disabled={!record.standby} onClick={() => upgradeNode(record.hostname)}>
-              Update
-            </Button>
-          </Space>
+          <>
+            <Space>
+              <Button type="primary" onClick={() => goToDetailPage(record.hostname)}>
+                View
+              </Button>
+              <Popconfirm
+                title="Update node?"
+                description="Are you sure you want to update this node?"
+                onConfirm={() => upgradeNode(record.hostname)}
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button disabled={!record.standby} type="default">
+                  Update
+                </Button>
+              </Popconfirm>
+            </Space>
+            {record.updating && (
+              <div>
+                <Tooltip title={tooltip || ''}>
+                  <Progress
+                    percent={progress}
+                    status={updateProcess?.label === 'Downloading' ? 'active' : 'normal'}
+                    strokeColor={color}
+                  />
+                </Tooltip>
+              </div>
+            )}
+          </>
         );
       },
     },
