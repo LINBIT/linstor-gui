@@ -1,10 +1,10 @@
 import { SizeInput } from '@app/components/SizeInput';
-import { Button, Checkbox, Form, Modal, Space } from 'antd';
+import { Button, Checkbox, Form, Modal, Space, notification } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { clusterPrivateVolumeSizeKib } from '../const';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { getResourceGroups, resizeTarget } from '../api';
-import { notify } from '@app/utils/toast';
+import { ErrorMessage } from '@app/features/vsan';
 
 type FormType = {
   size: number;
@@ -19,6 +19,7 @@ type GrowVolumeProps = {
 
 export const GrowVolume = ({ resource, resource_group, current_kib }: GrowVolumeProps) => {
   const [modalOpen, setModalOpen] = useState(false);
+  const [api, contextHolder] = notification.useNotification();
   const [form] = Form.useForm<FormType>();
   const use_all = Form.useWatch('use_all', form);
 
@@ -29,12 +30,16 @@ export const GrowVolume = ({ resource, resource_group, current_kib }: GrowVolume
 
   const resizeMutation = useMutation({
     mutationFn: (data: { size: number }) => resizeTarget(resource, data),
-    onError: (err: { message: string; detail: string }) => {
-      notify(err.message, {
-        type: 'error',
+    onError: (err: ErrorMessage) => {
+      api.error({
+        message: err?.message,
+        description: err?.detail || err?.explanation,
       });
     },
     onSuccess: () => {
+      api.success({
+        message: 'Resize volume successfully',
+      });
       setModalOpen(false);
     },
   });
@@ -67,6 +72,7 @@ export const GrowVolume = ({ resource, resource_group, current_kib }: GrowVolume
   };
   return (
     <>
+      {contextHolder}
       <Button type="primary" onClick={() => setModalOpen(true)}>
         Grow
       </Button>

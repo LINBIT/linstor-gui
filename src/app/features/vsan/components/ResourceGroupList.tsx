@@ -2,12 +2,12 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import React from 'react';
 import { deleteResourceGroup, getResourceGroups } from '../api';
 
-import { Button, Popconfirm, Table } from 'antd';
+import { Button, Popconfirm, Table, notification } from 'antd';
 import type { TableProps } from 'antd';
 import { REFETCH_INTERVAL } from '@app/const/time';
 import { DEFAULT_SP } from '@app/const/type';
 import { CreateResourceGroup } from './CreateResourceGroup';
-import { notify } from '@app/utils/toast';
+import { ErrorMessage } from '@app/features/vsan';
 
 interface DataType {
   name: string;
@@ -18,6 +18,8 @@ interface DataType {
 }
 
 export const ResourceGroupList = () => {
+  const [api, contextHolder] = notification.useNotification();
+
   const { data, refetch, isLoading } = useQuery({
     queryKey: ['getResourceGroups'],
     queryFn: () => getResourceGroups(),
@@ -27,15 +29,15 @@ export const ResourceGroupList = () => {
   const deleteMutation = useMutation({
     mutationFn: deleteResourceGroup,
     onSuccess: () => {
-      notify('Delete resource group successfully', {
-        type: 'success',
+      api.success({
+        message: 'Delete resource group successfully',
       });
       refetch();
     },
-    onError: (err) => {
-      console.log(err);
-      notify('Delete resource group failed', {
-        type: 'error',
+    onError: (err: ErrorMessage) => {
+      api.error({
+        message: err?.message,
+        description: err?.detail || err?.explanation,
       });
     },
   });
@@ -77,7 +79,7 @@ export const ResourceGroupList = () => {
               deleteMutation.mutate(record.name);
             }}
           >
-            <Button type="default" danger>
+            <Button type="default" danger loading={deleteMutation.isLoading}>
               Delete
             </Button>
           </Popconfirm>
@@ -88,6 +90,7 @@ export const ResourceGroupList = () => {
 
   return (
     <div>
+      {contextHolder}
       <div style={{ marginBottom: 10 }}>
         <Button onClick={() => refetch()} style={{ marginRight: 10 }}>
           Reload

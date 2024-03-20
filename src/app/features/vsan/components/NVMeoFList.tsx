@@ -2,14 +2,13 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import React from 'react';
 import { deleteNVMeExport, getNVMeoFTarget } from '../api';
 
-import { Button, Popconfirm, Space, Table, Tag } from 'antd';
+import { Button, notification, Popconfirm, Space, Table, Tag } from 'antd';
 import type { TableProps } from 'antd';
-import { NVMeTarget } from '../types';
+import { ErrorMessage, NVMeTarget } from '../types';
 import { ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
 import { REFETCH_INTERVAL } from '@app/const/time';
 import { CreateNVMEOfForm } from './CreateNVMEOfForm';
 import { formatBytes } from '@app/utils/size';
-import { notify } from '@app/utils/toast';
 import { GrowVolume } from './GrowVolume';
 
 interface DataType {
@@ -27,6 +26,8 @@ type NVMeoFListProp = {
 };
 
 export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
+  const [api, contextHolder] = notification.useNotification();
+
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['getNVMeoFTarget'],
     queryFn: () => getNVMeoFTarget(),
@@ -36,10 +37,16 @@ export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
   const deleteTarget = useMutation({
     mutationFn: (nqn: string) => deleteNVMeExport(nqn),
     onSuccess: () => {
-      notify('Target has been deleted!', {
-        type: 'success',
+      api.success({
+        message: 'Delete NVMe-oF target successfully',
       });
       refetch();
+    },
+    onError: (err: ErrorMessage) => {
+      api.error({
+        message: err?.message,
+        description: err?.detail,
+      });
     },
   });
 
@@ -100,7 +107,9 @@ export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
               okText="Yes"
               cancelText="No"
             >
-              <Button danger>Delete</Button>
+              <Button danger loading={deleteTarget.isLoading}>
+                Delete
+              </Button>
             </Popconfirm>
           </Space>
         );
@@ -138,6 +147,7 @@ export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
 
   return (
     <div>
+      {contextHolder}
       {complex && (
         <>
           <p>This module allows exporting the highly available storage managed by LINSTOR via NVMe-oF.</p>

@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Checkbox, Form, Input, Modal, Select, Space } from 'antd';
+import { Button, Checkbox, Form, Input, Modal, Select, Space, notification } from 'antd';
 
 import { useNodeNetWorkInterface } from '../hooks';
 import { SizeInput } from '@app/components/SizeInput';
 import { createNVMEExport, getResourceGroups } from '../api';
-import { notify } from '@app/utils/toast';
 import { formatBytes } from '@app/utils/size';
 import { clusterPrivateVolumeSizeKib } from '../const';
+import { ErrorMessage } from '@app/features/vsan';
 
 type FormType = {
   name: string;
@@ -22,6 +22,7 @@ type FormType = {
 
 const CreateNVMEOfForm = () => {
   const [form] = Form.useForm<FormType>();
+  const [api, contextHolder] = notification.useNotification();
   const { data: ipPrefixes } = useNodeNetWorkInterface();
   const [mask, setMask] = useState(0);
   const [prefix, setPrefix] = useState();
@@ -63,21 +64,24 @@ const CreateNVMEOfForm = () => {
   };
 
   const handleCancel = () => {
+    setTime('');
+    setDomain('');
+    form.resetFields();
     setCreateFormModal(false);
   };
 
   const createMutation = useMutation({
     mutationFn: createNVMEExport,
     onSuccess: () => {
-      notify('Create NVMe-oF Export successfully', {
-        type: 'success',
+      api.success({
+        message: 'Create NVMe-oF Export successfully',
       });
       setCreateFormModal(false);
     },
-    onError: (err) => {
-      console.log(err);
-      notify('Create NVMe-oF Export failed', {
-        type: 'error',
+    onError: (err: ErrorMessage) => {
+      api.error({
+        message: err?.message,
+        description: err?.detail || err?.explanation,
       });
     },
   });
@@ -85,6 +89,32 @@ const CreateNVMEOfForm = () => {
   const onFinish = async () => {
     try {
       const values = await form?.validateFields();
+      const timeRegx = /^((19|20)\d\d[-](0[1-9]|1[012]))$/;
+      const domainRegx = /^([a-zA-Z\d.][a-zA-Z\d.-]*\.[a-zA-Z\d.][a-zA-Z\d.-]*[a-zA-Z\d])$/;
+      const nameRegx = /^([a-z_][a-z0-9_-]+)$/;
+      if (!timeRegx.test(time)) {
+        api.error({
+          message: 'Invalid time',
+          description: 'Please input valid time something like: 2024-03',
+        });
+        return;
+      }
+
+      if (!domainRegx.test(domain)) {
+        api.error({
+          message: 'Invalid domain',
+          description: 'Please input valid domain something like: com.company',
+        });
+        return;
+      }
+
+      if (!nameRegx.test(values.nqn)) {
+        api.error({
+          message: 'Invalid NQN',
+          description: 'Please input valid NQN something like: unique-name',
+        });
+        return;
+      }
 
       const service_ip_str = prefix + service_ip + '/' + mask;
       const nqn = 'nqn.' + time + '.' + domain + ':nvme:' + values.nqn;
@@ -112,6 +142,7 @@ const CreateNVMEOfForm = () => {
 
   return (
     <>
+      {contextHolder}
       <Button type="primary" onClick={() => setCreateFormModal(true)}>
         Create
       </Button>
@@ -155,8 +186,13 @@ const CreateNVMEOfForm = () => {
         Example: nqn.2020-01.com.linbit:nvme:vmstorage"
           >
             <Space.Compact size="large">
-              <Input addonBefore="nqn." placeholder="yyyy-mm" onChange={(e) => setTime(e.target.value)} />
-              <Input addonBefore="." placeholder="com.company" onChange={(e) => setDomain(e.target.value)} />
+              <Input addonBefore="nqn." placeholder="yyyy-mm" value={time} onChange={(e) => setTime(e.target.value)} />
+              <Input
+                addonBefore="."
+                placeholder="com.company"
+                value={domain}
+                onChange={(e) => setDomain(e.target.value)}
+              />
               <Input addonBefore=":nvme:" placeholder="unique-name" />
             </Space.Compact>
           </Form.Item>

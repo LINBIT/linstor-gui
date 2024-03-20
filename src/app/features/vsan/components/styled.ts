@@ -5,3 +5,7 @@ export const ActionContainer = styled.div`
   display: flex;
   justify-content: space-between;
 `;
+
+export const UpdateStatus = styled.div`
+  margin-top: 6px;
+`;

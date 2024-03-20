@@ -1,16 +1,17 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import React from 'react';
-import { Button, Space, Table, Tag } from 'antd';
+import { Button, Popconfirm, Space, Table, Tag, notification } from 'antd';
 import type { TableProps } from 'antd';
 
 import { ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
 
-import { ISCSITarget } from '../types';
-import { getISCSITarget } from '../api';
+import { ErrorMessage, ISCSITarget } from '../types';
+import { deleteISCISExport, getISCSITarget } from '../api';
 import { REFETCH_INTERVAL } from '@app/const/time';
 import { CreateISCSIForm } from './CreateISCSIForm';
 import { formatBytes } from '@app/utils/size';
 import { GrowVolume } from './GrowVolume';
+
 interface DataType {
   iqn: string;
   lun: number;
@@ -25,6 +26,24 @@ type ISCSIListProp = {
 };
 
 export const ISCSIList = ({ complex }: ISCSIListProp) => {
+  const [api, contextHolder] = notification.useNotification();
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteISCISExport,
+    onSuccess: () => {
+      api.success({
+        message: 'Delete ISCSI target successfully',
+      });
+      refetch();
+    },
+    onError: (err: ErrorMessage) => {
+      api.error({
+        message: err?.message,
+        description: err?.detail || err?.explanation,
+      });
+    },
+  });
+
   const columns: TableProps<DataType>['columns'] = [
     {
       title: 'IQN',
@@ -78,7 +97,20 @@ export const ISCSIList = ({ complex }: ISCSIListProp) => {
               current_kib={target.size}
               resource={target.iqn.split(':')[1]}
             />
-            <Button danger>Delete</Button>
+            <Popconfirm
+              key="delete"
+              title="Delete the ISCSI target"
+              description="Are you sure to delete this ISCSI target?"
+              okText="Yes"
+              cancelText="No"
+              onConfirm={() => {
+                deleteMutation.mutate(target.iqn);
+              }}
+            >
+              <Button type="default" danger loading={deleteMutation.isLoading}>
+                Delete
+              </Button>
+            </Popconfirm>
           </Space>
         );
       },
@@ -121,6 +153,7 @@ export const ISCSIList = ({ complex }: ISCSIListProp) => {
 
   return (
     <div>
+      {contextHolder}
       {complex && (
         <>
           <p>

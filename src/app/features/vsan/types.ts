@@ -97,11 +97,6 @@ export interface NFSExport {
   status?: NfsStatus;
 }
 
-export interface VSANError {
-  detail: string;
-  message: string;
-}
-
 export interface DiskNode {
   device: string;
 }
@@ -161,4 +156,11 @@ export interface PhysicalStorageChangeEvent {
   nodeName: string;
   disk: string;
   checked: boolean;
+}
+
+export interface ErrorMessage {
+  message: string;
+  detail: string;
+  explanation: string;
+  report: string;
 }

@@ -7,6 +7,7 @@ import { RootModel } from '.';
 
 import { settingAPI, SettingsAPI, SettingsProps } from '@app/features/settings';
 import { kvStore } from '@app/features/keyValueStore';
+import { UserAuthAPI } from '@app/features/authentication/api';
 
 const defaultGatewayHost = window.location.protocol + '//' + window.location.hostname + ':8080/';
 
@@ -15,6 +16,8 @@ const defaultGatewayHost = window.location.protocol + '//' + window.location.hos
 const SETTING_KEY = '__gui__settings';
 const GATEWAY_HOST = 'GATEWAY_HOST';
 const VSAN_HOST = 'VSAN_HOST';
+
+const authAPI = new UserAuthAPI();
 
 type Setting = {
   gatewayAvailable?: boolean;
@@ -77,6 +80,7 @@ export const setting = createModel<RootModel>()({
 
     async initSettingStore(vsanMode: boolean) {
       const res = await SettingsAPI.instanceExists();
+      const userStore = await kvStore.instanceExists('users');
 
       if (res) {
         if (vsanMode) {
@@ -87,6 +91,10 @@ export const setting = createModel<RootModel>()({
         await dispatch.setting.getSettings();
       } else {
         await SettingsAPI.init(vsanMode);
+      }
+
+      if (!userStore) {
+        authAPI.initUserStore();
       }
 
       dispatch.setting.setInitialized(res);

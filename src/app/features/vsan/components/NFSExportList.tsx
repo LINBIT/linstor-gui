@@ -1,15 +1,16 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import React from 'react';
-import { getNFSExport } from '../api';
+import { deleteNFSExport, getNFSExport } from '../api';
 
-import { Button, Popconfirm, Space, Table, Tag } from 'antd';
+import { Button, notification, Popconfirm, Space, Table, Tag } from 'antd';
 import type { TableProps } from 'antd';
-import { NFSExport } from '../types';
+import { ErrorMessage, NFSExport } from '../types';
 import { ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
 import { REFETCH_INTERVAL } from '@app/const/time';
 import { CreateISCSIForm } from './CreateISCSIForm';
 import { formatBytes } from '@app/utils/size';
 import { GrowVolume } from './GrowVolume';
+import { CreateNFSForm } from './CreateNFSForm';
 
 interface DataType {
   name: string;
@@ -26,6 +27,24 @@ type NFSExportListProp = {
 };
 
 export const NFSExportList = ({ complex }: NFSExportListProp) => {
+  const [api, contextHolder] = notification.useNotification();
+
+  const deleteMutation = useMutation({
+    mutationFn: (iqn: string) => deleteNFSExport(iqn),
+    onSuccess: () => {
+      api.success({
+        message: 'Target has been deleted!',
+      });
+      refetch();
+    },
+    onError: (err: ErrorMessage) => {
+      api.error({
+        message: err?.message,
+        description: err?.detail || err?.explanation,
+      });
+    },
+  });
+
   const columns: TableProps<DataType>['columns'] = [
     {
       title: 'Name',
@@ -79,15 +98,18 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
           <Space>
             <GrowVolume resource={target.name} resource_group={target.resource_group} current_kib={target.size} />
             <Popconfirm
-              title="Delete the target"
-              description="Are you sure to delete this target?"
-              onConfirm={() => {
-                console.log('');
-              }}
+              key="delete"
+              title="Delete the NFS target"
+              description="Are you sure to delete this NFS target?"
               okText="Yes"
               cancelText="No"
+              onConfirm={() => {
+                deleteMutation.mutate(target.name);
+              }}
             >
-              <Button danger>Delete</Button>
+              <Button type="default" danger loading={deleteMutation.isLoading}>
+                Delete
+              </Button>
             </Popconfirm>
           </Space>
         );
@@ -103,7 +125,10 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
   });
 
   const exportPath = (e: NFSExport): string => {
-    return `/srv/gateway-exports/${e.name}${e.volumes[1].export_path}`;
+    if (!e.volumes) {
+      return `/srv/gateway-exports/${e?.name}`;
+    }
+    return `/srv/gateway-exports/${e?.name}${e?.volumes?.[1]?.export_path}`;
   };
 
   const handleTargetData = (data: NFSExport[]): DataType[] => {
@@ -112,15 +137,15 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
     if (Array.isArray(data)) {
       data.forEach((t) => {
         if (t.status) {
-          const l = t.status.volumes[1];
+          const l = t.status?.volumes?.[1];
 
           res.push({
             name: t.name,
             path: exportPath(t),
             node: t.status ? t.status.primary : '-',
-            status: l.state,
+            status: l?.state,
             service_ip: t.service_ip,
-            size: t.volumes[1].size_kib,
+            size: t?.volumes?.[1]?.size_kib,
             resource_group: t.resource_group,
           });
         }
@@ -132,6 +157,7 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
 
   return (
     <div>
+      {contextHolder}
       {complex && (
         <>
           <p>This module allows exporting the highly available storage managed by LINSTOR via an NFS export.</p>
@@ -139,7 +165,7 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
             <Button onClick={() => refetch()} style={{ marginRight: 10 }}>
               Reload
             </Button>
-            <CreateISCSIForm />
+            <CreateNFSForm />
           </div>
         </>
       )}

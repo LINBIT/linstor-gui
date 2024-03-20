@@ -1,15 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import { Table, Tag, Switch, Button, Popover, Space, Modal, InputNumber, Progress, Tooltip, Popconfirm } from 'antd';
+import React, { useState } from 'react';
+import {
+  Table,
+  Tag,
+  Switch,
+  Button,
+  Popover,
+  Space,
+  Modal,
+  InputNumber,
+  Progress,
+  Tooltip,
+  Popconfirm,
+  notification,
+} from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { getNodesFromVSAN, setNodeStandBy } from '../api';
-import { notify } from '@app/utils/toast';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useHistory } from 'react-router-dom';
 import { compareIPv4 } from '@app/utils/ip';
 import { InfoCircleOutlined, SettingOutlined } from '@ant-design/icons';
-import { ActionContainer } from './styled';
+import { ActionContainer, UpdateStatus } from './styled';
 import { BRAND_COLOR, ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
 import { REFETCH_INTERVAL } from '@app/const/time';
+import { ErrorMessage } from '../types';
 
 interface DataType {
   hostname: string;
@@ -26,6 +39,7 @@ export const VSANNodeList = () => {
   const [intervalModal, setIntervalModal] = useState(false);
   const [refetchInterval, setRefetchInterval] = useState<number | null>(10);
   const [tempIntervalVal, setTempIntervalVal] = useState<number | null>(null);
+  const [api, contextHolder] = notification.useNotification();
 
   const nodesFromVSAN = useQuery({
     queryKey: ['nodesFromVSAN'],
@@ -33,53 +47,115 @@ export const VSANNodeList = () => {
     refetchInterval: REFETCH_INTERVAL,
   });
 
-  const [nodesWithProgressInfo, setNodesWithProgressInfo] = useState(nodesFromVSAN.data?.data);
   const [showStandbyWarning, setShowStandbyWarning] = useState(false);
   const [standbyHost, setStandbyHost] = useState<{ hostname: string; checked: boolean }>({
     hostname: '',
     checked: false,
   });
 
-  useEffect(() => {
-    if (nodesFromVSAN.data?.data) {
-      setNodesWithProgressInfo(nodesFromVSAN.data?.data);
-    }
-  }, [nodesFromVSAN.data?.data]);
+  const [updatingInfo, setUpdatingInfo] = useState<
+    Record<string, { upgrading: boolean; progress: { maxSteps: number; curStep: number; label: string } }>
+  >({});
+
+  const [currentNode, setCurrentNode] = useState('');
+
+  // TODO: need a way to stop the update process if there is no update available
+  // useEffect(() => {
+  //   const nodes = nodesFromVSAN?.data?.data ?? [];
+  //   const nodesToUpdate = nodes.filter((node) => updatingInfo[node.hostname]?.upgrading);
+
+  //   nodesToUpdate.forEach((node) => {
+  //     if (node.online && updatingInfo[node.hostname]?.progress?.label === 'Checking') {
+  //       setUpdatingInfo((prev) => {
+  //         return {
+  //           ...prev,
+  //           [node.hostname]: {
+  //             upgrading: false,
+  //             progress: { maxSteps: 0, curStep: 0, label: '' },
+  //           },
+  //         };
+  //       });
+
+  //       api.success({
+  //         message: 'No update available for node: ' + node.hostname,
+  //       });
+  //     }
+  //   });
+  // }, [api, nodesFromVSAN?.data, updatingInfo]);
 
   const upgradeNode = (nodeName: string) => {
+    console.log('Upgrade node: ' + nodeName);
+    setUpdatingInfo((prev) => {
+      return {
+        ...prev,
+        [nodeName]: {
+          upgrading: true,
+          progress: { maxSteps: 0, curStep: 0, label: 'Checking' },
+        },
+      };
+    });
     const url = new URL(
       location.origin.replace(/^http/, 'wss') + '/api/frontend/v1/system/update-with-reboot/' + nodeName
     );
+    // const url = new URL('wss://192.168.123.217' + '/api/frontend/v1/system/update-with-reboot/' + nodeName);
     url.port = '';
     const updatedUrl = url.toString();
     const socket = new WebSocket(updatedUrl);
-
-    const nodes = nodesWithProgressInfo ? [...nodesWithProgressInfo] : [];
-    const nodeIdx = nodesWithProgressInfo?.findIndex((n) => n.hostname === nodeName);
-
-    nodes[nodeIdx].updating = true;
-    setNodesWithProgressInfo(nodes);
 
     socket.addEventListener('message', (event) => {
       console.log('Message from server ', event.data);
       const progress = JSON.parse(event.data);
 
-      nodes[nodeIdx].upgradeProgress = { maxSteps: progress.of, curStep: progress.number, label: progress.type };
-      setNodesWithProgressInfo(nodes);
+      setUpdatingInfo((prev) => {
+        return {
+          ...prev,
+          [nodeName]: {
+            upgrading: true,
+            progress: { maxSteps: progress.of, curStep: progress.number, label: progress.type },
+          },
+        };
+      });
+
+      if (progress.number === progress.of && progress.type === 'Downloading') {
+        setUpdatingInfo((prev) => {
+          return {
+            ...prev,
+            [nodeName]: {
+              upgrading: true,
+              progress: { maxSteps: 10, curStep: 0, label: 'Download Finished' },
+            },
+          };
+        });
+      }
+
+      if (progress.number === progress.of && progress.type === 'Installing') {
+        setUpdatingInfo((prev) => {
+          return {
+            ...prev,
+            [nodeName]: {
+              upgrading: true,
+              progress: { maxSteps: 10, curStep: 0, label: 'Installation Finished' },
+            },
+          };
+        });
+      }
     });
 
     socket.addEventListener('close', () => {
       console.log('Update finished for node: ' + nodeName);
+      setUpdatingInfo((prev) => {
+        return {
+          ...prev,
+          [nodeName]: {
+            upgrading: false,
+            progress: { maxSteps: 10, curStep: 10, label: 'Finished' },
+          },
+        };
+      });
 
-      nodes[nodeIdx].upgradeProgress = { maxSteps: 10, curStep: 0, label: 'rebooting' };
-      setNodesWithProgressInfo(nodes);
-
-      // maybe shows red dot, because of reboot, until there was no package to update
-      setTimeout(() => {
-        nodes[nodeIdx].updating = false;
-        setNodesWithProgressInfo(nodes);
-        nodesFromVSAN.refetch();
-      }, 2000);
+      api.success({
+        message: 'Update finished for node: ' + nodeName,
+      });
     });
   };
 
@@ -88,15 +164,16 @@ export const VSANNodeList = () => {
       return setNodeStandBy(hostname, status);
     },
     onSuccess: () => {
-      notify('Standby status changed!', {
-        type: 'success',
+      api.success({
+        message: 'Standby status changed!',
       });
 
       nodesFromVSAN.refetch();
     },
-    onError: () => {
-      notify('Standby status change failed!', {
-        type: 'error',
+    onError: (err: ErrorMessage) => {
+      api.error({
+        message: err?.message,
+        description: err?.detail || err?.explanation,
       });
     },
   });
@@ -106,16 +183,21 @@ export const VSANNodeList = () => {
   };
 
   const doStandBy = (host: { hostname: string; checked: boolean }) => {
-    standByMutation.mutateAsync({
-      hostname: host.hostname,
-      status: host.checked,
-    });
+    setCurrentNode(host.hostname);
+    try {
+      standByMutation.mutate({
+        hostname: host.hostname,
+        status: host.checked,
+      });
 
-    setShowStandbyWarning(false);
-    setStandbyHost({
-      hostname: '',
-      checked: false,
-    });
+      setShowStandbyWarning(false);
+      setStandbyHost({
+        hostname: '',
+        checked: false,
+      });
+    } catch (error) {
+      console.error('Error while setting standby', error);
+    }
   };
 
   const handleStandby = (hostname: string, checked: boolean) => {
@@ -217,6 +299,7 @@ export const VSANNodeList = () => {
       render: (_, record) => {
         return (
           <Switch
+            loading={standByMutation.isLoading && currentNode === record.hostname}
             checked={record.standby}
             onChange={(checked) => {
               handleStandby(record.hostname, checked);
@@ -229,7 +312,9 @@ export const VSANNodeList = () => {
       title: 'Action',
       key: 'action',
       render: (_, record) => {
-        const updateProcess = record.upgradeProgress;
+        const updating = updatingInfo[record.hostname]?.upgrading ?? false;
+        const upgradeProcess = updatingInfo[record.hostname];
+        const updateProcess = upgradeProcess?.progress;
         const progress = updateProcess?.curStep ?? 0 / (updateProcess?.maxSteps ?? 100);
 
         const tooltip =
@@ -253,21 +338,22 @@ export const VSANNodeList = () => {
                 okText="Yes"
                 cancelText="No"
               >
-                <Button disabled={!record.standby} type="default">
+                <Button disabled={!record.standby} type="default" loading={updating}>
                   Update
                 </Button>
               </Popconfirm>
             </Space>
-            {record.updating && (
-              <div>
-                <Tooltip title={tooltip || ''}>
-                  <Progress
-                    percent={progress}
-                    status={updateProcess?.label === 'Downloading' ? 'active' : 'normal'}
-                    strokeColor={color}
-                  />
-                </Tooltip>
-              </div>
+            {updating && (
+              <UpdateStatus>
+                {updateProcess?.label === 'Finished' ? (
+                  <Tag color={SUCCESS_COLOR}>Finished</Tag>
+                ) : (
+                  <Tooltip title={tooltip || ''}>
+                    <Progress percent={progress} status="active" strokeColor={color} />
+                    <Tag color={SUCCESS_COLOR}>{updateProcess?.label}</Tag>
+                  </Tooltip>
+                )}
+              </UpdateStatus>
             )}
           </>
         );
@@ -277,6 +363,7 @@ export const VSANNodeList = () => {
 
   return (
     <div>
+      {contextHolder}
       <ActionContainer>
         <Space>
           <Button type="default" onClick={() => nodesFromVSAN.refetch()}>
@@ -285,13 +372,13 @@ export const VSANNodeList = () => {
 
           <Button type="primary">
             <a href={'https://' + window.location.hostname + '/addnode.html'} target="_blank" rel="noreferrer">
-              Add Node
+              Add Nodes
             </a>
           </Button>
 
           <Button danger type="default">
             <a href={'https://' + window.location.hostname + '/delnode.html'} target="_blank" rel="noreferrer">
-              Delete
+              Delete Nodes
             </a>
           </Button>
         </Space>
@@ -306,7 +393,7 @@ export const VSANNodeList = () => {
 
       <Table
         columns={columns}
-        dataSource={nodesWithProgressInfo ?? []}
+        dataSource={nodesFromVSAN?.data?.data ?? []}
         loading={nodesFromVSAN.isLoading}
         pagination={false}
       />

@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Checkbox, Form, Input, Modal, Select, Space } from 'antd';
-import { useHistory } from 'react-router-dom';
+import { Button, Checkbox, Form, Input, Modal, Select, Space, notification } from 'antd';
 
 import { useNodeNetWorkInterface } from '../hooks';
 import { SizeInput } from '@app/components/SizeInput';
 import { createNFSExport, getResourceGroups } from '../api';
-import { notify } from '@app/utils/toast';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { formatBytes } from '@app/utils/size';
 import { clusterPrivateVolumeSizeKib } from '../const';
-import { VSANError } from '../types';
+import { ErrorMessage } from '../types';
 
 type FormType = {
   name: string;
@@ -24,6 +22,7 @@ type FormType = {
 
 const CreateNFSForm = () => {
   const [form] = Form.useForm<FormType>();
+  const [api, contextHolder] = notification.useNotification();
   const { data: ipPrefixes } = useNodeNetWorkInterface();
   const [createFormModal, setCreateFormModal] = useState(false);
 
@@ -61,17 +60,16 @@ const CreateNFSForm = () => {
   const createMutation = useMutation({
     mutationFn: createNFSExport,
     onSuccess: () => {
-      notify('Create NFS Export successfully', {
-        type: 'success',
+      api.success({
+        message: 'Create NFS Export successfully',
       });
 
       setCreateFormModal(false);
     },
-    onError: (err) => {
-      const { detail } = err as VSANError;
-
-      notify(detail, {
-        type: 'error',
+    onError: (err: ErrorMessage) => {
+      api.error({
+        message: err?.message,
+        description: err?.detail || err?.explanation,
       });
     },
   });
@@ -128,11 +126,13 @@ const CreateNFSForm = () => {
   };
 
   const handleCancel = () => {
+    form.resetFields();
     setCreateFormModal(false);
   };
 
   return (
     <>
+      {contextHolder}
       <Button type="primary" onClick={() => setCreateFormModal(true)}>
         Create
       </Button>

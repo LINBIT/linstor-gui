@@ -5,13 +5,6 @@ const getNodesFromVSAN = () => {
   return service.get('/api/frontend/v1/nodes');
 };
 
-// delete node from VSAN
-const deleteNodeFromVSAN = (node: string) => {
-  return service.delete(`/api/frontend/v1/nodes/${node}`);
-};
-
-const UPDATE_WITH_REBOOT_PATH = '/api/frontend/v1/system/update-with-reboot/';
-
 const setNodeStandBy = (hostname: string, standby: boolean) => {
   return service.post(`/api/frontend/v1/nodes/${hostname}/standby`, {
     standby,
@@ -70,6 +63,14 @@ const deleteResourceGroup = (name: string) => {
   return service.delete(`/api/frontend/v1/linstor/resource-groups/${name}`);
 };
 
+const deleteNFSExport = (iqn: string) => {
+  return service.delete(`/api/frontend/v1/nfs/${iqn}`);
+};
+
+const deleteISCISExport = (name: string) => {
+  return service.delete(`/api/frontend/v1/iscsi/targets/${name}`);
+};
+
 const resizeTarget = (resource: string, data: { size: number }) => {
   return service.put(`/api/frontend/v1/linstor/resource/${resource}/resize`, data);
 };
@@ -89,13 +90,13 @@ export {
   getNFSExport,
   deleteNVMeExport,
   getNodesFromVSAN,
-  deleteNodeFromVSAN,
   setNodeStandBy,
-  UPDATE_WITH_REBOOT_PATH,
   getPhysicalStorage,
   getStoragePool,
   createResourceGroup,
   deleteResourceGroup,
   resizeTarget,
   createPool,
+  deleteNFSExport,
+  deleteISCISExport,
 };

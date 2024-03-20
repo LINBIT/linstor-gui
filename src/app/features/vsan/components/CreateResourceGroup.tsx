@@ -1,14 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Checkbox, Form, Input, Modal, Select, Space } from 'antd';
+import { Button, Form, Input, Modal, Select, notification } from 'antd';
 
-import { useNodeNetWorkInterface } from '../hooks';
-import { SizeInput } from '@app/components/SizeInput';
-import { createNVMEExport, createResourceGroup, deleteResourceGroup, getResourceGroups, getStoragePool } from '../api';
-import { notify } from '@app/utils/toast';
-import { formatBytes } from '@app/utils/size';
-import { clusterPrivateVolumeSizeKib } from '../const';
+import { createResourceGroup, getStoragePool } from '../api';
 import { DEFAULT_SP } from '@app/const/type';
+import { ErrorMessage } from '@app/features/vsan';
 
 type FormType = {
   name: string;
@@ -18,6 +14,7 @@ type FormType = {
 
 export const CreateResourceGroup = () => {
   const [form] = Form.useForm<FormType>();
+  const [api, contextHolder] = notification.useNotification();
   const [createFormModal, setCreateFormModal] = useState(false);
 
   const { data: storagePool, refetch } = useQuery({
@@ -36,16 +33,17 @@ export const CreateResourceGroup = () => {
   const createMutation = useMutation({
     mutationFn: createResourceGroup,
     onSuccess: () => {
-      notify('Create resource group successfully', {
-        type: 'success',
+      api.success({
+        message: 'Create resource group successfully',
       });
+
       setCreateFormModal(false);
       refetch();
     },
-    onError: (err) => {
-      console.log(err);
-      notify('Create resource group failed', {
-        type: 'error',
+    onError: (err: ErrorMessage) => {
+      api.error({
+        message: err?.message,
+        description: err?.detail || err?.explanation,
       });
     },
   });
@@ -70,6 +68,7 @@ export const CreateResourceGroup = () => {
 
   return (
     <>
+      {contextHolder}
       <Button type="primary" onClick={() => setCreateFormModal(true)}>
         Create
       </Button>

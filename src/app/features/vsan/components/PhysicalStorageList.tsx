@@ -72,6 +72,7 @@ export const PhysicalStorageList = () => {
 
         <CreateStoragePoolForm />
       </div>
+
       <Table
         bordered={false}
         columns={columns}

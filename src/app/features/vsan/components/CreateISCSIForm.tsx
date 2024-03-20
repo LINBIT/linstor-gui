@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Checkbox, Form, Input, Modal, Select, Space } from 'antd';
-import { useHistory } from 'react-router-dom';
+import { Button, Checkbox, Form, Input, Modal, Select, Space, notification } from 'antd';
 
 import { useNodeNetWorkInterface } from '../hooks';
 import { SizeInput } from '@app/components/SizeInput';
 import { createISCSIExport, getResourceGroups } from '../api';
-import { notify } from '@app/utils/toast';
 import { formatBytes } from '@app/utils/size';
 import { clusterPrivateVolumeSizeKib } from '../const';
+import { ErrorMessage } from '@app/features/vsan';
 
 type FormType = {
   name: string;
@@ -19,10 +18,14 @@ type FormType = {
   size: number;
   allowed_ips: string[];
   iqn: string;
+  enable_chap?: boolean;
+  username?: string;
+  password?: string;
 };
 
 const CreateISCSIForm = () => {
   const [createFormModal, setCreateFormModal] = useState(false);
+  const [api, contextHolder] = notification.useNotification();
 
   const [form] = Form.useForm<FormType>();
   const { data: ipPrefixes } = useNodeNetWorkInterface();
@@ -36,6 +39,7 @@ const CreateISCSIForm = () => {
   const [domain, setDomain] = useState('');
 
   const service_ip = Form.useWatch('service_ip', form);
+  const enable_chap = Form.useWatch('enable_chap', form);
 
   const ipServiceOptions = React.useMemo(() => {
     return ipPrefixes?.map((e) => ({
@@ -48,16 +52,16 @@ const CreateISCSIForm = () => {
   const createMutation = useMutation({
     mutationFn: createISCSIExport,
     onSuccess: () => {
-      notify('Create iSCSI Export successfully', {
-        type: 'success',
+      api.success({
+        message: 'Create iSCSI Export successfully',
       });
 
       setCreateFormModal(false);
     },
-    onError: (err) => {
-      console.log(err);
-      notify('Create iSCSI Export failed', {
-        type: 'error',
+    onError: (err: ErrorMessage) => {
+      api.error({
+        message: err?.message,
+        description: err?.detail,
       });
     },
   });
@@ -70,12 +74,43 @@ const CreateISCSIForm = () => {
   };
 
   const handleCancel = () => {
+    form.resetFields();
+    setTime('');
+    setDomain('');
     setCreateFormModal(false);
   };
 
   const onFinish = async () => {
     try {
       const values = await form?.validateFields();
+
+      const timeRegx = /^((19|20)\d\d[-](0[1-9]|1[012]))$/;
+      const domainRegx = /^([a-zA-Z\d.][a-zA-Z\d.-]*\.[a-zA-Z\d.][a-zA-Z\d.-]*[a-zA-Z\d])$/;
+      const nameRegx = /^([a-z_][a-z0-9_-]+)$/;
+      if (!timeRegx.test(time)) {
+        api.error({
+          message: 'Invalid time',
+          description: 'Please input valid time something like: 2024-03',
+        });
+        return;
+      }
+
+      if (!domainRegx.test(domain)) {
+        api.error({
+          message: 'Invalid domain',
+          description: 'Please input valid domain something like: com.company',
+        });
+        return;
+      }
+
+      if (!nameRegx.test(values.iqn)) {
+        api.error({
+          message: 'Invalid IQN',
+          description: 'Please input valid IQN something like: unique-name',
+        });
+        return;
+      }
+
       const service_ip_str = prefix + service_ip + '/' + mask;
       const iqn = 'iqn.' + time + '.' + domain + ':' + values.iqn;
 
@@ -91,8 +126,8 @@ const CreateISCSIForm = () => {
         service_ips: [service_ip_str],
         resource_group: values.resource_group,
         volumes,
-        username: '',
-        password: '',
+        username: values.enable_chap ? values.username : '',
+        password: values.enable_chap ? values.password : '',
       };
 
       createMutation.mutate(currentExport);
@@ -115,6 +150,7 @@ const CreateISCSIForm = () => {
 
   return (
     <>
+      {contextHolder}
       <Button type="primary" onClick={() => setCreateFormModal(true)}>
         Create
       </Button>
@@ -138,10 +174,6 @@ const CreateISCSIForm = () => {
           layout="horizontal"
           form={form}
           onFinish={onFinish}
-          initialValues={{
-            satellite_port: 3366,
-            type: 'Satellite',
-          }}
         >
           <Form.Item
             label="IQN"
@@ -155,8 +187,13 @@ const CreateISCSIForm = () => {
             ]}
           >
             <Space.Compact size="large">
-              <Input addonBefore="iqn." placeholder="yyyy-mm" onChange={(e) => setTime(e.target.value)} />
-              <Input addonBefore="." placeholder="com.company" onChange={(e) => setDomain(e.target.value)} />
+              <Input addonBefore="iqn." placeholder="yyyy-mm" value={time} onChange={(e) => setTime(e.target.value)} />
+              <Input
+                addonBefore="."
+                placeholder="com.company"
+                value={domain}
+                onChange={(e) => setDomain(e.target.value)}
+              />
               <Input addonBefore=":" placeholder="unique-name" />
             </Space.Compact>
           </Form.Item>
@@ -214,6 +251,30 @@ const CreateISCSIForm = () => {
               </Form.Item>
             </Space>
           </Form.Item>
+
+          <Form.Item name="enable_chap" valuePropName="checked" wrapperCol={{ span: 12, offset: 6 }}>
+            <Checkbox>Enable CHAP Authentication</Checkbox>
+          </Form.Item>
+
+          {enable_chap && (
+            <>
+              <Form.Item
+                name="username"
+                label="Username"
+                tooltip="Configure mutual CHAP authentication to restrict access to the iSCSI target by supplying a username and password here."
+              >
+                <Input />
+              </Form.Item>
+
+              <Form.Item
+                name="password"
+                label="Password"
+                tooltip="Configure mutual CHAP authentication to restrict access to the iSCSI target by supplying a username and password here"
+              >
+                <Input.Password />
+              </Form.Item>
+            </>
+          )}
         </Form>
       </Modal>
     </>

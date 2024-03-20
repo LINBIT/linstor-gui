@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Checkbox, Form, Input, Modal, Select, Tooltip } from 'antd';
+import { Button, Checkbox, Form, Input, Modal, Select, Tooltip, notification } from 'antd';
 
-import { notify } from '@app/utils/toast';
 import { formatBytes } from '@app/utils/size';
 
 import { createPool, getNodesFromVSAN, getPhysicalStorage, getStoragePool } from '../api';
@@ -11,10 +10,10 @@ import {
   Disk,
   DiskEntry,
   DiskNode,
-  VSANError,
   Node,
   PhysicalStoragePoolRequest,
   PhysicalStorageChangeEvent,
+  ErrorMessage,
 } from '../types';
 
 import { Table } from 'antd';
@@ -70,6 +69,7 @@ const getDiskEntries = (disks: Disk[], nodes: Node[]): DiskEntry[] => {
 
 const CreateStoragePoolForm = () => {
   const [form] = Form.useForm<FormType>();
+  const [api, contextHolder] = notification.useNotification();
   const [createFormModal, setCreateFormModal] = useState(false);
   const [checkboxStates, setCheckboxStates] = useState<boolean[][]>([]);
   const [physicalStoragePoolRequest, setPhysicalStoragePoolRequest] = useState<PhysicalStoragePoolRequest>({
@@ -255,17 +255,16 @@ const CreateStoragePoolForm = () => {
   const createMutation = useMutation({
     mutationFn: createPool,
     onSuccess: () => {
-      notify('Create successfully', {
-        type: 'success',
+      api.success({
+        message: 'Create successfully',
       });
 
       setCreateFormModal(false);
     },
-    onError: (err) => {
-      const { detail } = err as VSANError;
-
-      notify(detail, {
-        type: 'error',
+    onError: (err: ErrorMessage) => {
+      api.error({
+        message: err?.message,
+        description: err?.detail || err?.explanation,
       });
     },
   });
@@ -336,6 +335,7 @@ const CreateStoragePoolForm = () => {
 
   return (
     <>
+      {contextHolder}
       <Button type="primary" onClick={() => setCreateFormModal(true)}>
         Create
       </Button>
