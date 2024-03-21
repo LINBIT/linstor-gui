@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { NavLink, useLocation, useHistory } from 'react-router-dom';
+import { NavLink, Link, useLocation, useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ToastContainer } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
@@ -304,27 +304,27 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
 
   const items: MenuItem[] = React.useMemo(() => {
     return [
-      getItem(<a href="/#!/vsan/dashboard">Dashboard</a>, '/vsan/dashboard', <PieChartOutlined rev={null} />),
+      getItem(<Link to="/vsan/dashboard">Dashboard</Link>, '/vsan/dashboard', <PieChartOutlined rev={null} />),
       getItem(
-        <a href="/#!/vsan/physical-storage">Physical Storage</a>,
+        <Link to="/vsan/physical-storage">Physical Storage</Link>,
         '/vsan/physical-storage',
         <DesktopOutlined rev={null} />
       ),
       getItem(
-        <a href="/#!/vsan/resource-groups">Resource Groups</a>,
+        <Link to="/vsan/resource-groups">Resource Groups</Link>,
         '/vsan/resource-groups',
         <ContainerOutlined rev={null} />
       ),
-      getItem(<a href="/#!/vsan/iscsi">iSCSI</a>, '/vsan/iscsi', <MailOutlined rev={null} />),
-      getItem(<a href="/#!/vsan/nvmeof">NVMe-oF</a>, '/vsan/nvmeof', <AppstoreOutlined rev={null} />),
-      getItem(<a href="/#!/vsan/nfs">NFS</a>, '/vsan/nfs', <AppstoreOutlined rev={null} />),
+      getItem(<Link to="/vsan/iscsi">iSCSI</Link>, '/vsan/iscsi', <MailOutlined rev={null} />),
+      getItem(<Link to="/vsan/nvmeof">NVMe-oF</Link>, '/vsan/nvmeof', <AppstoreOutlined rev={null} />),
+      getItem(<Link to="/vsan/nfs">NFS</Link>, '/vsan/nfs', <AppstoreOutlined rev={null} />),
       getItem(
-        <a href="/#!/vsan/error-reports">Error Reports</a>,
+        <Link to="/vsan/error-reports">Error Reports</Link>,
         '/vsan/error-reports',
         <AppstoreOutlined rev={null} />
       ),
-      getItem(<a href="/#!/vsan/users">Users</a>, '/vsan/users', <AppstoreOutlined rev={null} />),
-      getItem(<a href="/#!/vsan/about">About</a>, '/vsan/about', <AppstoreOutlined rev={null} />),
+      getItem(<Link to="/vsan/users">Users</Link>, '/vsan/users', <AppstoreOutlined rev={null} />),
+      getItem(<Link to="/vsan/about">About</Link>, '/vsan/about', <AppstoreOutlined rev={null} />),
     ];
   }, []);
 
