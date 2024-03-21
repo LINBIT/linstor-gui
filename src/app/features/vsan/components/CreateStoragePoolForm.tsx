@@ -330,6 +330,8 @@ const CreateStoragePoolForm = () => {
   };
 
   const handleCancel = () => {
+    form.resetFields()
+    setCheckboxStates([[]])
     setCreateFormModal(false);
   };
 

@@ -8,6 +8,7 @@ import { REFETCH_INTERVAL } from '@app/const/time';
 import { formatBytes } from '@app/utils/size';
 import { DEFAULT_SP } from '@app/const/type';
 import { CreateStoragePoolForm } from '@app/features/vsan';
+import { ActionSection } from "./styled";
 
 interface DataType {
   name: string;
@@ -65,13 +66,13 @@ export const PhysicalStorageList = () => {
 
   return (
     <div>
-      <div style={{ marginBottom: 10 }}>
+      <ActionSection>
         <Button onClick={() => refetch()} style={{ marginRight: 10 }}>
           Reload
         </Button>
 
         <CreateStoragePoolForm />
-      </div>
+      </ActionSection>
 
       <Table
         bordered={false}

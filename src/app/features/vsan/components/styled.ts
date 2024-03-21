@@ -9,3 +9,7 @@ export const ActionContainer = styled.div`
 export const UpdateStatus = styled.div`
   margin-top: 6px;
 `;
+
+export const ActionSection = styled.div`
+  margin-bottom: 10px;
+`
