@@ -7,10 +7,10 @@ import type { TableProps } from 'antd';
 import { ErrorMessage, NFSExport } from '../types';
 import { ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
 import { REFETCH_INTERVAL } from '@app/const/time';
-import { CreateISCSIForm } from './CreateISCSIForm';
 import { formatBytes } from '@app/utils/size';
 import { GrowVolume } from './GrowVolume';
 import { CreateNFSForm } from './CreateNFSForm';
+import { ActionSection } from "./styled";
 
 interface DataType {
   name: string;
@@ -161,12 +161,12 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
       {complex && (
         <>
           <p>This module allows exporting the highly available storage managed by LINSTOR via an NFS export.</p>
-          <div style={{ marginBottom: 10 }}>
+          <ActionSection>
             <Button onClick={() => refetch()} style={{ marginRight: 10 }}>
               Reload
             </Button>
             <CreateNFSForm />
-          </div>
+          </ActionSection>
         </>
       )}
       <Table

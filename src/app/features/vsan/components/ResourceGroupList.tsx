@@ -8,6 +8,7 @@ import { REFETCH_INTERVAL } from '@app/const/time';
 import { DEFAULT_SP } from '@app/const/type';
 import { CreateResourceGroup } from './CreateResourceGroup';
 import { ErrorMessage } from '@app/features/vsan';
+import { ActionSection } from "./styled";
 
 interface DataType {
   name: string;
@@ -91,13 +92,13 @@ export const ResourceGroupList = () => {
   return (
     <div>
       {contextHolder}
-      <div style={{ marginBottom: 10 }}>
+      <ActionSection>
         <Button onClick={() => refetch()} style={{ marginRight: 10 }}>
           Reload
         </Button>
 
         <CreateResourceGroup />
-      </div>
+      </ActionSection>
       <Table
         bordered={false}
         columns={columns}
