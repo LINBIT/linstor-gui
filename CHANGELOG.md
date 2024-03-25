@@ -1,5 +1,21 @@
 # Changelog
 
+# 1.6.0 - 2024-03-25
+
+### Fixed
+
+- Resolved persistence issue with side bar menu status.
+- Addressed error occurring during gateway targets creation.
+
+### Changed
+
+- Separated VSAN mode from LINSTOR GUI for enhanced clarity and usability.
+
+### Added
+
+- Storage pool list with advanced search functionality.
+- Enable/disable user authentication directly via the GUI.
+
 # 1.5.3 - 2024-02-28
 
 ### Fixed
