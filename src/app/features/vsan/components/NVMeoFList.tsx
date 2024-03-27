@@ -10,7 +10,7 @@ import { REFETCH_INTERVAL } from '@app/const/time';
 import { CreateNVMEOfForm } from './CreateNVMEOfForm';
 import { formatBytes } from '@app/utils/size';
 import { GrowVolume } from './GrowVolume';
-import { ActionSection } from "./styled";
+import { ActionSection } from './styled';
 
 interface DataType {
   nqn: string;
@@ -47,6 +47,7 @@ export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
       api.error({
         message: err?.message,
         description: err?.detail,
+        duration: 0,
       });
     },
   });

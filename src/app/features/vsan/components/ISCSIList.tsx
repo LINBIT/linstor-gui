@@ -11,7 +11,7 @@ import { REFETCH_INTERVAL } from '@app/const/time';
 import { CreateISCSIForm } from './CreateISCSIForm';
 import { formatBytes } from '@app/utils/size';
 import { GrowVolume } from './GrowVolume';
-import { ActionSection } from "./styled";
+import { ActionSection } from './styled';
 
 interface DataType {
   iqn: string;
@@ -41,6 +41,7 @@ export const ISCSIList = ({ complex }: ISCSIListProp) => {
       api.error({
         message: err?.message,
         description: err?.detail || err?.explanation,
+        duration: 0,
       });
     },
   });

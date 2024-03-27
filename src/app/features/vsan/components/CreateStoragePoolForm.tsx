@@ -265,6 +265,7 @@ const CreateStoragePoolForm = () => {
       api.error({
         message: err?.message,
         description: err?.detail || err?.explanation,
+        duration: 0,
       });
     },
   });
@@ -330,8 +331,8 @@ const CreateStoragePoolForm = () => {
   };
 
   const handleCancel = () => {
-    form.resetFields()
-    setCheckboxStates([[]])
+    form.resetFields();
+    setCheckboxStates([[]]);
     setCreateFormModal(false);
   };
 

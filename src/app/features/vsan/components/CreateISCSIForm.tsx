@@ -62,6 +62,7 @@ const CreateISCSIForm = () => {
       api.error({
         message: err?.message,
         description: err?.detail,
+        duration: 0,
       });
     },
   });
@@ -91,6 +92,7 @@ const CreateISCSIForm = () => {
         api.error({
           message: 'Invalid time',
           description: 'Please input valid time something like: 2024-03',
+          duration: 0,
         });
         return;
       }
@@ -99,6 +101,7 @@ const CreateISCSIForm = () => {
         api.error({
           message: 'Invalid domain',
           description: 'Please input valid domain something like: com.company',
+          duration: 0,
         });
         return;
       }
@@ -107,6 +110,7 @@ const CreateISCSIForm = () => {
         api.error({
           message: 'Invalid IQN',
           description: 'Please input valid IQN something like: unique-name',
+          duration: 0,
         });
         return;
       }

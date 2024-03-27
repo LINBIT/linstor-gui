@@ -30,7 +30,7 @@ interface DataType {
   online: boolean;
   standby: boolean;
   has_linstor_controller: boolean;
-  upgradeProgress: { maxSteps: number; curStep: number; label: string } | null;
+  upgradeProgress: { maxSteps: number; curStep: number; label: string; message?: string } | null;
   updating?: boolean;
 }
 
@@ -59,31 +59,8 @@ export const VSANNodeList = () => {
 
   const [currentNode, setCurrentNode] = useState('');
 
-  // TODO: need a way to stop the update process if there is no update available
-  // useEffect(() => {
-  //   const nodes = nodesFromVSAN?.data?.data ?? [];
-  //   const nodesToUpdate = nodes.filter((node) => updatingInfo[node.hostname]?.upgrading);
-
-  //   nodesToUpdate.forEach((node) => {
-  //     if (node.online && updatingInfo[node.hostname]?.progress?.label === 'Checking') {
-  //       setUpdatingInfo((prev) => {
-  //         return {
-  //           ...prev,
-  //           [node.hostname]: {
-  //             upgrading: false,
-  //             progress: { maxSteps: 0, curStep: 0, label: '' },
-  //           },
-  //         };
-  //       });
-
-  //       api.success({
-  //         message: 'No update available for node: ' + node.hostname,
-  //       });
-  //     }
-  //   });
-  // }, [api, nodesFromVSAN?.data, updatingInfo]);
-
   const upgradeNode = (nodeName: string) => {
+    const IS_DEV = process.env.NODE_ENV === 'development';
     console.log('Upgrade node: ' + nodeName);
     setUpdatingInfo((prev) => {
       return {
@@ -94,9 +71,17 @@ export const VSANNodeList = () => {
         },
       };
     });
-    const url = new URL(
+
+    let url = new URL(
       location.origin.replace(/^http/, 'wss') + '/api/frontend/v1/system/update-with-reboot/' + nodeName
     );
+
+    if (IS_DEV) {
+      url = new URL(
+        process.env.VSAN_API_HOST?.replace('https', 'wss') + '/api/frontend/v1/system/update-with-reboot/' + nodeName
+      );
+    }
+
     // const url = new URL('wss://192.168.123.217' + '/api/frontend/v1/system/update-with-reboot/' + nodeName);
     url.port = '';
     const updatedUrl = url.toString();
@@ -134,9 +119,27 @@ export const VSANNodeList = () => {
             ...prev,
             [nodeName]: {
               upgrading: true,
-              progress: { maxSteps: 10, curStep: 0, label: 'Installation Finished' },
+              progress: { maxSteps: 10, curStep: 0, label: 'Rebooting' },
             },
           };
+        });
+      }
+
+      if (progress.type === 'Error') {
+        setUpdatingInfo((prev) => {
+          return {
+            ...prev,
+            [nodeName]: {
+              upgrading: false,
+              progress: { maxSteps: 10, curStep: 0, label: 'Error', message: progress?.error },
+            },
+          };
+        });
+
+        api.error({
+          message: 'Failed to update node!',
+          description: progress?.error,
+          duration: 0,
         });
       }
     });
@@ -174,6 +177,7 @@ export const VSANNodeList = () => {
       api.error({
         message: err?.message,
         description: err?.detail || err?.explanation,
+        duration: 0,
       });
     },
   });
@@ -316,14 +320,21 @@ export const VSANNodeList = () => {
         const upgradeProcess = updatingInfo[record.hostname];
         const updateProcess = upgradeProcess?.progress;
         const progress = updateProcess?.curStep ?? 0 / (updateProcess?.maxSteps ?? 100);
+        let updateError = false;
 
-        const tooltip =
+        let tooltip =
           updateProcess?.label === 'Downloading' || updateProcess?.label === 'Installing'
             ? `${updateProcess?.label}  ${updateProcess?.curStep} of ${updateProcess?.maxSteps}`
             : updateProcess?.label;
 
-        const color =
+        let color =
           updateProcess?.label === 'Downloading' || updateProcess?.label === 'Installing' ? BRAND_COLOR : SUCCESS_COLOR;
+
+        if (updateProcess?.label === 'Error') {
+          color = ERROR_COLOR;
+          updateError = true;
+          tooltip = record.upgradeProgress?.message ?? 'Update failed!';
+        }
 
         return (
           <>
@@ -345,14 +356,17 @@ export const VSANNodeList = () => {
             </Space>
             {updating && (
               <UpdateStatus>
-                {updateProcess?.label === 'Finished' ? (
-                  <Tag color={SUCCESS_COLOR}>Finished</Tag>
-                ) : (
-                  <Tooltip title={tooltip || ''}>
-                    <Progress percent={progress} status="active" strokeColor={color} />
-                    <Tag color={SUCCESS_COLOR}>{updateProcess?.label}</Tag>
-                  </Tooltip>
-                )}
+                <Tooltip title={tooltip || ''}>
+                  <Progress percent={progress} status="active" strokeColor={color} />
+                  <Tag color={color}>{updateProcess?.label}</Tag>
+                </Tooltip>
+              </UpdateStatus>
+            )}
+            {updateError && (
+              <UpdateStatus>
+                <Tooltip title={tooltip || ''}>
+                  <Tag color={ERROR_COLOR}>{updateProcess?.label}</Tag>
+                </Tooltip>
               </UpdateStatus>
             )}
           </>
@@ -360,6 +374,8 @@ export const VSANNodeList = () => {
       },
     },
   ];
+
+  const IS_DEV = process.env.NODE_ENV === 'development';
 
   return (
     <div>
@@ -371,13 +387,29 @@ export const VSANNodeList = () => {
           </Button>
 
           <Button type="primary">
-            <a href={'https://' + window.location.hostname + '/addnode.html'} target="_blank" rel="noreferrer">
+            <a
+              href={
+                IS_DEV
+                  ? process.env.VSAN_API_HOST + '/addnode.html'
+                  : 'https://' + window.location.hostname + '/addnode.html'
+              }
+              target="_blank"
+              rel="noreferrer"
+            >
               Add Nodes
             </a>
           </Button>
 
           <Button danger type="default">
-            <a href={'https://' + window.location.hostname + '/delnode.html'} target="_blank" rel="noreferrer">
+            <a
+              href={
+                IS_DEV
+                  ? process.env.VSAN_API_HOST + '/delnode.html'
+                  : 'https://' + window.location.hostname + '/delnode.html'
+              }
+              target="_blank"
+              rel="noreferrer"
+            >
               Delete Nodes
             </a>
           </Button>

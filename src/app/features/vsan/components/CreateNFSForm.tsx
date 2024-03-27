@@ -70,6 +70,7 @@ const CreateNFSForm = () => {
       api.error({
         message: err?.message,
         description: err?.detail || err?.explanation,
+        duration: 0,
       });
     },
   });

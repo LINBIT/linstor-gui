@@ -44,6 +44,7 @@ export const CreateResourceGroup = () => {
       api.error({
         message: err?.message,
         description: err?.detail || err?.explanation,
+        duration: 0,
       });
     },
   });

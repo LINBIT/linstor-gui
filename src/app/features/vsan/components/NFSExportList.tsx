@@ -10,7 +10,7 @@ import { REFETCH_INTERVAL } from '@app/const/time';
 import { formatBytes } from '@app/utils/size';
 import { GrowVolume } from './GrowVolume';
 import { CreateNFSForm } from './CreateNFSForm';
-import { ActionSection } from "./styled";
+import { ActionSection } from './styled';
 
 interface DataType {
   name: string;
@@ -41,6 +41,7 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
       api.error({
         message: err?.message,
         description: err?.detail || err?.explanation,
+        duration: 0,
       });
     },
   });

@@ -82,6 +82,7 @@ const CreateNVMEOfForm = () => {
       api.error({
         message: err?.message,
         description: err?.detail || err?.explanation,
+        duration: 0,
       });
     },
   });
@@ -96,6 +97,7 @@ const CreateNVMEOfForm = () => {
         api.error({
           message: 'Invalid time',
           description: 'Please input valid time something like: 2024-03',
+          duration: 0,
         });
         return;
       }
@@ -104,6 +106,7 @@ const CreateNVMEOfForm = () => {
         api.error({
           message: 'Invalid domain',
           description: 'Please input valid domain something like: com.company',
+          duration: 0,
         });
         return;
       }
@@ -112,6 +115,7 @@ const CreateNVMEOfForm = () => {
         api.error({
           message: 'Invalid NQN',
           description: 'Please input valid NQN something like: unique-name',
+          duration: 0,
         });
         return;
       }

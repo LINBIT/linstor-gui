@@ -34,6 +34,7 @@ export const GrowVolume = ({ resource, resource_group, current_kib }: GrowVolume
       api.error({
         message: err?.message,
         description: err?.detail || err?.explanation,
+        duration: 0,
       });
     },
     onSuccess: () => {
