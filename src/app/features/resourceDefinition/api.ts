@@ -1,4 +1,4 @@
-import { get, post } from '../requests';
+import { del, get, post } from '../requests';
 
 import {
   CreateResourceDefinitionRequestBody,
@@ -6,6 +6,10 @@ import {
   AutoPlaceRequestBody,
   ResourceDefinitionListQuery,
 } from './types';
+
+const getResourceDefinitionCount = () => {
+  return get('/v1/stats/resource-definitions');
+};
 
 const createResourceDefinition = (body: CreateResourceDefinitionRequestBody) => {
   return post('/v1/resource-definitions', {
@@ -43,4 +47,32 @@ const getResourceDefinition = (query: ResourceDefinitionListQuery) => {
   });
 };
 
-export { createResourceDefinition, createVolumeDefinition, autoPlace, getResourceDefinition };
+const deleteResourceDefinition = (resource: string) => {
+  return del(`/v1/resource-definitions/{resource}`, {
+    params: {
+      path: {
+        resource,
+      },
+    },
+  });
+};
+
+const getVolumeDefinitionListByResource = (resource: string) => {
+  return get(`/v1/resource-definitions/{resource}/volume-definitions`, {
+    params: {
+      path: {
+        resource,
+      },
+    },
+  });
+};
+
+export {
+  createResourceDefinition,
+  createVolumeDefinition,
+  autoPlace,
+  getResourceDefinition,
+  getResourceDefinitionCount,
+  deleteResourceDefinition,
+  getVolumeDefinitionListByResource,
+};

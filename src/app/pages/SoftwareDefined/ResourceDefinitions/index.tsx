@@ -16,6 +16,7 @@ import DynamicForm from '@app/components/DynamicForm';
 import { uniqId } from '@app/utils/stringUtils';
 import { TYPE_MAP } from '@app/interfaces/dynamicFormType';
 import { notify, notifyList } from '@app/utils/toast';
+import { List } from '@app/features/resourceDefinition/components/List';
 
 const ResourceDefinitionList: React.FunctionComponent = () => {
   const { t } = useTranslation(['resource_definition', 'common']);
@@ -203,7 +204,9 @@ const ResourceDefinitionList: React.FunctionComponent = () => {
 
   return (
     <PageBasic title={t('list')}>
-      <FilterList
+      <List />
+
+      {/* <FilterList
         showSearch
         url="/v1/resource-definitions"
         filerField="connection_status"
@@ -213,7 +216,7 @@ const ResourceDefinitionList: React.FunctionComponent = () => {
         columns={columns}
         cells={cells}
         statsUrl="/v1/stats/resource-definitions"
-      />
+      /> */}
 
       <PropertyForm
         initialVal={initialProps}
