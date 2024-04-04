@@ -21,6 +21,7 @@ type FormType = {
   enable_chap?: boolean;
   username?: string;
   password?: string;
+  gross_size: boolean;
 };
 
 const CreateISCSIForm = () => {
@@ -67,7 +68,7 @@ const CreateISCSIForm = () => {
     },
   });
 
-  const use_all = Form.useWatch('use_all', form);
+  const gross_size = Form.useWatch('gross_size', form);
   const resource_group = Form.useWatch('resource_group', form);
 
   const handleOk = () => {
@@ -132,6 +133,9 @@ const CreateISCSIForm = () => {
         volumes,
         username: values.enable_chap ? values.username : '',
         password: values.enable_chap ? values.password : '',
+        gross_size: values.gross_size,
+        // this value is hardcoded in the original
+        implementation: 'scst',
       };
 
       createMutation.mutate(currentExport);
@@ -147,10 +151,10 @@ const CreateISCSIForm = () => {
       maxVolumeSize = selectedRG?.max_volume_size - clusterPrivateVolumeSizeKib;
     }
 
-    if (use_all) {
+    if (gross_size) {
       form.setFieldValue('size', maxVolumeSize);
     }
-  }, [form, resourceGroupsFromVSAN, resource_group, use_all]);
+  }, [form, resourceGroupsFromVSAN, resource_group, gross_size]);
 
   return (
     <>
@@ -248,9 +252,9 @@ const CreateISCSIForm = () => {
           <Form.Item label="Size">
             <Space>
               <Form.Item name="size" required>
-                {use_all ? <SizeInput disabled={use_all} /> : <SizeInput />}
+                {gross_size ? <SizeInput disabled={gross_size} /> : <SizeInput />}
               </Form.Item>
-              <Form.Item name="use_all" valuePropName="checked">
+              <Form.Item name="gross_size" valuePropName="checked">
                 <Checkbox>Use all available</Checkbox>
               </Form.Item>
             </Space>

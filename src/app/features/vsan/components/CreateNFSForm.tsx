@@ -18,6 +18,7 @@ type FormType = {
   file_system: string;
   size: number;
   allowed_ips: string[];
+  gross_size: boolean;
 };
 
 const CreateNFSForm = () => {
@@ -34,7 +35,7 @@ const CreateNFSForm = () => {
   const [prefix, setPrefix] = useState();
 
   const service_ip = Form.useWatch('service_ip', form);
-  const use_all = Form.useWatch('use_all', form);
+  const gross_size = Form.useWatch('gross_size', form);
   const resource_group = Form.useWatch('resource_group', form);
 
   const ipServiceOptions = React.useMemo(() => {
@@ -52,10 +53,10 @@ const CreateNFSForm = () => {
       maxVolumeSize = selectedRG?.max_volume_size - clusterPrivateVolumeSizeKib;
     }
 
-    if (use_all) {
+    if (gross_size) {
       form.setFieldValue('size', maxVolumeSize);
     }
-  }, [form, resourceGroupsFromVSAN, resource_group, use_all]);
+  }, [form, resourceGroupsFromVSAN, resource_group, gross_size]);
 
   const createMutation = useMutation({
     mutationFn: createNFSExport,
@@ -95,7 +96,7 @@ const CreateNFSForm = () => {
         resource_group: values.resource_group,
         volumes,
         allowed_ips: values.allowed_ips || [],
-        gross_size: false,
+        gross_size: values.gross_size,
       };
 
       createMutation.mutate(currentExport);
@@ -220,9 +221,9 @@ const CreateNFSForm = () => {
           <Form.Item label="Size">
             <Space>
               <Form.Item name="size" required>
-                {use_all ? <SizeInput disabled={use_all} /> : <SizeInput />}
+                {gross_size ? <SizeInput disabled={gross_size} /> : <SizeInput />}
               </Form.Item>
-              <Form.Item name="use_all" valuePropName="checked">
+              <Form.Item name="gross_size" valuePropName="checked">
                 <Checkbox>Use all available</Checkbox>
               </Form.Item>
             </Space>

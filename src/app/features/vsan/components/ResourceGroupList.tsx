@@ -4,11 +4,10 @@ import { deleteResourceGroup, getResourceGroups } from '../api';
 
 import { Button, Popconfirm, Table, notification } from 'antd';
 import type { TableProps } from 'antd';
-import { REFETCH_INTERVAL } from '@app/const/time';
 import { DEFAULT_SP } from '@app/const/type';
 import { CreateResourceGroup } from './CreateResourceGroup';
 import { ErrorMessage } from '@app/features/vsan';
-import { ActionSection } from "./styled";
+import { ActionSection } from './styled';
 
 interface DataType {
   name: string;
@@ -24,7 +23,6 @@ export const ResourceGroupList = () => {
   const { data, refetch, isLoading } = useQuery({
     queryKey: ['getResourceGroups'],
     queryFn: () => getResourceGroups(),
-    refetchInterval: REFETCH_INTERVAL,
   });
 
   const deleteMutation = useMutation({
@@ -39,7 +37,7 @@ export const ResourceGroupList = () => {
       api.error({
         message: err?.message,
         description: err?.detail || err?.explanation,
-        duration: 0
+        duration: 0,
       });
     },
   });
