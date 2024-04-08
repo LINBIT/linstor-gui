@@ -15,6 +15,7 @@ import {
 import { ResourceDefinition, ResourceDefinitionListQuery } from '../types';
 import get from 'lodash.get';
 import { SearchForm } from './styled';
+import { SpawnForm } from './SpawnForm';
 
 export const List = () => {
   const [current, setCurrent] = useState<ResourceDefinition>();
@@ -92,6 +93,10 @@ export const List = () => {
     });
   };
 
+  const edit = (resourceDefinitionName?: string) => {
+    history.push(`/storage-configuration/resource-definitions/${resourceDefinitionName}/edit`);
+  };
+
   const columns: TableProps<ResourceDefinition>['columns'] = [
     {
       title: 'Name',
@@ -139,9 +144,7 @@ export const List = () => {
       fixed: 'right',
       render: (_, record) => (
         <Space size="small">
-          <Button type="default" onClick={() => console.log()}>
-            Deploy
-          </Button>
+          <SpawnForm resource={record.name} />
 
           <Popconfirm
             key="delete"
@@ -161,8 +164,7 @@ export const List = () => {
                   key: 'edit',
                   label: 'Edit',
                   onClick: () => {
-                    setCurrent(record);
-                    setPropertyModalOpen(true);
+                    edit(record.name);
                   },
                 },
                 {
