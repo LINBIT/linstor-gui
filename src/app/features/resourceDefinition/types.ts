@@ -6,3 +6,4 @@ export type AutoPlaceRequestBody = components['schemas']['AutoPlaceRequest'];
 export type ResourceDefinitionListQuery = operations['resourceDefinitionList']['parameters']['query'];
 export type ResourceDefinition = components['schemas']['ResourceDefinition'];
 export type VolumeDefinition = components['schemas']['VolumeDefinition'];
+export type UpdateResourceDefinitionRequestBody = components['schemas']['ResourceDefinitionModify'];

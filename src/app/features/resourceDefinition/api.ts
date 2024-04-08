@@ -1,10 +1,11 @@
-import { del, get, post } from '../requests';
+import { del, get, post, put } from '../requests';
 
 import {
   CreateResourceDefinitionRequestBody,
   CreateVolumeDefinitionRequestBody,
   AutoPlaceRequestBody,
   ResourceDefinitionListQuery,
+  UpdateResourceDefinitionRequestBody,
 } from './types';
 
 const getResourceDefinitionCount = () => {
@@ -57,6 +58,17 @@ const deleteResourceDefinition = (resource: string) => {
   });
 };
 
+const updateResourceDefinition = (resource: string, body: UpdateResourceDefinitionRequestBody) => {
+  return put(`/v1/resource-definitions/{resource}`, {
+    params: {
+      path: {
+        resource,
+      },
+    },
+    body,
+  });
+};
+
 const getVolumeDefinitionListByResource = (resource: string) => {
   return get(`/v1/resource-definitions/{resource}/volume-definitions`, {
     params: {
@@ -75,4 +87,5 @@ export {
   getResourceDefinitionCount,
   deleteResourceDefinition,
   getVolumeDefinitionListByResource,
+  updateResourceDefinition,
 };

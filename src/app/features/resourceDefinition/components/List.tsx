@@ -11,16 +11,26 @@ import {
   getResourceDefinitionCount,
   deleteResourceDefinition,
   getVolumeDefinitionListByResource,
+  updateResourceDefinition,
 } from '../api';
-import { ResourceDefinition, ResourceDefinitionListQuery } from '../types';
+import {
+  CreateVolumeDefinitionRequestBody,
+  ResourceDefinition,
+  ResourceDefinitionListQuery,
+  UpdateResourceDefinitionRequestBody,
+} from '../types';
 import get from 'lodash.get';
 import { SearchForm } from './styled';
 import { SpawnForm } from './SpawnForm';
+import { uniqId } from '@app/utils/stringUtils';
+import { omit } from '@app/utils/object';
 
 export const List = () => {
   const [current, setCurrent] = useState<ResourceDefinition>();
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
+  const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
+
   const [query, setQuery] = useState<ResourceDefinitionListQuery>({
     limit: 10,
     offset: 0,
@@ -76,6 +86,15 @@ export const List = () => {
   const deleteMutation = useMutation({
     mutationKey: ['deleteResourceDefinition'],
     mutationFn: (resource: string) => deleteResourceDefinition(resource),
+    onSuccess: () => {
+      refetch();
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationKey: ['updateResourceDefinition'],
+    mutationFn: (data: UpdateResourceDefinitionRequestBody) =>
+      updateResourceDefinition(current?.name ?? '', data as any),
     onSuccess: () => {
       refetch();
     },
@@ -148,13 +167,17 @@ export const List = () => {
 
           <Popconfirm
             key="delete"
-            title="Delete the storage pool"
-            description="Are you sure to delete this storage pool?"
+            title="Delete the resource definition"
+            description="Are you sure to delete this resource definition?"
             okText="Yes"
             cancelText="No"
-            onConfirm={() => console.log()}
+            onConfirm={() => {
+              deleteMutation.mutate(record.name || '');
+            }}
           >
-            <Button danger>Delete</Button>
+            <Button danger loading={deleteMutation.isLoading}>
+              Delete
+            </Button>
           </Popconfirm>
 
           <Dropdown
@@ -172,6 +195,15 @@ export const List = () => {
                   label: 'Properties',
                   onClick: () => {
                     setCurrent(record);
+                    setPropertyModalOpen(true);
+
+                    const currentData = omit(
+                      record.props ?? {},
+                      'DrbdPrimarySetOn',
+                      'NVMe/TRType',
+                      'DrbdOptions/auto-verify-alg'
+                    );
+                    setInitialProps(currentData);
                     setPropertyModalOpen(true);
                   },
                 },
@@ -240,7 +272,7 @@ export const List = () => {
         columns={columns}
         dataSource={resourceDefinition?.data ?? []}
         rowSelection={rowSelection}
-        rowKey={(item) => item?.uuid || ''}
+        rowKey={(item) => item?.name ?? uniqId()}
         pagination={{
           total: stats?.data?.count ?? 0,
           showSizeChanger: true,
@@ -258,10 +290,10 @@ export const List = () => {
       />
 
       <PropertyForm
-        initialVal={current?.props}
+        initialVal={initialProps}
         openStatus={propertyModalOpen}
         type="resource-definition"
-        handleSubmit={(data) => console.log()}
+        handleSubmit={(data) => updateMutation.mutate(data)}
         handleClose={() => setPropertyModalOpen(!propertyModalOpen)}
       />
     </>
