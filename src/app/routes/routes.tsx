@@ -53,6 +53,7 @@ import { About } from '@app/pages/VSAN/About';
 import { ResourceGroup } from '@app/pages/VSAN/ResourceGroup';
 import { useDispatch, useSelector } from 'react-redux';
 import { Dispatch, RootState } from '@app/store';
+import VolumeDefinitionList from '@app/pages/SoftwareDefined/VolumeDefinitions';
 
 let routeFocusTimer: number;
 
@@ -193,6 +194,13 @@ const routes: AppRouteConfig[] = [
         label: 'resource_definitions',
         path: '/storage-configuration/resource-definitions',
         title: 'LINSTOR | Storage Configuration | Resource Definitions',
+      },
+      {
+        component: VolumeDefinitionList,
+        exact: true,
+        label: 'volume_definitions',
+        path: '/storage-configuration/volume-definitions',
+        title: 'LINSTOR | Storage Configuration | Volume Definitions',
       },
       {
         component: ResourceDefinitionCreate,
