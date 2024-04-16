@@ -1,32 +1,26 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Button, Form, Space, Table, Tag, Popconfirm, Input, Dropdown } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useHistory } from 'react-router-dom';
 import { DownOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 
 import PropertyForm from '@app/components/PropertyForm';
-import {
-  getResourceDefinition,
-  getResourceDefinitionCount,
-  deleteResourceDefinition,
-  getVolumeDefinitionListByResource,
-  updateResourceDefinition,
-} from '../api';
-import { ResourceDefinition, ResourceDefinitionListQuery, UpdateResourceDefinitionRequestBody } from '../types';
-import get from 'lodash.get';
+import { getResourceGroups, getResourceGroupCount, deleteResourceGroup, updateResourceGroup } from '../api';
+import { CreateResourceGroupRequestBody, ResourceGroupListQuery, UpdateResourceGroupRequestBody } from '../types';
 import { SearchForm } from './styled';
 import { SpawnForm } from './SpawnForm';
 import { uniqId } from '@app/utils/stringUtils';
-import { omit } from '@app/utils/object';
 
 export const List = () => {
-  const [current, setCurrent] = useState<ResourceDefinition>();
+  const { t } = useTranslation(['resource_group', 'common']);
+  const [current, setCurrent] = useState<CreateResourceGroupRequestBody>();
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
 
-  const [query, setQuery] = useState<ResourceDefinitionListQuery>({
+  const [query, setQuery] = useState<ResourceGroupListQuery>({
     limit: 10,
     offset: 0,
   });
@@ -35,27 +29,19 @@ export const List = () => {
   const [form] = Form.useForm();
 
   const { data: resourceDefinition, refetch } = useQuery({
-    queryKey: ['getResourceDefinition', query],
-    queryFn: () => getResourceDefinition(query),
-    onSuccess: (data) => {
-      data?.data?.forEach(async (item) => {
-        if (item?.name) {
-          const vd = await getVolumeDefinitionListByResource(item?.name);
-          console.log(vd, 'vd');
-        }
-      });
-    },
+    queryKey: ['getResourceGroups', query],
+    queryFn: () => getResourceGroups(query),
   });
 
   const { data: stats } = useQuery({
-    queryKey: ['getResourceDefinitionCount'],
-    queryFn: () => getResourceDefinitionCount(),
+    queryKey: ['getResourceGroupCount'],
+    queryFn: () => getResourceGroupCount(),
   });
 
   const handleSearch = () => {
     const values = form.getFieldsValue();
 
-    const newQuery: ResourceDefinitionListQuery = { ...query };
+    const newQuery: ResourceGroupListQuery = { ...query };
 
     if (values.name) {
       newQuery.resource_definitions = [values.name];
@@ -79,17 +65,16 @@ export const List = () => {
   };
 
   const deleteMutation = useMutation({
-    mutationKey: ['deleteResourceDefinition'],
-    mutationFn: (resource: string) => deleteResourceDefinition(resource),
+    mutationKey: ['deleteResourceGroup'],
+    mutationFn: (resource: string) => deleteResourceGroup(resource),
     onSuccess: () => {
       refetch();
     },
   });
 
   const updateMutation = useMutation({
-    mutationKey: ['updateResourceDefinition'],
-    mutationFn: (data: UpdateResourceDefinitionRequestBody) =>
-      updateResourceDefinition(current?.name ?? '', data as any),
+    mutationKey: ['updateResourceGroup'],
+    mutationFn: (data: UpdateResourceGroupRequestBody) => updateResourceGroup(current?.name ?? '', data as any),
     onSuccess: () => {
       refetch();
     },
@@ -107,11 +92,20 @@ export const List = () => {
     });
   };
 
-  const edit = (resourceDefinitionName?: string) => {
-    history.push(`/storage-configuration/resource-definitions/${resourceDefinitionName}/edit`);
+  const edit = (resource_group?: string) => {
+    history.push(`/storage-configuration/resource-groups/${resource_group}/edit`);
   };
 
-  const columns: TableProps<ResourceDefinition>['columns'] = [
+  const replicationMap = useMemo(
+    () => ({
+      A: t('async'),
+      B: t('semi_sync'),
+      C: t('sync'),
+    }),
+    [t]
+  );
+
+  const columns: TableProps<CreateResourceGroupRequestBody>['columns'] = [
     {
       title: 'Name',
       key: 'name',
@@ -126,30 +120,54 @@ export const List = () => {
       showSorterTooltip: false,
     },
     {
-      title: 'Resource Group Name',
-      key: 'resource_group_name',
-      dataIndex: 'resource_group_name',
-      sorter: (a, b) => {
-        return (a?.resource_group_name ?? '').localeCompare(b?.resource_group_name ?? '');
+      title: 'Place Count',
+      key: 'place_count',
+      render: (_, item) => {
+        return item?.select_filter?.place_count;
       },
       showSorterTooltip: false,
     },
     {
-      title: 'Port',
-      key: 'Port',
-      dataIndex: 'layer_data',
-      render: (layer_data) => {
-        const port = get(layer_data, '[0].data.port', '');
-        return <span>{port}</span>;
+      title: 'Storage Pool(s)',
+      key: 'Storage Pool(s)',
+      render: (_, item) => {
+        const sp = Array.isArray(item?.select_filter?.storage_pool_list)
+          ? item?.select_filter?.storage_pool_list ?? []
+          : [t('auto')];
+        return (
+          <>
+            {sp.map((e) => (
+              <Tag key={e}>{e}</Tag>
+            ))}
+          </>
+        );
       },
     },
     {
-      title: 'State',
-      key: 'state',
-      render: (_, rd) => {
-        const state = rd.flags?.find((flag) => flag === 'DELETE') != null ? 'DELETING' : 'OK';
-        return <Tag color={state === 'DELETING' ? 'red' : 'green'}>{state}</Tag>;
+      title: 'Replication Mode',
+      key: 'Replication Mode',
+      render: (_, item) => {
+        const protocol = item?.props?.['DrbdOptions/Net/protocol'];
+        if (protocol) {
+          return <span>{replicationMap[protocol]}</span>;
+        } else {
+          return replicationMap['C'];
+        }
       },
+    },
+    {
+      title: 'Diskless on remaining',
+      key: 'state',
+      align: 'center',
+      render: (_, item) => {
+        const state = item.select_filter?.diskless_on_remaining ? 'Yes' : 'No';
+        return <Tag>{state}</Tag>;
+      },
+    },
+    {
+      title: 'Description',
+      key: 'description',
+      dataIndex: 'description',
     },
     {
       title: 'Action',
@@ -158,12 +176,12 @@ export const List = () => {
       fixed: 'right',
       render: (_, record) => (
         <Space size="small">
-          <SpawnForm resource={record.name} />
+          <SpawnForm resource_group={record.name} />
 
           <Popconfirm
             key="delete"
-            title="Delete the resource definition"
-            description="Are you sure to delete this resource definition?"
+            title="Delete the resource group"
+            description="Are you sure to delete this resource group?"
             okText="Yes"
             cancelText="No"
             onConfirm={() => {
@@ -190,15 +208,7 @@ export const List = () => {
                   label: 'Properties',
                   onClick: () => {
                     setCurrent(record);
-                    setPropertyModalOpen(true);
-
-                    const currentData = omit(
-                      record.props ?? {},
-                      'DrbdPrimarySetOn',
-                      'NVMe/TRType',
-                      'DrbdOptions/auto-verify-alg'
-                    );
-                    setInitialProps(currentData);
+                    setInitialProps(record.props ?? {});
                     setPropertyModalOpen(true);
                   },
                 },
@@ -256,7 +266,7 @@ export const List = () => {
           </Form.Item>
         </Form>
 
-        <Button type="primary" onClick={() => history.push('/storage-configuration/resource-definitions/create')}>
+        <Button type="primary" onClick={() => history.push('/storage-configuration/resource-groups/create')}>
           Add
         </Button>
       </SearchForm>

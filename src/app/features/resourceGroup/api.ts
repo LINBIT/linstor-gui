@@ -1,10 +1,11 @@
-import { get, post, put } from '@app/features/requests';
+import { del, get, post, put } from '@app/features/requests';
 
 import {
   ResourceGroupQuery,
   ResourceGroupCreateRequestBody,
   ResourceGroupModifyRequestBody,
   AddVolumeRequestBody,
+  SpawnRequest,
 } from './types';
 
 const getResourceGroups = (query: ResourceGroupQuery) => {
@@ -15,14 +16,37 @@ const getResourceGroups = (query: ResourceGroupQuery) => {
   });
 };
 
+const getResourceGroupCount = () => {
+  return get('/v1/stats/resource-groups');
+};
+
 const createResourceGroup = (body: ResourceGroupCreateRequestBody) => {
   return post('/v1/resource-groups', {
     body,
   });
 };
 
+const deleteResourceGroup = (resource_group: string) => {
+  return del('/v1/resource-groups/{resource_group}', {
+    params: {
+      path: { resource_group },
+    },
+  });
+};
+
 const updateResourceGroup = (resource_group: string, body: ResourceGroupModifyRequestBody) => {
   return put('/v1/resource-groups/{resource_group}', {
+    params: {
+      path: {
+        resource_group,
+      },
+    },
+    body,
+  });
+};
+
+const spawnResourceGroup = (resource_group: string, body: SpawnRequest) => {
+  return post('/v1/resource-groups/{resource_group}/spawn', {
     params: {
       path: {
         resource_group,
@@ -43,4 +67,12 @@ const addVolumeToResourceGroup = (resource_group: string, body: AddVolumeRequest
   });
 };
 
-export { getResourceGroups, createResourceGroup, updateResourceGroup, addVolumeToResourceGroup };
+export {
+  getResourceGroups,
+  createResourceGroup,
+  updateResourceGroup,
+  addVolumeToResourceGroup,
+  getResourceGroupCount,
+  deleteResourceGroup,
+  spawnResourceGroup,
+};

@@ -15,6 +15,7 @@ import { uniqId } from '@app/utils/stringUtils';
 import { TYPE_MAP } from '@app/interfaces/dynamicFormType';
 import { convertRoundUp, sizeOptions } from '@app/utils/size';
 import { notify, notifyList } from '@app/utils/toast';
+import { List } from '@app/features/resourceGroup';
 
 const ResourceGroupList: React.FunctionComponent = () => {
   const { t } = useTranslation(['resource_group', 'common']);
@@ -216,7 +217,8 @@ const ResourceGroupList: React.FunctionComponent = () => {
 
   return (
     <PageBasic title={t('list')}>
-      <FilterList
+      <List />
+      {/* <FilterList
         showSearch
         url="/v1/resource-groups"
         filerField="connection_status"
@@ -283,7 +285,7 @@ const ResourceGroupList: React.FunctionComponent = () => {
           handleCancelClick={() => setShowDeployModal(false)}
           submitting={deploying}
         />
-      </Modal>
+      </Modal> */}
     </PageBasic>
   );
 };

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Button, Checkbox, Col, Form, Input, Radio, Row, Select, Switch } from 'antd';
+import { Button, Checkbox, Col, Divider, Form, Input, Radio, Row, Select, Switch } from 'antd';
 import { useHistory } from 'react-router-dom';
 import uniqby from 'lodash.uniqby';
 import { toast } from 'react-toastify';
@@ -133,6 +133,8 @@ const CreateForm = () => {
     addVolumeToResourceGroupMutation.isLoading ||
     createResourceGroupMutation.isLoading;
 
+  const drbdLayer = layer_stack?.includes('drbd');
+
   return (
     <Form<FormType>
       size="large"
@@ -142,7 +144,7 @@ const CreateForm = () => {
       form={form}
       initialValues={{
         data_copy_mode: 'C',
-        deploy: true,
+        deploy: false,
         place_count: 2,
       }}
       onFinish={onFinish}
@@ -172,10 +174,10 @@ const CreateForm = () => {
             />
           </Form.Item>
 
-          <Form.Item label="Replication Mode" name="data_copy_mode">
-            <Radio.Group>
-              <Radio value="A">Asynchronous</Radio>
-              <Radio value="C">Synchronous</Radio>
+          <Form.Item label={drbdLayer ? 'DRBD Protocol' : 'Replication Mode'} name="data_copy_mode">
+            <Radio.Group disabled={drbdLayer}>
+              <Radio value="A">Asynchronous(A)</Radio>
+              <Radio value="C">Synchronous(C)</Radio>
             </Radio.Group>
           </Form.Item>
 
@@ -183,21 +185,16 @@ const CreateForm = () => {
             <Input placeholder="Please input place count" type="number" min={0} />
           </Form.Item>
 
-          <Form.Item label="Deploy" name="deploy" valuePropName="checked">
+          <Form.Item label="Spawn on created" name="deploy" valuePropName="checked">
             <Switch defaultChecked />
           </Form.Item>
 
           <Form.Item name="diskless_on_remaining" valuePropName="checked" wrapperCol={{ offset: 7, span: 17 }}>
-            <Checkbox>Diskless</Checkbox>
+            <Checkbox>Diskless on remaining</Checkbox>
           </Form.Item>
         </Col>
         <Col span={10}>
-          <Form.Item
-            label="Providers"
-            name="provider_list"
-            required
-            rules={[{ required: true, message: 'Please select providers' }]}
-          >
+          <Form.Item label="Providers" name="provider_list">
             <Select
               allowClear
               mode="multiple"
@@ -209,12 +206,7 @@ const CreateForm = () => {
             />
           </Form.Item>
 
-          <Form.Item
-            label="Layers"
-            name="layer_stack"
-            required
-            rules={[{ required: true, message: 'Please select layers' }]}
-          >
+          <Form.Item label="Layers" name="layer_stack">
             <Select
               mode="multiple"
               allowClear
@@ -224,7 +216,8 @@ const CreateForm = () => {
                 value: e,
               }))}
               onChange={(val) => {
-                if (!layer_stack.includes('drbd') && val.includes('drbd')) {
+                if (!layer_stack?.includes('drbd') && val.includes('drbd')) {
+                  form.setFieldValue('data_copy_mode', 'C');
                   toast('Please make sure you have drbd-kmod installed on the nodes you wish to use DRBD on', {
                     type: 'info',
                   });
@@ -233,12 +226,7 @@ const CreateForm = () => {
             />
           </Form.Item>
 
-          <Form.Item
-            label="Storage Pool"
-            name="storage_pool_list"
-            required
-            rules={[{ required: true, message: 'Please select storage pool!' }]}
-          >
+          <Form.Item label="Storage Pool" name="storage_pool_list">
             <Select
               allowClear
               placeholder="Please select storage pool"
@@ -249,38 +237,12 @@ const CreateForm = () => {
               }))}
             />
           </Form.Item>
-          {deploy && (
-            <>
-              <Form.Item
-                label="Resource Definition Name"
-                name="resource_definition_name"
-                required
-                rules={[
-                  {
-                    required: true,
-                    message: 'Resource definition name is required!',
-                  },
-                ]}
-                labelCol={{ span: 8 }}
-                wrapperCol={{ span: 16 }}
-              >
-                <Input placeholder="Please input resource definition group name" />
-              </Form.Item>
-
-              <Form.Item name="size" label="Volume Size" required>
-                <SizeInput />
-              </Form.Item>
-
-              <Form.Item name="definition_only" valuePropName="checked" wrapperCol={{ offset: 7, span: 17 }}>
-                <Checkbox>Definition Only</Checkbox>
-              </Form.Item>
-            </>
-          )}
         </Col>
       </Row>
 
       <div
         style={{
+          marginLeft: 40,
           marginBottom: 20,
         }}
       >
@@ -322,6 +284,43 @@ const CreateForm = () => {
             </Form.Item>
           </Col>
         </Row>
+      )}
+
+      {deploy && (
+        <>
+          <Divider />
+          <Row gutter={[16, 16]}>
+            <Col span={10}>
+              <Form.Item
+                label="Resource Definition Name"
+                name="resource_definition_name"
+                required
+                rules={[
+                  {
+                    required: true,
+                    message: 'Resource definition name is required!',
+                  },
+                ]}
+                labelCol={{ span: 8 }}
+                wrapperCol={{ span: 16 }}
+              >
+                <Input placeholder="Please input resource definition group name" />
+              </Form.Item>
+            </Col>
+
+            <Col span={10}>
+              <Form.Item name="size" label="Volume Size" required>
+                <SizeInput />
+              </Form.Item>
+            </Col>
+
+            <Col span={10}>
+              <Form.Item name="definition_only" valuePropName="checked" wrapperCol={{ offset: 7, span: 17 }}>
+                <Checkbox>Definition Only</Checkbox>
+              </Form.Item>
+            </Col>
+          </Row>
+        </>
       )}
 
       <div style={{ marginLeft: 80 }}>
