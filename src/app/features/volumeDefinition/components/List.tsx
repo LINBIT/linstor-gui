@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Button, Form, Space, Table, Tag, Popconfirm, Input, Dropdown } from 'antd';
+import { Button, Form, Space, Table, Tag, Popconfirm, Input, Dropdown, Select } from 'antd';
 import type { TableProps } from 'antd';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQueries, useQuery } from '@tanstack/react-query';
 import { useHistory } from 'react-router-dom';
 import { DownOutlined } from '@ant-design/icons';
 
@@ -13,20 +13,24 @@ import {
   getVolumeDefinitionListByResource,
   updateResourceDefinition,
 } from '../api';
-import { ResourceDefinition, ResourceDefinitionListQuery, UpdateResourceDefinitionRequestBody } from '../types';
+import {
+  ResourceDefinition,
+  ResourceDefinitionListQuery,
+  UpdateResourceDefinitionRequestBody,
+  VolumeDefinition,
+} from '../types';
 import get from 'lodash.get';
 import { SearchForm } from './styled';
 import { SpawnForm } from './SpawnForm';
 import { uniqId } from '@app/utils/stringUtils';
 import { omit } from '@app/utils/object';
+import { formatBytes } from '@app/utils/size';
 
 export const List = () => {
   const [current, setCurrent] = useState<ResourceDefinition>();
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
-
-  const [vdList, setVdList] = useState([]);
 
   const [query, setQuery] = useState<ResourceDefinitionListQuery>({
     limit: 10,
@@ -36,31 +40,39 @@ export const List = () => {
   const history = useHistory();
   const [form] = Form.useForm();
 
-  const { data: resourceDefinition, refetch } = useQuery({
+  const {
+    data: resourceDefinition,
+    refetch,
+    isLoading: rdIsLoading,
+  } = useQuery({
     queryKey: ['getResourceDefinition', query],
     queryFn: () => getResourceDefinition(query),
-    onSuccess: (data) => {
-      const vdListFromRD = [] as any;
-      data?.data?.forEach(async (item) => {
-        if (item?.name) {
-          const vd = await getVolumeDefinitionListByResource(item?.name);
-          console.log(vd?.data, 'vd');
-          vd?.data?.forEach((element) => {
-            vdListFromRD.push(element);
-          });
-        }
-      });
-      console.log(vdListFromRD, 'vdListFromRD');
-      setVdList([]);
-    },
   });
 
-  console.log(vdList, 'vdList');
+  const vdList = useQueries({
+    queries: resourceDefinition
+      ? resourceDefinition?.data?.map(({ name, resource_group_name }) => {
+          return {
+            queryKey: ['getVolumeDefinitionListByResource', name],
+            queryFn: () => getVolumeDefinitionListByResource(name || ''),
+            enabled: !!name,
+            onSuccess: (data) => {
+              const rdName = name;
+              const vdList = data.data;
+              // add rdName to vdList
+              vdList.forEach((vd) => {
+                vd.rdName = rdName;
+                vd.rgName = resource_group_name;
+              });
 
-  const { data: stats } = useQuery({
-    queryKey: ['getResourceDefinitionCount'],
-    queryFn: () => getResourceDefinitionCount(),
+              return vdList;
+            },
+          };
+        }) ?? []
+      : [],
   });
+
+  const vdListDisplay = vdList.map((e) => e.data?.data).flat();
 
   const handleSearch = () => {
     const values = form.getFieldsValue();
@@ -121,14 +133,19 @@ export const List = () => {
     history.push(`/storage-configuration/resource-definitions/${resourceDefinitionName}/edit`);
   };
 
-  const columns: TableProps<ResourceDefinition>['columns'] = [
+  const columns: TableProps<
+    VolumeDefinition & {
+      rdName: string;
+      rgName: string;
+    }
+  >['columns'] = [
     {
-      title: 'Name',
-      key: 'name',
-      dataIndex: 'name',
+      title: 'Resource Definition Name',
+      key: 'rdName',
+      dataIndex: 'rdName',
       sorter: (a, b) => {
-        if (a.name && b.name) {
-          return a.name.localeCompare(b.name);
+        if (a.rdName && b.rdName) {
+          return a.rdName.localeCompare(b.rdName);
         } else {
           return 0;
         }
@@ -137,90 +154,28 @@ export const List = () => {
     },
     {
       title: 'Resource Group Name',
-      key: 'resource_group_name',
-      dataIndex: 'resource_group_name',
+      key: 'rgName',
+      dataIndex: 'rgName',
       sorter: (a, b) => {
-        return (a?.resource_group_name ?? '').localeCompare(b?.resource_group_name ?? '');
+        return (a?.rgName ?? '').localeCompare(b?.rgName ?? '');
       },
       showSorterTooltip: false,
     },
     {
-      title: 'Port',
-      key: 'Port',
-      dataIndex: 'layer_data',
-      render: (layer_data) => {
-        const port = get(layer_data, '[0].data.port', '');
-        return <span>{port}</span>;
+      title: 'Size',
+      key: 'Size',
+      dataIndex: 'size_kib',
+      render: (size_kib) => {
+        return <span>{formatBytes(size_kib)}</span>;
       },
-    },
-    {
-      title: 'State',
-      key: 'state',
-      render: (_, rd) => {
-        const state = rd.flags?.find((flag) => flag === 'DELETE') != null ? 'DELETING' : 'OK';
-        return <Tag color={state === 'DELETING' ? 'red' : 'green'}>{state}</Tag>;
-      },
-    },
-    {
-      title: 'Action',
-      key: 'action',
-      width: 150,
-      fixed: 'right',
-      render: (_, record) => (
-        <Space size="small">
-          <SpawnForm resource={record.name} />
-
-          <Popconfirm
-            key="delete"
-            title="Delete the resource definition"
-            description="Are you sure to delete this resource definition?"
-            okText="Yes"
-            cancelText="No"
-            onConfirm={() => {
-              deleteMutation.mutate(record.name || '');
-            }}
-          >
-            <Button danger loading={deleteMutation.isLoading}>
-              Delete
-            </Button>
-          </Popconfirm>
-
-          <Dropdown
-            menu={{
-              items: [
-                {
-                  key: 'edit',
-                  label: 'Edit',
-                  onClick: () => {
-                    edit(record.name);
-                  },
-                },
-                {
-                  key: 'property',
-                  label: 'Properties',
-                  onClick: () => {
-                    setCurrent(record);
-                    setPropertyModalOpen(true);
-
-                    const currentData = omit(
-                      record.props ?? {},
-                      'DrbdPrimarySetOn',
-                      'NVMe/TRType',
-                      'DrbdOptions/auto-verify-alg'
-                    );
-                    setInitialProps(currentData);
-                    setPropertyModalOpen(true);
-                  },
-                },
-              ],
-            }}
-          >
-            <DownOutlined rev={null} />
-          </Dropdown>
-        </Space>
-      ),
     },
   ];
+
+  const isLoading = vdList.some((e) => e.isLoading) || rdIsLoading;
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>
@@ -233,8 +188,18 @@ export const List = () => {
             show_default: true,
           }}
         >
-          <Form.Item name="name" label="Name">
-            <Input placeholder="Resource Definition Name" />
+          <Form.Item name="name" label="Resource Definition">
+            <Select
+              showSearch
+              style={{ width: 200 }}
+              options={
+                resourceDefinition?.data?.map((e) => ({
+                  label: e.name,
+                  value: e.name,
+                })) || []
+              }
+              placeholder="Select a resource definition"
+            />
           </Form.Item>
 
           <Form.Item>
@@ -275,22 +240,17 @@ export const List = () => {
 
       <Table
         columns={columns}
-        dataSource={vdList ?? []}
+        // @ts-ignore
+        dataSource={vdListDisplay ?? []}
         rowSelection={rowSelection}
-        rowKey={(item) => item?.name ?? uniqId()}
+        rowKey={uniqId()}
+        loading={isLoading}
         pagination={{
-          total: vdList.length ?? 0,
+          total: vdListDisplay.length ?? 0,
           showSizeChanger: true,
           showTotal: (total) => `Total ${total} items`,
           defaultCurrent: (query?.offset ?? 0) + 1,
           pageSize: query?.limit,
-          onChange(page, pageSize) {
-            setQuery({
-              ...query,
-              limit: pageSize,
-              offset: (page - 1) * pageSize,
-            });
-          },
         }}
       />
 
