@@ -1,5 +1,12 @@
 # Changelog
 
+# 1.6.1 - 2024-04-24
+
+### Fixed
+
+- VSAN target creation error
+- icons for VSAN Mode menu
+
 # 1.6.0 - 2024-03-25
 
 ### Fixed
