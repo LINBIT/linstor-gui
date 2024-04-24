@@ -40,11 +40,15 @@ import { useUIModeStorage, usePersistentMenuState } from '@app/hooks';
 import { useEffect, useState } from 'react';
 import {
   AppstoreOutlined,
+  CloudServerOutlined,
   ContainerOutlined,
   DeploymentUnitOutlined,
   DesktopOutlined,
+  InfoCircleOutlined,
   MailOutlined,
   PieChartOutlined,
+  UserOutlined,
+  WarningOutlined,
 } from '@ant-design/icons';
 import { BRAND_COLOR } from '@app/const/color';
 
@@ -317,14 +321,10 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
       ),
       getItem(<Link to="/vsan/iscsi">iSCSI</Link>, '/vsan/iscsi', <MailOutlined rev={null} />),
       getItem(<Link to="/vsan/nvmeof">NVMe-oF</Link>, '/vsan/nvmeof', <AppstoreOutlined rev={null} />),
-      getItem(<Link to="/vsan/nfs">NFS</Link>, '/vsan/nfs', <AppstoreOutlined rev={null} />),
-      getItem(
-        <Link to="/vsan/error-reports">Error Reports</Link>,
-        '/vsan/error-reports',
-        <AppstoreOutlined rev={null} />
-      ),
-      getItem(<Link to="/vsan/users">Users</Link>, '/vsan/users', <AppstoreOutlined rev={null} />),
-      getItem(<Link to="/vsan/about">About</Link>, '/vsan/about', <AppstoreOutlined rev={null} />),
+      getItem(<Link to="/vsan/nfs">NFS</Link>, '/vsan/nfs', <CloudServerOutlined />),
+      getItem(<Link to="/vsan/error-reports">Error Reports</Link>, '/vsan/error-reports', <WarningOutlined />),
+      getItem(<Link to="/vsan/users">Users</Link>, '/vsan/users', <UserOutlined />),
+      getItem(<Link to="/vsan/about">About</Link>, '/vsan/about', <InfoCircleOutlined />),
     ];
   }, []);
 
