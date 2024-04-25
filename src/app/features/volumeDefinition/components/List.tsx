@@ -153,13 +153,9 @@ export const List = () => {
       showSorterTooltip: false,
     },
     {
-      title: 'Resource Group Name',
-      key: 'rgName',
-      dataIndex: 'rgName',
-      sorter: (a, b) => {
-        return (a?.rgName ?? '').localeCompare(b?.rgName ?? '');
-      },
-      showSorterTooltip: false,
+      title: 'Volume Number',
+      key: 'volume_number',
+      dataIndex: 'volume_number',
     },
     {
       title: 'Size',

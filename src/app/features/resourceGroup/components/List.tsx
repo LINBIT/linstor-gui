@@ -234,7 +234,7 @@ export const List = () => {
           }}
         >
           <Form.Item name="name" label="Name">
-            <Input placeholder="Resource Definition Name" />
+            <Input placeholder="Name" />
           </Form.Item>
 
           <Form.Item>

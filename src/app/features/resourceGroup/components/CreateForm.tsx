@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Button, Checkbox, Col, Divider, Form, Input, Radio, Row, Select, Switch } from 'antd';
+import { Button, Checkbox, Col, Divider, Form, Input, Popover, Radio, Row, Select, Switch } from 'antd';
 import { useHistory } from 'react-router-dom';
 import uniqby from 'lodash.uniqby';
 import { toast } from 'react-toastify';
@@ -9,8 +9,9 @@ import { useStoragePools } from '@app/features/storagePool';
 import { fullySuccess } from '@app/features/requests';
 import { createResourceGroup, addVolumeToResourceGroup, updateResourceGroup } from '../api';
 import { ResourceGroupCreateRequestBody, AddVolumeRequestBody, ResourceGroupModifyRequestBody } from '../types';
-import { DownOutlined } from '@ant-design/icons';
+import { DownOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { SizeInput } from '@app/components/SizeInput';
+import { LabelContainer, TooltipContainer, TooltipIconContainer, TooltipLabelContainer } from './styled';
 
 type FormType = {
   name: string;
@@ -174,7 +175,34 @@ const CreateForm = () => {
             />
           </Form.Item>
 
-          <Form.Item label={drbdLayer ? 'DRBD Protocol' : 'Replication Mode'} name="data_copy_mode">
+          <Form.Item
+            label={
+              <LabelContainer>
+                <TooltipLabelContainer>
+                  <span>{drbdLayer ? 'DRBD Protocol' : 'Replication Mode'}</span>
+                </TooltipLabelContainer>
+                <Popover
+                  content={
+                    <TooltipContainer>
+                      <p>
+                        Asynchronous replication: Local write operations on the primary node are considered completed as
+                        soon as the local disk write has finished, and the replication packet has been placed in the
+                        local TCP send buffer.
+                      </p>
+                      <p>
+                        Synchronous replication: Local write operations on the primary node are considered completed
+                        only after both the local and the peer disk write(s) have been confirmed.
+                      </p>
+                    </TooltipContainer>
+                  }
+                  title={drbdLayer ? 'DRBD Protocol' : 'Replication Mode'}
+                >
+                  <QuestionCircleOutlined />
+                </Popover>
+              </LabelContainer>
+            }
+            name="data_copy_mode"
+          >
             <Radio.Group disabled={drbdLayer}>
               <Radio value="A">Asynchronous(A)</Radio>
               <Radio value="C">Synchronous(C)</Radio>
@@ -185,16 +213,79 @@ const CreateForm = () => {
             <Input placeholder="Please input place count" type="number" min={0} />
           </Form.Item>
 
-          <Form.Item label="Spawn on created" name="deploy" valuePropName="checked">
+          <Form.Item
+            label={
+              <LabelContainer>
+                <TooltipLabelContainer>
+                  <span>Spawn on created</span>
+                </TooltipLabelContainer>
+                <Popover
+                  content={
+                    <TooltipContainer>
+                      <p>
+                        If option enabled, will create a resource (or resources) when you create this resource group.
+                        Created resource(s) will have the name of the resource definition that you specify. If option
+                        disabled, will create the resource group only.
+                      </p>
+                    </TooltipContainer>
+                  }
+                  title="Spawn on created"
+                >
+                  <QuestionCircleOutlined />
+                </Popover>
+              </LabelContainer>
+            }
+            name="deploy"
+            valuePropName="checked"
+          >
             <Switch defaultChecked />
           </Form.Item>
 
           <Form.Item name="diskless_on_remaining" valuePropName="checked" wrapperCol={{ offset: 7, span: 17 }}>
-            <Checkbox>Diskless on remaining</Checkbox>
+            <Checkbox>
+              <LabelContainer>
+                <Popover
+                  content={
+                    <TooltipContainer>
+                      <p>
+                        If option is selected, place diskless instances of resources created from this resource group on
+                        any remaining nodes after fulfilling the diskful resource placement count in the LINSTOR
+                        cluster.
+                      </p>
+                    </TooltipContainer>
+                  }
+                  title={drbdLayer ? 'DRBD Protocol' : 'Replication Mode'}
+                >
+                  Diskless on remaining <QuestionCircleOutlined />
+                </Popover>
+              </LabelContainer>
+            </Checkbox>
           </Form.Item>
         </Col>
         <Col span={10}>
-          <Form.Item label="Providers" name="provider_list">
+          <Form.Item
+            label={
+              <LabelContainer>
+                <TooltipLabelContainer>
+                  <span>Storage Providers</span>
+                </TooltipLabelContainer>
+                <Popover
+                  content={
+                    <TooltipContainer>
+                      <p>
+                        Select storage providers. Only storage pools backed by the selected storage providers will be
+                        considered for automatic resource placement when creating resources from this resource group.
+                      </p>
+                    </TooltipContainer>
+                  }
+                  title="Storage Providers"
+                >
+                  <QuestionCircleOutlined />
+                </Popover>
+              </LabelContainer>
+            }
+            name="provider_list"
+          >
             <Select
               allowClear
               mode="multiple"
@@ -206,7 +297,29 @@ const CreateForm = () => {
             />
           </Form.Item>
 
-          <Form.Item label="Layers" name="layer_stack">
+          <Form.Item
+            label={
+              <LabelContainer>
+                <TooltipLabelContainer>
+                  <span>LINSTOR Layers</span>
+                </TooltipLabelContainer>
+                <Popover
+                  content={
+                    <TooltipContainer>
+                      <p>
+                        Select LINSTOR layers. Only storage pools having the selected LINSTOR layers will be considered
+                        for automatic resource placement when creating resources from this resource group.
+                      </p>
+                    </TooltipContainer>
+                  }
+                  title="LINSTOR Layers"
+                >
+                  <QuestionCircleOutlined />
+                </Popover>
+              </LabelContainer>
+            }
+            name="layer_stack"
+          >
             <Select
               mode="multiple"
               allowClear
@@ -226,7 +339,29 @@ const CreateForm = () => {
             />
           </Form.Item>
 
-          <Form.Item label="Storage Pool" name="storage_pool_list">
+          <Form.Item
+            label={
+              <LabelContainer>
+                <TooltipLabelContainer>
+                  <span>Storage Pool</span>
+                </TooltipLabelContainer>
+                <Popover
+                  content={
+                    <TooltipContainer>
+                      <p>
+                        Select storage pool. Resources created from this resource group will be automatically placed
+                        into selected storage pool.
+                      </p>
+                    </TooltipContainer>
+                  }
+                  title="Storage Pool"
+                >
+                  <QuestionCircleOutlined />
+                </Popover>
+              </LabelContainer>
+            }
+            name="storage_pool_list"
+          >
             <Select
               allowClear
               placeholder="Please select storage pool"
