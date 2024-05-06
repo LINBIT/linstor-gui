@@ -21,7 +21,11 @@ type FormType = {
   gross_size: boolean;
 };
 
-const CreateNVMEOfForm = () => {
+type CreateNVMEOfFormProps = {
+  refetch?: () => void;
+};
+
+const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
   const [form] = Form.useForm<FormType>();
   const [api, contextHolder] = notification.useNotification();
   const { data: ipPrefixes } = useNodeNetWorkInterface();
@@ -78,6 +82,8 @@ const CreateNVMEOfForm = () => {
         message: 'Create NVMe-oF Export successfully',
       });
       setCreateFormModal(false);
+
+      refetch && refetch();
     },
     onError: (err: ErrorMessage) => {
       api.error({

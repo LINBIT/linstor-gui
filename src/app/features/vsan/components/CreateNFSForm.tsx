@@ -21,7 +21,11 @@ type FormType = {
   gross_size: boolean;
 };
 
-const CreateNFSForm = () => {
+type CreateNFSFormProps = {
+  refetch?: () => void;
+};
+
+const CreateNFSForm = ({ refetch }: CreateNFSFormProps) => {
   const [form] = Form.useForm<FormType>();
   const [api, contextHolder] = notification.useNotification();
   const { data: ipPrefixes } = useNodeNetWorkInterface();
@@ -66,6 +70,8 @@ const CreateNFSForm = () => {
       });
 
       setCreateFormModal(false);
+
+      refetch && refetch();
     },
     onError: (err: ErrorMessage) => {
       api.error({

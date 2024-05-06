@@ -166,7 +166,7 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
             <Button onClick={() => refetch()} style={{ marginRight: 10 }}>
               Reload
             </Button>
-            <CreateNFSForm />
+            <CreateNFSForm refetch={refetch} />
           </ActionSection>
         </>
       )}

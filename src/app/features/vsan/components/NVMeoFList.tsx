@@ -157,7 +157,7 @@ export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
             <Button onClick={() => refetch()} style={{ marginRight: 10 }}>
               Reload
             </Button>
-            <CreateNVMEOfForm />
+            <CreateNVMEOfForm refetch={refetch} />
           </ActionSection>
         </>
       )}

@@ -167,7 +167,7 @@ export const ISCSIList = ({ complex }: ISCSIListProp) => {
             <Button onClick={() => refetch()} style={{ marginRight: 10 }}>
               Reload
             </Button>
-            <CreateISCSIForm />
+            <CreateISCSIForm refetch={refetch} />
           </ActionSection>
         </>
       )}

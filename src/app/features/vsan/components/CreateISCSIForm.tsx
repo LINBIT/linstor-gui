@@ -24,7 +24,11 @@ type FormType = {
   gross_size: boolean;
 };
 
-const CreateISCSIForm = () => {
+type CreateISCSIFormProps = {
+  refetch?: () => void;
+};
+
+const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
   const [createFormModal, setCreateFormModal] = useState(false);
   const [api, contextHolder] = notification.useNotification();
 
@@ -58,6 +62,7 @@ const CreateISCSIForm = () => {
       });
 
       setCreateFormModal(false);
+      refetch && refetch();
     },
     onError: (err: ErrorMessage) => {
       api.error({
