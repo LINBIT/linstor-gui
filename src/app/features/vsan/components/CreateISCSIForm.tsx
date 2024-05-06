@@ -9,6 +9,12 @@ import { formatBytes } from '@app/utils/size';
 import { clusterPrivateVolumeSizeKib } from '../const';
 import { ErrorMessage } from '@app/features/vsan';
 
+import { Content } from './styled';
+
+const timeRegx = /^((19|20)\d\d[-](0[1-9]|1[012]))$/;
+const domainRegx = /^([a-zA-Z\d.][a-zA-Z\d.-]*\.[a-zA-Z\d.][a-zA-Z\d.-]*[a-zA-Z\d])$/;
+const nameRegx = /^([a-z_][a-z0-9_-]+)$/;
+
 type FormType = {
   name: string;
   resource_group: string;
@@ -22,6 +28,8 @@ type FormType = {
   username?: string;
   password?: string;
   gross_size: boolean;
+  time: string;
+  domain: string;
 };
 
 type CreateISCSIFormProps = {
@@ -40,8 +48,6 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
   });
   const [mask, setMask] = useState(0);
   const [prefix, setPrefix] = useState();
-  const [time, setTime] = useState('');
-  const [domain, setDomain] = useState('');
 
   const service_ip = Form.useWatch('service_ip', form);
   const enable_chap = Form.useWatch('enable_chap', form);
@@ -82,8 +88,6 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
 
   const handleCancel = () => {
     form.resetFields();
-    setTime('');
-    setDomain('');
     setCreateFormModal(false);
   };
 
@@ -91,38 +95,8 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
     try {
       const values = await form?.validateFields();
 
-      const timeRegx = /^((19|20)\d\d[-](0[1-9]|1[012]))$/;
-      const domainRegx = /^([a-zA-Z\d.][a-zA-Z\d.-]*\.[a-zA-Z\d.][a-zA-Z\d.-]*[a-zA-Z\d])$/;
-      const nameRegx = /^([a-z_][a-z0-9_-]+)$/;
-      if (!timeRegx.test(time)) {
-        api.error({
-          message: 'Invalid time',
-          description: 'Please input valid time something like: 2024-03',
-          duration: 0,
-        });
-        return;
-      }
-
-      if (!domainRegx.test(domain)) {
-        api.error({
-          message: 'Invalid domain',
-          description: 'Please input valid domain something like: com.company',
-          duration: 0,
-        });
-        return;
-      }
-
-      if (!nameRegx.test(values.iqn)) {
-        api.error({
-          message: 'Invalid IQN',
-          description: 'Please input valid IQN something like: unique-name',
-          duration: 0,
-        });
-        return;
-      }
-
       const service_ip_str = prefix + service_ip + '/' + mask;
-      const iqn = 'iqn.' + time + '.' + domain + ':' + values.iqn;
+      const iqn = 'iqn.' + values.time + '.' + values.domain + ':' + values.iqn;
 
       const volumes = [
         {
@@ -179,116 +153,151 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
           loading: createMutation.isLoading,
         }}
       >
-        <Form<FormType>
-          labelCol={{ span: 6 }}
-          wrapperCol={{ span: 18 }}
-          style={{ maxWidth: 800 }}
-          size="large"
-          layout="horizontal"
-          form={form}
-          onFinish={onFinish}
-        >
-          <Form.Item
-            label="IQN"
-            name="iqn"
-            required
-            rules={[
-              {
-                required: true,
-                message: 'IQN is required!',
-              },
-            ]}
+        <Content>
+          <Form<FormType>
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 18 }}
+            style={{ maxWidth: 800 }}
+            size="large"
+            layout="horizontal"
+            form={form}
+            onFinish={onFinish}
           >
-            <Space.Compact size="large">
-              <Input addonBefore="iqn." placeholder="yyyy-mm" value={time} onChange={(e) => setTime(e.target.value)} />
-              <Input
-                addonBefore="."
-                placeholder="com.company"
-                value={domain}
-                onChange={(e) => setDomain(e.target.value)}
-              />
-              <Input addonBefore=":" placeholder="unique-name" />
-            </Space.Compact>
-          </Form.Item>
+            <Form.Item label="IQN" required>
+              <Space.Compact size="large">
+                <Form.Item
+                  name="time"
+                  required
+                  noStyle
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Year and month are required!',
+                    },
+                    {
+                      pattern: timeRegx,
+                      message: 'Invalid year and month, should be yyyy-mm',
+                    },
+                  ]}
+                >
+                  <Input addonBefore="iqn." placeholder="yyyy-mm" />
+                </Form.Item>
+                <Form.Item
+                  name="domain"
+                  required
+                  noStyle
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Naming-authority is required!',
+                    },
+                    {
+                      pattern: domainRegx,
+                      message: 'Invalid naming-authority, should be com.company',
+                    },
+                  ]}
+                >
+                  <Input addonBefore="." placeholder="com.company" />
+                </Form.Item>
+                <Form.Item
+                  name="iqn"
+                  required
+                  noStyle
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Unique name is required!',
+                    },
+                    {
+                      pattern: nameRegx,
+                      message: 'Invalid unique name',
+                    },
+                  ]}
+                >
+                  <Input addonBefore=":" placeholder="unique-name" />
+                </Form.Item>
+              </Space.Compact>
+            </Form.Item>
 
-          <Form.Item
-            label="Resource Group"
-            name="resource_group"
-            required
-            rules={[{ required: true, message: 'Please select resource group!' }]}
-          >
-            <Select
-              allowClear
-              placeholder="Please select resource group"
-              options={resourceGroupsFromVSAN?.data?.map((e) => ({
-                label: `${e.name} (${formatBytes(e.max_volume_size)} available)`,
-                value: e.name,
-              }))}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="Service IP"
-            name="service_ip"
-            required
-            rules={[
-              {
-                required: true,
-                message: 'IP address is required!',
-              },
-            ]}
-            tooltip="This is the IP address under which the iSCSI target will be reachable. This must be an address within one of the hosts subnets.
-            The service IP is a newly assigned address and should not already belong to a host."
-          >
-            <Space>
+            <Form.Item
+              label="Resource Group"
+              name="resource_group"
+              required
+              rules={[{ required: true, message: 'Please select resource group!' }]}
+            >
               <Select
-                options={ipServiceOptions}
-                onChange={(val, option) => {
-                  setPrefix(val);
-                  setMask((option as any)?.mask as number);
-                }}
-                style={{ minWidth: 140 }}
-                placeholder="192.168.1."
+                allowClear
+                placeholder="Please select resource group"
+                options={resourceGroupsFromVSAN?.data?.map((e) => ({
+                  label: `${e.name} (${formatBytes(e.max_volume_size)} available)`,
+                  value: e.name,
+                }))}
               />
-              <Input placeholder="0" />
-            </Space>
-          </Form.Item>
+            </Form.Item>
 
-          <Form.Item label="Size">
-            <Space>
-              <Form.Item name="size" required>
-                {gross_size ? <SizeInput disabled={gross_size} /> : <SizeInput />}
-              </Form.Item>
-              <Form.Item name="gross_size" valuePropName="checked">
-                <Checkbox>Use all available</Checkbox>
-              </Form.Item>
-            </Space>
-          </Form.Item>
+            <Form.Item
+              label="Service IP"
+              name="service_ip"
+              required
+              rules={[
+                {
+                  required: true,
+                  message: 'IP address is required!',
+                },
+              ]}
+              tooltip="This is the IP address under which the iSCSI target will be reachable. This must be an address within one of the hosts subnets.
+            The service IP is a newly assigned address and should not already belong to a host."
+            >
+              <Space>
+                <Select
+                  options={ipServiceOptions}
+                  onChange={(val, option) => {
+                    setPrefix(val);
+                    setMask((option as any)?.mask as number);
+                  }}
+                  style={{ minWidth: 140 }}
+                  placeholder="192.168.1."
+                />
+                <Input placeholder="0" />
+              </Space>
+            </Form.Item>
 
-          <Form.Item name="enable_chap" valuePropName="checked" wrapperCol={{ span: 12, offset: 6 }}>
-            <Checkbox>Enable CHAP Authentication</Checkbox>
-          </Form.Item>
+            <Form.Item label="Size">
+              <Space>
+                <Form.Item name="size" required>
+                  {gross_size ? <SizeInput disabled={gross_size} /> : <SizeInput />}
+                </Form.Item>
+                <Form.Item name="gross_size" valuePropName="checked">
+                  <Checkbox>Use all available</Checkbox>
+                </Form.Item>
+              </Space>
+            </Form.Item>
 
-          {enable_chap && (
-            <>
-              <Form.Item
-                name="username"
-                label="Username"
-                tooltip="Configure mutual CHAP authentication to restrict access to the iSCSI target by supplying a username and password here."
-              >
-                <Input />
-              </Form.Item>
+            <Form.Item name="enable_chap" valuePropName="checked" wrapperCol={{ span: 12, offset: 6 }}>
+              <Checkbox>Enable CHAP Authentication</Checkbox>
+            </Form.Item>
 
-              <Form.Item
-                name="password"
-                label="Password"
-                tooltip="Configure mutual CHAP authentication to restrict access to the iSCSI target by supplying a username and password here"
-              >
-                <Input.Password />
-              </Form.Item>
-            </>
-          )}
-        </Form>
+            {enable_chap && (
+              <>
+                <Form.Item
+                  name="username"
+                  label="Username"
+                  tooltip="Configure mutual CHAP authentication to restrict access to the iSCSI target by supplying a username and password here."
+                >
+                  <Input />
+                </Form.Item>
+
+                <Form.Item
+                  name="password"
+                  label="Password"
+                  tooltip="Configure mutual CHAP authentication to restrict access to the iSCSI target by supplying a username and password here"
+                >
+                  <Input.Password />
+                </Form.Item>
+              </>
+            )}
+          </Form>
+        </Content>
       </Modal>
     </>
   );

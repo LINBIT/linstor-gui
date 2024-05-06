@@ -8,6 +8,7 @@ import { createNVMEExport, getResourceGroups } from '../api';
 import { formatBytes } from '@app/utils/size';
 import { clusterPrivateVolumeSizeKib } from '../const';
 import { ErrorMessage } from '@app/features/vsan';
+import { Content } from './styled';
 
 type FormType = {
   name: string;
@@ -19,11 +20,17 @@ type FormType = {
   allowed_ips: string[];
   nqn: string;
   gross_size: boolean;
+  time: string;
+  domain: string;
 };
 
 type CreateNVMEOfFormProps = {
   refetch?: () => void;
 };
+
+const timeRegx = /^((19|20)\d\d[-](0[1-9]|1[012]))$/;
+const domainRegx = /^([a-zA-Z\d.][a-zA-Z\d.-]*\.[a-zA-Z\d.][a-zA-Z\d.-]*[a-zA-Z\d])$/;
+const nameRegx = /^([a-z_][a-z0-9_-]+)$/;
 
 const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
   const [form] = Form.useForm<FormType>();
@@ -31,8 +38,6 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
   const { data: ipPrefixes } = useNodeNetWorkInterface();
   const [mask, setMask] = useState(0);
   const [prefix, setPrefix] = useState();
-  const [time, setTime] = useState('');
-  const [domain, setDomain] = useState('');
   const [createFormModal, setCreateFormModal] = useState(false);
 
   const { data: resourceGroupsFromVSAN } = useQuery({
@@ -69,8 +74,6 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
   };
 
   const handleCancel = () => {
-    setTime('');
-    setDomain('');
     form.resetFields();
     setCreateFormModal(false);
   };
@@ -97,38 +100,9 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
   const onFinish = async () => {
     try {
       const values = await form?.validateFields();
-      const timeRegx = /^((19|20)\d\d[-](0[1-9]|1[012]))$/;
-      const domainRegx = /^([a-zA-Z\d.][a-zA-Z\d.-]*\.[a-zA-Z\d.][a-zA-Z\d.-]*[a-zA-Z\d])$/;
-      const nameRegx = /^([a-z_][a-z0-9_-]+)$/;
-      if (!timeRegx.test(time)) {
-        api.error({
-          message: 'Invalid time',
-          description: 'Please input valid time something like: 2024-03',
-          duration: 0,
-        });
-        return;
-      }
-
-      if (!domainRegx.test(domain)) {
-        api.error({
-          message: 'Invalid domain',
-          description: 'Please input valid domain something like: com.company',
-          duration: 0,
-        });
-        return;
-      }
-
-      if (!nameRegx.test(values.nqn)) {
-        api.error({
-          message: 'Invalid NQN',
-          description: 'Please input valid NQN something like: unique-name',
-          duration: 0,
-        });
-        return;
-      }
 
       const service_ip_str = prefix + service_ip + '/' + mask;
-      const nqn = 'nqn.' + time + '.' + domain + ':nvme:' + values.nqn;
+      const nqn = 'nqn.' + values.time + '.' + values.domain + ':nvme:' + values.nqn;
 
       const volumes = [
         {
@@ -169,98 +143,136 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
           loading: createMutation.isLoading,
         }}
       >
-        <Form<FormType>
-          labelCol={{ span: 6 }}
-          wrapperCol={{ span: 18 }}
-          style={{ maxWidth: 800 }}
-          size="large"
-          layout="horizontal"
-          form={form}
-          onFinish={onFinish}
-          initialValues={{
-            gross_size: true,
-          }}
-        >
-          <Form.Item
-            label="NQN"
-            name="nqn"
-            required
-            rules={[
-              {
-                required: true,
-                message: 'NQN is required!',
-              },
-            ]}
-            tooltip="The NQN uniquely identifies a NVMe-oF target.
+        <Content>
+          <Form<FormType>
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 18 }}
+            style={{ maxWidth: 800 }}
+            size="large"
+            layout="horizontal"
+            form={form}
+            onFinish={onFinish}
+            initialValues={{
+              gross_size: true,
+            }}
+          >
+            <Form.Item
+              label="NQN"
+              required
+              tooltip="The NQN uniquely identifies a NVMe-oF target.
         Fill out your company's domain name and choose a unique name within that domain. Your initiator will then be able to identify the target using this NQN.
 
         Example: nqn.2020-01.com.linbit:nvme:vmstorage"
-          >
-            <Space.Compact size="large">
-              <Input addonBefore="nqn." placeholder="yyyy-mm" value={time} onChange={(e) => setTime(e.target.value)} />
-              <Input
-                addonBefore="."
-                placeholder="com.company"
-                value={domain}
-                onChange={(e) => setDomain(e.target.value)}
-              />
-              <Input addonBefore=":nvme:" placeholder="unique-name" />
-            </Space.Compact>
-          </Form.Item>
-          <Form.Item
-            label="Resource Group"
-            name="resource_group"
-            required
-            rules={[{ required: true, message: 'Please select resource group!' }]}
-          >
-            <Select
-              allowClear
-              placeholder="Please select resource group"
-              options={resourceGroupsFromVSAN?.data?.map((e) => ({
-                label: `${e.name} (${formatBytes(e.max_volume_size)} available)`,
-                value: e.name,
-              }))}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="Service IP"
-            name="service_ip"
-            required
-            rules={[
-              {
-                required: true,
-                message: 'IP address is required!',
-              },
-            ]}
-            tooltip="This is the IP address under which the iSCSI target will be reachable. This must be an address within one of the hosts subnets.
-            The service IP is a newly assigned address and should not already belong to a host."
-          >
-            <Space>
+            >
+              <Space.Compact size="large">
+                <Form.Item
+                  name="time"
+                  required
+                  noStyle
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Year and month are required!',
+                    },
+                    {
+                      pattern: timeRegx,
+                      message: 'Invalid year and month, should be yyyy-mm',
+                    },
+                  ]}
+                >
+                  <Input addonBefore="nqn." placeholder="yyyy-mm" />
+                </Form.Item>
+                <Form.Item
+                  name="domain"
+                  required
+                  noStyle
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Naming-authority is required!',
+                    },
+                    {
+                      pattern: domainRegx,
+                      message: 'Invalid naming-authority, should be com.company',
+                    },
+                  ]}
+                >
+                  <Input addonBefore="." placeholder="com.company" />
+                </Form.Item>
+                <Form.Item
+                  name="nqn"
+                  required
+                  noStyle
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Unique name is required!',
+                    },
+                    {
+                      pattern: nameRegx,
+                      message: 'Invalid unique name',
+                    },
+                  ]}
+                >
+                  <Input addonBefore=":nvme:" placeholder="unique-name" />
+                </Form.Item>
+              </Space.Compact>
+            </Form.Item>
+            <Form.Item
+              label="Resource Group"
+              name="resource_group"
+              required
+              rules={[{ required: true, message: 'Please select resource group!' }]}
+            >
               <Select
-                options={ipServiceOptions}
-                onChange={(val, option) => {
-                  setPrefix(val);
-                  setMask((option as any)?.mask as number);
-                }}
-                style={{ minWidth: 140 }}
-                placeholder="192.168.1."
+                allowClear
+                placeholder="Please select resource group"
+                options={resourceGroupsFromVSAN?.data?.map((e) => ({
+                  label: `${e.name} (${formatBytes(e.max_volume_size)} available)`,
+                  value: e.name,
+                }))}
               />
-              <Input placeholder="0" />
-            </Space>
-          </Form.Item>
+            </Form.Item>
 
-          <Form.Item label="Size">
-            <Space>
-              <Form.Item name="size" required>
-                {gross_size ? <SizeInput disabled={gross_size} /> : <SizeInput />}
-              </Form.Item>
-              <Form.Item name="gross_size" valuePropName="checked">
-                <Checkbox>Use all available</Checkbox>
-              </Form.Item>
-            </Space>
-          </Form.Item>
-        </Form>
+            <Form.Item
+              label="Service IP"
+              name="service_ip"
+              required
+              rules={[
+                {
+                  required: true,
+                  message: 'IP address is required!',
+                },
+              ]}
+              tooltip="This is the IP address under which the iSCSI target will be reachable. This must be an address within one of the hosts subnets.
+            The service IP is a newly assigned address and should not already belong to a host."
+            >
+              <Space>
+                <Select
+                  options={ipServiceOptions}
+                  onChange={(val, option) => {
+                    setPrefix(val);
+                    setMask((option as any)?.mask as number);
+                  }}
+                  style={{ minWidth: 140 }}
+                  placeholder="192.168.1."
+                />
+                <Input placeholder="0" />
+              </Space>
+            </Form.Item>
+
+            <Form.Item label="Size">
+              <Space>
+                <Form.Item name="size" required>
+                  {gross_size ? <SizeInput disabled={gross_size} /> : <SizeInput />}
+                </Form.Item>
+                <Form.Item name="gross_size" valuePropName="checked">
+                  <Checkbox>Use all available</Checkbox>
+                </Form.Item>
+              </Space>
+            </Form.Item>
+          </Form>
+        </Content>
       </Modal>
     </>
   );

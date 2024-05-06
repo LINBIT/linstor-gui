@@ -12,4 +12,11 @@ export const UpdateStatus = styled.div`
 
 export const ActionSection = styled.div`
   margin-bottom: 10px;
-`
+`;
+
+export const Content = styled.div`
+  .ant-form-item-explain {
+    display: flex;
+    justify-content: space-between;
+  }
+`;

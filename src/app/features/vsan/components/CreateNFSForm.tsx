@@ -9,6 +9,7 @@ import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { formatBytes } from '@app/utils/size';
 import { clusterPrivateVolumeSizeKib } from '../const';
 import { ErrorMessage } from '../types';
+import { Content } from './styled';
 
 type FormType = {
   name: string;
@@ -19,6 +20,8 @@ type FormType = {
   size: number;
   allowed_ips: string[];
   gross_size: boolean;
+  time: string;
+  domain: string;
 };
 
 type CreateNFSFormProps = {
@@ -156,153 +159,155 @@ const CreateNFSForm = ({ refetch }: CreateNFSFormProps) => {
           loading: createMutation.isLoading,
         }}
       >
-        <Form<FormType>
-          labelCol={{ span: 6 }}
-          wrapperCol={{ span: 18 }}
-          size="large"
-          layout="horizontal"
-          form={form}
-          onFinish={onFinish}
-          initialValues={{
-            file_system: 'ext4',
-          }}
-        >
-          <Form.Item
-            label="Name"
-            name="name"
-            required
-            rules={[
-              {
-                required: true,
-                message: 'Name is required!',
-              },
-            ]}
+        <Content>
+          <Form<FormType>
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 18 }}
+            size="large"
+            layout="horizontal"
+            form={form}
+            onFinish={onFinish}
+            initialValues={{
+              file_system: 'ext4',
+            }}
           >
-            <Input placeholder="Please input name: my_export" />
-          </Form.Item>
-          <Form.Item
-            label="Resource Group"
-            name="resource_group"
-            required
-            rules={[{ required: true, message: 'Please select resource group!' }]}
-          >
-            <Select
-              allowClear
-              placeholder="Please select resource group"
-              options={resourceGroupsFromVSAN?.data?.map((e) => ({
-                label: `${e.name} (${formatBytes(e.max_volume_size)} available)`,
-                value: e.name,
-              }))}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="Service IP"
-            name="service_ip"
-            required
-            rules={[
-              {
-                required: true,
-                message: 'IP address is required!',
-              },
-            ]}
-            tooltip="This is the IP address under which the iSCSI target will be reachable. This must be an address within one of the hosts subnets.
-            The service IP is a newly assigned address and should not already belong to a host."
-          >
-            <Space>
-              <Select
-                options={ipServiceOptions}
-                onChange={(val, option) => {
-                  setPrefix(val);
-                  setMask((option as any)?.mask as number);
-                }}
-                // defaultValue={ipServiceOptions?.[0]?.value ?? ''}
-                style={{ minWidth: 140 }}
-                placeholder="192.168.1."
-              />
-              <Input placeholder="0" />
-            </Space>
-          </Form.Item>
-
-          <Form.Item label="Size">
-            <Space>
-              <Form.Item name="size" required>
-                {gross_size ? <SizeInput disabled={gross_size} /> : <SizeInput />}
-              </Form.Item>
-              <Form.Item name="gross_size" valuePropName="checked">
-                <Checkbox>Use all available</Checkbox>
-              </Form.Item>
-            </Space>
-          </Form.Item>
-
-          <Form.Item name="export_path" label="Export Path" required>
-            <Input placeholder="/" />
-          </Form.Item>
-
-          <Form.Item
-            label="File System"
-            name="file_system"
-            required
-            rules={[
-              {
-                required: true,
-                message: 'File system is required!',
-              },
-            ]}
-          >
-            <Select
-              options={[
+            <Form.Item
+              label="Name"
+              name="name"
+              required
+              rules={[
                 {
-                  label: 'ext4',
-                  value: 'ext4',
+                  required: true,
+                  message: 'Name is required!',
                 },
               ]}
-            />
-          </Form.Item>
+            >
+              <Input placeholder="Please input name: my_export" />
+            </Form.Item>
+            <Form.Item
+              label="Resource Group"
+              name="resource_group"
+              required
+              rules={[{ required: true, message: 'Please select resource group!' }]}
+            >
+              <Select
+                allowClear
+                placeholder="Please select resource group"
+                options={resourceGroupsFromVSAN?.data?.map((e) => ({
+                  label: `${e.name} (${formatBytes(e.max_volume_size)} available)`,
+                  value: e.name,
+                }))}
+              />
+            </Form.Item>
 
-          <Form.List name="allowed_ips">
-            {(fields, { add, remove }, { errors }) => (
-              <>
-                {fields.map((field, index) => (
-                  <Form.Item
-                    {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
-                    label={index === 0 ? 'Allowed Ips' : ''}
-                    required={false}
-                    key={field.key}
-                  >
-                    <Form.Item
-                      {...field}
-                      validateTrigger={['onChange', 'onBlur']}
-                      rules={[
-                        {
-                          required: true,
-                          whitespace: true,
-                          message: 'Please input something like 192.168.0.0/16',
-                        },
-                      ]}
-                      noStyle
-                    >
-                      <Input placeholder="192.168.0.0/16" style={{ width: '60%' }} />
-                    </Form.Item>
-                    {fields.length > 0 ? (
-                      <MinusCircleOutlined
-                        className="dynamic-delete-button"
-                        onClick={() => remove(field.name)}
-                        rev={undefined}
-                      />
-                    ) : null}
-                  </Form.Item>
-                ))}
-                <Form.Item>
-                  <Button type="dashed" onClick={() => add()} style={{ width: '60%' }}>
-                    Allowed IPs <PlusOutlined rev={undefined} />
-                  </Button>
-                  <Form.ErrorList errors={errors} />
+            <Form.Item
+              label="Service IP"
+              name="service_ip"
+              required
+              rules={[
+                {
+                  required: true,
+                  message: 'IP address is required!',
+                },
+              ]}
+              tooltip="This is the IP address under which the iSCSI target will be reachable. This must be an address within one of the hosts subnets.
+            The service IP is a newly assigned address and should not already belong to a host."
+            >
+              <Space>
+                <Select
+                  options={ipServiceOptions}
+                  onChange={(val, option) => {
+                    setPrefix(val);
+                    setMask((option as any)?.mask as number);
+                  }}
+                  // defaultValue={ipServiceOptions?.[0]?.value ?? ''}
+                  style={{ minWidth: 140 }}
+                  placeholder="192.168.1."
+                />
+                <Input placeholder="0" />
+              </Space>
+            </Form.Item>
+
+            <Form.Item label="Size">
+              <Space>
+                <Form.Item name="size" required>
+                  {gross_size ? <SizeInput disabled={gross_size} /> : <SizeInput />}
                 </Form.Item>
-              </>
-            )}
-          </Form.List>
-        </Form>
+                <Form.Item name="gross_size" valuePropName="checked">
+                  <Checkbox>Use all available</Checkbox>
+                </Form.Item>
+              </Space>
+            </Form.Item>
+
+            <Form.Item name="export_path" label="Export Path" required>
+              <Input placeholder="/" />
+            </Form.Item>
+
+            <Form.Item
+              label="File System"
+              name="file_system"
+              required
+              rules={[
+                {
+                  required: true,
+                  message: 'File system is required!',
+                },
+              ]}
+            >
+              <Select
+                options={[
+                  {
+                    label: 'ext4',
+                    value: 'ext4',
+                  },
+                ]}
+              />
+            </Form.Item>
+
+            <Form.List name="allowed_ips">
+              {(fields, { add, remove }, { errors }) => (
+                <>
+                  {fields.map((field, index) => (
+                    <Form.Item
+                      {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
+                      label={index === 0 ? 'Allowed Ips' : ''}
+                      required={false}
+                      key={field.key}
+                    >
+                      <Form.Item
+                        {...field}
+                        validateTrigger={['onChange', 'onBlur']}
+                        rules={[
+                          {
+                            required: true,
+                            whitespace: true,
+                            message: 'Please input something like 192.168.0.0/16',
+                          },
+                        ]}
+                        noStyle
+                      >
+                        <Input placeholder="192.168.0.0/16" style={{ width: '60%' }} />
+                      </Form.Item>
+                      {fields.length > 0 ? (
+                        <MinusCircleOutlined
+                          className="dynamic-delete-button"
+                          onClick={() => remove(field.name)}
+                          rev={undefined}
+                        />
+                      ) : null}
+                    </Form.Item>
+                  ))}
+                  <Form.Item>
+                    <Button type="dashed" onClick={() => add()} style={{ width: '60%' }}>
+                      Allowed IPs <PlusOutlined rev={undefined} />
+                    </Button>
+                    <Form.ErrorList errors={errors} />
+                  </Form.Item>
+                </>
+              )}
+            </Form.List>
+          </Form>
+        </Content>
       </Modal>
     </>
   );
