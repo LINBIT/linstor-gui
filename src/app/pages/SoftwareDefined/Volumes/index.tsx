@@ -109,6 +109,7 @@ const List: React.FunctionComponent = () => {
 
   return (
     <PageBasic title={t('list')}>
+      <VolumeList />
       <FilterList
         showSearch
         url="/v1/view/resources"

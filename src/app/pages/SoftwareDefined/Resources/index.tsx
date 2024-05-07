@@ -16,6 +16,7 @@ import { Dispatch } from '@app/store';
 import { notify, notifyList } from '@app/utils/toast';
 import { ResourceMigrateForm, resourceMigration } from '@app/features/resource';
 import { useMutation } from '@tanstack/react-query';
+import { List as ListV2 } from '@app/features/resource/components';
 
 import { Input, Modal } from 'antd';
 
@@ -283,6 +284,7 @@ const List: React.FunctionComponent = () => {
 
   return (
     <PageBasic title={t('list')}>
+      <ListV2 />
       <FilterList
         showSearch
         url="/v1/view/resources"

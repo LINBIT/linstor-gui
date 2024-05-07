@@ -9,3 +9,4 @@ export type GetResourcesRequestBody = operations['viewResources']['parameters'];
 export type GetResourcesResponseBody = components['schemas']['ResourceWithVolumes'][];
 export type ResourceListQuery = operations['viewResources']['parameters']['query'];
 export type ResourceDataType = components['schemas']['ResourceWithVolumes'];
+export type VolumeDataType = components['schemas']['Volume'];
