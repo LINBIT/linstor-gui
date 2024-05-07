@@ -17,3 +17,7 @@
 .pf-c-about-modal-box {
   border-radius: 20px;
 }
+
+.ant-menu-dark {
+  background: none;
+}

@@ -9,3 +9,9 @@ export const ImgIcon = styled.img`
 export const ModeSelector = styled.div`
   margin-right: 1rem;
 `;
+
+export const SideMenu = styled.div`
+  .ant-menu.ant-menu-sub.ant-menu-inline {
+    background: none;
+  }
+`;
