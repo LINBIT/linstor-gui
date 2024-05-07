@@ -1,4 +1,4 @@
-import { get, post, put } from '@app/features/requests';
+import { del, get, post, put } from '@app/features/requests';
 import service from '@app/requests';
 
 import { NodeListQuery, NodeCreateRequestBody, UpdateNetInterfaceRequestBody, UpdateNodeRequestBody } from './types';
@@ -9,6 +9,10 @@ const getNodes = (query: NodeListQuery) => {
       query,
     },
   });
+};
+
+const getNodeCount = () => {
+  return get('/v1/stats/nodes');
 };
 
 const getNodesFromVSAN = () => {
@@ -42,6 +46,16 @@ const updateNode = ({ node, body }: { node: string; body: UpdateNodeRequestBody 
       },
     },
     body,
+  });
+};
+
+const deleteNode = (node: string) => {
+  return del('/v1/nodes/{node}', {
+    params: {
+      path: {
+        node,
+      },
+    },
   });
 };
 
@@ -85,4 +99,6 @@ export {
   setNodeStandBy,
   deleteNodeFromVSAN,
   UPDATE_WITH_REBOOT_PATH,
+  getNodeCount,
+  deleteNode,
 };

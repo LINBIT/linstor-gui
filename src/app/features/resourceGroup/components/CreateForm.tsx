@@ -387,7 +387,7 @@ const CreateForm = () => {
             setExpand(!expand);
           }}
         >
-          <DownOutlined rotate={expand ? 180 : 0} rev={undefined} />
+          <DownOutlined rotate={expand ? 180 : 0} />
           {!expand ? 'Show advanced settings' : 'Hide advanced settings'}
         </a>
       </div>

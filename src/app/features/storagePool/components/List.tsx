@@ -191,9 +191,9 @@ export const List = () => {
         return (
           <span>
             {supports_snapshots ? (
-              <CheckCircleFilled rev={undefined} style={{ color: 'green', fontSize: '24px' }} />
+              <CheckCircleFilled style={{ color: 'green', fontSize: '24px' }} />
             ) : (
-              <CloseCircleFilled rev={undefined} style={{ color: 'grey', fontSize: '24px' }} />
+              <CloseCircleFilled style={{ color: 'grey', fontSize: '24px' }} />
             )}
           </span>
         );

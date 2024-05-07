@@ -202,17 +202,13 @@ const CreateNFSForm = () => {
                   <Input placeholder="192.168.0.0/16" style={{ width: '60%' }} />
                 </Form.Item>
                 {fields.length > 0 ? (
-                  <MinusCircleOutlined
-                    className="dynamic-delete-button"
-                    onClick={() => remove(field.name)}
-                    rev={undefined}
-                  />
+                  <MinusCircleOutlined className="dynamic-delete-button" onClick={() => remove(field.name)} />
                 ) : null}
               </Form.Item>
             ))}
             <Form.Item>
               <Button type="dashed" onClick={() => add()} style={{ width: '60%' }}>
-                Allowed IPs <PlusOutlined rev={undefined} />
+                Allowed IPs <PlusOutlined />
               </Button>
               <Form.ErrorList errors={errors} />
             </Form.Item>

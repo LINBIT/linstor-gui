@@ -1,5 +1,6 @@
 import { components, operations } from '@app/apis/schema';
 
+export type NodeDataType = components['schemas']['Node'];
 export type NodeCreateRequestBody = components['schemas']['Node'];
 export type NodeListQuery = operations['nodeList']['parameters']['query'];
 export type NodeType = 'Controller' | 'Satellite' | 'Combined' | 'Auxiliary' | 'Openflex_Target';
