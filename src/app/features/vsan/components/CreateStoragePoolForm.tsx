@@ -67,7 +67,11 @@ const getDiskEntries = (disks: Disk[], nodes: Node[]): DiskEntry[] => {
   return entries;
 };
 
-const CreateStoragePoolForm = () => {
+type CreateStoragePoolFormProps = {
+  refetch: () => void;
+};
+
+const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
   const [form] = Form.useForm<FormType>();
   const [api, contextHolder] = notification.useNotification();
   const [createFormModal, setCreateFormModal] = useState(false);
@@ -247,8 +251,6 @@ const CreateStoragePoolForm = () => {
   useEffect(() => {
     if (add_to_existing) {
       form.setFieldValue('poolName', spOption?.[0]?.value);
-    } else {
-      form.setFieldValue('poolName', undefined);
     }
   }, [add_to_existing, form, spOption]);
 
@@ -260,6 +262,9 @@ const CreateStoragePoolForm = () => {
       });
 
       setCreateFormModal(false);
+      form.resetFields();
+      setCheckboxStates([[]]);
+      refetch();
     },
     onError: (err: ErrorMessage) => {
       api.error({
@@ -295,10 +300,7 @@ const CreateStoragePoolForm = () => {
         nodes: Array.from(physicalStoragePoolRequest.nodes),
       };
 
-      console.log('currentPool', currentPool);
       createMutation.mutate(currentPool);
-      form.resetFields();
-      setCheckboxStates([[]]);
     } catch (error) {
       console.log('Failed:', error);
     }

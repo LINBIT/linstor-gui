@@ -8,7 +8,7 @@ import { REFETCH_INTERVAL } from '@app/const/time';
 import { formatBytes } from '@app/utils/size';
 import { DEFAULT_SP } from '@app/const/type';
 import { CreateStoragePoolForm } from '@app/features/vsan';
-import { ActionSection } from "./styled";
+import { ActionSection } from './styled';
 
 interface DataType {
   name: string;
@@ -71,7 +71,7 @@ export const PhysicalStorageList = () => {
           Reload
         </Button>
 
-        <CreateStoragePoolForm />
+        <CreateStoragePoolForm refetch={refetch} />
       </ActionSection>
 
       <Table
@@ -83,7 +83,7 @@ export const PhysicalStorageList = () => {
           expandedRowRender: (record) => {
             const nodes = Object.keys(record?.capacities) ?? [];
             return (
-              <p style={{ margin: 0 }}>
+              <div style={{ margin: 0 }}>
                 {nodes.map((node) => {
                   return (
                     <div key={node}>
@@ -91,7 +91,7 @@ export const PhysicalStorageList = () => {
                     </div>
                   );
                 })}
-              </p>
+              </div>
             );
           },
           expandRowByClick: true,

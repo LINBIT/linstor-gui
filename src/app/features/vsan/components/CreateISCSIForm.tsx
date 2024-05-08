@@ -172,11 +172,11 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
                   rules={[
                     {
                       required: true,
-                      message: 'Year and month are required!',
+                      message: '',
                     },
                     {
                       pattern: timeRegx,
-                      message: 'Invalid year and month, should be yyyy-mm',
+                      message: '',
                     },
                   ]}
                 >
@@ -189,11 +189,11 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
                   rules={[
                     {
                       required: true,
-                      message: 'Naming-authority is required!',
+                      message: '',
                     },
                     {
                       pattern: domainRegx,
-                      message: 'Invalid naming-authority, should be com.company',
+                      message: '',
                     },
                   ]}
                 >
@@ -206,11 +206,11 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
                   rules={[
                     {
                       required: true,
-                      message: 'Unique name is required!',
+                      message: '',
                     },
                     {
                       pattern: nameRegx,
-                      message: 'Invalid unique name',
+                      message: '',
                     },
                   ]}
                 >

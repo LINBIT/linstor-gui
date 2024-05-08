@@ -96,7 +96,7 @@ export const ResourceGroupList = () => {
           Reload
         </Button>
 
-        <CreateResourceGroup />
+        <CreateResourceGroup refetch={refetch} />
       </ActionSection>
       <Table
         bordered={false}

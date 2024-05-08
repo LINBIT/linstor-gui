@@ -12,12 +12,16 @@ type FormType = {
   placeCount: number;
 };
 
-export const CreateResourceGroup = () => {
+type CreateResourceGroupProps = {
+  refetch: () => void;
+};
+
+export const CreateResourceGroup = ({ refetch }: CreateResourceGroupProps) => {
   const [form] = Form.useForm<FormType>();
   const [api, contextHolder] = notification.useNotification();
   const [createFormModal, setCreateFormModal] = useState(false);
 
-  const { data: storagePool, refetch } = useQuery({
+  const { data: storagePool } = useQuery({
     queryKey: ['getStoragePool'],
     queryFn: () => getStoragePool(),
   });
