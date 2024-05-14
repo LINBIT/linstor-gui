@@ -15,7 +15,7 @@ import {
   ToolbarItem,
 } from '@patternfly/react-core';
 import {
-  TableComposable,
+  Table,
   Thead,
   Tr,
   Th,
@@ -239,7 +239,7 @@ const List: React.FC<NodeListProps> = ({ nodes = [] }) => {
         </ToolbarContent>
       </Toolbar>
 
-      <TableComposable aria-label="Node list table" isStriped>
+      <Table aria-label="Node list table" isStriped>
         <Thead>
           <Tr>
             <Th
@@ -328,7 +328,7 @@ const List: React.FC<NodeListProps> = ({ nodes = [] }) => {
             })
           )}
         </Tbody>
-      </TableComposable>
+      </Table>
 
       <PropertyForm
         initialVal={initialProps}

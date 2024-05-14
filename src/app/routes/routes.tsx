@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { Route, RouteComponentProps, Switch, useHistory, useLocation } from 'react-router-dom';
-import { accessibleRouteChangeHandler } from '@app/utils/utils';
+import { Route, RouteComponentProps, Switch, useHistory } from 'react-router-dom';
 
 import Dashboard from '@app/pages/Dashboard/Dashboard';
 
@@ -13,10 +12,6 @@ import NodeEdit from '@app/pages/Inventory/Nodes/edit';
 import StoragePoolList from '@app/pages/Inventory/StoragePools';
 import StoragePoolCreate from '@app/pages/Inventory/StoragePools/create';
 import StoragePoolEdit from '@app/pages/Inventory/StoragePools/edit';
-
-import NodeIpAddressList from '@app/pages/Inventory/NodeIpAddresses';
-import NodeIpAddressCreate from '@app/pages/Inventory/NodeIpAddresses/create';
-import IpAddressEdit from '@app/pages/Inventory/NodeIpAddresses/edit';
 
 import ResourceGroupList from '@app/pages/SoftwareDefined/ResourceGroups';
 import ResourceGroupCreate from '@app/pages/SoftwareDefined/ResourceGroups/create';
@@ -36,11 +31,8 @@ import { NotFound } from '@app/pages/NotFound/NotFound';
 import GeneralSettings from '@app/pages/Settings';
 import { useDocumentTitle } from '@app/utils/useDocumentTitle';
 
-import { LastLocationProvider, useLastLocation } from 'react-router-last-location';
-
 import { GrafanaDashboard } from '@app/pages/Granfana';
 import { UserManagement } from '@app/features/authentication';
-import { useUIModeStorage } from '@app/hooks';
 
 import gateway from './gateway';
 import snapshot from './snapshot';
@@ -54,8 +46,6 @@ import { ResourceGroup } from '@app/pages/VSAN/ResourceGroup';
 import { useDispatch, useSelector } from 'react-redux';
 import { Dispatch, RootState } from '@app/store';
 import VolumeDefinitionList from '@app/pages/SoftwareDefined/VolumeDefinitions';
-
-let routeFocusTimer: number;
 
 export interface IAppRoute {
   label?: string; // Excluding the label will exclude the route from the nav sidebar in AppLayout
@@ -144,25 +134,6 @@ const routes: AppRouteConfig[] = [
         exact: true,
         path: '/inventory/storage-pools/create',
         title: 'LINSTOR | Inventory | Storage Pools',
-      },
-      {
-        component: NodeIpAddressList,
-        exact: true,
-        label: 'node_ip_addrs',
-        path: '/inventory/ip',
-        title: 'LINSTOR | Inventory | Node IP Addresses',
-      },
-      {
-        component: IpAddressEdit,
-        exact: true,
-        path: '/inventory/ip/:node/:ip/edit',
-        title: 'LINSTOR | Inventory | Node IP Addresses',
-      },
-      {
-        component: NodeIpAddressCreate,
-        exact: true,
-        path: '/inventory/ip/create',
-        title: 'LINSTOR | Inventory | Node IP Addresses',
       },
     ],
   },
@@ -288,23 +259,7 @@ const routes: AppRouteConfig[] = [
   },
 ];
 
-// a custom hook for sending focus to the primary content container
-// after a view has loaded so that subsequent press of tab key
-// sends focus directly to relevant content
-const useA11yRouteChange = (isAsync: boolean) => {
-  const lastNavigation = useLastLocation();
-  React.useEffect(() => {
-    if (!isAsync && lastNavigation !== null) {
-      routeFocusTimer = accessibleRouteChangeHandler();
-    }
-    return () => {
-      window.clearTimeout(routeFocusTimer);
-    };
-  }, [isAsync, lastNavigation]);
-};
-
 const RouteWithTitleUpdates = ({ component: Component, isAsync = false, title, ...rest }: IAppRoute) => {
-  useA11yRouteChange(isAsync);
   useDocumentTitle(title);
 
   function routeWithTitle(routeProps: RouteComponentProps) {
@@ -417,21 +372,19 @@ const AppRoutes = (): React.ReactElement => {
   }, [dispatch.setting, history, KVS?.vsanMode, vsanModeFromSettings]);
 
   return (
-    <LastLocationProvider>
-      <Switch>
-        {displayedRoutes.map(({ path, exact, component, title, isAsync }, idx) => (
-          <RouteWithTitleUpdates
-            path={path}
-            exact={exact}
-            component={component}
-            key={idx}
-            title={title}
-            isAsync={isAsync}
-          />
-        ))}
-        <PageNotFound title="404 Page Not Found" />
-      </Switch>
-    </LastLocationProvider>
+    <Switch>
+      {displayedRoutes.map(({ path, exact, component, title, isAsync }, idx) => (
+        <RouteWithTitleUpdates
+          path={path}
+          exact={exact}
+          component={component}
+          key={idx}
+          title={title}
+          isAsync={isAsync}
+        />
+      ))}
+      <PageNotFound title="404 Page Not Found" />
+    </Switch>
   );
 };
 

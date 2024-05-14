@@ -73,12 +73,12 @@ export const VSANNodeList = () => {
     });
 
     let url = new URL(
-      location.origin.replace(/^http/, 'wss') + '/api/frontend/v1/system/update-with-reboot/' + nodeName
+      location.origin.replace(/^http/, 'wss') + '/api/frontend/v1/system/update-with-reboot/' + nodeName,
     );
 
     if (IS_DEV) {
       url = new URL(
-        process.env.VSAN_API_HOST?.replace('https', 'wss') + '/api/frontend/v1/system/update-with-reboot/' + nodeName
+        process.env.VSAN_API_HOST?.replace('https', 'wss') + '/api/frontend/v1/system/update-with-reboot/' + nodeName,
       );
     }
 
@@ -251,7 +251,7 @@ export const VSANNodeList = () => {
           )}
         >
           <span>
-            Status &nbsp; <InfoCircleOutlined rev={null} />
+            Status &nbsp; <InfoCircleOutlined />
           </span>
         </Popover>
       ),
@@ -295,7 +295,7 @@ export const VSANNodeList = () => {
           )}
         >
           <span>
-            Standby &nbsp; <InfoCircleOutlined rev={null} />
+            Standby &nbsp; <InfoCircleOutlined />
           </span>
         </Popover>
       ),
@@ -415,12 +415,7 @@ export const VSANNodeList = () => {
           </Button>
         </Space>
 
-        <Button
-          type="primary"
-          shape="circle"
-          icon={<SettingOutlined rev={null} />}
-          onClick={() => setIntervalModal(true)}
-        />
+        <Button type="primary" shape="circle" icon={<SettingOutlined />} onClick={() => setIntervalModal(true)} />
       </ActionContainer>
 
       <Table

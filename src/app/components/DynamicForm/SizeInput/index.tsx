@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Select, SelectOption, SelectVariant, TextInput } from '@patternfly/react-core';
+import { Select, SelectOption, TextInput } from '@patternfly/react-core';
 
 import './index.css';
 
@@ -64,15 +64,10 @@ const SizeInput: React.FunctionComponent<SizeInputProps> = ({ value, onChange, o
 
       <Select
         className="select"
-        variant={SelectVariant.single}
-        typeAheadAriaLabel="Please select"
-        onToggle={(val) => setIsOpen(val)}
         onSelect={(e, selection) => onSelect(selection)}
-        selections={selected}
         isOpen={isOpen}
-        placeholderText="Please select"
-        isCreatable={isCreatable}
         style={style}
+
       >
         {options.map((option, index) => (
           <SelectOption isDisabled={option.isDisabled} key={index} value={option.value} />

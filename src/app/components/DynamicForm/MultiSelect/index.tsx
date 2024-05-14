@@ -26,7 +26,7 @@ const MultiSelect: React.FunctionComponent<Props> = ({ value, onChange, options,
       setSelected(newSelected);
       onChange(newSelected);
     },
-    [selected, onChange]
+    [selected, onChange],
   );
 
   // set original value

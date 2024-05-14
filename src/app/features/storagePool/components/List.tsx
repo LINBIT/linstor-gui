@@ -240,7 +240,7 @@ export const List = () => {
               ],
             }}
           >
-            <DownOutlined rev={null} />
+            <DownOutlined />
           </Dropdown>
         </Space>
       ),

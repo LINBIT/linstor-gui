@@ -102,7 +102,7 @@ export const List = () => {
       B: t('semi_sync'),
       C: t('sync'),
     }),
-    [t]
+    [t],
   );
 
   const columns: TableProps<CreateResourceGroupRequestBody>['columns'] = [
@@ -215,7 +215,7 @@ export const List = () => {
               ],
             }}
           >
-            <DownOutlined rev={null} />
+            <DownOutlined />
           </Dropdown>
         </Space>
       ),

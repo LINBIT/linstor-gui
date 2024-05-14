@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from 'react';
-import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { headerCol, ICell } from '@patternfly/react-table';
 import get from 'lodash.get';
@@ -12,7 +11,6 @@ import { formatBytes } from '@app/utils/size';
 import PropertyForm from '@app/components/PropertyForm';
 import service from '@app/requests';
 import { notify, notifyList } from '@app/utils/toast';
-import { useKVStore } from '@app/hooks';
 
 const List: React.FunctionComponent = () => {
   const { t } = useTranslation(['volume', 'common']);

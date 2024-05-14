@@ -150,7 +150,7 @@ const NodeDetail: React.FC = () => {
     mutationFn: (
       data: CreateNetWorkInterfaceRequestBody & {
         node: string;
-      }
+      },
     ) => {
       const { node, ...rest } = data;
 
@@ -215,7 +215,7 @@ const NodeDetail: React.FC = () => {
             <div>
               <LabelText>Connection status: </LabelText>
               {nodeData?.connection_status === 'ONLINE' && (
-                <CheckCircleOutlined rev={null} style={{ color: 'green', marginRight: 4 }} />
+                <CheckCircleOutlined style={{ color: 'green', marginRight: 4 }} />
               )}
               {nodeData?.connection_status?.toLowerCase()}
             </div>

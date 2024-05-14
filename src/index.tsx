@@ -1,8 +1,9 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { App } from '@app/index';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import translations from './translations';
 
@@ -23,18 +24,12 @@ i18n
 
 export { i18n };
 
-if (process.env.NODE_ENV !== 'production') {
-  const config = {
-    rules: [
-      {
-        id: 'color-contrast',
-        enabled: false,
-      },
-    ],
-  };
-  // eslint-disable-next-line @typescript-eslint/no-var-requires, no-undef
-  const axe = require('react-axe');
-  axe(React, ReactDOM, 1000, config);
-}
+const queryClient = new QueryClient();
+const domNode = document.getElementById('root');
+const root = createRoot(domNode);
 
-ReactDOM.render(<App />, document.getElementById('root') as HTMLElement);
+root.render(
+  <QueryClientProvider client={queryClient}>
+    <App />
+  </QueryClientProvider>
+);

@@ -72,7 +72,7 @@ function getItem(
   key: React.Key,
   icon?: React.ReactNode,
   children?: MenuItem[],
-  type?: 'group'
+  type?: 'group',
 ): MenuItem {
   return {
     key,
@@ -206,7 +206,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
               onModeChange(UIMode === 'VSAN' ? 'NORMAL' : 'VSAN');
             }}
           >
-            <DeploymentUnitOutlined rev={null} style={{ color: BRAND_COLOR, marginLeft: 2, marginRight: '1rem' }} />
+            <DeploymentUnitOutlined style={{ color: BRAND_COLOR, marginLeft: 2, marginRight: '1rem' }} />
 
             <span>{UIMode === 'VSAN' ? 'Switch to advanced mode' : 'Leave advanced mode'}</span>
           </a>
@@ -300,7 +300,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
     <Nav id="nav-primary-simple" theme="dark">
       <NavList id="nav-list-simple">
         {filteredRoutes.map(
-          (route, idx) => route.label && (!route.routes ? renderNavItem(route, idx) : renderNavGroup(route, idx))
+          (route, idx) => route.label && (!route.routes ? renderNavItem(route, idx) : renderNavGroup(route, idx)),
         )}
       </NavList>
     </Nav>
@@ -308,19 +308,11 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
 
   const items: MenuItem[] = React.useMemo(() => {
     return [
-      getItem(<Link to="/vsan/dashboard">Dashboard</Link>, '/vsan/dashboard', <PieChartOutlined rev={null} />),
-      getItem(
-        <Link to="/vsan/physical-storage">Physical Storage</Link>,
-        '/vsan/physical-storage',
-        <DesktopOutlined rev={null} />
-      ),
-      getItem(
-        <Link to="/vsan/resource-groups">Resource Groups</Link>,
-        '/vsan/resource-groups',
-        <ContainerOutlined rev={null} />
-      ),
-      getItem(<Link to="/vsan/iscsi">iSCSI</Link>, '/vsan/iscsi', <MailOutlined rev={null} />),
-      getItem(<Link to="/vsan/nvmeof">NVMe-oF</Link>, '/vsan/nvmeof', <AppstoreOutlined rev={null} />),
+      getItem(<Link to="/vsan/dashboard">Dashboard</Link>, '/vsan/dashboard', <PieChartOutlined />),
+      getItem(<Link to="/vsan/physical-storage">Physical Storage</Link>, '/vsan/physical-storage', <DesktopOutlined />),
+      getItem(<Link to="/vsan/resource-groups">Resource Groups</Link>, '/vsan/resource-groups', <ContainerOutlined />),
+      getItem(<Link to="/vsan/iscsi">iSCSI</Link>, '/vsan/iscsi', <MailOutlined />),
+      getItem(<Link to="/vsan/nvmeof">NVMe-oF</Link>, '/vsan/nvmeof', <AppstoreOutlined />),
       getItem(<Link to="/vsan/nfs">NFS</Link>, '/vsan/nfs', <CloudServerOutlined />),
       getItem(<Link to="/vsan/error-reports">Error Reports</Link>, '/vsan/error-reports', <WarningOutlined />),
       getItem(<Link to="/vsan/users">Users</Link>, '/vsan/users', <UserOutlined />),

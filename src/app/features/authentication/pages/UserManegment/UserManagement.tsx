@@ -100,7 +100,7 @@ export const UserManagement = () => {
                         description="Are you sure to delete this user?"
                         okText="Yes"
                         cancelText="No"
-                        icon={<QuestionCircleOutlined style={{ color: 'red' }} rev={null} />}
+                        icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
                         onConfirm={() => {
                           dispatch.auth.deleteUser(user.title);
                         }}

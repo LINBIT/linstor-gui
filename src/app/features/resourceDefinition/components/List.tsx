@@ -196,7 +196,7 @@ export const List = () => {
                       record.props ?? {},
                       'DrbdPrimarySetOn',
                       'NVMe/TRType',
-                      'DrbdOptions/auto-verify-alg'
+                      'DrbdOptions/auto-verify-alg',
                     );
                     setInitialProps(currentData);
                     setPropertyModalOpen(true);
@@ -205,7 +205,7 @@ export const List = () => {
               ],
             }}
           >
-            <DownOutlined rev={null} />
+            <DownOutlined />
           </Dropdown>
         </Space>
       ),
