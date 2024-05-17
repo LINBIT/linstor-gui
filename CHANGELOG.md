@@ -1,5 +1,12 @@
 # Changelog
 
+# 1.6.2 - 2024-05-17
+
+### Fixed
+
+- VSAN Mode iSCSI target validation to identify and report errors more accurately
+- VSAN Mode improved handling of fetching the updated list after creating or deleting entries
+
 # 1.6.1 - 2024-04-24
 
 ### Fixed
