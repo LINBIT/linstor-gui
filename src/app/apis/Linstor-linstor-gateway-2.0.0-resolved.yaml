@@ -1121,6 +1121,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/IPCidr'
+        gross_size:
+          type: boolean
+        implementation:
+          type: string
         status:
           $ref: '#/components/schemas/ResourceStatus'
     NFSResourceConfig:
