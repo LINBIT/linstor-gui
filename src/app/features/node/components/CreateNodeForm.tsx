@@ -34,7 +34,7 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
   const [defaultNetwork, setDefaultNetwork] = React.useState<UpdateNetInterfaceRequestBody>();
 
   const backToList = () => {
-    history.push('/inventory/nodes');
+    history.goBack();
   };
 
   const { node } = useParams() as { node: string };

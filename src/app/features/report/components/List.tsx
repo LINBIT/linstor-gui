@@ -6,7 +6,7 @@ import { deleteReport, deleteReportBulk, getErrorReports } from '../api';
 import { ErrorReport, ErrorReportDeleteRangeRequest, GetErrorReportRequestQuery } from '../types';
 import { formatTime, getTime } from '@app/utils/time';
 import { useNodes } from '@app/features/node';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 
 const { RangePicker } = DatePicker;
 
@@ -16,12 +16,15 @@ const getId = (report: ErrorReport) => {
 
 export const List = () => {
   const [form] = Form.useForm();
-  const [query, setQuery] = useState({});
+
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [displayData, setDisplayData] = useState<ErrorReport[]>([]);
   const nodes = useNodes();
 
   const history = useHistory();
+  const location = useLocation();
+
+  const [query, setQuery] = useState({});
 
   const module = Form.useWatch('module', form);
 
@@ -61,7 +64,7 @@ export const List = () => {
         .filter((e) => e.module === module);
     }
 
-    setDisplayData(displayData);
+    setDisplayData(displayData as any);
   }, [module, data?.data]);
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
@@ -87,6 +90,12 @@ export const List = () => {
       newQuery.since = getTime(values.range[0]);
       newQuery.to = getTime(values.range[1]);
     }
+
+    const query = new URLSearchParams(newQuery);
+
+    const new_url = `${location.pathname}?${query.toString()}`;
+
+    history.push(new_url);
 
     setQuery(newQuery);
   };

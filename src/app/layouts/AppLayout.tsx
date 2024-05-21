@@ -281,12 +281,12 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
         getItem(
           <Link to="/vsan/physical-storage">Physical Storage</Link>,
           '/vsan/physical-storage',
-          <DesktopOutlined />
+          <DesktopOutlined />,
         ),
         getItem(
           <Link to="/vsan/resource-groups">Resource Groups</Link>,
           '/vsan/resource-groups',
-          <ContainerOutlined />
+          <ContainerOutlined />,
         ),
         getItem(<Link to="/vsan/iscsi">iSCSI</Link>, '/vsan/iscsi', <MailOutlined />),
         getItem(<Link to="/vsan/nvmeof">NVMe-oF</Link>, '/vsan/nvmeof', <AppstoreOutlined />),
@@ -301,20 +301,19 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
         getItem('Inventory', '/inventory', <DesktopOutlined />, [
           getItem(<Link to="/inventory/nodes">Nodes</Link>, '/inventory/nodes'),
           getItem(<Link to="/inventory/storage-pools">Storage Pools</Link>, '/inventory/storage-pools'),
-          getItem(<Link to="/inventory/ip">IP Addresses</Link>, '/inventory/ip'),
         ]),
         getItem('Storage Configuration', '/storage-configuration', <DesktopOutlined />, [
           getItem(
             <Link to="/storage-configuration/resource-groups">Resource Groups</Link>,
-            '/storage-configuration/resource-groups'
+            '/storage-configuration/resource-groups',
           ),
           getItem(
             <Link to="/storage-configuration/resource-definitions">Resource Definitions</Link>,
-            '/storage-configuration/resource-definitions'
+            '/storage-configuration/resource-definitions',
           ),
           getItem(
             <Link to="/storage-configuration/volume-definitions">Volume Definitions</Link>,
-            '/storage-configuration/volume-definitions'
+            '/storage-configuration/volume-definitions',
           ),
           getItem(<Link to="/storage-configuration/resources">Resources</Link>, '/storage-configuration/resources'),
           getItem(<Link to="/storage-configuration/volumes">Volumes</Link>, '/storage-configuration/volumes'),
@@ -329,7 +328,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
 
   useEffect(() => {
     const currentMenu = items.find(
-      (e) => e?.key === location.pathname || (e as any)?.children?.find((c) => c.key === location.pathname)
+      (e) => e?.key === location.pathname || (e as any)?.children?.find((c) => c.key === location.pathname),
     ) as any;
 
     if (currentMenu?.children) {

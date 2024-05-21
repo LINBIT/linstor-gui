@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { Button, Form, Space, Table, Tag, Popconfirm, Input, Dropdown } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { CheckCircleFilled, CloseCircleFilled, DownOutlined } from '@ant-design/icons';
-import { useTranslation } from 'react-i18next';
 
 import PropertyForm from '@app/components/PropertyForm';
 import { getNodes, getNodeCount, deleteNode, updateNode } from '../api';
@@ -14,19 +13,30 @@ import { NodeDataType, NodeListQuery, UpdateNodeRequestBody } from '../types';
 import { omit } from '@app/utils/object';
 
 export const List = () => {
-  const { t } = useTranslation(['resource_group', 'common']);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
   const [current, setCurrent] = useState<NodeDataType>();
 
-  const [query, setQuery] = useState<NodeListQuery>({
-    limit: 10,
-    offset: 0,
-  });
-
   const history = useHistory();
+  const location = useLocation();
+
   const [form] = Form.useForm();
+
+  const [query, setQuery] = useState<NodeListQuery>(() => {
+    const query = new URLSearchParams(location.search);
+    const nodes = query.get('nodes')?.split(',');
+
+    if (nodes) {
+      form.setFieldValue('name', nodes);
+    }
+
+    return {
+      limit: 10,
+      offset: 0,
+      nodes,
+    };
+  });
 
   const { data: nodes, refetch } = useQuery({
     queryKey: ['getNodes', query],
@@ -45,6 +55,14 @@ export const List = () => {
 
     if (values.name) {
       newQuery.nodes = [values.name];
+
+      const query = new URLSearchParams({
+        nodes: values.name,
+      });
+
+      const new_url = `${location.pathname}?${query.toString()}`;
+
+      history.push(new_url);
     }
 
     setQuery(newQuery);
@@ -53,6 +71,7 @@ export const List = () => {
   const handleReset = () => {
     form.resetFields();
     setQuery({});
+    history.push('/inventory/nodes');
   };
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
@@ -216,7 +235,7 @@ export const List = () => {
       <SearchForm>
         <Form
           form={form}
-          name="storage_pool_search"
+          name="node_list_form"
           layout="inline"
           initialValues={{
             show_default: true,
