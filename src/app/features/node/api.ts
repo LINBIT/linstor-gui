@@ -11,12 +11,20 @@ const getNodes = (query: NodeListQuery) => {
   });
 };
 
+const getControllerConfig = () => {
+  return get('/v1/controller/config');
+};
+
 const getNodeCount = () => {
   return get('/v1/stats/nodes');
 };
 
 const getNodesFromVSAN = () => {
   return service.get('/api/frontend/v1/nodes');
+};
+
+const getSpaceReport = () => {
+  return service.get('/v1/space-report');
 };
 
 // delete node from VSAN
@@ -101,4 +109,6 @@ export {
   UPDATE_WITH_REBOOT_PATH,
   getNodeCount,
   deleteNode,
+  getControllerConfig,
+  getSpaceReport,
 };

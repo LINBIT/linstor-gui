@@ -20,15 +20,18 @@ const App: React.FunctionComponent = () => {
   const getSpaceReport = () =>
     fetch('/v1/space-report')
       .then((res) => res.json())
-      .then((res) => res);
+      .then((res) => {
+        return res?.reportText;
+      });
 
   const { isLoading, error, data } = useQuery({
     queryKey: ['getSpaceReport'],
     queryFn: getSpaceReport,
+    staleTime: 0,
   });
 
   // Check if has space-report result
-  const appEnabled = data?.reportText && data?.reportText !== MSG;
+  const appEnabled = data && data !== MSG;
 
   if (!isLoading && (error || !appEnabled)) {
     return <NotEnable />;

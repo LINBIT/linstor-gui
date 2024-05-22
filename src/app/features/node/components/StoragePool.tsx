@@ -1,5 +1,5 @@
 import React from 'react';
-import { Column } from '@ant-design/plots';
+import Chart from 'react-apexcharts';
 import { forEach, groupBy } from 'lodash-es';
 
 type DataItem = {
@@ -33,7 +33,6 @@ export const StoragePool = ({ data }: StoragePoolProp) => {
       tooltip: false,
     });
   });
-
   const config = {
     data,
     xField: 'storagePool',
@@ -48,5 +47,49 @@ export const StoragePool = ({ data }: StoragePoolProp) => {
     annotations,
   };
 
-  return <Column {...config} />;
+  const series = [
+    {
+      name: 'total',
+      data: data?.filter((e) => e.type === 'Total')?.map((d) => d.value),
+    },
+    {
+      name: 'used',
+      data: data?.filter((e) => e.type === 'Used')?.map((d) => d.value),
+    },
+  ];
+
+  const options = {
+    xaxis: {
+      categories: Array.from(new Set(data.map((d) => d.storagePool))),
+    },
+    chart: {
+      type: 'bar' as const,
+      stacked: true,
+      height: 350,
+    },
+    legend: {
+      position: 'right' as const,
+      offsetY: 40,
+    },
+    fill: {
+      opacity: 1,
+    },
+    dataLabels: {
+      formatter: (val) => {
+        return val + 'GiB';
+      },
+    },
+    yaxis: {
+      labels: {
+        formatter: (val) => {
+          return val + 'GiB';
+        },
+      },
+    },
+    colors: ['#f79133', '#80c7fd'],
+  };
+
+  // return <div>hi</div>;
+
+  return <Chart options={options} series={series} type="bar" height={350} />;
 };

@@ -133,6 +133,8 @@ const NodeDetail: React.FC = () => {
   const storagePoolData = handleStorageData(nodeStoragePoolInfo?.data, node) || [];
   const resourceData = handleResourceData(resourceInfo?.data) || [];
 
+  console.log(resourceData, 'resourceData');
+
   const deleteNetWorkInterfaceMutation = useMutation({
     mutationFn: (data: { node: string; netinterface: string }) => {
       const { node, netinterface } = data;
@@ -269,15 +271,17 @@ const NodeDetail: React.FC = () => {
         <Row gutter={16}>
           <Col span={12}>
             <Card title="Storage pool info" size="small">
-              <Container>
-                <StoragePool data={storagePoolData} />
-              </Container>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <Container>{storagePoolData.length > 0 && <StoragePool data={storagePoolData} />}</Container>
+              </div>
             </Card>
           </Col>
 
           <Col span={12}>
             <Card title="Resource info" size="small">
-              {resourceData.length > 0 && <Resource data={resourceData} />}
+              <div style={{ display: 'flex', justifyContent: 'center', minHeight: 385 }}>
+                {resourceData.length > 0 && <Resource data={resourceData} />}
+              </div>
             </Card>
           </Col>
         </Row>

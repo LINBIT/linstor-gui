@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pie } from '@ant-design/plots';
+import Chart from 'react-apexcharts';
 
 type DataItem = {
   type: string;
@@ -11,24 +11,47 @@ type ResourceProp = {
 };
 
 export const Resource = ({ data }: ResourceProp) => {
-  const config = {
-    data,
-    angleField: 'value',
-    colorField: 'type',
-    label: {
-      text: 'value',
-      style: {
-        fontWeight: 'bold',
-      },
-    },
+  // const config = {
+  //   data,
+  //   angleField: 'value',
+  //   colorField: 'type',
+  //   label: {
+  //     text: 'value',
+  //     style: {
+  //       fontWeight: 'bold',
+  //     },
+  //   },
+  //   legend: {
+  //     color: {
+  //       title: false,
+  //       position: 'right',
+  //       rowPadding: 5,
+  //     },
+  //   },
+  // };
+  const options = {
+    labels: data.map((d) => d.type),
     legend: {
-      color: {
-        title: false,
-        position: 'right',
-        rowPadding: 5,
-      },
+      position: 'bottom' as const,
     },
+    colors: ['#f79133', '#80c7fd'],
+    width: 400,
+    responsive: [
+      {
+        breakpoint: 480,
+        options: {
+          chart: {
+            width: 200,
+          },
+          legend: {
+            position: 'bottom',
+          },
+        },
+      },
+    ],
   };
 
-  return <Pie {...config} />;
+  const series = data.map((d) => d.value);
+
+  return <Chart options={options} series={series} type="pie" height={350} />;
 };

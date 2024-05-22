@@ -127,7 +127,6 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
     dispatch.setting.getSettings();
   }, [dispatch.setting]);
 
-  const { t } = useTranslation('menu');
   const onNavToggleMobile = () => {
     setIsNavOpenMobile(!isNavOpenMobile);
   };
@@ -158,11 +157,15 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
     }
 
     return (
-      <>
+      <div className="logo_wrap">
         <img src={logo} className="logo" onClick={handleClick} alt="LINBIT Logo" />
         {'  '}
-        {customizedLogo && <SVG src={customizedLogo} className="Customized Logo" />}
-      </>
+        {customizedLogo && (
+          <div className="customerlogo">
+            <SVG src={customizedLogo} className="customerlogo" />
+          </div>
+        )}
+      </div>
     );
   }
 

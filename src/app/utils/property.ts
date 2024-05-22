@@ -20,7 +20,7 @@ export function handlePropsToFormOption(key: string, prop = {}): FormItem[] {
   }
 
   const propsArrData = Object.entries({ ...properties.properties, ...drbdOptions.properties }).filter(
-    (el) => propsArr.indexOf(el[0]) > -1
+    (el) => propsArr.indexOf(el[0]) > -1,
   );
 
   return propsArrData.map(([key, data]) => {

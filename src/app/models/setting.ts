@@ -2,7 +2,6 @@ import service from '@app/requests';
 import { notify } from '@app/utils/toast';
 import { createModel } from '@rematch/core';
 import isSvg from 'is-svg';
-import S from 'string';
 import { RootModel } from '.';
 
 import { settingAPI, SettingsAPI, SettingsProps } from '@app/features/settings';
@@ -129,7 +128,9 @@ export const setting = createModel<RootModel>()({
           const logoProps = await kvStore.get('logo');
 
           const logoStr = logoProps?.props?.['logoStr'] ?? '';
-          const arr = S(logoStr).parseCSV();
+
+          const arr = logoStr.split(',');
+
           const logoSrc = arr.map((e) => logoProps?.props?.[e]).join('');
 
           dispatch.setting.updateLogo(logoSrc);

@@ -2,8 +2,19 @@
   --pf-c-page__sidebar--BackgroundColor: var(--pf-global--BackgroundColor--dark-100);
 }
 
+.logo_wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .logo {
   max-width: 8rem;
+}
+
+.customerlogo {
+  max-width: 6rem;
+  max-height: 3rem;
 }
 
 .customizedLogo {
