@@ -1,25 +1,37 @@
-import React, { useEffect, useState } from 'react';
-import { Tabs, Tab, TabTitleText } from '@patternfly/react-core';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useEffect } from 'react';
+import { Tabs } from 'antd';
+import type { TabsProps } from 'antd';
+import { useDispatch } from 'react-redux';
 
 import PageBasic from '@app/components/PageBasic';
-import { Dispatch, RootState } from '@app/store';
+import { Dispatch } from '@app/store';
 import Gateway from './components/Gateway';
 import Logo from './components/Logo';
 import Dashboard from './components/Dashboard';
-import { VSAN } from './components/VSAN';
 
 const GeneralSettings: React.FC = () => {
-  const [activeIndex, setActiveIndex] = useState(0);
   const dispatch = useDispatch<Dispatch>();
-  // Toggle currently active tab
-  const handleTabClick = (event, tabIndex) => {
-    setActiveIndex(tabIndex);
+  const onChange = (key: string) => {
+    console.log(key);
   };
 
-  const { vsanMode } = useSelector((state: RootState) => ({
-    vsanMode: state?.setting?.KVS?.vsanMode,
-  }));
+  const items: TabsProps['items'] = [
+    {
+      key: '1',
+      label: 'General',
+      children: <Logo />,
+    },
+    {
+      key: '2',
+      label: 'Gateway',
+      children: <Gateway />,
+    },
+    {
+      key: '3',
+      label: 'Dashboard',
+      children: <Dashboard />,
+    },
+  ];
 
   useEffect(() => {
     // Check Settings from Linstor Key-Value-Store
@@ -30,24 +42,7 @@ const GeneralSettings: React.FC = () => {
 
   return (
     <PageBasic title="Settings">
-      <Tabs activeKey={activeIndex} onSelect={handleTabClick} isBox>
-        <Tab eventKey={0} title={<TabTitleText>General</TabTitleText>}>
-          <Logo />
-        </Tab>
-        <Tab eventKey={1} title={<TabTitleText>Gateway</TabTitleText>}>
-          <Gateway />
-        </Tab>
-
-        <Tab eventKey={2} title={<TabTitleText>Dashboard</TabTitleText>}>
-          <Dashboard />
-        </Tab>
-
-        {vsanMode && (
-          <Tab eventKey={3} title={<TabTitleText>VSAN</TabTitleText>}>
-            <VSAN />
-          </Tab>
-        )}
-      </Tabs>
+      <Tabs defaultActiveKey="1" items={items} onChange={onChange} />
     </PageBasic>
   );
 };

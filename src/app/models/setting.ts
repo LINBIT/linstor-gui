@@ -267,12 +267,23 @@ export const setting = createModel<RootModel>()({
       await settingAPI.setProps({
         customLogoEnabled: true,
       });
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     },
 
     async getLogo(payload: string) {
       await dispatch.setting.saveKey({
         logo: payload,
       });
+    },
+
+    async disableCustomLogo() {
+      await settingAPI.setProps({
+        customLogoEnabled: false,
+      });
+      window.location.reload();
     },
   }),
 });
