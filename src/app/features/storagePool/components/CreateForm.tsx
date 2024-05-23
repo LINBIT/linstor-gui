@@ -38,7 +38,7 @@ const CreateForm = () => {
   const create_type = Form.useWatch('create_type', form);
 
   const backToStoragePoolList = () => {
-    history.push('/inventory/storage-pools');
+    history.goBack();
   };
 
   const { data: devicePathOptions } = useQuery({
@@ -59,7 +59,7 @@ const CreateForm = () => {
     mutationFn: (
       data: CreateStoragePoolRequestBody & {
         node: string;
-      }
+      },
     ) => {
       const { node, ...rest } = data;
 

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, Form, Space, Table, Tag, Select, Popconfirm, Input, Checkbox, Dropdown } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { CheckCircleFilled, CloseCircleFilled, DownOutlined } from '@ant-design/icons';
 
 import { useNodes } from '@app/features/node';
@@ -15,9 +15,30 @@ import { SearchForm } from './styled';
 
 export const List = () => {
   const [form] = Form.useForm();
-  const [query, setQuery] = useState<GetStoragePoolQuery>({
-    limit: 10,
-    offset: 0,
+  const history = useHistory();
+  const location = useLocation();
+  const [query, setQuery] = useState<GetStoragePoolQuery>(() => {
+    const query = new URLSearchParams(location.search);
+    const nodes = query.get('nodes');
+    const queryO = {};
+
+    if (nodes) {
+      form.setFieldValue('nodes', nodes);
+      queryO['nodes'] = nodes;
+    }
+
+    const storage_pools = query.get('storage_pools');
+
+    if (storage_pools) {
+      form.setFieldValue('storage_pools', storage_pools);
+      queryO['storage_pools'] = storage_pools;
+    }
+
+    return {
+      limit: 10,
+      offset: 0,
+      ...queryO,
+    };
   });
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const nodes = useNodes();
@@ -32,8 +53,6 @@ export const List = () => {
   const { data: storagePoolList, refetch } = useQuery(['getStoragePool', query], () => {
     return getStoragePool(query);
   });
-
-  const history = useHistory();
 
   const { data: stats } = useQuery({
     queryKey: ['getStoragePoolCount'],
@@ -83,19 +102,28 @@ export const List = () => {
 
   const handleSearch = () => {
     const values = form.getFieldsValue();
+    const queryS = new URLSearchParams({});
     const newQuery: GetStoragePoolQuery = { ...query };
-    if (values.node) {
-      newQuery.nodes = values.node;
+    if (values.nodes) {
+      newQuery.nodes = values.nodes;
+      queryS.set('nodes', values.nodes);
     }
     if (values.storage_pools) {
       newQuery.storage_pools = values.storage_pools;
+      queryS.set('storage_pools', values.storage_pools);
     }
+
     setQuery(newQuery);
+
+    const new_url = `${location.pathname}?${queryS.toString()}`;
+
+    history.push(new_url);
   };
 
   const handleReset = () => {
     form.resetFields();
     setQuery({});
+    history.push('/inventory/storage-pools');
   };
 
   const handleDelete = (node: string, storagepool: string) => {
@@ -258,7 +286,7 @@ export const List = () => {
             show_default: true,
           }}
         >
-          <Form.Item name="node" label="Node">
+          <Form.Item name="nodes" label="Node">
             <Select
               style={{ width: 180 }}
               allowClear
