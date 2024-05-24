@@ -11,6 +11,7 @@ import { formatBytes } from '@app/utils/size';
 import PropertyForm from '@app/components/PropertyForm';
 import service from '@app/requests';
 import { notify, notifyList } from '@app/utils/toast';
+import { List as VolumeList } from '@app/features/volume';
 
 const List: React.FunctionComponent = () => {
   const { t } = useTranslation(['volume', 'common']);
@@ -90,7 +91,7 @@ const List: React.FunctionComponent = () => {
           setPropertyModalOpen(false);
         }
       },
-    }
+    },
   );
 
   const filterFunc = useCallback((item) => Array.isArray(item.volumes) && item.volumes.length > 0, []);
@@ -100,7 +101,12 @@ const List: React.FunctionComponent = () => {
 
     for (const item of data) {
       volumes.push(
-        ...item.volumes.map((e) => ({ ...e, node_name: item.node_name, resource_name: item.name, in_use: item.in_use }))
+        ...item.volumes.map((e) => ({
+          ...e,
+          node_name: item.node_name,
+          resource_name: item.name,
+          in_use: item.in_use,
+        })),
       );
     }
 

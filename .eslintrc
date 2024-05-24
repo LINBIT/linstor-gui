@@ -8,7 +8,7 @@
     "js": true,
     "useJSXTextNode": true,
     "project": "./tsconfig.json",
-    "tsconfigRootDir": "."
+    "tsconfigRootDir": ".",
   },
   // we want to use the recommended rules provided from the typescript plugin
   "extends": ["eslint:recommended", "plugin:react/recommended", "plugin:@typescript-eslint/recommended"],
@@ -19,12 +19,12 @@
     "expect": "readonly",
     "it": "readonly",
     "process": "readonly",
-    "document": "readonly"
+    "document": "readonly",
   },
   "settings": {
     "react": {
-      "version": "^16.11.0"
-    }
+      "version": "^16.11.0",
+    },
   },
   // includes the typescript specific rules found here: https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin#supported-rules
   "plugins": ["@typescript-eslint", "react-hooks", "eslint-plugin-react-hooks"],
@@ -37,10 +37,11 @@
     "prettier/prettier": "off",
     "import/no-unresolved": "off",
     "import/extensions": "off",
-    "react/prop-types": "off"
+    "react/prop-types": "off",
+    "@typescript-eslint/no-explicit-any": "off",
   },
   "env": {
     "browser": true,
-    "node": true
-  }
+    "node": true,
+  },
 }

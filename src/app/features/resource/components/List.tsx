@@ -1,42 +1,55 @@
-import React, { useState } from 'react';
-import { Button, Form, Space, Table, Tag, Popconfirm, Input, Dropdown } from 'antd';
+import React, { useCallback, useState } from 'react';
+import { Button, Form, Space, Table, Popconfirm, Input } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useHistory } from 'react-router-dom';
-import { CheckCircleFilled, CloseCircleFilled, DownOutlined } from '@ant-design/icons';
-import { useTranslation } from 'react-i18next';
 
 import PropertyForm from '@app/components/PropertyForm';
-import { getResources, getResourceCount, deleteResource, resourceModify } from '../api';
+import { getResources, deleteResource, resourceModify } from '../api';
 import { SearchForm } from './styled';
 import { uniqId } from '@app/utils/stringUtils';
-import { ResourceDataType, ResourceListQuery, ResourceModifyRequestBody } from '../types';
-import { omit } from '@app/utils/object';
+import { ResourceDataType, ResourceListQuery, ResourceModifyRequestBody, VolumeType } from '../types';
+import dayjs from 'dayjs';
 
 export const List = () => {
-  const { t } = useTranslation(['resource_group', 'common']);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
   const [current, setCurrent] = useState<ResourceDataType>();
 
-  const [query, setQuery] = useState<ResourceListQuery>({
-    limit: 10,
-    offset: 0,
-  });
+  const [query, setQuery] = useState<ResourceListQuery>({});
 
   const history = useHistory();
   const [form] = Form.useForm();
 
+  const getResourcesRequest = async () => {
+    const res = await getResources(query);
+
+    let resData: ResourceDataType[] = [];
+
+    // 将 res.data 中的数据转换为 resData， volumes 是数组, 将里面的数据提到外层
+    if (res.data) {
+      resData = res.data
+        .map((item) => {
+          const { volumes, ...rest } = item;
+          return volumes?.map((volume) => ({
+            ...rest,
+            resourceState: rest.state,
+            ...volume,
+          }));
+        })
+        .flat() as ResourceDataType[];
+    }
+
+    return resData;
+  };
+
   const { data: resources, refetch } = useQuery({
     queryKey: ['getResources', query],
-    queryFn: () => getResources(query),
+    queryFn: getResourcesRequest,
   });
 
-  const { data: stats } = useQuery({
-    queryKey: ['getResourceCount'],
-    queryFn: () => getResourceCount(),
-  });
+  console.log(resources, 'resources');
 
   const handleSearch = () => {
     const values = form.getFieldsValue();
@@ -52,10 +65,7 @@ export const List = () => {
 
   const handleReset = () => {
     form.resetFields();
-    setQuery({
-      limit: 10,
-      offset: 0,
-    });
+    setQuery({});
   };
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
@@ -95,7 +105,64 @@ export const List = () => {
     });
   };
 
-  const columns: TableProps<ResourceDataType>['columns'] = [
+  const getVolumeCellState = (vlm_state, rsc_flags, vlm_flags) => {
+    const state_prefix = vlm_flags.indexOf('RESIZE') > -1 ? 'Resizing, ' : '';
+    let state = state_prefix + 'Unknown';
+    if (vlm_state && vlm_state.disk_state) {
+      const disk_state = vlm_state.disk_state;
+      if (disk_state == 'DUnknown') {
+        state = state_prefix + 'Unknown';
+      } else if (disk_state == 'Diskless') {
+        if (!rsc_flags.includes('DISKLESS')) {
+          state = state_prefix + disk_state;
+        } else if (rsc_flags.includes('TIE_BREAKER')) {
+          state = 'TieBreaker';
+        } else {
+          state = state_prefix + disk_state;
+        }
+      } else {
+        state = state_prefix + disk_state;
+      }
+    }
+    return state;
+  };
+
+  const handleResourceStateDisplay = useCallback((resourceItem: ResourceDataType) => {
+    let stateStr = 'Unknown';
+    const flags = resourceItem.flags || [];
+    const rsc_state_obj = resourceItem.resourceState || {};
+    const volumes = resourceItem.volumes || [];
+
+    if (flags.includes('DELETE')) {
+      stateStr = 'DELETING';
+    } else if (flags.includes('INACTIVE')) {
+      stateStr = 'INACTIVE';
+    } else if (rsc_state_obj) {
+      if (typeof rsc_state_obj.in_use !== 'undefined') {
+        for (let i = 0; i < volumes.length; ++i) {
+          const volume = volumes[i];
+          const vlm_state = volume.state || {};
+          const vlm_flags = volume.flags || [];
+          stateStr = getVolumeCellState(vlm_state, flags, vlm_flags);
+
+          if (flags.includes('EVACUATE')) {
+            stateStr += ', Evacuating';
+          }
+        }
+      }
+    }
+
+    return stateStr;
+  }, []);
+
+  const columns: TableProps<
+    ResourceDataType &
+      VolumeType & {
+        resourceState: {
+          in_use: boolean;
+        };
+      }
+  >['columns'] = [
     {
       title: 'Name',
       key: 'name',
@@ -110,6 +177,16 @@ export const List = () => {
       showSorterTooltip: false,
     },
     {
+      title: 'Volume Number',
+      key: 'volume_number',
+      dataIndex: 'volume_number',
+    },
+    {
+      title: 'Storage Pool Name',
+      key: 'storage_pool_name',
+      dataIndex: 'storage_pool_name',
+    },
+    {
       title: 'Node',
       key: 'node_name',
       dataIndex: 'node_name',
@@ -118,97 +195,33 @@ export const List = () => {
       title: 'Port',
       key: 'port',
       render: (_, item) => {
-        return item?.net_interfaces?.find((e) => e.is_active)?.satellite_port ?? '';
+        const port = item.layer_object?.drbd?.drbd_resource_definition?.port || 'N/A';
+        return <span>{port}</span>;
       },
     },
     {
-      title: 'Type',
-      key: 'type',
-      dataIndex: 'type',
-      render: (type) => {
-        return <Tag>{type}</Tag>;
+      title: 'State',
+      key: 'state',
+      align: 'center',
+      render: (_, item) => {
+        const state = item.resourceState.in_use ? 'In Use' : 'Unused';
+        return <span>{state}</span>;
+      },
+    },
+    {
+      title: 'Create Time',
+      key: 'create_time',
+      dataIndex: 'create_timestamp',
+      render: (create_timestamp) => {
+        return <span>{dayjs(create_timestamp).format('YYYY-MM-DD HH:mm:ss')}</span>;
       },
     },
     {
       title: 'Status',
       key: 'status',
-      align: 'center',
       render: (_, item) => {
-        const connected = item.connection_status === 'CONNECTED' || item.connection_status === 'ONLINE';
-        return (
-          <>
-            {connected ? (
-              <CheckCircleFilled style={{ color: 'green', fontSize: '16px' }} />
-            ) : (
-              <CloseCircleFilled style={{ color: 'grey', fontSize: '16px' }} />
-            )}
-
-            <span style={{ marginLeft: 4 }}>{item.connection_status}</span>
-          </>
-        );
+        return <span>{handleResourceStateDisplay(item)}</span>;
       },
-    },
-    {
-      title: 'Action',
-      key: 'action',
-      width: 150,
-      fixed: 'right',
-      render: (_, record) => (
-        <Space size="small">
-          <Button
-            type="primary"
-            onClick={() => {
-              history.push(`/inventory/resources/${record.name}`);
-            }}
-          >
-            View
-          </Button>
-
-          <Popconfirm
-            key="delete"
-            title="Delete the node"
-            description="Are you sure to delete this node?"
-            okText="Yes"
-            cancelText="No"
-            onConfirm={() => {
-              deleteMutation.mutate(record.name || '');
-            }}
-          >
-            <Button danger loading={deleteMutation.isLoading}>
-              Delete
-            </Button>
-          </Popconfirm>
-
-          <Dropdown
-            menu={{
-              items: [
-                {
-                  key: 'edit',
-                  label: 'Edit',
-                  onClick: () => {
-                    history.push(`/inventory/resources/edit/${record.name}`);
-                  },
-                },
-                {
-                  key: 'property',
-                  label: 'Properties',
-                  onClick: () => {
-                    setCurrent(record);
-                    const currentData = omit(record.props ?? {}, 'CurStltConnName');
-                    setInitialProps({
-                      ...currentData,
-                      name: record.name,
-                    });
-                    setPropertyModalOpen(true);
-                  },
-                },
-              ],
-            }}
-          >
-            <DownOutlined />
-          </Dropdown>
-        </Space>
-      ),
     },
   ];
 
@@ -256,7 +269,7 @@ export const List = () => {
           </Form.Item>
         </Form>
 
-        <Button type="primary" onClick={() => history.push('/inventory/resources/create')}>
+        <Button type="primary" onClick={() => history.push('/storage-configuration/resources/create')}>
           Add
         </Button>
       </SearchForm>
@@ -264,30 +277,16 @@ export const List = () => {
       <br />
 
       <Table
-        columns={columns}
-        dataSource={resources?.data ?? []}
+        columns={columns as any}
+        dataSource={resources ?? []}
         rowSelection={rowSelection}
-        rowKey={(item) => item?.name ?? uniqId()}
-        pagination={{
-          total: stats?.data?.count ?? 0,
-          showSizeChanger: true,
-          showTotal: (total) => `Total ${total} items`,
-          defaultCurrent: (query?.offset ?? 0) + 1,
-          pageSize: query?.limit,
-          onChange(page, pageSize) {
-            setQuery({
-              ...query,
-              limit: pageSize,
-              offset: (page - 1) * pageSize,
-            });
-          },
-        }}
+        rowKey={(item) => item?.uuid ?? uniqId()}
       />
 
       <PropertyForm
         initialVal={initialProps}
         openStatus={propertyModalOpen}
-        type="node"
+        type="resource"
         handleSubmit={(data) => updateMutation.mutate(data)}
         handleClose={() => setPropertyModalOpen(!propertyModalOpen)}
       />

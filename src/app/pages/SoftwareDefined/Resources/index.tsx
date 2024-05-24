@@ -71,7 +71,7 @@ const List: React.FunctionComponent = () => {
             }
           });
       },
-    }
+    },
   );
 
   const { run: handleUpdateResourceProps } = useRequest(
@@ -97,7 +97,7 @@ const List: React.FunctionComponent = () => {
           setPropertyModalOpen(false);
         }
       },
-    }
+    },
   );
 
   const handleConnectStatusDisplay = useCallback((resourceItem: ResourceListType[0]) => {
@@ -285,23 +285,6 @@ const List: React.FunctionComponent = () => {
   return (
     <PageBasic title={t('list')}>
       <ListV2 />
-      <FilterList
-        showSearch
-        url="/v1/view/resources"
-        actions={listActions}
-        fetchList={fetchList}
-        toolButtons={toolButtons}
-        columns={columns}
-        cells={cells}
-        statsUrl="/v1/stats/resources"
-      />
-      <PropertyForm
-        initialVal={initialProps}
-        openStatus={propertyModalOpen}
-        type="resource"
-        handleSubmit={handleUpdateResourceProps}
-        handleClose={() => setPropertyModalOpen(!propertyModalOpen)}
-      />
       <Modal
         title="Create Snapshot"
         open={isModalOpen}

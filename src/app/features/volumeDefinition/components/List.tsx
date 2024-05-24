@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
-import { Button, Form, Space, Table, Tag, Popconfirm, Input, Dropdown, Select } from 'antd';
+import { Button, Form, Space, Table, Popconfirm, Select } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQueries, useQuery } from '@tanstack/react-query';
 import { useHistory } from 'react-router-dom';
-import { DownOutlined } from '@ant-design/icons';
 
 import PropertyForm from '@app/components/PropertyForm';
 import {
   getResourceDefinition,
-  getResourceDefinitionCount,
   deleteResourceDefinition,
   getVolumeDefinitionListByResource,
   updateResourceDefinition,
@@ -19,11 +17,8 @@ import {
   UpdateResourceDefinitionRequestBody,
   VolumeDefinition,
 } from '../types';
-import get from 'lodash.get';
 import { SearchForm } from './styled';
-import { SpawnForm } from './SpawnForm';
 import { uniqId } from '@app/utils/stringUtils';
-import { omit } from '@app/utils/object';
 import { formatBytes } from '@app/utils/size';
 
 export const List = () => {
@@ -226,15 +221,12 @@ export const List = () => {
             </Space>
           </Form.Item>
         </Form>
-
-        <Button type="primary" onClick={() => history.push('/storage-configuration/resource-definitions/create')}>
-          Add
-        </Button>
       </SearchForm>
 
       <br />
 
       <Table
+        // @ts-ignore
         columns={columns}
         // @ts-ignore
         dataSource={vdListDisplay ?? []}
