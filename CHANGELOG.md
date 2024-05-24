@@ -1,5 +1,13 @@
 # Changelog
 
+# 1.6.2 - 2024-05-24
+
+### Fixed
+
+- VSAN Mode Input validation message for nqn
+- VSAN Mode Issue with the unit of size input for "Grow" in certain cases
+- VSAN Mode Retrieving the list again after "Grow" operation
+
 # 1.6.2 - 2024-05-17
 
 ### Fixed
