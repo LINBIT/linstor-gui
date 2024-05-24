@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Input, Select } from 'antd';
 import { convertRoundUp, sizeOptions } from '@app/utils/size';
 
@@ -13,6 +13,7 @@ type SizeInputProps = {
 export const SizeInput = ({ value, onChange, placeholder, disabled, defaultUnit }: SizeInputProps) => {
   const [sizeUnit, setSizeUnit] = useState('GiB');
   const [inputVal, setInputVal] = useState(value || '');
+  const sizeUnitSet = useRef(false);
 
   const handleInputChange = (e) => {
     const val = e.target.value;
@@ -27,10 +28,10 @@ export const SizeInput = ({ value, onChange, placeholder, disabled, defaultUnit 
       setInputVal(value ?? 0);
     }
 
-    if (defaultUnit) {
+    if (defaultUnit && !sizeUnitSet.current) {
       setSizeUnit(defaultUnit);
     }
-  }, [value, disabled, defaultUnit]);
+  }, [value, disabled, defaultUnit, sizeUnit]);
 
   return (
     <Input
@@ -43,6 +44,7 @@ export const SizeInput = ({ value, onChange, placeholder, disabled, defaultUnit 
           }))}
           defaultValue={sizeOptions[2].value}
           onChange={(value) => {
+            sizeUnitSet.current = true;
             setSizeUnit(value);
           }}
           value={sizeUnit}

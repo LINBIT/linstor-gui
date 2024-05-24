@@ -29,6 +29,12 @@ type ISCSIListProp = {
 export const ISCSIList = ({ complex }: ISCSIListProp) => {
   const [api, contextHolder] = notification.useNotification();
 
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ['getISCSITarget'],
+    queryFn: () => getISCSITarget(),
+    refetchInterval: REFETCH_INTERVAL,
+  });
+
   const deleteMutation = useMutation({
     mutationFn: deleteISCISExport,
     onSuccess: () => {
@@ -98,6 +104,7 @@ export const ISCSIList = ({ complex }: ISCSIListProp) => {
               resource_group={target.resource_group}
               current_kib={target.size}
               resource={target.iqn.split(':')[1]}
+              refetch={refetch}
             />
             <Popconfirm
               key="delete"
@@ -119,12 +126,6 @@ export const ISCSIList = ({ complex }: ISCSIListProp) => {
       align: 'center',
     });
   }
-
-  const { data, isLoading, refetch } = useQuery({
-    queryKey: ['getISCSITarget'],
-    queryFn: () => getISCSITarget(),
-    refetchInterval: REFETCH_INTERVAL,
-  });
 
   const handleTargetData = (data: ISCSITarget[]): DataType[] => {
     const res: DataType[] = [];

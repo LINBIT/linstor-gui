@@ -102,7 +102,12 @@ export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
         const resourceName = names[names.length - 1];
         return (
           <Space>
-            <GrowVolume resource={resourceName} resource_group={target.resource_group} current_kib={target.size} />
+            <GrowVolume
+              resource={resourceName}
+              resource_group={target.resource_group}
+              current_kib={target.size}
+              refetch={refetch}
+            />
             <Popconfirm
               title="Are you sure to delete this target?"
               onConfirm={() => deleteTarget.mutate(target.nqn)}

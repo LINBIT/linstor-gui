@@ -15,9 +15,10 @@ type GrowVolumeProps = {
   resource: string;
   resource_group: string;
   current_kib: number;
+  refetch: () => void;
 };
 
-export const GrowVolume = ({ resource, resource_group, current_kib }: GrowVolumeProps) => {
+export const GrowVolume = ({ resource, resource_group, current_kib, refetch }: GrowVolumeProps) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [api, contextHolder] = notification.useNotification();
   const [form] = Form.useForm<FormType>();
@@ -41,6 +42,7 @@ export const GrowVolume = ({ resource, resource_group, current_kib }: GrowVolume
       api.success({
         message: 'Resize volume successfully',
       });
+      refetch();
       setModalOpen(false);
     },
   });

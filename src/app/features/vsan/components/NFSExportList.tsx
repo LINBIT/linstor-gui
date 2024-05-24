@@ -97,7 +97,12 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
       render: (_, target) => {
         return (
           <Space>
-            <GrowVolume resource={target.name} resource_group={target.resource_group} current_kib={target.size} />
+            <GrowVolume
+              resource={target.name}
+              resource_group={target.resource_group}
+              current_kib={target.size}
+              refetch={refetch}
+            />
             <Popconfirm
               key="delete"
               title="Delete the NFS target"
