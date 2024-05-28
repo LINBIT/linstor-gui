@@ -1,5 +1,11 @@
 # Changelog
 
+# 1.6.4 - 2024-05-28
+
+### Fixed
+
+- Enable authentication error
+
 # 1.6.3 - 2024-05-24
 
 ### Fixed

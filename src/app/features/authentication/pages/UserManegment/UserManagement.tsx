@@ -10,6 +10,7 @@ import { ChangePassword, CreateUser } from '../../components';
 import { settingAPI } from '@app/features/settings';
 import { notify } from '@app/utils/toast';
 import { useMutation } from '@tanstack/react-query';
+import { authAPI } from '@app/features/authentication';
 
 export const UserManagement = () => {
   const dispatch = useDispatch<Dispatch>();
@@ -20,9 +21,13 @@ export const UserManagement = () => {
 
   const toggleMutation = useMutation({
     mutationFn: (enable: boolean) => {
-      return settingAPI.setProps({
-        authenticationEnabled: enable,
-      });
+      return settingAPI
+        .setProps({
+          authenticationEnabled: enable,
+        })
+        .then(() => {
+          return authAPI.initUserStore();
+        });
     },
     onError: (error, newProps, context) => {
       console.log(error);

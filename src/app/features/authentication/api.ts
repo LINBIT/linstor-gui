@@ -149,7 +149,7 @@ export class UserAuthAPI {
         },
       })
       .then(() => {
-        this.register({ username: 'admin', password: 'admin' });
+        return this.register({ username: 'admin', password: 'admin' });
       });
   }
 }
