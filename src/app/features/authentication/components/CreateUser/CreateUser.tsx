@@ -135,7 +135,7 @@ const CreateUser = ({ disabled }: CreateUserProp) => {
         }}
       >
         <Button type="primary" disabled={disabled}>
-          Add an user
+          Add a user
         </Button>
       </div>
       <CreateUserForm

@@ -70,7 +70,7 @@ export const UserManagement = () => {
 
         <MainContent>
           <div>
-            <p>You could enable/disable authentication from here </p>
+            <p>You can enable or disable user authentication from here.</p>
             <span>User authentication: &nbsp;</span>
             <Switch
               checkedChildren="On"
