@@ -11,7 +11,7 @@ import { createResourceGroup, addVolumeToResourceGroup, updateResourceGroup } fr
 import { ResourceGroupCreateRequestBody, AddVolumeRequestBody, ResourceGroupModifyRequestBody } from '../types';
 import { DownOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { SizeInput } from '@app/components/SizeInput';
-import { LabelContainer, TooltipContainer, TooltipIconContainer, TooltipLabelContainer } from './styled';
+import { LabelContainer, TooltipContainer, TooltipLabelContainer } from './styled';
 
 type FormType = {
   name: string;
@@ -52,7 +52,12 @@ const providerList = [
   'EXOS',
 ];
 
-const CreateForm = () => {
+type CreateFormProps = {
+  isEdit?: boolean;
+  initialValues?: Partial<FormType>;
+};
+
+const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
   const [expand, setExpand] = useState(false);
   const history = useHistory();
   const [form] = Form.useForm<FormType>();
@@ -74,7 +79,7 @@ const CreateForm = () => {
     mutationFn: (
       data: AddVolumeRequestBody & {
         resource_group: string;
-      }
+      },
     ) => {
       const { resource_group, ...rest } = data;
       return addVolumeToResourceGroup(resource_group, rest);
@@ -85,7 +90,7 @@ const CreateForm = () => {
     mutationFn: (
       data: ResourceGroupModifyRequestBody & {
         resource_group: string;
-      }
+      },
     ) => {
       const { resource_group, ...rest } = data;
       return updateResourceGroup(resource_group, rest);
@@ -108,6 +113,31 @@ const CreateForm = () => {
         place_count: Number(values.place_count),
       },
     };
+
+    if (isEdit) {
+      const editInfo = {
+        resource_group: rg.name,
+        description: rg.description,
+        override_props: {
+          'DrbdOptions/Net/protocol': values.data_copy_mode,
+        },
+        select_filter: rg.select_filter,
+      };
+
+      try {
+        const editRes = await updateResourceGroupMutation.mutateAsync({
+          ...editInfo,
+        });
+
+        if (editRes.data) {
+          backToList();
+        }
+      } catch (error) {
+        console.log(error);
+      }
+
+      return;
+    }
 
     const rgRes = await createResourceGroupMutation.mutateAsync(rg);
     if (fullySuccess(rgRes.data)) {
@@ -147,6 +177,7 @@ const CreateForm = () => {
         data_copy_mode: 'C',
         deploy: false,
         place_count: 2,
+        ...initialValues,
       }}
       onFinish={onFinish}
     >
@@ -163,7 +194,7 @@ const CreateForm = () => {
               },
             ]}
           >
-            <Input placeholder="Please input resource group name" />
+            <Input placeholder="Please input resource group name" disabled={isEdit} />
           </Form.Item>
 
           <Form.Item name="description" label="Description">
@@ -213,33 +244,35 @@ const CreateForm = () => {
             <Input placeholder="Please input place count" type="number" min={0} />
           </Form.Item>
 
-          <Form.Item
-            label={
-              <LabelContainer>
-                <TooltipLabelContainer>
-                  <span>Spawn on created</span>
-                </TooltipLabelContainer>
-                <Popover
-                  content={
-                    <TooltipContainer>
-                      <p>
-                        If option enabled, will create a resource (or resources) when you create this resource group.
-                        Created resource(s) will have the name of the resource definition that you specify. If option
-                        disabled, will create the resource group only.
-                      </p>
-                    </TooltipContainer>
-                  }
-                  title="Spawn on created"
-                >
-                  <QuestionCircleOutlined />
-                </Popover>
-              </LabelContainer>
-            }
-            name="deploy"
-            valuePropName="checked"
-          >
-            <Switch defaultChecked />
-          </Form.Item>
+          {!isEdit && (
+            <Form.Item
+              label={
+                <LabelContainer>
+                  <TooltipLabelContainer>
+                    <span>Spawn on created</span>
+                  </TooltipLabelContainer>
+                  <Popover
+                    content={
+                      <TooltipContainer>
+                        <p>
+                          If option enabled, will create a resource (or resources) when you create this resource group.
+                          Created resource(s) will have the name of the resource definition that you specify. If option
+                          disabled, will create the resource group only.
+                        </p>
+                      </TooltipContainer>
+                    }
+                    title="Spawn on created"
+                  >
+                    <QuestionCircleOutlined />
+                  </Popover>
+                </LabelContainer>
+              }
+              name="deploy"
+              valuePropName="checked"
+            >
+              <Switch defaultChecked />
+            </Form.Item>
+          )}
 
           <Form.Item name="diskless_on_remaining" valuePropName="checked" wrapperCol={{ offset: 7, span: 17 }}>
             <Checkbox>
@@ -464,7 +497,7 @@ const CreateForm = () => {
         </Button>
 
         <Button type="text" onClick={backToList}>
-          Cancel
+          {isEdit ? 'Back' : 'Cancel'}
         </Button>
       </div>
     </Form>
