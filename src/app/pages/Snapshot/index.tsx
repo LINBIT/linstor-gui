@@ -7,7 +7,7 @@ import { useMutation } from '@tanstack/react-query';
 import { Dispatch, RootState } from '@app/store';
 import PageBasic from '@app/components/PageBasic';
 
-import List from './List';
+import { List } from '@app/features/snapshot';
 import { CreateSnapshotForm, CreateSnapshotRequestBody, createSnapshot } from '@app/features/snapshot';
 import { notify } from '@app/utils/toast';
 
@@ -81,7 +81,8 @@ const SnapShot: React.FunctionComponent = () => {
       >
         Create
       </Button>
-      <List list={list} pagination={paginationInfo} />
+      {/* <List list={list} pagination={paginationInfo} /> */}
+      <List />
       <CreateSnapshotForm
         open={open}
         onCancel={() => {

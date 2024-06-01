@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Link, useLocation, useHistory } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { ToastContainer } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { Dispatch, RootState } from '@app/store';
@@ -38,8 +37,10 @@ import {
   AppstoreOutlined,
   CloudServerOutlined,
   ContainerOutlined,
+  DatabaseOutlined,
   DeploymentUnitOutlined,
   DesktopOutlined,
+  FileProtectOutlined,
   InfoCircleOutlined,
   MailOutlined,
   PieChartOutlined,
@@ -305,7 +306,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
           getItem(<Link to="/inventory/nodes">Nodes</Link>, '/inventory/nodes'),
           getItem(<Link to="/inventory/storage-pools">Storage Pools</Link>, '/inventory/storage-pools'),
         ]),
-        getItem('Storage Configuration', '/storage-configuration', <DesktopOutlined />, [
+        getItem('Storage Configuration', '/storage-configuration', <DatabaseOutlined />, [
           getItem(
             <Link to="/storage-configuration/resource-groups">Resource Groups</Link>,
             '/storage-configuration/resource-groups',
@@ -321,9 +322,9 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
           getItem(<Link to="/storage-configuration/resources">Resources</Link>, '/storage-configuration/resources'),
           getItem(<Link to="/storage-configuration/volumes">Volumes</Link>, '/storage-configuration/volumes'),
         ]),
-        getItem(<Link to="/snapshot">Snapshots</Link>, '/snapshot', <UserOutlined />),
+        getItem(<Link to="/snapshot">Snapshots</Link>, '/snapshot', <FileProtectOutlined />),
         getItem(<Link to="/error-reports">Error Reports</Link>, '/error-reports', <WarningOutlined />),
-        getItem(<Link to="/settings">Settings</Link>, '/settings', <UserOutlined />),
+        getItem(<Link to="/settings">Settings</Link>, '/settings', <SettingOutlined />),
         getItem(<Link to="/users">Users</Link>, '/users', <UserOutlined />),
       ];
     }

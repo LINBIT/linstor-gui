@@ -25,7 +25,6 @@ import ResourceEdit from '@app/pages/SoftwareDefined/Resources/edit';
 import VolumeList from '@app/pages/SoftwareDefined/Volumes';
 import ErrorReportList from '@app/pages/ErrorReport/index';
 import ErrorReportDetail from '@app/pages/ErrorReport/Detail';
-import ControllerList from '@app/pages/Inventory/Controller';
 
 import { NotFound } from '@app/pages/NotFound/NotFound';
 import GeneralSettings from '@app/pages/Settings';
@@ -85,12 +84,6 @@ const routes: AppRouteConfig[] = [
   {
     label: 'inventory',
     routes: [
-      {
-        component: ControllerList,
-        exact: true,
-        path: '/controller',
-        title: 'LINSTOR | Inventory | Controller',
-      },
       {
         component: NodeList,
         exact: true,

@@ -1,8 +1,16 @@
 import { post, get } from '../requests';
-import { CreateSnapshotRequestBody, ResourceListQuery } from './types';
+import { CreateSnapshotRequestBody, ResourceListQuery, SnapshotListQuery } from './types';
 
 const getAllResources = (query?: ResourceListQuery) => {
   return get('/v1/view/resources', {
+    params: {
+      query,
+    },
+  });
+};
+
+const getSnapshots = (query?: SnapshotListQuery) => {
+  return get('/v1/view/snapshots', {
     params: {
       query,
     },
@@ -20,4 +28,4 @@ const createSnapshot = (resource: string, body: CreateSnapshotRequestBody) => {
   });
 };
 
-export { createSnapshot, getAllResources };
+export { createSnapshot, getAllResources, getSnapshots };

@@ -7,5 +7,4 @@ storybook-static
 .DS_Store
 .idea
 .env
-package-lock.json
 .vscode/

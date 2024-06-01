@@ -19,25 +19,8 @@ const getNodeCount = () => {
   return get('/v1/stats/nodes');
 };
 
-const getNodesFromVSAN = () => {
-  return service.get('/api/frontend/v1/nodes');
-};
-
 const getSpaceReport = () => {
   return service.get('/v1/space-report');
-};
-
-// delete node from VSAN
-const deleteNodeFromVSAN = (node: string) => {
-  return service.delete(`/api/frontend/v1/nodes/${node}`);
-};
-
-const UPDATE_WITH_REBOOT_PATH = '/api/frontend/v1/system/update-with-reboot/';
-
-const setNodeStandBy = (hostname: string, standby: boolean) => {
-  return service.post(`/api/frontend/v1/nodes/${hostname}/standby`, {
-    standby,
-  });
 };
 
 const createNode = (body: NodeCreateRequestBody) => {
@@ -59,6 +42,16 @@ const updateNode = ({ node, body }: { node: string; body: UpdateNodeRequestBody 
 
 const deleteNode = (node: string) => {
   return del('/v1/nodes/{node}', {
+    params: {
+      path: {
+        node,
+      },
+    },
+  });
+};
+
+const lostNode = (node: string) => {
+  return del('/v1/nodes/{node}/lost', {
     params: {
       path: {
         node,
@@ -103,12 +96,9 @@ export {
   createNode,
   updateNetwork,
   updateNode,
-  getNodesFromVSAN,
-  setNodeStandBy,
-  deleteNodeFromVSAN,
-  UPDATE_WITH_REBOOT_PATH,
   getNodeCount,
   deleteNode,
   getControllerConfig,
   getSpaceReport,
+  lostNode,
 };

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Card, Col, Input, Modal, Row, Space, Tag } from 'antd';
+import { Card, Col, Input, Modal, Row, Space, Tabs, TabsProps, Tag } from 'antd';
 import { CheckCircleOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
@@ -202,90 +202,101 @@ const NodeDetail: React.FC = () => {
     };
   };
 
+  const items: TabsProps['items'] = [
+    {
+      key: '1',
+      label: 'Detail',
+      children: (
+        <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
+          <Card title="Basic Info" size="small">
+            <Space direction="vertical" size="small" style={{ display: 'flex' }}>
+              <div>
+                <LabelText>Node name:</LabelText>
+                {nodeData?.name}
+              </div>
+              <div>
+                <LabelText>Node type:</LabelText> {nodeData?.type?.toLowerCase()}
+              </div>
+              <div>
+                <LabelText>Connection status: </LabelText>
+                {nodeData?.connection_status === 'ONLINE' && (
+                  <CheckCircleOutlined style={{ color: 'green', marginRight: 4 }} />
+                )}
+                {nodeData?.connection_status?.toLowerCase()}
+              </div>
+              <TagContainer>
+                <LabelText>Resource layers:</LabelText>
+
+                {nodeData
+                  ? nodeData?.resource_layers?.map((e) => (
+                      <Tag key={e} color="success">
+                        {e}
+                      </Tag>
+                    ))
+                  : null}
+                {nodeData
+                  ? Object.keys(nodeData?.unsupported_layers ?? {}).map((e) => (
+                      <Tag key={e} color="error">
+                        {e}
+                      </Tag>
+                    ))
+                  : null}
+              </TagContainer>
+
+              <TagContainer>
+                <LabelText>Storage providers:</LabelText>
+                {nodeData
+                  ? nodeData?.storage_providers?.map((e) => (
+                      <Tag key={e} color="success">
+                        {e}
+                      </Tag>
+                    ))
+                  : null}
+                {nodeData
+                  ? Object.keys(nodeData?.unsupported_providers ?? {}).map((e) => (
+                      <Tag key={e} color="error">
+                        {e}
+                      </Tag>
+                    ))
+                  : null}
+              </TagContainer>
+            </Space>
+          </Card>
+
+          <Card title="Network interfaces" size="small">
+            <NetInterfaceList
+              list={nodeInterfaceInfo?.data || []}
+              handleDeleteNetWorkInterface={handleDeleteNetWorkInterface}
+              handleSetActiveNetWorkInterface={handleUpdateNetWorkInterface}
+            />
+
+            <div>Add Network Interface</div>
+          </Card>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Card title="Storage pool info" size="small">
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <Container>{storagePoolData.length > 0 && <StoragePool data={storagePoolData} />}</Container>
+                </div>
+              </Card>
+            </Col>
+
+            <Col span={12}>
+              <Card title="Resource info" size="small">
+                <div style={{ display: 'flex', justifyContent: 'center', minHeight: 385 }}>
+                  {resourceData.length > 0 && <Resource data={resourceData} />}
+                </div>
+              </Card>
+            </Col>
+          </Row>
+        </Space>
+      ),
+    },
+  ];
+
   return (
     <PageBasic title={t('node_detail')} showBack>
-      <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
-        <Card title="Basic Info" size="small">
-          <Space direction="vertical" size="small" style={{ display: 'flex' }}>
-            <div>
-              <LabelText>Node name:</LabelText>
-              {nodeData?.name}
-            </div>
-            <div>
-              <LabelText>Node type:</LabelText> {nodeData?.type?.toLowerCase()}
-            </div>
-            <div>
-              <LabelText>Connection status: </LabelText>
-              {nodeData?.connection_status === 'ONLINE' && (
-                <CheckCircleOutlined style={{ color: 'green', marginRight: 4 }} />
-              )}
-              {nodeData?.connection_status?.toLowerCase()}
-            </div>
-            <TagContainer>
-              <LabelText>Resource layers:</LabelText>
-
-              {nodeData
-                ? nodeData?.resource_layers?.map((e) => (
-                    <Tag key={e} color="success">
-                      {e}
-                    </Tag>
-                  ))
-                : null}
-              {nodeData
-                ? Object.keys(nodeData?.unsupported_layers ?? {}).map((e) => (
-                    <Tag key={e} color="error">
-                      {e}
-                    </Tag>
-                  ))
-                : null}
-            </TagContainer>
-
-            <TagContainer>
-              <LabelText>Storage providers:</LabelText>
-              {nodeData
-                ? nodeData?.storage_providers?.map((e) => (
-                    <Tag key={e} color="success">
-                      {e}
-                    </Tag>
-                  ))
-                : null}
-              {nodeData
-                ? Object.keys(nodeData?.unsupported_providers ?? {}).map((e) => (
-                    <Tag key={e} color="error">
-                      {e}
-                    </Tag>
-                  ))
-                : null}
-            </TagContainer>
-          </Space>
-        </Card>
-
-        <Card title="Network interfaces" size="small">
-          <NetInterfaceList
-            list={nodeInterfaceInfo?.data || []}
-            handleDeleteNetWorkInterface={handleDeleteNetWorkInterface}
-            handleSetActiveNetWorkInterface={handleUpdateNetWorkInterface}
-          />
-        </Card>
-
-        <Row gutter={16}>
-          <Col span={12}>
-            <Card title="Storage pool info" size="small">
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <Container>{storagePoolData.length > 0 && <StoragePool data={storagePoolData} />}</Container>
-              </div>
-            </Card>
-          </Col>
-
-          <Col span={12}>
-            <Card title="Resource info" size="small">
-              <div style={{ display: 'flex', justifyContent: 'center', minHeight: 385 }}>
-                {resourceData.length > 0 && <Resource data={resourceData} />}
-              </div>
-            </Card>
-          </Col>
-        </Row>
-      </Space>
       {/* TODO: add grafana dashboard here */}
 
       {/* <br />
@@ -297,6 +308,8 @@ const NodeDetail: React.FC = () => {
           <EmptyDashboard onClick={showModal}>+</EmptyDashboard>
         )}
       </Card> */}
+
+      <Tabs defaultActiveKey="1" items={items} />
 
       <Modal title="Import Grafana Dashboard" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
         <DashboardContainer>

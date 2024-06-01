@@ -6,7 +6,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { CheckCircleFilled, CloseCircleFilled, DownOutlined } from '@ant-design/icons';
 
 import PropertyForm from '@app/components/PropertyForm';
-import { getNodes, getNodeCount, deleteNode, updateNode } from '../api';
+import { getNodes, getNodeCount, deleteNode, updateNode, lostNode } from '../api';
 import { SearchForm } from './styled';
 import { uniqId } from '@app/utils/stringUtils';
 import { NodeDataType, NodeListQuery, UpdateNodeRequestBody } from '../types';
@@ -91,6 +91,14 @@ export const List = () => {
     },
   });
 
+  const lostMutation = useMutation({
+    mutationKey: ['lostNode'],
+    mutationFn: (node: string) => lostNode(node),
+    onSuccess: () => {
+      refetch();
+    },
+  });
+
   const updateMutation = useMutation({
     mutationKey: ['updateNode'],
     mutationFn: (data: UpdateNodeRequestBody) =>
@@ -108,6 +116,12 @@ export const List = () => {
   const handleDeleteBulk = () => {
     selectedRowKeys.forEach((ele) => {
       deleteMutation.mutate(String(ele));
+    });
+  };
+
+  const handleLostBulk = () => {
+    selectedRowKeys.forEach((ele) => {
+      lostMutation.mutate(String(ele));
     });
   };
 
@@ -182,21 +196,6 @@ export const List = () => {
             View
           </Button>
 
-          <Popconfirm
-            key="delete"
-            title="Delete the node"
-            description="Are you sure to delete this node?"
-            okText="Yes"
-            cancelText="No"
-            onConfirm={() => {
-              deleteMutation.mutate(record.name || '');
-            }}
-          >
-            <Button danger loading={deleteMutation.isLoading}>
-              Delete
-            </Button>
-          </Popconfirm>
-
           <Dropdown
             menu={{
               items: [
@@ -219,6 +218,40 @@ export const List = () => {
                     });
                     setPropertyModalOpen(true);
                   },
+                },
+                {
+                  key: 'delete',
+                  label: (
+                    <Popconfirm
+                      key="delete"
+                      title="Delete the node"
+                      description="Are you sure to delete this node?"
+                      okText="Yes"
+                      cancelText="No"
+                      onConfirm={() => {
+                        deleteMutation.mutate(record.name || '');
+                      }}
+                    >
+                      Delete
+                    </Popconfirm>
+                  ),
+                },
+                {
+                  key: 'lost',
+                  label: (
+                    <Popconfirm
+                      key="lost"
+                      title="Lost the node"
+                      description="Are you sure to lost this node?"
+                      okText="Yes"
+                      cancelText="No"
+                      onConfirm={() => {
+                        lostMutation.mutate(record.name || '');
+                      }}
+                    >
+                      Lost
+                    </Popconfirm>
+                  ),
                 },
               ],
             }}
@@ -259,16 +292,31 @@ export const List = () => {
                 Search
               </Button>
               {hasSelected && (
-                <Popconfirm
-                  key="delete"
-                  title="Delete storage pools"
-                  description="Are you sure to delete selected storage pools?"
-                  okText="Yes"
-                  cancelText="No"
-                  onConfirm={handleDeleteBulk}
-                >
-                  <Button danger>Delete</Button>
-                </Popconfirm>
+                <>
+                  <Popconfirm
+                    key="delete"
+                    title="Delete nodes"
+                    description="Are you sure to delete selected nodes?"
+                    okText="Yes"
+                    cancelText="No"
+                    onConfirm={handleDeleteBulk}
+                  >
+                    <Button danger>Delete</Button>
+                  </Popconfirm>
+
+                  <Popconfirm
+                    key="lost"
+                    title="Lost nodes"
+                    description="Are you sure to lost the selected nodes?"
+                    okText="Yes"
+                    cancelText="No"
+                    onConfirm={handleLostBulk}
+                  >
+                    <Button type="primary" danger>
+                      Lost
+                    </Button>
+                  </Popconfirm>
+                </>
               )}
             </Space>
           </Form.Item>
@@ -285,7 +333,7 @@ export const List = () => {
         columns={columns}
         dataSource={nodes?.data ?? []}
         rowSelection={rowSelection}
-        rowKey={(item) => item?.name ?? uniqId()}
+        rowKey={(item) => item?.uuid ?? uniqId()}
         pagination={{
           total: stats?.data?.count ?? 0,
           showSizeChanger: true,
