@@ -7,8 +7,13 @@ import uniqby from 'lodash.uniqby';
 import { useResourceGroups } from '@app/features/resourceGroup';
 import { useStoragePools } from '@app/features/storagePool';
 import { fullySuccess } from '@app/features/requests';
-import { createResourceDefinition, createVolumeDefinition, autoPlace } from '../api';
-import { CreateResourceDefinitionRequestBody, CreateVolumeDefinitionRequestBody, AutoPlaceRequestBody } from '../types';
+import { createResourceDefinition, createVolumeDefinition, autoPlace, updateResourceDefinition } from '../api';
+import {
+  CreateResourceDefinitionRequestBody,
+  CreateVolumeDefinitionRequestBody,
+  AutoPlaceRequestBody,
+  UpdateResourceDefinitionRequestBody,
+} from '../types';
 import { SizeInput } from '@app/components/SizeInput';
 
 type FormType = {
@@ -21,15 +26,19 @@ type FormType = {
   place_count: number;
   diskless: boolean;
 };
+type CreateFormProps = {
+  isEdit?: boolean;
+  initialValues?: Partial<FormType>;
+};
 
-const CreateForm = () => {
+const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
   const history = useHistory();
   const [form] = Form.useForm<FormType>();
 
   const deploy = Form.useWatch('deploy', form);
 
   const backToList = () => {
-    history.push('/storage-configuration/resource-definitions');
+    history.goBack();
   };
 
   const { isLoading: resourceGroupsIsLoading, data: resourceGroups } = useResourceGroups({});
@@ -39,11 +48,24 @@ const CreateForm = () => {
     mutationFn: (data: CreateResourceDefinitionRequestBody) => createResourceDefinition(data),
   });
 
+  const updateMutation = useMutation({
+    mutationKey: ['updateResourceDefinition'],
+    mutationFn: (
+      data: UpdateResourceDefinitionRequestBody & {
+        name: string;
+      },
+    ) => {
+      const { name, ...rest } = data;
+
+      return updateResourceDefinition(name, rest);
+    },
+  });
+
   const createVolumeDefinitionMutation = useMutation({
     mutationFn: (
       data: CreateVolumeDefinitionRequestBody & {
         resource: string;
-      }
+      },
     ) => {
       const { resource, ...rest } = data;
       return createVolumeDefinition(resource, rest);
@@ -54,7 +76,7 @@ const CreateForm = () => {
     mutationFn: (
       data: AutoPlaceRequestBody & {
         resource: string;
-      }
+      },
     ) => {
       const { resource, ...rest } = data;
       return autoPlace(resource, rest);
@@ -73,6 +95,23 @@ const CreateForm = () => {
         volume_definitions: [],
       },
     };
+
+    if (isEdit) {
+      try {
+        const res = await updateMutation.mutateAsync({
+          name: values.name,
+          resource_group: values.resource_group_name,
+        });
+
+        if (res.data) {
+          backToList();
+        }
+      } catch (error) {
+        console.log(error);
+      }
+
+      return;
+    }
 
     const volumeDefinitionData = {
       volume_definition: {
@@ -129,8 +168,9 @@ const CreateForm = () => {
       form={form}
       initialValues={{
         replication_mode: 'C',
-        deploy: true,
+        deploy: false,
         place_count: 2,
+        ...initialValues,
       }}
       onFinish={onFinish}
     >
@@ -185,20 +225,24 @@ const CreateForm = () => {
         />
       </Form.Item>
 
-      <Form.Item name="size" label="Size" required>
-        <SizeInput />
-      </Form.Item>
+      {!isEdit && (
+        <Form.Item name="size" label="Size" required>
+          <SizeInput />
+        </Form.Item>
+      )}
 
       <Form.Item label="Replication Mode" name="replication_mode">
         <Radio.Group>
-          <Radio value="A">Asynchronous</Radio>
-          <Radio value="C">Synchronous</Radio>
+          <Radio value="A">Asynchronous(A)</Radio>
+          <Radio value="C">Synchronous(C)</Radio>
         </Radio.Group>
       </Form.Item>
 
-      <Form.Item label="Deploy" name="deploy" valuePropName="checked">
-        <Switch defaultChecked />
-      </Form.Item>
+      {!isEdit && (
+        <Form.Item label="Spawn on created" name="deploy" valuePropName="checked">
+          <Switch defaultChecked />
+        </Form.Item>
+      )}
 
       {deploy && (
         <>
@@ -207,7 +251,7 @@ const CreateForm = () => {
           </Form.Item>
 
           <Form.Item name="diskless" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
-            <Checkbox>Diskless</Checkbox>
+            <Checkbox>Diskless on remaining</Checkbox>
           </Form.Item>
         </>
       )}

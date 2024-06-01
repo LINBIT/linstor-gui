@@ -66,7 +66,11 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
   const layer_stack = Form.useWatch('layer_stack', form);
 
   const backToList = () => {
-    history.push('/storage-configuration/resource-groups');
+    if (isEdit) {
+      history.goBack();
+    } else {
+      history.push('/storage-configuration/resource-groups');
+    }
   };
 
   const { isLoading: storagePoolsIsLoading, data: storagePools } = useStoragePools();

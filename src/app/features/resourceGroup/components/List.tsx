@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Button, Form, Space, Table, Tag, Popconfirm, Input, Dropdown } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { DownOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
@@ -20,13 +20,24 @@ export const List = () => {
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
 
-  const [query, setQuery] = useState<ResourceGroupListQuery>({
-    limit: 10,
-    offset: 0,
-  });
-
   const history = useHistory();
+  const location = useLocation();
   const [form] = Form.useForm();
+
+  const [query, setQuery] = useState<ResourceGroupListQuery>(() => {
+    const query = new URLSearchParams(location.search);
+    const resource_groups = query.get('resource_groups')?.split(',');
+
+    if (resource_groups) {
+      form.setFieldValue('name', resource_groups);
+    }
+
+    return {
+      limit: 10,
+      offset: 0,
+      resource_groups,
+    };
+  });
 
   const { data: resourceDefinition, refetch } = useQuery({
     queryKey: ['getResourceGroups', query],
@@ -44,7 +55,15 @@ export const List = () => {
     const newQuery: ResourceGroupListQuery = { ...query };
 
     if (values.name) {
-      newQuery.resource_definitions = [values.name];
+      newQuery.resource_groups = [values.name];
+
+      const query = new URLSearchParams({
+        resource_groups: values.name,
+      });
+
+      const new_url = `${location.pathname}?${query.toString()}`;
+
+      history.push(new_url);
     }
 
     setQuery(newQuery);
@@ -53,6 +72,7 @@ export const List = () => {
   const handleReset = () => {
     form.resetFields();
     setQuery({});
+    history.push('/storage-configuration/resource-groups');
   };
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {

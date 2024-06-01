@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, Form, Space, Table, Tag, Popconfirm, Input, Dropdown } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { DownOutlined } from '@ant-design/icons';
 
 import PropertyForm from '@app/components/PropertyForm';
@@ -25,14 +25,24 @@ export const List = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
-
-  const [query, setQuery] = useState<ResourceDefinitionListQuery>({
-    limit: 10,
-    offset: 0,
-  });
-
   const history = useHistory();
+  const location = useLocation();
   const [form] = Form.useForm();
+
+  const [query, setQuery] = useState<ResourceDefinitionListQuery>(() => {
+    const query = new URLSearchParams(location.search);
+    const resource_definitions = query.get('resource_definitions')?.split(',');
+
+    if (resource_definitions) {
+      form.setFieldValue('name', resource_definitions);
+    }
+
+    return {
+      limit: 10,
+      offset: 0,
+      resource_definitions,
+    };
+  });
 
   const { data: resourceDefinition, refetch } = useQuery({
     queryKey: ['getResourceDefinition', query],
@@ -59,6 +69,14 @@ export const List = () => {
 
     if (values.name) {
       newQuery.resource_definitions = [values.name];
+
+      const query = new URLSearchParams({
+        resource_definitions: values.name,
+      });
+
+      const new_url = `${location.pathname}?${query.toString()}`;
+
+      history.push(new_url);
     }
 
     setQuery(newQuery);
@@ -67,6 +85,7 @@ export const List = () => {
   const handleReset = () => {
     form.resetFields();
     setQuery({});
+    history.push('/storage-configuration/resource-definitions');
   };
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
@@ -99,7 +118,7 @@ export const List = () => {
 
   const handleDeleteBulk = () => {
     selectedRowKeys.forEach((ele) => {
-      const resource = resourceDefinition?.data?.find((e) => e.uuid === ele)?.name;
+      const resource = resourceDefinition?.data?.find((e) => e.name === ele)?.name;
 
       if (resource) {
         deleteMutation.mutate(resource);
@@ -243,8 +262,8 @@ export const List = () => {
               {hasSelected && (
                 <Popconfirm
                   key="delete"
-                  title="Delete storage pools"
-                  description="Are you sure to delete selected storage pools?"
+                  title="Delete resource definition"
+                  description="Are you sure to delete selected resource definitions?"
                   okText="Yes"
                   cancelText="No"
                   onConfirm={handleDeleteBulk}
