@@ -20,18 +20,18 @@ export const List = () => {
   const [query, setQuery] = useState<GetStoragePoolQuery>(() => {
     const query = new URLSearchParams(location.search);
     const nodes = query.get('nodes');
-    const queryO = {};
+    const queryO: GetStoragePoolQuery = {};
 
     if (nodes) {
       form.setFieldValue('nodes', nodes);
-      queryO['nodes'] = nodes;
+      queryO['nodes'] = [nodes];
     }
 
     const storage_pools = query.get('storage_pools');
 
     if (storage_pools) {
       form.setFieldValue('storage_pools', storage_pools);
-      queryO['storage_pools'] = storage_pools;
+      queryO['storage_pools'] = [storage_pools];
     }
 
     return {

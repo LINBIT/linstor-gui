@@ -1,4 +1,4 @@
-import { post, get } from '../requests';
+import { post, get, del } from '../requests';
 import { CreateSnapshotRequestBody, ResourceListQuery, SnapshotListQuery } from './types';
 
 const getAllResources = (query?: ResourceListQuery) => {
@@ -17,6 +17,17 @@ const getSnapshots = (query?: SnapshotListQuery) => {
   });
 };
 
+const deleteSnapshot = (resource: string, snapshot: string) => {
+  return del('/v1/resource-definitions/{resource}/snapshots/{snapshot}', {
+    params: {
+      path: {
+        resource,
+        snapshot,
+      },
+    },
+  });
+};
+
 const createSnapshot = (resource: string, body: CreateSnapshotRequestBody) => {
   return post('/v1/resource-definitions/{resource}/snapshots', {
     params: {
@@ -28,4 +39,4 @@ const createSnapshot = (resource: string, body: CreateSnapshotRequestBody) => {
   });
 };
 
-export { createSnapshot, getAllResources, getSnapshots };
+export { createSnapshot, getAllResources, getSnapshots, deleteSnapshot };

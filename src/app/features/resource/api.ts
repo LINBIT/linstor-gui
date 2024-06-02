@@ -5,8 +5,6 @@ import {
   AutoPlaceRequestBody,
   ResourceModifyRequestBody,
   ResourceCreateRequestBody,
-  GetResourcesRequestBody,
-  GetResourcesResponseBody,
   ResourceListQuery,
 } from './types';
 
