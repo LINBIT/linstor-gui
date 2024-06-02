@@ -194,7 +194,7 @@ const routes: AppRouteConfig[] = [
       {
         component: ResourceEdit,
         exact: true,
-        path: '/storage-configuration/resources/:resource/edit',
+        path: '/storage-configuration/resources/:node/:resource/edit',
         title: 'LINSTOR | Storage Configuration | Resources | Edit',
       },
       {

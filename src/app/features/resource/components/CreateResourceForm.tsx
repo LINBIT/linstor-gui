@@ -1,7 +1,7 @@
 import React from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Checkbox, Form, Input, Radio, Select } from 'antd';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import uniqby from 'lodash.uniqby';
 
 import { useStoragePools } from '@app/features/storagePool';
@@ -9,8 +9,8 @@ import { useResourceDefinitions } from '@app/features/resourceDefinition';
 import { useNodes } from '@app/features/node';
 import { getNetWorkInterfaceByNode } from '@app/features/ip';
 import { fullySuccess } from '@app/features/requests';
-import { autoPlace, resourceCreateOnNode } from '../api';
-import { AutoPlaceRequestBody, ResourceCreateRequestBody } from '../types';
+import { autoPlace, resourceCreateOnNode, resourceModify } from '../api';
+import { AutoPlaceRequestBody, ResourceCreateRequestBody, ResourceModifyRequestBody } from '../types';
 
 type FormType = {
   allocate_method: 'manual' | 'auto';
@@ -24,8 +24,14 @@ type FormType = {
   network_preference: string;
 };
 
-const CreateResourceForm = () => {
+type CreateResourceFormProps = {
+  isEdit?: boolean;
+  initialValues?: Partial<FormType>;
+};
+
+const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) => {
   const history = useHistory();
+  const { resource, node: nodeFromURL } = useParams() as { resource: string; node: string };
   const [form] = Form.useForm<FormType>();
   const { isLoading: storagePoolsIsLoading, data: storagePools } = useStoragePools();
   const { isLoading: resourceDefinitionIsLoading, data: resourceDefinitions } = useResourceDefinitions();
@@ -49,10 +55,22 @@ const CreateResourceForm = () => {
       data: ResourceCreateRequestBody & {
         node: string;
         resource_name: string;
-      }
+      },
     ) => {
       const { node, resource_name, ...rest } = data;
       return resourceCreateOnNode(resource_name, node, rest);
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: (
+      data: ResourceModifyRequestBody & {
+        resource: string;
+        node: string;
+      },
+    ) => {
+      const { resource, node, ...rest } = data;
+      return resourceModify(resource, node, rest);
     },
   });
 
@@ -60,7 +78,7 @@ const CreateResourceForm = () => {
     mutationFn: (
       data: AutoPlaceRequestBody & {
         resource: string;
-      }
+      },
     ) => {
       const { resource, ...rest } = data;
       return autoPlace(resource, rest);
@@ -68,6 +86,27 @@ const CreateResourceForm = () => {
   });
 
   const onFinish = async (values: FormType) => {
+    if (isEdit) {
+      let updateData: ResourceModifyRequestBody;
+
+      if (values.network_preference !== '') {
+        updateData = {
+          override_props: { StorPoolName: values.storage_pool, PrefNic: values.network_preference },
+          delete_props: [],
+        };
+      } else {
+        updateData = { override_props: { StorPoolName: values.storage_pool }, delete_props: ['PrefNic'] };
+      }
+
+      await updateMutation.mutateAsync({
+        resource,
+        node: nodeFromURL,
+        ...updateData,
+      });
+
+      return;
+    }
+
     if (values.allocate_method === 'manual') {
       const resourceData = {
         resource: {
@@ -126,6 +165,7 @@ const CreateResourceForm = () => {
       initialValues={{
         allocate_method: 'auto',
         place_count: 2,
+        ...initialValues,
       }}
       onFinish={onFinish}
     >
@@ -147,15 +187,18 @@ const CreateResourceForm = () => {
             label: e.name,
             value: e.name,
           }))}
+          disabled={isEdit}
         />
       </Form.Item>
 
-      <Form.Item label="Allocate Method" name="allocate_method" required>
-        <Radio.Group>
-          <Radio value="auto">Auto</Radio>
-          <Radio value="manual">Manual</Radio>
-        </Radio.Group>
-      </Form.Item>
+      {!isEdit && (
+        <Form.Item label="Allocate Method" name="allocate_method" required>
+          <Radio.Group>
+            <Radio value="auto">Auto</Radio>
+            <Radio value="manual">Manual</Radio>
+          </Radio.Group>
+        </Form.Item>
+      )}
 
       {allocate_method === 'manual' && (
         <>
@@ -199,12 +242,16 @@ const CreateResourceForm = () => {
         />
       </Form.Item>
 
-      <Form.Item name="place_count" label="Place Count" required>
-        <Input placeholder="Please input place count" type="number" min={0} />
-      </Form.Item>
-      <Form.Item name="diskless" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
-        <Checkbox>Diskless</Checkbox>
-      </Form.Item>
+      {!isEdit && (
+        <>
+          <Form.Item name="place_count" label="Place Count" required>
+            <Input placeholder="Please input place count" type="number" min={0} />
+          </Form.Item>
+          <Form.Item name="diskless" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
+            <Checkbox>Diskless on remaining</Checkbox>
+          </Form.Item>
+        </>
+      )}
 
       <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
         <Button type="primary" htmlType="submit" loading={isLoading} disabled={isDisabled}>

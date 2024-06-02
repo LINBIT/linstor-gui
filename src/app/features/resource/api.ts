@@ -1,4 +1,4 @@
-import { get, post, put } from '../requests';
+import { del, get, post, put } from '../requests';
 import {
   CreateResourceDefinitionRequestBody,
   CreateVolumeDefinitionRequestBody,
@@ -48,22 +48,22 @@ const resourceCreateOnNode = (resource_name: string, node: string, body: Resourc
   });
 };
 
-const deleteResource = (resource_name: string, node: string) => {
-  return post('/v1/resource-definitions/{resource}/resources/{node}', {
+const deleteResource = (resource: string, node: string) => {
+  return del('/v1/resource-definitions/{resource}/resources/{node}', {
     params: {
       path: {
-        resource: resource_name,
+        resource,
         node,
       },
     },
   });
 };
 
-const resourceModify = (resource_name: string, node: string, body: ResourceModifyRequestBody) => {
+const resourceModify = (resource: string, node: string, body: ResourceModifyRequestBody) => {
   return put('/v1/resource-definitions/{resource}/resources/{node}', {
     params: {
       path: {
-        resource: resource_name,
+        resource,
         node,
       },
     },

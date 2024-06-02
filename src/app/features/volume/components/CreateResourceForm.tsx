@@ -49,7 +49,7 @@ const CreateResourceForm = () => {
       data: ResourceCreateRequestBody & {
         node: string;
         resource_name: string;
-      }
+      },
     ) => {
       const { node, resource_name, ...rest } = data;
       return resourceCreateOnNode(resource_name, node, rest);
@@ -60,7 +60,7 @@ const CreateResourceForm = () => {
     mutationFn: (
       data: AutoPlaceRequestBody & {
         resource: string;
-      }
+      },
     ) => {
       const { resource, ...rest } = data;
       return autoPlace(resource, rest);
@@ -203,7 +203,7 @@ const CreateResourceForm = () => {
         <Input placeholder="Please input place count" type="number" min={0} />
       </Form.Item>
       <Form.Item name="diskless" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
-        <Checkbox>Diskless</Checkbox>
+        <Checkbox>Diskless on remaining</Checkbox>
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 8, span: 16 }}>

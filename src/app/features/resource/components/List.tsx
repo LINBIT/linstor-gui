@@ -1,55 +1,63 @@
-import React, { useCallback, useState } from 'react';
-import { Button, Form, Space, Table, Popconfirm, Input } from 'antd';
+import React, { useState } from 'react';
+import { Button, Form, Space, Table, Popconfirm, Input, Dropdown } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
+import { CheckCircleFilled, CloseCircleFilled, DownOutlined } from '@ant-design/icons';
 
 import PropertyForm from '@app/components/PropertyForm';
-import { getResources, deleteResource, resourceModify } from '../api';
+import { getResources, getResourceCount, deleteResource, resourceModify } from '../api';
 import { SearchForm } from './styled';
-import { uniqId } from '@app/utils/stringUtils';
-import { ResourceDataType, ResourceListQuery, ResourceModifyRequestBody, VolumeType } from '../types';
-import dayjs from 'dayjs';
 
-export const List = () => {
+import { ResourceDataType, ResourceListQuery, ResourceModifyRequestBody } from '../types';
+
+import { formatTime } from '@app/utils/time';
+import get from 'lodash.get';
+import { createSnapshot, CreateSnapshotRequestBody } from '@app/features/snapshot';
+
+type ListProps = {
+  handleOpenMigrate: (resource: string, node: string) => void;
+  handleSnapshot: (resource: string) => void;
+};
+
+export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
   const [current, setCurrent] = useState<ResourceDataType>();
 
-  const [query, setQuery] = useState<ResourceListQuery>({});
-
   const history = useHistory();
   const [form] = Form.useForm();
+  const location = useLocation();
 
-  const getResourcesRequest = async () => {
-    const res = await getResources(query);
+  const [query, setQuery] = useState<ResourceListQuery>(() => {
+    const query = new URLSearchParams(location.search);
+    const nodes = query.get('nodes')?.split(',');
 
-    let resData: ResourceDataType[] = [];
-
-    // 将 res.data 中的数据转换为 resData， volumes 是数组, 将里面的数据提到外层
-    if (res.data) {
-      resData = res.data
-        .map((item) => {
-          const { volumes, ...rest } = item;
-          return volumes?.map((volume) => ({
-            ...rest,
-            resourceState: rest.state,
-            ...volume,
-          }));
-        })
-        .flat() as ResourceDataType[];
+    if (nodes) {
+      form.setFieldValue('name', nodes);
     }
 
-    return resData;
-  };
-
-  const { data: resources, refetch } = useQuery({
-    queryKey: ['getResources', query],
-    queryFn: getResourcesRequest,
+    return {
+      limit: 10,
+      offset: 0,
+      nodes,
+    };
   });
 
-  console.log(resources, 'resources');
+  const {
+    data: resources,
+    refetch,
+    isLoading,
+  } = useQuery({
+    queryKey: ['getResources', query],
+    queryFn: () => getResources(query),
+  });
+
+  const { data: stats } = useQuery({
+    queryKey: ['getResourceCount'],
+    queryFn: () => getResourceCount(),
+  });
 
   const handleSearch = () => {
     const values = form.getFieldsValue();
@@ -65,21 +73,22 @@ export const List = () => {
 
   const handleReset = () => {
     form.resetFields();
-    setQuery({});
+    setQuery({
+      limit: 10,
+      offset: 0,
+    });
   };
 
-  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
-    setSelectedRowKeys(newSelectedRowKeys);
-  };
-
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: onSelectChange,
-  };
+  const createResourceMutation = useMutation({
+    mutationFn: (data: CreateSnapshotRequestBody) => {
+      const { resource_name, ...rest } = data;
+      return createSnapshot(resource_name || '', rest);
+    },
+  });
 
   const deleteMutation = useMutation({
     mutationKey: ['deleteResource'],
-    mutationFn: (node: string) => deleteResource(node),
+    mutationFn: ({ resource, node }: { resource: string; node: string }) => deleteResource(resource, node),
     onSuccess: () => {
       refetch();
     },
@@ -101,11 +110,20 @@ export const List = () => {
 
   const handleDeleteBulk = () => {
     selectedRowKeys.forEach((ele) => {
-      deleteMutation.mutate(String(ele));
+      const resource = resources?.data?.find((item) => item.name === ele);
+      const node = resource?.node_name;
+      deleteMutation.mutate({
+        resource: resource?.name ?? '',
+        node: node ?? '',
+      });
     });
   };
 
-  const getVolumeCellState = (vlm_state, rsc_flags, vlm_flags) => {
+  const getVolumeCellState = (
+    vlm_state: { disk_state: string },
+    rsc_flags: string | string[],
+    vlm_flags: string | string[],
+  ) => {
     const state_prefix = vlm_flags.indexOf('RESIZE') > -1 ? 'Resizing, ' : '';
     let state = state_prefix + 'Unknown';
     if (vlm_state && vlm_state.disk_state) {
@@ -127,10 +145,10 @@ export const List = () => {
     return state;
   };
 
-  const handleResourceStateDisplay = useCallback((resourceItem: ResourceDataType) => {
+  const handleResourceStateDisplay = (resourceItem: ResourceDataType) => {
     let stateStr = 'Unknown';
     const flags = resourceItem.flags || [];
-    const rsc_state_obj = resourceItem.resourceState || {};
+    const rsc_state_obj = resourceItem.state || {};
     const volumes = resourceItem.volumes || [];
 
     if (flags.includes('DELETE')) {
@@ -153,18 +171,11 @@ export const List = () => {
     }
 
     return stateStr;
-  }, []);
+  };
 
-  const columns: TableProps<
-    ResourceDataType &
-      VolumeType & {
-        resourceState: {
-          in_use: boolean;
-        };
-      }
-  >['columns'] = [
+  const columns: TableProps<ResourceDataType>['columns'] = [
     {
-      title: 'Name',
+      title: 'Resource',
       key: 'name',
       dataIndex: 'name',
       sorter: (a, b) => {
@@ -177,26 +188,43 @@ export const List = () => {
       showSorterTooltip: false,
     },
     {
-      title: 'Volume Number',
-      key: 'volume_number',
-      dataIndex: 'volume_number',
-    },
-    {
-      title: 'Storage Pool Name',
-      key: 'storage_pool_name',
-      dataIndex: 'storage_pool_name',
-    },
-    {
       title: 'Node',
       key: 'node_name',
       dataIndex: 'node_name',
     },
     {
+      title: 'Created On',
+      key: 'create_timestamp',
+      dataIndex: 'create_timestamp',
+      render: (create_timestamp) => {
+        return <span>{formatTime(create_timestamp)}</span>;
+      },
+    },
+    {
       title: 'Port',
       key: 'port',
+      render: (item) => {
+        return <span>{get(item, 'layer_object.drbd.drbd_resource_definition.port')}</span>;
+      },
+    },
+    {
+      title: 'Usage Status',
+      key: 'in_use',
+      dataIndex: 'in_use',
+      align: 'center',
       render: (_, item) => {
-        const port = item.layer_object?.drbd?.drbd_resource_definition?.port || 'N/A';
-        return <span>{port}</span>;
+        const in_use = item.state?.in_use;
+        const usage = in_use ? 'InUse' : 'Unused';
+        return (
+          <span>
+            {in_use ? (
+              <CheckCircleFilled style={{ color: 'green', fontSize: '16px' }} />
+            ) : (
+              <CloseCircleFilled style={{ color: 'grey', fontSize: '16px' }} />
+            )}
+            <span style={{ marginLeft: 8 }}>{usage}</span>
+          </span>
+        );
       },
     },
     {
@@ -204,26 +232,87 @@ export const List = () => {
       key: 'state',
       align: 'center',
       render: (_, item) => {
-        const state = item.resourceState.in_use ? 'In Use' : 'Unused';
-        return <span>{state}</span>;
-      },
-    },
-    {
-      title: 'Create Time',
-      key: 'create_time',
-      dataIndex: 'create_timestamp',
-      render: (create_timestamp) => {
-        return <span>{dayjs(create_timestamp).format('YYYY-MM-DD HH:mm:ss')}</span>;
-      },
-    },
-    {
-      title: 'Status',
-      key: 'status',
-      render: (_, item) => {
         return <span>{handleResourceStateDisplay(item)}</span>;
       },
     },
+    {
+      title: 'Action',
+      key: 'action',
+      width: 150,
+      fixed: 'right',
+      render: (_, record) => (
+        <Space size="small">
+          <Button
+            onClick={() => {
+              history.push(`/storage-configuration/resources/${record.node_name}/${record.name}/edit`);
+            }}
+          >
+            Edit
+          </Button>
+
+          <Dropdown
+            menu={{
+              items: [
+                {
+                  key: 'property',
+                  label: 'Properties',
+                  onClick: () => {
+                    setCurrent(record);
+                    const currentData = record.props;
+                    setInitialProps({
+                      ...currentData,
+                      name: record.name,
+                    });
+                    setPropertyModalOpen(true);
+                  },
+                },
+                {
+                  key: 'snapshot',
+                  label: 'Snapshot',
+                  onClick: () => {
+                    handleSnapshot(record.name ?? '');
+                  },
+                },
+                {
+                  key: 'migrate',
+                  label: 'Migrate',
+                  onClick: () => {
+                    handleOpenMigrate(record.name ?? '', record.node_name ?? '');
+                  },
+                },
+                {
+                  key: 'delete',
+                  label: (
+                    <Popconfirm
+                      key="delete"
+                      title="Delete the resource"
+                      description="Are you sure to delete this resource?"
+                      okText="Yes"
+                      cancelText="No"
+                      onConfirm={() => {
+                        deleteMutation.mutate({
+                          resource: record.name ?? '',
+                          node: record.node_name ?? '',
+                        });
+                      }}
+                    >
+                      Delete
+                    </Popconfirm>
+                  ),
+                },
+              ],
+            }}
+          >
+            <DownOutlined />
+          </Dropdown>
+        </Space>
+      ),
+    },
   ];
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>
@@ -277,10 +366,22 @@ export const List = () => {
       <br />
 
       <Table
-        columns={columns as any}
-        dataSource={resources ?? []}
-        rowSelection={rowSelection}
-        rowKey={(item) => item?.uuid ?? uniqId()}
+        columns={columns}
+        dataSource={resources?.data ?? []}
+        pagination={{
+          total: stats?.data?.count ?? 0,
+          showSizeChanger: true,
+          showTotal: (total) => `Total ${total} items`,
+          defaultCurrent: (query?.offset ?? 0) + 1,
+          pageSize: query?.limit,
+          onChange(page, pageSize) {
+            setQuery({
+              ...query,
+              limit: pageSize,
+              offset: (page - 1) * pageSize,
+            });
+          },
+        }}
       />
 
       <PropertyForm

@@ -23,6 +23,7 @@
   "devDependencies": {
     "@types/crypto-js": "^4.1.1",
     "@types/lodash.get": "^4.4.6",
+    "@types/lodash.uniqby": "^4.7.9",
     "@types/react-router-dom": "^5.1.7",
     "@types/styled-components": "^5.1.24",
     "@typescript-eslint/eslint-plugin": "^7.9.0",
