@@ -1,21 +1,31 @@
 import React from 'react';
-import { CodeBlock, CodeBlockCode } from '@patternfly/react-core';
 import { useTranslation } from 'react-i18next';
-import { useRequest } from 'ahooks';
 import { useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { Card } from 'antd';
 
 import PageBasic from '@app/components/PageBasic';
+import { getErrorReportById } from '@app/features/report';
 
-const ErrorReportDetail: React.FC = () => {
+const ErrorReportDetail = () => {
   const { id } = useParams() as { id: string };
-  const { data = [], loading } = useRequest(`/v1/error-reports/${id}`);
+  const { data, isLoading } = useQuery({
+    queryKey: ['getErrorDetail', id],
+    queryFn: () => {
+      return getErrorReportById(id);
+    },
+    enabled: !!id,
+  });
+
   const { t } = useTranslation('error_report');
 
+  console.log(data?.data?.[0].text);
+
   return (
-    <PageBasic title={t('detail_title')} loading={loading} error={!loading && data.length === 0} showBack>
-      <CodeBlock>
-        <CodeBlockCode>{data[0]?.text}</CodeBlockCode>
-      </CodeBlock>
+    <PageBasic title={t('detail_title')} loading={isLoading} showBack>
+      <Card>
+        <pre>{data?.data?.[0].text}</pre>
+      </Card>
     </PageBasic>
   );
 };
