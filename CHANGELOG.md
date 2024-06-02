@@ -1,5 +1,27 @@
 # Changelog
 
+# 1.7.0 - 2024-06-03
+
+### Fixed
+
+- the amount of volume on dashboard is not correct
+- update dependencies and fix security vulnerabilities
+
+### Added
+
+- new charts for nodes, resources and volumes
+- search query for nodes, storage pools, resource groups, volumes, volume definitions, snapshots, error reports
+- sync query string with URL
+- volume definition page
+- volume number on volume list page
+
+### Changed
+
+- new forms for creating and editing resources
+- new chats for node detail page
+- move ip address management to node detail page
+- UI for uploading custom logo
+
 # 1.6.4 - 2024-05-28
 
 ### Fixed

@@ -138,7 +138,7 @@ const CreateForm = () => {
             <Radio.Button value="new">New Device</Radio.Button>
           </Tooltip>
 
-          <Tooltip title="You need create the column group via CLI fist.">
+          <Tooltip title="You need create the column group via CLI first.">
             <Radio.Button value="existing">Existing Driver</Radio.Button>
           </Tooltip>
         </Radio.Group>

@@ -8,6 +8,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import PageBasic from '@app/components/PageBasic';
 import { Resource, StoragePool, useNodes } from '@app/features/node';
 import {
+  CreateForm,
   CreateNetWorkInterfaceRequestBody,
   deleteNetWorkInterface,
   getNetWorkInterfaceByNode,
@@ -270,7 +271,7 @@ const NodeDetail: React.FC = () => {
               handleSetActiveNetWorkInterface={handleUpdateNetWorkInterface}
             />
 
-            <div>Add Network Interface</div>
+            <CreateForm node={nodeInfo?.[0].name} refetch={refetch} />
           </Card>
 
           <Row gutter={16}>
