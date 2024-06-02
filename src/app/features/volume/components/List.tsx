@@ -1,37 +1,62 @@
 import React, { useState } from 'react';
-import { Button, Form, Space, Table, Tag, Popconfirm, Input, Dropdown } from 'antd';
+import { Button, Form, Space, Table, Input, Select } from 'antd';
 import type { TableProps } from 'antd';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { useHistory } from 'react-router-dom';
-import { CheckCircleFilled, CloseCircleFilled, DownOutlined } from '@ant-design/icons';
-import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
+import { useHistory, useLocation } from 'react-router-dom';
+import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 
-import PropertyForm from '@app/components/PropertyForm';
-import { getResources, getResourceCount, deleteResource, resourceModify } from '../api';
+import { getResources } from '../api';
 import { SearchForm } from './styled';
 import { uniqId } from '@app/utils/stringUtils';
-import { ResourceDataType, ResourceListQuery, ResourceModifyRequestBody, VolumeDataType } from '../types';
-import { omit } from '@app/utils/object';
+import { ResourceDataType, ResourceListQuery, VolumeDataType } from '../types';
+
 import { formatBytes } from '@app/utils/size';
+import { useNodes } from '@app/features/node';
 
 export const List = () => {
-  const { t } = useTranslation(['resource_group', 'common']);
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const [propertyModalOpen, setPropertyModalOpen] = useState(false);
-  const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
-  const [current, setCurrent] = useState<ResourceDataType>();
   const [volumeList, setVolumeList] = useState([]);
-
-  const [query, setQuery] = useState<ResourceListQuery>({});
 
   const history = useHistory();
   const [form] = Form.useForm();
+  const location = useLocation();
 
-  const {
-    data: resources,
-    refetch,
-    isLoading,
-  } = useQuery({
+  const [query, setQuery] = useState<ResourceListQuery>(() => {
+    const query = new URLSearchParams(location.search);
+    const nodes = query.get('nodes')?.split(',');
+    const resources = query.get('resources')?.split(',');
+
+    if (nodes) {
+      form.setFieldValue('name', nodes);
+    }
+
+    const queryO: ResourceListQuery = {};
+
+    if (nodes) {
+      form.setFieldValue('nodes', nodes);
+      queryO['nodes'] = nodes;
+    }
+
+    const storage_pools = query.get('storage_pools');
+
+    if (storage_pools) {
+      form.setFieldValue('storage_pools', storage_pools);
+      queryO['storage_pools'] = [storage_pools];
+    }
+
+    if (resources) {
+      form.setFieldValue('name', resources);
+      queryO['resources'] = resources;
+    }
+
+    return {
+      nodes,
+      resources,
+    };
+  });
+
+  const nodes = useNodes();
+
+  const { isLoading } = useQuery({
     queryKey: ['getResources', query],
     queryFn: () => getResources(query),
     onSuccess: (data) => {
@@ -49,11 +74,10 @@ export const List = () => {
             node_name: item.node_name,
             resource_name: item.name,
             in_use: item.state?.in_use,
-          }))
+            resourceProps: item.props,
+          })),
         );
       }
-
-      console.log(volumes, 'volumes');
 
       setVolumeList(volumes);
     },
@@ -61,21 +85,30 @@ export const List = () => {
 
   console.log(volumeList, 'volumeList');
 
-  const { data: stats } = useQuery({
-    queryKey: ['getResourceCount'],
-    queryFn: () => getResourceCount(),
-  });
-
   const handleSearch = () => {
     const values = form.getFieldsValue();
-
+    const queryS = new URLSearchParams({});
     const newQuery: ResourceListQuery = { ...query };
 
     if (values.name) {
       newQuery.resources = [values.name];
+      queryS.set('resources', values.name);
+    }
+
+    if (values.nodes) {
+      newQuery.nodes = values.nodes;
+      queryS.set('nodes', values.nodes);
+    }
+    if (values.storage_pools) {
+      newQuery.storage_pools = values.storage_pools;
+      queryS.set('storage_pools', values.storage_pools);
     }
 
     setQuery(newQuery);
+
+    const new_url = `${location.pathname}?${queryS.toString()}`;
+
+    history.push(new_url);
   };
 
   const handleReset = () => {
@@ -84,29 +117,16 @@ export const List = () => {
       limit: 10,
       offset: 0,
     });
+
+    history.push(location.pathname);
   };
 
-  const updateMutation = useMutation({
-    mutationKey: ['resourceModify'],
-    mutationFn: (data: ResourceModifyRequestBody) =>
-      resourceModify({
-        node: current?.name ?? '',
-        body: data,
-      }),
-    onSuccess: () => {
-      refetch();
-    },
-  });
-
-  const hasSelected = selectedRowKeys.length > 0;
-
-  const handleDeleteBulk = () => {
-    selectedRowKeys.forEach((ele) => {
-      deleteMutation.mutate(String(ele));
-    });
-  };
-
-  const columns: TableProps<ResourceDataType & VolumeDataType>['columns'] = [
+  const columns: TableProps<
+    ResourceDataType &
+      VolumeDataType & {
+        resourceProps: Record<string, string>;
+      }
+  >['columns'] = [
     {
       title: 'Resource',
       key: 'resource',
@@ -124,6 +144,18 @@ export const List = () => {
       title: 'Node',
       key: 'node_name',
       dataIndex: 'node_name',
+    },
+    {
+      title: 'Storage Pool',
+      key: 'storage_pool',
+      render: (_, item) => {
+        return <span>{item.resourceProps?.StorPoolName}</span>;
+      },
+    },
+    {
+      title: 'Volume Number',
+      key: 'volume_number',
+      dataIndex: 'volume_number',
     },
     {
       title: 'Device Name',
@@ -156,36 +188,12 @@ export const List = () => {
       },
     },
     {
-      title: 'Status',
-      key: 'status',
+      title: 'State',
+      key: 'state',
       align: 'center',
       render: (_, item) => {
-        // const upToDate = item.state?.disk_state === 'UpToDate';
         return <span>{item?.state?.disk_state || 'UnKnown'}</span>;
       },
-    },
-    {
-      title: 'Action',
-      key: 'action',
-      width: 150,
-      fixed: 'right',
-      render: (_, record) => (
-        <Space size="small">
-          <Button
-            onClick={() => {
-              setCurrent(record);
-              const currentData = omit(record.props ?? {}, 'CurStltConnName');
-              setInitialProps({
-                ...currentData,
-                name: record.name,
-              });
-              setPropertyModalOpen(true);
-            }}
-          >
-            Property
-          </Button>
-        </Space>
-      ),
     },
   ];
 
@@ -208,6 +216,18 @@ export const List = () => {
             <Input placeholder="Name" />
           </Form.Item>
 
+          <Form.Item name="nodes" label="Node">
+            <Select
+              style={{ width: 180 }}
+              allowClear
+              placeholder="Please select node"
+              options={nodes?.data?.map((e) => ({
+                label: e.name,
+                value: e.name,
+              }))}
+            />
+          </Form.Item>
+
           <Form.Item>
             <Space size="small">
               <Button type="default" onClick={handleReset}>
@@ -221,25 +241,9 @@ export const List = () => {
               >
                 Search
               </Button>
-              {hasSelected && (
-                <Popconfirm
-                  key="delete"
-                  title="Delete storage pools"
-                  description="Are you sure to delete selected storage pools?"
-                  okText="Yes"
-                  cancelText="No"
-                  onConfirm={handleDeleteBulk}
-                >
-                  <Button danger>Delete</Button>
-                </Popconfirm>
-              )}
             </Space>
           </Form.Item>
         </Form>
-
-        <Button type="primary" onClick={() => history.push('/inventory/resources/create')}>
-          Add
-        </Button>
       </SearchForm>
 
       <br />
@@ -248,27 +252,10 @@ export const List = () => {
         columns={columns}
         dataSource={volumeList}
         pagination={{
-          total: stats?.data?.count ?? 0,
+          total: volumeList.length ?? 0,
           showSizeChanger: true,
           showTotal: (total) => `Total ${total} items`,
-          defaultCurrent: (query?.offset ?? 0) + 1,
-          pageSize: query?.limit,
-          onChange(page, pageSize) {
-            setQuery({
-              ...query,
-              limit: pageSize,
-              offset: (page - 1) * pageSize,
-            });
-          },
         }}
-      />
-
-      <PropertyForm
-        initialVal={initialProps}
-        openStatus={propertyModalOpen}
-        type="volume"
-        handleSubmit={(data) => updateMutation.mutate(data)}
-        handleClose={() => setPropertyModalOpen(!propertyModalOpen)}
       />
     </>
   );
