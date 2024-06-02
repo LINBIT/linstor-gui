@@ -96,11 +96,9 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
 
   const updateMutation = useMutation({
     mutationKey: ['resourceModify'],
-    mutationFn: (data: ResourceModifyRequestBody) =>
-      resourceModify({
-        node: current?.name ?? '',
-        body: data,
-      }),
+    mutationFn: (data: ResourceModifyRequestBody) => {
+      return resourceModify(current?.name ?? '', current?.node_name ?? '', data);
+    },
     onSuccess: () => {
       refetch();
     },
