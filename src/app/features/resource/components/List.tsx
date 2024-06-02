@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
-import { Button, Form, Space, Table, Popconfirm, Input, Dropdown } from 'antd';
+import { Button, Form, Space, Table, Popconfirm, Input, Dropdown, Select } from 'antd';
 import type { TableProps } from 'antd';
+import get from 'lodash.get';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useHistory, useLocation } from 'react-router-dom';
 import { CheckCircleFilled, CloseCircleFilled, DownOutlined } from '@ant-design/icons';
 
 import PropertyForm from '@app/components/PropertyForm';
-import { getResources, getResourceCount, deleteResource, resourceModify } from '../api';
-import { SearchForm } from './styled';
-
-import { ResourceDataType, ResourceListQuery, ResourceModifyRequestBody } from '../types';
-
 import { formatTime } from '@app/utils/time';
-import get from 'lodash.get';
-import { createSnapshot, CreateSnapshotRequestBody } from '@app/features/snapshot';
+
+import { getResources, getResourceCount, deleteResource, resourceModify } from '../api';
+import { ResourceDataType, ResourceListQuery, ResourceModifyRequestBody } from '../types';
+import { SearchForm } from './styled';
+import { useNodes } from '@app/features/node';
+import { getStoragePool } from '@app/features/storagePool';
+import uniqBy from 'lodash.uniqby';
 
 type ListProps = {
   handleOpenMigrate: (resource: string, node: string) => void;
@@ -30,18 +31,41 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
   const [form] = Form.useForm();
   const location = useLocation();
 
+  const nodes = useNodes();
+
   const [query, setQuery] = useState<ResourceListQuery>(() => {
     const query = new URLSearchParams(location.search);
     const nodes = query.get('nodes')?.split(',');
+    const resources = query.get('resources')?.split(',');
 
     if (nodes) {
       form.setFieldValue('name', nodes);
+    }
+
+    const queryO: ResourceListQuery = {};
+
+    if (nodes) {
+      form.setFieldValue('nodes', nodes);
+      queryO['nodes'] = nodes;
+    }
+
+    const storage_pools = query.get('storage_pools');
+
+    if (storage_pools) {
+      form.setFieldValue('storage_pools', storage_pools);
+      queryO['storage_pools'] = [storage_pools];
+    }
+
+    if (resources) {
+      form.setFieldValue('name', resources);
+      queryO['resources'] = resources;
     }
 
     return {
       limit: 10,
       offset: 0,
       nodes,
+      resources,
     };
   });
 
@@ -54,6 +78,11 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
     queryFn: () => getResources(query),
   });
 
+  const { data: storagePoolList } = useQuery({
+    queryKey: ['getStoragePool'],
+    queryFn: () => getStoragePool(),
+  });
+
   const { data: stats } = useQuery({
     queryKey: ['getResourceCount'],
     queryFn: () => getResourceCount(),
@@ -61,14 +90,28 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
 
   const handleSearch = () => {
     const values = form.getFieldsValue();
-
+    const queryS = new URLSearchParams({});
     const newQuery: ResourceListQuery = { ...query };
 
     if (values.name) {
       newQuery.resources = [values.name];
+      queryS.set('resources', values.name);
+    }
+
+    if (values.nodes) {
+      newQuery.nodes = values.nodes;
+      queryS.set('nodes', values.nodes);
+    }
+    if (values.storage_pools) {
+      newQuery.storage_pools = values.storage_pools;
+      queryS.set('storage_pools', values.storage_pools);
     }
 
     setQuery(newQuery);
+
+    const new_url = `${location.pathname}?${queryS.toString()}`;
+
+    history.push(new_url);
   };
 
   const handleReset = () => {
@@ -77,14 +120,8 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
       limit: 10,
       offset: 0,
     });
+    history.push(location.pathname);
   };
-
-  const createResourceMutation = useMutation({
-    mutationFn: (data: CreateSnapshotRequestBody) => {
-      const { resource_name, ...rest } = data;
-      return createSnapshot(resource_name || '', rest);
-    },
-  });
 
   const deleteMutation = useMutation({
     mutationKey: ['deleteResource'],
@@ -104,11 +141,20 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
     },
   });
 
+  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
+    setSelectedRowKeys(newSelectedRowKeys);
+  };
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+  };
+
   const hasSelected = selectedRowKeys.length > 0;
 
   const handleDeleteBulk = () => {
     selectedRowKeys.forEach((ele) => {
-      const resource = resources?.data?.find((item) => item.name === ele);
+      const resource = resources?.data?.find((item) => item.uuid === ele);
       const node = resource?.node_name;
       deleteMutation.mutate({
         resource: resource?.name ?? '',
@@ -327,6 +373,30 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
             <Input placeholder="Name" />
           </Form.Item>
 
+          <Form.Item name="nodes" label="Node">
+            <Select
+              style={{ width: 180 }}
+              allowClear
+              placeholder="Please select node"
+              options={nodes?.data?.map((e) => ({
+                label: e.name,
+                value: e.name,
+              }))}
+            />
+          </Form.Item>
+
+          <Form.Item name="storage_pools" label="Storage Pool">
+            <Select
+              style={{ width: 180 }}
+              allowClear
+              placeholder="Please select storage pool"
+              options={uniqBy(storagePoolList?.data, 'storage_pool_name')?.map((e) => ({
+                label: e.storage_pool_name,
+                value: e.storage_pool_name,
+              }))}
+            />
+          </Form.Item>
+
           <Form.Item>
             <Space size="small">
               <Button type="default" onClick={handleReset}>
@@ -366,6 +436,8 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
       <Table
         columns={columns}
         dataSource={resources?.data ?? []}
+        rowKey={(record) => record.uuid ?? ''}
+        rowSelection={rowSelection}
         pagination={{
           total: stats?.data?.count ?? 0,
           showSizeChanger: true,

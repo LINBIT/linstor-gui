@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, Form, Space, Table, Popconfirm, Select } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQueries, useQuery } from '@tanstack/react-query';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 
 import PropertyForm from '@app/components/PropertyForm';
 import {
@@ -27,13 +27,25 @@ export const List = () => {
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
 
-  const [query, setQuery] = useState<ResourceDefinitionListQuery>({
-    limit: 10,
-    offset: 0,
-  });
-
   const history = useHistory();
+  const location = useLocation();
+
   const [form] = Form.useForm();
+
+  const [query, setQuery] = useState<ResourceDefinitionListQuery>(() => {
+    const query = new URLSearchParams(location.search);
+    const resource_definitions = query.get('resource_definitions')?.split(',');
+
+    if (resource_definitions) {
+      form.setFieldValue('name', resource_definitions);
+    }
+
+    return {
+      limit: 10,
+      offset: 0,
+      resource_definitions,
+    };
+  });
 
   const {
     data: resourceDefinition,
@@ -76,6 +88,14 @@ export const List = () => {
 
     if (values.name) {
       newQuery.resource_definitions = [values.name];
+
+      const query = new URLSearchParams({
+        resource_definitions: values.name,
+      });
+
+      const new_url = `${location.pathname}?${query.toString()}`;
+
+      history.push(new_url);
     }
 
     setQuery(newQuery);
@@ -84,6 +104,7 @@ export const List = () => {
   const handleReset = () => {
     form.resetFields();
     setQuery({});
+    history.push('/storage-configuration/volume-definitions');
   };
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
@@ -122,10 +143,6 @@ export const List = () => {
         deleteMutation.mutate(resource);
       }
     });
-  };
-
-  const edit = (resourceDefinitionName?: string) => {
-    history.push(`/storage-configuration/resource-definitions/${resourceDefinitionName}/edit`);
   };
 
   const columns: TableProps<
@@ -226,9 +243,7 @@ export const List = () => {
       <br />
 
       <Table
-        // @ts-ignore
         columns={columns}
-        // @ts-ignore
         dataSource={vdListDisplay ?? []}
         rowSelection={rowSelection}
         rowKey={uniqId()}
