@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Checkbox, Form, Input, Modal, Radio, Select } from 'antd';
-import { useHistory, useParams } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
+import { Button, Checkbox, Form, Input, Modal, Radio } from 'antd';
 
-import { CreateNetWorkInterfaceRequestBody, updateNetWorkInterface, createNetWorkInterface } from '@app/features/ip';
-import { getNodes, useNodes } from '@app/features/node';
+import { CreateNetWorkInterfaceRequestBody, createNetWorkInterface } from '@app/features/ip';
 import { fullySuccess } from '@app/features/requests';
 
 type FormType = {
@@ -23,57 +21,23 @@ type FormProps = {
 
 const CreateForm = ({ editing, node, refetch }: FormProps) => {
   const [form] = Form.useForm<FormType>();
-  const nodes = useNodes();
   const [open, setOpen] = useState(false);
 
-  const backToList = () => {
-    setOpen(false);
-  };
-
   const createNetWorkInterfaceMutation = useMutation({
-    mutationFn: (
-      data: CreateNetWorkInterfaceRequestBody & {
-        node: string;
-      },
-    ) => {
-      const { node, ...rest } = data;
-
-      return createNetWorkInterface(node, rest);
+    mutationFn: (data: CreateNetWorkInterfaceRequestBody) => {
+      return createNetWorkInterface(node ?? '', data);
     },
     onSuccess: (data) => {
       if (fullySuccess(data?.data)) {
-        backToList();
+        refetch();
+        setOpen(false);
       }
-    },
-  });
-
-  const updateNetWorkInterfaceMutation = useMutation({
-    mutationFn: (
-      data: CreateNetWorkInterfaceRequestBody & {
-        node: string;
-      },
-    ) => {
-      const { node, ...rest } = data;
-
-      return updateNetWorkInterface(node, rest);
-    },
-    onSuccess: (data) => {
-      if (fullySuccess(data?.data)) {
-        backToList();
-      }
-
-      refetch();
     },
   });
 
   const onFinish = (values: FormType) => {
     const { is_active, ...rest } = values;
-
-    if (editing) {
-      updateNetWorkInterfaceMutation.mutate({ ...rest, is_active: is_active === 'checked' });
-    } else {
-      createNetWorkInterfaceMutation.mutate({ ...rest, is_active: is_active === 'checked' });
-    }
+    createNetWorkInterfaceMutation.mutate({ ...rest, is_active: is_active === 'checked' });
   };
 
   return (
@@ -88,7 +52,7 @@ const CreateForm = ({ editing, node, refetch }: FormProps) => {
       </Button>
       <Modal
         open={open}
-        title="Migrate Resource"
+        title="Create network interface"
         okText="Confirm"
         cancelText="Cancel"
         onCancel={() => {
@@ -121,18 +85,6 @@ const CreateForm = ({ editing, node, refetch }: FormProps) => {
           }}
           onFinish={onFinish}
         >
-          <Form.Item label="Node" name="node" required rules={[{ required: true, message: 'Please select nodes!' }]}>
-            <Select
-              allowClear
-              disabled
-              placeholder="Please select node"
-              options={nodes?.data?.map((e) => ({
-                label: e.name,
-                value: e.name,
-              }))}
-            />
-          </Form.Item>
-
           <Form.Item label="Alias" name="name" required>
             <Input placeholder="Please input alias" disabled={editing} />
           </Form.Item>

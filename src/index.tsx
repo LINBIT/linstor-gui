@@ -31,5 +31,5 @@ const root = createRoot(domNode);
 root.render(
   <QueryClientProvider client={queryClient}>
     <App />
-  </QueryClientProvider>
+  </QueryClientProvider>,
 );
