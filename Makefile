@@ -1,6 +1,6 @@
 PROG := linstor-gui
 DESTDIR =
-NODEVERSION = 14
+NODEVERSION = 20
 
 ifndef VERSION
 checkVERSION:
@@ -30,7 +30,7 @@ help:
 
 .PHONY: deps
 deps: ## install dependencies
-	npm install --legacy-peer-deps
+	npm install
 
 .PHONY: debrelease
 debrelease: checkVERSION build
