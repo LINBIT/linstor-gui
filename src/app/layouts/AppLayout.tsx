@@ -43,6 +43,7 @@ import {
   FileProtectOutlined,
   InfoCircleOutlined,
   MailOutlined,
+  NodeIndexOutlined,
   PieChartOutlined,
   SettingOutlined,
   UserOutlined,
@@ -87,6 +88,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const [isNavOpenMobile, setIsNavOpenMobile] = useState(false);
   const { UIMode, updateUIMode } = useUIModeStorage();
   const [selectedMenu, setSelectedMenu] = useState('/dashboard');
+  const [openKey, setOpenKey] = useState('');
   const dispatch = useDispatch<Dispatch>();
   const history = useHistory();
 
@@ -300,7 +302,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
         getItem(<Link to="/vsan/about">About</Link>, '/vsan/about', <InfoCircleOutlined />),
       ];
     } else {
-      return [
+      const normalItems = [
         getItem(<Link to="/">Dashboard</Link>, '/', <PieChartOutlined />),
         getItem('Inventory', '/inventory', <DesktopOutlined />, [
           getItem(<Link to="/inventory/nodes">Nodes</Link>, '/inventory/nodes'),
@@ -324,16 +326,46 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
         ]),
         getItem(<Link to="/snapshot">Snapshots</Link>, '/snapshot', <FileProtectOutlined />),
         getItem(<Link to="/error-reports">Error Reports</Link>, '/error-reports', <WarningOutlined />),
+      ];
+
+      const settingsAndUsers = [
         getItem(<Link to="/settings">Settings</Link>, '/settings', <SettingOutlined />),
         getItem(<Link to="/users">Users</Link>, '/users', <UserOutlined />),
       ];
+
+      const gatewayItems = [
+        getItem('Gateway', '/gateway', <NodeIndexOutlined />, [
+          getItem(<Link to="/gateway/nfs">NFS</Link>, '/gateway/nfs'),
+          getItem(<Link to="/gateway/iscsi">iSCSI</Link>, '/gateway/iscsi'),
+          getItem(<Link to="/gateway/nvme-of">NVMe-oF</Link>, '/gateway/nvme-of'),
+        ]),
+      ];
+
+      const itemsRes = [...normalItems, ...(KVS?.gatewayEnabled ? gatewayItems : []), ...settingsAndUsers];
+
+      return itemsRes;
     }
-  }, [vsanModeFromSetting]);
+  }, [KVS?.gatewayEnabled, vsanModeFromSetting]);
+
+  const gatewayItems = (filteredRoutes.find((route) => route.label === 'gateway')?.routes ?? []).map((route) =>
+    getItem(
+      <Link to={route.path} key={route.path}>
+        {route.label}
+      </Link>,
+      route.path,
+    ),
+  );
+
+  console.log(gatewayItems, 'gatewayItems');
 
   useEffect(() => {
     const currentMenu = items.find(
       (e) => e?.key === location.pathname || (e as any)?.children?.find((c) => c.key === location.pathname),
     ) as any;
+
+    if (currentMenu) {
+      setOpenKey(currentMenu.key);
+    }
 
     if (currentMenu?.children) {
       setSelectedMenu(currentMenu.children.find((c) => c.key === location.pathname)?.key as string);
@@ -341,6 +373,10 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
       setSelectedMenu(currentMenu?.key as string);
     }
   }, [location, items]);
+
+  console.log(openKey, '???');
+
+  const openKeys = ['/inventory', '/storage-configuration', '/gateway'];
 
   const Navigation = (
     <SideMenu>
@@ -352,6 +388,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
         items={items}
         style={{ backgroundColor: 'transparent' }}
         selectedKeys={[selectedMenu]}
+        defaultOpenKeys={openKeys}
       />
     </SideMenu>
   );

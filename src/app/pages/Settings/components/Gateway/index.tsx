@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Button, Switch, TextInput } from '@patternfly/react-core';
+import { Input, Button, Switch } from 'antd';
 import styled from '@emotion/styled';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -15,7 +15,7 @@ const Label = styled.span`
 
 const AddressWrapper = styled.div`
   margin-top: 1em;
-  width: 20em;
+  width: 30em;
   display: flex;
   align-items: center;
 `;
@@ -71,13 +71,13 @@ const Gateway: React.FC = () => {
     <>
       <Wrapper>
         <Label>Gateway mode</Label>
-        <Switch isChecked={isChecked} onChange={handleChange} aria-label="gateway-mode" />
+        <Switch checked={isChecked} onChange={handleChange} aria-label="gateway-mode" />
         {isChecked && (
           <>
             <CustomHostWrapper>
               <Label>Custom host</Label>
               <Switch
-                isChecked={customHost}
+                checked={customHost}
                 onChange={(isChecked) => setCustomHost(isChecked)}
                 aria-label="gateway-mode"
               />
@@ -87,11 +87,11 @@ const Gateway: React.FC = () => {
         {isChecked && customHost && (
           <AddressWrapper>
             <AddressLabelWrapper>Address:</AddressLabelWrapper>
-            <TextInput value={host} onChange={(val) => setHost(val)} aria-label="host" />
+            <Input value={host} onChange={(val) => setHost(val.target.value)} aria-label="host" />
           </AddressWrapper>
         )}
       </Wrapper>
-      <Button variant="primary" onClick={handleSave}>
+      <Button type="primary" onClick={handleSave}>
         Save
       </Button>
     </>

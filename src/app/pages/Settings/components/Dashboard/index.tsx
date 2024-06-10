@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Button, Switch } from '@patternfly/react-core';
-import { Input, Tooltip } from 'antd';
+import { Input, Tooltip, Button, Switch, message } from 'antd';
 import styled from '@emotion/styled';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -16,7 +15,7 @@ const Label = styled.span`
 
 const AddressWrapper = styled.div`
   margin-top: 1em;
-  width: 20em;
+  width: 30em;
   display: flex;
   align-items: center;
 `;
@@ -29,6 +28,7 @@ const AddressLabelWrapper = styled.div`
 const Dashboard: React.FC = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [host, setHost] = useState('');
+  const [messageApi, contextHolder] = message.useMessage();
 
   const dispatch = useDispatch<Dispatch>();
 
@@ -43,19 +43,31 @@ const Dashboard: React.FC = () => {
     setHost(dashboardURL as string);
   }, [dashboardEnabled, dashboardURL]);
 
-  const handleChange = useCallback((isChecked) => {
+  const handleChange = useCallback((isChecked: boolean) => {
     setIsChecked(isChecked);
   }, []);
 
   const handleSave = useCallback(() => {
-    dispatch.setting.setDashboard({ dashboardEnabled: isChecked, host });
-  }, [dispatch.setting, host, isChecked]);
+    if (!isChecked) {
+      dispatch.setting.setDashboard({ dashboardEnabled: isChecked, host: '' });
+    } else {
+      if (!host) {
+        messageApi.open({
+          type: 'error',
+          content: 'Please enter the Grafana URL.',
+        });
+        return;
+      }
+      dispatch.setting.setDashboard({ dashboardEnabled: isChecked, host });
+    }
+  }, [dispatch.setting, host, isChecked, messageApi]);
 
   return (
     <>
+      {contextHolder}
       <Wrapper>
         <Label>Grafana Dashboard</Label>
-        <Switch isChecked={isChecked} onChange={handleChange} aria-label="dashboard-mode" />
+        <Switch checked={isChecked} onChange={handleChange} aria-label="dashboard-mode" />
 
         {isChecked && (
           <AddressWrapper>
@@ -72,7 +84,7 @@ const Dashboard: React.FC = () => {
           </AddressWrapper>
         )}
       </Wrapper>
-      <Button variant="primary" onClick={handleSave}>
+      <Button type="primary" onClick={handleSave}>
         Save
       </Button>
     </>
