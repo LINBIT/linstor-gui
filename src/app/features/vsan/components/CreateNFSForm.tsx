@@ -270,7 +270,7 @@ const CreateNFSForm = ({ refetch }: CreateNFSFormProps) => {
                   {fields.map((field, index) => (
                     <Form.Item
                       {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
-                      label={index === 0 ? 'Allowed Ips' : ''}
+                      label={index === 0 ? 'Allowed IPs' : ''}
                       required={false}
                       key={field.key}
                     >

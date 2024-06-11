@@ -183,7 +183,7 @@ const CreateNFSForm = () => {
             {fields.map((field, index) => (
               <Form.Item
                 {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
-                label={index === 0 ? 'Allowed Ips' : ''}
+                label={index === 0 ? 'Allowed IPs' : ''}
                 required={false}
                 key={field.key}
               >
@@ -202,7 +202,13 @@ const CreateNFSForm = () => {
                   <Input placeholder="192.168.0.0/16" style={{ width: '60%' }} />
                 </Form.Item>
                 {fields.length > 0 ? (
-                  <MinusCircleOutlined className="dynamic-delete-button" onClick={() => remove(field.name)} />
+                  <MinusCircleOutlined
+                    className="dynamic-delete-button"
+                    style={{
+                      marginLeft: 10,
+                    }}
+                    onClick={() => remove(field.name)}
+                  />
                 ) : null}
               </Form.Item>
             ))}
