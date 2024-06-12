@@ -1,26 +1,16 @@
 import React, { useState } from 'react';
 import { TableComposable, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
-import {
-  Bullseye,
-  Button,
-  EmptyState,
-  EmptyStateIcon,
-  EmptyStateVariant,
-  Label,
-  Modal,
-  ModalVariant,
-  Title,
-} from '@patternfly/react-core';
+import { Bullseye, Button, EmptyState, EmptyStateIcon, EmptyStateVariant, Label, Title } from '@patternfly/react-core';
 import styled from '@emotion/styled';
 import InfoCircleIcon from '@patternfly/react-icons/dist/esm/icons/info-circle-icon';
 
 import { ISCSI } from '@app/interfaces/iscsi';
 import ActionConfirm from '@app/components/ActionConfirm';
-import DynamicForm from '@app/components/DynamicForm';
-import { convertRoundUp, sizeOptions } from '@app/utils/size';
 import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';
 import { SearchIcon } from '@patternfly/react-icons';
+import { Form, Modal, Space } from 'antd';
+import { SizeInput } from '@app/components/SizeInput';
 
 interface Data {
   list: ISCSI[];
@@ -30,6 +20,10 @@ interface Data {
   handleDeleteVolume: (iqn: string, lun: number) => void;
   handleAddVolume: (iqn: string, LUN: number, size_kib: number) => void;
 }
+
+type FormType = {
+  size: number;
+};
 
 const Wrapper = styled.div`
   padding: 2em 0;
@@ -57,6 +51,8 @@ export const ISCSIList: React.FC<Data> = ({
   const [IQN, setIQN] = useState('');
   const [LUN, setLUN] = useState(0);
 
+  const [form] = Form.useForm<FormType>();
+
   const initialExpandedRepoNames = list.map((repo) => repo.iqn); // Default to all expanded
   const [expandedRepoNames, setExpandedRepoNames] = React.useState<string[]>(initialExpandedRepoNames);
   const setRepoExpanded = (repo: ISCSI, isExpanding = true) =>
@@ -72,6 +68,12 @@ export const ISCSIList: React.FC<Data> = ({
     serice_state: 'Service State',
     lun: 'LUN',
     linstor_state: 'LINSTOR State',
+  };
+
+  const handleOk = () => {
+    const size = form.getFieldValue('size');
+    handleAddVolume(IQN, LUN, size);
+    setLunModal(false);
   };
 
   return (
@@ -216,7 +218,7 @@ export const ISCSIList: React.FC<Data> = ({
           </Td>
         )}
       </TableComposable>
-      <Modal isOpen={lunModal} variant={ModalVariant.small} title="Add Volume" onClose={() => setLunModal(false)}>
+      {/* <Modal isOpen={lunModal} variant={ModalVariant.small} title="Add Volume" onClose={() => setLunModal(false)}>
         <DynamicForm
           initialVal={[]}
           submitting={addingVolume}
@@ -243,6 +245,23 @@ export const ISCSIList: React.FC<Data> = ({
           handleCancelClick={() => setLunModal(false)}
           propertyForm={true}
         />
+      </Modal> */}
+      <Modal
+        title="Add volume"
+        open={lunModal}
+        onOk={handleOk}
+        onCancel={() => setLunModal(false)}
+        okText="Confirm"
+        width={600}
+        okButtonProps={{
+          loading: addingVolume,
+        }}
+      >
+        <Form<FormType> size="large" form={form}>
+          <Form.Item label="Size" name="size" required>
+            <SizeInput defaultUnit="GiB" />
+          </Form.Item>
+        </Form>
       </Modal>
     </React.Fragment>
   );

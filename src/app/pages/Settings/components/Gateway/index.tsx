@@ -59,7 +59,7 @@ const Gateway: React.FC = () => {
     setCustomHost(customHostFromSetting as boolean);
   }, [OriginHost, gatewayEnabled, gatewayHost, customHostFromSetting]);
 
-  const handleChange = useCallback((isChecked) => {
+  const handleChange = useCallback((isChecked: boolean) => {
     setIsChecked(isChecked);
   }, []);
 
@@ -87,7 +87,12 @@ const Gateway: React.FC = () => {
         {isChecked && customHost && (
           <AddressWrapper>
             <AddressLabelWrapper>Address:</AddressLabelWrapper>
-            <Input value={host} onChange={(val) => setHost(val.target.value)} aria-label="host" />
+            <Input
+              value={host}
+              defaultValue={OriginHost}
+              onChange={(val) => setHost(val.target.value)}
+              aria-label="host"
+            />
           </AddressWrapper>
         )}
       </Wrapper>

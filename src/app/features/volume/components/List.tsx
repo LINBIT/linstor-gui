@@ -128,7 +128,8 @@ export const List = () => {
       }
   >['columns'] = [
     {
-      title: 'Resource',
+      // TODO: Add a tooltip to the column header for the name and volume number
+      title: <span>Resource</span>,
       key: 'resource',
       dataIndex: 'resource_name',
       sorter: (a, b) => {
@@ -137,6 +138,9 @@ export const List = () => {
         } else {
           return 0;
         }
+      },
+      render: (_, recourd) => {
+        return <span>{`${recourd.resource_name}/${recourd.volume_number}`}</span>;
       },
       showSorterTooltip: false,
     },
@@ -153,11 +157,6 @@ export const List = () => {
       },
     },
     {
-      title: 'Volume Number',
-      key: 'volume_number',
-      dataIndex: 'volume_number',
-    },
-    {
       title: 'Device Name',
       key: 'device_path',
       dataIndex: 'device_path',
@@ -170,6 +169,7 @@ export const List = () => {
         return <span>{formatBytes(allocated_size_kib)}</span>;
       },
     },
+    // TODO: add connect status column
     {
       title: 'In Use',
       key: 'in_use',

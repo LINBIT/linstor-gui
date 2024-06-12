@@ -5,6 +5,10 @@ const getNetWorkInterfaces = () => {
   return service.get('/api/frontend/v1/system/interfaces');
 };
 
+const getNFSList = () => {
+  return service.get<undefined, NFSResource[]>('/api/v2/nfs');
+};
+
 const createNFSExport = (data: NFSResource) => {
   return service.post('/api/v2/nfs', data);
 };
@@ -21,4 +25,4 @@ const getResourceGroups = () => {
   return service.get('/api/frontend/v1/linstor/resource-groups');
 };
 
-export { getNetWorkInterfaces, createNFSExport, createISCSIExport, createNVMEExport, getResourceGroups };
+export { getNetWorkInterfaces, createNFSExport, createISCSIExport, createNVMEExport, getResourceGroups, getNFSList };
