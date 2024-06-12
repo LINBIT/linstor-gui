@@ -347,17 +347,6 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
     }
   }, [KVS?.gatewayEnabled, vsanModeFromSetting]);
 
-  const gatewayItems = (filteredRoutes.find((route) => route.label === 'gateway')?.routes ?? []).map((route) =>
-    getItem(
-      <Link to={route.path} key={route.path}>
-        {route.label}
-      </Link>,
-      route.path,
-    ),
-  );
-
-  console.log(gatewayItems, 'gatewayItems');
-
   useEffect(() => {
     const currentMenu = items.find(
       (e) => e?.key === location.pathname || (e as any)?.children?.find((c) => c.key === location.pathname),
@@ -373,8 +362,6 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
       setSelectedMenu(currentMenu?.key as string);
     }
   }, [location, items]);
-
-  console.log(openKey, '???');
 
   const openKeys = ['/inventory', '/storage-configuration', '/gateway'];
 

@@ -7,4 +7,5 @@ export interface SettingsProps {
   authenticationEnabled?: boolean;
   customLogoEnabled?: boolean;
   gatewayHost?: string;
+  hideDefaultCredential?: boolean;
 }

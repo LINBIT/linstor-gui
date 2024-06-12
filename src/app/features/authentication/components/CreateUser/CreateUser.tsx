@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Button, Form, Input, Modal, Radio } from 'antd';
+import { Button, Form, Input, Modal } from 'antd';
 
-import changePassword from '@app/assets/changepassword.svg';
 import changePasswordBG from '@app/assets/changepassword-bg.svg';
-import { BGImg, Content, ImgIcon, MainSection } from './styled';
+import { BGImg, Content, MainSection } from './styled';
 import { Dispatch } from '@app/store';
 import { useDispatch } from 'react-redux';
 

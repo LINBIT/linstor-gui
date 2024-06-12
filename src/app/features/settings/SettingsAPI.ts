@@ -64,6 +64,7 @@ export class SettingsAPI {
         authenticationEnabled,
         customLogoEnabled,
         gatewayHost,
+        hideDefaultCredential,
       } = storeProps.props;
       if (gatewayEnabled !== undefined) props.gatewayEnabled = gatewayEnabled === 'true';
       if (dashboardEnabled !== undefined) props.dashboardEnabled = dashboardEnabled === 'true';
@@ -73,6 +74,7 @@ export class SettingsAPI {
       if (authenticationEnabled !== undefined) props.authenticationEnabled = authenticationEnabled === 'true';
       if (customLogoEnabled !== undefined) props.customLogoEnabled = customLogoEnabled === 'true';
       if (gatewayHost !== undefined) props.gatewayHost = gatewayHost;
+      if (hideDefaultCredential !== undefined) props.hideDefaultCredential = hideDefaultCredential === 'true';
     }
     return props;
   }

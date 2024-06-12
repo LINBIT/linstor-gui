@@ -78,9 +78,10 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ open, onCreate,
 type ChangePasswordProps = {
   admin?: boolean;
   user?: string;
+  disabled?: boolean;
 };
 
-const ChangePassword = ({ admin, user }: ChangePasswordProps) => {
+const ChangePassword = ({ admin, user, disabled }: ChangePasswordProps) => {
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch<Dispatch>();
 
@@ -106,7 +107,7 @@ const ChangePassword = ({ admin, user }: ChangePasswordProps) => {
         }}
       >
         {admin ? (
-          <Button> Reset password </Button>
+          <Button disabled={disabled}> Reset password </Button>
         ) : (
           <>
             <ImgIcon src={changePassword} alt="changepassword" />

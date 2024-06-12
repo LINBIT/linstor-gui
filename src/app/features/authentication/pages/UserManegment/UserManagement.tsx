@@ -11,6 +11,7 @@ import { settingAPI } from '@app/features/settings';
 import { notify } from '@app/utils/toast';
 import { useMutation } from '@tanstack/react-query';
 import { authAPI } from '@app/features/authentication';
+import { useIsAdmin } from '@app/hooks';
 
 export const UserManagement = () => {
   const dispatch = useDispatch<Dispatch>();
@@ -18,6 +19,10 @@ export const UserManagement = () => {
     users: state.auth.users,
     KVS: state.setting.KVS,
   }));
+
+  const isAdmin = useIsAdmin();
+
+  console.log(isAdmin, 'isAdmin');
 
   const toggleMutation = useMutation({
     mutationFn: (enable: boolean) => {
@@ -29,11 +34,11 @@ export const UserManagement = () => {
           return authAPI.initUserStore();
         });
     },
-    onError: (error, newProps, context) => {
+    onError: (error) => {
       console.log(error);
       notify('Failed to update the authentication status', { type: 'error' });
     },
-    onSuccess: (data, newProps, context) => {
+    onSuccess: (data, newProps) => {
       notify('Authentication is now ' + (newProps ? 'enabled' : 'disabled') + ' successfully', {
         type: 'success',
       });
@@ -69,20 +74,26 @@ export const UserManagement = () => {
         <img src={bg} title="bg" />
 
         <MainContent>
+          {isAdmin && (
+            <>
+              <div>
+                <p>You can enable or disable user authentication from here.</p>
+                <span>User authentication: &nbsp;</span>
+                <Switch
+                  checkedChildren="On"
+                  unCheckedChildren="Off"
+                  checked={checked}
+                  onChange={handleToggleEnableAuthentication}
+                  loading={toggleMutation.isLoading}
+                  disabled={!isAdmin}
+                />
+              </div>
+              <Divider />
+            </>
+          )}
+
           <div>
-            <p>You can enable or disable user authentication from here.</p>
-            <span>User authentication: &nbsp;</span>
-            <Switch
-              checkedChildren="On"
-              unCheckedChildren="Off"
-              checked={checked}
-              onChange={handleToggleEnableAuthentication}
-              loading={toggleMutation.isLoading}
-            />
-          </div>
-          <Divider />
-          <div>
-            <CreateUser />
+            <CreateUser disabled={!isAdmin} />
           </div>
           {users && users.length > 0 ? (
             <>
@@ -92,7 +103,7 @@ export const UserManagement = () => {
                 renderItem={(user, index) => (
                   <List.Item
                     actions={[
-                      <ChangePassword key="change" admin user={user.title} />,
+                      <ChangePassword key="change" admin user={user.title} disabled={!isAdmin} />,
 
                       <Popconfirm
                         key="delete"
@@ -105,7 +116,9 @@ export const UserManagement = () => {
                           dispatch.auth.deleteUser(user.title);
                         }}
                       >
-                        <Button danger>Delete User</Button>
+                        <Button danger disabled={!isAdmin}>
+                          Delete User
+                        </Button>
                       </Popconfirm>,
                     ]}
                   >
