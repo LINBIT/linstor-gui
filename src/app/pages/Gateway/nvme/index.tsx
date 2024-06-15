@@ -1,15 +1,15 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button } from '@patternfly/react-core';
+import { Button } from 'antd';
 
 import { Dispatch, RootState } from '@app/store';
 import PageBasic from '@app/components/PageBasic';
 
-import { ISCSIList } from './List';
+import { NVMeList as NVMeListV2 } from '@app/features/gateway';
 import { useHistory } from 'react-router-dom';
 
-const List: React.FunctionComponent = () => {
+const List = () => {
   const { t } = useTranslation(['nvme', 'common']);
   const dispatch = useDispatch<Dispatch>();
 
@@ -53,11 +53,18 @@ const List: React.FunctionComponent = () => {
 
   return (
     <PageBasic title={t('nvme:list')}>
-      <Button variant="primary" onClick={createISCSI}>
+      <Button
+        type="primary"
+        onClick={createISCSI}
+        style={{
+          marginBottom: '1rem',
+        }}
+      >
         Create
       </Button>
-      <ISCSIList
-        list={list}
+
+      <NVMeListV2
+        list={list as any}
         handleDelete={handleDelete}
         handleStart={handleStart}
         handleStop={handleStop}

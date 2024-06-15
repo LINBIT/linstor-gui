@@ -166,14 +166,7 @@ export const nvme = createModel<RootModel>()({
       }
     },
     // Add LUN
-    async addLUN(
-      payload: {
-        iqn: string;
-        LUN: number;
-        size_kib: number;
-      },
-      state
-    ) {
+    async addLUN(payload: { iqn: string; LUN: number; size_kib: number }) {
       try {
         const res = await service.put(`/api/v2/nvme-of/${payload.iqn}/${payload.LUN}`, {
           size_kib: payload.size_kib,
@@ -194,7 +187,7 @@ export const nvme = createModel<RootModel>()({
       }
     },
     // Delete LUN
-    async deleteLUN(payload: Array<string | number>, state) {
+    async deleteLUN(payload: Array<string | number>) {
       try {
         const res = await service.delete(`/api/v2/nvme-of/${payload[0]}/${payload[1]}`);
 
