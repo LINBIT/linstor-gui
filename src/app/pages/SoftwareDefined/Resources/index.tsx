@@ -6,6 +6,7 @@ import { Input, Modal } from 'antd';
 import PageBasic from '@app/components/PageBasic';
 import { ResourceMigrateForm, resourceMigration } from '@app/features/resource';
 import { List as ListV2 } from '@app/features/resource/components';
+import { useDispatch } from 'react-redux';
 
 const List: React.FunctionComponent = () => {
   const { t } = useTranslation(['resource', 'common']);
@@ -21,6 +22,8 @@ const List: React.FunctionComponent = () => {
     resource: '',
     node: '',
   });
+
+  const dispatch = useDispatch();
 
   const migrateResourceMutation = useMutation({
     mutationFn: resourceMigration,

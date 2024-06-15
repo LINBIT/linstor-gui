@@ -8,13 +8,13 @@ import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import { getResources } from '../api';
 import { SearchForm } from './styled';
 import { uniqId } from '@app/utils/stringUtils';
-import { ResourceDataType, ResourceListQuery, VolumeDataType } from '../types';
+import { GetResourcesResponseBody, ResourceDataType, ResourceListQuery, VolumeDataType } from '../types';
 
 import { formatBytes } from '@app/utils/size';
 import { useNodes } from '@app/features/node';
 
 export const List = () => {
-  const [volumeList, setVolumeList] = useState([]);
+  const [volumeList, setVolumeList] = useState<GetResourcesResponseBody>();
 
   const history = useHistory();
   const [form] = Form.useForm();
@@ -66,7 +66,10 @@ export const List = () => {
         return;
       }
 
-      for (const item of data?.data) {
+      for (const item of data.data) {
+        if (!item.volumes) {
+          continue;
+        }
         volumes.push(
           ...item.volumes.map((e) => ({
             ...e,
@@ -79,7 +82,7 @@ export const List = () => {
         );
       }
 
-      setVolumeList(volumes);
+      setVolumeList(volumes as GetResourcesResponseBody);
     },
   });
 
@@ -139,8 +142,8 @@ export const List = () => {
           return 0;
         }
       },
-      render: (_, recourd) => {
-        return <span>{`${recourd.resource_name}/${recourd.volume_number}`}</span>;
+      render: (resource_name, recourd) => {
+        return <span>{`${resource_name}/${recourd.volume_number}`}</span>;
       },
       showSorterTooltip: false,
     },
@@ -169,7 +172,6 @@ export const List = () => {
         return <span>{formatBytes(allocated_size_kib)}</span>;
       },
     },
-    // TODO: add connect status column
     {
       title: 'In Use',
       key: 'in_use',

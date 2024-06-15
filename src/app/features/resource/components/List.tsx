@@ -217,6 +217,26 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
     return stateStr;
   };
 
+  const handleConnectStatusDisplay = (resourceItem: ResourceDataType) => {
+    let failStr = '';
+    const conn = get(resourceItem, 'layer_object.drbd.connections', {});
+    let count = 0;
+    let fail = false;
+    for (const nodeName in conn) {
+      count++;
+      if (!conn[nodeName].connected) {
+        fail = true;
+        if (failStr !== '') {
+          failStr += ',';
+        }
+        failStr += `${nodeName} ${conn[nodeName].message}`;
+      }
+    }
+    fail = count === 0 ? true : fail;
+    failStr = fail ? failStr : 'OK';
+    return failStr;
+  };
+
   const columns: TableProps<ResourceDataType>['columns'] = [
     {
       title: 'Resource',
@@ -269,6 +289,14 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
             <span style={{ marginLeft: 8 }}>{usage}</span>
           </span>
         );
+      },
+    },
+    {
+      title: 'Connection Status',
+      key: 'connection_status',
+      align: 'center',
+      render: (_, item) => {
+        return <span>{handleConnectStatusDisplay(item)}</span>;
       },
     },
     {
