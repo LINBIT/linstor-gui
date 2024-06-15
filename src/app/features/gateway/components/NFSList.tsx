@@ -1,61 +1,37 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
 import React from 'react';
-import { getNFSList } from '../api';
-
-import { Button, notification, Popconfirm, Space, Table, Tag } from 'antd';
+import { Button, Popconfirm, Space, Table, Tag } from 'antd';
 import type { TableProps } from 'antd';
 import { ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
-import { REFETCH_INTERVAL } from '@app/const/time';
-import { formatBytes } from '@app/utils/size';
 
-interface DataType {
-  name: string;
-  path: string;
-  node: string;
-  status: string;
-  service_ip: string;
-  size: number;
-  resource_group: string;
-}
+import { NFSResource } from '../types';
+import { ExportBasePath } from '../const';
 
-export const NFSList = () => {
-  const [api, contextHolder] = notification.useNotification();
+type NFSListProps = {
+  list: NFSResource[];
+  handleDelete: (iqn: string) => void;
+  handleStart: (iqn: string) => void;
+  handleStop: (iqn: string) => void;
+};
 
-  const deleteMutation = useMutation({
-    mutationFn: (iqn: string) => deleteNFSExport(iqn),
-    onSuccess: () => {
-      api.success({
-        message: 'Target has been deleted!',
-      });
-      refetch();
-    },
-    onError: (err: ErrorMessage) => {
-      api.error({
-        message: err?.message,
-        description: err?.detail || err?.explanation,
-        duration: 0,
-      });
-    },
-  });
+type NFSOperationStatus = {
+  deleting?: boolean;
+  starting?: boolean;
+  stopping?: boolean;
+};
 
-  const columns: TableProps<DataType>['columns'] = [
+export const NFSList = ({ list, handleDelete, handleStop, handleStart }: NFSListProps) => {
+  const columns: TableProps<NFSResource & NFSOperationStatus>['columns'] = [
     {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
     },
     {
-      title: 'Export Path',
-      dataIndex: 'path',
-      key: 'path',
-      render: (path) => {
-        return <code>{path}</code>;
-      },
-    },
-    {
       title: 'On Node',
-      dataIndex: 'node',
       key: 'node',
+      render: (_, item) => {
+        return <span>{item?.status?.primary}</span>;
+      },
     },
     {
       title: 'Service IP',
@@ -63,97 +39,84 @@ export const NFSList = () => {
       key: 'service_ip',
     },
     {
-      title: 'Size',
-      dataIndex: 'size',
-      key: 'size',
-      render: (size) => {
-        return <span>{formatBytes(size)}</span>;
+      title: 'Export Path',
+      dataIndex: 'path',
+      render: (_, item) => {
+        return <code>{exportPath(item)}</code>;
       },
     },
     {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status) => {
-        const success = status === 'OK';
-        return <Tag color={success ? SUCCESS_COLOR : ERROR_COLOR}>{status}</Tag>;
+      title: 'Service State',
+      dataIndex: 'service_state',
+      render: (_, item) => {
+        const isStarted = item?.status?.service === 'Started';
+        return <Tag color={isStarted ? SUCCESS_COLOR : ERROR_COLOR}>{item?.status?.service}</Tag>;
+      },
+    },
+    {
+      title: 'LINSTOR State',
+      dataIndex: 'linstor_state',
+      render: (_, item) => {
+        const isOk = item?.status?.state === 'OK';
+        return <Tag color={isOk ? SUCCESS_COLOR : ERROR_COLOR}>{item?.status?.state}</Tag>;
       },
       align: 'center',
     },
     {
       title: 'Action',
       key: 'action',
-      render: (text, record) => (
-        <Space size="middle">
-          <Popconfirm
-            title="Are you sure to stop this target?"
-            onConfirm={() => deleteMutation.mutate(record.name)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button danger>Stop</Button>
-          </Popconfirm>
-          <Popconfirm
-            title="Are you sure to delete this target?"
-            onConfirm={() => deleteMutation.mutate(record.name)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button type="primary" danger>
-              Delete
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
+      render: (text, record) => {
+        const isStarted = record?.status?.service === 'Started';
+
+        return (
+          <Space size="middle">
+            <Popconfirm
+              title={`Are you sure to ${isStarted ? 'stop' : 'start'} this target?`}
+              onConfirm={() => {
+                if (record.name) {
+                  isStarted ? handleStop(record.name) : handleStart(record.name);
+                }
+              }}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button danger loading={record.starting || record.stopping}>
+                {record.starting && 'Starting...'}
+                {record.stopping && 'Stopping...'}
+                {!record.starting && !record.stopping && isStarted && 'Stop'}
+                {!record.starting && !record.stopping && !isStarted && 'Start'}
+              </Button>
+            </Popconfirm>
+            <Popconfirm
+              title="Are you sure to delete this target?"
+              onConfirm={() => {
+                if (record.name) {
+                  handleDelete(record.name);
+                }
+              }}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button type="primary" danger loading={record.deleting}>
+                {record.deleting ? 'Deleting...' : 'Delete'}
+              </Button>
+            </Popconfirm>
+          </Space>
+        );
+      },
     },
   ];
 
-  const { data, isLoading, refetch } = useQuery({
-    queryKey: ['getNFSExport'],
-    queryFn: () => getNFSList(),
-  });
-
-  const exportPath = (e: NFSExport): string => {
+  const exportPath = (e: NFSResource): string => {
     if (!e.volumes) {
-      return `/srv/gateway-exports/${e?.name}`;
+      return `${ExportBasePath}/${e?.name}`;
     }
-    return `/srv/gateway-exports/${e?.name}${e?.volumes?.[1]?.export_path}`;
-  };
-
-  const handleTargetData = (data: NFSExport[]): DataType[] => {
-    const res: DataType[] = [];
-
-    if (Array.isArray(data)) {
-      data.forEach((t) => {
-        if (t.status) {
-          const l = t.status?.volumes?.[1];
-
-          res.push({
-            name: t.name,
-            path: exportPath(t),
-            node: t.status ? t.status.primary : '-',
-            status: l?.state,
-            service_ip: t.service_ip,
-            size: t?.volumes?.[1]?.size_kib,
-            resource_group: t.resource_group,
-          });
-        }
-      });
-    }
-
-    return res;
+    return `${ExportBasePath}/${e?.name}${e?.volumes?.[1]?.export_path}`;
   };
 
   return (
     <div>
-      {contextHolder}
-      <Table
-        bordered={false}
-        columns={columns}
-        dataSource={handleTargetData(data?.data) ?? []}
-        loading={isLoading}
-        pagination={false}
-      />
+      <Table bordered={false} columns={columns} dataSource={list ?? []} />
     </div>
   );
 };
