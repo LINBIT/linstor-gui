@@ -74,10 +74,11 @@ export const ISCSIList: React.FC<Data> = ({
     const size = form.getFieldValue('size');
     handleAddVolume(IQN, LUN, size);
     setLunModal(false);
+    form.resetFields();
   };
 
   return (
-    <React.Fragment>
+    <>
       <TableComposable aria-label="Sortable table custom toolbar" isExpandable>
         <Thead>
           <Tr>
@@ -159,7 +160,6 @@ export const ISCSIList: React.FC<Data> = ({
 
                     <ActionConfirm
                       onConfirm={() => {
-                        debugger;
                         handleDelete(item.iqn);
                         setIsOpen(false);
                       }}
@@ -219,34 +219,6 @@ export const ISCSIList: React.FC<Data> = ({
           </Td>
         )}
       </TableComposable>
-      {/* <Modal isOpen={lunModal} variant={ModalVariant.small} title="Add Volume" onClose={() => setLunModal(false)}>
-        <DynamicForm
-          initialVal={[]}
-          submitting={addingVolume}
-          handleSubmitData={(data) => {
-            const size = convertRoundUp(data['size']['unit'], data['size']['number']);
-            handleAddVolume(IQN, LUN, size);
-            setLunModal(false);
-          }}
-          formItems={[
-            {
-              id: '1',
-              name: 'size',
-              label: 'Size',
-              type: 'size',
-              validationInfo: {
-                isRequired: true,
-                invalidMessage: 'Size must be a number',
-              },
-              extraInfo: {
-                options: sizeOptions.map((e) => ({ ...e, isDisabled: false })),
-              },
-            },
-          ]}
-          handleCancelClick={() => setLunModal(false)}
-          propertyForm={true}
-        />
-      </Modal> */}
       <Modal
         title="Add volume"
         open={lunModal}
@@ -264,6 +236,6 @@ export const ISCSIList: React.FC<Data> = ({
           </Form.Item>
         </Form>
       </Modal>
-    </React.Fragment>
+    </>
   );
 };

@@ -1,13 +1,15 @@
 import React, { useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button } from '@patternfly/react-core';
+import { useHistory } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+
+import { Button } from 'antd';
 
 import { Dispatch, RootState } from '@app/store';
 import PageBasic from '@app/components/PageBasic';
 
 import { ISCSIList } from './List';
-import { useHistory } from 'react-router-dom';
+import { ISCSIList as ISCSIListV2 } from '@app/features/gateway';
 
 const List: React.FunctionComponent = () => {
   const { t } = useTranslation(['iscsi', 'common']);
@@ -53,11 +55,17 @@ const List: React.FunctionComponent = () => {
 
   return (
     <PageBasic title={t('iscsi:list')}>
-      <Button variant="primary" onClick={createISCSI}>
+      <Button
+        type="primary"
+        onClick={createISCSI}
+        style={{
+          marginBottom: '1rem',
+        }}
+      >
         Create
       </Button>
-      <ISCSIList
-        list={list}
+      <ISCSIListV2
+        list={list as any}
         handleDelete={handleDelete}
         handleStart={handleStart}
         handleStop={handleStop}
