@@ -45,7 +45,7 @@ export const ISCSIList: React.FC<Data> = ({
   const { addingVolume } = useSelector((state: RootState) => ({
     addingVolume: state.loading.effects.iscsi.addLUN,
   }));
-  // Delele Modal open
+  // Delete Modal open
   const [isOpen, setIsOpen] = useState(false);
   const [lunModal, setLunModal] = useState(false);
   const [IQN, setIQN] = useState('');
@@ -159,6 +159,7 @@ export const ISCSIList: React.FC<Data> = ({
 
                     <ActionConfirm
                       onConfirm={() => {
+                        debugger;
                         handleDelete(item.iqn);
                         setIsOpen(false);
                       }}

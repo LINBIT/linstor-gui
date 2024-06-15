@@ -17,6 +17,7 @@ type FormType = {
   file_system: string;
   size: number;
   allowed_ips: string[];
+  service_ips: string[];
 };
 
 const CreateNFSForm = () => {

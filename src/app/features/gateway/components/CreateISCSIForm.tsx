@@ -8,6 +8,7 @@ import { createISCSIExport } from '../api';
 import { notify } from '@app/utils/toast';
 
 import { useResourceGroups } from '@app/features/resourceGroup';
+import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 
 type FormType = {
   name: string;
@@ -18,6 +19,14 @@ type FormType = {
   size: number;
   allowed_ips: string[];
   iqn: string;
+  service_ips: string[];
+};
+
+const formItemLayoutWithOutLabel = {
+  wrapperCol: {
+    xs: { span: 24, offset: 0 },
+    sm: { span: 18, offset: 6 },
+  },
 };
 
 const CreateISCSIForm = () => {
@@ -63,9 +72,19 @@ const CreateISCSIForm = () => {
       },
     ];
 
+    const service_ips = [values.service_ip];
+
+    if (values.service_ips) {
+      values.service_ips.forEach((ip) => {
+        if (ip) {
+          service_ips.push(ip);
+        }
+      });
+    }
+
     const currentExport = {
       iqn,
-      service_ips: [values.service_ip],
+      service_ips,
       resource_group: values.resource_group,
       volumes,
       username: '',
@@ -137,6 +156,51 @@ const CreateISCSIForm = () => {
       >
         <Input placeholder="192.168.1.1/24" />
       </Form.Item>
+
+      <Form.List name="service_ips">
+        {(fields, { add, remove }, { errors }) => (
+          <>
+            {fields.map((field) => (
+              <Form.Item {...formItemLayoutWithOutLabel} required={false} key={field.key}>
+                <Form.Item
+                  {...field}
+                  validateTrigger={['onChange', 'onBlur']}
+                  rules={[
+                    {
+                      required: true,
+                      whitespace: true,
+                      message: 'Input valid service ip like 192.168.0.0/16',
+                    },
+                  ]}
+                  noStyle
+                >
+                  <Input placeholder="192.168.1.1/24" style={{ width: '60%' }} />
+                </Form.Item>
+                {fields.length > 0 ? (
+                  <MinusCircleOutlined
+                    className="dynamic-delete-button"
+                    style={{
+                      marginLeft: 10,
+                    }}
+                    onClick={() => remove(field.name)}
+                  />
+                ) : null}
+              </Form.Item>
+            ))}
+            <Form.Item
+              wrapperCol={{
+                offset: 6,
+              }}
+            >
+              <Button type="dashed" onClick={() => add()} style={{ width: '60%' }}>
+                Add Service IP
+                <PlusOutlined />
+              </Button>
+              <Form.ErrorList errors={errors} />
+            </Form.Item>
+          </>
+        )}
+      </Form.List>
 
       <Form.Item name="size" label="Size" required>
         <SizeInput />
