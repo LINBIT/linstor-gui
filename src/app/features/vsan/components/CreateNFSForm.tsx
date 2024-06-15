@@ -93,7 +93,7 @@ const CreateNFSForm = ({ refetch }: CreateNFSFormProps) => {
       const volumes = [
         {
           number: 1,
-          export_path: `/srv/gateway-exports/${values.name}${values.export_path}`,
+          export_path: `${values.export_path}`,
           size_kib: values.size,
           file_system: values.file_system,
         },

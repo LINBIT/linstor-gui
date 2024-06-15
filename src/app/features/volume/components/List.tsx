@@ -252,9 +252,9 @@ export const List = () => {
 
       <Table
         columns={columns}
-        dataSource={volumeList}
+        dataSource={volumeList ?? []}
         pagination={{
-          total: volumeList.length ?? 0,
+          total: volumeList?.length ?? 0,
           showSizeChanger: true,
           showTotal: (total) => `Total ${total} items`,
         }}

@@ -80,6 +80,32 @@ export const NFSList = () => {
       },
       align: 'center',
     },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (text, record) => (
+        <Space size="middle">
+          <Popconfirm
+            title="Are you sure to stop this target?"
+            onConfirm={() => deleteMutation.mutate(record.name)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button danger>Stop</Button>
+          </Popconfirm>
+          <Popconfirm
+            title="Are you sure to delete this target?"
+            onConfirm={() => deleteMutation.mutate(record.name)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button type="primary" danger>
+              Delete
+            </Button>
+          </Popconfirm>
+        </Space>
+      ),
+    },
   ];
 
   const { data, isLoading, refetch } = useQuery({

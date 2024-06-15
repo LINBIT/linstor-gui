@@ -363,8 +363,6 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
     }
   }, [location, items]);
 
-  const openKeys = ['/inventory', '/storage-configuration', '/gateway'];
-
   const Navigation = (
     <SideMenu>
       <Menu
@@ -375,7 +373,6 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
         items={items}
         style={{ backgroundColor: 'transparent' }}
         selectedKeys={[selectedMenu]}
-        defaultOpenKeys={openKeys}
       />
     </SideMenu>
   );
