@@ -1,5 +1,24 @@
 # Changelog
 
+# 1.7.1 - 2024-06-17
+
+### Fixed
+
+- gateway menu is not shown when gateway is enabled
+- export path for NSF target
+
+### Added
+
+- resource connection status
+- multi service IP addresses for iSCSI target creation
+- gateway add volume error
+- user authentication readonly for non-admin users
+
+### Changed
+
+- user authentication is shown by default
+- the UI for gateway target
+
 # 1.7.0 - 2024-06-03
 
 ### Fixed
