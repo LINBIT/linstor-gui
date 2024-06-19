@@ -46,7 +46,7 @@ export const iscsi = createModel<RootModel>()({
       const iscsiList = [];
 
       for (const item of data) {
-        for (const volume of item.volumes) {
+        for (const volume of item.volumes ?? []) {
           iscsiList.push({ ...item, LUN: volume.number });
         }
       }
@@ -171,7 +171,7 @@ export const iscsi = createModel<RootModel>()({
         LUN: number;
         size_kib: number;
       },
-      state
+      state,
     ) {
       try {
         const res = await service.put(`/api/v2/iscsi/${payload.iqn}/${payload.LUN}`, {

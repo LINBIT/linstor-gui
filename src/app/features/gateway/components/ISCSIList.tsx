@@ -49,8 +49,8 @@ export const ISCSIList = ({
     return {
       ...item,
       children: item.volumes
-        .filter((v) => v?.number && v?.number > 1)
-        .map((volume) => {
+        ?.filter((v) => v?.number && v?.number > 1)
+        ?.map((volume) => {
           return {
             iqn: item.iqn,
             ...volume,
