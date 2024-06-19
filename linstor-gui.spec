@@ -1,16 +1,16 @@
 %define debug_package %{nil}
 
-Name:		linstor-gui
-Version:	1.7.0
-Release:	1
-Summary:	GUI for LINSTOR
-%global	tarball_version %(echo "%{version}" | sed -e 's/~rc/-rc/' -e 's/~alpha/-alpha/')
+Name: linstor-gui
+Version: 1.7.0
+Release: 1
+Summary: GUI for LINSTOR
+%global tarball_version %(echo "%{version}" | sed -e 's/~rc/-rc/' -e 's/~alpha/-alpha/')
 
-License:	LINBIT-Proprietary
-Source0:	%{name}-%{tarball_version}.tar.gz
+License: LINBIT-Proprietary
+Source0: %{name}-%{tarball_version}.tar.gz
 
-Requires:	linstor-controller >= 1.13.1
-BuildArch:	noarch
+Requires: linstor-controller >= 1.13.1
+BuildArch: noarch
 
 %description
 Administration GUI for LINSTOR clusters.
