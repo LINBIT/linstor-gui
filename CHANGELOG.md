@@ -6,6 +6,8 @@
 
 - gateway menu is not shown when gateway is enabled
 - export path for NSF target
+- bulk deletion error for resource/rg/vd
+- iscsi list error in some cases
 
 ### Added
 
