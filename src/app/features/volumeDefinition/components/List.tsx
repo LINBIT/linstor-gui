@@ -7,9 +7,10 @@ import { useHistory, useLocation } from 'react-router-dom';
 import PropertyForm from '@app/components/PropertyForm';
 import {
   getResourceDefinition,
-  deleteResourceDefinition,
+  deleteVolumeDefinition,
   getVolumeDefinitionListByResource,
   updateResourceDefinition,
+  deleteVolumeDefinition,
 } from '../api';
 import {
   ResourceDefinition,
@@ -117,8 +118,8 @@ export const List = () => {
   };
 
   const deleteMutation = useMutation({
-    mutationKey: ['deleteResourceDefinition'],
-    mutationFn: (resource: string) => deleteResourceDefinition(resource),
+    mutationKey: ['deleteVolumeDefinition'],
+    mutationFn: (data: { resource: string; volume: number }) => deleteVolumeDefinition(data.resource, data.volume),
     onSuccess: () => {
       refetch();
     },
@@ -137,10 +138,13 @@ export const List = () => {
 
   const handleDeleteBulk = () => {
     selectedRowKeys.forEach((ele) => {
-      const resource = resourceDefinition?.data?.find((e) => e.uuid === ele)?.name;
+      const resource = vdListDisplay.find((e) => e?.uuid === ele) as any;
 
       if (resource) {
-        deleteMutation.mutate(resource);
+        deleteMutation.mutate({
+          resource: resource.rdName,
+          volume: Number(resource.volume_number),
+        });
       }
     });
   };
@@ -226,8 +230,8 @@ export const List = () => {
               {hasSelected && (
                 <Popconfirm
                   key="delete"
-                  title="Delete storage pools"
-                  description="Are you sure to delete selected storage pools?"
+                  title="Delete volume definition?"
+                  description="Are you sure to delete selected volume definition?"
                   okText="Yes"
                   cancelText="No"
                   onConfirm={handleDeleteBulk}
@@ -246,7 +250,7 @@ export const List = () => {
         columns={columns}
         dataSource={vdListDisplay ?? []}
         rowSelection={rowSelection}
-        rowKey={uniqId()}
+        rowKey={(record) => record.uuid}
         loading={isLoading}
         pagination={{
           total: vdListDisplay.length ?? 0,

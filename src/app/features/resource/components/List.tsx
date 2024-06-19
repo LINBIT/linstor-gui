@@ -441,8 +441,8 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
               {hasSelected && (
                 <Popconfirm
                   key="delete"
-                  title="Delete storage pools"
-                  description="Are you sure to delete selected storage pools?"
+                  title="Delete resources"
+                  description="Are you sure to delete selected resources"
                   okText="Yes"
                   cancelText="No"
                   onConfirm={handleDeleteBulk}

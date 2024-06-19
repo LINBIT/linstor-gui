@@ -39,7 +39,7 @@ export const List = () => {
     };
   });
 
-  const { data: resourceDefinition, refetch } = useQuery({
+  const { data: resourceGroups, refetch } = useQuery({
     queryKey: ['getResourceGroups', query],
     queryFn: () => getResourceGroups(query),
   });
@@ -104,7 +104,7 @@ export const List = () => {
 
   const handleDeleteBulk = () => {
     selectedRowKeys.forEach((ele) => {
-      const resource = resourceDefinition?.data?.find((e) => e.uuid === ele)?.name;
+      const resource = resourceGroups?.data?.find((e) => e.name === ele)?.name;
 
       if (resource) {
         deleteMutation.mutate(resource);
@@ -116,14 +116,11 @@ export const List = () => {
     history.push(`/storage-configuration/resource-groups/${resource_group}/edit`);
   };
 
-  const replicationMap = useMemo(
-    () => ({
-      A: t('async'),
-      B: t('semi_sync'),
-      C: t('sync'),
-    }),
-    [t],
-  );
+  const replicationMap = {
+    A: t('async'),
+    B: t('semi_sync'),
+    C: t('sync'),
+  };
 
   const columns: TableProps<CreateResourceGroupRequestBody>['columns'] = [
     {
@@ -167,7 +164,7 @@ export const List = () => {
       title: 'Replication Mode',
       key: 'Replication Mode',
       render: (_, item) => {
-        const protocol = item?.props?.['DrbdOptions/Net/protocol'];
+        const protocol = item?.props?.['DrbdOptions/Net/protocol'] as 'A' | 'B' | 'C' | undefined;
         if (protocol) {
           return <span>{replicationMap[protocol]}</span>;
         } else {
@@ -273,8 +270,8 @@ export const List = () => {
               {hasSelected && (
                 <Popconfirm
                   key="delete"
-                  title="Delete storage pools"
-                  description="Are you sure to delete selected storage pools?"
+                  title="Delete selected resource groups"
+                  description="Are you sure to delete selected resource groups?"
                   okText="Yes"
                   cancelText="No"
                   onConfirm={handleDeleteBulk}
@@ -295,7 +292,7 @@ export const List = () => {
 
       <Table
         columns={columns}
-        dataSource={resourceDefinition?.data ?? []}
+        dataSource={resourceGroups?.data ?? []}
         rowSelection={rowSelection}
         rowKey={(item) => item?.name ?? uniqId()}
         pagination={{

@@ -58,6 +58,17 @@ const deleteResourceDefinition = (resource: string) => {
   });
 };
 
+const deleteVolumeDefinition = (resource: string, volume: number) => {
+  return del(`/v1/resource-definitions/{resource}/volume-definitions/{volume_number}`, {
+    params: {
+      path: {
+        resource,
+        volume_number: volume,
+      },
+    },
+  });
+};
+
 const updateResourceDefinition = (resource: string, body: UpdateResourceDefinitionRequestBody) => {
   return put(`/v1/resource-definitions/{resource}`, {
     params: {
@@ -88,4 +99,5 @@ export {
   deleteResourceDefinition,
   getVolumeDefinitionListByResource,
   updateResourceDefinition,
+  deleteVolumeDefinition,
 };
