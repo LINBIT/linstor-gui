@@ -47,6 +47,7 @@ const List: React.FunctionComponent = () => {
         style={{
           marginBottom: '1em',
         }}
+        disabled={list.length >= 1}
       >
         Create
       </Button>
