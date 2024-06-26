@@ -5,6 +5,7 @@ import brandImg from '@app/bgimages/Linbit_Logo_White-1.png';
 
 import FEATHER_INFO from '@app/assets/feather-info.svg';
 
+import { useQuery } from '@tanstack/react-query';
 import { useRequest } from 'ahooks';
 import { fetchMetrics } from '@app/requests/dashboard';
 import get from 'lodash.get';
@@ -18,32 +19,10 @@ const HeaderAboutModal: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
 
-  const { data: metrics } = useRequest(fetchMetrics, {
-    throwOnError: true,
-    defaultLoading: true,
+  const { data: metrics } = useQuery({
+    queryKey: ['getMetics'],
+    queryFn: fetchMetrics,
   });
-
-  const { data: properties, run: fetchControllerProps } = useRequest('/v1/controller/properties', {
-    manual: true,
-  });
-
-  const { run: handleUpdateController } = useRequest(
-    (body) => ({
-      url: `/v1/controller/properties`,
-      body,
-    }),
-    {
-      manual: true,
-      requestMethod: (param) => {
-        return service.post(param.url, param.body);
-      },
-      onSuccess: (data) => {
-        if (data) {
-          setPropertyModalOpen(false);
-        }
-      },
-    }
-  );
 
   const handleModalToggle = () => {
     setIsModalOpen(!isModalOpen);
@@ -87,29 +66,9 @@ const HeaderAboutModal: React.FC = () => {
             <TextListItem component="dd">0.0.0.0</TextListItem>
             <TextListItem component="dt">Controller Active On</TextListItem>
             <TextListItem component="dd">{hostName}</TextListItem>
-            <TextListItem component="dt">Controller Properties</TextListItem>
-            <TextListItem component="dd">
-              <Button
-                variant="primary"
-                onClick={() => {
-                  fetchControllerProps();
-                  setPropertyModalOpen(true);
-                }}
-              >
-                Properties
-              </Button>
-            </TextListItem>
           </TextList>
         </TextContent>
       </AboutModal>
-
-      <PropertyForm
-        initialVal={properties}
-        openStatus={propertyModalOpen}
-        type="controller"
-        handleSubmit={handleUpdateController}
-        handleClose={() => setPropertyModalOpen(!propertyModalOpen)}
-      />
     </div>
   );
 };

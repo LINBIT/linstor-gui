@@ -306,6 +306,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
         getItem(<Link to="/">Dashboard</Link>, '/', <PieChartOutlined />),
         getItem('Inventory', '/inventory', <DesktopOutlined />, [
           getItem(<Link to="/inventory/nodes">Nodes</Link>, '/inventory/nodes'),
+          getItem(<Link to="/inventory/controller">Controller</Link>, '/inventory/controller'),
           getItem(<Link to="/inventory/storage-pools">Storage Pools</Link>, '/inventory/storage-pools'),
         ]),
         getItem('Storage Configuration', '/storage-configuration', <DatabaseOutlined />, [

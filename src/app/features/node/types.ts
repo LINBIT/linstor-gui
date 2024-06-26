@@ -7,3 +7,5 @@ export type NodeType = 'Controller' | 'Satellite' | 'Combined' | 'Auxiliary' | '
 export type NetInterfaceEncryptionType = 'PLAIN' | 'SSL' | undefined;
 export type UpdateNetInterfaceRequestBody = components['schemas']['NetInterface'];
 export type UpdateNodeRequestBody = components['schemas']['NodeModify'];
+export type UpdateControllerBody = components['schemas']['ControllerPropsModify'];
+export type ControllerProperties = components['schemas']['Properties'];

@@ -1,7 +1,13 @@
 import { del, get, post, put } from '@app/features/requests';
 import service from '@app/requests';
 
-import { NodeListQuery, NodeCreateRequestBody, UpdateNetInterfaceRequestBody, UpdateNodeRequestBody } from './types';
+import {
+  NodeListQuery,
+  NodeCreateRequestBody,
+  UpdateNetInterfaceRequestBody,
+  UpdateNodeRequestBody,
+  UpdateControllerBody,
+} from './types';
 
 const getNodes = (query: NodeListQuery) => {
   return get('/v1/nodes', {
@@ -36,6 +42,16 @@ const updateNode = ({ node, body }: { node: string; body: UpdateNodeRequestBody 
         node,
       },
     },
+    body,
+  });
+};
+
+const getControllerProperties = () => {
+  return get('/v1/controller/properties');
+};
+
+const updateController = (body: UpdateControllerBody) => {
+  return post('/v1/controller/properties', {
     body,
   });
 };
@@ -101,4 +117,6 @@ export {
   getControllerConfig,
   getSpaceReport,
   lostNode,
+  updateController,
+  getControllerProperties,
 };

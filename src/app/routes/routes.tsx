@@ -45,6 +45,7 @@ import { ResourceGroup } from '@app/pages/VSAN/ResourceGroup';
 import { useDispatch, useSelector } from 'react-redux';
 import { Dispatch, RootState } from '@app/store';
 import VolumeDefinitionList from '@app/pages/SoftwareDefined/VolumeDefinitions';
+import { Controller } from '@app/pages/Inventory/Controller';
 
 export interface IAppRoute {
   label?: string; // Excluding the label will exclude the route from the nav sidebar in AppLayout
@@ -96,6 +97,12 @@ const routes: AppRouteConfig[] = [
         exact: true,
         path: '/inventory/nodes/create',
         title: 'LINSTOR | Inventory | Nodes | Create',
+      },
+      {
+        component: Controller,
+        exact: true,
+        path: '/inventory/controller',
+        title: 'LINSTOR | Inventory | Controller',
       },
       {
         component: NodeDetail,
