@@ -205,9 +205,7 @@ export const List = () => {
               deleteMutation.mutate(record.name || '');
             }}
           >
-            <Button danger loading={deleteMutation.isLoading}>
-              Delete
-            </Button>
+            <Button danger>Delete</Button>
           </Popconfirm>
 
           <Dropdown

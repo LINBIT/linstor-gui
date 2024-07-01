@@ -118,7 +118,7 @@ export const List = () => {
 
   const handleDeleteBulk = () => {
     selectedRowKeys.forEach((ele) => {
-      const resource = resourceDefinition?.data?.find((e) => e.name === ele)?.name;
+      const resource = resourceDefinition?.data?.find((e) => e.uuid === ele)?.name;
 
       if (resource) {
         deleteMutation.mutate(resource);
@@ -189,9 +189,7 @@ export const List = () => {
               deleteMutation.mutate(record.name || '');
             }}
           >
-            <Button danger loading={deleteMutation.isLoading}>
-              Delete
-            </Button>
+            <Button danger>Delete</Button>
           </Popconfirm>
 
           <Dropdown
@@ -286,7 +284,7 @@ export const List = () => {
         columns={columns}
         dataSource={resourceDefinition?.data ?? []}
         rowSelection={rowSelection}
-        rowKey={(item) => item?.name ?? uniqId()}
+        rowKey={(item) => item?.uuid ?? uniqId()}
         pagination={{
           total: stats?.data?.count ?? 0,
           showSizeChanger: true,
