@@ -4,7 +4,7 @@ import { Dispatch, RootState } from '@app/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { Avatar, Button, List, Popconfirm, Switch, Divider } from 'antd';
 import bg from '@app/assets/user_bg.svg';
-import { MainContent, StyledSection } from './styled';
+import { BG, MainContent, Page, StyledSection } from './styled';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { ChangePassword, CreateUser } from '../../components';
 import { settingAPI } from '@app/features/settings';
@@ -71,8 +71,9 @@ export const UserManagement = () => {
   return (
     <PageBasic title="">
       <StyledSection>
-        <img src={bg} title="bg" />
-
+        <BG>
+          <img src={bg} title="bg" height={800} />
+        </BG>
         <MainContent>
           {isAdmin && (
             <>
@@ -144,6 +145,7 @@ export const UserManagement = () => {
           )}
         </MainContent>
       </StyledSection>
+      <StyledSection></StyledSection>
     </PageBasic>
   );
 };

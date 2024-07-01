@@ -1,13 +1,21 @@
 import styled from '@emotion/styled';
 
-export const StyledSection = styled.section`
-  margin: -40px 0 -24px -26px;
-  display: flex;
-  flex-direction: row;
-`;
-
 export const MainContent = styled.div`
   flex: 1;
   padding: 24px;
   overflow: auto;
+`;
+
+export const BG = styled.div`
+  margin: -40px 0 -24px -24px;
+  img {
+    object-fit: cover;
+    width: 100%;
+    height: calc(100vh - 94px);
+  }
+`;
+
+export const StyledSection = styled.div`
+  display: flex;
+  height: 100%;
 `;
