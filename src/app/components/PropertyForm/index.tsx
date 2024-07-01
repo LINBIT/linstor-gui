@@ -54,7 +54,8 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ type, initialVal, handleClo
       const first = strings[0];
       if (strings.length > 0 && first === 'Aux') {
         originalAuxItems.push({
-          name: strings[1],
+          // 取除去Aux/的字符串
+          name: strings.slice(1).join('/'),
           value: initialVal[propsKey] as string,
           id: uniqId(),
         });
@@ -77,7 +78,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ type, initialVal, handleClo
       setFormItemList(formItemList.map((e) => (e.name === propertyName ? { ...e, hide: true } : e)));
       setDeleteProps([...deleteProps, propertyName]);
     },
-    [formItemList, formItems, deleteProps]
+    [formItemList, formItems, deleteProps],
   );
 
   const handleAddAuxProp = () => {
