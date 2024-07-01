@@ -504,7 +504,7 @@ export const properties = {
     auto_evict_allow_eviction: {
       internal: false,
       key: ['NAMESPC_DRBD_OPTIONS', 'KEY_AUTO_EVICT_ALLOW_EVICTION'],
-      info: 'If set to true on a node, it cannot be evicted anymore',
+      info: 'If set to false on a node, it cannot be evicted anymore',
       type: 'boolean_true_false',
       default: 'true',
     },
