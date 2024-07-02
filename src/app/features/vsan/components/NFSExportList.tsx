@@ -4,7 +4,7 @@ import { deleteNFSExport, getNFSExport } from '../api';
 
 import { Button, notification, Popconfirm, Space, Table, Tag } from 'antd';
 import type { TableProps } from 'antd';
-import { ErrorMessage, NFSExport } from '../types';
+import { ErrorMessage, NFSExport, Volume } from '../types';
 import { ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
 import { REFETCH_INTERVAL } from '@app/const/time';
 import { formatBytes } from '@app/utils/size';
@@ -20,6 +20,7 @@ interface DataType {
   service_ip: string;
   size: number;
   resource_group: string;
+  children?: any;
 }
 
 type NFSExportListProp = {
@@ -95,6 +96,9 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
       title: 'Action',
       key: 'action',
       render: (_, target) => {
+        if (!target.children) {
+          return null;
+        }
         return (
           <Space>
             <GrowVolume
@@ -130,11 +134,12 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
     refetchInterval: REFETCH_INTERVAL,
   });
 
-  const exportPath = (e: NFSExport): string => {
-    if (!e.volumes) {
-      return `/srv/gateway-exports/${e?.name}`;
-    }
-    return `/srv/gateway-exports/${e?.name}${e?.volumes?.[1]?.export_path}`;
+  interface ProcessedNFSData extends DataType {
+    children?: any[];
+  }
+
+  const exportPath = (e: Volume, nfsName: string): string => {
+    return `/srv/gateway-exports/${nfsName}${e?.export_path}`;
   };
 
   const handleTargetData = (data: NFSExport[]): DataType[] => {
@@ -143,23 +148,46 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
     if (Array.isArray(data)) {
       data.forEach((t) => {
         if (t.status) {
-          const l = t.status?.volumes?.[1];
+          // 将第一个volume作为主volume（忽略number为0的），然后将其他的volume作为第一个volume的children
+          const nfs = t;
+          const volumes = nfs.volumes.filter((v) => v.number !== 0);
 
-          res.push({
-            name: t.name,
-            path: exportPath(t),
-            node: t.status ? t.status.primary : '-',
-            status: l?.state,
-            service_ip: t.service_ip,
-            size: t?.volumes?.[1]?.size_kib,
-            resource_group: t.resource_group,
-          });
+          if (volumes.length === 0) {
+            return null;
+          }
+
+          const mainVolume = volumes[0];
+          const result: ProcessedNFSData = {
+            name: nfs.name,
+            path: exportPath(mainVolume, nfs.name),
+            node: nfs.status ? nfs.status.primary : '-',
+            status: nfs.status?.state ?? '-',
+            service_ip: nfs.service_ip,
+            size: mainVolume.size_kib,
+            resource_group: nfs.resource_group,
+          };
+
+          if (volumes.length > 1) {
+            result.children = volumes.slice(1).map((v) => ({
+              name: '',
+              path: exportPath(v, nfs.name),
+              node: '',
+              status: nfs.status?.state ?? '-',
+              service_ip: '',
+              size: v.size_kib,
+              resource_group: '',
+            }));
+          }
+
+          res.push(result);
         }
       });
     }
 
     return res;
   };
+
+  const listData = handleTargetData(data?.data) ?? [];
 
   return (
     <div>
@@ -171,17 +199,11 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
             <Button onClick={() => refetch()} style={{ marginRight: 10 }}>
               Reload
             </Button>
-            <CreateNFSForm refetch={refetch} />
+            <CreateNFSForm refetch={refetch} disabled={listData.length >= 1} />
           </ActionSection>
         </>
       )}
-      <Table
-        bordered={false}
-        columns={columns}
-        dataSource={handleTargetData(data?.data) ?? []}
-        loading={isLoading}
-        pagination={false}
-      />
+      <Table bordered={false} columns={columns} dataSource={listData} loading={isLoading} pagination={false} />
     </div>
   );
 };

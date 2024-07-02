@@ -17,18 +17,24 @@ type FormType = {
   service_ip: string;
   export_path: string;
   file_system: string;
-  size: number;
+  size_kib: number;
   allowed_ips: string[];
   gross_size: boolean;
   time: string;
   domain: string;
+  volumes: {
+    size_kib: number;
+    export_path: string;
+    file_system: string;
+  }[];
 };
 
 type CreateNFSFormProps = {
+  disabled?: boolean;
   refetch?: () => void;
 };
 
-const CreateNFSForm = ({ refetch }: CreateNFSFormProps) => {
+const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
   const [form] = Form.useForm<FormType>();
   const [api, contextHolder] = notification.useNotification();
   const { data: ipPrefixes } = useNodeNetWorkInterface();
@@ -93,10 +99,16 @@ const CreateNFSForm = ({ refetch }: CreateNFSFormProps) => {
       const volumes = [
         {
           number: 1,
-          export_path: `${values.export_path}`,
-          size_kib: values.size,
+          export_path: values.export_path,
+          size_kib: values.size_kib,
           file_system: values.file_system,
         },
+        ...(values.volumes || []).map((vol, index) => ({
+          number: index + 2,
+          export_path: vol.export_path,
+          size_kib: vol.size_kib,
+          file_system: vol.file_system,
+        })),
       ];
 
       const currentExport = {
@@ -144,7 +156,7 @@ const CreateNFSForm = ({ refetch }: CreateNFSFormProps) => {
   return (
     <>
       {contextHolder}
-      <Button type="primary" onClick={() => setCreateFormModal(true)}>
+      <Button type="primary" onClick={() => setCreateFormModal(true)} disabled={disabled}>
         Create
       </Button>
 
@@ -157,6 +169,9 @@ const CreateNFSForm = ({ refetch }: CreateNFSFormProps) => {
         width={800}
         okButtonProps={{
           loading: createMutation.isLoading,
+        }}
+        styles={{
+          body: { maxHeight: '70vh', overflowY: 'auto' },
         }}
       >
         <Content>
@@ -228,9 +243,9 @@ const CreateNFSForm = ({ refetch }: CreateNFSFormProps) => {
               </Space>
             </Form.Item>
 
-            <Form.Item label="Size">
+            <Form.Item label="Size" required>
               <Space>
-                <Form.Item name="size" required>
+                <Form.Item name="size_kib">
                   {gross_size ? <SizeInput disabled={gross_size} /> : <SizeInput />}
                 </Form.Item>
                 <Form.Item name="gross_size" valuePropName="checked">
@@ -264,6 +279,59 @@ const CreateNFSForm = ({ refetch }: CreateNFSFormProps) => {
               />
             </Form.Item>
 
+            <Form.List name="volumes">
+              {(fields, { add, remove }, { errors }) => (
+                <>
+                  {fields.map((field, index) => (
+                    <Form.Item
+                      {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
+                      label={index === 0 ? 'Additional Volumes' : ''}
+                      required={false}
+                      key={field.key}
+                    >
+                      <Form.Item label="Size" name={[index, 'size_kib']}>
+                        <SizeInput />
+                      </Form.Item>
+
+                      <Form.Item label="Export Path" name={[index, 'export_path']}>
+                        <Input placeholder="Please input export path: /" />
+                      </Form.Item>
+
+                      <Form.Item label="File System" name={[index, 'file_system']}>
+                        <Select
+                          options={[
+                            {
+                              label: 'ext4',
+                              value: 'ext4',
+                            },
+                          ]}
+                        />
+                      </Form.Item>
+
+                      {fields.length > 0 ? (
+                        <Button
+                          danger
+                          style={{
+                            marginLeft: 10,
+                            marginTop: 10,
+                          }}
+                          onClick={() => remove(field.name)}
+                        >
+                          Delete
+                        </Button>
+                      ) : null}
+                    </Form.Item>
+                  ))}
+                  <Form.Item>
+                    <Button type="dashed" onClick={() => add()} style={{ width: '60%' }}>
+                      Volumes <PlusOutlined />
+                    </Button>
+                    <Form.ErrorList errors={errors} />
+                  </Form.Item>
+                </>
+              )}
+            </Form.List>
+
             <Form.List name="allowed_ips">
               {(fields, { add, remove }, { errors }) => (
                 <>
@@ -292,14 +360,14 @@ const CreateNFSForm = ({ refetch }: CreateNFSFormProps) => {
                         <MinusCircleOutlined
                           className="dynamic-delete-button"
                           onClick={() => remove(field.name)}
-                          rev={undefined}
+                          style={{ marginLeft: 10 }}
                         />
                       ) : null}
                     </Form.Item>
                   ))}
                   <Form.Item>
                     <Button type="dashed" onClick={() => add()} style={{ width: '60%' }}>
-                      Allowed IPs <PlusOutlined rev={undefined} />
+                      Allowed IPs <PlusOutlined />
                     </Button>
                     <Form.ErrorList errors={errors} />
                   </Form.Item>
