@@ -38,16 +38,15 @@ export const nvme = createModel<RootModel>()({
   },
   effects: (dispatch) => ({
     // getNvmeList
-    async getList(payload: any, state) {
+    async getList() {
       const res = await service.get('/api/v2/nvme-of');
       const data = res.data ?? [];
 
-      // TODO: handle volumes
-      const iscsiList = [];
+      const list = [];
 
       for (const item of data) {
-        for (const volume of item.volumes) {
-          iscsiList.push({ ...item, LUN: volume.number });
+        for (const volume of item.volumes ?? []) {
+          list.push({ ...item, LUN: volume.number });
         }
       }
 
@@ -56,8 +55,7 @@ export const nvme = createModel<RootModel>()({
         list: data,
       });
     },
-    // Create iSCSI
-    async createNvme(payload: CreateDataType, state) {
+    async createNvme(payload: CreateDataType) {
       try {
         const res = await service.post('/api/v2/nvme-of', {
           ...payload,
@@ -96,7 +94,7 @@ export const nvme = createModel<RootModel>()({
           notify('Deleted Successfully', {
             type: 'success',
           });
-          dispatch.nvme.getList({});
+          dispatch.nvme.getList();
         }
       } catch (error) {
         console.log(error, 'error');
@@ -126,7 +124,7 @@ export const nvme = createModel<RootModel>()({
           notify('Started Successfully', {
             type: 'success',
           });
-          dispatch.nvme.getList({});
+          dispatch.nvme.getList();
         }
       } catch (error) {
         console.log(error, 'error');
@@ -156,7 +154,7 @@ export const nvme = createModel<RootModel>()({
           notify('Stopped Successfully', {
             type: 'success',
           });
-          dispatch.nvme.getList({});
+          dispatch.nvme.getList();
         }
       } catch (error) {
         console.log(error, 'error');
@@ -177,7 +175,7 @@ export const nvme = createModel<RootModel>()({
           notify('Added Successfully', {
             type: 'success',
           });
-          dispatch.nvme.getList({});
+          dispatch.nvme.getList();
         }
       } catch (error) {
         console.log(error, 'error');
@@ -195,7 +193,7 @@ export const nvme = createModel<RootModel>()({
           notify('Deleted Successfully', {
             type: 'success',
           });
-          dispatch.nvme.getList({});
+          dispatch.nvme.getList();
         }
       } catch (error) {
         console.log(error, 'error');

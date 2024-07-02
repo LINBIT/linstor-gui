@@ -180,7 +180,7 @@ export const NVMeList = ({
                   onClick={() => {
                     if (record?.volumes && record.nqn) {
                       setNQN(record.nqn);
-                      setLUN((record?.volumes?.[record?.volumes?.length - 1]?.number ?? 1) + 1); // TODO: LUN number should be dynamic
+                      setLUN((record?.volumes?.[record?.volumes?.length - 1]?.number ?? 1) + 1);
                       setLunModal(true);
                     }
                   }}
