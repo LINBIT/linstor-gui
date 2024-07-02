@@ -9,7 +9,7 @@ interface PieChartProps {
   title: string;
 }
 
-const PieChart: React.FC<PieChartProps> = ({ data, legendData, title }) => {
+const PieChart: React.FC<PieChartProps> = ({ data, title }) => {
   if (!data || data.length === 0) {
     return null;
   }
@@ -18,7 +18,7 @@ const PieChart: React.FC<PieChartProps> = ({ data, legendData, title }) => {
 
   const options = {
     labels: data?.map((e) => e.x),
-    colors: ['#f79133', '#1e2939', '#80c7fd', '#008FFB', '#80f1cb', '#00E396'],
+    colors: ['#499BBB', '#8FF9FF', '#1E2939', '#D2D4D7', '#787F88', '#AAAAAA'],
     legend: {
       position: 'bottom' as const,
     },

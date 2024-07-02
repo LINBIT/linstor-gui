@@ -86,7 +86,7 @@ export const StoragePool = ({ data }: StoragePoolProp) => {
         },
       },
     },
-    colors: ['#f79133', '#80c7fd'],
+    colors: ['#499BBB', '#C4DBE6'],
   };
 
   // return <div>hi</div>;

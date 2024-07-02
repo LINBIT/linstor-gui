@@ -34,7 +34,7 @@ export const Resource = ({ data }: ResourceProp) => {
     legend: {
       position: 'bottom' as const,
     },
-    colors: ['#f79133', '#80c7fd'],
+    colors: ['#499BBB', '#8FF9FF'],
     width: 400,
     responsive: [
       {

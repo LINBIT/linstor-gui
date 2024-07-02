@@ -20,7 +20,7 @@ import { kibToGib } from '@app/utils/size';
 import { useResources } from '@app/features/snapshot';
 
 import NetInterfaceList from './components/NetInterfaceList';
-import { Container, DashboardContainer, EmptyDashboard, LabelText, TagContainer } from './detail.styled';
+import { Container, DashboardContainer, LabelText, TagContainer } from './detail.styled';
 
 const isValidArray = (nodeRes) => {
   return Array.isArray(nodeRes) && nodeRes.length > 0;
