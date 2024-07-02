@@ -257,7 +257,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
 
         {!normalWithoutAuth && (
           <PageHeaderToolsItem>
-            <Dropdown menu={menu} placement="bottom">
+            <Dropdown menu={menu} placement="bottomLeft">
               <Avatar size={40} style={{ backgroundColor: '#f7a75c', color: '#1e2939', cursor: 'pointer' }}>
                 {authInfo.username?.charAt(0).toUpperCase() || 'A'}
               </Avatar>
