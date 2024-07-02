@@ -15,9 +15,14 @@ type FormType = {
   service_ip: string;
   export_path: string;
   file_system: string;
-  size: number;
+  size_kib: number;
   allowed_ips: string[];
   service_ips: string[];
+  volumes: {
+    size_kib: number;
+    export_path: string;
+    file_system: string;
+  }[];
 };
 
 const CreateNFSForm = () => {
@@ -55,10 +60,16 @@ const CreateNFSForm = () => {
     const volumes = [
       {
         number: 1,
-        export_path: `${values.export_path}`,
-        size_kib: values.size,
+        export_path: values.export_path,
+        size_kib: values.size_kib,
         file_system: values.file_system,
       },
+      ...(values.volumes || []).map((vol, index) => ({
+        number: index + 2,
+        export_path: vol.export_path,
+        size_kib: vol.size_kib,
+        file_system: vol.file_system,
+      })),
     ];
 
     const currentExport = {
@@ -143,13 +154,19 @@ const CreateNFSForm = () => {
             required: true,
             message: 'Service IP is required!',
           },
+          {
+            message: 'Please input valid IP address and subnet mask, like 192.168.1.1/24, 10.10.1.1/24 ',
+            pattern: new RegExp(
+              '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[1-2]?[0-9])$',
+            ),
+          },
         ]}
         tooltip="Must be valid service IP address, like 192.168.1.1/24, 10.10.1.1/24"
       >
         <Input placeholder="192.168.1.1/24" />
       </Form.Item>
 
-      <Form.Item name="size" label="Size" required>
+      <Form.Item name="size_kib" label="Size" required>
         <SizeInput />
       </Form.Item>
 
@@ -178,6 +195,59 @@ const CreateNFSForm = () => {
         />
       </Form.Item>
 
+      <Form.List name="volumes">
+        {(fields, { add, remove }, { errors }) => (
+          <>
+            {fields.map((field, index) => (
+              <Form.Item
+                {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
+                label={index === 0 ? 'Volumes' : ''}
+                required={false}
+                key={field.key}
+              >
+                <Form.Item label="Size" name={[index, 'size_kib']}>
+                  <SizeInput />
+                </Form.Item>
+
+                <Form.Item label="Export Path" name={[index, 'export_path']}>
+                  <Input placeholder="Please input export path: /" />
+                </Form.Item>
+
+                <Form.Item label="File System" name={[index, 'file_system']}>
+                  <Select
+                    options={[
+                      {
+                        label: 'ext4',
+                        value: 'ext4',
+                      },
+                    ]}
+                  />
+                </Form.Item>
+
+                {fields.length > 0 ? (
+                  <Button
+                    danger
+                    style={{
+                      marginLeft: 10,
+                      marginTop: 10,
+                    }}
+                    onClick={() => remove(field.name)}
+                  >
+                    Delete
+                  </Button>
+                ) : null}
+              </Form.Item>
+            ))}
+            <Form.Item>
+              <Button type="dashed" onClick={() => add()} style={{ width: '60%' }}>
+                Volumes <PlusOutlined />
+              </Button>
+              <Form.ErrorList errors={errors} />
+            </Form.Item>
+          </>
+        )}
+      </Form.List>
+
       <Form.List name="allowed_ips">
         {(fields, { add, remove }, { errors }) => (
           <>
@@ -197,10 +267,16 @@ const CreateNFSForm = () => {
                       whitespace: true,
                       message: 'Please input something like 192.168.0.0/16',
                     },
+                    {
+                      message: 'Please input valid IP address and subnet mask, like 192.168.1.1/24, 10.10.1.1/24 ',
+                      pattern: new RegExp(
+                        '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[1-2]?[0-9])$',
+                      ),
+                    },
                   ]}
                   noStyle
                 >
-                  <Input placeholder="192.168.0.0/16" style={{ width: '60%' }} />
+                  <Input placeholder="192.168.0.0/16" style={{ width: '80%' }} />
                 </Form.Item>
                 {fields.length > 0 ? (
                   <MinusCircleOutlined

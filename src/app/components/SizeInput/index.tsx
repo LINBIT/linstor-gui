@@ -8,9 +8,10 @@ type SizeInputProps = {
   placeholder?: string;
   disabled?: boolean;
   defaultUnit?: string;
+  style?: React.CSSProperties;
 };
 
-export const SizeInput = ({ value, onChange, placeholder, disabled, defaultUnit }: SizeInputProps) => {
+export const SizeInput = ({ value, onChange, placeholder, disabled, defaultUnit, style }: SizeInputProps) => {
   const [sizeUnit, setSizeUnit] = useState('GiB');
   const [inputVal, setInputVal] = useState(value || '');
   const sizeUnitSet = useRef(false);
@@ -35,6 +36,7 @@ export const SizeInput = ({ value, onChange, placeholder, disabled, defaultUnit 
 
   return (
     <Input
+      style={style}
       addonAfter={
         <Select
           disabled={disabled}

@@ -102,7 +102,7 @@ export const ISCSIList = ({
       dataIndex: 'service_ips',
       key: 'service_ips',
       render: (_, item) => {
-        return <span>{item?.service_ips?.join(',')}</span>;
+        return <pre>{item?.service_ips?.join(',')}</pre>;
       },
     },
     {
@@ -237,7 +237,7 @@ export const ISCSIList = ({
 
   return (
     <div>
-      <Table columns={columns as any} dataSource={dataWithChildren ?? []} rowKey="iqn" />
+      <Table columns={columns as any} dataSource={dataWithChildren ?? []} rowKey="iqn" scroll={{ x: 960 }} />
       <Modal
         title="Add volume"
         open={lunModal}
