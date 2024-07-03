@@ -6,18 +6,14 @@ import brandImg from '@app/bgimages/Linbit_Logo_White-1.png';
 import FEATHER_INFO from '@app/assets/feather-info.svg';
 
 import { useQuery } from '@tanstack/react-query';
-import { useRequest } from 'ahooks';
 import { fetchMetrics } from '@app/requests/dashboard';
 import get from 'lodash.get';
 import parsePrometheusTextFormat from 'parse-prometheus-text-format';
 
-import PropertyForm from '@app/components/PropertyForm';
-import service from '@app/requests';
 import { InfoIcon } from './styled';
 
 const HeaderAboutModal: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [propertyModalOpen, setPropertyModalOpen] = useState(false);
 
   const { data: metrics } = useQuery({
     queryKey: ['getMetics'],

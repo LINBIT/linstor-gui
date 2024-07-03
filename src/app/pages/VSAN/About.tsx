@@ -1,11 +1,32 @@
 import PageBasic from '@app/components/PageBasic';
-import React from 'react';
+import React, { useState } from 'react';
 import { StyledUL } from './styled';
+import { Input, Modal } from 'antd';
 
 export const About = () => {
+  const [hostModal, setHostModal] = useState(false);
+  const [host, setHost] = useState(() => {
+    return window.localStorage.getItem('VSAN_HOST') || '';
+  });
+
+  const handleSetHost = () => {
+    window.localStorage.setItem('VSAN_HOST', host);
+    window.location.reload();
+  };
+
   return (
     <PageBasic title="About LINBIT VSAN">
       <p>This product was proudly created by LINBIT.</p>
+      <h2>GUI version</h2>
+      <p
+        onClick={() => {
+          if (process.env.VERSION?.indexOf('DEV') !== -1) {
+            setHostModal(true);
+          }
+        }}
+      >
+        {process.env.VERSION ? process.env.VERSION : 'DEV'}
+      </p>
       <h2>Open Source</h2>
       <p>
         At LINBIT we leverage on the advantages of working with Open Source components. We are standing and building on
@@ -99,6 +120,19 @@ export const About = () => {
         <li>Lars Ellenberg - DRBD guru</li>
         <li>Philipp Reisner - DRBD and leading</li>
       </StyledUL>
+
+      <Modal
+        title="VSAN Host"
+        open={hostModal}
+        onOk={() => {
+          handleSetHost();
+        }}
+        onCancel={() => setHostModal(false)}
+      >
+        <span>VSAN Host(for debug only)</span>:
+        <br />
+        <Input value={host} onChange={(evt) => setHost(evt.target.value)} placeholder="https://192.168.0.1:1443" />
+      </Modal>
     </PageBasic>
   );
 };

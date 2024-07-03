@@ -111,7 +111,13 @@ export const setting = createModel<RootModel>()({
           if (gui_mode === 'VSAN') {
             dispatch.setting.setVSANMode(true);
           }
-          window.localStorage.setItem(VSAN_HOST, 'https://' + window.location.hostname);
+
+          // allow user to set VSAN_HOST
+          const host = window.localStorage.getItem(VSAN_HOST);
+
+          if (!host) {
+            window.localStorage.setItem(VSAN_HOST, 'https://' + window.location.hostname);
+          }
         }
 
         if (props.gatewayEnabled) {
