@@ -1,5 +1,25 @@
 # Changelog
 
+# 1.7.2 - 2024-07-05
+
+### Fixed
+
+- style issue on user page
+- export path for NSF target
+- bulk deletion status error
+- auto_evict_allow_eviction tip error
+- dropdown menu vibrates
+
+### Added
+
+- controller page
+- multi service IP addresses for iSCSI target creation
+
+### Changed
+
+- limit the number of NFS targets to 1 and support multiple volumes
+- colors for pie chart and bar chart
+
 # 1.7.1 - 2024-06-17
 
 ### Fixed
