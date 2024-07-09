@@ -54,7 +54,6 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ type, initialVal, handleClo
       const first = strings[0];
       if (strings.length > 0 && first === 'Aux') {
         originalAuxItems.push({
-          // 取除去Aux/的字符串
           name: strings.slice(1).join('/'),
           value: initialVal[propsKey] as string,
           id: uniqId(),
@@ -63,6 +62,8 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ type, initialVal, handleClo
     }
     setAuxProps(originalAuxItems);
   }, [initialVal, setFormItems, type]);
+
+  console.log(initialVal, 'initialVal');
 
   const handleAddProperty = (propertyName: string) => {
     const property = formItemList.find((e) => e.name === propertyName) || ({} as FormItem);
@@ -152,7 +153,6 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ type, initialVal, handleClo
       isOpen={openStatus}
       onClose={() => {
         handleClose();
-        setFormItems([]);
       }}
       className="property__modal"
     >

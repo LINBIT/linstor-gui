@@ -51,7 +51,10 @@ export const Controller = () => {
         initialVal={properties?.data}
         openStatus={propertyModalOpen}
         type="controller"
-        handleSubmit={(data) => mutation.mutate(data)}
+        handleSubmit={(data) => {
+          mutation.mutate(data);
+          setPropertyModalOpen(false);
+        }}
         handleClose={() => setPropertyModalOpen(!propertyModalOpen)}
       />
     </PageBasic>
