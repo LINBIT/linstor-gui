@@ -1,5 +1,12 @@
 # Changelog
 
+# 1.7.3 - 2024-07-09
+
+### Fixed
+
+- user authentication initialization error
+- controller edit form initial value display error
+
 # 1.7.2 - 2024-07-05
 
 ### Fixed
