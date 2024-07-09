@@ -4,7 +4,7 @@ import { Dispatch, RootState } from '@app/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { Avatar, Button, List, Popconfirm, Switch, Divider } from 'antd';
 import bg from '@app/assets/user_bg.svg';
-import { BG, MainContent, Page, StyledSection } from './styled';
+import { BG, MainContent, StyledSection } from './styled';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { ChangePassword, CreateUser } from '../../components';
 import { settingAPI } from '@app/features/settings';
@@ -20,15 +20,18 @@ export const UserManagement = () => {
     KVS: state.setting.KVS,
   }));
 
+  const authenticationEnabled = KVS?.authenticationEnabled;
   const isAdmin = useIsAdmin();
 
-  console.log(isAdmin, 'isAdmin');
+  const isAdminOrNotEnabled = !authenticationEnabled || (authenticationEnabled && isAdmin);
 
   const toggleMutation = useMutation({
     mutationFn: (enable: boolean) => {
+      window.localStorage.removeItem('linstorname');
       return settingAPI
         .setProps({
           authenticationEnabled: enable,
+          hideDefaultCredential: false,
         })
         .then(() => {
           return authAPI.initUserStore();
@@ -50,8 +53,6 @@ export const UserManagement = () => {
   });
 
   const [checked, setChecked] = useState(false);
-
-  const authenticationEnabled = KVS?.authenticationEnabled;
 
   useEffect(() => {
     if (authenticationEnabled) {
@@ -75,7 +76,7 @@ export const UserManagement = () => {
           <img src={bg} title="bg" height={800} />
         </BG>
         <MainContent>
-          {isAdmin && (
+          {isAdminOrNotEnabled && (
             <>
               <div>
                 <p>You can enable or disable user authentication from here.</p>
@@ -86,7 +87,7 @@ export const UserManagement = () => {
                   checked={checked}
                   onChange={handleToggleEnableAuthentication}
                   loading={toggleMutation.isLoading}
-                  disabled={!isAdmin}
+                  disabled={!isAdminOrNotEnabled}
                 />
               </div>
               <Divider />

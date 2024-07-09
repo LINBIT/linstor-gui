@@ -110,6 +110,9 @@ export class SettingsAPI {
 
     if (props.vsanMode !== undefined) storeProps.override_props.vsanMode = props.vsanMode.toString();
 
+    if (props.hideDefaultCredential !== undefined)
+      storeProps.override_props.hideDefaultCredential = props.hideDefaultCredential.toString();
+
     const response = await this.store.modify(SettingsAPI.instance, storeProps);
     if (!response.every((e) => e.ret_code > 0)) {
       return false;
