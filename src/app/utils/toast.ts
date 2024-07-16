@@ -14,41 +14,14 @@ const notify = (content: string, options?: ToastOptions): void => {
   });
 };
 
-// [
-//   {
-//       "ret_code": 17825793,
-//       "message": "Successfully set property 'DrbdOptions/auto-add-quorum-tiebreaker' to value 'true'",
-//       "created_at": "2024-07-16T05:50:51.280032Z"
-//   },
-//   {
-//       "ret_code": 4611686018461990912,
-//       "message": "(satellite03) Controller properties applied",
-//       "created_at": "2024-07-16T05:50:51.387375Z"
-//   },
-//   {
-//       "ret_code": 4611686018461990912,
-//       "message": "(satellite04) Controller properties applied",
-//       "created_at": "2024-07-16T05:50:51.406219Z"
-//   },
-//   {
-//       "ret_code": 4611686018461990912,
-//       "message": "(satellite01) Controller properties applied",
-//       "created_at": "2024-07-16T05:50:51.461567Z"
-//   },
-//   {
-//       "ret_code": -4611686018392783898,
-//       "message": "(Node: 'satellite02') Failed to create lvm volume",
-//       "details": "Command 'lvcreate --config 'devices { filter=['\"'\"'a|/dev/sdb|'\"'\"','\"'\"'r|.*|'\"'\"'] }' --virtualsize 69632k linstor_MyThinVG --thinpool MyThinVG --name newNFS_00000 noew' returned with exitcode 3. \n\nStandard out: \n\n\nError message: \n  Command does not accept argument: noew.\n\n\nController",
-//       "error_report_ids": [
-//           "668273FA-AA8CD-000062",
-//           "668D4531-00000-000000"
-//       ],
-//       "created_at": "2024-07-16T05:50:51.618018Z"
-//   }
-// ]
-
 const handleAPICallRes = (callRes?: APICALLRCLIST) => {
   if (!callRes || !callRes.length) {
+    return;
+  }
+
+  const normalRes = callRes.filter((res) => res.ret_code);
+
+  if (!normalRes || !normalRes.length) {
     return;
   }
 
