@@ -115,14 +115,24 @@ export const List = () => {
 
   const handleDeleteBulk = () => {
     selectedRowKeys.forEach((ele) => {
-      deleteMutation.mutate(String(ele));
+      const node = nodes?.data?.find((e) => e.uuid === ele);
+      if (node?.name) {
+        deleteMutation.mutate(node?.name);
+      }
     });
+
+    setSelectedRowKeys([]);
   };
 
   const handleLostBulk = () => {
     selectedRowKeys.forEach((ele) => {
-      lostMutation.mutate(String(ele));
+      const node = nodes?.data?.find((e) => e.uuid === ele);
+      if (node?.name) {
+        lostMutation.mutate(node?.name);
+      }
     });
+
+    setSelectedRowKeys([]);
   };
 
   const columns: TableProps<NodeDataType>['columns'] = [
