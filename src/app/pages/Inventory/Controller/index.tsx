@@ -1,10 +1,11 @@
-import { Button, List } from 'antd';
+import { Button, List, Switch } from 'antd';
 import React, { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import PageBasic from '@app/components/PageBasic';
 import PropertyForm from '@app/components/PropertyForm';
 import { getControllerProperties, updateController } from '@app/features/node';
+import { handlePropsToFormOption } from '@app/utils/property';
 
 export const Controller = () => {
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
@@ -26,6 +27,8 @@ export const Controller = () => {
     value,
   }));
 
+  const nodePropertyList = handlePropsToFormOption('controller', properties?.data);
+
   return (
     <PageBasic title="Controller">
       <Button type="primary" onClick={() => setPropertyModalOpen(true)}>
@@ -39,12 +42,27 @@ export const Controller = () => {
         header={<div>Controller Properties</div>}
         bordered
         dataSource={propertiesArray}
-        renderItem={(item) => (
-          <List.Item>
-            <span>{item.key}</span>
-            <span>{item.value}</span>
-          </List.Item>
-        )}
+        renderItem={(item) => {
+          const info = nodePropertyList.find((e) => e.label === item.key);
+
+          return (
+            <List.Item>
+              <span>{item.key}</span>
+              {info?.type === 'checkbox' ? (
+                <Switch
+                  checked={item.value === 'true'}
+                  onChange={(checked) => {
+                    mutation.mutate({
+                      override_props: { [item.key]: checked.toString() },
+                    });
+                  }}
+                />
+              ) : (
+                <span>{item.value}</span>
+              )}
+            </List.Item>
+          );
+        }}
       />
 
       <PropertyForm
