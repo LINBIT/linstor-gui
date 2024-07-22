@@ -2,7 +2,6 @@ import React from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Button, Checkbox, Form, Input, Radio, Select, Switch } from 'antd';
 import { useHistory } from 'react-router-dom';
-import uniqby from 'lodash.uniqby';
 
 import { useResourceGroups } from '@app/features/resourceGroup';
 import { useStoragePools } from '@app/features/storagePool';
@@ -113,14 +112,14 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
       return;
     }
 
-    const volumeDefinitionData = {
-      volume_definition: {
-        size_kib: values.size,
-        props: {
-          StorPoolName: values.resource_group_name,
-        },
-      },
-    };
+    // const volumeDefinitionData = {
+    //   volume_definition: {
+    //     size_kib: values.size,
+    //     props: {
+    //       StorPoolName: values.resource_group_name,
+    //     },
+    //   },
+    // };
 
     const deployData = {
       diskless_on_remaining: values.diskless,
@@ -130,25 +129,37 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
     const rdRes = await createResourceDefinitionMutation.mutateAsync(resourceDefinitionData);
 
     if (fullySuccess(rdRes.data)) {
-      const vdRes = await createVolumeDefinitionMutation.mutateAsync({
-        ...volumeDefinitionData,
-        resource: values.name,
-      });
-
-      if (fullySuccess(vdRes.data)) {
-        if (values.deploy) {
-          const autoPlaceRes = await autoPlaceMutation.mutateAsync({
-            ...deployData,
-            resource: values.name,
-          });
-          if (fullySuccess(autoPlaceRes.data)) {
-            backToList();
-          }
-        } else {
+      if (values.deploy) {
+        const autoPlaceRes = await autoPlaceMutation.mutateAsync({
+          ...deployData,
+          resource: values.name,
+        });
+        if (fullySuccess(autoPlaceRes.data)) {
           backToList();
         }
+      } else {
+        backToList();
       }
     }
+    // const vdRes = await createVolumeDefinitionMutation.mutateAsync({
+    //   ...volumeDefinitionData,
+    //   resource: values.name,
+    // });
+
+    //   if (fullySuccess(vdRes.data)) {
+    //     if (values.deploy) {
+    //       const autoPlaceRes = await autoPlaceMutation.mutateAsync({
+    //         ...deployData,
+    //         resource: values.name,
+    //       });
+    //       if (fullySuccess(autoPlaceRes.data)) {
+    //         backToList();
+    //       }
+    //     } else {
+    //       backToList();
+    //     }
+    //   }
+    // }
   };
 
   const isLoading =
@@ -167,6 +178,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
       layout="horizontal"
       form={form}
       initialValues={{
+        resource_group_name: 'DfltRscGrp',
         replication_mode: 'C',
         deploy: false,
         place_count: 2,
@@ -209,28 +221,6 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
         />
       </Form.Item>
 
-      <Form.Item
-        label="Storage Pool"
-        name="storage_pool"
-        required
-        rules={[{ required: true, message: 'Please select storage pool!' }]}
-      >
-        <Select
-          allowClear
-          placeholder="Please select storage pool"
-          options={uniqby(storagePools, 'storage_pool_name')?.map((e) => ({
-            label: e.storage_pool_name,
-            value: e.storage_pool_name,
-          }))}
-        />
-      </Form.Item>
-
-      {!isEdit && (
-        <Form.Item name="size" label="Size" required>
-          <SizeInput />
-        </Form.Item>
-      )}
-
       <Form.Item label="Replication Mode" name="replication_mode">
         <Radio.Group>
           <Radio value="A">Asynchronous(A)</Radio>
@@ -246,6 +236,12 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
 
       {deploy && (
         <>
+          {!isEdit && (
+            <Form.Item name="size" label="Size" required>
+              <SizeInput />
+            </Form.Item>
+          )}
+
           <Form.Item name="place_count" label="Place Count" required>
             <Input placeholder="Please input place count" type="number" min={0} />
           </Form.Item>

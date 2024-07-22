@@ -10,7 +10,6 @@ import {
   deleteVolumeDefinition,
   getVolumeDefinitionListByResource,
   updateResourceDefinition,
-  deleteVolumeDefinition,
 } from '../api';
 import {
   ResourceDefinition,
@@ -19,8 +18,8 @@ import {
   VolumeDefinition,
 } from '../types';
 import { SearchForm } from './styled';
-import { uniqId } from '@app/utils/stringUtils';
 import { formatBytes } from '@app/utils/size';
+import { CreateForm } from './CreateForm';
 
 export const List = () => {
   const [current, setCurrent] = useState<ResourceDefinition>();
@@ -242,6 +241,8 @@ export const List = () => {
             </Space>
           </Form.Item>
         </Form>
+
+        <CreateForm refetch={refetch} />
       </SearchForm>
 
       <br />
