@@ -3,7 +3,6 @@
   border-radius: 20px;
   opacity: 1;
   padding: 16px;
-  flex: 1;
 }
 
 .piechart__wrap:not(:last-child) {
