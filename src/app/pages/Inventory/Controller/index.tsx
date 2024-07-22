@@ -1,4 +1,4 @@
-import { Button, List, Switch } from 'antd';
+import { Button, List, Select, Space, Switch } from 'antd';
 import React, { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
@@ -9,6 +9,7 @@ import { handlePropsToFormOption } from '@app/utils/property';
 
 export const Controller = () => {
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
 
   const { data: properties, refetch } = useQuery({
     queryKey: ['controllerProperties'],
@@ -29,11 +30,47 @@ export const Controller = () => {
 
   const nodePropertyList = handlePropsToFormOption('controller', properties?.data);
 
+  const renderItem = (item) => {
+    const info = nodePropertyList.find((e) => e.label === item.key);
+
+    console.log(info, 'info');
+
+    if (info?.type === 'checkbox') {
+      return (
+        <Switch
+          checked={item.value === 'true'}
+          onChange={(checked) => {
+            mutation.mutate({
+              override_props: { [item.key]: checked.toString() },
+            });
+          }}
+        />
+      );
+    } else if (info?.type === 'single_select') {
+      return (
+        <Select
+          value={item.value}
+          onChange={(e) => {
+            mutation.mutate({
+              override_props: { [item.key]: e },
+            });
+          }}
+          options={info.extraInfo?.options?.map((e) => ({ label: e.label, value: e.value })) || []}
+        ></Select>
+      );
+    }
+
+    return <span>{item.value}</span>;
+  };
+
   return (
     <PageBasic title="Controller">
-      <Button type="primary" onClick={() => setPropertyModalOpen(true)}>
-        Edit Properties
-      </Button>
+      <Space>
+        <Button onClick={() => setEditMode((editMode) => !editMode)}>Edit</Button>
+        <Button type="primary" onClick={() => setPropertyModalOpen(true)}>
+          Add Properties
+        </Button>
+      </Space>
 
       <List
         style={{ marginTop: '1rem' }}
@@ -45,28 +82,19 @@ export const Controller = () => {
         renderItem={(item) => {
           const info = nodePropertyList.find((e) => e.label === item.key);
 
+          console.log(info, 'info');
+
           return (
             <List.Item>
-              <span>{item.key}</span>
-              {info?.type === 'checkbox' ? (
-                <Switch
-                  checked={item.value === 'true'}
-                  onChange={(checked) => {
-                    mutation.mutate({
-                      override_props: { [item.key]: checked.toString() },
-                    });
-                  }}
-                />
-              ) : (
-                <span>{item.value}</span>
-              )}
+              <span>{item.key} </span>
+              {editMode ? renderItem(item) : <span>{item.value}</span>}
             </List.Item>
           );
         }}
       />
 
       <PropertyForm
-        initialVal={properties?.data}
+        initialVal={{}}
         openStatus={propertyModalOpen}
         type="controller"
         handleSubmit={(data) => {
