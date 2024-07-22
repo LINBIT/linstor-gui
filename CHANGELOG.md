@@ -1,5 +1,21 @@
 # Changelog
 
+# 1.7.4 - 2024-07-22
+
+### Fixed
+
+- dashboard charts display error
+- node deletion and lost errors
+
+### Added
+
+- create Volume Definition
+- edit prop on controller page
+
+### Changed
+
+- notification list filter
+
 # 1.7.3 - 2024-07-09
 
 ### Fixed
