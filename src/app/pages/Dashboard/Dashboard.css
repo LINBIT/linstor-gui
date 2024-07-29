@@ -1,12 +1,12 @@
 .summery {
   display: flex;
-  justify-content: space-between;
+  gap: 16px;
 }
 
 .pie {
   margin-top: 40px;
   display: flex;
-  justify-content: space-between;
+  gap: 48px;
 }
 
 .line-chart {

@@ -117,7 +117,7 @@ const Dashboard: React.FunctionComponent = () => {
         metrics.reduce((total, value) => {
           total[value.stateStr] = (total[value.stateStr] || 0) + 1;
           return total;
-        }, {})
+        }, {}),
       ).map((it) => {
         return { y: it[1] as number, x: it[0] as string };
       });
@@ -128,7 +128,7 @@ const Dashboard: React.FunctionComponent = () => {
         stateMap,
       };
     },
-    [handleStateMap]
+    [handleStateMap],
   );
 
   /**

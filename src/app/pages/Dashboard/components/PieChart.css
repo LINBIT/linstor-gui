@@ -3,10 +3,9 @@
   border-radius: 20px;
   opacity: 1;
   padding: 16px;
-}
-
-.piechart__wrap:not(:last-child) {
-  margin-right: 40px;
+  max-width: 500px;
+  max-height: 500px;
+  flex: 1;
 }
 
 .piechart__title {
