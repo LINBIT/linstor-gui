@@ -1,6 +1,7 @@
 import React from 'react';
 import { List, Button, Tag, Popconfirm } from 'antd';
 import { CreateNetWorkInterfaceRequestBody, NetWorkInterface } from '@app/features/ip';
+import { NetInterfaceDetail } from './NetInterfaceDetail';
 
 interface Props {
   list: NetWorkInterface[];
@@ -46,6 +47,8 @@ const NetInterfaceList: React.FC<Props> = ({ list, handleDeleteNetWorkInterface,
                 set as active
               </Button>
             </Popconfirm>,
+
+            <NetInterfaceDetail key="detail" item={item} />,
           ]}
         >
           <List.Item.Meta title={item.name} description={item.address} />
