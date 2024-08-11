@@ -35,6 +35,7 @@ import { useUIModeStorage, usePersistentMenuState } from '@app/hooks';
 import { useEffect, useState } from 'react';
 import {
   AppstoreOutlined,
+  ClockCircleOutlined,
   CloudServerOutlined,
   ContainerOutlined,
   DatabaseOutlined,
@@ -326,10 +327,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
           getItem(<Link to="/storage-configuration/resources">Resources</Link>, '/storage-configuration/resources'),
           getItem(<Link to="/storage-configuration/volumes">Volumes</Link>, '/storage-configuration/volumes'),
         ]),
-        getItem('Remote & Backup', '/remote', <DatabaseOutlined />, [
-          getItem(<Link to="/remote/list">Remote</Link>, '/remote/list'),
-          getItem(<Link to="/remote/backup">Backup</Link>, '/remote/backup'),
-        ]),
+        getItem(<Link to="/remote/list">Remote</Link>, '/remote/list', <CloudServerOutlined />),
         getItem(<Link to="/snapshot">Snapshots</Link>, '/snapshot', <FileProtectOutlined />),
         getItem(<Link to="/error-reports">Error Reports</Link>, '/error-reports', <WarningOutlined />),
       ];

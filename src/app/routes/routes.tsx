@@ -24,6 +24,7 @@ import ResourceCreate from '@app/pages/SoftwareDefined/Resources/create';
 import ResourceEdit from '@app/pages/SoftwareDefined/Resources/edit';
 import VolumeList from '@app/pages/SoftwareDefined/Volumes';
 import RemoteList from '@app/pages/Remote/RemoteList';
+import BackupList from '@app/pages/Remote/BackupList';
 import ErrorReportList from '@app/pages/ErrorReport/index';
 import ErrorReportDetail from '@app/pages/ErrorReport/Detail';
 
@@ -224,6 +225,13 @@ const routes: AppRouteConfig[] = [
         label: 'remote',
         path: '/remote/list',
         title: 'LINSTOR | Remote | List',
+      },
+      {
+        component: BackupList,
+        exact: true,
+        label: 'backup',
+        path: '/remote/:remote_name/backups',
+        title: 'LINSTOR | Remote | BackUp List',
       },
     ],
   },

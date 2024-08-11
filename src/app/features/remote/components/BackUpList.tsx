@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { Button, Form, Space, Table, Input, Select, Popconfirm, message } from 'antd';
+import { Button, Form, Space, Table, Input, Select, Popconfirm } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useHistory, useLocation, useParams } from 'react-router-dom';
 
-import { deleteRemote, getRemoteList } from '../api';
+import { deleteBackup, getBackup } from '../api';
 import { SearchForm } from './styled';
-import { CreateRemoteForm } from './CreateRemoteForm';
+import { formatTime } from '@app/utils/time';
+import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
+import { CreateBackupForm } from './CreateBackupForm';
 
 type RemoteQuery = {
   name?: string | null;
@@ -20,8 +22,7 @@ export const List = () => {
   const [form] = Form.useForm();
   const location = useLocation();
 
-  const type = Form.useWatch('type', form);
-  const name = Form.useWatch('name', form);
+  const { remote_name } = useParams<{ remote_name: string }>();
 
   const [query, setQuery] = useState<RemoteQuery>(() => {
     const query = new URLSearchParams(location.search);
@@ -47,41 +48,19 @@ export const List = () => {
   });
 
   const { isLoading, refetch } = useQuery({
-    queryKey: ['getRemotes', query],
+    queryKey: ['getBackup', query],
     queryFn: async () => {
-      const res = await getRemoteList();
+      const res = await getBackup(remote_name);
 
-      let list = Object.keys(res?.data || {})
-        .map((key: string) => {
-          const item = res?.data?.[key as 's3_remotes' | 'linstor_remotes' | 'ebs_remotes'] || [];
+      const list = Object.keys(res.data?.linstor || {}).map((key) => {
+        const item = res.data?.linstor?.[key];
 
-          return item.map((e) => ({
-            ...e,
-            type: key,
-          }));
-        })
-        .flat();
-
-      if (type) {
-        list = list.filter((e) => e.type === type);
-      }
-
-      if (name) {
-        list = list.filter((e) => e.remote_name === name);
-      }
+        return item;
+      });
 
       setDataList(list);
     },
   });
-
-  // s3_remotes linstor_remotes ebs_remotes
-
-  // const s3_remotes = data?.data?.s3_remotes?.map((e) => ({
-  //   name: e.remote_name,
-  //   type: 'S3',
-  //   // eu-central.http://192.168.123.123:9000/linstor
-  //   info: `${e.region}.${e.endpoint}/${e.bucket}`,
-  // }));
 
   const handleSearch = () => {
     const values = form.getFieldsValue();
@@ -127,9 +106,11 @@ export const List = () => {
   };
 
   const deleteRemoteMutation = useMutation({
-    mutationFn: async (remote_name: string) => {
+    mutationFn: async (timestamp: string) => {
       try {
-        await deleteRemote(remote_name);
+        await deleteBackup(remote_name, {
+          timestamp,
+        });
 
         refetch();
       } catch (error) {
@@ -138,25 +119,24 @@ export const List = () => {
     },
   });
 
-  const handleDelete = async (remote_name: string) => {
-    deleteRemoteMutation.mutate(remote_name);
+  const handleDelete = async (timestamp: string) => {
+    deleteRemoteMutation.mutate(timestamp);
   };
 
   const columns: TableProps<{
-    name: string;
-    type: string;
-    region: string;
-    endpoint: string;
-    bucket: string;
-    url?: string;
+    origin_rsc: string;
+    origin_snap: string;
+    finished_timestamp: number;
+    success: boolean;
+    finished_time: string;
   }>['columns'] = [
     {
-      title: <span>Name</span>,
-      key: 'name',
-      dataIndex: 'remote_name',
+      title: <span>Resource</span>,
+      key: 'resource',
+      dataIndex: 'origin_rsc',
       sorter: (a, b) => {
-        if (a.name && b.name) {
-          return a.name.localeCompare(b.name);
+        if (a.origin_rsc && b.origin_rsc) {
+          return a.origin_rsc.localeCompare(b.origin_rsc);
         } else {
           return 0;
         }
@@ -164,23 +144,41 @@ export const List = () => {
       showSorterTooltip: false,
     },
     {
-      title: 'Type',
-      key: 'type',
-      dataIndex: 'type',
+      title: 'Snapshot',
+      key: 'snapshot',
+      dataIndex: 'origin_snap',
     },
     {
-      title: 'Info',
-      key: 'info',
-      render: (record, info) => {
-        console.log(record, 'record');
-
-        console.log(info, 'info');
-
-        if (record.type === 'linstor_remotes') {
-          return <span>{`${info.url}`}</span>;
+      title: 'Finished At',
+      key: 'finished_at',
+      dataIndex: 'finished_timestamp',
+      render: (finished_timestamp) => {
+        return <span>{formatTime(finished_timestamp)}</span>;
+      },
+      sorter: (a, b) => {
+        if (a.finished_timestamp && b.finished_timestamp) {
+          return a.finished_timestamp - b.finished_timestamp;
+        } else {
+          return 0;
         }
-
-        return <span>{`${info.region}.${info.endpoint}/${info.bucket}`}</span>;
+      },
+      showSorterTooltip: false,
+    },
+    {
+      title: 'Status',
+      key: 'status',
+      dataIndex: 'success',
+      render: (success) => {
+        return (
+          <div>
+            {success ? (
+              <CheckCircleFilled style={{ color: 'green', fontSize: '16px' }} />
+            ) : (
+              <CloseCircleFilled style={{ color: 'grey', fontSize: '16px' }} />
+            )}{' '}
+            <span>{success ? 'Success' : 'Failed'}</span>
+          </div>
+        );
       },
     },
     {
@@ -190,28 +188,16 @@ export const List = () => {
         console.log(record, 'record');
 
         console.log(info, 'info');
+
         return (
-          <Space>
-            <Button
-              onClick={() => {
-                if (record.type === 's3_remotes') {
-                  history.push(`/remote/${record.remote_name}/backups`);
-                } else {
-                  message.error('Only S3 remotes are supported');
-                }
-              }}
-            >
-              Backups
-            </Button>
-            <Popconfirm
-              title="Delete this remote object?"
-              onConfirm={() => {
-                handleDelete(record.remote_name);
-              }}
-            >
-              <Button danger>Delete</Button>
-            </Popconfirm>
-          </Space>
+          <Popconfirm
+            title="Delete this backup?"
+            onConfirm={() => {
+              handleDelete(record.finished_time);
+            }}
+          >
+            <Button danger>Delete</Button>
+          </Popconfirm>
         );
       },
     },
@@ -277,7 +263,7 @@ export const List = () => {
           </Form.Item>
 
           <Form.Item>
-            <CreateRemoteForm refetch={refetch} />
+            <CreateBackupForm refetch={refetch} />
           </Form.Item>
         </Form>
       </SearchForm>

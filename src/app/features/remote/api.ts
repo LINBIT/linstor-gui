@@ -1,5 +1,10 @@
 import { get, post, del } from '../requests';
-import { S3RemoteCreateRequestBody, LINSTORRemoteCreateRequestBody } from './types';
+import {
+  S3RemoteCreateRequestBody,
+  LINSTORRemoteCreateRequestBody,
+  RemoteBackupCreateRequestBody,
+  BackupDeleteQuery,
+} from './types';
 
 const getRemoteList = () => {
   return get('/v1/remotes');
@@ -27,4 +32,36 @@ const createLINSTORRemote = (data: LINSTORRemoteCreateRequestBody) => {
   });
 };
 
-export { getRemoteList, createS3Remote, createLINSTORRemote, deleteRemote };
+const createBackup = (remote_name: string, body: RemoteBackupCreateRequestBody) => {
+  return post('/v1/remotes/{remote_name}/backups', {
+    params: {
+      path: {
+        remote_name,
+      },
+    },
+    body,
+  });
+};
+
+const getBackup = (remote_name: string) => {
+  return get('/v1/remotes/{remote_name}/backups', {
+    params: {
+      path: {
+        remote_name,
+      },
+    },
+  });
+};
+
+const deleteBackup = (remote_name: string, query?: BackupDeleteQuery) => {
+  return del('/v1/remotes/{remote_name}/backups', {
+    params: {
+      path: {
+        remote_name,
+      },
+      query,
+    },
+  });
+};
+
+export { getRemoteList, createS3Remote, createLINSTORRemote, deleteRemote, createBackup, getBackup, deleteBackup };
