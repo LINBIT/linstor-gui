@@ -12,3 +12,5 @@ export type ResourceDataType = components['schemas']['ResourceWithVolumes'];
 export type VolumeDataType = components['schemas']['Volume'];
 
 export type RemoteList = components['schemas']['RemoteList'][];
+export type S3RemoteCreateRequestBody = components['schemas']['S3Remote'];
+export type LINSTORRemoteCreateRequestBody = components['schemas']['LinstorRemote'];

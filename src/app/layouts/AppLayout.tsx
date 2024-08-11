@@ -50,6 +50,7 @@ import {
   WarningOutlined,
 } from '@ant-design/icons';
 import { BRAND_COLOR } from '@app/const/color';
+import { Mode } from '@app/hooks/useUIModeStorage';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -92,7 +93,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const dispatch = useDispatch<Dispatch>();
   const history = useHistory();
 
-  const onModeChange = (mode) => {
+  const onModeChange = (mode: Mode) => {
     setIsNavOpen(true);
     updateUIMode(mode);
     dispatch.setting.setVSANMode(mode === 'VSAN');
@@ -324,6 +325,10 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
           ),
           getItem(<Link to="/storage-configuration/resources">Resources</Link>, '/storage-configuration/resources'),
           getItem(<Link to="/storage-configuration/volumes">Volumes</Link>, '/storage-configuration/volumes'),
+        ]),
+        getItem('Remote & Backup', '/remote', <DatabaseOutlined />, [
+          getItem(<Link to="/remote/list">Remote</Link>, '/remote/list'),
+          getItem(<Link to="/remote/backup">Backup</Link>, '/remote/backup'),
         ]),
         getItem(<Link to="/snapshot">Snapshots</Link>, '/snapshot', <FileProtectOutlined />),
         getItem(<Link to="/error-reports">Error Reports</Link>, '/error-reports', <WarningOutlined />),

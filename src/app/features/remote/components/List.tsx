@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Button, Form, Space, Table, Input, Select } from 'antd';
+import { Button, Form, Space, Table, Input, Select, Popconfirm } from 'antd';
 import type { TableProps } from 'antd';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useHistory, useLocation } from 'react-router-dom';
 
-import { getRemoteList } from '../api';
+import { deleteRemote, getRemoteList } from '../api';
 import { SearchForm } from './styled';
 import { CreateRemoteForm } from './CreateRemoteForm';
 
@@ -46,8 +46,8 @@ export const List = () => {
     };
   });
 
-  const { isLoading } = useQuery({
-    queryKey: ['getResources', query],
+  const { isLoading, refetch } = useQuery({
+    queryKey: ['getRemotes', query],
     queryFn: async () => {
       const res = await getRemoteList();
 
@@ -114,11 +114,9 @@ export const List = () => {
       return true;
     });
 
-    console.log(newList, 'newList');
-
     setDataList(newList);
 
-    // history.push(new_url);
+    history.push(new_url);
   };
 
   const handleReset = () => {
@@ -126,6 +124,22 @@ export const List = () => {
     setQuery({});
 
     history.push(location.pathname);
+  };
+
+  const deleteRemoteMutation = useMutation({
+    mutationFn: async (remote_name: string) => {
+      try {
+        await deleteRemote(remote_name);
+
+        refetch();
+      } catch (error) {
+        console.log(error);
+      }
+    },
+  });
+
+  const handleDelete = async (remote_name: string) => {
+    deleteRemoteMutation.mutate(remote_name);
   };
 
   const columns: TableProps<{
@@ -169,6 +183,29 @@ export const List = () => {
         return <span>{`${info.region}.${info.endpoint}/${info.bucket}`}</span>;
       },
     },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (record, info) => {
+        console.log(record, 'record');
+
+        console.log(info, 'info');
+
+        return (
+          <Space>
+            <Button>Backup</Button>
+            <Popconfirm
+              title="Delete this remote object?"
+              onConfirm={() => {
+                handleDelete(record.remote_name);
+              }}
+            >
+              <Button danger>Delete</Button>
+            </Popconfirm>
+          </Space>
+        );
+      },
+    },
   ];
 
   if (isLoading) {
@@ -196,7 +233,7 @@ export const List = () => {
             <Select
               style={{ width: 180 }}
               allowClear
-              placeholder="Please select node"
+              placeholder="Select type"
               options={[
                 {
                   label: 'ebs',
@@ -231,7 +268,7 @@ export const List = () => {
           </Form.Item>
 
           <Form.Item>
-            <CreateRemoteForm />
+            <CreateRemoteForm refetch={refetch} />
           </Form.Item>
         </Form>
       </SearchForm>

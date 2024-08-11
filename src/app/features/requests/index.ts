@@ -31,7 +31,7 @@ window.fetch = new Proxy(window.fetch, {
         return res;
       }
       // After completion of request
-      if (res.status === 400 || res.status === 500) {
+      if (res.status === 400 || res.status === 500 || res.status === 404) {
         try {
           res
             .clone()

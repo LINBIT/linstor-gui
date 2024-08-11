@@ -1,114 +1,30 @@
-import { get, post, put } from '../requests';
-import {
-  CreateResourceDefinitionRequestBody,
-  CreateVolumeDefinitionRequestBody,
-  AutoPlaceRequestBody,
-  ResourceModifyRequestBody,
-  ResourceCreateRequestBody,
-  ResourceListQuery,
-} from './types';
+import { get, post, del } from '../requests';
+import { S3RemoteCreateRequestBody, LINSTORRemoteCreateRequestBody } from './types';
 
 const getRemoteList = () => {
   return get('/v1/remotes');
 };
 
-const createResourceDefinition = (body: CreateResourceDefinitionRequestBody) => {
-  return post('/v1/resource-definitions', {
-    body,
-  });
-};
-
-const createVolumeDefinition = (resource: string, body: CreateVolumeDefinitionRequestBody) => {
-  return post('/v1/resource-definitions/{resource}/volume-definitions', {
+const deleteRemote = (remote_name: string) => {
+  return del('/v1/remotes', {
     params: {
-      path: {
-        resource,
-      },
-    },
-    body,
-  });
-};
-
-const autoPlace = (resource: string, body: AutoPlaceRequestBody) => {
-  return post('/v1/resource-definitions/{resource}/autoplace', {
-    params: {
-      path: {
-        resource,
-      },
-    },
-    body,
-  });
-};
-
-const resourceCreateOnNode = (resource_name: string, node: string, body: ResourceCreateRequestBody) => {
-  return post('/v1/resource-definitions/{resource}/resources/{node}', {
-    params: {
-      path: {
-        resource: resource_name,
-        node,
-      },
-    },
-    body,
-  });
-};
-
-const deleteResource = (resource_name: string, node: string) => {
-  return post('/v1/resource-definitions/{resource}/resources/{node}', {
-    params: {
-      path: {
-        resource: resource_name,
-        node,
+      query: {
+        remote_name,
       },
     },
   });
 };
 
-const resourceModify = (resource_name: string, node: string, body: ResourceModifyRequestBody) => {
-  return put('/v1/resource-definitions/{resource}/resources/{node}', {
-    params: {
-      path: {
-        resource: resource_name,
-        node,
-      },
-    },
-    body,
+const createS3Remote = (data: S3RemoteCreateRequestBody) => {
+  return post('/v1/remotes/s3', {
+    body: data,
   });
 };
 
-const resourceMigration = (data: { resource: string; node: string; fromnode: string }) => {
-  const { resource, node, fromnode } = data;
-  return put('/v1/resource-definitions/{resource}/resources/{node}/migrate-disk/{fromnode}', {
-    params: {
-      path: {
-        resource,
-        node,
-        fromnode,
-      },
-    },
+const createLINSTORRemote = (data: LINSTORRemoteCreateRequestBody) => {
+  return post('/v1/remotes/linstor', {
+    body: data,
   });
 };
 
-const getResourceCount = () => {
-  return get('/v1/stats/resources');
-};
-
-const getResources = (query?: ResourceListQuery) => {
-  return get('/v1/view/resources', {
-    params: {
-      query,
-    },
-  });
-};
-
-export {
-  createResourceDefinition,
-  createVolumeDefinition,
-  autoPlace,
-  resourceModify,
-  resourceCreateOnNode,
-  resourceMigration,
-  getResources,
-  getResourceCount,
-  deleteResource,
-  getRemoteList,
-};
+export { getRemoteList, createS3Remote, createLINSTORRemote, deleteRemote };

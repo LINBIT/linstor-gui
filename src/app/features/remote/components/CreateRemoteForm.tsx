@@ -1,114 +1,70 @@
 import React, { useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Checkbox, Form, Input, Modal, Radio, Select } from 'antd';
-import { useHistory } from 'react-router-dom';
-import uniqby from 'lodash.uniqby';
+import { useMutation } from '@tanstack/react-query';
+import { Button, Switch, Form, Input, Modal, Select, message } from 'antd';
 
-import { getNetWorkInterfaceByNode } from '@app/features/ip';
-import { fullySuccess } from '@app/features/requests';
-import { autoPlace, resourceCreateOnNode } from '../api';
-import { AutoPlaceRequestBody } from '../types';
+import { createLINSTORRemote, createS3Remote } from '../api';
+import { LINSTORRemoteCreateRequestBody, S3RemoteCreateRequestBody } from '../types';
 
-type FormType = {
-  allocate_method: 'manual' | 'auto';
-  name: string;
-  node: string;
-  storage_pool: string;
-  size: number;
-  deploy: boolean;
-  place_count: number;
-  diskless: boolean;
-  network_preference: string;
+type RemoteType = 's3_remotes' | 'linstor_remotes' | 'ebs_remotes';
+
+type FormType = S3RemoteCreateRequestBody | LINSTORRemoteCreateRequestBody;
+
+type CreateRemoteFormProps = {
+  refetch: () => void;
 };
 
-const CreateRemoteForm = () => {
-  const history = useHistory();
+const CreateRemoteForm = ({ refetch }: CreateRemoteFormProps) => {
   const [form] = Form.useForm<FormType>();
   const [modelOpen, setModelOpen] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
 
-  const allocate_method = Form.useWatch('allocate_method', form);
-  const node = Form.useWatch('node', form);
+  const remote_type = Form.useWatch('remote_type', form);
 
-  const backToList = () => {
-    history.push('/storage-configuration/resources');
-  };
-
-  const { data: networks } = useQuery({
-    queryKey: ['getNetworkByNode', node],
-    queryFn: () => getNetWorkInterfaceByNode(node),
-    enabled: !!node,
-  });
-
-  const createRemoteMutation = useMutation({
-    mutationFn: (
-      data: RemoteCreateRequestBody & {
-        node: string;
-        resource_name: string;
-      },
-    ) => {
-      const { node, resource_name, ...rest } = data;
-      return resourceCreateOnNode(resource_name, node, rest);
+  const createS3RemoteMutation = useMutation({
+    mutationFn: (data: S3RemoteCreateRequestBody) => {
+      return createS3Remote(data);
     },
   });
 
-  const autoPlaceMutation = useMutation({
-    mutationFn: (
-      data: AutoPlaceRequestBody & {
-        resource: string;
-      },
-    ) => {
-      const { resource, ...rest } = data;
-      return autoPlace(resource, rest);
+  const createLINSTORRemoteMutation = useMutation({
+    mutationFn: (data: LINSTORRemoteCreateRequestBody) => {
+      return createLINSTORRemote(data);
     },
   });
 
-  const onFinish = async (values: FormType) => {
-    if (values.allocate_method === 'manual') {
-      const resourceData = {
-        resource: {
-          name: values.name,
-          node_name: values.node,
-          props: { StorPoolName: values.storage_pool, PrefNic: values.network_preference },
-        },
-      };
+  const onFinish = async (
+    values: FormType & {
+      remote_type?: RemoteType;
+    },
+  ) => {
+    const { remote_type, ...rest } = values;
 
-      if (values.diskless) {
-        Object.assign(resourceData, {
-          resource: {
-            ...resourceData.resource,
-            flags: ['DISKLESS'],
-          },
-        });
+    try {
+      if (remote_type === 's3_remotes') {
+        const res: any = await createS3RemoteMutation.mutateAsync(rest);
+
+        if (res.error && Array.isArray(res.error)) {
+          messageApi.error(res.error.map((e: any) => e.message).join(', '));
+        }
+      } else if (remote_type === 'linstor_remotes') {
+        const res: any = await createLINSTORRemoteMutation.mutateAsync(rest);
+
+        if (res.error && Array.isArray(res.error)) {
+          messageApi.error(res.error.map((e: any) => e.message).join(', '));
+        }
       }
-
-      const createRemoteRes = await createRemoteMutation.mutateAsync({
-        node: values.node,
-        resource_name: values.name,
-        ...resourceData,
-      });
-
-      if (fullySuccess(createRemoteRes.data)) {
-        backToList();
-      }
-    } else {
-      const placeData = {
-        diskless_on_remaining: values.diskless,
-        select_filter: { place_count: Number(values.place_count), storage_pool: values.storage_pool },
-      };
-
-      const autoPlaceRes = await autoPlaceMutation.mutateAsync({
-        resource: values.name,
-        ...placeData,
-      });
-
-      if (fullySuccess(autoPlaceRes.data)) {
-        backToList();
-      }
+    } catch (error) {
+      console.error('create remote error', error);
+      messageApi.error('Create remote error');
     }
+
+    setModelOpen(false);
+    refetch();
   };
 
   return (
     <>
+      {contextHolder}
       <Button type="primary" onClick={() => setModelOpen(true)}>
         Add
       </Button>
@@ -117,11 +73,13 @@ const CreateRemoteForm = () => {
         open={modelOpen}
         onOk={() => onFinish(form.getFieldsValue())}
         onCancel={() => setModelOpen(false)}
-        okText="Spawn"
+        okText="Confirm"
         width={800}
         okButtonProps={{
-          loading: autoPlaceMutation.isLoading,
+          loading: createS3RemoteMutation.isLoading,
         }}
+        destroyOnClose
+        maskClosable={false}
       >
         <Form<FormType>
           labelCol={{ span: 8 }}
@@ -130,28 +88,61 @@ const CreateRemoteForm = () => {
           size="large"
           layout="horizontal"
           form={form}
-          initialValues={{}}
+          initialValues={{
+            remote_type: 's3_remotes',
+            use_path_style: false,
+          }}
           onFinish={onFinish}
         >
-          <Form.Item name="name" label="Name" required>
+          <Form.Item name="remote_type" label="Type" required>
+            <Select
+              options={['s3_remotes', 'linstor_remotes', 'ebs_remotes'].map((e) => ({
+                label: e,
+                value: e,
+                disabled: e === 'ebs_remotes',
+              }))}
+            />
+          </Form.Item>
+
+          <Form.Item name="remote_name" label="Name" required>
             <Input placeholder="Please input name" />
           </Form.Item>
 
-          <Form.Item name="endpoint" label="Endpoint" required>
-            <Input placeholder="Please input endpoint" />
-          </Form.Item>
+          {remote_type === 's3_remotes' && (
+            <>
+              <Form.Item name="endpoint" label="Endpoint" required>
+                <Input placeholder="Please input endpoint" />
+              </Form.Item>
 
-          <Form.Item name="bucket" label="Bucket" required>
-            <Input placeholder="Please input bucket" />
-          </Form.Item>
+              <Form.Item name="bucket" label="Bucket" required>
+                <Input placeholder="Please input bucket" />
+              </Form.Item>
 
-          <Form.Item name="region" label="Region" required>
-            <Input placeholder="Please input region" />
-          </Form.Item>
+              <Form.Item name="region" label="Region" required>
+                <Input placeholder="Please input region" />
+              </Form.Item>
 
-          <Form.Item name="access_key" label="Access key" required>
-            <Input.TextArea placeholder="Please input access key" />
-          </Form.Item>
+              <Form.Item name="access_key" label="Access key" required>
+                <Input.TextArea placeholder="Please input access key" />
+              </Form.Item>
+
+              <Form.Item name="secret_key" label="Secret key" required>
+                <Input.TextArea placeholder="Please input secret key" />
+              </Form.Item>
+
+              <Form.Item name="use_path_style" label="Use path style">
+                <Switch />
+              </Form.Item>
+            </>
+          )}
+
+          {remote_type === 'linstor_remotes' && (
+            <>
+              <Form.Item name="url" label="URL" required>
+                <Input placeholder="Please input url" />
+              </Form.Item>
+            </>
+          )}
         </Form>
       </Modal>
     </>
