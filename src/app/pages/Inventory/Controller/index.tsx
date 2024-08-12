@@ -1,4 +1,4 @@
-import { Button, Input, List, Popconfirm, Select, Space, Switch } from 'antd';
+import { Button, Divider, Input, List, Popconfirm, Select, Space, Switch } from 'antd';
 import React, { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
@@ -6,7 +6,7 @@ import PageBasic from '@app/components/PageBasic';
 import PropertyForm from '@app/components/PropertyForm';
 import { getControllerProperties, updateController } from '@app/features/node';
 import { handlePropsToFormOption } from '@app/utils/property';
-import { MinusCircleOutlined, MinusOutlined } from '@ant-design/icons';
+import { MinusOutlined } from '@ant-design/icons';
 
 export const Controller = () => {
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
@@ -32,14 +32,15 @@ export const Controller = () => {
   const nodePropertyList = handlePropsToFormOption('controller', properties?.data);
 
   const renderItem = (item: { key: any; value: any }) => {
-    const info = nodePropertyList.find((e) => e.label === item.key);
+    console.log(item, 'item');
+    const isBoolean = item.value === 'false' || item.value === 'true';
 
-    console.log(info, 'info');
+    const info = nodePropertyList.find((e) => e.label === item.key);
 
     let inputItem = <span>{item.value}</span>;
     let deleteButton = true;
 
-    if (item.key.startsWith('Aux/')) {
+    if (item.key.startsWith('Aux/') || (!info && !isBoolean)) {
       inputItem = (
         <Input
           style={{ width: '200px' }}
@@ -51,7 +52,7 @@ export const Controller = () => {
           }}
         />
       );
-    } else if (info?.type === 'checkbox') {
+    } else if (info?.type === 'checkbox' || isBoolean) {
       inputItem = (
         <Switch
           checked={item.value === 'true'}
@@ -81,7 +82,7 @@ export const Controller = () => {
     return (
       <div>
         {inputItem}
-        {deleteButton && (
+        {deleteButton && info && (
           <Popconfirm
             title="Delete the property"
             description="Are you sure to delete this property?"
@@ -104,10 +105,9 @@ export const Controller = () => {
   return (
     <PageBasic title="Controller">
       <Space>
-        <Button onClick={() => setEditMode((editMode) => !editMode)}>Edit</Button>
-        <Button type="primary" onClick={() => setPropertyModalOpen(true)}>
-          Add Properties
-        </Button>
+        Edit: <Switch onChange={() => setEditMode((editMode) => !editMode)} />
+        <Divider type="vertical" />
+        <Button onClick={() => setPropertyModalOpen(true)}>Add Properties</Button>
       </Space>
 
       <List
@@ -118,10 +118,6 @@ export const Controller = () => {
         bordered
         dataSource={propertiesArray}
         renderItem={(item) => {
-          const info = nodePropertyList.find((e) => e.label === item.key);
-
-          console.log(info, 'info');
-
           return (
             <List.Item>
               <span>{item.key} </span>
