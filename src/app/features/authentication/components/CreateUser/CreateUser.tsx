@@ -128,12 +128,14 @@ const CreateUser = ({ disabled }: CreateUserProp) => {
 
   return (
     <div>
-      <div
-        onClick={(e) => {
-          setOpen(true);
-        }}
-      >
-        <Button type="primary" disabled={disabled}>
+      <div>
+        <Button
+          type="primary"
+          disabled={disabled}
+          onClick={() => {
+            setOpen(true);
+          }}
+        >
           Add a user
         </Button>
       </div>
