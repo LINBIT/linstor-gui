@@ -191,6 +191,10 @@ const CreateNFSForm = () => {
               label: 'ext4',
               value: 'ext4',
             },
+            {
+              label: 'xfs',
+              value: 'xfs',
+            },
           ]}
         />
       </Form.Item>
@@ -219,6 +223,10 @@ const CreateNFSForm = () => {
                       {
                         label: 'ext4',
                         value: 'ext4',
+                      },
+                      {
+                        label: 'xfs',
+                        value: 'xfs',
                       },
                     ]}
                   />

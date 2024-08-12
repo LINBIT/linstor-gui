@@ -275,6 +275,10 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
                     label: 'ext4',
                     value: 'ext4',
                   },
+                  {
+                    label: 'xfs',
+                    value: 'xfs',
+                  },
                 ]}
               />
             </Form.Item>
