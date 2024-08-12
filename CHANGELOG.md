@@ -1,5 +1,22 @@
 # Changelog
 
+# 1.7.5 - 2024-08-12
+
+### Fixed
+
+- add user click area
+
+### Added
+
+- support for managing remotes and backups
+- links between pages
+- view network usage information on node detail page
+- add support for NFS xfs backend for VSAN mode and gateway mode
+
+### Changed
+
+- edit internal props on controller page & the UI for entering edit mode
+
 # 1.7.4 - 2024-07-22
 
 ### Fixed
