@@ -132,6 +132,18 @@ export const List = () => {
       title: 'Node',
       key: 'node_name',
       dataIndex: 'node_name',
+      render: (node_name) => {
+        return (
+          <Button
+            type="link"
+            onClick={() => {
+              history.push(`/inventory/nodes/${node_name}`);
+            }}
+          >
+            {node_name}
+          </Button>
+        );
+      },
     },
     {
       title: 'Module',

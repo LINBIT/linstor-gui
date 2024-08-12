@@ -151,12 +151,33 @@ export const List = () => {
       title: 'Node',
       key: 'node_name',
       dataIndex: 'node_name',
+      render: (node_name) => {
+        return (
+          <Button
+            type="link"
+            onClick={() => {
+              history.push(`/inventory/nodes/${node_name}`);
+            }}
+          >
+            {node_name}
+          </Button>
+        );
+      },
     },
     {
       title: 'Storage Pool',
       key: 'storage_pool',
       render: (_, item) => {
-        return <span>{item.resourceProps?.StorPoolName}</span>;
+        return (
+          <Button
+            type="link"
+            onClick={() => {
+              history.push(`/inventory/storage-pools?storage_pools=${item.resourceProps?.StorPoolName}`);
+            }}
+          >
+            {item.resourceProps?.StorPoolName}
+          </Button>
+        );
       },
     },
     {

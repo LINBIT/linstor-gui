@@ -152,6 +152,18 @@ export const List = () => {
         return (a?.resource_group_name ?? '').localeCompare(b?.resource_group_name ?? '');
       },
       showSorterTooltip: false,
+      render: (resource_group_name) => {
+        return (
+          <Button
+            type="link"
+            onClick={() => {
+              history.push(`/storage-configuration/resource-groups?resource_groups=${resource_group_name}`);
+            }}
+          >
+            {resource_group_name}
+          </Button>
+        );
+      },
     },
     {
       title: 'Port',

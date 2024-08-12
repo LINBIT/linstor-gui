@@ -168,6 +168,18 @@ export const List = () => {
       sorter: (a, b) => {
         return (a?.node_name ?? '').localeCompare(b?.node_name ?? '');
       },
+      render: (node_name) => {
+        return (
+          <Button
+            type="link"
+            onClick={() => {
+              history.push(`/inventory/nodes/${node_name}`);
+            }}
+          >
+            {node_name}
+          </Button>
+        );
+      },
       showSorterTooltip: false,
     },
     {
