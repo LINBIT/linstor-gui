@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Form, Space, Table, Input, Select, Popconfirm } from 'antd';
+import { Button, Form, Space, Table, Input, Popconfirm } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
@@ -11,8 +11,7 @@ import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import { CreateBackupForm } from './CreateBackupForm';
 
 type RemoteQuery = {
-  name?: string | null;
-  type?: string | null;
+  origin_rsc?: string | null;
 };
 
 export const List = () => {
@@ -26,24 +25,17 @@ export const List = () => {
 
   const [query, setQuery] = useState<RemoteQuery>(() => {
     const query = new URLSearchParams(location.search);
-    const name = query.get('name');
-    const type = query.get('type');
+    const origin_rsc = query.get('origin_rsc');
 
     const queryO: RemoteQuery = {};
 
-    if (name) {
-      form.setFieldValue('name', name);
-      queryO['name'] = name;
-    }
-
-    if (type) {
-      form.setFieldValue('type', type);
-      queryO['type'] = type;
+    if (origin_rsc) {
+      form.setFieldValue('origin_rsc', origin_rsc);
+      queryO['origin_rsc'] = origin_rsc;
     }
 
     return {
-      name,
-      type,
+      origin_rsc,
     };
   });
 
@@ -52,11 +44,15 @@ export const List = () => {
     queryFn: async () => {
       const res = await getBackup(remote_name);
 
-      const list = Object.keys(res.data?.linstor || {}).map((key) => {
+      let list = Object.keys(res.data?.linstor || {}).map((key) => {
         const item = res.data?.linstor?.[key];
 
         return item;
       });
+
+      if (query.origin_rsc) {
+        list = list.filter((e) => e?.origin_rsc === query.origin_rsc);
+      }
 
       setDataList(list);
     },
@@ -67,14 +63,9 @@ export const List = () => {
     const queryS = new URLSearchParams({});
     const newQuery: RemoteQuery = { ...query };
 
-    if (values.name) {
-      newQuery.name = values.name;
-      queryS.set('name', values.name);
-    }
-
-    if (values.type) {
-      newQuery.type = values.type;
-      queryS.set('type', values.type);
+    if (values.origin_rsc) {
+      newQuery.origin_rsc = values.origin_rsc;
+      queryS.set('origin_rsc', values.origin_rsc);
     }
 
     setQuery(newQuery);
@@ -82,11 +73,7 @@ export const List = () => {
     const new_url = `${location.pathname}?${queryS.toString()}`;
 
     const newList = dataList?.filter((e) => {
-      if (values.name && e.name !== values.name) {
-        return false;
-      }
-
-      if (values.type && e.type !== values.type) {
+      if (values.origin_rsc && e.origin_rsc !== values.origin_rsc) {
         return false;
       }
 
@@ -207,8 +194,6 @@ export const List = () => {
     return <div>Loading...</div>;
   }
 
-  console.log(dataList, 'dataList');
-
   return (
     <>
       <SearchForm>
@@ -220,30 +205,8 @@ export const List = () => {
             show_default: true,
           }}
         >
-          <Form.Item name="name" label="Name">
-            <Input placeholder="Name" />
-          </Form.Item>
-
-          <Form.Item name="type" label="Type">
-            <Select
-              style={{ width: 180 }}
-              allowClear
-              placeholder="Select type"
-              options={[
-                {
-                  label: 'ebs',
-                  value: 'ebs_remotes',
-                },
-                {
-                  label: 'LINSTOR',
-                  value: 'linstor_remotes',
-                },
-                {
-                  label: 's3',
-                  value: 's3_remotes',
-                },
-              ]}
-            />
+          <Form.Item name="origin_rsc" label="Resource">
+            <Input placeholder="Resource" />
           </Form.Item>
 
           <Form.Item>
