@@ -1,6 +1,6 @@
 import React from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Form, Input, Radio, Select, Tooltip } from 'antd';
+import { Button, Form, Input, Radio, Select, Switch, Tooltip } from 'antd';
 import { useHistory } from 'react-router-dom';
 
 import {
@@ -36,14 +36,17 @@ const CreateForm = () => {
   const provider_kind = Form.useWatch('provider_kind', form);
   const node = Form.useWatch('node', form);
   const create_type = Form.useWatch('create_type', form);
+  const multiple_nodes = Form.useWatch('multiple_nodes', form);
 
   const backToStoragePoolList = () => {
     history.goBack();
   };
 
+  console.log(node, 'node');
+
   const { data: devicePathOptions } = useQuery({
     queryKey: ['getPhysicalStoragePoolByNode', node],
-    queryFn: () => getPhysicalStoragePoolByNode({ node }),
+    queryFn: () => getPhysicalStoragePoolByNode({ node: node.length > 0 ? node[0] : '' }),
     enabled: !!node && create_type === 'new',
   });
 
@@ -52,7 +55,6 @@ const CreateForm = () => {
       const { node, ...rest } = data;
       return createPhysicalStorage(node, rest);
     },
-    onSuccess: () => backToStoragePoolList(),
   });
 
   const createStoragePoolWithExistingVolumeGroup = useMutation({
@@ -90,7 +92,19 @@ const CreateForm = () => {
         },
       };
 
-      createStoragePoolWithPhysicalStorage.mutate({ node, ...body });
+      const promiseArr = [];
+
+      if (Array.isArray(node)) {
+        node.forEach((e) => {
+          promiseArr.push(createStoragePoolWithPhysicalStorage.mutate({ node: e, ...body }));
+        });
+      } else {
+        promiseArr.push(createStoragePoolWithPhysicalStorage.mutate({ node, ...body }));
+      }
+
+      Promise.all(promiseArr).then(() => {
+        backToStoragePoolList();
+      });
     }
 
     if (create_type === 'existing') {
@@ -159,6 +173,10 @@ const CreateForm = () => {
         <Input placeholder="Please input storage pool name" />
       </Form.Item>
 
+      <Form.Item name="multiple_nodes" label="Multiple Nodes">
+        <Switch />
+      </Form.Item>
+
       <Form.Item label="Node" name="node" required rules={[{ required: true, message: 'Please select nodes!' }]}>
         <Select
           allowClear
@@ -167,7 +185,7 @@ const CreateForm = () => {
             label: e.name,
             value: e.name,
           }))}
-          mode={create_type !== 'new' ? 'multiple' : undefined}
+          mode={create_type !== 'new' || multiple_nodes ? 'multiple' : undefined}
         />
       </Form.Item>
 
