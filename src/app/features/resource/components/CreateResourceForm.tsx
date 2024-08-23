@@ -1,6 +1,6 @@
 import React from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Checkbox, Form, Input, Radio, Select } from 'antd';
+import { Button, Form, Input, Radio, Select, Switch } from 'antd';
 import { useHistory, useParams } from 'react-router-dom';
 import uniqby from 'lodash.uniqby';
 
@@ -22,6 +22,7 @@ type FormType = {
   place_count: number;
   diskless: boolean;
   network_preference: string;
+  DRBD_DISKLESS: boolean;
 };
 
 type CreateResourceFormProps = {
@@ -125,6 +126,15 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
         });
       }
 
+      if (values.DRBD_DISKLESS) {
+        Object.assign(resourceData, {
+          resource: {
+            ...resourceData.resource,
+            flags: ['DRBD_DISKLESS'],
+          },
+        });
+      }
+
       const createResourceRes = await createResourceMutation.mutateAsync({
         node: values.node,
         resource_name: values.name,
@@ -153,6 +163,21 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
 
   const isLoading = createResourceMutation.isLoading || autoPlaceMutation.isLoading;
   const isDisabled = resourceDefinitionIsLoading || storagePoolsIsLoading || nodesIsLoading;
+  const isAuto = allocate_method === 'auto';
+
+  const spList = isAuto
+    ? uniqby(storagePools, 'storage_pool_name')
+        ?.filter((e) => {
+          return e.provider_kind !== 'DISKLESS';
+        })
+        .map((e) => ({
+          label: e.storage_pool_name,
+          value: e.storage_pool_name,
+        }))
+    : uniqby(storagePools, 'storage_pool_name')?.map((e) => ({
+        label: e.storage_pool_name,
+        value: e.storage_pool_name,
+      }));
 
   return (
     <Form<FormType>
@@ -213,6 +238,10 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
             />
           </Form.Item>
 
+          <Form.Item label="Storage Pool" name="storage_pool">
+            <Select allowClear placeholder="Please select storage pool" options={spList} />
+          </Form.Item>
+
           <Form.Item label="Network Preference" name="network_preference">
             <Select
               allowClear
@@ -226,32 +255,34 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
         </>
       )}
 
-      <Form.Item
-        label="Storage Pool"
-        name="storage_pool"
-        required
-        rules={[{ required: true, message: 'Please select storage pool!' }]}
-      >
-        <Select
-          allowClear
-          placeholder="Please select storage pool"
-          options={uniqby(storagePools, 'storage_pool_name')?.map((e) => ({
-            label: e.storage_pool_name,
-            value: e.storage_pool_name,
-          }))}
-        />
-      </Form.Item>
-
-      {!isEdit && (
+      {!isEdit && allocate_method !== 'manual' && (
         <>
+          <Form.Item
+            label="Storage Pool"
+            name="storage_pool"
+            required
+            rules={[
+              {
+                required: true,
+                message: 'Please select storage pool!',
+              },
+            ]}
+          >
+            <Select allowClear placeholder="Please select storage pool" options={spList} />
+          </Form.Item>
           <Form.Item name="place_count" label="Place Count" required>
             <Input placeholder="Please input place count" type="number" min={0} />
           </Form.Item>
-          <Form.Item name="diskless" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
-            <Checkbox>Diskless on remaining</Checkbox>
+
+          <Form.Item name="diskless" label="Diskless on remaining">
+            <Switch />
           </Form.Item>
         </>
       )}
+
+      <Form.Item name="DRBD_DISKLESS" label="DRBD Diskless">
+        <Switch />
+      </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
         <Button type="primary" htmlType="submit" loading={isLoading} disabled={isDisabled}>
