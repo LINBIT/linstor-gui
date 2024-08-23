@@ -5,7 +5,7 @@ import { List } from '@app/features/remote';
 
 const RemoteList = () => {
   return (
-    <PageBasic title="Remotes">
+    <PageBasic title="Remote List">
       <List />
     </PageBasic>
   );

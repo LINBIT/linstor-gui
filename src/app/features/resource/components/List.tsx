@@ -467,7 +467,7 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
         </Form>
 
         <Button type="primary" onClick={() => history.push('/storage-configuration/resources/create')}>
-          Add
+          Create
         </Button>
       </SearchForm>
 
