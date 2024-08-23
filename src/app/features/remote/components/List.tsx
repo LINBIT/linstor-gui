@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Form, Space, Table, Input, Select, Popconfirm, message } from 'antd';
+import { Button, Form, Space, Table, Input, Select, Popconfirm } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useHistory, useLocation } from 'react-router-dom';
@@ -172,10 +172,6 @@ export const List = () => {
       title: 'Info',
       key: 'info',
       render: (record, info) => {
-        console.log(record, 'record');
-
-        console.log(info, 'info');
-
         if (record.type === 'linstor_remotes') {
           return <span>{`${info.url}`}</span>;
         }
@@ -187,9 +183,6 @@ export const List = () => {
       title: 'Action',
       key: 'action',
       render: (record, info) => {
-        console.log(record, 'record');
-
-        console.log(info, 'info');
         return (
           <Space>
             <Button
@@ -197,7 +190,7 @@ export const List = () => {
                 if (record.type === 's3_remotes') {
                   history.push(`/remote/${record.remote_name}/backups`);
                 } else {
-                  message.error('Only S3 remotes are supported');
+                  window.open(`${info.url}/ui/#!/storage-configuration/resources `);
                 }
               }}
             >
@@ -220,8 +213,6 @@ export const List = () => {
   if (isLoading) {
     return <div>Loading...</div>;
   }
-
-  console.log(dataList, 'dataList');
 
   return (
     <>
