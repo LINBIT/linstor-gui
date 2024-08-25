@@ -8,6 +8,7 @@ import { Dispatch } from '@app/store';
 import Gateway from './components/Gateway';
 import Logo from './components/Logo';
 import Dashboard from './components/Dashboard';
+import Passphrase from './components/Passphrase';
 
 const GeneralSettings: React.FC = () => {
   const dispatch = useDispatch<Dispatch>();
@@ -30,6 +31,11 @@ const GeneralSettings: React.FC = () => {
       key: '3',
       label: 'Dashboard',
       children: <Dashboard />,
+    },
+    {
+      key: '4',
+      label: 'Passphrase',
+      children: <Passphrase />,
     },
   ];
 
