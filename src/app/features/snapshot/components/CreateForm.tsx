@@ -33,6 +33,9 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
 
   const resource = Form.useWatch('resource_name', form);
   const resourceObj = resources?.find((e) => e.name === resource);
+  const disklessNodes = resources
+    ?.filter((e) => e.name === resource && e.flags?.includes('DISKLESS') && e.flags.includes('DRBD_DISKLESS'))
+    .map((e) => e.node_name);
   const resourceStoragePool = resourceObj?.props?.StorPoolName;
 
   const { data, isLoading } = useQuery({
@@ -135,6 +138,7 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
               options={nodes?.map((e) => ({
                 label: e.name,
                 value: e.name,
+                disabled: disklessNodes?.includes(e.name),
               }))}
             />
           </Form.Item>
