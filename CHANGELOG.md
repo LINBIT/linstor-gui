@@ -1,5 +1,21 @@
 # Changelog
 
+# 1.7.6 - 2024-08-26
+
+Fixed
+
+- Field errors and validation in the resource creation form
+- Resource form entry click behavior
+
+Added
+
+- Input for LINSTOR passphrase
+- Support for creating storage pools on different nodes simultaneously
+
+Changed
+
+- Changed the behavior when clicking on the LINSTOR remote backup
+
 # 1.7.5 - 2024-08-12
 
 ### Fixed
