@@ -9,8 +9,9 @@ Fixed
 
 Added
 
-- Input for LINSTOR passphrase
+- Unlock LINSTOR passphrase from settings page
 - Support for creating storage pools on different nodes simultaneously
+- check node status(DISKLESS or not) before creating a resource snapshot
 
 Changed
 
