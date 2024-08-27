@@ -135,11 +135,12 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
               allowClear
               placeholder="Please select nodes"
               mode="multiple"
-              options={nodes?.map((e) => ({
-                label: e.name,
-                value: e.name,
-                disabled: disklessNodes?.includes(e.name),
-              }))}
+              options={nodes
+                ?.filter((e) => !disklessNodes?.includes(e.name))
+                ?.map((e) => ({
+                  label: e.name,
+                  value: e.name,
+                }))}
             />
           </Form.Item>
         </Form>
