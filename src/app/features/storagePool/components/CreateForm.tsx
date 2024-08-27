@@ -42,11 +42,9 @@ const CreateForm = () => {
     history.goBack();
   };
 
-  console.log(node, 'node');
-
   const { data: devicePathOptions } = useQuery({
     queryKey: ['getPhysicalStoragePoolByNode', node],
-    queryFn: () => getPhysicalStoragePoolByNode({ node: node.length > 0 ? node[0] : '' }),
+    queryFn: () => getPhysicalStoragePoolByNode({ node: Array.isArray(node) ? node[0] : node }),
     enabled: !!node && create_type === 'new',
   });
 
