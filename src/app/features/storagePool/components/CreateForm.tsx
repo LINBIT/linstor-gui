@@ -171,9 +171,11 @@ const CreateForm = () => {
         <Input placeholder="Please input storage pool name" />
       </Form.Item>
 
-      <Form.Item name="multiple_nodes" label="Multiple Nodes">
-        <Switch />
-      </Form.Item>
+      {create_type === 'new' && (
+        <Form.Item name="multiple_nodes" label="Multiple Nodes">
+          <Switch />
+        </Form.Item>
+      )}
 
       <Form.Item label="Node" name="node" required rules={[{ required: true, message: 'Please select nodes!' }]}>
         <Select
