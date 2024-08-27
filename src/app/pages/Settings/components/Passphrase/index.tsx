@@ -25,19 +25,19 @@ const Passphrase: React.FC = () => {
     onMutate: () => {
       messageApi.open({
         type: 'info',
-        content: 'Saving passphrase...',
+        content: 'Validating passphrase...',
       });
     },
     onSuccess: () => {
       messageApi.open({
         type: 'success',
-        content: 'Passphrase saved successfully.',
+        content: 'Unlock successfully.',
       });
     },
     onError: () => {
       messageApi.open({
         type: 'error',
-        content: 'Failed to save passphrase.',
+        content: 'Failed to unlock.',
       });
     },
   });
@@ -46,7 +46,7 @@ const Passphrase: React.FC = () => {
     if (!passphrase) {
       messageApi.open({
         type: 'error',
-        content: 'Please enter the Grafana URL.',
+        content: 'Please enter the passphrase.',
       });
       return;
     } else {
@@ -71,7 +71,7 @@ const Passphrase: React.FC = () => {
         />
       </Wrapper>
       <Button type="primary" onClick={handleSave}>
-        Save
+        Unlock
       </Button>
     </>
   );
