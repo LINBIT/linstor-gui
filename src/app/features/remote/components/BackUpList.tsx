@@ -9,6 +9,7 @@ import { SearchForm } from './styled';
 import { formatTime } from '@app/utils/time';
 import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import { CreateBackupForm } from './CreateBackupForm';
+import { EnterPassphrase } from '@app/features/settings';
 
 type RemoteQuery = {
   origin_rsc?: string | null;
@@ -171,11 +172,7 @@ export const List = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (record, info) => {
-        console.log(record, 'record');
-
-        console.log(info, 'info');
-
+      render: (record) => {
         return (
           <Popconfirm
             title="Delete this backup?"
@@ -229,6 +226,8 @@ export const List = () => {
             <CreateBackupForm refetch={refetch} />
           </Form.Item>
         </Form>
+
+        <EnterPassphrase />
       </SearchForm>
 
       <br />
