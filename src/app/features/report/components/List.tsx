@@ -7,6 +7,8 @@ import { ErrorReport, ErrorReportDeleteRangeRequest, GetErrorReportRequestQuery 
 import { formatTime, getTime } from '@app/utils/time';
 import { useNodes } from '@app/features/node';
 import { useHistory, useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { RootState } from '@app/store';
 
 const { RangePicker } = DatePicker;
 
@@ -23,6 +25,10 @@ export const List = () => {
 
   const history = useHistory();
   const location = useLocation();
+
+  const { vsanModeFromSetting } = useSelector((state: RootState) => ({
+    vsanModeFromSetting: state.setting.vsanMode,
+  }));
 
   const [query, setQuery] = useState({});
 
@@ -137,7 +143,8 @@ export const List = () => {
           <Button
             type="link"
             onClick={() => {
-              history.push(`/inventory/nodes/${node_name}`);
+              const url = vsanModeFromSetting ? '/vsan/nodes' : '/inventory/nodes';
+              history.push(`${url}/${node_name}`);
             }}
           >
             {node_name}

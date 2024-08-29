@@ -1,10 +1,12 @@
 import { getNetWorkInterfaceByNode, NetWorkInterface } from '@app/features/ip';
 import { useNodes } from '@app/features/node';
 import { getResourceGroups } from '@app/features/resourceGroup';
+import { RootState } from '@app/store';
 import styled from '@emotion/styled';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { Button, Modal } from 'antd';
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
 type NetInterfaceDetailProp = {
@@ -31,6 +33,12 @@ export const NetInterfaceDetail = ({ item }: NetInterfaceDetailProp) => {
     queryKey: ['resourceGroup'],
     queryFn: () => getResourceGroups({}),
   });
+
+  const { vsanModeFromSetting } = useSelector((state: RootState) => ({
+    vsanModeFromSetting: state.setting.vsanMode,
+  }));
+
+  console.log(vsanModeFromSetting, 'vsanModeFromSetting');
 
   const networkQueries = useQueries({
     queries:
@@ -86,7 +94,8 @@ export const NetInterfaceDetail = ({ item }: NetInterfaceDetailProp) => {
                 <Button
                   type="link"
                   onClick={() => {
-                    history.push(`/inventory/nodes/${nw?.node}`);
+                    const url = vsanModeFromSetting ? '/vsan/nodes' : '/inventory/nodes';
+                    history.push(`${url}/${nw?.node}`);
                   }}
                 >
                   {nw?.node}
