@@ -82,8 +82,9 @@ export const List = () => {
   }, [show_default, storagePoolList?.data]);
 
   const deleteMutation = useMutation({
-    mutationFn: ({ node, storagepool }: { node: string; storagepool: string }) =>
-      deleteStoragePoolV2({ node, storagepool }),
+    mutationFn: ({ node, storagepool }: { node: string; storagepool: string }) => {
+      return deleteStoragePoolV2({ node, storagepool });
+    },
     onSuccess: () => {
       refetch();
     },
@@ -133,8 +134,9 @@ export const List = () => {
   const handleDeleteBulk = () => {
     selectedRowKeys.forEach((ele) => {
       const currentSP = storagePoolListDisplay?.find((e) => e.uuid === ele);
+
       const node = currentSP?.node_name ?? '';
-      const storagepool = current?.storage_pool_name ?? '';
+      const storagepool = currentSP?.storage_pool_name ?? '';
 
       deleteMutation.mutate({
         node,
