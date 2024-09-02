@@ -202,7 +202,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
         ]}
         tooltip="Accepts only alphanumeric, ., +, _, and - characters. For example: res1, res.1, res+1, res_1, res-1"
       >
-        <Input placeholder="Please input resource definition name" />
+        <Input placeholder="Please input resource definition name" disabled={isEdit} />
       </Form.Item>
 
       <Form.Item
