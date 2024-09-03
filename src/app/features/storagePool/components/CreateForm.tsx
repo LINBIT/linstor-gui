@@ -150,8 +150,8 @@ const CreateForm = () => {
             <Radio.Button value="new">New Device</Radio.Button>
           </Tooltip>
 
-          <Tooltip title="You need create the column group via CLI first.">
-            <Radio.Button value="existing">Existing Driver</Radio.Button>
+          <Tooltip title="To use an existing device, first create a volume group and logical volume by using LVM CLI commands.">
+            <Radio.Button value="existing">Existing Device</Radio.Button>
           </Tooltip>
         </Radio.Group>
       </Form.Item>
