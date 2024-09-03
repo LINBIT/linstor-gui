@@ -80,7 +80,7 @@ const routes: AppRouteConfig[] = [
   {
     component: GrafanaDashboard,
     exact: true,
-    path: '/dashboard',
+    path: '/grafana',
     title: 'LINSTOR | Grafana Dashboard',
     label: 'grafana',
   },

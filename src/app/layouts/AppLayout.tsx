@@ -35,7 +35,6 @@ import { useUIModeStorage, usePersistentMenuState } from '@app/hooks';
 import { useEffect, useState } from 'react';
 import {
   AppstoreOutlined,
-  ClockCircleOutlined,
   CloudServerOutlined,
   ContainerOutlined,
   DatabaseOutlined,
@@ -151,6 +150,8 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   if (!KVS?.dashboardEnabled) {
     filteredRoutes = hideRoutes('grafana', filteredRoutes);
   }
+
+  console.log(filteredRoutes, 'filteredRoutes');
 
   const customizedLogo = isSvg(logoSrc as any) ? logoSrc : null;
 
@@ -345,7 +346,20 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
         ]),
       ];
 
-      const itemsRes = [...normalItems, ...(KVS?.gatewayEnabled ? gatewayItems : []), ...settingsAndUsers];
+      const grafanaItem = [
+        {
+          key: '/grafana',
+          label: <Link to="/grafana">Grafana</Link>,
+          icon: <PieChartOutlined />,
+        },
+      ];
+
+      const itemsRes = [
+        ...normalItems,
+        ...(KVS?.dashboardEnabled ? grafanaItem : []),
+        ...(KVS?.gatewayEnabled ? gatewayItems : []),
+        ...settingsAndUsers,
+      ];
 
       return itemsRes;
     }
