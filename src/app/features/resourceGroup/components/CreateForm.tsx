@@ -174,8 +174,8 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
     <Form<FormType>
       size="large"
       layout="horizontal"
-      labelCol={{ span: 7 }}
-      wrapperCol={{ span: 17 }}
+      labelCol={{ span: 8 }}
+      wrapperCol={{ span: 16 }}
       form={form}
       initialValues={{
         data_copy_mode: 'C',
@@ -186,7 +186,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
       onFinish={onFinish}
     >
       <Row gutter={[16, 16]}>
-        <Col span={10}>
+        <Col span={12}>
           <Form.Item
             label="Name"
             name="name"
@@ -299,7 +299,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
             </Checkbox>
           </Form.Item>
         </Col>
-        <Col span={10}>
+        <Col span={12}>
           <Form.Item
             label={
               <LabelContainer>
