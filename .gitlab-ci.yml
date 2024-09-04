@@ -1,9 +1,20 @@
-image: node:current-alpine3.15
+image: node:20
+
+stages:
+  - build
 
 build:
   stage: build
   interruptible: true
   script:
+    - echo "Node.js version:"
+    - node -v
+    - echo "npm version:"
+    - npm -v
+    - VERSION="DEV-$(date +'%Y-%m-%d')-$CI_COMMIT_SHORT_SHA"
+    - echo $VERSION
+    - echo "VERSION=$VERSION" > .env
+    - cat .env
     - npm install
     - npm run build
   artifacts:
