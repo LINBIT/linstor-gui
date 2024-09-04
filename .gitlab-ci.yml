@@ -1,0 +1,12 @@
+image: node:current-alpine3.15
+
+build:
+  stage: build
+  interruptible: true
+  script:
+    - npm install
+    - npm run build
+  artifacts:
+    paths:
+      - 'dist/'
+    expire_in: '30 days'

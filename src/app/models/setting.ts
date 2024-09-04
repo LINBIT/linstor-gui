@@ -7,12 +7,13 @@ import { RootModel } from '.';
 import { settingAPI, SettingsAPI, SettingsProps } from '@app/features/settings';
 import { kvStore } from '@app/features/keyValueStore';
 import { UserAuthAPI } from '@app/features/authentication/api';
+import { GUI_KEY_VALUE_STORE_KEY } from '@app/const/settings';
 
 const defaultGatewayHost = window.location.protocol + '//' + window.location.hostname + ':8080/';
 
 // Use "__gui__settings" namespace of key-value-store(KVS) for saving settings
 // KVS only stores values as string
-const SETTING_KEY = '__gui__settings';
+const SETTING_KEY = GUI_KEY_VALUE_STORE_KEY;
 const GATEWAY_HOST = 'GATEWAY_HOST';
 const VSAN_HOST = 'VSAN_HOST';
 
@@ -79,6 +80,7 @@ export const setting = createModel<RootModel>()({
 
     async initSettingStore(vsanMode: boolean) {
       const res = await SettingsAPI.instanceExists();
+
       const userStore = await kvStore.instanceExists('users');
 
       if (res) {
@@ -101,6 +103,10 @@ export const setting = createModel<RootModel>()({
 
     async getSettings() {
       try {
+        const res = await SettingsAPI.instanceExists();
+        if (!res) {
+          return;
+        }
         const props = await settingAPI.getProps();
 
         // keep store info in redux

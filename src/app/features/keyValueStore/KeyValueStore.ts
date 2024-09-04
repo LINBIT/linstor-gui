@@ -30,6 +30,7 @@ export class KeyValueStore {
   // list all instances
   public async listInstances(): Promise<string[]> {
     const response = await this.list();
+
     if (response) {
       return response.map((e) => e.name ?? '').filter((e) => e !== '');
     } else {

@@ -120,6 +120,8 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
 
     if (initialOpenFromVSAN) {
       dispatch.setting.initSettingStore(VSAN_URL);
+    } else {
+      dispatch.setting.initSettingStore(false);
     }
 
     if (VSAN_URL) {

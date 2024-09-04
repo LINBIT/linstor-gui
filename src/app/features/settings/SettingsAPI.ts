@@ -1,3 +1,4 @@
+import { GUI_KEY_VALUE_STORE_KEY } from '@app/const/settings';
 import { authAPI } from '../authentication';
 import { KeyValueStoreType, kvStore } from '../keyValueStore';
 
@@ -5,7 +6,7 @@ import { SettingsProps } from './types';
 
 export class SettingsAPI {
   private store: KeyValueStoreType;
-  static instance = '__gui__settings';
+  static instance = GUI_KEY_VALUE_STORE_KEY;
 
   constructor() {
     this.store = kvStore;
