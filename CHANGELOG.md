@@ -1,5 +1,27 @@
 # Changelog
 
+# 1.7.7 - 2024-09-05
+
+Fixed
+
+- VSAN link error on the error report page
+- Select and delete error on the Storage Pool page
+- Style issues on the resource group page
+- Key-value store initialization error for GUI settings
+- Grafana dashboard routing and link error
+
+Added
+
+- CI pipeline on GitLab
+- SOS report download
+- Create/edit passphrase
+
+Changed
+
+- Only admin users can access the settings page and the users page
+- Renamed “Dashboard” to “Grafana Dashboard” on the settings page
+- Textual changes on the Storage Pool page
+
 # 1.7.6 - 2024-08-26
 
 Fixed
