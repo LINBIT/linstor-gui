@@ -1,0 +1,47 @@
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useQuery } from '@tanstack/react-query';
+import { Button } from 'antd';
+import dayjs from 'dayjs';
+
+const generateFileName = () => {
+  const timestamp = dayjs().format('YYYY-MM-DD_HH-mm-ss');
+  return `sos_${timestamp}.tar.gz`;
+};
+
+const downloadFile = async () => {
+  const response = await axios.get('/v1/sos-report/download', {
+    responseType: 'blob',
+  });
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', generateFileName());
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+};
+
+const DownloadSOS = () => {
+  const [downloading, setDownloading] = useState(false);
+  const { refetch } = useQuery({
+    queryKey: ['downloadSOS'],
+    queryFn: () => downloadFile(),
+    enabled: false,
+  });
+
+  const handleDownload = async () => {
+    setDownloading(true);
+    await refetch();
+    setDownloading(false);
+  };
+
+  return (
+    <Button type="primary" onClick={handleDownload} loading={downloading}>
+      Download SOS Report
+    </Button>
+  );
+};
+
+export default DownloadSOS;

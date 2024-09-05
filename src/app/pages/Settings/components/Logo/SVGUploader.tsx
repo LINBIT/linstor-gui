@@ -38,8 +38,6 @@ export const SVGFileUpload: React.FunctionComponent = () => {
     }
   }, [customLogoEnabled, form]);
 
-  console.log(customLogoEnabled, 'customLogoEnabled');
-
   return (
     <Form labelCol={{ span: 6 }} wrapperCol={{ span: 18 }} layout="horizontal" style={{ maxWidth: 400 }} form={form}>
       <Form.Item label="Custom Logo" valuePropName="checked" name="customLogoEnabled">

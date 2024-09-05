@@ -9,8 +9,16 @@ import { useNodes } from '@app/features/node';
 import { useHistory, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';
+import styled from '@emotion/styled';
+import DownloadSOS from './DownloadSOS';
 
 const { RangePicker } = DatePicker;
+
+const SearchItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+`;
 
 const getId = (report: ErrorReport) => {
   return report?.filename?.replace('ErrorReport-', '').replace('.log', '') || '';
@@ -217,63 +225,67 @@ export const List = () => {
 
   return (
     <>
-      <Form form={form} name="error_report" layout="inline">
-        <Form.Item name="node" label="Node">
-          <Select
-            style={{ width: 180 }}
-            allowClear
-            placeholder="Please select node"
-            options={nodes?.data?.map((e) => ({
-              label: e.name,
-              value: e.name,
-            }))}
-          />
-        </Form.Item>
+      <SearchItem>
+        <Form form={form} name="error_report" layout="inline">
+          <Form.Item name="node" label="Node">
+            <Select
+              style={{ width: 180 }}
+              allowClear
+              placeholder="Please select node"
+              options={nodes?.data?.map((e) => ({
+                label: e.name,
+                value: e.name,
+              }))}
+            />
+          </Form.Item>
 
-        <Form.Item name="module" label="Module">
-          <Select
-            style={{ width: 180 }}
-            allowClear
-            placeholder="Please select module"
-            options={modules.map((e) => ({
-              label: e.text,
-              value: e.value,
-            }))}
-          />
-        </Form.Item>
+          <Form.Item name="module" label="Module">
+            <Select
+              style={{ width: 180 }}
+              allowClear
+              placeholder="Please select module"
+              options={modules.map((e) => ({
+                label: e.text,
+                value: e.value,
+              }))}
+            />
+          </Form.Item>
 
-        <Form.Item name="range" label="Time range">
-          <RangePicker />
-        </Form.Item>
+          <Form.Item name="range" label="Time range">
+            <RangePicker />
+          </Form.Item>
 
-        <Form.Item>
-          <Space size="small">
-            <Button type="default" onClick={handleReset}>
-              Reset
-            </Button>
-            <Button
-              type="primary"
-              onClick={() => {
-                handleSearch();
-              }}
-            >
-              Search
-            </Button>
-            {hasSelected && (
-              <Popconfirm
-                key="delete"
-                title="Delete the error reports"
-                description="Are you sure to delete selected error reports?"
-                okText="Yes"
-                cancelText="No"
-                onConfirm={handleDeleteBulk}
+          <Form.Item>
+            <Space size="small">
+              <Button type="default" onClick={handleReset}>
+                Reset
+              </Button>
+              <Button
+                type="primary"
+                onClick={() => {
+                  handleSearch();
+                }}
               >
-                <Button danger>Delete</Button>
-              </Popconfirm>
-            )}
-          </Space>
-        </Form.Item>
-      </Form>
+                Search
+              </Button>
+              {hasSelected && (
+                <Popconfirm
+                  key="delete"
+                  title="Delete the error reports"
+                  description="Are you sure to delete selected error reports?"
+                  okText="Yes"
+                  cancelText="No"
+                  onConfirm={handleDeleteBulk}
+                >
+                  <Button danger>Delete</Button>
+                </Popconfirm>
+              )}
+            </Space>
+          </Form.Item>
+        </Form>
+
+        <DownloadSOS />
+      </SearchItem>
 
       <br />
 
