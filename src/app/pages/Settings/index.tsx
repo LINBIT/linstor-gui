@@ -29,7 +29,7 @@ const GeneralSettings: React.FC = () => {
     },
     {
       key: '3',
-      label: 'Dashboard',
+      label: 'Grafana',
       children: <Dashboard />,
     },
     {
