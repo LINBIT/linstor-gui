@@ -13,7 +13,7 @@ import {
   PageHeaderToolsItem,
 } from '@patternfly/react-core';
 
-import { Avatar, Dropdown, Menu, MenuProps } from 'antd';
+import { Avatar, Dropdown, Menu, MenuProps, Modal } from 'antd';
 
 import SVG from 'react-inlinesvg';
 
@@ -51,10 +51,35 @@ import {
 } from '@ant-design/icons';
 import { BRAND_COLOR } from '@app/const/color';
 import { Mode } from '@app/hooks/useUIModeStorage';
+import styled from '@emotion/styled';
 
 interface IAppLayout {
   children: React.ReactNode;
+  registered?: boolean;
 }
+
+const NoSupport = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-size: 1rem;
+  background: #ff3c00;
+  padding: 4px 6px;
+  margin-right: 12px;
+  border-radius: 8px;
+`;
+
+const SupportList = styled.ul`
+  margin-top: 8px;
+  padding-left: 24px;
+`;
+
+const SupportListItem = styled.li`
+  list-style: circle;
+  margin-bottom: 8px;
+  padding-left: 8px;
+`;
 
 const hideRoutes = (label, routes) => {
   return routes.filter((route) => {
@@ -83,7 +108,7 @@ function getItem(
   } as MenuItem;
 }
 
-const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
+const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }) => {
   const [isNavOpen, setIsNavOpen] = usePersistentMenuState(true);
   const [isMobileView, setIsMobileView] = useState(true);
   const [isNavOpenMobile, setIsNavOpenMobile] = useState(false);
@@ -92,6 +117,16 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const [openKey, setOpenKey] = useState('');
   const dispatch = useDispatch<Dispatch>();
   const history = useHistory();
+
+  const [isModalOpen, setIsModalOpen] = useState(!!registered);
+
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
 
   const onModeChange = (mode: Mode) => {
     setIsNavOpen(true);
@@ -144,17 +179,15 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
     setIsMobileView(props.mobileView);
   };
 
-  let filteredRoutes = KVS?.gatewayEnabled ? routes : routes.filter((route) => route.label !== 'gateway');
+  const filteredRoutes = KVS?.gatewayEnabled ? routes : routes.filter((route) => route.label !== 'gateway');
 
   if (!KVS?.gatewayEnabled) {
-    filteredRoutes = hideRoutes('gateway', filteredRoutes);
+    hideRoutes('gateway', filteredRoutes);
   }
 
   if (!KVS?.dashboardEnabled) {
-    filteredRoutes = hideRoutes('grafana', filteredRoutes);
+    hideRoutes('grafana', filteredRoutes);
   }
-
-  console.log(filteredRoutes, 'filteredRoutes');
 
   const customizedLogo = isSvg(logoSrc as any) ? logoSrc : null;
 
@@ -245,6 +278,17 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
   const headerTools = (
     <PageHeaderTools>
       <PageHeaderToolsGroup>
+        {!registered && (
+          <PageHeaderToolsItem>
+            <NoSupport>
+              You are running an unofficial build. Please consider&nbsp;
+              <a href="https://www.linbit.com/unofficial-build" target="_blank" rel="noreferrer">
+                supporting
+              </a>
+              &nbsp;this open source project.
+            </NoSupport>
+          </PageHeaderToolsItem>
+        )}
         <PageHeaderToolsItem>
           <ConnectStatus />
         </PageHeaderToolsItem>
@@ -459,6 +503,33 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
         pauseOnHover
         limit={3}
       />
+
+      <Modal
+        title="WARNING"
+        open={isModalOpen}
+        onOk={handleOk}
+        closable={false}
+        maskClosable={false}
+        onClose={handleCancel}
+        footer={(_, { OkBtn }) => (
+          <>
+            <OkBtn />
+          </>
+        )}
+      >
+        <div>
+          <p>You are running an unofficial build without support from LINBIT.</p>
+
+          <p>With acquiring a support subscription from LINBIT:</p>
+
+          <SupportList>
+            <SupportListItem>you get access to the LINBIT support team</SupportListItem>
+            <SupportListItem>you get access to pre-build packages of the whole LINSTOR/DRBD stack</SupportListItem>
+            <SupportListItem>you support the further development of the LINSTOR/DRBD storage stack</SupportListItem>
+            <SupportListItem>you get rid of this dialog box</SupportListItem>
+          </SupportList>
+        </div>
+      </Modal>
     </>
   );
 };

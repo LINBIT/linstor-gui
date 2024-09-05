@@ -13,7 +13,7 @@ import { getControllerConfig } from '@app/features/node';
 
 const ConnectStatus: React.FC = () => {
   const { isLoading, error } = useQuery({
-    queryKey: ['getSpaceReport'],
+    queryKey: ['getControllerConfig'],
     queryFn: getControllerConfig,
   });
 

@@ -106,8 +106,6 @@ export const setting = createModel<RootModel>()({
         authAPI.initUserStore();
       }
 
-      console.log('Setting store initialized');
-
       dispatch.setting.setInitialized(res);
     },
 

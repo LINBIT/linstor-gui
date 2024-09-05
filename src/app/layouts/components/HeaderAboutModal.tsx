@@ -46,9 +46,9 @@ const HeaderAboutModal: React.FC = () => {
       <AboutModal
         isOpen={isModalOpen}
         onClose={handleModalToggle}
-        trademark="Subscribers to LINBIT's LINBIT-SDS subscriptions get a permanent license to use this GUI software. Re-distribution not allowed."
+        trademark="LINSTOR-GUI is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details."
         brandImageSrc={brandImg}
-        brandImageAlt="Patternfly Logo"
+        brandImageAlt="Logo"
         productName="LINBIT-SDS"
         backgroundImageSrc={bgImg}
       >

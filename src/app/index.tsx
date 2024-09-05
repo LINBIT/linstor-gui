@@ -27,7 +27,6 @@ const App: React.FunctionComponent = () => {
   const { isLoading, error, data } = useQuery({
     queryKey: ['getSpaceReport'],
     queryFn: getSpaceReport,
-    staleTime: 0,
   });
 
   // Check if has space-report result
@@ -48,7 +47,7 @@ const App: React.FunctionComponent = () => {
           }}
           locale={locale}
         >
-          <AppLayout>
+          <AppLayout registered={appEnabled}>
             <AppRoutes />
           </AppLayout>
         </ConfigProvider>
