@@ -7,7 +7,7 @@ import { RootModel } from '.';
 import { settingAPI, SettingsAPI, SettingsProps } from '@app/features/settings';
 import { kvStore } from '@app/features/keyValueStore';
 import { UserAuthAPI } from '@app/features/authentication/api';
-import { GUI_KEY_VALUE_STORE_KEY } from '@app/const/settings';
+import { GUI_KEY_VALUE_STORE_KEY, USER_LOCAL_STORAGE_KEY } from '@app/const/settings';
 
 const defaultGatewayHost = window.location.protocol + '//' + window.location.hostname + ':8080/';
 
@@ -25,6 +25,7 @@ type Setting = {
   initialized?: boolean;
   logo?: string;
   vsanMode?: boolean;
+  isAdmin?: boolean;
 };
 
 export const setting = createModel<RootModel>()({
@@ -34,6 +35,7 @@ export const setting = createModel<RootModel>()({
     initialized: false,
     logo: '',
     vsanMode: false,
+    isAdmin: false,
   } as Setting,
   reducers: {
     setGatewayAvailable(state, payload: boolean) {
@@ -68,6 +70,12 @@ export const setting = createModel<RootModel>()({
         logo: payload,
       };
     },
+    setAdmin(state) {
+      return {
+        ...state,
+        isAdmin: state.KVS?.authenticationEnabled && window.localStorage.getItem(USER_LOCAL_STORAGE_KEY) === 'admin',
+      };
+    },
   },
   effects: (dispatch) => ({
     async getGatewayStatus() {
@@ -97,6 +105,8 @@ export const setting = createModel<RootModel>()({
       if (!userStore) {
         authAPI.initUserStore();
       }
+
+      console.log('Setting store initialized');
 
       dispatch.setting.setInitialized(res);
     },
@@ -150,6 +160,8 @@ export const setting = createModel<RootModel>()({
       } catch (error) {
         console.log(error);
       }
+
+      dispatch.setting.setAdmin();
     },
     async saveKey(payload: Record<string, number | string | boolean>, state) {
       await service.put(`/v1/key-value-store/${SETTING_KEY}`, {

@@ -354,13 +354,16 @@ const vsanRoutes: IAppRoute[] = [
   },
 ];
 
+const adminRoutes = ['/settings', '/users'];
+
 const AppRoutes = (): React.ReactElement => {
   const [displayedRoutes, setDisplayedRoutes] = useState(flattenedRoutes);
   const history = useHistory();
 
-  const { KVS, vsanModeFromSettings } = useSelector((state: RootState) => ({
+  const { KVS, vsanModeFromSettings, isAdmin } = useSelector((state: RootState) => ({
     KVS: state.setting.KVS,
     vsanModeFromSettings: state.setting.vsanMode,
+    isAdmin: state.setting.isAdmin,
   }));
 
   const dispatch = useDispatch<Dispatch>();
@@ -376,9 +379,16 @@ const AppRoutes = (): React.ReactElement => {
     if (VSAN_MODE) {
       setDisplayedRoutes(vsanRoutes);
     } else {
-      setDisplayedRoutes(flattenedRoutes);
+      if (KVS?.authenticationEnabled && !isAdmin) {
+        const filteredRoutesForNonAdmin = flattenedRoutes.filter((route) => {
+          return !adminRoutes.includes(route.path);
+        });
+        setDisplayedRoutes(filteredRoutesForNonAdmin);
+      } else {
+        setDisplayedRoutes(flattenedRoutes);
+      }
     }
-  }, [dispatch.setting, history, KVS?.vsanMode, vsanModeFromSettings]);
+  }, [dispatch.setting, history, KVS?.vsanMode, vsanModeFromSettings, isAdmin, KVS?.authenticationEnabled]);
 
   return (
     <Switch>

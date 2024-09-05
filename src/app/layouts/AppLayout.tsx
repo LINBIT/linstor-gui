@@ -104,11 +104,12 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
     dispatch.auth.checkLoginStatus();
   }, [dispatch.auth]);
 
-  const { KVS, authInfo, logoSrc, vsanModeFromSetting } = useSelector((state: RootState) => ({
+  const { KVS, authInfo, logoSrc, vsanModeFromSetting, isAdmin } = useSelector((state: RootState) => ({
     KVS: state.setting.KVS,
     authInfo: state.auth,
     logoSrc: state.setting.logo,
     vsanModeFromSetting: state.setting.vsanMode,
+    isAdmin: state.setting.isAdmin,
   }));
   // if authenticationEnabled is false then just enter the page
   const authenticationEnabled = KVS?.authenticationEnabled;
@@ -336,8 +337,8 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
       ];
 
       const settingsAndUsers = [
-        getItem(<Link to="/settings">Settings</Link>, '/settings', <SettingOutlined />),
         getItem(<Link to="/users">Users</Link>, '/users', <UserOutlined />),
+        getItem(<Link to="/settings">Settings</Link>, '/settings', <SettingOutlined />),
       ];
 
       const gatewayItems = [
@@ -360,12 +361,12 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children }) => {
         ...normalItems,
         ...(KVS?.dashboardEnabled ? grafanaItem : []),
         ...(KVS?.gatewayEnabled ? gatewayItems : []),
-        ...settingsAndUsers,
+        ...(!authenticationEnabled || isAdmin ? settingsAndUsers : []),
       ];
 
       return itemsRes;
     }
-  }, [KVS?.gatewayEnabled, vsanModeFromSetting]);
+  }, [KVS?.dashboardEnabled, KVS?.gatewayEnabled, authenticationEnabled, isAdmin, vsanModeFromSetting]);
 
   useEffect(() => {
     const currentMenu = items.find(
