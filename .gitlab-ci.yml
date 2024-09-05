@@ -1,3 +1,6 @@
+variables:
+  BUILD_HELPERS_VERSION: 1f06f67592fbd5c655f62342684af25ecfdede1b
+
 image: node:20
 
 stages:
@@ -6,18 +9,32 @@ stages:
 build:
   stage: build
   interruptible: true
+  before_script:
+    - curl -sSfL -u gitlab-ci-token:$CI_JOB_TOKEN $CI_SERVER_URL/linbit/build-helpers/-/archive/$BUILD_HELPERS_VERSION/ignored.tar.gz | tar -xvzf -
+    - mv build-helpers-* build-helpers
+    - . build-helpers/gitlab-utils.sh
+    - ci_prepare_tools
+    - ci_fetch_lbbuildctl
   script:
     - echo "Node.js version:"
     - node -v
     - echo "npm version:"
     - npm -v
-    - VERSION="DEV-$(date +'%Y-%m-%d')-$CI_COMMIT_SHORT_SHA"
-    - echo $VERSION
-    - echo "VERSION=$VERSION" > .env
-    - cat .env
-    - npm install
-    - npm run build
+    - VERSION="0.0.0.$CI_COMMIT_SHORT_SHA"
+    - install /dev/null /usr/local/bin/lbvers.py # disable version checking
+    - build-helpers/dummy-release.sh linstor-gui $VERSION 1 linstor-gui.spec
+    - make VERSION="$VERSION" debrelease
+    - curl -isSf -u $LINBIT_REGISTRY_USER:$LINBIT_REGISTRY_PASSWORD
+          --upload-file linstor-gui-*.tar.gz
+          $LINBIT_REGISTRY_URL/repository/lbbuild-upstream/
+    - lbbuildctl build linstor-gui --ci -v "$VERSION"
+          -e LINBIT_REGISTRY_USER=$LINBIT_REGISTRY_USER
+          -e LINBIT_REGISTRY_PASSWORD=$LINBIT_REGISTRY_PASSWORD
+          -e LINBIT_REGISTRY_URL=$LINBIT_REGISTRY_URL
+          --arch amd64
+          -d ubuntu-noble -d rhel9.0
+
   artifacts:
     paths:
-      - 'dist/'
+      - 'linstor-gui-*.tar.gz'
     expire_in: '30 days'
