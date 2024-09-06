@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0
+//
+// Copyright (c) 2024 LINBIT
+//
+// Author: Liang Li <liang.li@linbit.com>
+
 import React, { useState } from 'react';
 import { Button, ExpandableSection, Select, SelectOption, SelectVariant } from '@patternfly/react-core';
 

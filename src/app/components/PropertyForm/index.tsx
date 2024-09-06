@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0
+//
+// Copyright (c) 2024 LINBIT
+//
+// Author: Liang Li <liang.li@linbit.com>
+
 import { handlePropsToFormOption } from '@app/utils/property';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Modal, ModalVariant } from '@patternfly/react-core';

@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0
+//
+// Copyright (c) 2024 LINBIT
+//
+// Author: Liang Li <liang.li@linbit.com>
+
 import { USER_LOCAL_STORAGE_KEY } from '@app/const/settings';
 import { KeyValueStoreType, kvStore } from '@app/features/keyValueStore';
 import CryptoJS from 'crypto-js';

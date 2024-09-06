@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0
+//
+// Copyright (c) 2024 LINBIT
+//
+// Author: Liang Li <liang.li@linbit.com>
+
 import React, { useState } from 'react';
 import { Alert, Button, Form, Input } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';

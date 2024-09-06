@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0
+//
+// Copyright (c) 2024 LINBIT
+//
+// Author: Liang Li <liang.li@linbit.com>
+
 import React, { useState } from 'react';
 import { Dropdown, DropdownToggle, DropdownItem } from '@patternfly/react-core';
 import { CaretDownIcon } from '@patternfly/react-icons';

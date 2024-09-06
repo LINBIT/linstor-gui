@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0
+//
+// Copyright (c) 2024 LINBIT
+//
+// Author: Liang Li <liang.li@linbit.com>
+
 import service from '@app/requests';
 import { notify } from '@app/utils/toast';
 import { createModel } from '@rematch/core';

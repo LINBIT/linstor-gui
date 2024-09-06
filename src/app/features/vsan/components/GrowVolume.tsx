@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0
+//
+// Copyright (c) 2024 LINBIT
+//
+// Author: Liang Li <liang.li@linbit.com>
+
 import { SizeInput } from '@app/components/SizeInput';
 import { Button, Checkbox, Form, Modal, Space, notification } from 'antd';
 import React, { useEffect, useState } from 'react';

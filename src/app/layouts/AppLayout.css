@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: GPL-3.0
+ * Copyright (c) 2024 LINBIT
+ * Author: Liang Li <liang.li@linbit.com>
+ */
 * {
   --pf-c-page__sidebar--BackgroundColor: var(--pf-global--BackgroundColor--dark-100);
 }

@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0
+//
+// Copyright (c) 2024 LINBIT
+//
+// Author: Liang Li <liang.li@linbit.com>
+
 import React, { useState } from 'react';
 import { TableComposable, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
 import { Bullseye, Button, EmptyState, EmptyStateIcon, EmptyStateVariant, Label, Title } from '@patternfly/react-core';

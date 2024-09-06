@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0
+//
+// Copyright (c) 2024 LINBIT
+//
+// Author: Liang Li <liang.li@linbit.com>
+
 import { useState, useEffect } from 'react';
 // VSAN Mode could be "VSAN" or "NORMAL"
 // "VSAN" UIMode is for vSAN UI

@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0
+//
+// Copyright (c) 2024 LINBIT
+//
+// Author: Liang Li <liang.li@linbit.com>
+
 import { components, operations } from '@app/apis/schema';
 
 export type CreateResourceDefinitionRequestBody = components['schemas']['ResourceDefinitionCreate'];

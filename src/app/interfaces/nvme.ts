@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0
+//
+// Copyright (c) 2024 LINBIT
+//
+// Author: Liang Li <liang.li@linbit.com>
+
 const item = {
   nqn: 'linbit:nvme:example4',
   service_ip: '192.168.211.122/24',

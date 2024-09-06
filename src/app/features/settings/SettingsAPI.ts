@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0
+//
+// Copyright (c) 2024 LINBIT
+//
+// Author: Liang Li <liang.li@linbit.com>
+
 import { GUI_KEY_VALUE_STORE_KEY } from '@app/const/settings';
 import { authAPI } from '../authentication';
 import { KeyValueStoreType, kvStore } from '../keyValueStore';

@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0
+//
+// Copyright (c) 2024 LINBIT
+//
+// Author: Liang Li <liang.li@linbit.com>
+
 import { getNetWorkInterfaceByNode, NetWorkInterface } from '@app/features/ip';
 import { useNodes } from '@app/features/node';
 import { getResourceGroups } from '@app/features/resourceGroup';

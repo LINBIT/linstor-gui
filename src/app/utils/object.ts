@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0
+//
+// Copyright (c) 2024 LINBIT
+//
+// Author: Liang Li <liang.li@linbit.com>
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const removeProperty = (propKey, { [propKey]: propValue, ...rest }) => rest;
 

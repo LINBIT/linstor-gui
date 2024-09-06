@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0
+//
+// Copyright (c) 2024 LINBIT
+//
+// Author: Liang Li <liang.li@linbit.com>
+
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Button, Checkbox, Col, Divider, Form, Input, Popover, Radio, Row, Select, Switch } from 'antd';

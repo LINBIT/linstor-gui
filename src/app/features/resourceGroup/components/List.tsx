@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0
+//
+// Copyright (c) 2024 LINBIT
+//
+// Author: Liang Li <liang.li@linbit.com>
+
 import React, { useMemo, useState } from 'react';
 import { Button, Form, Space, Table, Tag, Popconfirm, Input, Dropdown } from 'antd';
 import type { TableProps } from 'antd';
