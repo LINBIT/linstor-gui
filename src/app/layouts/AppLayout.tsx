@@ -288,7 +288,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
           <PageHeaderToolsItem>
             <NoSupport>
               You are running an unofficial build. Please consider&nbsp;
-              <a href="https://www.linbit.com/unofficial-build" target="_blank" rel="noreferrer">
+              <a href="https://linbit.com/sds-subscription" target="_blank" rel="noreferrer">
                 supporting
               </a>
               &nbsp;this open source project.
