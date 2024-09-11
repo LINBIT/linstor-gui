@@ -32,6 +32,19 @@ help:
 deps: ## install dependencies
 	npm install
 
+.PHONY: release
+release: checkVERSION build
+	mkdir -p /tmp/$(PROG)-$(VERSION)
+	cp -r dist Makefile /tmp/$(PROG)-$(VERSION)
+	tar -C /tmp --owner=0 --group=0 -czvf $(PROG)-$(VERSION).tar.gz $(PROG)-$(VERSION)
+
+.PHONY: release-docker
+release-docker: checkVERSION
+	tmpdir=$$(mktemp -d) && \
+	docker run -it --rm -v $(PWD):/src:ro,z -v $$tmpdir:/out:z node:$(NODEVERSION) /bin/bash -c \
+		'install /dev/null /usr/local/bin/lbvers.py && cd $$HOME && cp -r /src . && cd ./src && make release VERSION=$(VERSION) && cp $(PROG)-$(VERSION).tar.gz /out' && \
+	mv $$tmpdir/*.tar.gz . && echo "rm -rf $$tmpdir"
+
 .PHONY: debrelease
 debrelease: checkVERSION build
 	mkdir -p /tmp/$(PROG)-$(VERSION)/debian
