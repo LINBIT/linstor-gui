@@ -618,14 +618,13 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
         <ModalContent>
           <Warning src={warning} />
           <Content>
-            <div>Attention! You are running an unsupported build without support from LINBIT. </div>
-            <div>With acquiring a support subscription from LINBIT:</div>
+            <div>Attention! You are using an unsupported build of this software. </div>
+            <div>By acquiring an official version through a support subscription from LINBIT:</div>
 
             <SupportList>
-              <SupportListItem>you get access to the LINBIT support team</SupportListItem>
-              <SupportListItem>you get access to pre-build packages of the whole LINSTOR/DRBD stack</SupportListItem>
-              <SupportListItem>you support the further development of the LINSTOR/DRBD storage stack</SupportListItem>
-              <SupportListItem>you get rid of this dialog box</SupportListItem>
+              <SupportListItem>You get access to the LINBIT expert support team.</SupportListItem>
+              <SupportListItem>You get access to prebuilt packages for the whole LINBIT SDS stack.</SupportListItem>
+              <SupportListItem>You support the continued development of the LINBIT SDS stack.</SupportListItem>
             </SupportList>
 
             <ForOfficialBuild onClick={handleSupportClick}>
