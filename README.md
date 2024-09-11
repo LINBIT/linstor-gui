@@ -44,11 +44,11 @@ VSAN_API_HOST=https://192.168.123.214
 ### Installation on a server
 
 ```
+apt add-apt-repository ppa:linbit/linbit-drbd9-stack
 apt install linstor-gui
 ```
 
 ## Help
-
 
 To report a problem with this software or to make a feature request, open an issue within this project.
 For help developing or contributing to this software, contact the author.
@@ -57,10 +57,11 @@ Or as a LINBIT support customer, you can open a support ticket from your LINBIT 
 
 ## Authors
 
-
 - [Liang Li](mailto:liang.li@linbit.com)
 
-## Version History
+## Contributions
+
+Contributions are welcome! Either raise and Github issue if you find a bug or create a pull request if you have a fix or new feature.
 
 ## License
 

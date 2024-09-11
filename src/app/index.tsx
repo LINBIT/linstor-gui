@@ -53,7 +53,7 @@ const App: React.FunctionComponent = () => {
           }}
           locale={locale}
         >
-          <AppLayout registered={appEnabled}>
+          <AppLayout registered={!appEnabled}>
             <AppRoutes />
           </AppLayout>
         </ConfigProvider>

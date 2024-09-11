@@ -32,6 +32,9 @@ import LngSelector from './components/LngSelector';
 import logo from '@app/bgimages/Linbit_Logo_White-1.png';
 import logout from '@app/assets/logout.svg';
 import user from '@app/assets/user.svg';
+import warning from '@app/assets/warning-icon.svg';
+import outlink from '@app/assets/out-link.svg';
+import arrowRight from '@app/assets/arrow_right.svg';
 
 import './AppLayout.css';
 import isSvg from 'is-svg';
@@ -66,26 +69,118 @@ interface IAppLayout {
 
 const NoSupport = styled.div`
   display: flex;
-  justify-content: center;
   align-items: center;
-  height: 100%;
-  font-size: 1rem;
-  background: #ff3c00;
-  padding: 4px 6px;
-  margin-right: 12px;
-  border-radius: 8px;
+  font-size: 18px;
+  margin-right: 60px;
+  font-weight: 600;
+`;
+
+const WarningLogo = styled.img`
+  width: 29px;
+  height: 28px;
+`;
+
+const Attention = styled.div`
+  color: #fff;
+  margin-left: 16px;
+  margin-right: 16px;
+`;
+const OutLink = styled(SVG)`
+  width: 24px;
+  height: 24px;
+  margin-top: 1px;
+  margin-left: 4px;
+`;
+
+const OfficialBuild = styled.div`
+  font-weight: 500;
+  padding-bottom: 2px;
+  margin-top: 4px;
+  border-bottom: 2px solid #f79133;
+  cursor: pointer;
+  display: flex;
+
+  &:hover {
+    color: #f79133;
+  }
+
+  &:hover .outlink-svg path {
+    fill: #f79133;
+    transform: scale(1.1);
+  }
 `;
 
 const SupportList = styled.ul`
   margin-top: 8px;
   padding-left: 24px;
+  font-weight: normal;
+  list-style-type: square;
 `;
 
 const SupportListItem = styled.li`
-  list-style: circle;
   margin-bottom: 8px;
   padding-left: 8px;
 `;
+
+const Warning = styled(SVG)`
+  width: 80px;
+  height: 76px;
+  margin-right: 24px;
+`;
+
+const StyledModal = styled(Modal)`
+  .ant-modal-content {
+    border-radius: 16px;
+  }
+  .ant-modal-header {
+    border-radius: 16px 16px 0 0;
+  }
+  .ant-modal-footer {
+    border-radius: 0 0 16px 16px;
+  }
+  .ant-modal-body {
+    padding: 24px 0;
+  }
+`;
+
+const ModalContent = styled.div`
+  display: flex;
+`;
+
+const Content = styled.div`
+  font-weight: 500;
+  font-size: 24px;
+  padding-top: 16px;
+  padding-bottom: 0;
+`;
+
+const ForOfficialBuild = styled.div`
+  font-weight: 500;
+  display: flex;
+  width: 280px;
+  padding: 4px 8px;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border: 2px solid #f79133;
+  border-radius: 4px;
+
+  &:hover {
+    color: #f79133;
+  }
+
+  &:hover .outlink-svg path {
+    fill: #f79133;
+  }
+
+  & .outlink-svg {
+    margin-left: 6px;
+  }
+`;
+
+const handleSupportClick = () => {
+  window.open('https://linbit.com/sds-subscription/', '_blank');
+};
 
 const hideRoutes = (label, routes) => {
   return routes.filter((route) => {
@@ -287,11 +382,11 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
         {!registered && (
           <PageHeaderToolsItem>
             <NoSupport>
-              You are running an unofficial build. Please consider&nbsp;
-              <a href="https://linbit.com/sds-subscription" target="_blank" rel="noreferrer">
-                supporting
-              </a>
-              &nbsp;this open source project.
+              <WarningLogo src={warning} />
+              <Attention>Attention! You are using an unsupported build.</Attention>
+              <OfficialBuild onClick={handleSupportClick}>
+                For Official Builds <OutLink src={outlink} className="outlink-svg" />
+              </OfficialBuild>
             </NoSupport>
           </PageHeaderToolsItem>
         )}
@@ -510,32 +605,34 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
         limit={3}
       />
 
-      <Modal
-        title="WARNING"
+      <StyledModal
         open={isModalOpen}
         onOk={handleOk}
-        closable={false}
+        onCancel={handleCancel}
         maskClosable={false}
-        onClose={handleCancel}
-        footer={(_, { OkBtn }) => (
-          <>
-            <OkBtn />
-          </>
-        )}
+        footer={null}
+        centered
+        width={1000}
       >
-        <div>
-          <p>You are running an unofficial build without support from LINBIT.</p>
+        <ModalContent>
+          <Warning src={warning} />
+          <Content>
+            <div>Attention! You are running an unsupported build without support from LINBIT. </div>
+            <div>With acquiring a support subscription from LINBIT:</div>
 
-          <p>With acquiring a support subscription from LINBIT:</p>
+            <SupportList>
+              <SupportListItem>you get access to the LINBIT support team</SupportListItem>
+              <SupportListItem>you get access to pre-build packages of the whole LINSTOR/DRBD stack</SupportListItem>
+              <SupportListItem>you support the further development of the LINSTOR/DRBD storage stack</SupportListItem>
+              <SupportListItem>you get rid of this dialog box</SupportListItem>
+            </SupportList>
 
-          <SupportList>
-            <SupportListItem>you get access to the LINBIT support team</SupportListItem>
-            <SupportListItem>you get access to pre-build packages of the whole LINSTOR/DRBD stack</SupportListItem>
-            <SupportListItem>you support the further development of the LINSTOR/DRBD storage stack</SupportListItem>
-            <SupportListItem>you get rid of this dialog box</SupportListItem>
-          </SupportList>
-        </div>
-      </Modal>
+            <ForOfficialBuild onClick={handleSupportClick}>
+              For Official Builds <SVG src={arrowRight} className="outlink-svg" />
+            </ForOfficialBuild>
+          </Content>
+        </ModalContent>
+      </StyledModal>
     </>
   );
 };
