@@ -112,14 +112,15 @@ const OfficialBuild = styled.div`
 
 const SupportList = styled.ul`
   margin-top: 8px;
-  padding-left: 24px;
+  padding-left: 40px;
   font-weight: normal;
   list-style-type: square;
 `;
 
 const SupportListItem = styled.li`
   margin-bottom: 8px;
-  padding-left: 8px;
+  padding-left: 12px;
+  text-indent: -6px;
 `;
 
 const Warning = styled(SVG)`
