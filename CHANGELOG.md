@@ -1,5 +1,11 @@
 # Changelog
 
+# 1.8.0 - 2024-09-12
+
+Changed
+
+- LINSTOR GUI is now officially open source starting with this release
+
 # 1.7.7 - 2024-09-05
 
 Fixed
