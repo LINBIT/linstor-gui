@@ -1,0 +1,14 @@
+.summery {
+  display: flex;
+  justify-content: space-between;
+}
+
+.pie {
+  margin-top: 40px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.line-chart {
+  margin-top: 1em;
+}

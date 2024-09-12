@@ -1,0 +1,11 @@
+.connect__status {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+  color: #d3d2d2;
+  cursor: pointer;
+}
+
+.connected__img {
+  margin-right: 16px;
+}

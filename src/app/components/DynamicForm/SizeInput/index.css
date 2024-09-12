@@ -1,0 +1,13 @@
+.size_input {
+  display: flex;
+  justify-content: space-between;
+}
+
+.input {
+  width: 50%;
+}
+
+.size {
+  margin-left: 1em;
+  width: 30%;
+}

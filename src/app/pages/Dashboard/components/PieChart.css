@@ -1,0 +1,15 @@
+.piechart__wrap {
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.16);
+  border-radius: 20px;
+  opacity: 1;
+  padding: 16px;
+  flex: 1;
+}
+
+.piechart__wrap:not(:last-child) {
+  margin-right: 40px;
+}
+
+.piechart__title {
+  font-weight: bold;
+}

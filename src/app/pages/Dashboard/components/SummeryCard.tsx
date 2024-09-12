@@ -1,0 +1,28 @@
+import React from 'react';
+import { useHistory } from 'react-router-dom';
+
+import './SummeryCard.css';
+
+interface Props {
+  title: string;
+  value: number;
+  icon: React.ReactElement;
+  url: string;
+}
+
+const SummeryCard: React.FC<Props> = ({ title, value, icon, url }) => {
+  const history = useHistory();
+
+  return (
+    <div className="summery__card" onClick={() => history.push(url)}>
+      <div className="summery__title">
+        {icon} <span>{title}</span>
+      </div>
+      <div>
+        <div className="summery__content">{value}</div>
+      </div>
+    </div>
+  );
+};
+
+export default SummeryCard;

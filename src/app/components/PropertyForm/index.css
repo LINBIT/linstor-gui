@@ -1,0 +1,8 @@
+.add {
+  margin-left: 1em;
+}
+
+.property__modal {
+  border-radius: 20px;
+  --pf-c-expandable-section__toggle-icon--Color: #f79133;
+}

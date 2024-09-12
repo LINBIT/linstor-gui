@@ -1,0 +1,23 @@
+.summery__card {
+  flex: 1 1 5em;
+  border: 1px solid #1e2939;
+  background: rgba(255, 255, 255, 1) 0% 0% no-repeat padding-box;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.16);
+  border: 1px solid rgba(30, 41, 57, 1);
+  border-radius: 10px;
+  opacity: 1;
+  display: flex;
+  font-weight: bold;
+  padding: 16px 32px;
+  align-items: center;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.summery__card:not(:last-child) {
+  margin-right: 40px;
+}
+
+.summery__title {
+  margin-right: auto;
+}

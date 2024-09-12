@@ -1,0 +1,265 @@
+import React, { useCallback, useMemo, useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import { useRequest } from 'ahooks';
+import { useTranslation } from 'react-i18next';
+import { headerCol, ICell } from '@patternfly/react-table';
+import get from 'lodash.get';
+
+import FilterList from '@app/components/FilterList';
+import PageBasic from '@app/components/PageBasic';
+import { ResourceListType } from '@app/interfaces/resource';
+import { formatTime } from '@app/utils/time';
+import PropertyForm from '@app/components/PropertyForm';
+import service from '@app/requests';
+
+const List: React.FunctionComponent = () => {
+  const { t } = useTranslation(['resource', 'common']);
+  const [fetchList, setFetchList] = useState(false);
+  const history = useHistory();
+
+  const [propertyModalOpen, setPropertyModalOpen] = useState(false);
+  const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
+  const [alertList, setAlertList] = useState<alertList>([]);
+  const [current, setCurrent] = useState();
+  const [currentNode, setCurrentNode] = useState();
+
+  const { run: deleteResource } = useRequest(
+    (resource, node, _isBatch = false) => ({
+      url: `/v1/resource-definitions/${resource}/resources/${node}`,
+      _isBatch,
+    }),
+    {
+      manual: true,
+      requestMethod: (params) => {
+        return service
+          .delete(params.url)
+          .then((res) => {
+            if (res) {
+              setAlertList(
+                res.data.map((e) => ({
+                  variant: e.ret_code > 0 ? 'success' : 'danger',
+                  key: (e.ret_code + new Date()).toString(),
+                  title: e.message,
+                }))
+              );
+              setFetchList(!fetchList);
+            }
+          })
+          .catch((errorArray) => {
+            if (errorArray) {
+              setAlertList(
+                errorArray.map((e) => ({
+                  variant: e.ret_code > 0 ? 'success' : 'danger',
+                  key: (e.ret_code + new Date()).toString(),
+                  title: e.message,
+                }))
+              );
+            }
+            if (params._isBatch) {
+              setFetchList(!fetchList);
+            }
+          });
+      },
+    }
+  );
+
+  const { run: handleUpdateResourceProps } = useRequest(
+    (body) => ({
+      url: `/v1/resource-definitions/${current}/resources/${currentNode}`,
+      body,
+    }),
+    {
+      manual: true,
+      requestMethod: (param) => {
+        return service.put(param.url, param.body).catch((errorArray) => {
+          if (errorArray) {
+            setAlertList(
+              errorArray.map((e) => ({
+                variant: e.ret_code > 0 ? 'success' : 'danger',
+                key: (e.ret_code + new Date()).toString(),
+                title: e.message,
+              }))
+            );
+          }
+        });
+      },
+      onSuccess: (data) => {
+        if (data) {
+          setAlertList([
+            {
+              title: 'Success',
+              variant: 'success',
+              key: new Date().toString(),
+            },
+          ]);
+          setFetchList(!fetchList);
+          setPropertyModalOpen(false);
+        }
+      },
+    }
+  );
+
+  const handleConnectStatusDisplay = useCallback((resourceItem: ResourceListType[0]) => {
+    let failStr = '';
+    const conn = get(resourceItem, 'layer_object.drbd.connections', {});
+    let count = 0;
+    let fail = false;
+    for (const nodeName in conn) {
+      count++;
+      if (!conn[nodeName].connected) {
+        fail = true;
+        if (failStr !== '') {
+          failStr += ',';
+        }
+        failStr += `${nodeName} ${conn[nodeName].message}`;
+      }
+    }
+    fail = count === 0 ? true : fail;
+    failStr = fail ? failStr : 'CONNECTED'; // TODO: i18n
+    return failStr;
+  }, []);
+
+  const handleResourceStateDisplay = useCallback((resourceItem: ResourceListType[0]) => {
+    let stateStr = '';
+    const flags = resourceItem.flags || [];
+
+    if (flags.includes('DELETE')) {
+      stateStr = 'DELETING';
+    } else if (flags.includes('INACTIVE')) {
+      stateStr = 'INACTIVE';
+    } else if (resourceItem?.state?.in_use) {
+      // TODO: i18n
+      stateStr = 'InUse';
+    } else {
+      stateStr = 'Unused';
+      const disk_state = get(resourceItem, 'volumes[0].state.disk_state', '');
+      if (disk_state === 'Diskless') {
+        if (flags.includes('TIE_BREAKER')) {
+          return null;
+        }
+        stateStr = disk_state;
+      } else if (disk_state !== '') {
+        stateStr = disk_state;
+      }
+    }
+
+    return stateStr;
+  }, []);
+
+  const columns = [
+    { title: t('resource_name'), cellTransforms: [headerCol()] },
+    { title: t('resource_node') },
+    { title: t('resource_port') },
+    { title: t('resource_usage') },
+    { title: t('resource_conn') },
+    { title: t('resource_state') },
+    { title: t('resource_create_time') },
+    { title: '' },
+  ];
+
+  const cells = (cell: unknown) => {
+    const item = cell as ResourceListType[0];
+    const props = item.props ?? {};
+    return [
+      item.name,
+      item.node_name,
+      get(item, 'layer_object.drbd.drbd_resource_definition.port'),
+      get(item, 'state.in_use', false) ? 'InUse' : 'Unused', // TODO: i18n
+      handleConnectStatusDisplay(item),
+      handleResourceStateDisplay(item),
+      formatTime(item.create_timestamp),
+      props,
+    ] as ICell[];
+  };
+
+  const listActions = [
+    {
+      title: t('common:property'),
+      onClick: (event, rowId, rowData, extra) => {
+        const resource = rowData.cells[0];
+        const node = rowData.cells[1];
+        console.log('clicked on Some action, on row: ', rowData.cells[0]);
+        const currentData = rowData.cells[7] ?? {};
+        console.log(currentData, 'currentData');
+        setInitialProps(currentData);
+        setPropertyModalOpen(true);
+        setCurrent(resource);
+        setCurrentNode(node);
+      },
+    },
+    {
+      title: t('common:edit'),
+      onClick: (event, rowId, rowData, extra) => {
+        const resource = rowData.cells[0];
+        console.log('clicked on Some action, on row: ', rowData.cells[0]);
+        history.push(`/software-defined/resources/${resource}/edit`);
+      },
+    },
+    {
+      title: t('common:delete'),
+      onClick: async (event, rowId, rowData, extra) => {
+        console.log('clicked on Some action, on row: ', rowData);
+        const node = rowData.cells[1];
+        const resource = rowData.cells[0];
+        // await deleteStoragePool(node, storagePoolName);
+        console.log('deleting', node, resource);
+      },
+    },
+  ];
+
+  const toolButtons = useMemo(() => {
+    return [
+      {
+        label: t('common:add'),
+        variant: 'primary',
+        alwaysShow: true,
+        onClick: () => history.push('/software-defined/resources/create'),
+      },
+      {
+        label: t('common:delete'),
+        variant: 'danger',
+        onClick: (selected) => {
+          console.log('Will delete', selected);
+          const batchDeleteRequests = selected.map((e) => deleteResource(e.cells[0], e.cells[1], true));
+
+          Promise.all(batchDeleteRequests).then((res) => {
+            if (res.filter((e) => e).length > 0) {
+              setAlertList([
+                {
+                  title: 'Success',
+                  variant: 'success',
+                  key: new Date().toString(),
+                },
+              ]);
+              setFetchList(!fetchList);
+            }
+          });
+        },
+      },
+    ];
+  }, [deleteResource, fetchList, history, t]);
+
+  return (
+    <PageBasic title={t('list')} alerts={alertList}>
+      <FilterList
+        showSearch
+        url="/v1/view/resources"
+        actions={listActions}
+        fetchList={fetchList}
+        toolButtons={toolButtons}
+        columns={columns}
+        cells={cells}
+        statsUrl="/v1/stats/resources"
+      />
+      <PropertyForm
+        initialVal={initialProps}
+        openStatus={propertyModalOpen}
+        type="resource"
+        handleSubmit={handleUpdateResourceProps}
+        handleClose={() => setPropertyModalOpen(!propertyModalOpen)}
+      />
+    </PageBasic>
+  );
+};
+
+export default List;

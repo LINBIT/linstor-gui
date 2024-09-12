@@ -1,0 +1,14 @@
+.aux {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1em;
+}
+
+.item {
+  width: 40%;
+}
+
+.btn {
+  height: 2.5em;
+  width: 10%;
+}

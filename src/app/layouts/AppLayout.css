@@ -1,0 +1,7 @@
+* {
+  --pf-c-page__sidebar--BackgroundColor: var(--pf-global--BackgroundColor--dark-100);
+}
+
+.logo {
+  max-width: 8rem;
+}
