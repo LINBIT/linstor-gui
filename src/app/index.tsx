@@ -15,7 +15,6 @@ import '@patternfly/react-core/dist/styles/base.css';
 import { store } from './store';
 
 import { AppLayout } from '@app/layouts/AppLayout';
-import NotEnable from '@app/components/NotEnable/NotEnale';
 import { AppRoutes } from '@app/routes/routes';
 import '@app/app.css';
 import { useQuery } from '@tanstack/react-query';
@@ -30,17 +29,13 @@ const App: React.FunctionComponent = () => {
         return res?.reportText;
       });
 
-  const { isLoading, error, data } = useQuery({
+  const { data } = useQuery({
     queryKey: ['getSpaceReport'],
     queryFn: getSpaceReport,
   });
 
   // Check if has space-report result
   const appEnabled = data && data !== MSG;
-
-  if (!isLoading && (error || !appEnabled)) {
-    return <NotEnable />;
-  }
 
   return (
     <Provider store={store as any}>
