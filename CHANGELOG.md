@@ -1,5 +1,13 @@
 # Changelog
 
+# 1.8.1 - 2024-09-13
+
+Fixed
+
+- "Not enabled" error in certain cases
+- Instructions for installing the LINSTOR GUI on a LINSTOR controller node
+- Dependency vulnerabilities
+
 # 1.8.0 - 2024-09-12
 
 Changed

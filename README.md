@@ -13,12 +13,16 @@ The GUI also provides a dashboard that displays information about the LINSTOR cl
 
 ## Getting Started
 
-### Dependencies
+### Installation on a LINSTOR controller node
 
-- LINSTOR server ([GitHub project](https://github.com/LINBIT/linstor-server))
-- Node.js v20.14.0 or higher
+This package does not have a standalone server; it requires the LINSTOR environment and serves files through the LINSTOR server. It should be installed on the machine running the LINSTOR controller. After installation, it can be accessed via a URL like `http://192.168.123.105:3370/ui/#!/`, replacing `192.168.123.105` with the IP address of your LINSTOR controller. Please choose your own Linux distribution, for Ubuntu and Debian:
 
-### Running development mode on local machine
+```
+apt add-apt-repository ppa:linbit/linbit-drbd9-stack
+apt install linstor-gui
+```
+
+### Running development mode on local machine(for developers)
 
 - `npm install`
 - Create a `.env` file in the root directory with the following variables:
@@ -40,13 +44,6 @@ VSAN_API_HOST=https://192.168.123.214
 
 - `npm run start:dev`,
 - Open your browser and navigate to `http://localhost:8080`
-
-### Installation on a server
-
-```
-apt add-apt-repository ppa:linbit/linbit-drbd9-stack
-apt install linstor-gui
-```
 
 ## Help
 
