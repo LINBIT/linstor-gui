@@ -1,0 +1,72 @@
+name: Build and Package LINSTOR GUI
+
+on:
+  push:
+    tags:
+      - 'v*' # This will trigger the workflow for any tag starting with 'v'
+
+jobs:
+  build-and-package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.14.0'
+
+      - name: Get the latest tag
+        id: get_tag
+        run: |
+          git fetch --tags
+          TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+          echo "latest_tag=$TAG" >> $GITHUB_ENV
+
+      # Create the .env file with VERSION
+      - name: Create .env file
+        run: |
+          echo "VERSION=${{ env.latest_tag }}" > .env
+        working-directory: ./
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Package
+        run: |
+          mkdir linstor-gui-${{ env.latest_tag }}
+          mv dist/* linstor-gui-${{ env.latest_tag }}
+          tar -czvf linstor-gui-${{ env.latest_tag }}.tar.gz linstor-gui-${{ env.latest_tag }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: linstor-gui-${{ env.latest_tag }}.tar.gz
+          path: linstor-gui-${{ env.latest_tag }}.tar.gz
+
+      # - name: Create GitHub Release
+      #   id: create_release
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     tag_name: ${{ env.latest_tag }}
+      #     release_name: 'LINSTOR GUI ${{ env.latest_tag }}'
+      #     draft: false
+      #     prerelease: false
+
+      # - name: Upload release asset
+      #   uses: actions/upload-release-asset@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: ./linstor-gui-${{ env.latest_tag }}.tar.gz
+      #     asset_name: linstor-gui-${{ env.latest_tag }}.tar.gz
+      #     asset_content_type: application/gzip
