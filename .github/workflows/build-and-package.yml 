@@ -1,0 +1,43 @@
+name: Build and Package LINSTOR GUI
+
+on:
+  pull_request:
+    branches: [main]
+
+  push:
+    tags:
+      - 'v*'  # This will trigger the workflow for any tag starting with 'v'
+
+jobs:
+  build-and-package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.14.0'
+
+      - name: Get the version
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Package
+        run: |
+          tar -czvf linstor-gui-${{ steps.get_version.outputs.VERSION }}.tar.gz -C dist .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: linstor-gui-${{ steps.get_version.outputs.VERSION }}.tar.gz
+          path: linstor-gui-${{ steps.get_version.outputs.VERSION }}.tar.gz
