@@ -1,0 +1,52 @@
+name: Build and Package LINSTOR GUI
+
+on:
+  pull_request:
+    branches: [main]
+
+  push:
+    tags:
+      - 'v*' # This will trigger the workflow for any tag starting with 'v'
+
+jobs:
+  build-and-package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.14.0'
+
+      - name: Get the latest tag
+        id: get_tag
+        run: |
+          git fetch --tags
+          TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+          echo "latest_tag=$TAG" >> $GITHUB_ENV
+
+      # Create the .env file with VERSION
+      - name: Create .env file
+        run: |
+          echo "VERSION=${{ env.latest_tag }}" > .env
+        working-directory: ./
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Package
+        run: |
+          tar -czvf linstor-gui-${{ env.latest_tag }}.tar.gz -C dist .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: linstor-gui-${{ env.latest_tag }}.tar.gz
+          path: linstor-gui-${{ env.latest_tag }}.tar.gz
