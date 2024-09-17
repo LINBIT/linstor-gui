@@ -22,6 +22,21 @@ apt add-apt-repository ppa:linbit/linbit-drbd9-stack
 apt install linstor-gui
 ```
 
+### Running in a Docker container
+
+```
+docker build -t linstor-gui .
+
+docker run \
+  -p 8000:8000 \
+  -e LB_LINSTOR_API_HOST=http://192.168.123.105:3370 \
+  -e LB_GATEWAY_API_HOST=http://192.168.123.105:8080 \
+  linstor-gui
+
+```
+
+LB_LINSTOR_API_HOST is required, LB_GATEWAY_API_HOST is optional, default is `http://localhost:8080`.
+
 ### Running development mode on local machine(for developers)
 
 - `npm install`
