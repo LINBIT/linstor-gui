@@ -143,7 +143,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ type, initialVal, handleClo
   };
 
   const handleSubmitData = (data) => {
-    const delete_props = deleteAll ? Object.keys(initialVal ?? []) : deleteProps ?? [];
+    const delete_props = deleteAll ? Object.keys(initialVal ?? []) : (deleteProps ?? []);
     const override_props = data ?? {};
 
     handleSubmit({
