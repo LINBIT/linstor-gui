@@ -12,7 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Dispatch, RootState } from '@app/store';
 
 const Wrapper = styled.div`
-  padding: 2em 0;
+  padding: 0;
 `;
 
 const Label = styled.span`
@@ -28,6 +28,10 @@ const AddressWrapper = styled.div`
 
 const AddressLabelWrapper = styled.div`
   margin-right: 1em;
+`;
+
+const SaveButton = styled(Button)`
+  margin-top: 1em;
 `;
 
 // For setting Gateway related stuff
@@ -72,6 +76,11 @@ const Dashboard: React.FC = () => {
     <>
       {contextHolder}
       <Wrapper>
+        <div>
+          <p>
+            Here you can configure the Grafana Dashboard. Once set up, an entry will be displayed in the left-side menu.
+          </p>
+        </div>
         <Label>Grafana Dashboard</Label>
         <Switch checked={isChecked} onChange={handleChange} aria-label="dashboard-mode" />
 
@@ -86,13 +95,14 @@ const Dashboard: React.FC = () => {
                 setHost(e.target.value);
               }}
               aria-label="host"
+              placeholder="http://192.168.1.0"
             />
           </AddressWrapper>
         )}
       </Wrapper>
-      <Button type="primary" onClick={handleSave}>
+      <SaveButton type="primary" onClick={handleSave}>
         Save
-      </Button>
+      </SaveButton>
     </>
   );
 };
