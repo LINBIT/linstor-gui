@@ -179,18 +179,23 @@ export const setting = createModel<RootModel>()({
         delete_props: payload,
       });
     },
-    async setGatewayMode({
-      gatewayEnabled,
-      customHost,
-      host,
-      showToast,
-    }: {
-      gatewayEnabled: boolean;
-      customHost: boolean;
-      host: string;
-      showToast?: boolean;
-    }) {
+    async setGatewayMode(
+      {
+        gatewayEnabled,
+        customHost,
+        host,
+        showToast,
+      }: {
+        gatewayEnabled: boolean;
+        customHost: boolean;
+        host: string;
+        showToast?: boolean;
+      },
+      state,
+    ) {
       try {
+        const gatewayAvailable = state.setting.gatewayAvailable;
+
         await dispatch.setting.saveKey({
           gatewayEnabled,
           gatewayCustomHost: gatewayEnabled && customHost,
@@ -213,9 +218,19 @@ export const setting = createModel<RootModel>()({
           });
         }
 
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        if (gatewayAvailable) {
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        } else if (gatewayEnabled) {
+          notify('LINSTOR-Gateway is not available. To ensure functionality, installing linstor-gateway is required.', {
+            type: 'warning',
+          });
+        } else {
+          notify('LINSTOR-Gateway configuration has been reset.', {
+            type: 'success',
+          });
+        }
       } catch (error) {
         notify('Cannot connect to LINSTOR-Gateway', {
           type: 'error',

@@ -10,9 +10,10 @@ import styled from '@emotion/styled';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Dispatch, RootState } from '@app/store';
+import { CheckCircleOutlined, StopOutlined } from '@ant-design/icons';
 
 const Wrapper = styled.div`
-  padding: 2em 0;
+  padding: 0;
 `;
 
 const Label = styled.span`
@@ -37,6 +38,14 @@ const CustomHostWrapper = styled.div`
   align-items: center;
 `;
 
+const SaveButton = styled(Button)`
+  margin-top: 1em;
+`;
+
+const StatusInfo = styled.div`
+  margin-top: 1em;
+`;
+
 // For setting Gateway related stuff
 const Gateway: React.FC = () => {
   const OriginHost = window.location.protocol + '//' + window.location.hostname + ':8080/';
@@ -46,10 +55,11 @@ const Gateway: React.FC = () => {
 
   const dispatch = useDispatch<Dispatch>();
 
-  const { gatewayEnabled, gatewayHost, customHostFromSetting } = useSelector((state: RootState) => ({
+  const { gatewayEnabled, gatewayHost, customHostFromSetting, gatewayAvailable } = useSelector((state: RootState) => ({
     gatewayEnabled: state?.setting?.KVS?.gatewayEnabled,
     gatewayHost: state?.setting?.KVS?.gatewayHost,
     customHostFromSetting: state?.setting?.KVS?.gatewayCustomHost,
+    gatewayAvailable: state.setting.gatewayAvailable,
   }));
 
   useEffect(() => {
@@ -65,17 +75,30 @@ const Gateway: React.FC = () => {
     setCustomHost(customHostFromSetting as boolean);
   }, [OriginHost, gatewayEnabled, gatewayHost, customHostFromSetting]);
 
+  useEffect(() => {
+    // check if Gateway is available
+    dispatch.setting.getGatewayStatus();
+  }, [dispatch.setting]);
+
   const handleChange = useCallback((isChecked: boolean) => {
     setIsChecked(isChecked);
   }, []);
 
   const handleSave = useCallback(() => {
-    dispatch.setting.setGatewayMode({ gatewayEnabled: isChecked, host, customHost, showToast: true });
-  }, [dispatch.setting, host, isChecked, customHost]);
+    dispatch.setting.setGatewayMode({ gatewayEnabled: isChecked, host, customHost, showToast: gatewayAvailable });
+  }, [gatewayAvailable, dispatch.setting, isChecked, host, customHost]);
 
   return (
     <>
       <Wrapper>
+        <div>
+          <h2>LINSTOR Gateway</h2>
+          <p>
+            Manages Highly-Available iSCSI targets and NFS exports via LINSTOR. Installing linstor-gateway is a
+            prerequisite for enabling this feature.
+          </p>
+          <p>After enabling this feature, the Gateway entry will be displayed in the left-side menu.</p>
+        </div>
         <Label>Gateway mode</Label>
         <Switch checked={isChecked} onChange={handleChange} aria-label="gateway-mode" />
         {isChecked && (
@@ -101,10 +124,21 @@ const Gateway: React.FC = () => {
             />
           </AddressWrapper>
         )}
+        {isChecked && (
+          <StatusInfo>
+            Status:{' '}
+            {gatewayAvailable ? (
+              <CheckCircleOutlined style={{ color: 'green' }} />
+            ) : (
+              <StopOutlined style={{ color: 'red' }} />
+            )}
+            {gatewayAvailable ? ' Available' : ' Not available'}
+          </StatusInfo>
+        )}
       </Wrapper>
-      <Button type="primary" onClick={handleSave}>
+      <SaveButton type="primary" onClick={handleSave}>
         Save
-      </Button>
+      </SaveButton>
     </>
   );
 };

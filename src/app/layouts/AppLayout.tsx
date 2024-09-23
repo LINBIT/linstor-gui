@@ -241,13 +241,16 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
     dispatch.auth.checkLoginStatus();
   }, [dispatch.auth]);
 
-  const { KVS, authInfo, logoSrc, vsanModeFromSetting, isAdmin } = useSelector((state: RootState) => ({
-    KVS: state.setting.KVS,
-    authInfo: state.auth,
-    logoSrc: state.setting.logo,
-    vsanModeFromSetting: state.setting.vsanMode,
-    isAdmin: state.setting.isAdmin,
-  }));
+  const { KVS, authInfo, logoSrc, vsanModeFromSetting, isAdmin, gatewayAvailable } = useSelector(
+    (state: RootState) => ({
+      KVS: state.setting.KVS,
+      authInfo: state.auth,
+      logoSrc: state.setting.logo,
+      vsanModeFromSetting: state.setting.vsanMode,
+      isAdmin: state.setting.isAdmin,
+      gatewayAvailable: state.setting.gatewayAvailable,
+    }),
+  );
   // if authenticationEnabled is false then just enter the page
   const authenticationEnabled = KVS?.authenticationEnabled;
 
@@ -269,6 +272,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
 
   useEffect(() => {
     dispatch.setting.getSettings();
+    dispatch.setting.getGatewayStatus();
   }, [dispatch.setting]);
 
   const onNavToggleMobile = () => {
@@ -506,13 +510,20 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
       const itemsRes = [
         ...normalItems,
         ...(KVS?.dashboardEnabled ? grafanaItem : []),
-        ...(KVS?.gatewayEnabled ? gatewayItems : []),
+        ...(KVS?.gatewayEnabled && gatewayAvailable ? gatewayItems : []),
         ...(!authenticationEnabled || isAdmin ? settingsAndUsers : []),
       ];
 
       return itemsRes;
     }
-  }, [KVS?.dashboardEnabled, KVS?.gatewayEnabled, authenticationEnabled, isAdmin, vsanModeFromSetting]);
+  }, [
+    KVS?.dashboardEnabled,
+    KVS?.gatewayEnabled,
+    authenticationEnabled,
+    gatewayAvailable,
+    isAdmin,
+    vsanModeFromSetting,
+  ]);
 
   useEffect(() => {
     const currentMenu = items.find(

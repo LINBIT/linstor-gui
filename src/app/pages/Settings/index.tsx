@@ -48,8 +48,6 @@ const GeneralSettings: React.FC = () => {
   useEffect(() => {
     // Check Settings from Linstor Key-Value-Store
     dispatch.setting.getSettings();
-    // check if Gateway is available
-    dispatch.setting.getGatewayStatus();
   }, [dispatch.setting]);
 
   return (
