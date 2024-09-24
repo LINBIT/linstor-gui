@@ -167,26 +167,36 @@ const CreateForm = () => {
         label="Storage Pool Name"
         required
         rules={[
-          { required: true, message: 'Please input storage pool name!' },
+          { required: true, message: 'Enter storage pool name.' },
           {
             pattern: new RegExp('^(?!-)[a-zA-Z_][a-zA-Z0-9_-]{1,47}[-a-zA-Z0-9_]$'),
             message: 'Please input a valid storage pool name!',
           },
         ]}
       >
-        <Input placeholder="Please input storage pool name" />
+        <Input placeholder="Enter storage pool name." />
       </Form.Item>
 
       {create_type === 'new' && (
-        <Form.Item name="multiple_nodes" label="Multiple Nodes">
+        <Form.Item
+          name="multiple_nodes"
+          label="Multiple Nodes"
+          tooltip="Create the storage pool on more than one node."
+        >
           <Switch />
         </Form.Item>
       )}
 
-      <Form.Item label="Node" name="node" required rules={[{ required: true, message: 'Please select nodes!' }]}>
+      <Form.Item
+        label="Node"
+        name="node"
+        required
+        rules={[{ required: true, message: 'Please select nodes!' }]}
+        tooltip="Select the node or nodes to create the storage pool on."
+      >
         <Select
           allowClear
-          placeholder="Please select"
+          placeholder="Select the node or nodes."
           options={nodes?.data?.map((e) => ({
             label: e.name,
             value: e.name,
@@ -195,7 +205,12 @@ const CreateForm = () => {
         />
       </Form.Item>
 
-      <Form.Item label="Type" name="provider_kind" required>
+      <Form.Item
+        label="Type"
+        name="provider_kind"
+        required
+        tooltip="Select the type of logical volume that the storage pool will carve out storage volumes from the physical storage. NOTE: Some LINSTOR features, such as volume snapshots, are only supported on thin-provisioned volumes."
+      >
         <Radio.Group>
           {typeList.map((e) => {
             return (
@@ -213,10 +228,11 @@ const CreateForm = () => {
           name="device_path"
           required
           rules={[{ required: true, message: 'Please select device path!' }]}
+          tooltip="Select the path of the physical device that will back the storage pool."
         >
           <Select
             allowClear
-            placeholder="Please select"
+            placeholder="Select the path of the physical device."
             options={devicePathOptions?.data?.map((e) => ({
               label: e.device,
               value: e.device,
