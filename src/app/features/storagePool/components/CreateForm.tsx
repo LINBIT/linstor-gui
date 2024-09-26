@@ -4,9 +4,9 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Form, Input, Radio, Select, Switch, Tooltip } from 'antd';
+import { Button, Collapse, Form, Input, Radio, Select, Switch, Tooltip } from 'antd';
 import { useHistory } from 'react-router-dom';
 
 import {
@@ -18,6 +18,7 @@ import {
   CreateStoragePoolRequestBody,
 } from '@app/features/storagePool';
 import { useNodes } from '@app/features/node';
+import { SizeInput } from '@app/components/SizeInput';
 
 // This is for concat LV Name and VG Name
 // it would be like this:
@@ -27,11 +28,17 @@ const POOL_NAME = 'LinstorStorage';
 
 type FormType = {
   create_type: 'new' | 'existing';
-  pool_name: string;
+  storage_pool_name: string;
+  pool_name?: string;
   node: string;
   provider_kind: ProviderKind;
   device_path: string;
   storage_driver_name: string;
+  multiple_nodes: boolean;
+  sed?: boolean;
+  vdo_enable?: boolean;
+  vdo_slab_size_kib?: number;
+  vdo_logical_size_kib?: number;
 };
 
 const CreateForm = () => {
@@ -43,6 +50,7 @@ const CreateForm = () => {
   const node = Form.useWatch('node', form);
   const create_type = Form.useWatch('create_type', form);
   const multiple_nodes = Form.useWatch('multiple_nodes', form);
+  const vdo_enable = Form.useWatch('vdo_enable', form);
 
   const backToStoragePoolList = () => {
     history.goBack();
@@ -85,15 +93,32 @@ const CreateForm = () => {
     // use create_type to determine the request body
     // for new: we use /v1/physical-storage/{node} to create the physical storage and storage pool
     if (create_type === 'new') {
-      const { pool_name, provider_kind, device_path } = values;
+      const {
+        storage_pool_name,
+        pool_name,
+        provider_kind,
+        device_path,
+        sed,
+        vdo_enable,
+        vdo_slab_size_kib,
+        vdo_logical_size_kib,
+      } = values;
+
+      const advancedOptions = {
+        sed,
+        vdo_enable,
+        vdo_slab_size_kib,
+        vdo_logical_size_kib,
+      };
 
       const body: CreatePhysicalStorageRequestBody = {
-        pool_name: POOL_NAME,
+        pool_name: pool_name ? pool_name : POOL_NAME,
         provider_kind,
         device_paths: [device_path],
         with_storage_pool: {
-          name: pool_name,
+          name: storage_pool_name,
         },
+        ...advancedOptions,
       };
 
       const promiseArr = [];
@@ -112,10 +137,10 @@ const CreateForm = () => {
     }
 
     if (create_type === 'existing') {
-      const { pool_name, provider_kind, storage_driver_name, node: selectedNode } = values;
+      const { storage_pool_name, provider_kind, storage_driver_name, node: selectedNode } = values;
 
       const body = {
-        storage_pool_name: pool_name,
+        storage_pool_name: storage_pool_name,
         provider_kind,
         props: {
           'StorDriver/StorPoolName': storage_driver_name,
@@ -163,7 +188,7 @@ const CreateForm = () => {
       </Form.Item>
 
       <Form.Item
-        name="pool_name"
+        name="storage_pool_name"
         label="Storage Pool Name"
         required
         rules={[
@@ -223,22 +248,62 @@ const CreateForm = () => {
       </Form.Item>
 
       {create_type === 'new' && (
-        <Form.Item
-          label="Device Path"
-          name="device_path"
-          required
-          rules={[{ required: true, message: 'Please select device path!' }]}
-          tooltip="Select the path of the physical device that will back the storage pool."
-        >
-          <Select
-            allowClear
-            placeholder="Select the path of the physical device."
-            options={devicePathOptions?.data?.map((e) => ({
-              label: e.device,
-              value: e.device,
-            }))}
+        <>
+          <Form.Item
+            label="Device Path"
+            name="device_path"
+            required
+            rules={[{ required: true, message: 'Please select device path!' }]}
+            tooltip="Select the path of the physical device that will back the storage pool."
+          >
+            <Select
+              allowClear
+              placeholder="Select the path of the physical device."
+              options={devicePathOptions?.data?.map((e) => ({
+                label: e.device,
+                value: e.device,
+              }))}
+            />
+          </Form.Item>
+
+          <Collapse
+            ghost
+            items={[
+              {
+                key: '1',
+                label: 'Advanced Options',
+                children: (
+                  <>
+                    <Form.Item label="LVM Pool Name" name="pool_name" tooltip="VG or VG/Thinpool Name">
+                      <Input placeholder="Enter pool name" />
+                    </Form.Item>
+                    <Form.Item label="SED Enabled" name="sed" valuePropName="checked" tooltip="Self Encrypting Drive">
+                      <Switch />
+                    </Form.Item>
+                    <Form.Item label="VDO Enabled" name="vdo_enable" valuePropName="checked">
+                      <Switch />
+                    </Form.Item>
+
+                    {vdo_enable && (
+                      <>
+                        <Form.Item label="VDO Slab Size" name="vdo_slab_size_kib" tooltip="The size of the VDO slab.">
+                          <SizeInput />
+                        </Form.Item>
+                        <Form.Item
+                          label="VDO Logical Size"
+                          name="vdo_logical_size_kib"
+                          tooltip="The logical size of the VDO volume."
+                        >
+                          <SizeInput />
+                        </Form.Item>
+                      </>
+                    )}
+                  </>
+                ),
+              },
+            ]}
           />
-        </Form.Item>
+        </>
       )}
 
       {create_type === 'existing' && (
