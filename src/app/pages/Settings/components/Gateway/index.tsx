@@ -4,8 +4,8 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useState, useCallback, useEffect } from 'react';
-import { Input, Button, Switch } from 'antd';
+import React, { useEffect } from 'react';
+import { Input, Button, Switch, Form } from 'antd';
 import styled from '@emotion/styled';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -16,77 +16,61 @@ const Wrapper = styled.div`
   padding: 0;
 `;
 
-const Label = styled.span`
-  margin-right: 1em;
-`;
-
-const AddressWrapper = styled.div`
-  margin-top: 1em;
-  width: 30em;
-  display: flex;
-  align-items: center;
-`;
-
-const AddressLabelWrapper = styled.div`
-  margin-top: 1em;
-  margin-right: 1em;
-`;
-
-const CustomHostWrapper = styled.div`
-  margin-top: 1em;
-  display: flex;
-  align-items: center;
-`;
-
-const SaveButton = styled(Button)`
-  margin-top: 1em;
-`;
-
 const StatusInfo = styled.div`
   margin-top: 1em;
 `;
 
+type FormType = {
+  isChecked: boolean;
+  customHost: boolean;
+  host: string;
+};
+
+const formItemLayout = {
+  labelCol: {
+    xs: { span: 24 },
+    sm: { span: 8 },
+    lg: { span: 6 },
+  },
+  wrapperCol: {
+    xs: { span: 24 },
+    sm: { span: 16 },
+    lg: { span: 18 },
+  },
+};
+
 // For setting Gateway related stuff
 const Gateway: React.FC = () => {
   const OriginHost = window.location.protocol + '//' + window.location.hostname + ':8080/';
-  const [isChecked, setIsChecked] = useState(false);
-  const [customHost, setCustomHost] = useState(false);
-  const [host, setHost] = useState(OriginHost);
 
   const dispatch = useDispatch<Dispatch>();
+  const [form] = Form.useForm<FormType>();
 
-  const { gatewayEnabled, gatewayHost, customHostFromSetting, gatewayAvailable } = useSelector((state: RootState) => ({
-    gatewayEnabled: state?.setting?.KVS?.gatewayEnabled,
-    gatewayHost: state?.setting?.KVS?.gatewayHost,
-    customHostFromSetting: state?.setting?.KVS?.gatewayCustomHost,
-    gatewayAvailable: state.setting.gatewayAvailable,
-  }));
+  const customHost = Form.useWatch('customHost', form);
+  const isChecked = Form.useWatch('isChecked', form);
+
+  const { gatewayEnabled, gatewayHost, customHostFromSetting, gatewayAvailable, checkingStatus } = useSelector(
+    (state: RootState) => ({
+      gatewayEnabled: state?.setting?.KVS?.gatewayEnabled,
+      gatewayHost: state?.setting?.KVS?.gatewayHost,
+      customHostFromSetting: state?.setting?.KVS?.gatewayCustomHost,
+      gatewayAvailable: state.setting.gatewayAvailable,
+      checkingStatus: state.loading.effects.setting.getGatewayStatus,
+    }),
+  );
+
+  const onFinish = (values: FormType) => {
+    dispatch.setting.setGatewayMode({
+      gatewayEnabled: values.isChecked,
+      customHost: values.customHost,
+      host: values.host,
+      showToast: gatewayAvailable,
+    });
+  };
 
   useEffect(() => {
-    // read state from Linstor KVS
-    setIsChecked(gatewayEnabled as boolean);
-
-    if (gatewayHost === '') {
-      setHost(OriginHost);
-    } else {
-      setHost(gatewayHost as string);
-    }
-
-    setCustomHost(customHostFromSetting as boolean);
-  }, [OriginHost, gatewayEnabled, gatewayHost, customHostFromSetting]);
-
-  useEffect(() => {
-    // check if Gateway is available
-    dispatch.setting.getGatewayStatus();
-  }, [dispatch.setting]);
-
-  const handleChange = useCallback((isChecked: boolean) => {
-    setIsChecked(isChecked);
-  }, []);
-
-  const handleSave = useCallback(() => {
-    dispatch.setting.setGatewayMode({ gatewayEnabled: isChecked, host, customHost, showToast: gatewayAvailable });
-  }, [gatewayAvailable, dispatch.setting, isChecked, host, customHost]);
+    dispatch.setting.getGatewayStatus(gatewayHost);
+  }, [dispatch.setting, gatewayHost, isChecked]);
 
   return (
     <>
@@ -99,46 +83,86 @@ const Gateway: React.FC = () => {
           </p>
           <p>After enabling this feature, the Gateway entry will be displayed in the left-side menu.</p>
         </div>
-        <Label>Gateway mode</Label>
-        <Switch checked={isChecked} onChange={handleChange} aria-label="gateway-mode" />
-        {isChecked && (
-          <>
-            <CustomHostWrapper>
-              <Label>Custom host</Label>
-              <Switch
-                checked={customHost}
-                onChange={(isChecked) => setCustomHost(isChecked)}
-                aria-label="gateway-mode"
-              />
-            </CustomHostWrapper>
-          </>
-        )}
-        {isChecked && customHost && (
-          <AddressWrapper>
-            <AddressLabelWrapper>Address:</AddressLabelWrapper>
-            <Input
-              value={host}
-              defaultValue={OriginHost}
-              onChange={(val) => setHost(val.target.value)}
-              aria-label="host"
-            />
-          </AddressWrapper>
-        )}
-        {isChecked && (
-          <StatusInfo>
-            Status:{' '}
-            {gatewayAvailable ? (
-              <CheckCircleOutlined style={{ color: 'green' }} />
-            ) : (
-              <StopOutlined style={{ color: 'red' }} />
-            )}
-            {gatewayAvailable ? ' Available' : ' Not available'}
-          </StatusInfo>
-        )}
+
+        <Form
+          form={form}
+          onFinish={onFinish}
+          style={{ maxWidth: 600 }}
+          scrollToFirstError
+          initialValues={{
+            isChecked: gatewayEnabled,
+            customHost: customHostFromSetting,
+            host: gatewayHost || OriginHost,
+          }}
+          {...formItemLayout}
+        >
+          <Form.Item
+            label="Gateway mode"
+            extra="Installing linstor-gateway is a prerequisite for enabling this feature. And ensure that the endpoint is correctly configured to allow communication between the LINSTOR Gateway and the LINSTOR Server."
+            name="isChecked"
+            valuePropName="checked"
+          >
+            <Switch aria-label="gateway-mode" />
+          </Form.Item>
+
+          {isChecked && (
+            <>
+              <Form.Item
+                label="Custom host"
+                extra="When the custom host is enabled, you need to enter the LINSTOR Gateway API endpoints in the 'Custom API' section below. The default value is the LINSTOR server IP + 8080, like http://192.168.1.1:8080/.  If a custom port or different IP is used, adjust the endpoint accordingly."
+                name="customHost"
+                valuePropName="checked"
+              >
+                <Switch aria-label="custom-host" />
+              </Form.Item>
+
+              <Form.Item
+                label="Custom API"
+                name="host"
+                validateTrigger="onBlur"
+                rules={[
+                  { required: customHost, message: '' },
+                  { type: 'url', warningOnly: true },
+                  { type: 'string', min: 6 },
+                  {
+                    validator: async (_, value) => {
+                      const res = await dispatch.setting.getGatewayStatus(value);
+                      if (res) {
+                        return Promise.resolve();
+                      } else {
+                        return Promise.reject(new Error('Cannot connect to LINSTOR-Gateway'));
+                      }
+                    },
+                  },
+                ]}
+                extra={
+                  <StatusInfo>
+                    Status:{' '}
+                    {gatewayAvailable ? (
+                      <CheckCircleOutlined style={{ color: 'green' }} />
+                    ) : (
+                      <StopOutlined style={{ color: 'red' }} />
+                    )}
+                    {gatewayAvailable ? ' Available' : ' Not available'}
+                  </StatusInfo>
+                }
+              >
+                <Input placeholder="http://192.168.1.1:8080/" disabled={!checkingStatus} />
+              </Form.Item>
+            </>
+          )}
+
+          <Form.Item
+            wrapperCol={{
+              offset: 6,
+            }}
+          >
+            <Button type="primary" htmlType="submit" disabled={checkingStatus}>
+              Save
+            </Button>
+          </Form.Item>
+        </Form>
       </Wrapper>
-      <SaveButton type="primary" onClick={handleSave}>
-        Save
-      </SaveButton>
     </>
   );
 };

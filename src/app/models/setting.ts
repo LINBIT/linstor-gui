@@ -84,12 +84,17 @@ export const setting = createModel<RootModel>()({
     },
   },
   effects: (dispatch) => ({
-    async getGatewayStatus() {
+    async getGatewayStatus(host?: string) {
+      if (host) {
+        window.localStorage.setItem(GATEWAY_HOST, host);
+      }
       const res = await service.get('/api/v2/status');
       const data = res.data;
       if (data.status === 'ok') {
         dispatch.setting.setGatewayAvailable(true);
+        return true;
       }
+      return false;
     },
 
     async initSettingStore(vsanMode: boolean) {
