@@ -1,5 +1,25 @@
 # Changelog
 
+# 1.8.2 - 2024-09-30
+
+Added
+
+- Toast log for recent operations : Implemented a toast log feature to display feedback on actions like user additions and deletions.
+- Advanced options for Storage Pool create form : Added advanced options including SED and VDO settings during storage pool creation.
+- Detailed settings for Gateway : Added more granular configuration options for the gateway.
+- Tooltips for Storage Pool form : Tooltips added to the Storage Pool form to improve usability.
+- Description text for Grafana dashboard settings : Added helpful description text to the Grafana dashboard settings section.
+- GitHub Workflow integration : Integrated GitHub workflows for streamlined development processes.
+- NGINX server in Docker : Implemented an NGINX server within Docker to enhance deployment options.
+
+Changed
+
+- Gateway status check : Added a check to ensure the gateway is operational before enabling it.
+
+Fixed
+
+- Code and log cleanup : Removed outdated codes and logs to maintain codebase hygiene.
+
 # 1.8.1 - 2024-09-13
 
 Fixed
