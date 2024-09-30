@@ -69,6 +69,8 @@ service.interceptors.response.use(
   (response) => {
     const statsCode = response.status;
     const res = response.data;
+    console.log('response', response);
+
     if (statsCode !== 200 && statsCode !== 201) {
       const errorMsg = handleError(statsCode, res);
       return Promise.reject(new Error(errorMsg));
@@ -79,7 +81,7 @@ service.interceptors.response.use(
   },
   (error) => {
     return Promise.reject(error?.response?.data ?? error);
-  }
+  },
 );
 
 export default service;

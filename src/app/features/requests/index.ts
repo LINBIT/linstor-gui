@@ -27,7 +27,7 @@ window.fetch = new Proxy(window.fetch, {
               const excludeList = ['key-value-store', 'snapshots'];
 
               if (!excludeList.some((item) => res.url?.includes(item))) {
-                handleAPICallRes(data);
+                handleAPICallRes(data, res.url);
               }
             });
         } catch (error) {
@@ -44,7 +44,7 @@ window.fetch = new Proxy(window.fetch, {
             .json()
             .then((err) => {
               // handle error, notice that res.json() returns a promise
-              handleAPICallRes(err);
+              handleAPICallRes(err, res.url);
             });
         } catch (error) {
           return res;
@@ -95,4 +95,5 @@ export {
   fullySuccess,
   partiallySuccess,
 };
+
 export type { APICALLRC, APICALLRCLIST };

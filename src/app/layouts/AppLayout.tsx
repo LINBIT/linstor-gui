@@ -19,7 +19,7 @@ import {
   PageHeaderToolsItem,
 } from '@patternfly/react-core';
 
-import { Avatar, Dropdown, Menu, MenuProps, Modal } from 'antd';
+import { Avatar, Dropdown, Menu, MenuProps, message, Modal } from 'antd';
 
 import SVG from 'react-inlinesvg';
 
@@ -61,6 +61,7 @@ import {
 import { BRAND_COLOR } from '@app/const/color';
 import { Mode } from '@app/hooks/useUIModeStorage';
 import styled from '@emotion/styled';
+import LogSidebar from './components/LogSidebar';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -273,6 +274,10 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
   useEffect(() => {
     dispatch.setting.getSettings();
     dispatch.setting.getGatewayStatus();
+
+    message.config({
+      maxCount: 3,
+    });
   }, [dispatch.setting]);
 
   const onNavToggleMobile = () => {
@@ -411,10 +416,17 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
           </PageHeaderToolsItem>
         )}
 
+        <PageHeaderToolsItem>
+          <LogSidebar />
+        </PageHeaderToolsItem>
+
         {!normalWithoutAuth && (
           <PageHeaderToolsItem>
             <Dropdown menu={menu} placement="bottomLeft">
-              <Avatar size={40} style={{ backgroundColor: '#f7a75c', color: '#1e2939', cursor: 'pointer' }}>
+              <Avatar
+                size={40}
+                style={{ backgroundColor: '#f7a75c', color: '#1e2939', cursor: 'pointer', marginLeft: 20 }}
+              >
                 {authInfo.username?.charAt(0).toUpperCase() || 'A'}
               </Avatar>
             </Dropdown>
