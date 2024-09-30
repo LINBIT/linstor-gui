@@ -69,8 +69,6 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ type, initialVal, handleClo
     setAuxProps(originalAuxItems);
   }, [initialVal, setFormItems, type]);
 
-  console.log(initialVal, 'initialVal');
-
   const handleAddProperty = (propertyName: string) => {
     const property = formItemList.find((e) => e.name === propertyName) || ({} as FormItem);
     const newFormItems = [...formItems, { ...property, hide: false }];
