@@ -28,7 +28,7 @@ interface LogItem {
   key: string;
   url: string;
   timestamp: number;
-  result: APICALLRC;
+  result: APICALLRC & { created_at?: number };
   read: boolean;
 }
 
@@ -193,7 +193,7 @@ class ApiLogManager {
 
 const logManager = ApiLogManager.getInstance();
 
-const handleAPICallRes = (callRes?: APICALLRCLIST, url: string) => {
+const handleAPICallRes = (callRes: APICALLRCLIST, url: string) => {
   if (!callRes || !callRes.length) {
     return;
   }

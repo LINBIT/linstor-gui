@@ -133,14 +133,26 @@ const LogSidebar: React.FC = () => {
               <strong>URL:</strong> {selectedLog.url}
             </p>
             <p>
-              <strong>Timestamp:</strong> {new Date(selectedLog.timestamp).toLocaleString()}
+              <strong>Timestamp:</strong>{' '}
+              {new Date(selectedLog?.result?.created_at || selectedLog.timestamp).toLocaleString()}
             </p>
-            <p>
-              <strong>Result Code:</strong> {selectedLog.result.ret_code}
-            </p>
+
             <p>
               <strong>Message:</strong> {selectedLog.result.message}
             </p>
+
+            {selectedLog.result?.cause && (
+              <p>
+                <strong>Cause:</strong> {selectedLog.result.cause}
+              </p>
+            )}
+
+            {selectedLog.result?.details && (
+              <p>
+                <strong>Details:</strong> {selectedLog.result.details}
+              </p>
+            )}
+
             <Space
               style={{
                 marginTop: 10,
