@@ -88,11 +88,18 @@ export const setting = createModel<RootModel>()({
       if (host) {
         window.localStorage.setItem(GATEWAY_HOST, host);
       }
-      const res = await service.get('/api/v2/status');
-      const data = res.data;
-      if (data.status === 'ok') {
-        dispatch.setting.setGatewayAvailable(true);
-        return true;
+      try {
+        const res = await service.get('/api/v2/status');
+        const data = res.data;
+        if (data.status === 'ok') {
+          dispatch.setting.setGatewayAvailable(true);
+          return true;
+        } else {
+          dispatch.setting.setGatewayAvailable(false);
+          return false;
+        }
+      } catch (error) {
+        dispatch.setting.setGatewayAvailable(false);
       }
       return false;
     },

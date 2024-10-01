@@ -59,6 +59,12 @@ const Gateway: React.FC = () => {
     }),
   );
 
+  useEffect(() => {
+    if (customHost) {
+      dispatch.setting.getGatewayStatus(gatewayHost || OriginHost);
+    }
+  }, [OriginHost, customHost, dispatch.setting, gatewayHost]);
+
   const onFinish = (values: FormType) => {
     dispatch.setting.setGatewayMode({
       gatewayEnabled: values.isChecked,
@@ -69,8 +75,8 @@ const Gateway: React.FC = () => {
   };
 
   useEffect(() => {
-    dispatch.setting.getGatewayStatus(gatewayHost);
-  }, [dispatch.setting, gatewayHost, isChecked]);
+    dispatch.setting.getGatewayStatus(gatewayHost || OriginHost);
+  }, [OriginHost, dispatch.setting, gatewayHost, isChecked]);
 
   return (
     <>
@@ -137,17 +143,23 @@ const Gateway: React.FC = () => {
                 ]}
                 extra={
                   <StatusInfo>
-                    Status:{' '}
-                    {gatewayAvailable ? (
-                      <CheckCircleOutlined style={{ color: 'green' }} />
+                    {checkingStatus ? (
+                      'Checking status...'
                     ) : (
-                      <StopOutlined style={{ color: 'red' }} />
+                      <>
+                        Status:{' '}
+                        {gatewayAvailable ? (
+                          <CheckCircleOutlined style={{ color: 'green' }} />
+                        ) : (
+                          <StopOutlined style={{ color: 'red' }} />
+                        )}
+                        {gatewayAvailable ? ' Available' : ' Not available'}
+                      </>
                     )}
-                    {gatewayAvailable ? ' Available' : ' Not available'}
                   </StatusInfo>
                 }
               >
-                <Input placeholder="http://192.168.1.1:8080/" disabled={!checkingStatus} />
+                <Input placeholder="http://192.168.1.1:8080/" disabled={!customHost} />
               </Form.Item>
             </>
           )}
