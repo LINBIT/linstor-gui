@@ -84,9 +84,27 @@ const CreateForm = () => {
 
   // should be DISKLESS, LVM, LVM_THIN, ZFS, ZFS_THIN, OPENFLEX_TARGET, FILE, FILE_THIN, SPDK, EBS_TARGET, EBS_INIT
   // but for now, we only support LVM and LVM_THIN
-  const typeList = [
+  const typeListForNewDevice = [
     { label: 'LVM', value: 'LVM' },
     { label: 'LVM_THIN', value: 'LVM_THIN' },
+    { label: 'ZFS', value: 'ZFS' },
+    { label: 'ZFS_THIN', value: 'ZFS_THIN' },
+  ];
+
+  const typeListForExisting = [
+    { label: 'DISKLESS', value: 'DISKLESS' },
+    { label: 'LVM', value: 'LVM' },
+    { label: 'LVM_THIN', value: 'LVM_THIN' },
+    { label: 'ZFS', value: 'ZFS' },
+    { label: 'ZFS_THIN', value: 'ZFS_THIN' },
+    { label: 'FILE', value: 'FILE' },
+    { label: 'FILE_THIN', value: 'FILE_THIN' },
+    { label: 'SPDK', value: 'SPDK' },
+    { label: 'REMOTE_SPDK', value: 'REMOTE_SPDK' },
+    { label: 'EBS_TARGET', value: 'EBS_TARGET' },
+    { label: 'EBS_INIT', value: 'EBS_INIT' },
+    { label: 'STORAGE_SPACES', value: 'STORAGE_SPACES' },
+    { label: 'STORAGE_SPACES_THIN', value: 'STORAGE_SPACES_THIN' },
   ];
 
   const onFinish = (values: FormType) => {
@@ -236,15 +254,12 @@ const CreateForm = () => {
         required
         tooltip="Select the type of logical volume that the storage pool will carve out storage volumes from the physical storage. NOTE: Some LINSTOR features, such as volume snapshots, are only supported on thin-provisioned volumes."
       >
-        <Radio.Group>
-          {typeList.map((e) => {
-            return (
-              <Radio value={e.value} key={e.value}>
-                {e.label}
-              </Radio>
-            );
-          })}
-        </Radio.Group>
+        <Select
+          options={(create_type === 'new' ? typeListForNewDevice : typeListForExisting).map((e) => ({
+            label: e.label,
+            value: e.value,
+          }))}
+        />
       </Form.Item>
 
       {create_type === 'new' && (
