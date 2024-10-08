@@ -62,6 +62,7 @@ import { BRAND_COLOR } from '@app/const/color';
 import { Mode } from '@app/hooks/useUIModeStorage';
 import styled from '@emotion/styled';
 import LogSidebar from './components/LogSidebar';
+import { isUrl } from '@app/utils/stringUtils';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -300,7 +301,18 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
     hideRoutes('grafana', filteredRoutes);
   }
 
-  const customizedLogo = isSvg(logoSrc as any) ? logoSrc : null;
+  const renderLogo = (logoSrc?: string) => {
+    if (!logoSrc) {
+      return null;
+    }
+    if (isUrl(logoSrc) && !isSvg(logoSrc)) {
+      return <img src={logoSrc} alt="logo" width={40} height={40} />;
+    }
+    if (isSvg(logoSrc)) {
+      return <SVG src={logoSrc || ''} width="40" height="40" />;
+    }
+    return null;
+  };
 
   function LogoImg() {
     const history = useHistory();
@@ -313,11 +325,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
       <div className="logo_wrap">
         <img src={logo} className="logo" onClick={handleClick} alt="LINBIT Logo" />
         {'  '}
-        {customizedLogo && (
-          <div className="customerlogo">
-            <SVG src={customizedLogo} className="customerlogo" />
-          </div>
-        )}
+        <div className="customerlogo">{renderLogo(logoSrc)}</div>
       </div>
     );
   }
