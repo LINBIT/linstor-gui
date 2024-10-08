@@ -424,9 +424,11 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
           </PageHeaderToolsItem>
         )}
 
-        <PageHeaderToolsItem>
-          <LogSidebar />
-        </PageHeaderToolsItem>
+        {!vsanModeFromSetting && (
+          <PageHeaderToolsItem>
+            <LogSidebar />
+          </PageHeaderToolsItem>
+        )}
 
         {!normalWithoutAuth && (
           <PageHeaderToolsItem>
