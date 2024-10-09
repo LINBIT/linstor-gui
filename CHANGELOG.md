@@ -1,5 +1,16 @@
 # Changelog
 
+# 1.8.3 - 2024-10-09
+
+### Added
+
+- More device provider types such as ZFS for storage pool creation
+- Support for remote image URLs when customizing the logo
+
+### Fixed
+
+- Bug causing the node list to be empty when adding or removing nodes in VSAN Mode
+
 # 1.8.2 - 2024-09-30
 
 Added
