@@ -222,7 +222,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
   const dispatch = useDispatch<Dispatch>();
   const history = useHistory();
 
-  const [isModalOpen, setIsModalOpen] = useState(!!registered);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOk = () => {
     setIsModalOpen(false);
@@ -242,6 +242,12 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
   useEffect(() => {
     dispatch.auth.checkLoginStatus();
   }, [dispatch.auth]);
+
+  useEffect(() => {
+    if (typeof registered !== 'undefined' && !registered) {
+      setIsModalOpen(true);
+    }
+  }, [registered]);
 
   const { KVS, authInfo, logoSrc, vsanModeFromSetting, isAdmin, gatewayAvailable } = useSelector(
     (state: RootState) => ({
