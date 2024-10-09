@@ -5,8 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Form, Input, Radio, Select } from 'antd';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Button, Form, Input, Select } from 'antd';
 import { useHistory, useParams } from 'react-router-dom';
 
 import {
@@ -29,12 +29,16 @@ type FormType = {
 const EditForm = () => {
   const nodes = useNodes();
   const history = useHistory();
+  const queryClient = useQueryClient();
   const [form] = Form.useForm<FormType>();
   const provider_kind = Form.useWatch('provider_kind', form);
 
   const { node, storagePool } = useParams() as { node: string; storagePool: string };
 
   const backToStoragePoolList = () => {
+    queryClient.refetchQueries({
+      queryKey: ['getStoragePool'],
+    });
     history.push('/inventory/storage-pools');
   };
 
@@ -171,7 +175,7 @@ const EditForm = () => {
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-        <Button type="primary" htmlType="submit">
+        <Button type="primary" htmlType="submit" loading={updateStoragePoolMutation.isLoading}>
           Submit
         </Button>
 

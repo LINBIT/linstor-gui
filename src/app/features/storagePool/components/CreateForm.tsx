@@ -4,8 +4,8 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import React from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Collapse, Form, Input, Radio, Select, Switch, Tooltip } from 'antd';
 import { useHistory } from 'react-router-dom';
 
@@ -45,6 +45,8 @@ const CreateForm = () => {
   const nodes = useNodes();
   const history = useHistory();
 
+  const queryClient = useQueryClient();
+
   const [form] = Form.useForm<FormType>();
   const provider_kind = Form.useWatch('provider_kind', form);
   const node = Form.useWatch('node', form);
@@ -53,6 +55,9 @@ const CreateForm = () => {
   const vdo_enable = Form.useWatch('vdo_enable', form);
 
   const backToStoragePoolList = () => {
+    queryClient.refetchQueries({
+      queryKey: ['getStoragePool'],
+    });
     history.goBack();
   };
 
@@ -340,6 +345,7 @@ const CreateForm = () => {
           disabled={
             createStoragePoolWithExistingVolumeGroup.isLoading || createStoragePoolWithPhysicalStorage.isLoading
           }
+          loading={createStoragePoolWithExistingVolumeGroup.isLoading || createStoragePoolWithPhysicalStorage.isLoading}
         >
           Submit
         </Button>
