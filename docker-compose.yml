@@ -1,0 +1,20 @@
+services:
+  linstor-gui:
+    image: linstor-gui:1.8.1
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - LINSTOR_GUI_VERSION=v1.8.1    
+    environment:
+      - LB_LINSTOR_API_HOST=http://10.20.45.199:3369
+      - LB_GATEWAY_API_HOST=http://10.20.45.199:3369
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://127.0.0.1:8080/health"]
+      start_period: 10s
+      interval: 5s
+      timeout: 1s
+      retries: 3

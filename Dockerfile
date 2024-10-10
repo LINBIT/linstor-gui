@@ -1,34 +1,34 @@
+# syntax=docker/dockerfile:1
 # Use the official Nginx image as the base image
 FROM nginx:alpine
 
-# Install curl, jq, and tar for fetching, parsing, and extracting
-RUN apk add --no-cache git curl tar gettext
+ARG LINSTOR_GUI_VERSION=v1.8.1
+
+# Install curl and tar for fetching and extracting
+RUN apk add --no-cache curl tar gettext
 
 # Remove default Nginx configuration
 RUN rm /etc/nginx/conf.d/default.conf
 
-# Copy the Nginx configuration template
-COPY nginx.conf.template /etc/nginx/nginx.conf.template
-
-COPY . .
+# Copy Nginx configuration templates
+COPY nginx.conf.* /etc/nginx/
 
 # Copy the entrypoint script
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
-# Set default value for LB_GATEWAY_API_HOST
-ENV LB_GATEWAY_API_HOST=http://localhost:8080
+# Set default value
+ENV LB_GATEWAY_API_HOST=http://localhost:8080 \
+    EXTERNAL_HTTPS_PORT=8443
 
-# Download the corresponding tarball
-RUN LATEST_TAG=$(git describe --tags --abbrev=0 | sed 's/^v//') && \
-    echo "Latest Tag: $LATEST_TAG" && \
-    curl -L -o linstor-gui-$LATEST_TAG.tar.gz  https://pkg.linbit.com//downloads/linstor/linstor-gui-$LATEST_TAG.tar.gz && \
+# Download the corresponding tarball from github
+RUN curl -L -o linstor-gui-${LINSTOR_GUI_VERSION}.tar.gz https://github.com/LINBIT/linstor-gui/releases/download/${LINSTOR_GUI_VERSION}/linstor-gui-${LINSTOR_GUI_VERSION}.tar.gz && \
     mkdir -p /usr/share/nginx/html && \
-    tar -xzf linstor-gui-$LATEST_TAG.tar.gz -C /usr/share/nginx/html --strip-components=2 && \
-    rm linstor-gui-$LATEST_TAG.tar.gz
+    tar -xzf linstor-gui-${LINSTOR_GUI_VERSION}.tar.gz -C /usr/share/nginx/html && \
+    rm linstor-gui-${LINSTOR_GUI_VERSION}.tar.gz
 
-# Expose port 8000
-EXPOSE 8000
+# Expose http and https port
+EXPOSE 8080 8443
 
 # Use the entrypoint script
 ENTRYPOINT ["/docker-entrypoint.sh"]
