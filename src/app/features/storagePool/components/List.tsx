@@ -214,7 +214,7 @@ export const List = () => {
       dataIndex: 'free_capacity',
       key: 'free_capacity',
       render: (free_capacity, sp) => {
-        if (sp.provider_kind === 'DISKLESS') {
+        if (typeof free_capacity === "undefined" || sp.provider_kind === 'DISKLESS') {
           return <span>N/A</span>;
         }
         return <span>{formatBytes(free_capacity)}</span>;
@@ -225,7 +225,7 @@ export const List = () => {
       dataIndex: 'total_capacity',
       key: 'total_capacity',
       render: (total_capacity, sp) => {
-        if (sp.provider_kind === 'DISKLESS') {
+        if (typeof total_capacity === "undefined" || sp.provider_kind === 'DISKLESS') {
           return <span>N/A</span>;
         }
         return <span>{formatBytes(total_capacity)}</span>;
