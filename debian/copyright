@@ -3,15 +3,7 @@ Upstream-Name: linstor-gui
 
 Files: *
 Copyright: Copyright (C) 2021, LINBIT HA-Solutions GmbH
-License: LINBIT-Proprietary
- Subscribers to LINBIT's LINBIT-SDS subscriptions get a permanent license to
- use this GUI software.
- .
- Re-distribution not allowed.
-
-Files: debian/*
-Copyright: Copyright (C) 2021, LINBIT HA-Solutions GmbH
-License: GPL-2+
+License: GPL-3+
  This program is free software; you can redistribute it
  and/or modify it under the terms of the GNU General Public
  License as published by the Free Software Foundation; either

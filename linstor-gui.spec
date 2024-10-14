@@ -6,7 +6,8 @@ Release: 1
 Summary: GUI for LINSTOR
 %global tarball_version %(echo "%{version}" | sed -e 's/~rc/-rc/' -e 's/~alpha/-alpha/')
 
-License: LINBIT-Proprietary
+License: GPL-3.0-or-later
+URL: https://github.com/LINBIT/linstor-gui
 Source0: %{name}-%{tarball_version}.tar.gz
 
 Requires: linstor-controller >= 1.13.1
@@ -26,9 +27,10 @@ echo "Nothing to build"
 %install
 make install DESTDIR=%{buildroot}
 
-
 %files
 /usr/share/linstor-server/ui
+%doc README.md
+%license COPYING
 
 
 %changelog

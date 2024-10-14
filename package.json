@@ -1,9 +1,9 @@
 {
   "name": "linstor-gui",
   "description": "Administration GUI for LINSTOR clusters.",
-  "repository": "",
-  "homepage": "",
-  "license": "MIT",
+  "repository": "https://github.com/LINBIT/linstor-gui",
+  "homepage": "https://linbit.com/linbit-gui/",
+  "license": "GPL-3.0-or-later",
   "private": true,
   "scripts": {
     "prebuild": "npm run clean",
