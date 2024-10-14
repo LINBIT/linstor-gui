@@ -78,7 +78,7 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
   const createNodeMutation = useMutation({
     mutationFn: (data: NodeCreateRequestBody) => createNode(data),
     onSuccess: () => {
-      setTimeout(() => backToList(), 1000);
+      backToList();
     },
   });
 
@@ -198,7 +198,7 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 6, span: 18 }}>
-        <Button type="primary" htmlType="submit">
+        <Button type="primary" htmlType="submit" loading={createNodeMutatin.isLoading}>
           Submit
         </Button>
 
