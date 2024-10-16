@@ -14,7 +14,7 @@ const TerserJSPlugin = require('terser-webpack-plugin');
 
 module.exports = merge(common('production'), {
   mode: 'production',
-  devtool: 'source-map',
+  devtool: false,
   optimization: {
     minimizer: [
       new TerserJSPlugin({}),
@@ -24,6 +24,26 @@ module.exports = merge(common('production'), {
         },
       }),
     ],
+    splitChunks: {
+      chunks: 'all',
+      maxInitialRequests: 3,
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+          priority: 20,
+        },
+        common: {
+          name: 'common',
+          minChunks: 2,
+          chunks: 'all',
+          priority: 10,
+          reuseExistingChunk: true,
+          enforce: true,
+        },
+      },
+    },
   },
   plugins: [
     new MiniCssExtractPlugin({
@@ -39,5 +59,10 @@ module.exports = merge(common('production'), {
         use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
     ],
+  },
+  performance: {
+    hints: 'warning',
+    maxEntrypointSize: 512000,
+    maxAssetSize: 512000,
   },
 });
