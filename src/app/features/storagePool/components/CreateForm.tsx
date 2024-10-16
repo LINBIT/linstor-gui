@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Collapse, Form, Input, Radio, Select, Switch, Tooltip } from 'antd';
+import { Button, Collapse, Form, Input, message, Radio, Select, Switch, Tooltip } from 'antd';
 import { useHistory } from 'react-router-dom';
 
 import {
@@ -87,8 +87,6 @@ const CreateForm = () => {
     onSuccess: () => backToStoragePoolList(),
   });
 
-  // should be DISKLESS, LVM, LVM_THIN, ZFS, ZFS_THIN, OPENFLEX_TARGET, FILE, FILE_THIN, SPDK, EBS_TARGET, EBS_INIT
-  // but for now, we only support LVM and LVM_THIN
   const typeListForNewDevice = [
     { label: 'LVM', value: 'LVM' },
     { label: 'LVM_THIN', value: 'LVM_THIN' },
@@ -180,6 +178,8 @@ const CreateForm = () => {
     }
   };
 
+  const isZSFType = provider_kind === 'ZFS' || provider_kind === 'ZFS_THIN';
+
   return (
     <Form
       labelCol={{ span: 8 }}
@@ -215,14 +215,14 @@ const CreateForm = () => {
         label="Storage Pool Name"
         required
         rules={[
-          { required: true, message: 'Enter storage pool name.' },
+          { required: true, message: 'Enter storage pool name' },
           {
             pattern: new RegExp('^(?!-)[a-zA-Z_][a-zA-Z0-9_-]{1,47}[-a-zA-Z0-9_]$'),
             message: 'Please input a valid storage pool name!',
           },
         ]}
       >
-        <Input placeholder="Enter storage pool name." />
+        <Input placeholder="Enter storage pool name" />
       </Form.Item>
 
       {create_type === 'new' && (
@@ -244,7 +244,8 @@ const CreateForm = () => {
       >
         <Select
           allowClear
-          placeholder="Select the node or nodes."
+          showSearch
+          placeholder="Select the node or nodes"
           options={nodes?.data?.map((e) => ({
             label: e.name,
             value: e.name,
@@ -260,10 +261,17 @@ const CreateForm = () => {
         tooltip="Select the type of logical volume that the storage pool will carve out storage volumes from the physical storage. NOTE: Some LINSTOR features, such as volume snapshots, are only supported on thin-provisioned volumes."
       >
         <Select
+          allowClear
+          showSearch
           options={(create_type === 'new' ? typeListForNewDevice : typeListForExisting).map((e) => ({
             label: e.label,
             value: e.value,
           }))}
+          onChange={(value) => {
+            if (value === 'ZFS' || value === 'ZFS_THIN') {
+              message.info('You need to install and configure ZFS on the node before creating a ZFS storage pool.');
+            }
+          }}
         />
       </Form.Item>
 
@@ -278,7 +286,7 @@ const CreateForm = () => {
           >
             <Select
               allowClear
-              placeholder="Select the path of the physical device."
+              placeholder="Select the path of the physical device"
               options={devicePathOptions?.data?.map((e) => ({
                 label: e.device,
                 value: e.device,
@@ -294,16 +302,24 @@ const CreateForm = () => {
                 label: 'Advanced Options',
                 children: (
                   <>
-                    <Form.Item label="LVM Pool Name" name="pool_name" tooltip="VG or VG/Thinpool Name">
+                    <Form.Item
+                      label={isZSFType ? 'ZSF Pool Name' : 'LVM Pool Name'}
+                      name="pool_name"
+                      tooltip={isZSFType ? 'ZSF Pool Name' : 'VG or VG/Thinpool Name'}
+                    >
                       <Input placeholder="Enter pool name" />
                     </Form.Item>
                     <Form.Item label="SED Enabled" name="sed" valuePropName="checked" tooltip="Self Encrypting Drive">
                       <Switch />
                     </Form.Item>
-                    <Form.Item label="VDO Enabled" name="vdo_enable" valuePropName="checked">
-                      <Switch />
-                    </Form.Item>
-
+                    {
+                      // VDO is only available for LVM and LVM_THIN
+                      provider_kind === 'LVM' || provider_kind === 'LVM_THIN' ? (
+                        <Form.Item label="VDO Enabled" name="vdo_enable" valuePropName="checked">
+                          <Switch />
+                        </Form.Item>
+                      ) : null
+                    }
                     {vdo_enable && (
                       <>
                         <Form.Item label="VDO Slab Size" name="vdo_slab_size_kib" tooltip="The size of the VDO slab.">
@@ -327,14 +343,8 @@ const CreateForm = () => {
       )}
 
       {create_type === 'existing' && (
-        <Form.Item
-          name="storage_driver_name"
-          label={provider_kind === 'LVM' ? 'Volume Group' : 'Volume Group/Thin Pool'}
-          required
-        >
-          <Input
-            placeholder={`Please input ${provider_kind === 'LVM_THIN' ? 'Volume Group/Thin Pool' : 'Volume Group'}`}
-          />
+        <Form.Item name="storage_driver_name" label={isZSFType ? 'Pool Name' : 'Volume Group/Thin Pool'} required>
+          <Input placeholder={`${isZSFType ? 'ZFS Pool name' : 'Volume Group/Thin Pool Name'}`} />
         </Form.Item>
       )}
 
