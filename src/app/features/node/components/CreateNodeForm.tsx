@@ -198,7 +198,7 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 6, span: 18 }}>
-        <Button type="primary" htmlType="submit" loading={createNodeMutatin.isLoading}>
+        <Button type="primary" htmlType="submit" loading={createNodeMutation.isLoading}>
           Submit
         </Button>
 
