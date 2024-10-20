@@ -66,6 +66,10 @@ const Gateway: React.FC = () => {
   }, [OriginHost, customHost, dispatch.setting, gatewayHost]);
 
   const onFinish = (values: FormType) => {
+    if (values.host[values.host.length - 1] !== '/') {
+      values.host += '/';
+    }
+    
     dispatch.setting.setGatewayMode({
       gatewayEnabled: values.isChecked,
       customHost: values.customHost,
@@ -125,7 +129,7 @@ const Gateway: React.FC = () => {
               <Form.Item
                 label="Custom API"
                 name="host"
-                validateTrigger="onBlur"
+                validateDebounce={1000}
                 rules={[
                   { required: customHost, message: '' },
                   { type: 'url', warningOnly: true },
