@@ -1,5 +1,25 @@
 # Changelog
 
+# 1.8.4 - 2024-10-22
+
+### Added
+
+- Support for creating storage pools with the ZFS device provider
+- Loading status for node adding
+
+### Fixed
+
+- Debounced request for gateway host check
+- Node edit page blank error
+- Capacity on Storage Pools displaying NaN in some cases
+- Refetching list when a Storage Pool is created
+- Support status check for open-sourced LINSTOR GUI
+- Installation instructions for LINSTOR GUI on a LINSTOR controller node
+
+### Changed
+
+- Reduced bundle size
+
 # 1.8.3 - 2024-10-09
 
 ### Added
