@@ -13,9 +13,8 @@ import uniqby from 'lodash.uniqby';
 import { useStoragePools } from '@app/features/storagePool';
 import { useResourceDefinitions } from '@app/features/resourceDefinition';
 import { useNodes } from '@app/features/node';
-import { getNetWorkInterfaceByNode } from '@app/features/ip';
 import { fullySuccess } from '@app/features/requests';
-import { autoPlace, resourceCreateOnNode, resourceModify } from '../api';
+import { autoPlace, resourceCreateOnNode, resourceModify, getResources } from '../api';
 import { AutoPlaceRequestBody, ResourceCreateRequestBody, ResourceModifyRequestBody } from '../types';
 
 type FormType = {
@@ -40,21 +39,31 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
   const history = useHistory();
   const { resource, node: nodeFromURL } = useParams() as { resource: string; node: string };
   const [form] = Form.useForm<FormType>();
-  const { isLoading: storagePoolsIsLoading, data: storagePools } = useStoragePools();
   const { isLoading: resourceDefinitionIsLoading, data: resourceDefinitions } = useResourceDefinitions();
-  const { isLoading: nodesIsLoading, data: nodes } = useNodes();
-
   const allocate_method = Form.useWatch('allocate_method', form);
   const node = Form.useWatch('node', form);
+  const name = Form.useWatch('name', form);
 
   const backToList = () => {
     history.push('/storage-configuration/resources');
   };
 
-  const { data: networks } = useQuery({
-    queryKey: ['getNetworkByNode', node],
-    queryFn: () => getNetWorkInterfaceByNode(node),
-    enabled: !!node,
+  const { isLoading: nodesIsLoading, data: nodes } = useNodes();
+
+  const { isLoading: storagePoolsIsLoading, data: storagePools } = useStoragePools({
+    nodes: [node],
+  });
+
+  const { data: nodesHaveSelectedResource } = useQuery({
+    queryKey: ['getResourceByName', name],
+    queryFn: async () => {
+      const resources = await getResources({
+        resources: [name],
+      });
+      const nodesList = resources?.data?.map((e) => e.node_name);
+      return nodesList;
+    },
+    enabled: !!name,
   });
 
   const createResourceMutation = useMutation({
@@ -115,11 +124,14 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
     }
 
     if (values.allocate_method === 'manual') {
+      const IS_DRBD_DISKLESS = values.storage_pool === 'DRBD_DISKLESS';
+      const props = IS_DRBD_DISKLESS ? {} : { StorPoolName: values.storage_pool };
+
       const resourceData = {
         resource: {
           name: values.name,
           node_name: values.node,
-          props: { StorPoolName: values.storage_pool, PrefNic: values.network_preference },
+          props,
         },
       };
 
@@ -132,7 +144,7 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
         });
       }
 
-      if (values.DRBD_DISKLESS) {
+      if (IS_DRBD_DISKLESS) {
         Object.assign(resourceData, {
           resource: {
             ...resourceData.resource,
@@ -184,6 +196,11 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
         label: e.storage_pool_name,
         value: e.storage_pool_name,
       }));
+
+  const DRBD_DISKLESS = {
+    label: '<DRBD_DISKLESS>',
+    value: 'DRBD_DISKLESS',
+  };
 
   return (
     <Form<FormType>
@@ -237,26 +254,17 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
             <Select
               allowClear
               placeholder="Please select node"
-              options={nodes?.map((e) => ({
-                label: e.name,
-                value: e.name,
-              }))}
+              options={nodes
+                ?.filter((node) => !nodesHaveSelectedResource?.includes(node.name))
+                .map((e) => ({
+                  label: e.name,
+                  value: e.name,
+                }))}
             />
           </Form.Item>
 
           <Form.Item label="Storage Pool" name="storage_pool">
-            <Select allowClear placeholder="Please select storage pool" options={spList} />
-          </Form.Item>
-
-          <Form.Item label="Network Preference" name="network_preference">
-            <Select
-              allowClear
-              placeholder="Please select network preference"
-              options={networks?.data?.map((e) => ({
-                label: e.name,
-                value: e.name,
-              }))}
-            />
+            <Select allowClear placeholder="Please select storage pool" options={[DRBD_DISKLESS, ...spList]} />
           </Form.Item>
         </>
       )}
@@ -285,10 +293,6 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
           </Form.Item>
         </>
       )}
-
-      <Form.Item name="DRBD_DISKLESS" label="DRBD Diskless">
-        <Switch />
-      </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
         <Button type="primary" htmlType="submit" loading={isLoading} disabled={isDisabled}>
