@@ -19,6 +19,7 @@ import { getResources, getResourceCount, deleteResource, resourceModify } from '
 import { ResourceDataType, ResourceListQuery, ResourceModifyRequestBody } from '../types';
 import { SearchForm } from './styled';
 import { useNodes } from '@app/features/node';
+import { getResourceDefinition } from '@app/features/resourceDefinition';
 import { getStoragePool } from '@app/features/storagePool';
 import uniqBy from 'lodash.uniqby';
 import withCustomColumns from '@app/components/WithCustomColumn';
@@ -82,7 +83,21 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
     isLoading,
   } = useQuery({
     queryKey: ['getResources', query],
-    queryFn: () => getResources(query),
+    queryFn: async () => {
+      const resources = await getResources(query);
+      // fetch resource definition for each resource
+      const resourcePromises =
+        resources.data?.map(async (resource) => {
+          const { name } = resource;
+          const resourceDefinition = await getResourceDefinition({
+            resource_definitions: [name],
+          });
+          resource['parent'] = resourceDefinition.data?.[0];
+          return resource;
+        }) ?? [];
+      await Promise.all(resourcePromises);
+      return resources;
+    },
   });
 
   const { data: storagePoolList } = useQuery({
@@ -405,6 +420,8 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
     return <div>Loading...</div>;
   }
 
+  console.log(resources, 'resources');
+
   const CustomTable = withCustomColumns((props) => {
     return (
       <Table
@@ -425,6 +442,7 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
             });
           },
         }}
+        scroll={{ x: 900 }}
       />
     );
   });

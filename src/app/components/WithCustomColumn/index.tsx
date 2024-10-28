@@ -7,12 +7,13 @@
 import React, { useState } from 'react';
 import { Button } from 'antd';
 import AddColumnModal from './AddColumnModal';
+import uniqBy from 'lodash.uniqby';
 
 interface CustomColumn {
   title: string;
   dataIndex: string;
   key: string;
-  render?: (text: string) => React.ReactNode;
+  render?: (text: string, record: any) => React.ReactNode;
 }
 
 interface WithCustomColumnsProps {
@@ -30,34 +31,39 @@ const withCustomColumns = <P extends object>(
     storageKey,
     ...props
   }) => {
-    // Initialize columns from localStorage if available
     const [columns, setColumns] = useState<CustomColumn[]>(() => {
       const savedColumns = localStorage.getItem(`${storageKey}-columns`);
       if (savedColumns) {
         const parsedColumns = JSON.parse(savedColumns);
         return parsedColumns.map((savedCol: CustomColumn) => {
           const originalCol = initialColumns.find((col) => col.title === savedCol.title);
-          return originalCol ? { ...originalCol, ...savedCol } : savedCol;
+          return {
+            ...originalCol,
+            ...savedCol,
+            render:
+              originalCol?.render || ((text: string, record: any) => record.parent.props[savedCol.dataIndex] || text),
+          };
         });
       }
       return initialColumns;
     });
 
-    const [dataSource, setDataSource] = useState<Record<string, any>[]>(initialDataSource);
+    const [dataSource] = useState(initialDataSource);
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     const showModal = () => setIsModalVisible(true);
 
     const handleAddColumn = (newColumn: CustomColumn) => {
       setColumns((prevColumns) => {
-        // Insert the new column before the last column
         const updatedColumns = [
-          ...prevColumns.slice(0, -1), // All columns except the last
-          { ...newColumn, render: newColumn.render || ((text) => text) },
-          prevColumns[prevColumns.length - 1], // Add the last column back
+          ...prevColumns.slice(0, -1),
+          {
+            ...newColumn,
+            render: (text: string, record: any) => record.parent.props[newColumn.dataIndex] || text,
+          },
+          prevColumns[prevColumns.length - 1],
         ];
 
-        // Update localStorage outside render lifecycle
         setTimeout(() => {
           const columnsToSave = updatedColumns.map(({ title, dataIndex, key }) => ({
             title,
@@ -74,20 +80,30 @@ const withCustomColumns = <P extends object>(
 
     const resetColumns = () => {
       setColumns(initialColumns);
-      setDataSource(initialDataSource);
       localStorage.removeItem(`${storageKey}-columns`);
     };
 
+    const options = uniqBy(
+      initialDataSource.flatMap((e) => Object.keys(e.parent.props).map((key) => ({ label: key, value: key }))),
+      'label',
+    );
+
     return (
       <div>
-        <Button onClick={showModal}>Add Column</Button>
-        <Button onClick={resetColumns} style={{ marginLeft: 8 }}>
-          Reset Columns
-        </Button>
+        <div style={{ marginBottom: 16 }}>
+          <Button onClick={showModal} type="primary">
+            Add Column
+          </Button>
+          <Button onClick={resetColumns} style={{ marginLeft: 8 }}>
+            Reset Columns
+          </Button>
+        </div>
+
         <AddColumnModal
           isVisible={isModalVisible}
           onConfirm={handleAddColumn}
           onCancel={() => setIsModalVisible(false)}
+          options={options}
         />
         <WrappedComponent {...(props as P)} columns={columns} dataSource={dataSource} />
       </div>

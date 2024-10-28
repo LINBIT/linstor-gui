@@ -19,6 +19,7 @@ import { GetResourcesResponseBody, ResourceDataType, ResourceListQuery, VolumeDa
 import { formatBytes } from '@app/utils/size';
 import { useNodes } from '@app/features/node';
 import withCustomColumns from '@app/components/WithCustomColumn';
+import { getResourceDefinition } from '@app/features/resourceDefinition';
 
 export const List = () => {
   const [volumeList, setVolumeList] = useState<GetResourcesResponseBody>();
@@ -66,28 +67,38 @@ export const List = () => {
   const { isLoading } = useQuery({
     queryKey: ['getResources', query],
     queryFn: () => getResources(query),
-    onSuccess: (data) => {
-      const volumes = [];
-
+    onSuccess: async (data) => {
       if (!data?.data) {
         return;
       }
 
-      for (const item of data.data) {
-        if (!item.volumes) {
-          continue;
-        }
-        volumes.push(
-          ...item.volumes.map((e) => ({
+      // fetch resource definition for each resource and update `parent`
+      const updatedData = await Promise.all(
+        data.data.map(async (volume) => {
+          const { name } = volume;
+          const resourceDefinition = await getResourceDefinition({
+            resource_definitions: [name],
+          });
+          return {
+            ...volume,
+            parent: resourceDefinition.data?.[0],
+          };
+        }),
+      );
+
+      // Process `volumes` array from updated data
+      const volumes = updatedData.flatMap(
+        (item) =>
+          item.volumes?.map((e) => ({
             ...e,
             id: uniqId(),
             node_name: item.node_name,
             resource_name: item.name,
             in_use: item.state?.in_use,
             resourceProps: item.props,
-          })),
-        );
-      }
+            parent: item.parent,
+          })) || [],
+      );
 
       setVolumeList(volumes as GetResourcesResponseBody);
     },
@@ -238,11 +249,10 @@ export const List = () => {
           showSizeChanger: true,
           showTotal: (total) => `Total ${total} items`,
         }}
+        scroll={{ x: 1080 }}
       />
     );
   });
-
-  console.log('volumeList', volumeList);
 
   return (
     <>
