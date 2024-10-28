@@ -21,6 +21,7 @@ import { SearchForm } from './styled';
 import { useNodes } from '@app/features/node';
 import { getStoragePool } from '@app/features/storagePool';
 import uniqBy from 'lodash.uniqby';
+import withCustomColumns from '@app/components/WithCustomColumn';
 
 type ListProps = {
   handleOpenMigrate: (resource: string, node: string) => void;
@@ -404,6 +405,30 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
     return <div>Loading...</div>;
   }
 
+  const CustomTable = withCustomColumns((props) => {
+    return (
+      <Table
+        {...props}
+        rowKey={(record) => record.uuid ?? ''}
+        rowSelection={rowSelection}
+        pagination={{
+          total: stats?.data?.count ?? 0,
+          showSizeChanger: true,
+          showTotal: (total) => `Total ${total} items`,
+          defaultCurrent: (query?.offset ?? 0) + 1,
+          pageSize: query?.limit,
+          onChange(page, pageSize) {
+            setQuery({
+              ...query,
+              limit: pageSize,
+              offset: (page - 1) * pageSize,
+            });
+          },
+        }}
+      />
+    );
+  });
+
   return (
     <>
       <SearchForm>
@@ -479,27 +504,7 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
 
       <br />
 
-      <Table
-        columns={columns}
-        dataSource={resources?.data ?? []}
-        rowKey={(record) => record.uuid ?? ''}
-        rowSelection={rowSelection}
-        pagination={{
-          total: stats?.data?.count ?? 0,
-          showSizeChanger: true,
-          showTotal: (total) => `Total ${total} items`,
-          defaultCurrent: (query?.offset ?? 0) + 1,
-          pageSize: query?.limit,
-          onChange(page, pageSize) {
-            setQuery({
-              ...query,
-              limit: pageSize,
-              offset: (page - 1) * pageSize,
-            });
-          },
-        }}
-      />
-
+      <CustomTable initialColumns={columns as any} dataSource={resources?.data ?? []} storageKey="resource" />
       <PropertyForm
         initialVal={initialProps}
         openStatus={propertyModalOpen}

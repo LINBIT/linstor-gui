@@ -18,6 +18,7 @@ import { GetResourcesResponseBody, ResourceDataType, ResourceListQuery, VolumeDa
 
 import { formatBytes } from '@app/utils/size';
 import { useNodes } from '@app/features/node';
+import withCustomColumns from '@app/components/WithCustomColumn';
 
 export const List = () => {
   const [volumeList, setVolumeList] = useState<GetResourcesResponseBody>();
@@ -92,8 +93,6 @@ export const List = () => {
     },
   });
 
-  console.log(volumeList, 'volumeList');
-
   const handleSearch = () => {
     const values = form.getFieldsValue();
     const queryS = new URLSearchParams({});
@@ -138,7 +137,7 @@ export const List = () => {
   >['columns'] = [
     {
       // TODO: Add a tooltip to the column header for the name and volume number
-      title: <span>Resource</span>,
+      title: 'Resource/VolumeNumber',
       key: 'resource',
       dataIndex: 'resource_name',
       sorter: (a, b) => {
@@ -148,8 +147,8 @@ export const List = () => {
           return 0;
         }
       },
-      render: (resource_name, recourd) => {
-        return <span>{`${resource_name}/${recourd.volume_number}`}</span>;
+      render: (resource_name, record) => {
+        return <span>{`${resource_name}/${record.volume_number}`}</span>;
       },
       showSorterTooltip: false,
     },
@@ -230,6 +229,21 @@ export const List = () => {
     return <div>Loading...</div>;
   }
 
+  const CustomTable = withCustomColumns((props) => {
+    return (
+      <Table
+        {...props}
+        pagination={{
+          total: volumeList?.length ?? 0,
+          showSizeChanger: true,
+          showTotal: (total) => `Total ${total} items`,
+        }}
+      />
+    );
+  });
+
+  console.log('volumeList', volumeList);
+
   return (
     <>
       <SearchForm>
@@ -277,15 +291,7 @@ export const List = () => {
 
       <br />
 
-      <Table
-        columns={columns}
-        dataSource={volumeList ?? []}
-        pagination={{
-          total: volumeList?.length ?? 0,
-          showSizeChanger: true,
-          showTotal: (total) => `Total ${total} items`,
-        }}
-      />
+      <CustomTable initialColumns={columns as any} dataSource={volumeList ?? []} storageKey="volume" />
     </>
   );
 };
