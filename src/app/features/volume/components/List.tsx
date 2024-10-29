@@ -20,6 +20,7 @@ import { formatBytes } from '@app/utils/size';
 import { useNodes } from '@app/features/node';
 import withCustomColumns from '@app/components/WithCustomColumn';
 import { getResourceDefinition } from '@app/features/resourceDefinition';
+import { getVolumeDefinitionListByResource } from '@app/features/volumeDefinition';
 
 export const List = () => {
   const [volumeList, setVolumeList] = useState<GetResourcesResponseBody>();
@@ -77,7 +78,7 @@ export const List = () => {
         data.data.map(async (volume) => {
           const { name } = volume;
           const resourceDefinition = await getResourceDefinition({
-            resource_definitions: [name],
+            resource_definitions: [name ?? ''],
           });
           return {
             ...volume,
@@ -87,20 +88,39 @@ export const List = () => {
       );
 
       // Process `volumes` array from updated data
-      const volumes = updatedData.flatMap(
-        (item) =>
-          item.volumes?.map((e) => ({
-            ...e,
-            id: uniqId(),
-            node_name: item.node_name,
-            resource_name: item.name,
-            in_use: item.state?.in_use,
-            resourceProps: item.props,
-            parent: item.parent,
-          })) || [],
+      const volumeDefinitionCache: { [key: string]: any[] } = {};
+
+      const volumes = await Promise.all(
+        updatedData.map(async (item) => {
+          const name = item.name ?? '';
+          if (!volumeDefinitionCache[name]) {
+            const volumeDefinitions = await getVolumeDefinitionListByResource(name);
+            volumeDefinitionCache[name] = volumeDefinitions.data || [];
+          }
+
+          return (
+            item.volumes?.map((e) => {
+              const matchingVolume = volumeDefinitionCache[name].find((v) => v.volume_number === e.volume_number);
+              return {
+                ...e,
+                id: uniqId(),
+                node_name: item.node_name,
+                resource_name: item.name,
+                in_use: item.state?.in_use,
+                resourceProps: item.props,
+                parent: item.parent,
+                size_kib: matchingVolume?.size_kib || 0,
+              };
+            }) || []
+          );
+        }),
       );
 
-      setVolumeList(volumes as GetResourcesResponseBody);
+      const flattenedVolumes = volumes.flat();
+
+      console.log(flattenedVolumes, 'volumes');
+
+      setVolumeList(flattenedVolumes as GetResourcesResponseBody);
     },
   });
 
@@ -144,6 +164,8 @@ export const List = () => {
     ResourceDataType &
       VolumeDataType & {
         resourceProps: Record<string, string>;
+        parent: Record<string, string>;
+        size_kib: number;
       }
   >['columns'] = [
     {
@@ -202,11 +224,14 @@ export const List = () => {
       dataIndex: 'device_path',
     },
     {
-      title: 'Allocated',
+      title: 'Allocated/Size',
       key: 'allocated',
-      dataIndex: 'allocated_size_kib',
-      render: (allocated_size_kib) => {
-        return <span>{formatBytes(allocated_size_kib)}</span>;
+      render: (_, record) => {
+        return (
+          <span>
+            {formatBytes(record.allocated_size_kib ?? 0)}/{formatBytes(record.size_kib ?? 0)}
+          </span>
+        );
       },
     },
     {
@@ -250,6 +275,7 @@ export const List = () => {
           showTotal: (total) => `Total ${total} items`,
         }}
         scroll={{ x: 1080 }}
+        rowKey={(record) => record.id}
       />
     );
   });
