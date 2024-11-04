@@ -5,15 +5,20 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Button } from 'antd';
+import { Button, Tooltip } from 'antd';
 import AddColumnModal from './AddColumnModal';
 import uniqBy from 'lodash.uniqby';
+import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons';
+import styled from '@emotion/styled';
+import ResetIcon from './reset.svg';
+import SVG from 'react-inlinesvg';
 
 interface CustomColumn {
   title: string;
   dataIndex: string;
   key: string;
   render?: (text: string, record: any) => React.ReactNode;
+  isCustom?: boolean;
 }
 
 interface WithCustomColumnsProps {
@@ -21,6 +26,23 @@ interface WithCustomColumnsProps {
   dataSource: Record<string, any>[];
   storageKey: string;
 }
+
+const ExtraColumnContent = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const ColumnAction = styled.div`
+  display: flex;
+  justify-content: end;
+`;
+
+const ResetButton = styled(Button)`
+  margin-left: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
 
 const withCustomColumns = <P extends object>(
   WrappedComponent: React.ComponentType<P & { columns: CustomColumn[]; dataSource: Record<string, any>[] }>,
@@ -59,28 +81,39 @@ const withCustomColumns = <P extends object>(
           ...prevColumns.slice(0, -1),
           {
             ...newColumn,
+            isCustom: true,
             render: (text: string, record: any) => record.parent.props[newColumn.dataIndex] || text,
           },
           prevColumns[prevColumns.length - 1],
         ];
 
-        setTimeout(() => {
-          const columnsToSave = updatedColumns.map(({ title, dataIndex, key }) => ({
-            title,
-            dataIndex,
-            key,
-          }));
-          localStorage.setItem(`${storageKey}-columns`, JSON.stringify(columnsToSave));
-        }, 0);
-
+        saveColumnsToLocalStorage(updatedColumns);
         return updatedColumns;
       });
       setIsModalVisible(false);
     };
 
+    const handleRemoveColumn = (dataIndex: string) => {
+      setColumns((prevColumns) => {
+        const updatedColumns = prevColumns.filter((col) => col.dataIndex !== dataIndex);
+        saveColumnsToLocalStorage(updatedColumns);
+        return updatedColumns;
+      });
+    };
+
     const resetColumns = () => {
       setColumns(initialColumns);
       localStorage.removeItem(`${storageKey}-columns`);
+    };
+
+    const saveColumnsToLocalStorage = (columnsToSave: CustomColumn[]) => {
+      const columnsToPersist = columnsToSave.map(({ title, dataIndex, key, isCustom }) => ({
+        title,
+        dataIndex,
+        key,
+        isCustom,
+      }));
+      localStorage.setItem(`${storageKey}-columns`, JSON.stringify(columnsToPersist));
     };
 
     const options = uniqBy(
@@ -90,14 +123,17 @@ const withCustomColumns = <P extends object>(
 
     return (
       <div>
-        <div style={{ marginBottom: 16 }}>
-          <Button onClick={showModal} type="primary">
-            Add Column
-          </Button>
-          <Button onClick={resetColumns} style={{ marginLeft: 8 }}>
-            Reset Columns
-          </Button>
-        </div>
+        <ColumnAction>
+          <Tooltip title="Add Column">
+            <Button shape="circle" onClick={showModal} type="primary" icon={<PlusCircleOutlined />} />
+          </Tooltip>
+
+          <Tooltip title="Reset Column">
+            <ResetButton shape="circle" onClick={resetColumns}>
+              <SVG src={ResetIcon} width="16" height="16" />
+            </ResetButton>
+          </Tooltip>
+        </ColumnAction>
 
         <AddColumnModal
           isVisible={isModalVisible}
@@ -105,7 +141,21 @@ const withCustomColumns = <P extends object>(
           onCancel={() => setIsModalVisible(false)}
           options={options}
         />
-        <WrappedComponent {...(props as P)} columns={columns} dataSource={dataSource} />
+        <WrappedComponent
+          {...(props as P)}
+          columns={columns.map((col) => ({
+            ...col,
+            title: col.isCustom ? (
+              <ExtraColumnContent>
+                {col.title}
+                <Button shape="circle" onClick={() => handleRemoveColumn(col.dataIndex)} icon={<DeleteOutlined />} />
+              </ExtraColumnContent>
+            ) : (
+              col.title
+            ),
+          }))}
+          dataSource={dataSource}
+        />
       </div>
     );
   };
