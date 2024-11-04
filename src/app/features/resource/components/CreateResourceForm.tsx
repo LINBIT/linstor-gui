@@ -271,17 +271,7 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
 
       {!isEdit && allocate_method !== 'manual' && (
         <>
-          <Form.Item
-            label="Storage Pool"
-            name="storage_pool"
-            required
-            rules={[
-              {
-                required: true,
-                message: 'Please select storage pool!',
-              },
-            ]}
-          >
+          <Form.Item label="Storage Pool" name="storage_pool">
             <Select allowClear placeholder="Please select storage pool" options={spList} />
           </Form.Item>
           <Form.Item name="place_count" label="Place Count" required>
