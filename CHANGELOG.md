@@ -1,5 +1,18 @@
 # Changelog
 
+# 1.8.5 - 2024-11-05
+
+### Added
+
+- Support for adding custom columns on the resource and volume pages
+- Display volume capacity on the volume page
+- Support for DRBD_DISKLESS and available node check in the create resource form
+
+### Changed
+
+- Allow users to remove added aux columns
+- Changed the storage pool to optional on the create resource page
+
 # 1.8.4 - 2024-10-22
 
 ### Added
