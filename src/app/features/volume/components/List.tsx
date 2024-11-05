@@ -224,14 +224,17 @@ export const List = () => {
       dataIndex: 'device_path',
     },
     {
-      title: 'Allocated/Size',
+      title: 'Allocated Size',
       key: 'allocated',
       render: (_, record) => {
-        return (
-          <span>
-            {formatBytes(record.allocated_size_kib ?? 0)}/{formatBytes(record.size_kib ?? 0)}
-          </span>
-        );
+        return <span>{formatBytes(record.allocated_size_kib ?? 0)}</span>;
+      },
+    },
+    {
+      title: 'Reserved Size',
+      key: 'reserved',
+      render: (_, record) => {
+        return <span>{formatBytes(record.size_kib ?? 0)}</span>;
       },
     },
     {
