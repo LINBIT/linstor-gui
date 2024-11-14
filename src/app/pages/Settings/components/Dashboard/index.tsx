@@ -89,13 +89,14 @@ const Dashboard: React.FC = () => {
             <Tooltip title="This field is for the Grafana URL">
               <AddressLabelWrapper>Address:</AddressLabelWrapper>
             </Tooltip>
-            <Input
+            <Input.TextArea
               value={host}
               onChange={(e) => {
                 setHost(e.target.value);
               }}
               aria-label="host"
-              placeholder="http://192.168.1.0"
+              placeholder="http://192.168.123.117:3000/d/f_tZtVlMz/linstor-drbd?from=2024-11-12T05:17:18.650Z&to=2024-11-12T05:47:18.650Z&var-ds_prometheus=ce1tl8xtaztvkc&var-node=$__all&theme=light"
+              rows={6}
             />
           </AddressWrapper>
         )}
