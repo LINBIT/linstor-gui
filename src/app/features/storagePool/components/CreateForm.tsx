@@ -197,7 +197,17 @@ const CreateForm = () => {
       <Form.Item name="create_type">
         <Radio.Group
           onChange={() => {
-            form.setFieldsValue({ node: undefined, device_path: undefined });
+            form.setFieldsValue({
+              storage_pool_name: '',
+              pool_name: '',
+              device_path: '',
+              storage_driver_name: '',
+              sed: false,
+              vdo_enable: false,
+              vdo_slab_size_kib: undefined,
+              vdo_logical_size_kib: undefined,
+              provider_kind: 'LVM',
+            });
           }}
         >
           <Tooltip title="When creating storage pool using new device, please make sure the device is empty.">
