@@ -251,7 +251,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
     }
   }, [registered]);
 
-  const { KVS, authInfo, logoSrc, vsanModeFromSetting, isAdmin, gatewayAvailable } = useSelector(
+  const { KVS, authInfo, logoSrc, vsanModeFromSetting, isAdmin, gatewayAvailable, VSANEvalMode } = useSelector(
     (state: RootState) => ({
       KVS: state.setting.KVS,
       authInfo: state.auth,
@@ -259,6 +259,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
       vsanModeFromSetting: state.setting.vsanMode,
       isAdmin: state.setting.isAdmin,
       gatewayAvailable: state.setting.gatewayAvailable,
+      VSANEvalMode: state.setting.evalMode,
     }),
   );
   // if authenticationEnabled is false then just enter the page
@@ -277,6 +278,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
 
     if (VSAN_URL) {
       dispatch.setting.setVSANMode(true);
+      dispatch.setting.getMyLinbitStatus();
     }
   }, [dispatch.setting, history.location.pathname, history.location.search]);
 
@@ -404,6 +406,8 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
     ],
   };
 
+  const IS_DEV = process.env.NODE_ENV === 'development';
+
   const headerTools = (
     <PageHeaderTools>
       <PageHeaderToolsGroup>
@@ -418,6 +422,30 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
             </NoSupport>
           </PageHeaderToolsItem>
         )}
+
+        {vsanModeFromSetting && VSANEvalMode && (
+          <PageHeaderToolsItem>
+            <NoSupport>
+              <WarningLogo src={warning} />
+              <Attention>
+                Your eval contract has expired. Please{' '}
+                <a
+                  href={
+                    IS_DEV
+                      ? process.env.VSAN_API_HOST + '/register.html'
+                      : 'https://' + window.location.hostname + '/register.html'
+                  }
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  re-register
+                </a>{' '}
+                with a new contract. Until then all iSCSI targets will be stopped.
+              </Attention>
+            </NoSupport>
+          </PageHeaderToolsItem>
+        )}
+
         <PageHeaderToolsItem>
           <ConnectStatus />
         </PageHeaderToolsItem>

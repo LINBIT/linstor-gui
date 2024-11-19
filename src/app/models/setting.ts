@@ -32,6 +32,9 @@ type Setting = {
   logo?: string;
   vsanMode?: boolean;
   isAdmin?: boolean;
+  // VSAN Eval Mode
+  evalMode?: boolean;
+  isEvalContract?: boolean;
 };
 
 export const setting = createModel<RootModel>()({
@@ -82,8 +85,34 @@ export const setting = createModel<RootModel>()({
         isAdmin: state.KVS?.authenticationEnabled && window.localStorage.getItem(USER_LOCAL_STORAGE_KEY) === 'admin',
       };
     },
+    setVSANEvalStatus(
+      state,
+      payload: {
+        evalMode: boolean;
+        isEvalContract: boolean;
+      },
+    ) {
+      return {
+        ...state,
+        evalMode: payload.evalMode,
+        isEvalContract: payload.isEvalContract,
+      };
+    },
   },
   effects: (dispatch) => ({
+    async getMyLinbitStatus() {
+      try {
+        const res = await service.get('/api/frontend/v1/mylinbit/status');
+        console.log(res.data, 'mylinbit status');
+        const data = res.data;
+        dispatch.setting.setVSANEvalStatus({
+          evalMode: data.evalMode,
+          isEvalContract: data.isEvalContract,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    },
     async getGatewayStatus(host?: string) {
       if (host) {
         window.localStorage.setItem(GATEWAY_HOST, host);
