@@ -130,7 +130,7 @@ export const List = () => {
 
   const columns: TableProps<CreateResourceGroupRequestBody>['columns'] = [
     {
-      title: 'Name',
+      title: t('resource_group:name'),
       key: 'name',
       dataIndex: 'name',
       sorter: (a, b) => {
@@ -143,7 +143,7 @@ export const List = () => {
       showSorterTooltip: false,
     },
     {
-      title: 'Place Count',
+      title: t('resource_group:place_count'),
       key: 'place_count',
       render: (_, item) => {
         return item?.select_filter?.place_count;
@@ -151,7 +151,7 @@ export const List = () => {
       showSorterTooltip: false,
     },
     {
-      title: 'Storage Pool(s)',
+      title: t('resource_group:storage_pools'),
       key: 'Storage Pool(s)',
       render: (_, item) => {
         const sp = Array.isArray(item?.select_filter?.storage_pool_list)
@@ -167,7 +167,7 @@ export const List = () => {
       },
     },
     {
-      title: 'Replication Mode',
+      title: t('resource_group:replication'),
       key: 'Replication Mode',
       render: (_, item) => {
         const protocol = item?.props?.['DrbdOptions/Net/protocol'] as 'A' | 'B' | 'C' | undefined;
@@ -179,7 +179,7 @@ export const List = () => {
       },
     },
     {
-      title: 'Diskless on remaining',
+      title: t('resource_group:diskless'),
       key: 'state',
       align: 'center',
       render: (_, item) => {
@@ -188,12 +188,12 @@ export const List = () => {
       },
     },
     {
-      title: 'Description',
+      title: t('resource_group:description'),
       key: 'description',
       dataIndex: 'description',
     },
     {
-      title: 'Action',
+      title: t('common:action'),
       key: 'action',
       width: 150,
       fixed: 'right',
@@ -211,7 +211,7 @@ export const List = () => {
               deleteMutation.mutate(record.name || '');
             }}
           >
-            <Button danger>Delete</Button>
+            <Button danger>{t('common:delete')}</Button>
           </Popconfirm>
 
           <Dropdown
@@ -219,14 +219,14 @@ export const List = () => {
               items: [
                 {
                   key: 'edit',
-                  label: 'Edit',
+                  label: t('common:edit'),
                   onClick: () => {
                     edit(record.name);
                   },
                 },
                 {
                   key: 'property',
-                  label: 'Properties',
+                  label: t('common:property'),
                   onClick: () => {
                     setCurrent(record);
                     setInitialProps(record.props ?? {});
@@ -254,14 +254,14 @@ export const List = () => {
             show_default: true,
           }}
         >
-          <Form.Item name="name" label="Name">
+          <Form.Item name="name" label={t('resource_group:name')}>
             <Input placeholder="Name" />
           </Form.Item>
 
           <Form.Item>
             <Space size="small">
               <Button type="default" onClick={handleReset}>
-                Reset
+                {t('common:reset')}
               </Button>
               <Button
                 type="primary"
@@ -269,7 +269,7 @@ export const List = () => {
                   handleSearch();
                 }}
               >
-                Search
+                {t('common:search')}
               </Button>
               {hasSelected && (
                 <Popconfirm
@@ -280,7 +280,7 @@ export const List = () => {
                   cancelText="No"
                   onConfirm={handleDeleteBulk}
                 >
-                  <Button danger>Delete</Button>
+                  <Button danger>{t('common:delete')}</Button>
                 </Popconfirm>
               )}
             </Space>
@@ -288,7 +288,7 @@ export const List = () => {
         </Form>
 
         <Button type="primary" onClick={() => history.push('/storage-configuration/resource-groups/create')}>
-          Add
+          {t('common:add')}
         </Button>
       </SearchForm>
 

@@ -8,10 +8,12 @@ import React from 'react';
 
 import PageBasic from '@app/components/PageBasic';
 import { CreateResourceGroupFrom } from '@app/features/resourceGroup';
+import { useTranslation } from 'react-i18next';
 
 const ResourceGroupCreate = () => {
+  const { t } = useTranslation('resource_group');
   return (
-    <PageBasic title="Create Resource Group">
+    <PageBasic title={t('create')}>
       <CreateResourceGroupFrom />
     </PageBasic>
   );

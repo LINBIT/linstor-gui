@@ -21,6 +21,7 @@ import { useNodes } from '@app/features/node';
 import withCustomColumns from '@app/components/WithCustomColumn';
 import { getResourceDefinition } from '@app/features/resourceDefinition';
 import { getVolumeDefinitionListByResource } from '@app/features/volumeDefinition';
+import { useTranslation } from 'react-i18next';
 
 export const List = () => {
   const [volumeList, setVolumeList] = useState<GetResourcesResponseBody>();
@@ -28,6 +29,8 @@ export const List = () => {
   const history = useHistory();
   const [form] = Form.useForm();
   const location = useLocation();
+
+  const { t } = useTranslation(['volume', 'common']);
 
   const [query, setQuery] = useState<ResourceListQuery>(() => {
     const query = new URLSearchParams(location.search);
@@ -170,7 +173,7 @@ export const List = () => {
   >['columns'] = [
     {
       // TODO: Add a tooltip to the column header for the name and volume number
-      title: 'Resource/VolumeNumber',
+      title: t('volume:resource_volume'),
       key: 'resource',
       dataIndex: 'resource_name',
       sorter: (a, b) => {
@@ -186,7 +189,7 @@ export const List = () => {
       showSorterTooltip: false,
     },
     {
-      title: 'Node',
+      title: t('common:node'),
       key: 'node_name',
       dataIndex: 'node_name',
       render: (node_name) => {
@@ -203,7 +206,7 @@ export const List = () => {
       },
     },
     {
-      title: 'Storage Pool',
+      title: t('common:storage_pool'),
       key: 'storage_pool',
       render: (_, item) => {
         return (
@@ -219,26 +222,26 @@ export const List = () => {
       },
     },
     {
-      title: 'Device Name',
+      title: t('common:device_path'),
       key: 'device_path',
       dataIndex: 'device_path',
     },
     {
-      title: 'Allocated Size',
+      title: t('volume:allocated_size'),
       key: 'allocated',
       render: (_, record) => {
         return <span>{formatBytes(record.allocated_size_kib ?? 0)}</span>;
       },
     },
     {
-      title: 'Reserved Size',
+      title: t('volume:reserved_size'),
       key: 'reserved',
       render: (_, record) => {
         return <span>{formatBytes(record.size_kib ?? 0)}</span>;
       },
     },
     {
-      title: 'In Use',
+      title: t('volume:in_use'),
       key: 'in_use',
       dataIndex: 'in_use',
       align: 'center',
@@ -255,7 +258,7 @@ export const List = () => {
       },
     },
     {
-      title: 'State',
+      title: t('common:state'),
       key: 'state',
       align: 'center',
       render: (_, item) => {
@@ -294,11 +297,11 @@ export const List = () => {
             show_default: true,
           }}
         >
-          <Form.Item name="name" label="Name">
+          <Form.Item name="name" label={t('common:name')}>
             <Input placeholder="Name" />
           </Form.Item>
 
-          <Form.Item name="nodes" label="Node">
+          <Form.Item name="nodes" label={t('common:node')}>
             <Select
               style={{ width: 180 }}
               allowClear
@@ -313,7 +316,7 @@ export const List = () => {
           <Form.Item>
             <Space size="small">
               <Button type="default" onClick={handleReset}>
-                Reset
+                {t('common:reset')}
               </Button>
               <Button
                 type="primary"
@@ -321,7 +324,7 @@ export const List = () => {
                   handleSearch();
                 }}
               >
-                Search
+                {t('common:search')}
               </Button>
             </Space>
           </Form.Item>

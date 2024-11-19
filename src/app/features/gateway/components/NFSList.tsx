@@ -7,6 +7,7 @@
 import React from 'react';
 import { Button, Popconfirm, Space, Table, Tag } from 'antd';
 import type { TableProps } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
 
 import { NFSResource } from '../types';
@@ -26,33 +27,34 @@ type NFSOperationStatus = {
 };
 
 export const NFSList = ({ list, handleDelete, handleStop, handleStart }: NFSListProps) => {
+  const { t } = useTranslation(['common', 'nfs']);
   const columns: TableProps<NFSResource & NFSOperationStatus>['columns'] = [
     {
-      title: 'Name',
+      title: t('common:name'),
       dataIndex: 'name',
       key: 'name',
     },
     {
-      title: 'On Node',
+      title: t('nfs:node'),
       key: 'node',
       render: (_, item) => {
         return <span>{item?.status?.primary}</span>;
       },
     },
     {
-      title: 'Service IP',
+      title: t('nfs:service_ip'),
       dataIndex: 'service_ip',
       key: 'service_ip',
     },
     {
-      title: 'Export Path',
+      title: t('nfs:export_path'),
       dataIndex: 'path',
       render: (_, item) => {
         return <code>{exportPath(item)}</code>;
       },
     },
     {
-      title: 'Service State',
+      title: t('nfs:service_state'),
       dataIndex: 'service_state',
       render: (_, item) => {
         const isStarted = item?.status?.service === 'Started';
@@ -60,7 +62,7 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart }: NFSList
       },
     },
     {
-      title: 'LINSTOR State',
+      title: t('nfs:linstor_state'),
       dataIndex: 'linstor_state',
       render: (_, item) => {
         const isOk = item?.status?.state === 'OK';
@@ -69,7 +71,7 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart }: NFSList
       align: 'center',
     },
     {
-      title: 'Action',
+      title: t('common:action'),
       key: 'action',
       render: (text, record) => {
         const isStarted = record?.status?.service === 'Started';
@@ -87,10 +89,10 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart }: NFSList
               cancelText="No"
             >
               <Button danger loading={record.starting || record.stopping}>
-                {record.starting && 'Starting...'}
-                {record.stopping && 'Stopping...'}
-                {!record.starting && !record.stopping && isStarted && 'Stop'}
-                {!record.starting && !record.stopping && !isStarted && 'Start'}
+                {record.starting && t('common:starting')}
+                {record.stopping && t('common:stopping')}
+                {!record.starting && !record.stopping && isStarted && t('common:stop')}
+                {!record.starting && !record.stopping && !isStarted && t('common:start')}
               </Button>
             </Popconfirm>
             <Popconfirm
@@ -104,7 +106,7 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart }: NFSList
               cancelText="No"
             >
               <Button type="primary" danger loading={record.deleting}>
-                {record.deleting ? 'Deleting...' : 'Delete'}
+                {record.deleting ? t('common:deleting') : t('common:delete')}
               </Button>
             </Popconfirm>
           </Space>

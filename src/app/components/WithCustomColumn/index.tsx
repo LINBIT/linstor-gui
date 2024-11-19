@@ -12,6 +12,7 @@ import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
 import ResetIcon from './reset.svg';
 import SVG from 'react-inlinesvg';
+import { useTranslation } from 'react-i18next';
 
 interface CustomColumn {
   title: string;
@@ -70,6 +71,8 @@ const withCustomColumns = <P extends object>(
       return initialColumns;
     });
 
+    const { t } = useTranslation('common');
+
     const [dataSource] = useState(initialDataSource);
     const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -124,11 +127,11 @@ const withCustomColumns = <P extends object>(
     return (
       <div>
         <ColumnAction>
-          <Tooltip title="Add Column">
+          <Tooltip title={t('add_column')}>
             <Button shape="circle" onClick={showModal} type="primary" icon={<PlusCircleOutlined />} />
           </Tooltip>
 
-          <Tooltip title="Reset Column">
+          <Tooltip title={t('reset_column')}>
             <ResetButton shape="circle" onClick={resetColumns}>
               <SVG src={ResetIcon} width="16" height="16" />
             </ResetButton>

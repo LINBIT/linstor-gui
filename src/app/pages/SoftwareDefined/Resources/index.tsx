@@ -69,7 +69,7 @@ const List: React.FunctionComponent = () => {
     <PageBasic title={t('list')}>
       <ListV2 handleOpenMigrate={handleOpenMigrate} handleSnapshot={handleSnapshot} />
       <Modal
-        title="Create Snapshot"
+        title={t('resource:create_snapshot')}
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         onOk={handleCreateSnapShot}

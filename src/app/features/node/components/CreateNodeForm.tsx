@@ -8,6 +8,7 @@ import React from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Form, Input, Select } from 'antd';
 import { useHistory, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import {
   createNode,
@@ -38,6 +39,8 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
   const history = useHistory();
   const [form] = Form.useForm<FormType>();
   const [defaultNetwork, setDefaultNetwork] = React.useState<UpdateNetInterfaceRequestBody>();
+
+  const { t } = useTranslation(['node', 'common']);
 
   const backToList = () => {
     history.goBack();
@@ -139,7 +142,7 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
       }}
     >
       <Form.Item
-        label="Name"
+        label={t('node:node_name')}
         name="name"
         required
         rules={[
@@ -152,10 +155,15 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
         <Input placeholder="Please input node name" disabled={editing} />
       </Form.Item>
 
-      <Form.Item label="Type" name="type" required rules={[{ required: true, message: 'Please select node type!' }]}>
+      <Form.Item
+        label={t('node:node_type')}
+        name="type"
+        required
+        rules={[{ required: true, message: 'Please select node type!' }]}
+      >
         <Select
           allowClear
-          placeholder="Please select resource group"
+          placeholder="Please select node type"
           options={['Controller', 'Satellite', 'Combined', 'Auxiliary', 'Openflex_Target']?.map((e) => ({
             label: e,
             value: e,
@@ -165,7 +173,7 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
 
       <Form.Item
         name="address"
-        label="IP Address"
+        label={t('node:default_ip')}
         required
         rules={[
           {
@@ -184,7 +192,7 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
 
       <Form.Item
         name="satellite_port"
-        label="Port"
+        label={t('node:default_port')}
         required
         tooltip="Must be valid port"
         rules={[
@@ -199,11 +207,11 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
 
       <Form.Item wrapperCol={{ offset: 6, span: 18 }}>
         <Button type="primary" htmlType="submit" loading={createNodeMutation.isLoading}>
-          Submit
+          {t('common:submit')}
         </Button>
 
         <Button type="text" onClick={backToList}>
-          Cancel
+          {t('common:cancel')}
         </Button>
       </Form.Item>
     </Form>

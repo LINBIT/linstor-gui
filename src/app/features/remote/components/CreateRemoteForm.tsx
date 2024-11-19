@@ -7,6 +7,7 @@
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Button, Switch, Form, Input, Modal, Select, message } from 'antd';
+import { useTranslation } from 'react-i18next';
 
 import { createLINSTORRemote, createS3Remote } from '../api';
 import { LINSTORRemoteCreateRequestBody, S3RemoteCreateRequestBody } from '../types';
@@ -23,6 +24,7 @@ const CreateRemoteForm = ({ refetch }: CreateRemoteFormProps) => {
   const [form] = Form.useForm<FormType>();
   const [modelOpen, setModelOpen] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
+  const { t } = useTranslation(['remote', 'common']);
 
   const remote_type = Form.useWatch('remote_type', form);
 
@@ -72,14 +74,15 @@ const CreateRemoteForm = ({ refetch }: CreateRemoteFormProps) => {
     <>
       {contextHolder}
       <Button type="primary" onClick={() => setModelOpen(true)}>
-        Add
+        {t('common:create')}
       </Button>
       <Modal
-        title="Create"
+        title={t('common:create')}
         open={modelOpen}
         onOk={() => onFinish(form.getFieldsValue())}
         onCancel={() => setModelOpen(false)}
-        okText="Confirm"
+        okText={t('common:submit')}
+        cancelText={t('common:cancel')}
         width={800}
         okButtonProps={{
           loading: createS3RemoteMutation.isLoading,
@@ -100,7 +103,7 @@ const CreateRemoteForm = ({ refetch }: CreateRemoteFormProps) => {
           }}
           onFinish={onFinish}
         >
-          <Form.Item name="remote_type" label="Type" required>
+          <Form.Item name="remote_type" label={t('remote:type')} required>
             <Select
               options={['s3_remotes', 'linstor_remotes', 'ebs_remotes'].map((e) => ({
                 label: e,
@@ -110,33 +113,33 @@ const CreateRemoteForm = ({ refetch }: CreateRemoteFormProps) => {
             />
           </Form.Item>
 
-          <Form.Item name="remote_name" label="Name" required>
+          <Form.Item name="remote_name" label={t('common:name')} required>
             <Input placeholder="Please input name" />
           </Form.Item>
 
           {remote_type === 's3_remotes' && (
             <>
-              <Form.Item name="endpoint" label="Endpoint" required>
+              <Form.Item name="endpoint" label={t('remote:endpoint')} required>
                 <Input placeholder="Please input endpoint" />
               </Form.Item>
 
-              <Form.Item name="bucket" label="Bucket" required>
+              <Form.Item name="bucket" label={t('remote:bucket')} required>
                 <Input placeholder="Please input bucket" />
               </Form.Item>
 
-              <Form.Item name="region" label="Region" required>
+              <Form.Item name="region" label={t('remote:region')} required>
                 <Input placeholder="Please input region" />
               </Form.Item>
 
-              <Form.Item name="access_key" label="Access key" required>
+              <Form.Item name="access_key" label={t('remote:access_key')} required>
                 <Input.TextArea placeholder="Please input access key" />
               </Form.Item>
 
-              <Form.Item name="secret_key" label="Secret key" required>
+              <Form.Item name="secret_key" label={t('remote:secret_key')} required>
                 <Input.TextArea placeholder="Please input secret key" />
               </Form.Item>
 
-              <Form.Item name="use_path_style" label="Use path style">
+              <Form.Item name="use_path_style" label={t('remote:use_path_style')}>
                 <Switch />
               </Form.Item>
             </>
@@ -144,7 +147,7 @@ const CreateRemoteForm = ({ refetch }: CreateRemoteFormProps) => {
 
           {remote_type === 'linstor_remotes' && (
             <>
-              <Form.Item name="url" label="URL" required>
+              <Form.Item name="url" label={t('remote:url')} required>
                 <Input placeholder="Please input url" />
               </Form.Item>
             </>

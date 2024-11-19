@@ -10,6 +10,7 @@ import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useHistory, useLocation } from 'react-router-dom';
 import { CheckCircleFilled, CloseCircleFilled, DownOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 
 import PropertyForm from '@app/components/PropertyForm';
 import { getNodes, getNodeCount, deleteNode, updateNode, lostNode } from '../api';
@@ -28,6 +29,8 @@ export const List = () => {
   const location = useLocation();
 
   const [form] = Form.useForm();
+
+  const { t } = useTranslation(['node', 'common']);
 
   const [query, setQuery] = useState<NodeListQuery>(() => {
     const query = new URLSearchParams(location.search);
@@ -143,7 +146,7 @@ export const List = () => {
 
   const columns: TableProps<NodeDataType>['columns'] = [
     {
-      title: 'Name',
+      title: t('node:node_name'),
       key: 'name',
       dataIndex: 'name',
       sorter: (a, b) => {
@@ -156,21 +159,21 @@ export const List = () => {
       showSorterTooltip: false,
     },
     {
-      title: 'IP',
+      title: t('node:default_ip'),
       key: 'ip',
       render: (_, item) => {
         return item?.net_interfaces?.find((e) => e.is_active)?.address ?? '';
       },
     },
     {
-      title: 'Port',
+      title: t('node:default_port'),
       key: 'port',
       render: (_, item) => {
         return item?.net_interfaces?.find((e) => e.is_active)?.satellite_port ?? '';
       },
     },
     {
-      title: 'Type',
+      title: t('node:node_type'),
       key: 'type',
       dataIndex: 'type',
       render: (type) => {
@@ -178,7 +181,7 @@ export const List = () => {
       },
     },
     {
-      title: 'Status',
+      title: t('node:node_status'),
       key: 'status',
       align: 'center',
       render: (_, item) => {
@@ -197,7 +200,7 @@ export const List = () => {
       },
     },
     {
-      title: 'Action',
+      title: t('common:action'),
       key: 'action',
       width: 150,
       fixed: 'right',
@@ -209,7 +212,7 @@ export const List = () => {
               history.push(`/inventory/nodes/${record.name}`);
             }}
           >
-            View
+            {t('common:view')}
           </Button>
 
           <Dropdown
@@ -217,14 +220,14 @@ export const List = () => {
               items: [
                 {
                   key: 'edit',
-                  label: 'Edit',
+                  label: t('common:edit'),
                   onClick: () => {
                     history.push(`/inventory/nodes/edit/${record.name}`);
                   },
                 },
                 {
                   key: 'property',
-                  label: 'Properties',
+                  label: t('common:property'),
                   onClick: () => {
                     setCurrent(record);
                     const currentData = omit(record.props ?? {}, 'CurStltConnName');
@@ -248,7 +251,7 @@ export const List = () => {
                         deleteMutation.mutate(record.name || '');
                       }}
                     >
-                      Delete
+                      {t('common:delete')}
                     </Popconfirm>
                   ),
                 },
@@ -265,7 +268,7 @@ export const List = () => {
                         lostMutation.mutate(record.name || '');
                       }}
                     >
-                      Lost
+                      {t('common:lost')}
                     </Popconfirm>
                   ),
                 },
@@ -290,14 +293,14 @@ export const List = () => {
             show_default: true,
           }}
         >
-          <Form.Item name="name" label="Name">
-            <Input placeholder="Name" />
+          <Form.Item name="name" label={t('common:name')}>
+            <Input placeholder={t('common:name')} />
           </Form.Item>
 
           <Form.Item>
             <Space size="small">
               <Button type="default" onClick={handleReset}>
-                Reset
+                {t('common:reset')}
               </Button>
               <Button
                 type="primary"
@@ -305,7 +308,7 @@ export const List = () => {
                   handleSearch();
                 }}
               >
-                Search
+                {t('common:search')}
               </Button>
               {hasSelected && (
                 <>
@@ -317,7 +320,7 @@ export const List = () => {
                     cancelText="No"
                     onConfirm={handleDeleteBulk}
                   >
-                    <Button danger>Delete</Button>
+                    <Button danger>{t('common:delete')}</Button>
                   </Popconfirm>
 
                   <Popconfirm
@@ -329,7 +332,7 @@ export const List = () => {
                     onConfirm={handleLostBulk}
                   >
                     <Button type="primary" danger>
-                      Lost
+                      {t('common:lost')}
                     </Button>
                   </Popconfirm>
                 </>
@@ -339,7 +342,7 @@ export const List = () => {
         </Form>
 
         <Button type="primary" onClick={() => history.push('/inventory/nodes/create')}>
-          Add
+          {t('common:add')}
         </Button>
       </SearchForm>
 

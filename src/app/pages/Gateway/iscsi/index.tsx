@@ -14,7 +14,6 @@ import { Button } from 'antd';
 import { Dispatch, RootState } from '@app/store';
 import PageBasic from '@app/components/PageBasic';
 
-import { ISCSIList } from './List';
 import { ISCSIList as ISCSIListV2 } from '@app/features/gateway';
 
 const List: React.FunctionComponent = () => {
@@ -68,7 +67,7 @@ const List: React.FunctionComponent = () => {
           marginBottom: '1rem',
         }}
       >
-        Create
+        {t('common:create')}
       </Button>
       <ISCSIListV2
         list={list as any}

@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { Dispatch, RootState } from '@app/store';
 import { CheckCircleOutlined, StopOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 
 const Wrapper = styled.div`
   padding: 0;
@@ -49,6 +50,8 @@ const Gateway: React.FC = () => {
   const customHost = Form.useWatch('customHost', form);
   const isChecked = Form.useWatch('isChecked', form);
 
+  const { t } = useTranslation(['common', 'settings']);
+
   const { gatewayEnabled, gatewayHost, customHostFromSetting, gatewayAvailable, checkingStatus } = useSelector(
     (state: RootState) => ({
       gatewayEnabled: state?.setting?.KVS?.gatewayEnabled,
@@ -66,10 +69,10 @@ const Gateway: React.FC = () => {
   }, [OriginHost, customHost, dispatch.setting, gatewayHost]);
 
   const onFinish = (values: FormType) => {
-    if (values.host[values.host.length - 1] !== '/') {
+    if (values?.host?.[values.host.length - 1] !== '/') {
       values.host += '/';
     }
-    
+
     dispatch.setting.setGatewayMode({
       gatewayEnabled: values.isChecked,
       customHost: values.customHost,
@@ -86,12 +89,8 @@ const Gateway: React.FC = () => {
     <>
       <Wrapper>
         <div>
-          <h2>LINSTOR Gateway</h2>
-          <p>
-            Manages Highly-Available iSCSI targets and NFS exports via LINSTOR. Installing linstor-gateway is a
-            prerequisite for enabling this feature.
-          </p>
-          <p>After enabling this feature, the Gateway entry will be displayed in the left-side menu.</p>
+          <h2>{t('settings:linstor_gateway')}</h2>
+          <p>{t('settings:linstor_gateway_description')}</p>
         </div>
 
         <Form
@@ -107,8 +106,8 @@ const Gateway: React.FC = () => {
           {...formItemLayout}
         >
           <Form.Item
-            label="Gateway mode"
-            extra="Installing linstor-gateway is a prerequisite for enabling this feature. And ensure that the endpoint is correctly configured to allow communication between the LINSTOR Gateway and the LINSTOR Server."
+            label={t('settings:gateway_mode')}
+            extra={t('settings:gateway_mode_description')}
             name="isChecked"
             valuePropName="checked"
           >
@@ -118,8 +117,8 @@ const Gateway: React.FC = () => {
           {isChecked && (
             <>
               <Form.Item
-                label="Custom host"
-                extra="When the custom host is enabled, you need to enter the LINSTOR Gateway API endpoints in the 'Custom API' section below. The default value is the LINSTOR server IP + 8080, like http://192.168.1.1:8080/.  If a custom port or different IP is used, adjust the endpoint accordingly."
+                label={t('settings:custom_host')}
+                extra={t('settings:custom_host_description')}
                 name="customHost"
                 valuePropName="checked"
               >
@@ -127,7 +126,7 @@ const Gateway: React.FC = () => {
               </Form.Item>
 
               <Form.Item
-                label="Custom API"
+                label={t('settings:url')}
                 name="host"
                 validateDebounce={1000}
                 rules={[
@@ -151,13 +150,13 @@ const Gateway: React.FC = () => {
                       'Checking status...'
                     ) : (
                       <>
-                        Status:{' '}
+                        {t('common:status')}:{' '}
                         {gatewayAvailable ? (
                           <CheckCircleOutlined style={{ color: 'green' }} />
                         ) : (
                           <StopOutlined style={{ color: 'red' }} />
                         )}
-                        {gatewayAvailable ? ' Available' : ' Not available'}
+                        {gatewayAvailable ? t('settings:available') : t('settings:not_available')}
                       </>
                     )}
                   </StatusInfo>
@@ -174,7 +173,7 @@ const Gateway: React.FC = () => {
             }}
           >
             <Button type="primary" htmlType="submit" disabled={checkingStatus}>
-              Save
+              {t('common:save')}
             </Button>
           </Form.Item>
         </Form>

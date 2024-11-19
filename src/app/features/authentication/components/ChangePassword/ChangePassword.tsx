@@ -13,6 +13,7 @@ import { BGImg, Content, ImgIcon, MainSection } from './styled';
 import { Dispatch } from '@app/store';
 import { useDispatch } from 'react-redux';
 import { USER_LOCAL_STORAGE_KEY } from '@app/const/settings';
+import { useTranslation } from 'react-i18next';
 
 interface Values {
   title: string;
@@ -29,6 +30,7 @@ interface ChangePasswordFormProps {
 
 const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ open, onCreate, onCancel, admin }) => {
   const [form] = Form.useForm();
+  const { t } = useTranslation('users');
   return (
     <Modal open={open} wrapClassName="change-password-modal" footer={null} width="70%" onCancel={onCancel}>
       <Content>
@@ -40,14 +42,14 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ open, onCreate,
             layout="vertical"
             name="form_in_modal"
             initialValues={{ modifier: 'public' }}
-            style={{ width: 500 }}
             onFinish={onCreate}
+            style={{ minWidth: 400 }}
           >
-            <h3> {admin ? 'Reset Password' : 'Change Password'} </h3>
+            <h3> {admin ? t('reset_password') : t('change_password')} </h3>
             {!admin && (
               <Form.Item
                 name="currentPassword"
-                label="Current Password"
+                label={t('current_password')}
                 rules={[{ required: true, message: 'Please input current password!' }]}
               >
                 <Input.Password />
@@ -55,7 +57,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ open, onCreate,
             )}
             <Form.Item
               name="newPassword"
-              label="New Password"
+              label={t('new_password')}
               rules={[{ required: true, message: 'Please input new password!' }]}
             >
               <Input.Password />
@@ -63,7 +65,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ open, onCreate,
 
             <Form.Item
               name="confirmPassword"
-              label="Confirm Password"
+              label={t('confirm_password')}
               rules={[{ required: true, message: 'Please input new password again!' }]}
             >
               <Input.Password />
@@ -71,7 +73,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ open, onCreate,
 
             <Form.Item>
               <Button type="primary" htmlType="submit">
-                Change Password
+                {admin ? t('reset_password') : t('change_password')}
               </Button>
             </Form.Item>
           </Form>
@@ -90,6 +92,7 @@ type ChangePasswordProps = {
 const ChangePassword = ({ admin, user, disabled }: ChangePasswordProps) => {
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch<Dispatch>();
+  const { t } = useTranslation('users');
 
   const onCreate = (values: any) => {
     if (admin) {
@@ -113,11 +116,11 @@ const ChangePassword = ({ admin, user, disabled }: ChangePasswordProps) => {
         }}
       >
         {admin ? (
-          <Button disabled={disabled}> Reset password </Button>
+          <Button disabled={disabled}> {t('reset_password')} </Button>
         ) : (
           <>
             <ImgIcon src={changePassword} alt="changepassword" />
-            <span>Change password</span>
+            <span>{t('reset_password')}</span>
           </>
         )}
       </div>

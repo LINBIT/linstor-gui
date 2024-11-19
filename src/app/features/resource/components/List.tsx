@@ -11,18 +11,19 @@ import get from 'lodash.get';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useHistory, useLocation } from 'react-router-dom';
 import { CheckCircleFilled, CloseCircleFilled, DownOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
+import uniqBy from 'lodash.uniqby';
 
 import PropertyForm from '@app/components/PropertyForm';
 import { formatTime } from '@app/utils/time';
+import { useNodes } from '@app/features/node';
+import { getResourceDefinition } from '@app/features/resourceDefinition';
+import { getStoragePool } from '@app/features/storagePool';
+import withCustomColumns from '@app/components/WithCustomColumn';
 
 import { getResources, getResourceCount, deleteResource, resourceModify } from '../api';
 import { ResourceDataType, ResourceListQuery, ResourceModifyRequestBody } from '../types';
 import { SearchForm } from './styled';
-import { useNodes } from '@app/features/node';
-import { getResourceDefinition } from '@app/features/resourceDefinition';
-import { getStoragePool } from '@app/features/storagePool';
-import uniqBy from 'lodash.uniqby';
-import withCustomColumns from '@app/components/WithCustomColumn';
 
 type ListProps = {
   handleOpenMigrate: (resource: string, node: string) => void;
@@ -34,6 +35,7 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
   const [current, setCurrent] = useState<ResourceDataType>();
+  const { t } = useTranslation(['common', 'resource']);
 
   const history = useHistory();
   const [form] = Form.useForm();
@@ -261,7 +263,7 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
 
   const columns: TableProps<ResourceDataType>['columns'] = [
     {
-      title: 'Resource',
+      title: t('common:name'),
       key: 'name',
       dataIndex: 'name',
       sorter: (a, b) => {
@@ -274,7 +276,7 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
       showSorterTooltip: false,
     },
     {
-      title: 'Node',
+      title: t('common:node'),
       key: 'node_name',
       dataIndex: 'node_name',
       render: (node_name) => {
@@ -291,7 +293,7 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
       },
     },
     {
-      title: 'Created On',
+      title: t('common:created_on'),
       key: 'create_timestamp',
       dataIndex: 'create_timestamp',
       render: (create_timestamp) => {
@@ -299,14 +301,14 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
       },
     },
     {
-      title: 'Port',
+      title: t('common:port'),
       key: 'port',
       render: (item) => {
         return <span>{get(item, 'layer_object.drbd.drbd_resource_definition.port')}</span>;
       },
     },
     {
-      title: 'Usage Status',
+      title: t('common:usage_status'),
       key: 'in_use',
       dataIndex: 'in_use',
       align: 'center',
@@ -326,7 +328,7 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
       },
     },
     {
-      title: 'Connection Status',
+      title: t('common:connection_status'),
       key: 'connection_status',
       align: 'center',
       render: (_, item) => {
@@ -334,7 +336,7 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
       },
     },
     {
-      title: 'State',
+      title: t('common:state'),
       key: 'state',
       align: 'center',
       render: (_, item) => {
@@ -342,7 +344,7 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
       },
     },
     {
-      title: 'Action',
+      title: t('common:action'),
       key: 'action',
       width: 150,
       fixed: 'right',
@@ -353,7 +355,7 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
               history.push(`/storage-configuration/resources/${record.node_name}/${record.name}/edit`);
             }}
           >
-            Edit
+            {t('common:edit')}
           </Button>
 
           <Dropdown
@@ -361,7 +363,7 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
               items: [
                 {
                   key: 'property',
-                  label: 'Properties',
+                  label: t('common:property'),
                   onClick: () => {
                     setCurrent(record);
                     const currentData = record.props;
@@ -374,14 +376,14 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
                 },
                 {
                   key: 'snapshot',
-                  label: 'Snapshot',
+                  label: t('common:snapshot'),
                   onClick: () => {
                     handleSnapshot(record.name ?? '');
                   },
                 },
                 {
                   key: 'migrate',
-                  label: 'Migrate',
+                  label: t('common:migrate'),
                   onClick: () => {
                     handleOpenMigrate(record.name ?? '', record.node_name ?? '');
                   },
@@ -402,7 +404,7 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
                         });
                       }}
                     >
-                      Delete
+                      {t('common:delete')}
                     </Popconfirm>
                   ),
                 },
@@ -419,8 +421,6 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
   if (isLoading) {
     return <div>Loading...</div>;
   }
-
-  console.log(resources, 'resources');
 
   const CustomTable = withCustomColumns((props) => {
     return (
@@ -458,11 +458,11 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
             show_default: true,
           }}
         >
-          <Form.Item name="name" label="Name">
+          <Form.Item name="name" label={t('common:name')}>
             <Input placeholder="Name" />
           </Form.Item>
 
-          <Form.Item name="nodes" label="Node">
+          <Form.Item name="nodes" label={t('common:node')}>
             <Select
               style={{ width: 180 }}
               allowClear
@@ -474,7 +474,7 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
             />
           </Form.Item>
 
-          <Form.Item name="storage_pools" label="Storage Pool">
+          <Form.Item name="storage_pools" label={t('common:storage_pool')}>
             <Select
               style={{ width: 180 }}
               allowClear
@@ -489,7 +489,7 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
           <Form.Item>
             <Space size="small">
               <Button type="default" onClick={handleReset}>
-                Reset
+                {t('common:reset')}
               </Button>
               <Button
                 type="primary"
@@ -497,7 +497,7 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
                   handleSearch();
                 }}
               >
-                Search
+                {t('common:search')}
               </Button>
               {hasSelected && (
                 <Popconfirm
@@ -508,7 +508,7 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
                   cancelText="No"
                   onConfirm={handleDeleteBulk}
                 >
-                  <Button danger>Delete</Button>
+                  <Button danger>{t('common:delete')}</Button>
                 </Popconfirm>
               )}
             </Space>
@@ -516,7 +516,7 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
         </Form>
 
         <Button type="primary" onClick={() => history.push('/storage-configuration/resources/create')}>
-          Create
+          {t('common:create')}
         </Button>
       </SearchForm>
 

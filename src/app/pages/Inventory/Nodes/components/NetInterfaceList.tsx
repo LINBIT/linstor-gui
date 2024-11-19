@@ -8,6 +8,7 @@ import React from 'react';
 import { List, Button, Tag, Popconfirm } from 'antd';
 import { CreateNetWorkInterfaceRequestBody, NetWorkInterface } from '@app/features/ip';
 import { NetInterfaceDetail } from './NetInterfaceDetail';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   list: NetWorkInterface[];
@@ -17,6 +18,7 @@ interface Props {
 
 const NetInterfaceList: React.FC<Props> = ({ list, handleDeleteNetWorkInterface, handleSetActiveNetWorkInterface }) => {
   const hasSingleNetworkInterface = Array.isArray(list) && list.length === 1;
+  const { t } = useTranslation(['common', 'node_detail']);
 
   return (
     <List
@@ -36,7 +38,7 @@ const NetInterfaceList: React.FC<Props> = ({ list, handleDeleteNetWorkInterface,
               }}
             >
               <Button danger disabled={hasSingleNetworkInterface || item.is_active}>
-                delete
+                {t('common:delete')}
               </Button>
             </Popconfirm>,
             <Popconfirm
@@ -50,7 +52,7 @@ const NetInterfaceList: React.FC<Props> = ({ list, handleDeleteNetWorkInterface,
               }}
             >
               <Button key="active" disabled={item.is_active} type="primary">
-                set as active
+                {t('common:activate')}
               </Button>
             </Popconfirm>,
 

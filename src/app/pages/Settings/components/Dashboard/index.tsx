@@ -8,6 +8,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Input, Tooltip, Button, Switch, message } from 'antd';
 import styled from '@emotion/styled';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { Dispatch, RootState } from '@app/store';
 
@@ -39,6 +40,8 @@ const Dashboard: React.FC = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [host, setHost] = useState('');
   const [messageApi, contextHolder] = message.useMessage();
+
+  const { t } = useTranslation(['common', 'settings']);
 
   const dispatch = useDispatch<Dispatch>();
 
@@ -77,17 +80,15 @@ const Dashboard: React.FC = () => {
       {contextHolder}
       <Wrapper>
         <div>
-          <p>
-            Here you can configure the Grafana Dashboard. Once set up, an entry will be displayed in the left-side menu.
-          </p>
+          <p>{t('settings:grafana_description')}</p>
         </div>
-        <Label>Grafana Dashboard</Label>
+        <Label>{t('settings:grafana_dashboard')}</Label>
         <Switch checked={isChecked} onChange={handleChange} aria-label="dashboard-mode" />
 
         {isChecked && (
           <AddressWrapper>
             <Tooltip title="This field is for the Grafana URL">
-              <AddressLabelWrapper>Address:</AddressLabelWrapper>
+              <AddressLabelWrapper>{t('settings:grafana_url')}:</AddressLabelWrapper>
             </Tooltip>
             <Input.TextArea
               value={host}
@@ -102,7 +103,7 @@ const Dashboard: React.FC = () => {
         )}
       </Wrapper>
       <SaveButton type="primary" onClick={handleSave}>
-        Save
+        {t('common:save')}
       </SaveButton>
     </>
   );

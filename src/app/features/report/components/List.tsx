@@ -17,6 +17,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';
 import styled from '@emotion/styled';
 import DownloadSOS from './DownloadSOS';
+import { useTranslation } from 'react-i18next';
 
 const { RangePicker } = DatePicker;
 
@@ -32,6 +33,7 @@ const getId = (report: ErrorReport) => {
 
 export const List = () => {
   const [form] = Form.useForm();
+  const { t } = useTranslation(['error_report', 'common']);
 
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [displayData, setDisplayData] = useState<ErrorReport[]>([]);
@@ -136,12 +138,12 @@ export const List = () => {
 
   const columns: TableProps<ErrorReport>['columns'] = [
     {
-      title: 'ID',
+      title: t('error_report:id'),
       key: 'id',
       dataIndex: 'id',
     },
     {
-      title: 'Time',
+      title: t('error_report:time'),
       key: 'time',
       render: (_, record) => <span>{formatTime(record.error_time)}</span>,
       defaultSortOrder: 'descend',
@@ -149,7 +151,7 @@ export const List = () => {
       showSorterTooltip: false,
     },
     {
-      title: 'Node',
+      title: t('common:node'),
       key: 'node_name',
       dataIndex: 'node_name',
       render: (node_name) => {
@@ -167,13 +169,13 @@ export const List = () => {
       },
     },
     {
-      title: 'Module',
+      title: t('error_report:module'),
       key: 'module',
       dataIndex: 'module',
       render: (_, { module }) => <Tag color={module === 'SATELLITE' ? 'cyan' : 'geekblue'}>{module}</Tag>,
     },
     {
-      title: 'Content',
+      title: t('error_report:content'),
       dataIndex: 'exception_message',
       key: 'exception_message',
       render: (_, { exception, exception_message }) => (
@@ -184,14 +186,14 @@ export const List = () => {
       ),
     },
     {
-      title: 'Action',
+      title: t('common:action'),
       key: 'action',
       width: 150,
       fixed: 'right',
       render: (_, record) => (
         <Space size="small">
           <Button type="primary" onClick={() => handleView(getId(record))}>
-            View
+            {t('common:view')}
           </Button>
           <Popconfirm
             key="delete"
@@ -203,7 +205,7 @@ export const List = () => {
               handleDelete(getId(record));
             }}
           >
-            <Button danger>Delete</Button>
+            <Button danger>{t('common:delete')}</Button>
           </Popconfirm>
         </Space>
       ),
@@ -233,7 +235,7 @@ export const List = () => {
     <>
       <SearchItem>
         <Form form={form} name="error_report" layout="inline">
-          <Form.Item name="node" label="Node">
+          <Form.Item name="node" label={t('common:node')}>
             <Select
               style={{ width: 180 }}
               allowClear
@@ -245,7 +247,7 @@ export const List = () => {
             />
           </Form.Item>
 
-          <Form.Item name="module" label="Module">
+          <Form.Item name="module" label={t('error_report:module')}>
             <Select
               style={{ width: 180 }}
               allowClear
@@ -257,14 +259,14 @@ export const List = () => {
             />
           </Form.Item>
 
-          <Form.Item name="range" label="Time range">
+          <Form.Item name="range" label={t('error_report:time_range')}>
             <RangePicker />
           </Form.Item>
 
           <Form.Item>
             <Space size="small">
               <Button type="default" onClick={handleReset}>
-                Reset
+                {t('common:reset')}
               </Button>
               <Button
                 type="primary"
@@ -272,7 +274,7 @@ export const List = () => {
                   handleSearch();
                 }}
               >
-                Search
+                {t('common:search')}
               </Button>
               {hasSelected && (
                 <Popconfirm
@@ -283,7 +285,7 @@ export const List = () => {
                   cancelText="No"
                   onConfirm={handleDeleteBulk}
                 >
-                  <Button danger>Delete</Button>
+                  <Button danger>{t('common:delete')}</Button>
                 </Popconfirm>
               )}
             </Space>

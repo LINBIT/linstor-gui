@@ -8,15 +8,18 @@ import React, { useEffect } from 'react';
 import { Tabs } from 'antd';
 import type { TabsProps } from 'antd';
 import { useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import PageBasic from '@app/components/PageBasic';
 import { Dispatch } from '@app/store';
+
 import Gateway from './components/Gateway';
 import Logo from './components/Logo';
 import Dashboard from './components/Dashboard';
 import Passphrase from './components/Passphrase';
 
-const GeneralSettings: React.FC = () => {
+const GeneralSettings = () => {
+  const { t } = useTranslation(['common', 'settings']);
   const dispatch = useDispatch<Dispatch>();
   const onChange = (key: string) => {
     console.log(key);
@@ -25,22 +28,22 @@ const GeneralSettings: React.FC = () => {
   const items: TabsProps['items'] = [
     {
       key: '1',
-      label: 'General',
+      label: t('settings:general'),
       children: <Logo />,
     },
     {
       key: '2',
-      label: 'Gateway',
+      label: t('settings:gateway'),
       children: <Gateway />,
     },
     {
       key: '3',
-      label: 'Grafana',
+      label: t('settings:grafana'),
       children: <Dashboard />,
     },
     {
       key: '4',
-      label: 'Passphrase',
+      label: t('settings:passphrase'),
       children: <Passphrase />,
     },
   ];
@@ -51,7 +54,7 @@ const GeneralSettings: React.FC = () => {
   }, [dispatch.setting]);
 
   return (
-    <PageBasic title="Settings">
+    <PageBasic title={t('common:settings')}>
       <Tabs defaultActiveKey="1" items={items} onChange={onChange} />
     </PageBasic>
   );

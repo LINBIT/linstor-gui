@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Button, Form, Input, Select, Space } from 'antd';
 import { useHistory } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { SizeInput } from '@app/components/SizeInput';
 import { createISCSIExport } from '../api';
@@ -42,6 +43,7 @@ const CreateISCSIForm = () => {
   const { data: resourceGroupsFromLinstor } = useResourceGroups({ excludeDefault: true });
   const [time, setTime] = useState('');
   const [domain, setDomain] = useState('');
+  const { t } = useTranslation(['common', 'iscsi']);
 
   const backToList = () => {
     history.push('/gateway/iscsi');
@@ -115,7 +117,7 @@ const CreateISCSIForm = () => {
       }}
     >
       <Form.Item
-        label="IQN"
+        label={t('iscsi:iqn')}
         name="iqn"
         required
         rules={[
@@ -133,7 +135,7 @@ const CreateISCSIForm = () => {
       </Form.Item>
 
       <Form.Item
-        label="Resource Group"
+        label={t('iscsi:resource_group')}
         name="resource_group"
         required
         rules={[{ required: true, message: 'Please select resource group!' }]}
@@ -149,7 +151,7 @@ const CreateISCSIForm = () => {
       </Form.Item>
 
       <Form.Item
-        label="Service IP"
+        label={t('iscsi:service_ips')}
         name="service_ip"
         required
         rules={[
@@ -199,7 +201,7 @@ const CreateISCSIForm = () => {
               }}
             >
               <Button type="dashed" onClick={() => add()} style={{ width: '60%' }}>
-                Add Service IP
+                {t('iscsi:add_service_ip')}
                 <PlusOutlined />
               </Button>
               <Form.ErrorList errors={errors} />
@@ -208,17 +210,17 @@ const CreateISCSIForm = () => {
         )}
       </Form.List>
 
-      <Form.Item name="size" label="Size" required>
+      <Form.Item name="size" label={t('common:size')} required>
         <SizeInput />
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 6, span: 18 }}>
         <Button type="primary" htmlType="submit" loading={createMutation.isLoading}>
-          Submit
+          {t('common:submit')}
         </Button>
 
         <Button type="text" onClick={backToList}>
-          Cancel
+          {t('common:cancel')}
         </Button>
       </Form.Item>
     </Form>

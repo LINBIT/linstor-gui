@@ -4,28 +4,31 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useEffect, useState } from 'react';
-import { Button, Form, Table, Select, Popconfirm, Input, Checkbox, Dropdown, Space } from 'antd';
+import React, { useState } from 'react';
+import { Button, Form, Table, Select, Popconfirm, Space } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useHistory, useLocation } from 'react-router-dom';
 import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import uniqby from 'lodash.uniqby';
+import { useTranslation } from 'react-i18next';
 
 import { formatBytes } from '@app/utils/size';
-import { CreateSnapshotRequestBody, SnapshotListQuery, SnapshotType } from '../types';
-import { createSnapshot, deleteSnapshot, getSnapshots } from '../api';
+import { SnapshotListQuery, SnapshotType } from '../types';
+import { deleteSnapshot, getSnapshots } from '../api';
 import { formatTime } from '@app/utils/time';
+import { useNodes } from '@app/features/node';
+import { getResources } from '@app/features/resource';
 
 import { SearchForm } from './styled';
 import { CreateSnapshotForm } from './CreateForm';
-import { useNodes } from '@app/features/node';
-import { getResources } from '@app/features/resource';
 
 export const List = () => {
   const [form] = Form.useForm();
   const history = useHistory();
   const location = useLocation();
+
+  const { t } = useTranslation(['common', 'snapshot']);
 
   const nodes = useNodes();
   const { data: resourceList } = useQuery({
@@ -125,7 +128,7 @@ export const List = () => {
 
   const columns: TableProps<SnapshotType>['columns'] = [
     {
-      title: 'Resource Name',
+      title: t('snapshot:resource_name'),
       key: 'resourceName',
       dataIndex: 'resource_name',
       sorter: (a, b) => {
@@ -134,7 +137,7 @@ export const List = () => {
       showSorterTooltip: false,
     },
     {
-      title: 'Snapshot Name',
+      title: t('snapshot:snapshot_name'),
       key: 'name',
       dataIndex: 'name',
       sorter: (a, b) => {
@@ -143,7 +146,7 @@ export const List = () => {
       showSorterTooltip: false,
     },
     {
-      title: 'Node Names',
+      title: t('snapshot:node_names'),
       key: 'node_name',
       dataIndex: 'nodes',
       render: (nodes) => {
@@ -151,7 +154,7 @@ export const List = () => {
       },
     },
     {
-      title: 'Volumes',
+      title: t('snapshot:volumes'),
       key: 'volumes',
       dataIndex: 'volume_definitions',
       render: (volume_definitions) => {
@@ -167,7 +170,7 @@ export const List = () => {
       },
     },
     {
-      title: 'Created On',
+      title: t('common:created'),
       key: 'created',
       dataIndex: 'snapshots',
       render: (snapshots) => {
@@ -175,7 +178,7 @@ export const List = () => {
       },
     },
     {
-      title: 'State',
+      title: t('common:state'),
       key: 'state',
       render: (_, item) => {
         const isSuccessful = item.flags?.includes('SUCCESSFUL');
@@ -192,7 +195,7 @@ export const List = () => {
       align: 'center',
     },
     {
-      title: 'Action',
+      title: t('common:action'),
       key: 'action',
       width: 150,
       fixed: 'right',
@@ -207,7 +210,7 @@ export const List = () => {
             deleteMutation.mutate({ resource: record.resource_name ?? '', snapshot: record.name ?? '' });
           }}
         >
-          <Button danger>Delete</Button>
+          <Button danger>{t('common:delete')}</Button>
         </Popconfirm>
       ),
     },
@@ -224,7 +227,7 @@ export const List = () => {
             show_default: true,
           }}
         >
-          <Form.Item name="nodes" label="Nodes">
+          <Form.Item name="nodes" label={t('common:node')}>
             <Select
               style={{ width: 180 }}
               allowClear
@@ -236,7 +239,7 @@ export const List = () => {
             />
           </Form.Item>
 
-          <Form.Item name="resources" label="Resources">
+          <Form.Item name="resources" label={t('common:resource')}>
             <Select
               style={{ width: 180 }}
               allowClear
@@ -251,7 +254,7 @@ export const List = () => {
           <Form.Item>
             <Space size="small">
               <Button type="default" onClick={handleReset}>
-                Reset
+                {t('common:reset')}
               </Button>
               <Button
                 type="primary"
@@ -259,7 +262,7 @@ export const List = () => {
                   handleSearch();
                 }}
               >
-                Search
+                {t('common:search')}
               </Button>
             </Space>
           </Form.Item>
@@ -276,7 +279,7 @@ export const List = () => {
             onConfirm={handleDeleteBulk}
           >
             <Button type="primary" danger>
-              Delete
+              {t('common:delete')}
             </Button>
           </Popconfirm>
         )}

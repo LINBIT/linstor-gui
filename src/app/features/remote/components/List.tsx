@@ -9,6 +9,7 @@ import { Button, Form, Space, Table, Input, Select, Popconfirm } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useHistory, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { deleteRemote, getRemoteList } from '../api';
 import { SearchForm } from './styled';
@@ -25,6 +26,8 @@ export const List = () => {
   const history = useHistory();
   const [form] = Form.useForm();
   const location = useLocation();
+
+  const { t } = useTranslation(['remote', 'common']);
 
   const type = Form.useWatch('type', form);
   const name = Form.useWatch('name', form);
@@ -157,7 +160,7 @@ export const List = () => {
     url?: string;
   }>['columns'] = [
     {
-      title: <span>Name</span>,
+      title: t('remote:name'),
       key: 'name',
       dataIndex: 'remote_name',
       sorter: (a, b) => {
@@ -170,12 +173,12 @@ export const List = () => {
       showSorterTooltip: false,
     },
     {
-      title: 'Type',
+      title: t('remote:type'),
       key: 'type',
       dataIndex: 'type',
     },
     {
-      title: 'Info',
+      title: t('remote:Info'),
       key: 'info',
       render: (record, info) => {
         if (record.type === 'linstor_remotes') {
@@ -186,7 +189,7 @@ export const List = () => {
       },
     },
     {
-      title: 'Action',
+      title: t('common:action'),
       key: 'action',
       render: (record, info) => {
         return (
@@ -200,7 +203,7 @@ export const List = () => {
                 }
               }}
             >
-              Backups
+              {t('remote:backups')}
             </Button>
             <Popconfirm
               title="Delete this remote object?"
@@ -208,7 +211,7 @@ export const List = () => {
                 handleDelete(record.remote_name);
               }}
             >
-              <Button danger>Delete</Button>
+              <Button danger>{t('common:delete')}</Button>
             </Popconfirm>
           </Space>
         );
@@ -231,11 +234,11 @@ export const List = () => {
             show_default: true,
           }}
         >
-          <Form.Item name="name" label="Name">
+          <Form.Item name="name" label={t('common:name')}>
             <Input placeholder="Name" />
           </Form.Item>
 
-          <Form.Item name="type" label="Type">
+          <Form.Item name="type" label={t('remote:type')}>
             <Select
               style={{ width: 180 }}
               allowClear
@@ -260,7 +263,7 @@ export const List = () => {
           <Form.Item>
             <Space size="small">
               <Button type="default" onClick={handleReset}>
-                Reset
+                {t('common:reset')}
               </Button>
               <Button
                 type="primary"
@@ -268,7 +271,7 @@ export const List = () => {
                   handleSearch();
                 }}
               >
-                Search
+                {t('common:search')}
               </Button>
             </Space>
           </Form.Item>

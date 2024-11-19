@@ -7,6 +7,7 @@
 import React, { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Form, Modal, Select } from 'antd';
+import { useTranslation } from 'react-i18next';
 
 import { createVolumeDefinition, getResourceDefinition, getVolumeDefinitionListByResource } from '../api';
 import { CreateVolumeDefinitionRequestBody } from '../types';
@@ -24,6 +25,7 @@ type CreateFormProps = {
 const CreateForm = ({ refetch }: CreateFormProps) => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [form] = Form.useForm<FormType>();
+  const { t } = useTranslation(['volume_definition', 'common']);
 
   const { data: resourceDefinition } = useQuery({
     queryKey: ['getResourceDefinition'],
@@ -65,14 +67,15 @@ const CreateForm = ({ refetch }: CreateFormProps) => {
   return (
     <>
       <Button type="primary" onClick={() => setShowCreateForm(true)}>
-        Create
+        {t('common:add')}
       </Button>
       <Modal
-        title="Create Volume Definition"
+        title={t('volume_definition:create')}
         open={showCreateForm}
         onOk={() => onFinish(form.getFieldsValue())}
         onCancel={() => setShowCreateForm(false)}
-        okText="Spawn"
+        okText={t('common:spawn')}
+        cancelText={t('common:cancel')}
         width={800}
         okButtonProps={{
           loading: createVD.isLoading,
@@ -91,7 +94,7 @@ const CreateForm = ({ refetch }: CreateFormProps) => {
           onFinish={onFinish}
         >
           <Form.Item
-            label="Resource Definition"
+            label={t('common:resource_definition')}
             name="resource"
             required
             rules={[{ required: true, message: 'Please select resource definition!' }]}
@@ -106,7 +109,7 @@ const CreateForm = ({ refetch }: CreateFormProps) => {
             />
           </Form.Item>
 
-          <Form.Item name="size" label="Size" required>
+          <Form.Item name="size" label={t('common:size')} required>
             <SizeInput />
           </Form.Item>
         </Form>

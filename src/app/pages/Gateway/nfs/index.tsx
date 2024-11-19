@@ -55,7 +55,7 @@ const List: React.FunctionComponent = () => {
         }}
         disabled={list.length >= 1}
       >
-        Create
+        {t('common:create')}
       </Button>
       <NFSListV2 list={list as any} handleDelete={handleDelete} handleStart={handleStart} handleStop={handleStop} />
     </PageBasic>

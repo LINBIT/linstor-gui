@@ -12,6 +12,7 @@ import styled from '@emotion/styled';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { Button, Modal } from 'antd';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
@@ -31,6 +32,7 @@ const Title = styled.div`
 
 export const NetInterfaceDetail = ({ item }: NetInterfaceDetailProp) => {
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation(['common', 'node_detail']);
 
   const nodes = useNodes({});
   const history = useHistory();
@@ -43,8 +45,6 @@ export const NetInterfaceDetail = ({ item }: NetInterfaceDetailProp) => {
   const { vsanModeFromSetting } = useSelector((state: RootState) => ({
     vsanModeFromSetting: state.setting.vsanMode,
   }));
-
-  console.log(vsanModeFromSetting, 'vsanModeFromSetting');
 
   const networkQueries = useQueries({
     queries:
@@ -86,7 +86,7 @@ export const NetInterfaceDetail = ({ item }: NetInterfaceDetailProp) => {
 
   return (
     <>
-      <Button onClick={onDetail}>detail</Button>
+      <Button onClick={onDetail}>{t('common:detail')}</Button>
       <Modal open={open} wrapClassName="netinterface-modal" footer={null} onCancel={onCancel}>
         <Title>
           Network interface <h5>&nbsp;{item.name}&nbsp;</h5> is used by:

@@ -7,14 +7,16 @@
 import React, { useState } from 'react';
 import { Button, Form, Input, Modal, Select } from 'antd';
 import uniqby from 'lodash.uniqby';
+import { useTranslation } from 'react-i18next';
 
 import { useNodes } from '@app/features/node';
-import { useResources } from '../hooks';
+import { notify } from '@app/utils/toast';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { getStoragePool } from '@app/features/storagePool';
+
 import { CreateSnapshotRequestBody } from '../types';
+import { useResources } from '../hooks';
 import { createSnapshot } from '../api';
-import { notify } from '@app/utils/toast';
 
 type FormType = {
   name: string;
@@ -31,6 +33,7 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
   const { data: nodes } = useNodes();
   const { data: resources } = useResources();
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation(['common', 'snapshot']);
 
   const resourceList = uniqby(resources, 'name')?.map((e) => ({
     label: e.name,
@@ -87,13 +90,13 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
           setOpen(true);
         }}
       >
-        Create
+        {t('snapshot:create')}
       </Button>
       <Modal
         open={open}
-        title="Create new snapshot"
-        okText="Create"
-        cancelText="Cancel"
+        title={t('snapshot:create')}
+        okText={t('common:submit')}
+        cancelText={t('common:cancel')}
         onCancel={() => {
           form.resetFields();
           setOpen(false);
@@ -123,12 +126,12 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
               The storage pool does not support snapshots, please select another resource
             </div>
           )}
-          <Form.Item name="name" label="Snapshot Name" required>
+          <Form.Item name="name" label={t('snapshot:snapshot_name')} required>
             <Input placeholder="Please input snapshot name" />
           </Form.Item>
 
           <Form.Item
-            label="Resource"
+            label={t('snapshot:resource_name')}
             name="resource_name"
             required
             rules={[{ required: true, message: 'Please select nodes!' }]}
@@ -136,7 +139,7 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
             <Select allowClear placeholder="Please select resource" options={resourceList} />
           </Form.Item>
 
-          <Form.Item label="Nodes" name="nodes">
+          <Form.Item label={t('snapshot:nodes')} name="nodes">
             <Select
               allowClear
               placeholder="Please select nodes"

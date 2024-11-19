@@ -66,7 +66,7 @@ const List = () => {
           marginBottom: '1rem',
         }}
       >
-        Create
+        {t('common:create')}
       </Button>
 
       <NVMeListV2

@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { Dispatch, RootState } from '@app/store';
 import { isUrl } from '@app/utils/stringUtils';
+import { useTranslation } from 'react-i18next';
 
 type FormType = {
   customLogoEnabled: boolean;
@@ -22,6 +23,7 @@ type FormType = {
 export const SVGFileUpload: React.FunctionComponent = () => {
   const [value, setValue] = React.useState('');
   const [form] = Form.useForm();
+  const { t } = useTranslation(['common', 'settings']);
 
   const { logoSrc, customLogoEnabled } = useSelector((state: RootState) => ({
     logoSrc: state.setting.logo,
@@ -79,10 +81,10 @@ export const SVGFileUpload: React.FunctionComponent = () => {
       form={form}
     >
       <Form.Item
-        label="Custom Logo"
+        label={t('settings:custom_logo')}
         valuePropName="checked"
         name="customLogoEnabled"
-        extra="You can select either a local SVG file or a remote URL. The URL can point to any image type."
+        extra={t('settings:custom_logo_description')}
       >
         <Switch />
       </Form.Item>
@@ -91,7 +93,7 @@ export const SVGFileUpload: React.FunctionComponent = () => {
         <>
           {logoSrc && <Form.Item label="Current Logo">{renderLogo(logoSrc)}</Form.Item>}
 
-          <Form.Item label="New Logo" valuePropName="fileList">
+          <Form.Item label={t('settings:logo')} valuePropName="fileList">
             <Upload
               listType="picture-card"
               maxCount={1}
@@ -114,18 +116,18 @@ export const SVGFileUpload: React.FunctionComponent = () => {
             >
               <button style={{ border: 0, background: 'none' }} type="button">
                 <PlusOutlined />
-                <div style={{ marginTop: 8 }}>Upload</div>
+                <div style={{ marginTop: 8 }}>{t('common:upload')}</div>
               </button>
             </Upload>
           </Form.Item>
-          <Form.Item label="URL" name="URL">
+          <Form.Item label={t('settings:url')} name="URL">
             <Input placeholder="https://example.com/logo.svg" />
           </Form.Item>
         </>
       )}
 
       <Form.Item wrapperCol={{ span: 4, offset: 6 }}>
-        <Button onClick={handleSave}>Save</Button>
+        <Button onClick={handleSave}>{t('common:save')}</Button>
       </Form.Item>
     </Form>
   );

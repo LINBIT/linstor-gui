@@ -6,6 +6,7 @@
 
 import React from 'react';
 import { Modal, Input, Form, Select } from 'antd';
+import { useTranslation } from 'react-i18next';
 
 interface AddColumnModalProps {
   isVisible: boolean;
@@ -16,6 +17,7 @@ interface AddColumnModalProps {
 
 const AddColumnModal: React.FC<AddColumnModalProps> = ({ isVisible, onConfirm, onCancel, options }) => {
   const [form] = Form.useForm();
+  const { t } = useTranslation(['common', 'settings']);
 
   const handleOk = () => {
     form
@@ -30,10 +32,10 @@ const AddColumnModal: React.FC<AddColumnModalProps> = ({ isVisible, onConfirm, o
   };
 
   return (
-    <Modal title="Add New Column" open={isVisible} onOk={handleOk} onCancel={onCancel}>
+    <Modal title={t('common:add_column')} open={isVisible} onOk={handleOk} onCancel={onCancel}>
       <Form form={form} layout="vertical">
         <Form.Item
-          label="Column Data Index"
+          label={t('common:column_data_index')}
           name="dataIndex"
           rules={[{ required: true, message: 'Please enter column data index' }]}
         >
@@ -45,7 +47,11 @@ const AddColumnModal: React.FC<AddColumnModalProps> = ({ isVisible, onConfirm, o
             onChange={(e) => form.setFieldValue('title', e)}
           />
         </Form.Item>
-        <Form.Item label="Column Title" name="title" rules={[{ required: true, message: 'Please enter column title' }]}>
+        <Form.Item
+          label={t('common:column_title')}
+          name="title"
+          rules={[{ required: true, message: 'Please enter column title' }]}
+        >
           <Input placeholder="Enter column title" />
         </Form.Item>
       </Form>

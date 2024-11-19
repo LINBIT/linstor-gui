@@ -9,6 +9,7 @@ import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from 'antd';
 import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 
 const generateFileName = () => {
   const timestamp = dayjs().format('YYYY-MM-DD_HH-mm-ss');
@@ -43,9 +44,11 @@ const DownloadSOS = () => {
     setDownloading(false);
   };
 
+  const { t } = useTranslation('error_report');
+
   return (
     <Button type="primary" onClick={handleDownload} loading={downloading}>
-      Download SOS Report
+      {t('download_sos')}
     </Button>
   );
 };

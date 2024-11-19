@@ -19,6 +19,7 @@ import {
 } from '@app/features/storagePool';
 import { useNodes } from '@app/features/node';
 import { SizeInput } from '@app/components/SizeInput';
+import { useTranslation } from 'react-i18next';
 
 // This is for concat LV Name and VG Name
 // it would be like this:
@@ -44,6 +45,7 @@ type FormType = {
 const CreateForm = () => {
   const nodes = useNodes();
   const history = useHistory();
+  const { t } = useTranslation(['common', 'storage_pool']);
 
   const queryClient = useQueryClient();
 
@@ -210,19 +212,19 @@ const CreateForm = () => {
             });
           }}
         >
-          <Tooltip title="When creating storage pool using new device, please make sure the device is empty.">
-            <Radio.Button value="new">New Device</Radio.Button>
+          <Tooltip title={t('storage_pool:new_device_description')}>
+            <Radio.Button value="new">{t('storage_pool:new_device')}</Radio.Button>
           </Tooltip>
 
-          <Tooltip title="To use an existing device, first create a volume group and logical volume by using LVM CLI commands.">
-            <Radio.Button value="existing">Existing Device</Radio.Button>
+          <Tooltip title={t('storage_pool:existing_device_description')}>
+            <Radio.Button value="existing">{t('storage_pool:existing_device')}</Radio.Button>
           </Tooltip>
         </Radio.Group>
       </Form.Item>
 
       <Form.Item
         name="storage_pool_name"
-        label="Storage Pool Name"
+        label={t('storage_pool:storage_pool_name')}
         required
         rules={[
           { required: true, message: 'Enter storage pool name' },
@@ -238,7 +240,7 @@ const CreateForm = () => {
       {create_type === 'new' && (
         <Form.Item
           name="multiple_nodes"
-          label="Multiple Nodes"
+          label={t('storage_pool:multiple_nodes')}
           tooltip="Create the storage pool on more than one node."
         >
           <Switch />
@@ -246,7 +248,7 @@ const CreateForm = () => {
       )}
 
       <Form.Item
-        label="Node"
+        label={t('storage_pool:node')}
         name="node"
         required
         rules={[{ required: true, message: 'Please select nodes!' }]}
@@ -265,7 +267,7 @@ const CreateForm = () => {
       </Form.Item>
 
       <Form.Item
-        label="Type"
+        label={t('storage_pool:type')}
         name="provider_kind"
         required
         tooltip="Select the type of logical volume that the storage pool will carve out storage volumes from the physical storage. NOTE: Some LINSTOR features, such as volume snapshots, are only supported on thin-provisioned volumes."
@@ -279,7 +281,7 @@ const CreateForm = () => {
           }))}
           onChange={(value) => {
             if (value === 'ZFS' || value === 'ZFS_THIN') {
-              message.info('You need to install and configure ZFS on the node before creating a ZFS storage pool.');
+              message.info(t('storage_pool:zfs_toast'));
             }
           }}
         />
@@ -288,11 +290,11 @@ const CreateForm = () => {
       {create_type === 'new' && (
         <>
           <Form.Item
-            label="Device Path"
+            label={t('storage_pool:device_path')}
             name="device_path"
             required
             rules={[{ required: true, message: 'Please select device path!' }]}
-            tooltip="Select the path of the physical device that will back the storage pool."
+            tooltip={t('storage_pool:device_path_tooltip')}
           >
             <Select
               allowClear
@@ -309,23 +311,28 @@ const CreateForm = () => {
             items={[
               {
                 key: '1',
-                label: 'Advanced Options',
+                label: t('storage_pool:advanced_options'),
                 children: (
                   <>
                     <Form.Item
-                      label={isZSFType ? 'ZSF Pool Name' : 'LVM Pool Name'}
+                      label={isZSFType ? t('storage_pool:zfs_pool_name') : t('storage_pool:lvm_pool_name')}
                       name="pool_name"
                       tooltip={isZSFType ? 'ZSF Pool Name' : 'VG or VG/Thinpool Name'}
                     >
                       <Input placeholder="Enter pool name" />
                     </Form.Item>
-                    <Form.Item label="SED Enabled" name="sed" valuePropName="checked" tooltip="Self Encrypting Drive">
+                    <Form.Item
+                      label={t('storage_pool:sed')}
+                      name="sed"
+                      valuePropName="checked"
+                      tooltip="Self Encrypting Drive"
+                    >
                       <Switch />
                     </Form.Item>
                     {
                       // VDO is only available for LVM and LVM_THIN
                       provider_kind === 'LVM' || provider_kind === 'LVM_THIN' ? (
-                        <Form.Item label="VDO Enabled" name="vdo_enable" valuePropName="checked">
+                        <Form.Item label={t('storage_pool:vdo')} name="vdo_enable" valuePropName="checked">
                           <Switch />
                         </Form.Item>
                       ) : null
@@ -353,7 +360,11 @@ const CreateForm = () => {
       )}
 
       {create_type === 'existing' && (
-        <Form.Item name="storage_driver_name" label={isZSFType ? 'Pool Name' : 'Volume Group/Thin Pool'} required>
+        <Form.Item
+          name="storage_driver_name"
+          label={isZSFType ? t('storage_pool:zfs_pool') : t('storage_pool:lvm_pool')}
+          required
+        >
           <Input placeholder={`${isZSFType ? 'ZFS Pool name' : 'Volume Group/Thin Pool Name'}`} />
         </Form.Item>
       )}
@@ -367,11 +378,11 @@ const CreateForm = () => {
           }
           loading={createStoragePoolWithExistingVolumeGroup.isLoading || createStoragePoolWithPhysicalStorage.isLoading}
         >
-          Submit
+          {t('common:submit')}
         </Button>
 
         <Button type="text" onClick={backToStoragePoolList}>
-          Cancel
+          {t('common:cancel')}
         </Button>
       </Form.Item>
     </Form>

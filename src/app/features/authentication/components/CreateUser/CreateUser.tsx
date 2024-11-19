@@ -11,6 +11,7 @@ import changePasswordBG from '@app/assets/changepassword-bg.svg';
 import { BGImg, Content, MainSection } from './styled';
 import { Dispatch } from '@app/store';
 import { useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 interface Values {
   title: string;
@@ -26,40 +27,13 @@ interface CreateUserFormProps {
 
 const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onCreate, onCancel }) => {
   const [form] = Form.useForm();
+  const { t } = useTranslation('users');
   return (
     <Modal open={open} wrapClassName="change-password-modal" footer={null} width="70%" onCancel={onCancel}>
       <Content>
         <BGImg src={changePasswordBG} alt="changePassword" />
 
         <MainSection>
-          {/* <Form
-            form={form}
-            layout="vertical"
-            name="form_in_modal"
-            initialValues={{ modifier: 'public' }}
-            style={{ width: 500 }}
-          >
-            <h3> Add New User </h3>
-            <Form.Item name="username" label="Username" rules={[{ required: true, message: 'Please input username!' }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item name="password" label="Password" rules={[{ required: true, message: 'Please input password!' }]}>
-              <Input.Password />
-            </Form.Item>
-
-            <Form.Item
-              name="confirmPassword"
-              label="Confirm Password"
-              rules={[{ required: true, message: 'Please input new password again!' }]}
-            >
-              <Input.Password />
-            </Form.Item>
-
-            <Form.Item>
-              <Button type="primary">Add user</Button>
-            </Form.Item>
-          </Form> */}
-
           <Form
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 16 }}
@@ -67,13 +41,13 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onCreate, onCance
             form={form}
             layout="vertical"
             name="form_in_modal"
-            style={{ width: 500 }}
+            style={{ minWidth: 400 }}
             onFinish={onCreate}
             autoComplete="off"
           >
-            <h3> Add New User </h3>
+            <h3> {t('add_a_user')} </h3>
             <Form.Item
-              label="Username"
+              label={t('username')}
               name="username"
               rules={[{ required: true, message: 'Please input your username!' }]}
             >
@@ -81,7 +55,7 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onCreate, onCance
             </Form.Item>
 
             <Form.Item
-              label="Password"
+              label={t('password')}
               name="password"
               rules={[{ required: true, message: 'Please input your password!' }]}
             >
@@ -89,7 +63,7 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onCreate, onCance
             </Form.Item>
 
             <Form.Item
-              label="Confirm Password"
+              label={t('confirm_password')}
               name="password_validate"
               rules={[
                 { required: true, message: 'Please input your password!' },
@@ -108,7 +82,7 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onCreate, onCance
 
             <Form.Item>
               <Button type="primary" htmlType="submit">
-                Add
+                {t('add')}
               </Button>
             </Form.Item>
           </Form>
@@ -125,6 +99,7 @@ type CreateUserProp = {
 const CreateUser = ({ disabled }: CreateUserProp) => {
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch<Dispatch>();
+  const { t } = useTranslation('users');
 
   const onCreate = (values: any) => {
     dispatch.auth.register(values);
@@ -142,7 +117,7 @@ const CreateUser = ({ disabled }: CreateUserProp) => {
             setOpen(true);
           }}
         >
-          Add a user
+          {t('add_a_user')}
         </Button>
       </div>
       <CreateUserForm

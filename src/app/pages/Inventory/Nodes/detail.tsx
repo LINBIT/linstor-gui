@@ -26,7 +26,7 @@ import { kibToGib } from '@app/utils/size';
 import { useResources } from '@app/features/snapshot';
 
 import NetInterfaceList from './components/NetInterfaceList';
-import { Container, DashboardContainer, LabelText, TagContainer } from './detail.styled';
+import { Container, DashboardContainer, EmptyDashboard, LabelText, TagContainer } from './detail.styled';
 
 const isValidArray = (nodeRes) => {
   return Array.isArray(nodeRes) && nodeRes.length > 0;
@@ -112,7 +112,7 @@ const handleResourceData = (resource) => {
 };
 
 const NodeDetail: React.FC = () => {
-  const { t } = useTranslation('node');
+  const { t } = useTranslation('node_detail');
   const { node } = useParams() as { node: string };
   const [dashboardUrl, setDashboardUrl] = useState('');
   const [showDashboard, setShowDashboard] = useState(false);
@@ -139,8 +139,6 @@ const NodeDetail: React.FC = () => {
   const nodeData = nodeInfo?.[0];
   const storagePoolData = handleStorageData(nodeStoragePoolInfo?.data, node) || [];
   const resourceData = handleResourceData(resourceInfo?.data) || [];
-
-  console.log(resourceData, 'resourceData');
 
   const deleteNetWorkInterfaceMutation = useMutation({
     mutationFn: (data: { node: string; netinterface: string }) => {
@@ -212,27 +210,27 @@ const NodeDetail: React.FC = () => {
   const items: TabsProps['items'] = [
     {
       key: '1',
-      label: 'Detail',
+      label: t('title'),
       children: (
         <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
-          <Card title="Basic Info" size="small">
+          <Card size="small">
             <Space direction="vertical" size="small" style={{ display: 'flex' }}>
               <div>
-                <LabelText>Node name:</LabelText>
+                <LabelText>{t('node_name')}:</LabelText>
                 {nodeData?.name}
               </div>
               <div>
-                <LabelText>Node type:</LabelText> {nodeData?.type?.toLowerCase()}
+                <LabelText>{t('node_type')}:</LabelText> {nodeData?.type?.toLowerCase()}
               </div>
               <div>
-                <LabelText>Connection status: </LabelText>
+                <LabelText>{t('node_status')}: </LabelText>
                 {nodeData?.connection_status === 'ONLINE' && (
                   <CheckCircleOutlined style={{ color: 'green', marginRight: 4 }} />
                 )}
                 {nodeData?.connection_status?.toLowerCase()}
               </div>
               <TagContainer>
-                <LabelText>Resource layers:</LabelText>
+                <LabelText>{t('resource_layers')}:</LabelText>
 
                 {nodeData
                   ? nodeData?.resource_layers?.map((e) => (
@@ -251,7 +249,7 @@ const NodeDetail: React.FC = () => {
               </TagContainer>
 
               <TagContainer>
-                <LabelText>Storage providers:</LabelText>
+                <LabelText>{t('storage_providers')}:</LabelText>
                 {nodeData
                   ? nodeData?.storage_providers?.map((e) => (
                       <Tag key={e} color="success">
@@ -270,7 +268,7 @@ const NodeDetail: React.FC = () => {
             </Space>
           </Card>
 
-          <Card title="Network interfaces" size="small">
+          <Card title={t('network_interfaces')} size="small">
             <NetInterfaceList
               list={nodeInterfaceInfo?.data || []}
               handleDeleteNetWorkInterface={handleDeleteNetWorkInterface}
@@ -282,7 +280,7 @@ const NodeDetail: React.FC = () => {
 
           <Row gutter={16}>
             <Col span={12}>
-              <Card title="Storage pool info" size="small">
+              <Card title={t('storage_pool_info')} size="small">
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                   <Container>{storagePoolData.length > 0 && <StoragePool data={storagePoolData} />}</Container>
                 </div>
@@ -290,7 +288,7 @@ const NodeDetail: React.FC = () => {
             </Col>
 
             <Col span={12}>
-              <Card title="Resource info" size="small">
+              <Card title={t('resource_info')} size="small">
                 <div style={{ display: 'flex', justifyContent: 'center', minHeight: 385 }}>
                   {resourceData.length > 0 && <Resource data={resourceData} />}
                 </div>
@@ -303,7 +301,7 @@ const NodeDetail: React.FC = () => {
   ];
 
   return (
-    <PageBasic title={t('node_detail')} showBack>
+    <PageBasic title={t('title')} showBack>
       {/* TODO: add grafana dashboard here */}
 
       {/* <br />
