@@ -1,5 +1,17 @@
 # Changelog
 
+# 1.8.6 - 2024-11-20
+
+### Added
+
+- Support for internationalization (partially completed)
+- check mylinbit status in VSAN mode
+
+### Changed
+
+- description and input style for grafana dashboard settings
+- clear input values when switching SP type
+
 # 1.8.5 - 2024-11-05
 
 ### Added
