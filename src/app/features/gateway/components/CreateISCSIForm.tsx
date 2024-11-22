@@ -159,8 +159,14 @@ const CreateISCSIForm = () => {
             required: true,
             message: 'IP address is required!',
           },
+          {
+            message: 'Please input valid IP address and subnet mask, like 192.168.1.1/24, 10.10.1.1/24 ',
+            pattern: new RegExp(
+              '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[1-2]?[0-9])$',
+            ),
+          },
         ]}
-        tooltip="Must be valid IP address, like 192.168.1.1, 10.10.1.1"
+        tooltip="Must be valid IP address, like 192.168.1.1/24, 10.10.1.1/24"
       >
         <Input placeholder="192.168.1.1/24" />
       </Form.Item>

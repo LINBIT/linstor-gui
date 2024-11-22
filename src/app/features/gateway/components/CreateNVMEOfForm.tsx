@@ -141,6 +141,12 @@ const CreateNVMEOfForm = () => {
             required: true,
             message: 'IP address is required!',
           },
+          {
+            message: 'Please input valid IP address and subnet mask, like 192.168.1.1/24, 10.10.1.1/24 ',
+            pattern: new RegExp(
+              '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[1-2]?[0-9])$',
+            ),
+          },
         ]}
         tooltip="This is the IP address under which the NVMe-oF target will be reachable. This must be an address within one of the hosts subnets.
         The service IP is a newly assigned address and should not already belong to a host."
