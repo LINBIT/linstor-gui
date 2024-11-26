@@ -263,6 +263,7 @@ const zh = {
     password: '密码',
     add: '添加用户',
     current_password: '当前密码',
+    password_changed: '密码修改成功',
   },
   remote: {
     list: '远端列表',

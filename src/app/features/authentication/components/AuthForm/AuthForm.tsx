@@ -17,7 +17,6 @@ type FormType = {
   password_validate: string;
 };
 
-// TODO: read from env
 const isDefaultCredentials = (values: FormType) => {
   return values.username === 'admin' && values.password === 'admin';
 };

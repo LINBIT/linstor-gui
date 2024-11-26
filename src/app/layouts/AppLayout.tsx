@@ -262,6 +262,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
       VSANEvalMode: state.setting.evalMode,
     }),
   );
+
   // if authenticationEnabled is false then just enter the page
   const authenticationEnabled = KVS?.authenticationEnabled;
 
@@ -680,6 +681,10 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
         pauseOnHover
         limit={3}
       />
+
+      {authenticationEnabled && authInfo.isAdmin && authInfo.isLoggedIn && (
+        <ChangePassword defaultOpen={authInfo.needsPasswordChange} admin={authInfo.isAdmin} />
+      )}
 
       <StyledModal
         open={isModalOpen}

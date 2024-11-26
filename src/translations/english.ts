@@ -324,6 +324,7 @@ const en = {
     username: 'Username',
     password: 'Password',
     add: 'Add',
+    password_changed: 'Password changed successfully',
   },
   remote: {
     list: 'Remote List',
