@@ -6,18 +6,16 @@
 
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { useRequest } from 'ahooks';
 
 import PageBasic from '@app/components/PageBasic';
-import ResourceDefinitionForm from './components/ResourceDefinitionForm';
-import service from '@app/requests';
 import get from 'lodash.get';
-import { notify, notifyList } from '@app/utils/toast';
 import { useQuery } from '@tanstack/react-query';
 import { CreateForm, getResourceDefinition } from '@app/features/resourceDefinition';
+import { useTranslation } from 'react-i18next';
 
 const Edit: React.FC = () => {
   const { resourceDefinition } = useParams() as { resourceDefinition: string };
+  const { t } = useTranslation(['resource_definition']);
 
   const { data, isLoading } = useQuery({
     queryKey: ['getRD', resourceDefinition],
@@ -31,17 +29,6 @@ const Edit: React.FC = () => {
 
   const detailData = data?.data;
 
-  // const handleEditResourceDefinition = async (data) => {
-  //   const updateData = {
-  //     override_props: {
-  //       'DrbdOptions/Net/protocol': data.replication_mode,
-  //       'DrbdOptions/PeerDevice/c-max-rate': '4194304',
-  //     },
-  //     resource_group: data.resource_group_name,
-  //   };
-  //   await updateResourceDefinition(updateData);
-  // };
-
   const initialVal = {
     name: detailData?.[0]?.name,
     resource_group_name: detailData?.[0].resource_group_name,
@@ -49,9 +36,8 @@ const Edit: React.FC = () => {
   };
 
   return (
-    <PageBasic title="Edit Resource Definition" loading={isLoading}>
+    <PageBasic title={t('resource_definition:edit')} loading={isLoading}>
       <CreateForm initialValues={initialVal} isEdit />
-      {/* <ResourceDefinitionForm initialVal={initialVal} editing={true} /> */}
     </PageBasic>
   );
 };

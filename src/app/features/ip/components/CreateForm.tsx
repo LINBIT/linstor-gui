@@ -10,6 +10,7 @@ import { Button, Checkbox, Form, Input, Modal, Radio } from 'antd';
 
 import { CreateNetWorkInterfaceRequestBody, createNetWorkInterface } from '@app/features/ip';
 import { fullySuccess } from '@app/features/requests';
+import { useTranslation } from 'react-i18next';
 
 type FormType = {
   node: string;
@@ -28,6 +29,7 @@ type FormProps = {
 const CreateForm = ({ editing, node, refetch }: FormProps) => {
   const [form] = Form.useForm<FormType>();
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation('node_detail');
 
   const createNetWorkInterfaceMutation = useMutation({
     mutationFn: (data: CreateNetWorkInterfaceRequestBody) => {
@@ -54,7 +56,7 @@ const CreateForm = ({ editing, node, refetch }: FormProps) => {
           setOpen(true);
         }}
       >
-        Add Network Interface
+        {t('add_network_interface')}
       </Button>
       <Modal
         open={open}

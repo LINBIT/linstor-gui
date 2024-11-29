@@ -18,6 +18,10 @@ import { GetResourcesResponseBody, ResourceDataType, ResourceListQuery, VolumeDa
 
 import { formatBytes } from '@app/utils/size';
 import { useNodes } from '@app/features/node';
+import withCustomColumns from '@app/components/WithCustomColumn';
+import { getResourceDefinition } from '@app/features/resourceDefinition';
+import { getVolumeDefinitionListByResource } from '@app/features/volumeDefinition';
+import { useTranslation } from 'react-i18next';
 
 export const List = () => {
   const [volumeList, setVolumeList] = useState<GetResourcesResponseBody>();
@@ -25,6 +29,8 @@ export const List = () => {
   const history = useHistory();
   const [form] = Form.useForm();
   const location = useLocation();
+
+  const { t } = useTranslation(['volume', 'common']);
 
   const [query, setQuery] = useState<ResourceListQuery>(() => {
     const query = new URLSearchParams(location.search);
@@ -65,34 +71,61 @@ export const List = () => {
   const { isLoading } = useQuery({
     queryKey: ['getResources', query],
     queryFn: () => getResources(query),
-    onSuccess: (data) => {
-      const volumes = [];
-
+    onSuccess: async (data) => {
       if (!data?.data) {
         return;
       }
 
-      for (const item of data.data) {
-        if (!item.volumes) {
-          continue;
-        }
-        volumes.push(
-          ...item.volumes.map((e) => ({
-            ...e,
-            id: uniqId(),
-            node_name: item.node_name,
-            resource_name: item.name,
-            in_use: item.state?.in_use,
-            resourceProps: item.props,
-          })),
-        );
-      }
+      // fetch resource definition for each resource and update `parent`
+      const updatedData = await Promise.all(
+        data.data.map(async (volume) => {
+          const { name } = volume;
+          const resourceDefinition = await getResourceDefinition({
+            resource_definitions: [name ?? ''],
+          });
+          return {
+            ...volume,
+            parent: resourceDefinition.data?.[0],
+          };
+        }),
+      );
 
-      setVolumeList(volumes as GetResourcesResponseBody);
+      // Process `volumes` array from updated data
+      const volumeDefinitionCache: { [key: string]: any[] } = {};
+
+      const volumes = await Promise.all(
+        updatedData.map(async (item) => {
+          const name = item.name ?? '';
+          if (!volumeDefinitionCache[name]) {
+            const volumeDefinitions = await getVolumeDefinitionListByResource(name);
+            volumeDefinitionCache[name] = volumeDefinitions.data || [];
+          }
+
+          return (
+            item.volumes?.map((e) => {
+              const matchingVolume = volumeDefinitionCache[name].find((v) => v.volume_number === e.volume_number);
+              return {
+                ...e,
+                id: uniqId(),
+                node_name: item.node_name,
+                resource_name: item.name,
+                in_use: item.state?.in_use,
+                resourceProps: item.props,
+                parent: item.parent,
+                size_kib: matchingVolume?.size_kib || 0,
+              };
+            }) || []
+          );
+        }),
+      );
+
+      const flattenedVolumes = volumes.flat();
+
+      console.log(flattenedVolumes, 'volumes');
+
+      setVolumeList(flattenedVolumes as GetResourcesResponseBody);
     },
   });
-
-  console.log(volumeList, 'volumeList');
 
   const handleSearch = () => {
     const values = form.getFieldsValue();
@@ -134,11 +167,13 @@ export const List = () => {
     ResourceDataType &
       VolumeDataType & {
         resourceProps: Record<string, string>;
+        parent: Record<string, string>;
+        size_kib: number;
       }
   >['columns'] = [
     {
       // TODO: Add a tooltip to the column header for the name and volume number
-      title: <span>Resource</span>,
+      title: t('volume:resource_volume'),
       key: 'resource',
       dataIndex: 'resource_name',
       sorter: (a, b) => {
@@ -148,13 +183,13 @@ export const List = () => {
           return 0;
         }
       },
-      render: (resource_name, recourd) => {
-        return <span>{`${resource_name}/${recourd.volume_number}`}</span>;
+      render: (resource_name, record) => {
+        return <span>{`${resource_name}/${record.volume_number}`}</span>;
       },
       showSorterTooltip: false,
     },
     {
-      title: 'Node',
+      title: t('common:node'),
       key: 'node_name',
       dataIndex: 'node_name',
       render: (node_name) => {
@@ -171,7 +206,7 @@ export const List = () => {
       },
     },
     {
-      title: 'Storage Pool',
+      title: t('common:storage_pool'),
       key: 'storage_pool',
       render: (_, item) => {
         return (
@@ -187,20 +222,26 @@ export const List = () => {
       },
     },
     {
-      title: 'Device Name',
+      title: t('common:device_path'),
       key: 'device_path',
       dataIndex: 'device_path',
     },
     {
-      title: 'Allocated',
+      title: t('volume:allocated_size'),
       key: 'allocated',
-      dataIndex: 'allocated_size_kib',
-      render: (allocated_size_kib) => {
-        return <span>{formatBytes(allocated_size_kib)}</span>;
+      render: (_, record) => {
+        return <span>{formatBytes(record.allocated_size_kib ?? 0)}</span>;
       },
     },
     {
-      title: 'In Use',
+      title: t('volume:reserved_size'),
+      key: 'reserved',
+      render: (_, record) => {
+        return <span>{formatBytes(record.size_kib ?? 0)}</span>;
+      },
+    },
+    {
+      title: t('volume:in_use'),
       key: 'in_use',
       dataIndex: 'in_use',
       align: 'center',
@@ -217,7 +258,7 @@ export const List = () => {
       },
     },
     {
-      title: 'State',
+      title: t('common:state'),
       key: 'state',
       align: 'center',
       render: (_, item) => {
@@ -230,6 +271,21 @@ export const List = () => {
     return <div>Loading...</div>;
   }
 
+  const CustomTable = withCustomColumns((props) => {
+    return (
+      <Table
+        {...props}
+        pagination={{
+          total: volumeList?.length ?? 0,
+          showSizeChanger: true,
+          showTotal: (total) => `Total ${total} items`,
+        }}
+        scroll={{ x: 1080 }}
+        rowKey={(record) => record.id}
+      />
+    );
+  });
+
   return (
     <>
       <SearchForm>
@@ -241,11 +297,11 @@ export const List = () => {
             show_default: true,
           }}
         >
-          <Form.Item name="name" label="Name">
+          <Form.Item name="name" label={t('common:name')}>
             <Input placeholder="Name" />
           </Form.Item>
 
-          <Form.Item name="nodes" label="Node">
+          <Form.Item name="nodes" label={t('common:node')}>
             <Select
               style={{ width: 180 }}
               allowClear
@@ -260,7 +316,7 @@ export const List = () => {
           <Form.Item>
             <Space size="small">
               <Button type="default" onClick={handleReset}>
-                Reset
+                {t('common:reset')}
               </Button>
               <Button
                 type="primary"
@@ -268,7 +324,7 @@ export const List = () => {
                   handleSearch();
                 }}
               >
-                Search
+                {t('common:search')}
               </Button>
             </Space>
           </Form.Item>
@@ -277,15 +333,7 @@ export const List = () => {
 
       <br />
 
-      <Table
-        columns={columns}
-        dataSource={volumeList ?? []}
-        pagination={{
-          total: volumeList?.length ?? 0,
-          showSizeChanger: true,
-          showTotal: (total) => `Total ${total} items`,
-        }}
-      />
+      <CustomTable initialColumns={columns as any} dataSource={volumeList ?? []} storageKey="volume" />
     </>
   );
 };

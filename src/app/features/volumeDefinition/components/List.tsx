@@ -9,6 +9,7 @@ import { Button, Form, Space, Table, Popconfirm, Select } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQueries, useQuery } from '@tanstack/react-query';
 import { useHistory, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import PropertyForm from '@app/components/PropertyForm';
 import {
@@ -32,6 +33,7 @@ export const List = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
+  const { t } = useTranslation(['volume_definition', 'common']);
 
   const history = useHistory();
   const location = useLocation();
@@ -161,7 +163,7 @@ export const List = () => {
     }
   >['columns'] = [
     {
-      title: 'Resource Definition Name',
+      title: t('common:resource_definition'),
       key: 'rdName',
       dataIndex: 'rdName',
       sorter: (a, b) => {
@@ -174,12 +176,12 @@ export const List = () => {
       showSorterTooltip: false,
     },
     {
-      title: 'Volume Number',
+      title: t('common:volume_number'),
       key: 'volume_number',
       dataIndex: 'volume_number',
     },
     {
-      title: 'Size',
+      title: t('common:size'),
       key: 'Size',
       dataIndex: 'size_kib',
       render: (size_kib) => {
@@ -205,7 +207,7 @@ export const List = () => {
             show_default: true,
           }}
         >
-          <Form.Item name="name" label="Resource Definition">
+          <Form.Item name="name" label={t('common:resource_definition')}>
             <Select
               showSearch
               style={{ width: 200 }}
@@ -222,7 +224,7 @@ export const List = () => {
           <Form.Item>
             <Space size="small">
               <Button type="default" onClick={handleReset}>
-                Reset
+                {t('common:reset')}
               </Button>
               <Button
                 type="primary"
@@ -230,7 +232,7 @@ export const List = () => {
                   handleSearch();
                 }}
               >
-                Search
+                {t('common:search')}
               </Button>
               {hasSelected && (
                 <Popconfirm
@@ -241,7 +243,7 @@ export const List = () => {
                   cancelText="No"
                   onConfirm={handleDeleteBulk}
                 >
-                  <Button danger>Delete</Button>
+                  <Button danger>{t('common:delete')}</Button>
                 </Popconfirm>
               )}
             </Space>

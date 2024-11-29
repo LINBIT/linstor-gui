@@ -69,7 +69,6 @@ service.interceptors.response.use(
   (response) => {
     const statsCode = response.status;
     const res = response.data;
-    console.log('response', response);
 
     if (statsCode !== 200 && statsCode !== 201) {
       const errorMsg = handleError(statsCode, res);

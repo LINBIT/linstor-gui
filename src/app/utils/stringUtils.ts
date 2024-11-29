@@ -43,3 +43,16 @@ export const capitalize = (s?: string): string => {
 
   return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
 };
+
+// check if a string is a valid URL
+export const isUrl = (url?: string) => {
+  if (!url) {
+    return false;
+  }
+  try {
+    new URL(url);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};

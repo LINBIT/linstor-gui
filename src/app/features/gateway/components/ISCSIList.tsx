@@ -13,6 +13,7 @@ import { ISCSIResource } from '../types';
 import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';
 import { SizeInput } from '@app/components/SizeInput';
+import { useTranslation } from 'react-i18next';
 
 type ISCSIListProps = {
   list: ISCSIResource[];
@@ -44,6 +45,7 @@ export const ISCSIList = ({
   const [lunModal, setLunModal] = useState(false);
   const [IQN, setIQN] = useState('');
   const [LUN, setLUN] = useState(0);
+  const { t } = useTranslation(['common', 'iscsi']);
 
   const { addingVolume } = useSelector((state: RootState) => ({
     addingVolume: state.loading.effects.iscsi.addLUN,
@@ -77,8 +79,6 @@ export const ISCSIList = ({
     };
   });
 
-  console.log(dataWithChildren, 'dataWithChildren');
-
   const columns: TableProps<
     ISCSIResource &
       ISCSIOperationStatus & {
@@ -86,7 +86,7 @@ export const ISCSIList = ({
       }
   >['columns'] = [
     {
-      title: 'IQN',
+      title: t('iscsi:iqn'),
       dataIndex: 'iqn',
       key: 'iqn',
       render: (iqn, record) => {
@@ -97,14 +97,14 @@ export const ISCSIList = ({
       },
     },
     {
-      title: 'On Node',
+      title: t('iscsi:on_node'),
       key: 'node',
       render: (_, item) => {
         return <span>{item?.status?.primary}</span>;
       },
     },
     {
-      title: 'Service IP',
+      title: t('iscsi:service_ips'),
       dataIndex: 'service_ips',
       key: 'service_ips',
       render: (_, item) => {
@@ -112,12 +112,12 @@ export const ISCSIList = ({
       },
     },
     {
-      title: 'Resource Group',
+      title: t('iscsi:resource_group'),
       dataIndex: 'resource_group',
       key: 'resource_group',
     },
     {
-      title: 'Service State',
+      title: t('iscsi:service_state'),
       dataIndex: 'service_state',
       render: (_, item) => {
         const isStarted = item?.status?.service === 'Started';
@@ -125,7 +125,7 @@ export const ISCSIList = ({
       },
     },
     {
-      title: 'LUN',
+      title: t('iscsi:lun'),
       dataIndex: 'lun',
       key: 'lun',
       render: (_, item) => {
@@ -133,7 +133,7 @@ export const ISCSIList = ({
       },
     },
     {
-      title: 'LINSTOR State',
+      title: t('iscsi:linstor_state'),
       dataIndex: 'linstor_state',
       render: (_, item) => {
         const isOk = item?.status?.state === 'OK';
@@ -142,7 +142,7 @@ export const ISCSIList = ({
       align: 'center',
     },
     {
-      title: 'Action',
+      title: t('common:action'),
       key: 'action',
       render: (text, record) => {
         const isChild = record?.isChild;
@@ -163,10 +163,10 @@ export const ISCSIList = ({
                   cancelText="No"
                 >
                   <Button danger loading={record.starting || record.stopping}>
-                    {record.starting && 'Starting...'}
-                    {record.stopping && 'Stopping...'}
-                    {!record.starting && !record.stopping && isStarted && 'Stop'}
-                    {!record.starting && !record.stopping && !isStarted && 'Start'}
+                    {record.starting && t('common:starting')}
+                    {record.stopping && t('common:stopping')}
+                    {!record.starting && !record.stopping && isStarted && t('common:stop')}
+                    {!record.starting && !record.stopping && !isStarted && t('common:start')}
                   </Button>
                 </Popconfirm>
                 <Popconfirm
@@ -180,7 +180,7 @@ export const ISCSIList = ({
                   cancelText="No"
                 >
                   <Button type="primary" danger loading={record.deleting}>
-                    {record.deleting ? 'Deleting...' : 'Delete'}
+                    {record.deleting ? t('common:deleting') : t('common:delete')}
                   </Button>
                 </Popconfirm>
                 <Button
@@ -194,7 +194,7 @@ export const ISCSIList = ({
                   }}
                   loading={addingVolume}
                 >
-                  {addingVolume ? 'Adding Volume' : 'Add Volume'}
+                  {addingVolume ? t('iscsi:adding_volume') : t('iscsi:add_volume')}
                 </Button>
 
                 <Popconfirm
@@ -208,7 +208,7 @@ export const ISCSIList = ({
                   cancelText="No"
                 >
                   <Button type="primary" danger loading={record.deleting}>
-                    Delete Volume
+                    {record.deleting ? t('common:deleting') : t('iscsi:delete_volume')}
                   </Button>
                 </Popconfirm>
               </>
@@ -245,18 +245,19 @@ export const ISCSIList = ({
     <div>
       <Table columns={columns as any} dataSource={dataWithChildren ?? []} rowKey="iqn" scroll={{ x: 960 }} />
       <Modal
-        title="Add volume"
+        title={t('iscsi:add_volume')}
         open={lunModal}
         onOk={handleOk}
         onCancel={() => setLunModal(false)}
-        okText="Confirm"
+        okText={t('common:confirm')}
+        cancelText={t('common:cancel')}
         width={600}
         okButtonProps={{
           loading: addingVolume,
         }}
       >
         <Form<FormType> size="large" form={form}>
-          <Form.Item label="Size" name="size" required>
+          <Form.Item label={t('common:size')} name="size" required>
             <SizeInput defaultUnit="GiB" />
           </Form.Item>
         </Form>

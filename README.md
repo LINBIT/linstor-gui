@@ -18,8 +18,8 @@ The GUI also provides a dashboard that displays information about the LINSTOR cl
 This package does not have a standalone server; it requires the LINSTOR environment and serves files through the LINSTOR server. It should be installed on the machine running the LINSTOR controller. After installation, it can be accessed via a URL like `http://192.168.123.105:3370/ui/#!/`, replacing `192.168.123.105` with the IP address of your LINSTOR controller. Please choose your own Linux distribution, for Ubuntu and Debian:
 
 ```
-apt add-apt-repository ppa:linbit/linbit-drbd9-stack
-apt install linstor-gui
+sudo add-apt-repository ppa:linbit/linbit-drbd9-stack
+sudo apt install linstor-gui
 ```
 
 ### Running in a Docker container

@@ -20,6 +20,7 @@ import {
   UpdateResourceDefinitionRequestBody,
 } from '../types';
 import { SizeInput } from '@app/components/SizeInput';
+import { useTranslation } from 'react-i18next';
 
 type FormType = {
   replication_mode: 'A' | 'C';
@@ -41,6 +42,8 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
   const [form] = Form.useForm<FormType>();
 
   const deploy = Form.useWatch('deploy', form);
+
+  const { t } = useTranslation(['common', 'resource_definition']);
 
   const backToList = () => {
     history.goBack();
@@ -193,7 +196,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
       onFinish={onFinish}
     >
       <Form.Item
-        label="Resource Definition Name"
+        label={t('resource_definition:name')}
         name="name"
         required
         rules={[
@@ -212,7 +215,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
       </Form.Item>
 
       <Form.Item
-        label="Resource Group"
+        label={t('resource_definition:resource_group_name')}
         name="resource_group_name"
         required
         rules={[{ required: true, message: 'Please select resource group!' }]}
@@ -227,15 +230,15 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
         />
       </Form.Item>
 
-      <Form.Item label="Replication Mode" name="replication_mode">
+      <Form.Item label={t('common:replication_mode')} name="replication_mode">
         <Radio.Group>
-          <Radio value="A">Asynchronous(A)</Radio>
-          <Radio value="C">Synchronous(C)</Radio>
+          <Radio value="A">{t('common:async')}</Radio>
+          <Radio value="C">{t('common:sync')}</Radio>
         </Radio.Group>
       </Form.Item>
 
       {!isEdit && (
-        <Form.Item label="Spawn on created" name="deploy" valuePropName="checked">
+        <Form.Item label={t('common:spawn_on_create')} name="deploy" valuePropName="checked">
           <Switch defaultChecked />
         </Form.Item>
       )}
@@ -243,28 +246,28 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
       {deploy && (
         <>
           {!isEdit && (
-            <Form.Item name="size" label="Size" required>
+            <Form.Item name="size" label={t('common:size')} required>
               <SizeInput />
             </Form.Item>
           )}
 
-          <Form.Item name="place_count" label="Place Count" required>
+          <Form.Item name="place_count" label={t('common:place_count')} required>
             <Input placeholder="Please input place count" type="number" min={0} />
           </Form.Item>
 
           <Form.Item name="diskless" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
-            <Checkbox>Diskless on remaining</Checkbox>
+            <Checkbox>{t('common:diskless_on_remaining')}</Checkbox>
           </Form.Item>
         </>
       )}
 
       <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
         <Button type="primary" htmlType="submit" loading={isLoading} disabled={isDisabled}>
-          Submit
+          {t('common:submit')}
         </Button>
 
         <Button type="text" onClick={backToList}>
-          Cancel
+          {t('common:cancel')}
         </Button>
       </Form.Item>
     </Form>

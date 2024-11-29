@@ -8,7 +8,7 @@ import service from '@app/requests';
 import { ISCSIResource, NFSResource, NVMEOFResource, ResourceGroup } from './types';
 
 const getNodesFromVSAN = () => {
-  return service.get('/api/frontend/v1/nodes');
+  return service.get('/api/frontend/v1/nodes?source=linstor');
 };
 
 const setNodeStandBy = (hostname: string, standby: boolean) => {

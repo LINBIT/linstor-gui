@@ -18,6 +18,7 @@ import { notify } from '@app/utils/toast';
 import { useMutation } from '@tanstack/react-query';
 import { authAPI } from '@app/features/authentication';
 import { useIsAdmin } from '@app/hooks';
+import { useTranslation } from 'react-i18next';
 
 export const UserManagement = () => {
   const dispatch = useDispatch<Dispatch>();
@@ -28,6 +29,7 @@ export const UserManagement = () => {
 
   const authenticationEnabled = KVS?.authenticationEnabled;
   const isAdmin = useIsAdmin();
+  const { t } = useTranslation(['common', 'users']);
 
   const isAdminOrNotEnabled = !authenticationEnabled || (authenticationEnabled && isAdmin);
 
@@ -85,8 +87,8 @@ export const UserManagement = () => {
           {isAdminOrNotEnabled && (
             <>
               <div>
-                <p>You can enable or disable user authentication from here.</p>
-                <span>User authentication: &nbsp;</span>
+                <p>{t('users:description')}</p>
+                <span>{t('users:authentication')}: &nbsp;</span>
                 <Switch
                   checkedChildren="On"
                   unCheckedChildren="Off"
@@ -125,7 +127,7 @@ export const UserManagement = () => {
                         }}
                       >
                         <Button danger disabled={!isAdmin}>
-                          Delete User
+                          {t('users:delete_user')}
                         </Button>
                       </Popconfirm>,
                     ]}
@@ -148,7 +150,7 @@ export const UserManagement = () => {
               />
             </>
           ) : (
-            <p style={{ marginTop: 10 }}>There are no users created yet.</p>
+            <p style={{ marginTop: 10 }}>{t('users:no_user')}</p>
           )}
         </MainContent>
       </StyledSection>

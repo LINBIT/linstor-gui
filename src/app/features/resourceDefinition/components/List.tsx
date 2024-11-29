@@ -25,6 +25,7 @@ import { SearchForm } from './styled';
 import { SpawnForm } from './SpawnForm';
 import { uniqId } from '@app/utils/stringUtils';
 import { omit } from '@app/utils/object';
+import { useTranslation } from 'react-i18next';
 
 export const List = () => {
   const [current, setCurrent] = useState<ResourceDefinition>();
@@ -34,6 +35,7 @@ export const List = () => {
   const history = useHistory();
   const location = useLocation();
   const [form] = Form.useForm();
+  const { t } = useTranslation(['common', 'resource_definitions']);
 
   const [query, setQuery] = useState<ResourceDefinitionListQuery>(() => {
     const query = new URLSearchParams(location.search);
@@ -138,7 +140,7 @@ export const List = () => {
 
   const columns: TableProps<ResourceDefinition>['columns'] = [
     {
-      title: 'Name',
+      title: t('resource_definition:name'),
       key: 'name',
       dataIndex: 'name',
       sorter: (a, b) => {
@@ -151,7 +153,7 @@ export const List = () => {
       showSorterTooltip: false,
     },
     {
-      title: 'Resource Group Name',
+      title: t('resource_definition:resource_group_name'),
       key: 'resource_group_name',
       dataIndex: 'resource_group_name',
       sorter: (a, b) => {
@@ -172,7 +174,7 @@ export const List = () => {
       },
     },
     {
-      title: 'Port',
+      title: t('common:port'),
       key: 'Port',
       dataIndex: 'layer_data',
       render: (layer_data) => {
@@ -181,7 +183,7 @@ export const List = () => {
       },
     },
     {
-      title: 'State',
+      title: t('common:state'),
       key: 'state',
       render: (_, rd) => {
         const state = rd.flags?.find((flag) => flag === 'DELETE') != null ? 'DELETING' : 'OK';
@@ -189,7 +191,7 @@ export const List = () => {
       },
     },
     {
-      title: 'Action',
+      title: t('common:action'),
       key: 'action',
       width: 150,
       fixed: 'right',
@@ -207,7 +209,7 @@ export const List = () => {
               deleteMutation.mutate(record.name || '');
             }}
           >
-            <Button danger>Delete</Button>
+            <Button danger>{t('common:delete')}</Button>
           </Popconfirm>
 
           <Dropdown
@@ -215,14 +217,14 @@ export const List = () => {
               items: [
                 {
                   key: 'edit',
-                  label: 'Edit',
+                  label: t('common:edit'),
                   onClick: () => {
                     edit(record.name);
                   },
                 },
                 {
                   key: 'property',
-                  label: 'Properties',
+                  label: t('common:property'),
                   onClick: () => {
                     setCurrent(record);
                     setPropertyModalOpen(true);
@@ -258,14 +260,14 @@ export const List = () => {
             show_default: true,
           }}
         >
-          <Form.Item name="name" label="Name">
+          <Form.Item name="name" label={t('resource_definition:name')}>
             <Input placeholder="Resource Definition Name" />
           </Form.Item>
 
           <Form.Item>
             <Space size="small">
               <Button type="default" onClick={handleReset}>
-                Reset
+                {t('common:reset')}
               </Button>
               <Button
                 type="primary"
@@ -273,7 +275,7 @@ export const List = () => {
                   handleSearch();
                 }}
               >
-                Search
+                {t('common:search')}
               </Button>
               {hasSelected && (
                 <Popconfirm
@@ -284,7 +286,7 @@ export const List = () => {
                   cancelText="No"
                   onConfirm={handleDeleteBulk}
                 >
-                  <Button danger>Delete</Button>
+                  <Button danger>{t('common:delete')}</Button>
                 </Popconfirm>
               )}
             </Space>
@@ -292,7 +294,7 @@ export const List = () => {
         </Form>
 
         <Button type="primary" onClick={() => history.push('/storage-configuration/resource-definitions/create')}>
-          Add
+          {t('common:add')}
         </Button>
       </SearchForm>
 

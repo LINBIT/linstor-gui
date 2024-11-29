@@ -13,10 +13,13 @@ import PropertyForm from '@app/components/PropertyForm';
 import { getControllerProperties, updateController } from '@app/features/node';
 import { handlePropsToFormOption } from '@app/utils/property';
 import { MinusOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 
 export const Controller = () => {
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
+
+  const { t } = useTranslation(['common']);
 
   const { data: properties, refetch } = useQuery({
     queryKey: ['controllerProperties'],
@@ -38,7 +41,6 @@ export const Controller = () => {
   const nodePropertyList = handlePropsToFormOption('controller', properties?.data);
 
   const renderItem = (item: { key: any; value: any }) => {
-    console.log(item, 'item');
     const isBoolean = item.value === 'false' || item.value === 'true';
 
     const info = nodePropertyList.find((e) => e.label === item.key);
@@ -109,18 +111,18 @@ export const Controller = () => {
   };
 
   return (
-    <PageBasic title="Controller">
+    <PageBasic title={t('common:controller')}>
       <Space>
-        Edit: <Switch onChange={() => setEditMode((editMode) => !editMode)} />
+        {t('common:edit')}: <Switch onChange={() => setEditMode((editMode) => !editMode)} />
         <Divider type="vertical" />
-        <Button onClick={() => setPropertyModalOpen(true)}>Add Properties</Button>
+        <Button onClick={() => setPropertyModalOpen(true)}>{t('common:add_property')}</Button>
       </Space>
 
       <List
         style={{ marginTop: '1rem' }}
         className="mt-4"
         size="small"
-        header={<h4>Controller Properties</h4>}
+        header={<h4>{t('common:controller_properties')}</h4>}
         bordered
         dataSource={propertiesArray}
         renderItem={(item) => {

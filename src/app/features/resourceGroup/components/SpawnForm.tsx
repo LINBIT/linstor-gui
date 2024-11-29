@@ -11,6 +11,7 @@ import { Button, Checkbox, Form, Input, Modal } from 'antd';
 import { SizeInput } from '@app/components/SizeInput';
 import { SpawnRequest } from '../types';
 import { spawnResourceGroup } from '../api';
+import { useTranslation } from 'react-i18next';
 
 type FormType = {
   size: number;
@@ -25,6 +26,7 @@ type SpawnFormProps = {
 const SpawnForm = ({ resource_group }: SpawnFormProps) => {
   const [showSpawnForm, setShowSpawnForm] = useState(false);
   const [form] = Form.useForm<FormType>();
+  const { t } = useTranslation(['resource_group', 'common']);
 
   const spawnMutation = useMutation({
     mutationFn: (data: SpawnRequest) => {
@@ -47,7 +49,7 @@ const SpawnForm = ({ resource_group }: SpawnFormProps) => {
   return (
     <>
       <Button type="primary" onClick={() => setShowSpawnForm(true)}>
-        Spawn
+        {t('common:spawn')}
       </Button>
       <Modal
         title="Spawn"

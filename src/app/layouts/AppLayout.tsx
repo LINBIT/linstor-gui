@@ -62,6 +62,8 @@ import { BRAND_COLOR } from '@app/const/color';
 import { Mode } from '@app/hooks/useUIModeStorage';
 import styled from '@emotion/styled';
 import LogSidebar from './components/LogSidebar';
+import { isUrl } from '@app/utils/stringUtils';
+import { useTranslation } from 'react-i18next';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -220,8 +222,9 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
   const [openKey, setOpenKey] = useState('');
   const dispatch = useDispatch<Dispatch>();
   const history = useHistory();
+  const { t } = useTranslation(['menu']);
 
-  const [isModalOpen, setIsModalOpen] = useState(!!registered);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOk = () => {
     setIsModalOpen(false);
@@ -242,7 +245,13 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
     dispatch.auth.checkLoginStatus();
   }, [dispatch.auth]);
 
-  const { KVS, authInfo, logoSrc, vsanModeFromSetting, isAdmin, gatewayAvailable } = useSelector(
+  useEffect(() => {
+    if (typeof registered !== 'undefined' && !registered) {
+      setIsModalOpen(true);
+    }
+  }, [registered]);
+
+  const { KVS, authInfo, logoSrc, vsanModeFromSetting, isAdmin, gatewayAvailable, VSANEvalMode } = useSelector(
     (state: RootState) => ({
       KVS: state.setting.KVS,
       authInfo: state.auth,
@@ -250,8 +259,10 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
       vsanModeFromSetting: state.setting.vsanMode,
       isAdmin: state.setting.isAdmin,
       gatewayAvailable: state.setting.gatewayAvailable,
+      VSANEvalMode: state.setting.evalMode,
     }),
   );
+
   // if authenticationEnabled is false then just enter the page
   const authenticationEnabled = KVS?.authenticationEnabled;
 
@@ -268,6 +279,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
 
     if (VSAN_URL) {
       dispatch.setting.setVSANMode(true);
+      dispatch.setting.getMyLinbitStatus();
     }
   }, [dispatch.setting, history.location.pathname, history.location.search]);
 
@@ -300,7 +312,18 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
     hideRoutes('grafana', filteredRoutes);
   }
 
-  const customizedLogo = isSvg(logoSrc as any) ? logoSrc : null;
+  const renderLogo = (logoSrc?: string) => {
+    if (!logoSrc) {
+      return null;
+    }
+    if (isUrl(logoSrc) && !isSvg(logoSrc)) {
+      return <img src={logoSrc} alt="logo" width={40} height={40} />;
+    }
+    if (isSvg(logoSrc)) {
+      return <SVG src={logoSrc || ''} width="40" height="40" />;
+    }
+    return null;
+  };
 
   function LogoImg() {
     const history = useHistory();
@@ -313,11 +336,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
       <div className="logo_wrap">
         <img src={logo} className="logo" onClick={handleClick} alt="LINBIT Logo" />
         {'  '}
-        {customizedLogo && (
-          <div className="customerlogo">
-            <SVG src={customizedLogo} className="customerlogo" />
-          </div>
-        )}
+        <div className="customerlogo">{renderLogo(logoSrc)}</div>
       </div>
     );
   }
@@ -338,7 +357,9 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
             }}
           >
             <ImgIcon src={user} alt="user" />
-            <span>User: {authInfo.username || 'admin'}</span>
+            <span>
+              {t('common:user')}: {authInfo.username || 'admin'}
+            </span>
           </a>
         ),
         hidden: false,
@@ -378,13 +399,15 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
             }}
           >
             <ImgIcon src={logout} alt="logout" />
-            <span>Logout</span>
+            <span>{t('common:logout')}</span>
           </a>
         ),
         hidden: !authenticationEnabled,
       },
     ],
   };
+
+  const IS_DEV = process.env.NODE_ENV === 'development';
 
   const headerTools = (
     <PageHeaderTools>
@@ -400,6 +423,30 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
             </NoSupport>
           </PageHeaderToolsItem>
         )}
+
+        {vsanModeFromSetting && VSANEvalMode && (
+          <PageHeaderToolsItem>
+            <NoSupport>
+              <WarningLogo src={warning} />
+              <Attention>
+                Your eval contract has expired. Please{' '}
+                <a
+                  href={
+                    IS_DEV
+                      ? process.env.VSAN_API_HOST + '/register.html'
+                      : 'https://' + window.location.hostname + '/register.html'
+                  }
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  re-register
+                </a>{' '}
+                with a new contract. Until then all iSCSI targets will be stopped.
+              </Attention>
+            </NoSupport>
+          </PageHeaderToolsItem>
+        )}
+
         <PageHeaderToolsItem>
           <ConnectStatus />
         </PageHeaderToolsItem>
@@ -416,9 +463,11 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
           </PageHeaderToolsItem>
         )}
 
-        <PageHeaderToolsItem>
-          <LogSidebar />
-        </PageHeaderToolsItem>
+        {!vsanModeFromSetting && (
+          <PageHeaderToolsItem>
+            <LogSidebar />
+          </PageHeaderToolsItem>
+        )}
 
         {!normalWithoutAuth && (
           <PageHeaderToolsItem>
@@ -471,36 +520,39 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
       ];
     } else {
       const normalItems = [
-        getItem(<Link to="/">Dashboard</Link>, '/', <PieChartOutlined />),
-        getItem('Inventory', '/inventory', <DesktopOutlined />, [
-          getItem(<Link to="/inventory/nodes">Nodes</Link>, '/inventory/nodes'),
-          getItem(<Link to="/inventory/controller">Controller</Link>, '/inventory/controller'),
-          getItem(<Link to="/inventory/storage-pools">Storage Pools</Link>, '/inventory/storage-pools'),
+        getItem(<Link to="/">{t('dashboard')}</Link>, '/', <PieChartOutlined />),
+        getItem(`${t('inventory')}`, '/inventory', <DesktopOutlined />, [
+          getItem(<Link to="/inventory/nodes">{t('node')}</Link>, '/inventory/nodes'),
+          getItem(<Link to="/inventory/controller">{t('controller')}</Link>, '/inventory/controller'),
+          getItem(<Link to="/inventory/storage-pools">{t('storage_pools')}</Link>, '/inventory/storage-pools'),
         ]),
-        getItem('Storage Configuration', '/storage-configuration', <DatabaseOutlined />, [
+        getItem(`${t('software_defined')}`, '/storage-configuration', <DatabaseOutlined />, [
           getItem(
-            <Link to="/storage-configuration/resource-groups">Resource Groups</Link>,
+            <Link to="/storage-configuration/resource-groups">{t('resource_groups')}</Link>,
             '/storage-configuration/resource-groups',
           ),
           getItem(
-            <Link to="/storage-configuration/resource-definitions">Resource Definitions</Link>,
+            <Link to="/storage-configuration/resource-definitions">{t('resource_definitions')}</Link>,
             '/storage-configuration/resource-definitions',
           ),
           getItem(
-            <Link to="/storage-configuration/volume-definitions">Volume Definitions</Link>,
+            <Link to="/storage-configuration/volume-definitions">{t('volume_definitions')}</Link>,
             '/storage-configuration/volume-definitions',
           ),
-          getItem(<Link to="/storage-configuration/resources">Resources</Link>, '/storage-configuration/resources'),
-          getItem(<Link to="/storage-configuration/volumes">Volumes</Link>, '/storage-configuration/volumes'),
+          getItem(
+            <Link to="/storage-configuration/resources">{t('resources')}</Link>,
+            '/storage-configuration/resources',
+          ),
+          getItem(<Link to="/storage-configuration/volumes">{t('volumes')}</Link>, '/storage-configuration/volumes'),
         ]),
-        getItem(<Link to="/remote/list">Remote</Link>, '/remote/list', <CloudServerOutlined />),
-        getItem(<Link to="/snapshot">Snapshots</Link>, '/snapshot', <FileProtectOutlined />),
-        getItem(<Link to="/error-reports">Error Reports</Link>, '/error-reports', <WarningOutlined />),
+        getItem(<Link to="/remote/list">{t('remotes')}</Link>, '/remote/list', <CloudServerOutlined />),
+        getItem(<Link to="/snapshot">{t('snapshot')}</Link>, '/snapshot', <FileProtectOutlined />),
+        getItem(<Link to="/error-reports">{t('error_reports')}</Link>, '/error-reports', <WarningOutlined />),
       ];
 
       const settingsAndUsers = [
-        getItem(<Link to="/users">Users</Link>, '/users', <UserOutlined />),
-        getItem(<Link to="/settings">Settings</Link>, '/settings', <SettingOutlined />),
+        getItem(<Link to="/users">{t('users')}</Link>, '/users', <UserOutlined />),
+        getItem(<Link to="/settings">{t('settings')}</Link>, '/settings', <SettingOutlined />),
       ];
 
       const gatewayItems = [
@@ -534,6 +586,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
     authenticationEnabled,
     gatewayAvailable,
     isAdmin,
+    t,
     vsanModeFromSetting,
   ]);
 
@@ -628,6 +681,10 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
         pauseOnHover
         limit={3}
       />
+
+      {authenticationEnabled && authInfo.isAdmin && authInfo.isLoggedIn && (
+        <ChangePassword defaultOpen={authInfo.needsPasswordChange} admin={authInfo.isAdmin} />
+      )}
 
       <StyledModal
         open={isModalOpen}

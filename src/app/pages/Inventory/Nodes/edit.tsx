@@ -5,12 +5,15 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+
 import PageBasic from '@app/components/PageBasic';
 import { CreateNodeForm } from '@app/features/node';
 
 const NodeEdit: React.FC = () => {
+  const { t } = useTranslation(['node']);
   return (
-    <PageBasic title="Edit Node">
+    <PageBasic title={t('node:edit_node')}>
       <CreateNodeForm editing />
     </PageBasic>
   );

@@ -10,6 +10,7 @@ import { Button, Checkbox, Form, Input, Modal } from 'antd';
 
 import { autoPlace } from '../api';
 import { AutoPlaceRequestBody } from '../types';
+import { useTranslation } from 'react-i18next';
 
 type FormType = {
   place_count: number;
@@ -23,6 +24,7 @@ type SpawnFormProps = {
 const SpawnForm = ({ resource }: SpawnFormProps) => {
   const [showSpawnForm, setShowSpawnForm] = useState(false);
   const [form] = Form.useForm<FormType>();
+  const { t } = useTranslation(['common', 'resource_definitions']);
 
   const autoPlaceMutation = useMutation({
     mutationFn: (data: AutoPlaceRequestBody) => {
@@ -43,10 +45,10 @@ const SpawnForm = ({ resource }: SpawnFormProps) => {
   return (
     <>
       <Button type="primary" onClick={() => setShowSpawnForm(true)}>
-        Spawn
+        {t('common:spawn')}
       </Button>
       <Modal
-        title="Spawn"
+        title={t('common:spawn')}
         open={showSpawnForm}
         onOk={() => onFinish(form.getFieldsValue())}
         onCancel={() => setShowSpawnForm(false)}
@@ -68,12 +70,12 @@ const SpawnForm = ({ resource }: SpawnFormProps) => {
           }}
           onFinish={onFinish}
         >
-          <Form.Item name="place_count" label="Place Count" required>
+          <Form.Item name="place_count" label={t('common:place_count')} required>
             <Input placeholder="Please input place count" type="number" min={0} />
           </Form.Item>
 
           <Form.Item name="diskless" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
-            <Checkbox>Diskless on remaining</Checkbox>
+            <Checkbox>{t('common:diskless_on_remaining')}</Checkbox>
           </Form.Item>
         </Form>
       </Modal>

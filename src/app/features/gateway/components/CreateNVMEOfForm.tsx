@@ -14,6 +14,7 @@ import { SizeInput } from '@app/components/SizeInput';
 import { useResourceGroups } from '@app/features/resourceGroup';
 
 import { createNVMEExport } from '../api';
+import { useTranslation } from 'react-i18next';
 
 type FormType = {
   name: string;
@@ -27,6 +28,7 @@ type FormType = {
 };
 
 const CreateNVMEOfForm = () => {
+  const { t } = useTranslation(['common', 'nvme']);
   const history = useHistory();
   const [form] = Form.useForm<FormType>();
   const { data: resourceGroupsFromLinstor } = useResourceGroups({ excludeDefault: true });
@@ -94,7 +96,7 @@ const CreateNVMEOfForm = () => {
       }}
     >
       <Form.Item
-        label="NQN"
+        label={t('nvme:nqn')}
         name="nqn"
         required
         rules={[
@@ -115,7 +117,7 @@ const CreateNVMEOfForm = () => {
         </Space.Compact>
       </Form.Item>
       <Form.Item
-        label="Resource Group"
+        label={t('nvme:resource_group')}
         name="resource_group"
         required
         rules={[{ required: true, message: 'Please select resource group!' }]}
@@ -131,13 +133,19 @@ const CreateNVMEOfForm = () => {
       </Form.Item>
 
       <Form.Item
-        label="Service IP"
+        label={t('nvme:service_ip')}
         name="service_ip"
         required
         rules={[
           {
             required: true,
             message: 'IP address is required!',
+          },
+          {
+            message: 'Please input valid IP address and subnet mask, like 192.168.1.1/24, 10.10.1.1/24 ',
+            pattern: new RegExp(
+              '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[1-2]?[0-9])$',
+            ),
           },
         ]}
         tooltip="This is the IP address under which the NVMe-oF target will be reachable. This must be an address within one of the hosts subnets.
@@ -146,17 +154,17 @@ const CreateNVMEOfForm = () => {
         <Input placeholder="192.168.1.1/24" />
       </Form.Item>
 
-      <Form.Item name="size" label="Size" required>
+      <Form.Item name="size" label={t('common:size')} required>
         <SizeInput />
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 6, span: 18 }}>
         <Button type="primary" htmlType="submit" loading={createMutation.isLoading}>
-          Submit
+          {t('common:submit')}
         </Button>
 
         <Button type="text" onClick={backToList}>
-          Cancel
+          {t('common:cancel')}
         </Button>
       </Form.Item>
     </Form>

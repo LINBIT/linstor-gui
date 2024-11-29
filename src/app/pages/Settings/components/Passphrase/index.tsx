@@ -9,6 +9,7 @@ import { Input, Button, message, Form, FormProps, Radio } from 'antd';
 import styled from '@emotion/styled';
 import { useMutation } from '@tanstack/react-query';
 import { createPassphrase, editPassphrase } from '@app/features/settings/passphrase';
+import { useTranslation } from 'react-i18next';
 
 const Wrapper = styled.div`
   padding: 2em 0;
@@ -29,6 +30,7 @@ type FieldType = {
 
 const Passphrase: React.FC = () => {
   const [messageApi, contextHolder] = message.useMessage();
+  const { t } = useTranslation(['common', 'settings']);
 
   const [form] = Form.useForm();
   const mode = Form.useWatch('mode', form);
@@ -105,20 +107,20 @@ const Passphrase: React.FC = () => {
           autoComplete="off"
           initialValues={{ mode: 'create' }}
         >
-          <Label>LINSTOR Passphrase</Label>
-          <Form.Item label="Create/Edit" name="mode">
+          <Label>{t('settings:linstor_passphrase')}</Label>
+          <Form.Item label={t('settings:create_edit_label')} name="mode">
             <Radio.Group
               onChange={() => {
                 form.resetFields(['old', 'password', 'confirm']);
               }}
             >
-              <Radio.Button value="create"> Create </Radio.Button>
-              <Radio.Button value="edit"> Edit </Radio.Button>
+              <Radio.Button value="create"> {t('common:create')} </Radio.Button>
+              <Radio.Button value="edit"> {t('common:edit')} </Radio.Button>
             </Radio.Group>
           </Form.Item>
           {mode === 'edit' ? (
             <Form.Item
-              label="Old passphrase"
+              label={t('settings:old_passphrase')}
               name="old"
               rules={[{ required: true, message: 'Please input your old passphrase!' }]}
             >
@@ -126,7 +128,7 @@ const Passphrase: React.FC = () => {
             </Form.Item>
           ) : null}
           <Form.Item<FieldType>
-            label="Passphrase"
+            label={t('settings:passphrase')}
             name="password"
             rules={[{ required: true, message: 'Please input your passphrase!' }]}
           >
@@ -135,7 +137,7 @@ const Passphrase: React.FC = () => {
 
           <Form.Item<FieldType>
             name="confirm"
-            label="Confirm"
+            label={t('settings:confirm_passphrase')}
             dependencies={['password']}
             rules={[
               { required: true, message: 'Please confirm your passphrase!' },
@@ -147,7 +149,7 @@ const Passphrase: React.FC = () => {
 
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
             <Button type="primary" htmlType="submit">
-              Submit
+              {t('common:submit')}
             </Button>
           </Form.Item>
         </Form>

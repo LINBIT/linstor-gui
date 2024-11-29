@@ -16,9 +16,9 @@ import {
   PageSectionVariants,
 } from '@patternfly/react-core';
 import { Button } from 'antd';
-
-import { MainContent, SectionHead } from './styled';
 import { useHistory } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { MainContent, SectionHead } from './styled';
 
 interface Props {
   title: string;
@@ -30,6 +30,7 @@ interface Props {
 
 const PageBasic: React.FC<PropsWithChildren<Props>> = ({ showBack, loading, error, title, children }) => {
   const history = useHistory();
+  const { t } = useTranslation(['common']);
 
   // loading state
   if (loading) {
@@ -65,7 +66,7 @@ const PageBasic: React.FC<PropsWithChildren<Props>> = ({ showBack, loading, erro
           {title}
         </Title>
 
-        {showBack && <Button onClick={() => history.goBack()}>&#8592;&nbsp;back</Button>}
+        {showBack && <Button onClick={() => history.goBack()}>&#8592;&nbsp;{t('common:back')}</Button>}
       </SectionHead>
 
       <MainContent className="content">{children}</MainContent>

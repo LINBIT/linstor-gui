@@ -11,7 +11,7 @@ import PageBasic from '@app/components/PageBasic';
 import { List } from '@app/features/storagePool';
 
 const StoragePoolList: React.FC = () => {
-  const { t } = useTranslation(['storage_pool', 'common']);
+  const { t } = useTranslation('storage_pool');
   return (
     <PageBasic title={t('list')}>
       <List />

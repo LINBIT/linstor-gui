@@ -1,5 +1,61 @@
 # Changelog
 
+# 1.8.6 - 2024-11-20
+
+### Added
+
+- Support for internationalization (partially completed)
+- check mylinbit status in VSAN mode
+
+### Changed
+
+- description and input style for grafana dashboard settings
+- clear input values when switching SP type
+
+# 1.8.5 - 2024-11-05
+
+### Added
+
+- Support for adding custom columns on the resource and volume pages
+- Display volume capacity on the volume page
+- Support for DRBD_DISKLESS and available node check in the create resource form
+
+### Changed
+
+- Allow users to remove added aux columns
+- Changed the storage pool to optional on the create resource page
+
+# 1.8.4 - 2024-10-22
+
+### Added
+
+- Support for creating storage pools with the ZFS device provider
+- Loading status for node adding
+
+### Fixed
+
+- Debounced request for gateway host check
+- Node edit page blank error
+- Capacity on Storage Pools displaying NaN in some cases
+- Refetching list when a Storage Pool is created
+- Support status check for open-sourced LINSTOR GUI
+- Installation instructions for LINSTOR GUI on a LINSTOR controller node
+
+### Changed
+
+- Reduced bundle size
+
+# 1.8.3 - 2024-10-09
+
+### Added
+
+- More device provider types such as ZFS for storage pool creation
+- Support for remote image URLs when customizing the logo
+
+### Fixed
+
+- Bug causing the node list to be empty when adding or removing nodes in VSAN Mode
+
 # 1.8.2 - 2024-09-30
 
 Added

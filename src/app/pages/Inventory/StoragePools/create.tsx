@@ -8,16 +8,13 @@ import React from 'react';
 
 import PageBasic from '@app/components/PageBasic';
 import { StoragePoolCreateForm } from '@app/features/storagePool';
+import { useTranslation } from 'react-i18next';
 
 const StoragePoolCreate = () => {
+  const { t } = useTranslation('storage_pool');
   return (
-    <PageBasic title="Add Storage Pool">
-      <p>
-        A storage pool identifies physically-backed storage that LINSTOR storage volumes consume. You can assign a
-        storage pool to other LINSTOR objects, such as LINSTOR resources, resource definitions, or resource groups.
-        LINSTOR storage volumes created from these objects will consume physical storage from the storage pool assigned
-        to the object.
-      </p>
+    <PageBasic title={t('add_title')}>
+      <p>{t('add_description')}</p>
       <StoragePoolCreateForm />
     </PageBasic>
   );

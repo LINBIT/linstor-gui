@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Space, Table, Tag, Select, Popconfirm, Input, Checkbox, Dropdown } from 'antd';
+import { Button, Form, Space, Table, Tag, Select, Popconfirm, Input, Checkbox, Dropdown, Switch } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useHistory, useLocation } from 'react-router-dom';
@@ -18,11 +18,13 @@ import { GetStoragePoolQuery, StoragePool, UpdateStoragePoolRequestBody } from '
 import { deleteStoragePoolV2, getStoragePool, getStoragePoolCount, updateStoragePool } from '../api';
 
 import { SearchForm } from './styled';
+import { useTranslation } from 'react-i18next';
 
 export const List = () => {
   const [form] = Form.useForm();
   const history = useHistory();
   const location = useLocation();
+  const { t } = useTranslation(['common', 'storage_pool']);
   const [query, setQuery] = useState<GetStoragePoolQuery>(() => {
     const query = new URLSearchParams(location.search);
     const nodes = query.get('nodes');
@@ -161,7 +163,7 @@ export const List = () => {
 
   const columns: TableProps<StoragePool>['columns'] = [
     {
-      title: 'Name',
+      title: t('storage_pool:name'),
       key: 'name',
       dataIndex: 'storage_pool_name',
       sorter: (a, b) => {
@@ -170,7 +172,7 @@ export const List = () => {
       showSorterTooltip: false,
     },
     {
-      title: 'Node Name',
+      title: t('storage_pool:node_name'),
       key: 'node_name',
       dataIndex: 'node_name',
       sorter: (a, b) => {
@@ -191,7 +193,7 @@ export const List = () => {
       showSorterTooltip: false,
     },
     {
-      title: 'Provider Kind',
+      title: t('storage_pool:provider_kind'),
       key: 'provider_kind',
       dataIndex: 'provider_kind',
       render: (provider_kind) => {
@@ -200,7 +202,7 @@ export const List = () => {
       },
     },
     {
-      title: 'Disk',
+      title: t('storage_pool:disk'),
       key: 'disk',
       render: (_, sp) => {
         if (sp.provider_kind === 'DISKLESS') {
@@ -210,29 +212,29 @@ export const List = () => {
       },
     },
     {
-      title: 'Free Capacity',
+      title: t('storage_pool:free_capacity'),
       dataIndex: 'free_capacity',
       key: 'free_capacity',
       render: (free_capacity, sp) => {
-        if (sp.provider_kind === 'DISKLESS') {
+        if (typeof free_capacity === 'undefined' || sp.provider_kind === 'DISKLESS') {
           return <span>N/A</span>;
         }
         return <span>{formatBytes(free_capacity)}</span>;
       },
     },
     {
-      title: 'Total Capacity',
+      title: t('storage_pool:total_capacity'),
       dataIndex: 'total_capacity',
       key: 'total_capacity',
       render: (total_capacity, sp) => {
-        if (sp.provider_kind === 'DISKLESS') {
+        if (typeof total_capacity === 'undefined' || sp.provider_kind === 'DISKLESS') {
           return <span>N/A</span>;
         }
         return <span>{formatBytes(total_capacity)}</span>;
       },
     },
     {
-      title: 'Supports snapshots',
+      title: t('storage_pool:supports_snapshots'),
       dataIndex: 'supports_snapshots',
       key: 'supports_snapshots',
       render: (supports_snapshots) => {
@@ -249,7 +251,7 @@ export const List = () => {
       align: 'center',
     },
     {
-      title: 'Action',
+      title: t('common:action'),
       key: 'action',
       width: 150,
       fixed: 'right',
@@ -261,7 +263,7 @@ export const List = () => {
               history.push(`/inventory/storage-pools/${record.node_name}/${record.storage_pool_name}/edit`)
             }
           >
-            Edit
+            {t('common:edit')}
           </Button>
           <Popconfirm
             key="delete"
@@ -271,7 +273,7 @@ export const List = () => {
             cancelText="No"
             onConfirm={() => handleDelete(record.node_name ?? '', record.storage_pool_name)}
           >
-            <Button danger>Delete</Button>
+            <Button danger>{t('common:delete')}</Button>
           </Popconfirm>
 
           <Dropdown
@@ -279,7 +281,7 @@ export const List = () => {
               items: [
                 {
                   key: 'property',
-                  label: 'Properties',
+                  label: t('common:property'),
                   onClick: () => {
                     setCurrent(record);
                     setPropertyModalOpen(true);
@@ -306,7 +308,7 @@ export const List = () => {
             show_default: true,
           }}
         >
-          <Form.Item name="nodes" label="Node">
+          <Form.Item name="nodes" label={t('common:node')}>
             <Select
               style={{ width: 180 }}
               allowClear
@@ -318,18 +320,18 @@ export const List = () => {
             />
           </Form.Item>
 
-          <Form.Item name="storage_pools" label="Storage Pool">
+          <Form.Item name="storage_pools" label={t('common:storage_pool')}>
             <Input placeholder="Storage Pool Name" />
           </Form.Item>
 
-          <Form.Item label="Default Storage Pool" name="show_default" valuePropName="checked">
-            <Checkbox>Show</Checkbox>
+          <Form.Item label={t('storage_pool:show_default')} name="show_default" valuePropName="checked">
+            <Switch />
           </Form.Item>
 
           <Form.Item>
             <Space size="small">
               <Button type="default" onClick={handleReset}>
-                Reset
+                {t('common:reset')}
               </Button>
               <Button
                 type="primary"
@@ -337,7 +339,7 @@ export const List = () => {
                   handleSearch();
                 }}
               >
-                Search
+                {t('common:search')}
               </Button>
               {hasSelected && (
                 <Popconfirm
@@ -348,7 +350,7 @@ export const List = () => {
                   cancelText="No"
                   onConfirm={handleDeleteBulk}
                 >
-                  <Button danger>Delete</Button>
+                  <Button danger>{t('common:delete')}</Button>
                 </Popconfirm>
               )}
             </Space>
@@ -356,7 +358,7 @@ export const List = () => {
         </Form>
 
         <Button type="primary" onClick={() => history.push('/inventory/storage-pools/create')}>
-          Add
+          {t('common:add')}
         </Button>
       </SearchForm>
 

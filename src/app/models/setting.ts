@@ -32,6 +32,9 @@ type Setting = {
   logo?: string;
   vsanMode?: boolean;
   isAdmin?: boolean;
+  // VSAN Eval Mode
+  evalMode?: boolean;
+  isEvalContract?: boolean;
 };
 
 export const setting = createModel<RootModel>()({
@@ -82,8 +85,34 @@ export const setting = createModel<RootModel>()({
         isAdmin: state.KVS?.authenticationEnabled && window.localStorage.getItem(USER_LOCAL_STORAGE_KEY) === 'admin',
       };
     },
+    setVSANEvalStatus(
+      state,
+      payload: {
+        evalMode: boolean;
+        isEvalContract: boolean;
+      },
+    ) {
+      return {
+        ...state,
+        evalMode: payload.evalMode,
+        isEvalContract: payload.isEvalContract,
+      };
+    },
   },
   effects: (dispatch) => ({
+    async getMyLinbitStatus() {
+      try {
+        const res = await service.get('/api/frontend/v1/mylinbit/status');
+        console.log(res.data, 'mylinbit status');
+        const data = res.data;
+        dispatch.setting.setVSANEvalStatus({
+          evalMode: data.evalMode,
+          isEvalContract: data.isEvalContract,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    },
     async getGatewayStatus(host?: string) {
       if (host) {
         window.localStorage.setItem(GATEWAY_HOST, host);
@@ -166,12 +195,18 @@ export const setting = createModel<RootModel>()({
           const logoProps = await kvStore.get('logo');
 
           const logoStr = logoProps?.props?.['logoStr'] ?? '';
+          const logoUrl = logoProps?.props?.['logoUrl'] ?? '';
+          console.log(logoStr, logoUrl);
 
-          const arr = logoStr.split(',');
+          if (logoUrl !== '') {
+            dispatch.setting.updateLogo(logoUrl);
+          } else {
+            const arr = logoStr.split(',');
 
-          const logoSrc = arr.map((e) => logoProps?.props?.[e]).join('');
+            const logoSrc = arr.map((e) => logoProps?.props?.[e]).join('');
 
-          dispatch.setting.updateLogo(logoSrc);
+            dispatch.setting.updateLogo(logoSrc);
+          }
         }
       } catch (error) {
         console.log(error);
@@ -279,7 +314,7 @@ export const setting = createModel<RootModel>()({
       }
     },
 
-    async setLogo(payload: { logoSvg: string }, state) {
+    async setLogo(payload: { logoSvg: string; logoUrl?: string }, state) {
       // delete old logo
       // const { logoStr } = state.setting.KVS;
       // if (logoStr) {
@@ -291,28 +326,33 @@ export const setting = createModel<RootModel>()({
 
       const override_props = {
         logoStr: '',
+        logoUrl: '',
       };
 
-      const splitString = (str: string) => {
-        const strArr: string[] = [];
-        let index = 0;
-        while (index < str.length) {
-          strArr.push(str.slice(index, index + 4096));
-          index += 4096;
+      if (payload.logoUrl) {
+        override_props['logoUrl'] = payload.logoUrl;
+      } else {
+        const splitString = (str: string) => {
+          const strArr: string[] = [];
+          let index = 0;
+          while (index < str.length) {
+            strArr.push(str.slice(index, index + 4096));
+            index += 4096;
+          }
+          return strArr;
+        };
+
+        if (isSvg(payload.logoSvg)) {
+          const chunks = splitString(payload.logoSvg);
+          const keyStr = chunks.map((_, i) => `logoSvg_${i}`).join(',');
+
+          for (let i = 0; i < chunks.length; i++) {
+            const element = chunks[i];
+            override_props[`logoSvg_${i}`] = element;
+          }
+
+          override_props['logoStr'] = keyStr;
         }
-        return strArr;
-      };
-
-      if (isSvg(payload.logoSvg)) {
-        const chunks = splitString(payload.logoSvg);
-        const keyStr = chunks.map((_, i) => `logoSvg_${i}`).join(',');
-
-        for (let i = 0; i < chunks.length; i++) {
-          const element = chunks[i];
-          override_props[`logoSvg_${i}`] = element;
-        }
-
-        override_props['logoStr'] = keyStr;
       }
 
       await kvStore.create('logo', {

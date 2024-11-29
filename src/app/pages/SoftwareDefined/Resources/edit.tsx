@@ -11,9 +11,11 @@ import { useQuery } from '@tanstack/react-query';
 
 import PageBasic from '@app/components/PageBasic';
 import { CreateResourceForm, getResources } from '@app/features/resource';
+import { useTranslation } from 'react-i18next';
 
 const ResourceEdit: FunctionComponent = () => {
   const { resource, node } = useParams() as { resource: string; node: string };
+  const { t } = useTranslation('resource');
 
   const { data, isLoading } = useQuery({
     queryKey: ['getResource', resource],
@@ -34,7 +36,7 @@ const ResourceEdit: FunctionComponent = () => {
   };
 
   return (
-    <PageBasic title="Edit Resource" loading={isLoading}>
+    <PageBasic title={t('edit')} loading={isLoading}>
       <CreateResourceForm isEdit initialValues={initialValues} />
     </PageBasic>
   );

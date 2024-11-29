@@ -13,6 +13,7 @@ import { NVMEOFResource } from '../types';
 import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';
 import { SizeInput } from '@app/components/SizeInput';
+import { useTranslation } from 'react-i18next';
 
 type NVMeListProps = {
   list: NVMEOFResource[];
@@ -44,6 +45,7 @@ export const NVMeList = ({
   const [lunModal, setLunModal] = useState(false);
   const [NQN, setNQN] = useState('');
   const [LUN, setLUN] = useState(0);
+  const { t } = useTranslation(['common', 'nvme']);
 
   const { addingVolume } = useSelector((state: RootState) => ({
     addingVolume: state.loading.effects.nvme.addLUN,
@@ -84,7 +86,7 @@ export const NVMeList = ({
       }
   >['columns'] = [
     {
-      title: 'NQN',
+      title: t('nvme:nqn'),
       dataIndex: 'nqn',
       key: 'nqn',
       render: (nqn, record) => {
@@ -95,14 +97,14 @@ export const NVMeList = ({
       },
     },
     {
-      title: 'On Node',
+      title: t('nvme:on_node'),
       key: 'node',
       render: (_, item) => {
         return <span>{item?.status?.primary}</span>;
       },
     },
     {
-      title: 'Service IP',
+      title: t('nvme:service_ips'),
       dataIndex: 'service_ips',
       key: 'service_ips',
       render: (_, item) => {
@@ -110,12 +112,12 @@ export const NVMeList = ({
       },
     },
     {
-      title: 'Resource Group',
+      title: t('nvme:resource_group'),
       dataIndex: 'resource_group',
       key: 'resource_group',
     },
     {
-      title: 'Service State',
+      title: t('nvme:service_state'),
       dataIndex: 'service_state',
       render: (_, item) => {
         const isStarted = item?.status?.service === 'Started';
@@ -123,7 +125,7 @@ export const NVMeList = ({
       },
     },
     {
-      title: 'LUN',
+      title: t('nvme:lun'),
       dataIndex: 'lun',
       key: 'lun',
       render: (_, item) => {
@@ -131,7 +133,7 @@ export const NVMeList = ({
       },
     },
     {
-      title: 'LINSTOR State',
+      title: t('nvme:linstor_state'),
       dataIndex: 'linstor_state',
       render: (_, item) => {
         const isOk = item?.status?.state === 'OK';
@@ -140,7 +142,7 @@ export const NVMeList = ({
       align: 'center',
     },
     {
-      title: 'Action',
+      title: t('common:action'),
       key: 'action',
       render: (_, record) => {
         const isChild = record?.isChild;
@@ -161,10 +163,10 @@ export const NVMeList = ({
                   cancelText="No"
                 >
                   <Button danger loading={record.starting || record.stopping}>
-                    {record.starting && 'Starting...'}
-                    {record.stopping && 'Stopping...'}
-                    {!record.starting && !record.stopping && isStarted && 'Stop'}
-                    {!record.starting && !record.stopping && !isStarted && 'Start'}
+                    {record.starting && t('common:starting')}
+                    {record.stopping && t('common:stopping')}
+                    {!record.starting && !record.stopping && isStarted && t('common:stop')}
+                    {!record.starting && !record.stopping && !isStarted && t('common:start')}
                   </Button>
                 </Popconfirm>
                 <Popconfirm
@@ -178,7 +180,7 @@ export const NVMeList = ({
                   cancelText="No"
                 >
                   <Button type="primary" danger loading={record.deleting}>
-                    {record.deleting ? 'Deleting...' : 'Delete'}
+                    {record.deleting ? t('common:deleting') : t('common:delete')}
                   </Button>
                 </Popconfirm>
                 <Button
@@ -192,7 +194,7 @@ export const NVMeList = ({
                   }}
                   loading={addingVolume}
                 >
-                  {addingVolume ? 'Adding Volume' : 'Add Volume'}
+                  {addingVolume ? t('nvme:adding_volume') : t('nvme:add_volume')}
                 </Button>
 
                 <Popconfirm
@@ -206,7 +208,7 @@ export const NVMeList = ({
                   cancelText="No"
                 >
                   <Button type="primary" danger loading={record.deleting}>
-                    Delete Volume
+                    {t('nvme:delete_volume')}
                   </Button>
                 </Popconfirm>
               </>
@@ -222,7 +224,7 @@ export const NVMeList = ({
                 cancelText="No"
               >
                 <Button type="primary" danger>
-                  Delete Volume
+                  {t('nvme:delete_volume')}
                 </Button>
               </Popconfirm>
             )}
@@ -243,18 +245,19 @@ export const NVMeList = ({
     <div>
       <Table columns={columns as any} dataSource={dataWithChildren ?? []} rowKey="nqn" />
       <Modal
-        title="Add volume"
+        title={t('nvme:add_volume')}
         open={lunModal}
         onOk={handleOk}
         onCancel={() => setLunModal(false)}
-        okText="Confirm"
+        okText={t('common:confirm')}
+        cancelText={t('common:cancel')}
         width={600}
         okButtonProps={{
           loading: addingVolume,
         }}
       >
         <Form<FormType> size="large" form={form}>
-          <Form.Item label="Size" name="size" required>
+          <Form.Item label={t('common:size')} name="size" required>
             <SizeInput defaultUnit="GiB" />
           </Form.Item>
         </Form>

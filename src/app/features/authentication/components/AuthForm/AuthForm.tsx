@@ -9,6 +9,7 @@ import { Alert, Button, Form, Input } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { Dispatch, RootState } from '@app/store';
 import { useHistory } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 type FormType = {
   username: string;
@@ -16,12 +17,12 @@ type FormType = {
   password_validate: string;
 };
 
-// TODO: read from env
 const isDefaultCredentials = (values: FormType) => {
   return values.username === 'admin' && values.password === 'admin';
 };
 
 const AuthForm: React.FC = () => {
+  const { t } = useTranslation(['common']);
   const [isError, setIsError] = useState(false);
   const history = useHistory();
   const dispatch = useDispatch<Dispatch>();
@@ -71,17 +72,25 @@ const AuthForm: React.FC = () => {
           }}
         />
       )}
-      <Form.Item label="Username" name="username" rules={[{ required: true, message: 'Please input your username!' }]}>
+      <Form.Item
+        label={t('common:username')}
+        name="username"
+        rules={[{ required: true, message: 'Please input your username!' }]}
+      >
         <Input />
       </Form.Item>
 
-      <Form.Item label="Password" name="password" rules={[{ required: true, message: 'Please input your password!' }]}>
+      <Form.Item
+        label={t('common:password')}
+        name="password"
+        rules={[{ required: true, message: 'Please input your password!' }]}
+      >
         <Input.Password />
       </Form.Item>
 
       <Form.Item wrapperCol={{ span: 16 }}>
         <Button type="primary" htmlType="submit">
-          Login
+          {t('common:login')}
         </Button>
       </Form.Item>
     </Form>

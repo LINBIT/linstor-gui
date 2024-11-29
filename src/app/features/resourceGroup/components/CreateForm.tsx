@@ -18,6 +18,7 @@ import { ResourceGroupCreateRequestBody, AddVolumeRequestBody, ResourceGroupModi
 import { DownOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { SizeInput } from '@app/components/SizeInput';
 import { LabelContainer, TooltipContainer, TooltipLabelContainer } from './styled';
+import { useTranslation } from 'react-i18next';
 
 type FormType = {
   name: string;
@@ -67,6 +68,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
   const [expand, setExpand] = useState(false);
   const history = useHistory();
   const [form] = Form.useForm<FormType>();
+  const { t } = useTranslation(['resource_group', 'common']);
 
   const deploy = Form.useWatch('deploy', form);
   const layer_stack = Form.useWatch('layer_stack', form);
@@ -194,7 +196,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
       <Row gutter={[16, 16]}>
         <Col span={12}>
           <Form.Item
-            label="Name"
+            label={t('resource_group:name')}
             name="name"
             required
             rules={[
@@ -207,7 +209,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
             <Input placeholder="Please input resource group name" disabled={isEdit} />
           </Form.Item>
 
-          <Form.Item name="description" label="Description">
+          <Form.Item name="description" label={t('resource_group:description')}>
             <Input.TextArea
               placeholder="Please input description"
               autoSize={{
@@ -220,7 +222,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
             label={
               <LabelContainer>
                 <TooltipLabelContainer>
-                  <span>{drbdLayer ? 'DRBD Protocol' : 'Replication Mode'}</span>
+                  <span>{drbdLayer ? t('resource_group:drbd_protocol') : t('resource_group:replication')}</span>
                 </TooltipLabelContainer>
                 <Popover
                   content={
@@ -236,7 +238,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
                       </p>
                     </TooltipContainer>
                   }
-                  title={drbdLayer ? 'DRBD Protocol' : 'Replication Mode'}
+                  title={drbdLayer ? t('resource_group:drbd_protocol') : t('resource_group:replication')}
                 >
                   <QuestionCircleOutlined />
                 </Popover>
@@ -250,7 +252,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
             </Radio.Group>
           </Form.Item>
 
-          <Form.Item name="place_count" label="Place Count" required>
+          <Form.Item name="place_count" label={t('resource_group:place_count')} required>
             <Input placeholder="Please input place count" type="number" min={0} />
           </Form.Item>
 
@@ -259,7 +261,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
               label={
                 <LabelContainer>
                   <TooltipLabelContainer>
-                    <span>Spawn on created</span>
+                    <span>{t('resource_group:spawn_on_create')}</span>
                   </TooltipLabelContainer>
                   <Popover
                     content={
@@ -271,7 +273,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
                         </p>
                       </TooltipContainer>
                     }
-                    title="Spawn on created"
+                    title={t('resource_group:spawn_on_create')}
                   >
                     <QuestionCircleOutlined />
                   </Popover>
@@ -284,7 +286,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
             </Form.Item>
           )}
 
-          <Form.Item name="diskless_on_remaining" valuePropName="checked" wrapperCol={{ offset: 7, span: 17 }}>
+          <Form.Item name={t('resource_group:diskless')} valuePropName="checked" wrapperCol={{ offset: 7, span: 17 }}>
             <Checkbox>
               <LabelContainer>
                 <Popover
@@ -297,9 +299,9 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
                       </p>
                     </TooltipContainer>
                   }
-                  title={drbdLayer ? 'DRBD Protocol' : 'Replication Mode'}
+                  title={drbdLayer ? t('resource_group:drbd_protocol') : t('resource_group:replication')}
                 >
-                  Diskless on remaining <QuestionCircleOutlined />
+                  {t('resource_group:diskless')} <QuestionCircleOutlined />
                 </Popover>
               </LabelContainer>
             </Checkbox>
@@ -310,7 +312,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
             label={
               <LabelContainer>
                 <TooltipLabelContainer>
-                  <span>Storage Providers</span>
+                  <span>{t('resource_group:storage_providers')}</span>
                 </TooltipLabelContainer>
                 <Popover
                   content={
@@ -321,7 +323,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
                       </p>
                     </TooltipContainer>
                   }
-                  title="Storage Providers"
+                  title={t('resource_group:storage_providers')}
                 >
                   <QuestionCircleOutlined />
                 </Popover>
@@ -344,7 +346,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
             label={
               <LabelContainer>
                 <TooltipLabelContainer>
-                  <span>LINSTOR Layers</span>
+                  <span>{t('resource_group:linstor_layers')}</span>
                 </TooltipLabelContainer>
                 <Popover
                   content={
@@ -355,7 +357,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
                       </p>
                     </TooltipContainer>
                   }
-                  title="LINSTOR Layers"
+                  title={t('resource_group:linstor_layers')}
                 >
                   <QuestionCircleOutlined />
                 </Popover>
@@ -386,7 +388,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
             label={
               <LabelContainer>
                 <TooltipLabelContainer>
-                  <span>Storage Pool</span>
+                  <span>{t('resource_group:storage_pool')}</span>
                 </TooltipLabelContainer>
                 <Popover
                   content={
@@ -397,7 +399,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
                       </p>
                     </TooltipContainer>
                   }
-                  title="Storage Pool"
+                  title={t('resource_group:storage_pool')}
                 >
                   <QuestionCircleOutlined />
                 </Popover>
@@ -431,29 +433,29 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
           }}
         >
           <DownOutlined rotate={expand ? 180 : 0} />
-          {!expand ? 'Show advanced settings' : 'Hide advanced settings'}
+          {!expand ? t('resource_group:show_advanced') : t('resource_group:hide_advanced')}
         </a>
       </div>
 
       {expand && (
         <Row gutter={[16, 16]}>
           <Col span={10}>
-            <Form.Item label="Replicas On Same" name="replicas_on_same">
+            <Form.Item label={t('resource_group:replicas_on_same')} name="replicas_on_same">
               <Select mode="tags" allowClear placeholder="" />
             </Form.Item>
 
-            <Form.Item label="Replicas On Different" name="replicas_on_different">
+            <Form.Item label={t('resource_group:replicas_on_different')} name="replicas_on_different">
               <Select mode="tags" allowClear placeholder="" />
             </Form.Item>
           </Col>
 
           <Col span={10}>
-            <Form.Item label="Do Not Place With" name="not_place_with_rsc">
+            <Form.Item label={t('resource_group:do_not_place_with')} name="not_place_with_rsc">
               <Input placeholder="" />
             </Form.Item>
 
             <Form.Item
-              label="Do Not Place With Regex"
+              label={t('resource_group:do_not_place_with_regex')}
               name="not_place_with_rsc_regex"
               labelCol={{ span: 8 }}
               wrapperCol={{ span: 16 }}
@@ -503,7 +505,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
 
       <div style={{ marginLeft: 80 }}>
         <Button type="primary" htmlType="submit" disabled={storagePoolsIsLoading || isSubmitting}>
-          Submit
+          {t('common:submit')}
         </Button>
 
         <Button type="text" onClick={backToList}>

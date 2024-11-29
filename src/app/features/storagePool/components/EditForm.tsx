@@ -5,8 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Form, Input, Radio, Select } from 'antd';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Button, Form, Input, Select } from 'antd';
 import { useHistory, useParams } from 'react-router-dom';
 
 import {
@@ -29,12 +29,16 @@ type FormType = {
 const EditForm = () => {
   const nodes = useNodes();
   const history = useHistory();
+  const queryClient = useQueryClient();
   const [form] = Form.useForm<FormType>();
   const provider_kind = Form.useWatch('provider_kind', form);
 
   const { node, storagePool } = useParams() as { node: string; storagePool: string };
 
   const backToStoragePoolList = () => {
+    queryClient.refetchQueries({
+      queryKey: ['getStoragePool'],
+    });
     history.push('/inventory/storage-pools');
   };
 
@@ -65,9 +69,19 @@ const EditForm = () => {
   // should be DISKLESS, LVM, LVM_THIN, ZFS, ZFS_THIN, OPENFLEX_TARGET, FILE, FILE_THIN, SPDK, EBS_TARGET, EBS_INIT
   // but for now, we only support LVM and LVM_THIN
   const typeList = [
+    { label: 'DISKLESS', value: 'DISKLESS' },
     { label: 'LVM', value: 'LVM' },
     { label: 'LVM_THIN', value: 'LVM_THIN' },
-    { label: 'DISKLESS', value: 'DISKLESS' },
+    { label: 'ZFS', value: 'ZFS' },
+    { label: 'ZFS_THIN', value: 'ZFS_THIN' },
+    { label: 'FILE', value: 'FILE' },
+    { label: 'FILE_THIN', value: 'FILE_THIN' },
+    { label: 'SPDK', value: 'SPDK' },
+    { label: 'REMOTE_SPDK', value: 'REMOTE_SPDK' },
+    { label: 'EBS_TARGET', value: 'EBS_TARGET' },
+    { label: 'EBS_INIT', value: 'EBS_INIT' },
+    { label: 'STORAGE_SPACES', value: 'STORAGE_SPACES' },
+    { label: 'STORAGE_SPACES_THIN', value: 'STORAGE_SPACES_THIN' },
   ];
 
   const onFinish = (values: FormType) => {
@@ -87,7 +101,7 @@ const EditForm = () => {
             }, 1000);
           }
         },
-      }
+      },
     );
   };
 
@@ -140,15 +154,13 @@ const EditForm = () => {
       </Form.Item>
 
       <Form.Item label="Type" name="provider_kind" required>
-        <Radio.Group disabled>
-          {typeList.map((e) => {
-            return (
-              <Radio value={e.value} key={e.value}>
-                {e.label}
-              </Radio>
-            );
-          })}
-        </Radio.Group>
+        <Select
+          options={typeList.map((e) => ({
+            label: e.label,
+            value: e.value,
+          }))}
+          disabled
+        />
       </Form.Item>
 
       <Form.Item
@@ -163,7 +175,7 @@ const EditForm = () => {
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-        <Button type="primary" htmlType="submit">
+        <Button type="primary" htmlType="submit" loading={updateStoragePoolMutation.isLoading}>
           Submit
         </Button>
 

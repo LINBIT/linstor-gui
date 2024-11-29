@@ -8,10 +8,12 @@ import React from 'react';
 
 import PageBasic from '@app/components/PageBasic';
 import { CreateForm as CreateResourceDefinitionForm } from '@app/features/resourceDefinition';
+import { useTranslation } from 'react-i18next';
 
 const Create = () => {
+  const { t } = useTranslation(['resource_definition']);
   return (
-    <PageBasic title="Create Resource Definition">
+    <PageBasic title={t('resource_definition:create')}>
       <CreateResourceDefinitionForm />
     </PageBasic>
   );

@@ -4,9 +4,9 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Collapse, Form, Input, Radio, Select, Switch, Tooltip } from 'antd';
+import React from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Button, Collapse, Form, Input, message, Radio, Select, Switch, Tooltip } from 'antd';
 import { useHistory } from 'react-router-dom';
 
 import {
@@ -19,6 +19,7 @@ import {
 } from '@app/features/storagePool';
 import { useNodes } from '@app/features/node';
 import { SizeInput } from '@app/components/SizeInput';
+import { useTranslation } from 'react-i18next';
 
 // This is for concat LV Name and VG Name
 // it would be like this:
@@ -44,6 +45,9 @@ type FormType = {
 const CreateForm = () => {
   const nodes = useNodes();
   const history = useHistory();
+  const { t } = useTranslation(['common', 'storage_pool']);
+
+  const queryClient = useQueryClient();
 
   const [form] = Form.useForm<FormType>();
   const provider_kind = Form.useWatch('provider_kind', form);
@@ -53,6 +57,9 @@ const CreateForm = () => {
   const vdo_enable = Form.useWatch('vdo_enable', form);
 
   const backToStoragePoolList = () => {
+    queryClient.refetchQueries({
+      queryKey: ['getStoragePool'],
+    });
     history.goBack();
   };
 
@@ -82,11 +89,27 @@ const CreateForm = () => {
     onSuccess: () => backToStoragePoolList(),
   });
 
-  // should be DISKLESS, LVM, LVM_THIN, ZFS, ZFS_THIN, OPENFLEX_TARGET, FILE, FILE_THIN, SPDK, EBS_TARGET, EBS_INIT
-  // but for now, we only support LVM and LVM_THIN
-  const typeList = [
+  const typeListForNewDevice = [
     { label: 'LVM', value: 'LVM' },
     { label: 'LVM_THIN', value: 'LVM_THIN' },
+    { label: 'ZFS', value: 'ZFS' },
+    { label: 'ZFS_THIN', value: 'ZFS_THIN' },
+  ];
+
+  const typeListForExisting = [
+    { label: 'DISKLESS', value: 'DISKLESS' },
+    { label: 'LVM', value: 'LVM' },
+    { label: 'LVM_THIN', value: 'LVM_THIN' },
+    { label: 'ZFS', value: 'ZFS' },
+    { label: 'ZFS_THIN', value: 'ZFS_THIN' },
+    { label: 'FILE', value: 'FILE' },
+    { label: 'FILE_THIN', value: 'FILE_THIN' },
+    { label: 'SPDK', value: 'SPDK' },
+    { label: 'REMOTE_SPDK', value: 'REMOTE_SPDK' },
+    { label: 'EBS_TARGET', value: 'EBS_TARGET' },
+    { label: 'EBS_INIT', value: 'EBS_INIT' },
+    { label: 'STORAGE_SPACES', value: 'STORAGE_SPACES' },
+    { label: 'STORAGE_SPACES_THIN', value: 'STORAGE_SPACES_THIN' },
   ];
 
   const onFinish = (values: FormType) => {
@@ -157,6 +180,8 @@ const CreateForm = () => {
     }
   };
 
+  const isZSFType = provider_kind === 'ZFS' || provider_kind === 'ZFS_THIN';
+
   return (
     <Form
       labelCol={{ span: 8 }}
@@ -174,38 +199,48 @@ const CreateForm = () => {
       <Form.Item name="create_type">
         <Radio.Group
           onChange={() => {
-            form.setFieldsValue({ node: undefined, device_path: undefined });
+            form.setFieldsValue({
+              storage_pool_name: '',
+              pool_name: '',
+              device_path: '',
+              storage_driver_name: '',
+              sed: false,
+              vdo_enable: false,
+              vdo_slab_size_kib: undefined,
+              vdo_logical_size_kib: undefined,
+              provider_kind: 'LVM',
+            });
           }}
         >
-          <Tooltip title="When creating storage pool using new device, please make sure the device is empty.">
-            <Radio.Button value="new">New Device</Radio.Button>
+          <Tooltip title={t('storage_pool:new_device_description')}>
+            <Radio.Button value="new">{t('storage_pool:new_device')}</Radio.Button>
           </Tooltip>
 
-          <Tooltip title="To use an existing device, first create a volume group and logical volume by using LVM CLI commands.">
-            <Radio.Button value="existing">Existing Device</Radio.Button>
+          <Tooltip title={t('storage_pool:existing_device_description')}>
+            <Radio.Button value="existing">{t('storage_pool:existing_device')}</Radio.Button>
           </Tooltip>
         </Radio.Group>
       </Form.Item>
 
       <Form.Item
         name="storage_pool_name"
-        label="Storage Pool Name"
+        label={t('storage_pool:storage_pool_name')}
         required
         rules={[
-          { required: true, message: 'Enter storage pool name.' },
+          { required: true, message: 'Enter storage pool name' },
           {
             pattern: new RegExp('^(?!-)[a-zA-Z_][a-zA-Z0-9_-]{1,47}[-a-zA-Z0-9_]$'),
             message: 'Please input a valid storage pool name!',
           },
         ]}
       >
-        <Input placeholder="Enter storage pool name." />
+        <Input placeholder="Enter storage pool name" />
       </Form.Item>
 
       {create_type === 'new' && (
         <Form.Item
           name="multiple_nodes"
-          label="Multiple Nodes"
+          label={t('storage_pool:multiple_nodes')}
           tooltip="Create the storage pool on more than one node."
         >
           <Switch />
@@ -213,7 +248,7 @@ const CreateForm = () => {
       )}
 
       <Form.Item
-        label="Node"
+        label={t('storage_pool:node')}
         name="node"
         required
         rules={[{ required: true, message: 'Please select nodes!' }]}
@@ -221,7 +256,8 @@ const CreateForm = () => {
       >
         <Select
           allowClear
-          placeholder="Select the node or nodes."
+          showSearch
+          placeholder="Select the node or nodes"
           options={nodes?.data?.map((e) => ({
             label: e.name,
             value: e.name,
@@ -231,34 +267,38 @@ const CreateForm = () => {
       </Form.Item>
 
       <Form.Item
-        label="Type"
+        label={t('storage_pool:type')}
         name="provider_kind"
         required
         tooltip="Select the type of logical volume that the storage pool will carve out storage volumes from the physical storage. NOTE: Some LINSTOR features, such as volume snapshots, are only supported on thin-provisioned volumes."
       >
-        <Radio.Group>
-          {typeList.map((e) => {
-            return (
-              <Radio value={e.value} key={e.value}>
-                {e.label}
-              </Radio>
-            );
-          })}
-        </Radio.Group>
+        <Select
+          allowClear
+          showSearch
+          options={(create_type === 'new' ? typeListForNewDevice : typeListForExisting).map((e) => ({
+            label: e.label,
+            value: e.value,
+          }))}
+          onChange={(value) => {
+            if (value === 'ZFS' || value === 'ZFS_THIN') {
+              message.info(t('storage_pool:zfs_toast'));
+            }
+          }}
+        />
       </Form.Item>
 
       {create_type === 'new' && (
         <>
           <Form.Item
-            label="Device Path"
+            label={t('storage_pool:device_path')}
             name="device_path"
             required
             rules={[{ required: true, message: 'Please select device path!' }]}
-            tooltip="Select the path of the physical device that will back the storage pool."
+            tooltip={t('storage_pool:device_path_tooltip')}
           >
             <Select
               allowClear
-              placeholder="Select the path of the physical device."
+              placeholder="Select the path of the physical device"
               options={devicePathOptions?.data?.map((e) => ({
                 label: e.device,
                 value: e.device,
@@ -271,19 +311,32 @@ const CreateForm = () => {
             items={[
               {
                 key: '1',
-                label: 'Advanced Options',
+                label: t('storage_pool:advanced_options'),
                 children: (
                   <>
-                    <Form.Item label="LVM Pool Name" name="pool_name" tooltip="VG or VG/Thinpool Name">
+                    <Form.Item
+                      label={isZSFType ? t('storage_pool:zfs_pool_name') : t('storage_pool:lvm_pool_name')}
+                      name="pool_name"
+                      tooltip={isZSFType ? 'ZSF Pool Name' : 'VG or VG/Thinpool Name'}
+                    >
                       <Input placeholder="Enter pool name" />
                     </Form.Item>
-                    <Form.Item label="SED Enabled" name="sed" valuePropName="checked" tooltip="Self Encrypting Drive">
+                    <Form.Item
+                      label={t('storage_pool:sed')}
+                      name="sed"
+                      valuePropName="checked"
+                      tooltip="Self Encrypting Drive"
+                    >
                       <Switch />
                     </Form.Item>
-                    <Form.Item label="VDO Enabled" name="vdo_enable" valuePropName="checked">
-                      <Switch />
-                    </Form.Item>
-
+                    {
+                      // VDO is only available for LVM and LVM_THIN
+                      provider_kind === 'LVM' || provider_kind === 'LVM_THIN' ? (
+                        <Form.Item label={t('storage_pool:vdo')} name="vdo_enable" valuePropName="checked">
+                          <Switch />
+                        </Form.Item>
+                      ) : null
+                    }
                     {vdo_enable && (
                       <>
                         <Form.Item label="VDO Slab Size" name="vdo_slab_size_kib" tooltip="The size of the VDO slab.">
@@ -309,12 +362,10 @@ const CreateForm = () => {
       {create_type === 'existing' && (
         <Form.Item
           name="storage_driver_name"
-          label={provider_kind === 'LVM' ? 'Volume Group' : 'Volume Group/Thin Pool'}
+          label={isZSFType ? t('storage_pool:zfs_pool') : t('storage_pool:lvm_pool')}
           required
         >
-          <Input
-            placeholder={`Please input ${provider_kind === 'LVM_THIN' ? 'Volume Group/Thin Pool' : 'Volume Group'}`}
-          />
+          <Input placeholder={`${isZSFType ? 'ZFS Pool name' : 'Volume Group/Thin Pool Name'}`} />
         </Form.Item>
       )}
 
@@ -325,12 +376,13 @@ const CreateForm = () => {
           disabled={
             createStoragePoolWithExistingVolumeGroup.isLoading || createStoragePoolWithPhysicalStorage.isLoading
           }
+          loading={createStoragePoolWithExistingVolumeGroup.isLoading || createStoragePoolWithPhysicalStorage.isLoading}
         >
-          Submit
+          {t('common:submit')}
         </Button>
 
         <Button type="text" onClick={backToStoragePoolList}>
-          Cancel
+          {t('common:cancel')}
         </Button>
       </Form.Item>
     </Form>

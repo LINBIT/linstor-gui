@@ -13,10 +13,10 @@ import uniqby from 'lodash.uniqby';
 import { useStoragePools } from '@app/features/storagePool';
 import { useResourceDefinitions } from '@app/features/resourceDefinition';
 import { useNodes } from '@app/features/node';
-import { getNetWorkInterfaceByNode } from '@app/features/ip';
 import { fullySuccess } from '@app/features/requests';
-import { autoPlace, resourceCreateOnNode, resourceModify } from '../api';
+import { autoPlace, resourceCreateOnNode, resourceModify, getResources } from '../api';
 import { AutoPlaceRequestBody, ResourceCreateRequestBody, ResourceModifyRequestBody } from '../types';
+import { useTranslation } from 'react-i18next';
 
 type FormType = {
   allocate_method: 'manual' | 'auto';
@@ -40,21 +40,32 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
   const history = useHistory();
   const { resource, node: nodeFromURL } = useParams() as { resource: string; node: string };
   const [form] = Form.useForm<FormType>();
-  const { isLoading: storagePoolsIsLoading, data: storagePools } = useStoragePools();
   const { isLoading: resourceDefinitionIsLoading, data: resourceDefinitions } = useResourceDefinitions();
-  const { isLoading: nodesIsLoading, data: nodes } = useNodes();
-
   const allocate_method = Form.useWatch('allocate_method', form);
   const node = Form.useWatch('node', form);
+  const name = Form.useWatch('name', form);
+  const { t } = useTranslation(['resource', 'common']);
 
   const backToList = () => {
     history.push('/storage-configuration/resources');
   };
 
-  const { data: networks } = useQuery({
-    queryKey: ['getNetworkByNode', node],
-    queryFn: () => getNetWorkInterfaceByNode(node),
-    enabled: !!node,
+  const { isLoading: nodesIsLoading, data: nodes } = useNodes();
+
+  const { isLoading: storagePoolsIsLoading, data: storagePools } = useStoragePools({
+    nodes: [node],
+  });
+
+  const { data: nodesHaveSelectedResource } = useQuery({
+    queryKey: ['getResourceByName', name],
+    queryFn: async () => {
+      const resources = await getResources({
+        resources: [name],
+      });
+      const nodesList = resources?.data?.map((e) => e.node_name);
+      return nodesList;
+    },
+    enabled: !!name,
   });
 
   const createResourceMutation = useMutation({
@@ -115,11 +126,14 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
     }
 
     if (values.allocate_method === 'manual') {
+      const IS_DRBD_DISKLESS = values.storage_pool === 'DRBD_DISKLESS';
+      const props = IS_DRBD_DISKLESS ? {} : { StorPoolName: values.storage_pool };
+
       const resourceData = {
         resource: {
           name: values.name,
           node_name: values.node,
-          props: { StorPoolName: values.storage_pool, PrefNic: values.network_preference },
+          props,
         },
       };
 
@@ -132,7 +146,7 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
         });
       }
 
-      if (values.DRBD_DISKLESS) {
+      if (IS_DRBD_DISKLESS) {
         Object.assign(resourceData, {
           resource: {
             ...resourceData.resource,
@@ -185,6 +199,11 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
         value: e.storage_pool_name,
       }));
 
+  const DRBD_DISKLESS = {
+    label: '<DRBD_DISKLESS>',
+    value: 'DRBD_DISKLESS',
+  };
+
   return (
     <Form<FormType>
       labelCol={{ span: 8 }}
@@ -201,7 +220,7 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
       onFinish={onFinish}
     >
       <Form.Item
-        label="Resource Definition Name"
+        label={t('common:resource_definition_name')}
         name="name"
         required
         rules={[
@@ -223,80 +242,62 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
       </Form.Item>
 
       {!isEdit && (
-        <Form.Item label="Allocate Method" name="allocate_method" required>
+        <Form.Item label={t('common:allocate_method')} name="allocate_method" required>
           <Radio.Group>
-            <Radio value="auto">Auto</Radio>
-            <Radio value="manual">Manual</Radio>
+            <Radio value="auto">{t('common:auto')}</Radio>
+            <Radio value="manual">{t('common:manual')}</Radio>
           </Radio.Group>
         </Form.Item>
       )}
 
       {allocate_method === 'manual' && (
         <>
-          <Form.Item label="Node" name="node" required rules={[{ required: true, message: 'Please select nodes!' }]}>
+          <Form.Item
+            label={t('common:node')}
+            name="node"
+            required
+            rules={[{ required: true, message: 'Please select nodes!' }]}
+          >
             <Select
               allowClear
               placeholder="Please select node"
-              options={nodes?.map((e) => ({
-                label: e.name,
-                value: e.name,
-              }))}
+              options={nodes
+                ?.filter((node) => !nodesHaveSelectedResource?.includes(node.name))
+                .map((e) => ({
+                  label: e.name,
+                  value: e.name,
+                }))}
             />
           </Form.Item>
 
-          <Form.Item label="Storage Pool" name="storage_pool">
-            <Select allowClear placeholder="Please select storage pool" options={spList} />
-          </Form.Item>
-
-          <Form.Item label="Network Preference" name="network_preference">
-            <Select
-              allowClear
-              placeholder="Please select network preference"
-              options={networks?.data?.map((e) => ({
-                label: e.name,
-                value: e.name,
-              }))}
-            />
+          <Form.Item label={t('common:storage_pool')} name="storage_pool">
+            <Select allowClear placeholder="Please select storage pool" options={[DRBD_DISKLESS, ...spList]} />
           </Form.Item>
         </>
       )}
 
       {!isEdit && allocate_method !== 'manual' && (
         <>
-          <Form.Item
-            label="Storage Pool"
-            name="storage_pool"
-            required
-            rules={[
-              {
-                required: true,
-                message: 'Please select storage pool!',
-              },
-            ]}
-          >
+          <Form.Item label={t('common:storage_pool')} name="storage_pool">
             <Select allowClear placeholder="Please select storage pool" options={spList} />
           </Form.Item>
-          <Form.Item name="place_count" label="Place Count" required>
+          <Form.Item name="place_count" label={t('common:place_count')} required>
             <Input placeholder="Please input place count" type="number" min={0} />
           </Form.Item>
 
-          <Form.Item name="diskless" label="Diskless on remaining">
+          <Form.Item name="diskless" label={t('common:diskless_on_remaining')}>
             <Switch />
           </Form.Item>
         </>
       )}
 
-      <Form.Item name="DRBD_DISKLESS" label="DRBD Diskless">
-        <Switch />
-      </Form.Item>
-
       <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
         <Button type="primary" htmlType="submit" loading={isLoading} disabled={isDisabled}>
-          Submit
+          {t('common:submit')}
         </Button>
 
         <Button type="text" onClick={backToList}>
-          Cancel
+          {t('common:cancel')}
         </Button>
       </Form.Item>
     </Form>

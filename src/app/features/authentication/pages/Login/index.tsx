@@ -6,6 +6,7 @@
 
 import React from 'react';
 import { Alert } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { AuthForm } from '@app/features/authentication';
 import bgImg from '@app/assets/login_bg.png';
 import logo from '@app/assets/login_logo.svg';
@@ -18,6 +19,8 @@ export const Login = () => {
   const store = useKVStore();
 
   const dispatch = useDispatch<Dispatch>();
+
+  const { t } = useTranslation(['common']);
 
   const hideTip = () => {
     dispatch.setting.saveKey({
@@ -34,7 +37,7 @@ export const Login = () => {
       </LoginLeft>
       <LoginRight>
         <Logo src={logo} alt="logo" />
-        <LoginTitle>Login</LoginTitle>
+        <LoginTitle>{t('common:login')}</LoginTitle>
         {!hideDefaultCredential && (
           <Alert
             message="Default credential: admin/admin"

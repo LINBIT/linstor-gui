@@ -35,7 +35,7 @@ deps: ## install dependencies
 .PHONY: release
 release: checkVERSION build
 	mkdir -p /tmp/$(PROG)-$(VERSION)
-	cp -r dist Makefile /tmp/$(PROG)-$(VERSION)
+	cp -r dist Makefile README.md COPYING /tmp/$(PROG)-$(VERSION)
 	tar -C /tmp --owner=0 --group=0 -czvf $(PROG)-$(VERSION).tar.gz $(PROG)-$(VERSION)
 
 .PHONY: release-docker
@@ -49,7 +49,7 @@ release-docker: checkVERSION
 debrelease: checkVERSION build
 	mkdir -p /tmp/$(PROG)-$(VERSION)/debian
 	for f in changelog compat control copyright rules; do cp debian/$$f /tmp/$(PROG)-$(VERSION)/debian; done
-	cp -r dist Makefile $(PROG).spec /tmp/$(PROG)-$(VERSION)
+	cp -r dist Makefile README.md COPYING $(PROG).spec /tmp/$(PROG)-$(VERSION)
 	tar -C /tmp --owner=0 --group=0 -czvf $(PROG)-$(VERSION).tar.gz $(PROG)-$(VERSION)
 
 .PHONY: debrelease-docker

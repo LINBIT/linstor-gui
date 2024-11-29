@@ -9,6 +9,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useHistory } from 'react-router-dom';
 import { Button, Form, Input, Select } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 
 import { useResourceGroups } from '@app/features/resourceGroup';
 import { SizeInput } from '@app/components/SizeInput';
@@ -35,6 +36,7 @@ const CreateNFSForm = () => {
   const history = useHistory();
   const [form] = Form.useForm<FormType>();
   const { data: resourceGroupsFromLinstor } = useResourceGroups({ excludeDefault: true });
+  const { t } = useTranslation(['nfs', 'common']);
 
   const backToList = () => {
     history.push('/gateway/NFS');
@@ -123,7 +125,7 @@ const CreateNFSForm = () => {
       }}
     >
       <Form.Item
-        label="Name"
+        label={t('common:name')}
         name="name"
         required
         rules={[
@@ -136,7 +138,7 @@ const CreateNFSForm = () => {
         <Input placeholder="Please input name: my_export" />
       </Form.Item>
       <Form.Item
-        label="Resource Group"
+        label={t('common:resource_group')}
         name="resource_group"
         required
         rules={[{ required: true, message: 'Please select resource group!' }]}
@@ -152,7 +154,7 @@ const CreateNFSForm = () => {
       </Form.Item>
 
       <Form.Item
-        label="Service IP"
+        label={t('nfs:service_ip')}
         name="service_ip"
         required
         rules={[
@@ -172,16 +174,16 @@ const CreateNFSForm = () => {
         <Input placeholder="192.168.1.1/24" />
       </Form.Item>
 
-      <Form.Item name="size_kib" label="Size" required>
+      <Form.Item name="size_kib" label={t('common:size')} required>
         <SizeInput />
       </Form.Item>
 
-      <Form.Item name="export_path" label="Export Path" required>
+      <Form.Item name="export_path" label={t('nfs:export_path')} required>
         <Input placeholder="Please input export path: /" />
       </Form.Item>
 
       <Form.Item
-        label="File System"
+        label={t('nfs:file_system')}
         name="file_system"
         required
         rules={[
@@ -211,19 +213,19 @@ const CreateNFSForm = () => {
             {fields.map((field, index) => (
               <Form.Item
                 {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
-                label={index === 0 ? 'Volumes' : ''}
+                label={index === 0 ? t('nfs:volumes') : ''}
                 required={false}
                 key={field.key}
               >
-                <Form.Item label="Size" name={[index, 'size_kib']}>
+                <Form.Item label={t('common:size')} name={[index, 'size_kib']}>
                   <SizeInput />
                 </Form.Item>
 
-                <Form.Item label="Export Path" name={[index, 'export_path']}>
+                <Form.Item label={t('nfs:export_path')} name={[index, 'export_path']}>
                   <Input placeholder="Please input export path: /" />
                 </Form.Item>
 
-                <Form.Item label="File System" name={[index, 'file_system']}>
+                <Form.Item label={t('nfs:file_system')} name={[index, 'file_system']}>
                   <Select
                     options={[
                       {
@@ -247,14 +249,14 @@ const CreateNFSForm = () => {
                     }}
                     onClick={() => remove(field.name)}
                   >
-                    Delete
+                    {t('common:delete')}
                   </Button>
                 ) : null}
               </Form.Item>
             ))}
             <Form.Item>
               <Button type="dashed" onClick={() => add()} style={{ width: '60%' }}>
-                Volumes <PlusOutlined />
+                {t('nfs:volumes')} <PlusOutlined />
               </Button>
               <Form.ErrorList errors={errors} />
             </Form.Item>
@@ -268,7 +270,7 @@ const CreateNFSForm = () => {
             {fields.map((field, index) => (
               <Form.Item
                 {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
-                label={index === 0 ? 'Allowed IPs' : ''}
+                label={index === 0 ? t('nfs:allowed_ips') : ''}
                 required={false}
                 key={field.key}
               >
@@ -305,7 +307,7 @@ const CreateNFSForm = () => {
             ))}
             <Form.Item>
               <Button type="dashed" onClick={() => add()} style={{ width: '60%' }}>
-                Allowed IPs <PlusOutlined />
+                {t('nfs:allowed_ips')} <PlusOutlined />
               </Button>
               <Form.ErrorList errors={errors} />
             </Form.Item>
@@ -315,11 +317,11 @@ const CreateNFSForm = () => {
 
       <Form.Item wrapperCol={{ offset: 6, span: 18 }}>
         <Button type="primary" htmlType="submit" loading={createNFTMutation.isLoading}>
-          Submit
+          {t('common:submit')}
         </Button>
 
         <Button type="text" onClick={backToList}>
-          Cancel
+          {t('common:cancel')}
         </Button>
       </Form.Item>
     </Form>

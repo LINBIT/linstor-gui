@@ -1,12 +1,13 @@
 %define debug_package %{nil}
 
 Name: linstor-gui
-Version: 1.8.1
+Version: 1.8.6
 Release: 1
 Summary: GUI for LINSTOR
 %global tarball_version %(echo "%{version}" | sed -e 's/~rc/-rc/' -e 's/~alpha/-alpha/')
 
-License: LINBIT-Proprietary
+License: GPL-3.0-or-later
+URL: https://github.com/LINBIT/linstor-gui
 Source0: %{name}-%{tarball_version}.tar.gz
 
 Requires: linstor-controller >= 1.13.1
@@ -26,12 +27,28 @@ echo "Nothing to build"
 %install
 make install DESTDIR=%{buildroot}
 
-
 %files
 /usr/share/linstor-server/ui
+%doc README.md
+%license COPYING
 
 
 %changelog
+* Wed Nov 20 2024 Christoph Böhmwalder <christoph.boehmwalder@linbit.com> - 1.8.6-1
+- New upstream release
+
+* Tue Nov 05 2024 Christoph Böhmwalder <christoph.boehmwalder@linbit.com> - 1.8.5-1
+- New upstream release
+
+* Tue Oct 22 2024 Christoph Böhmwalder <christoph.boehmwalder@linbit.com> - 1.8.4-1
+- New upstream release
+
+* Wed Oct 09 2024 Christoph Böhmwalder <christoph.boehmwalder@linbit.com> - 1.8.3-1
+- New upstream release
+
+* Thu Oct 03 2024 Christoph Böhmwalder <christoph.boehmwalder@linbit.com> - 1.8.2-1
+- New upstream release
+
 * Fri Sep 13 2024 Christoph Böhmwalder <christoph.boehmwalder@linbit.com> - 1.8.1-1
 - New upstream release
 
