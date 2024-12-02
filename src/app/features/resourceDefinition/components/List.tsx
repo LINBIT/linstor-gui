@@ -9,7 +9,7 @@ import { Button, Form, Space, Table, Tag, Popconfirm, Input, Dropdown } from 'an
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useHistory, useLocation } from 'react-router-dom';
-import { DownOutlined } from '@ant-design/icons';
+import { MoreOutlined } from '@ant-design/icons';
 
 import PropertyForm from '@app/components/PropertyForm';
 import {
@@ -242,7 +242,7 @@ export const List = () => {
               ],
             }}
           >
-            <DownOutlined />
+            <Button type="text" icon={<MoreOutlined />} />
           </Dropdown>
         </Space>
       ),

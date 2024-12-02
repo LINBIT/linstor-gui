@@ -5,11 +5,11 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Space, Table, Tag, Select, Popconfirm, Input, Checkbox, Dropdown, Switch } from 'antd';
+import { Button, Form, Space, Table, Tag, Select, Popconfirm, Input, Dropdown, Switch } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useHistory, useLocation } from 'react-router-dom';
-import { CheckCircleFilled, CloseCircleFilled, DownOutlined } from '@ant-design/icons';
+import { CheckCircleFilled, CloseCircleFilled, MoreOutlined } from '@ant-design/icons';
 
 import { useNodes } from '@app/features/node';
 import { formatBytes } from '@app/utils/size';
@@ -290,7 +290,7 @@ export const List = () => {
               ],
             }}
           >
-            <DownOutlined />
+            <Button type="text" icon={<MoreOutlined />} />
           </Dropdown>
         </Space>
       ),
