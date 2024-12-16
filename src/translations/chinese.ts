@@ -75,6 +75,12 @@ const zh = {
     login: '登录',
     username: '用户名',
     password: '密码',
+    logs: '日志',
+    log_detail: '日志详情',
+    clear_all_logs: '清除所有日志',
+    mark_all_as_read: '全部标记为已读',
+    back_to_logs: '返回日志列表',
+    mark_as_read: '标记为已读',
   },
   menu: {
     dashboard: '概览',
@@ -368,6 +374,14 @@ const zh = {
     adding_volume: '正在添加卷',
     deleting_volume: '正在删除卷',
     add_service_ip: '添加服务 IP',
+  },
+  about: {
+    linstor_version: 'LINSTOR 版本',
+    ui_version: 'UI 版本',
+    controller_ip: '控制器绑定 IP',
+    controller_active_on: '控制器活动于',
+    trademark:
+      'LINSTOR-GUI 是自由软件：您可以根据 GNU 通用公共许可证的条款（由自由软件基金会发布的许可证的第 3 版）重新分发或修改它。本程序是基于希望它将是有用的，但没有任何保证；甚至没有适销性或适用于特定目的的暗示保证。有关更多详细信息，请参阅 GNU 通用公共许可证。',
   },
 };
 

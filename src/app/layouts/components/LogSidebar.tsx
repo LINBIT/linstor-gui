@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { logManager, LogItem } from '@app/utils/toast'; // Adjust to the correct import path
 import { Drawer, Button, List, Badge, Space, Popconfirm } from 'antd'; // Import Popconfirm
 import { FileTextOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 
 const LogSidebar: React.FC = () => {
   const [visible, setVisible] = useState(false); // Controls the visibility of the Drawer
   const [logs, setLogs] = useState<LogItem[]>([]); // Stores the logs fetched from sessionStorage
   const [selectedLog, setSelectedLog] = useState<LogItem | null>(null); // Stores the currently selected log
   const [unreadCount, setUnreadCount] = useState(0); // Unread logs count
+
+  const { t } = useTranslation('common');
 
   // Fetch logs from sessionStorage and set the unread count
   const fetchLogs = () => {
@@ -87,7 +90,7 @@ const LogSidebar: React.FC = () => {
 
       {/* Drawer for logs */}
       <Drawer
-        title={selectedLog ? 'Log Details' : 'Logs'}
+        title={selectedLog ? t('log_detail') : t('logs')}
         placement="right"
         closable={true}
         onClose={onClose}
@@ -110,7 +113,7 @@ const LogSidebar: React.FC = () => {
             <div style={{ marginTop: 20, textAlign: 'center' }}>
               <Space>
                 <Button type="primary" onClick={markAllAsRead}>
-                  Mark All as Read
+                  {t('mark_all_as_read')}
                 </Button>
 
                 {/* Popconfirm for clearing all logs */}
@@ -121,7 +124,7 @@ const LogSidebar: React.FC = () => {
                   cancelText="No"
                 >
                   <Button type="default" danger>
-                    Clear All Logs
+                    {t('clear_all_logs')}
                   </Button>
                 </Popconfirm>
               </Space>
@@ -158,8 +161,8 @@ const LogSidebar: React.FC = () => {
                 marginTop: 10,
               }}
             >
-              <Button onClick={() => markLogAsRead(selectedLog.key)}>Mark as Read</Button>
-              <Button onClick={() => setSelectedLog(null)}>Back to Logs</Button>
+              <Button onClick={() => markLogAsRead(selectedLog.key)}>{t('mark_as_read')}</Button>
+              <Button onClick={() => setSelectedLog(null)}>{t('back_to_logs')}</Button>
             </Space>
           </>
         )}

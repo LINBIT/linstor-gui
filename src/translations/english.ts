@@ -80,6 +80,12 @@ const en = {
     password: 'Password',
     login: 'Login',
     username: 'Username',
+    logs: 'Logs',
+    log_detail: 'Log Detail',
+    clear_all_logs: 'Clear All Logs',
+    mark_all_as_read: 'Mark All as Read',
+    back_to_logs: 'Back to Logs',
+    mark_as_read: 'Mark as Read',
   },
   menu: {
     dashboard: 'Dashboard',
@@ -372,6 +378,14 @@ const en = {
     old_passphrase: 'Old Passphrase',
     new_passphrase: 'New Passphrase',
     confirm_passphrase: 'Confirm Passphrase',
+  },
+  about: {
+    linstor_version: 'LINSTOR VERSION',
+    ui_version: 'UI Version',
+    controller_ip: 'Controller Binding IP',
+    controller_active_on: 'Controller Active On',
+    trademark:
+      'LINSTOR-GUI is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.',
   },
 };
 
