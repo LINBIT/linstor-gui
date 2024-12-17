@@ -93,37 +93,28 @@ const sizeOptions = [
   },
 ];
 
-function formatBytes(bytes: number) {
-  const units = ['KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
-
-  const size_kib = bytes;
-  let index = 0;
-  let counter = 1;
-  let magnitude = 1 << 10;
-  while (counter < units.length) {
-    if (size_kib >= magnitude) {
-      index = counter;
-    } else {
-      break;
-    }
-    magnitude = magnitude << 10;
-    counter += 1;
-  }
-  magnitude = magnitude >> 10;
-  let size_str;
-  if (size_kib % magnitude !== 0) {
-    const size_unit = new BigNumber(size_kib).dividedBy(magnitude).toFixed(2);
-    size_str = size_unit + ' ' + units[index];
-  } else {
-    const size_unit = new BigNumber(size_kib).dividedBy(magnitude).toFixed(0);
-    size_str = size_unit + ' ' + units[index];
+function formatBytes(bytes: number): string {
+  if (typeof bytes !== 'number') {
+    return 'NaN';
   }
 
-  return size_str;
-  /*
-    if (bytes < 1024) return bytes + ' KiB'
-    else if (bytes < 1048576) return new BigNumber(bytes).dividedBy('1024').toFixed(2) + ' MiB'
-    else return new BigNumber(bytes).dividedBy('1048576').toFixed(2) + ' GiB'*/
+  const units = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
+  if (bytes === 0) return '0 Bytes';
+
+  const k = 1024;
+  const dm = 2;
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  if (i === 0) {
+    return `${bytes} Bytes`;
+  }
+
+  if (i >= units.length) {
+    return (bytes / Math.pow(k, units.length - 1)).toFixed(dm) + ' ' + units[units.length - 1];
+  }
+
+  return (bytes / Math.pow(k, i)).toFixed(dm) + ' ' + units[i];
 }
 
 function kibToGib(kib: number) {
