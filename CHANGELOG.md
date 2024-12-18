@@ -1,5 +1,21 @@
 # Changelog
 
+# 1.8.7 - 2024-12-18
+
+### Added
+
+- Added a new Resource Overview page to display resource-related information
+- Service IP input validation for iSCSI and NVMe-oF
+- Prompt users to change their password when using default credentials
+
+### Fixed
+
+- Large sizes were displayed as "Infinity PiB"
+
+### Changed
+
+- Updated the icon for list actions
+
 # 1.8.6 - 2024-11-20
 
 ### Added
