@@ -12,6 +12,8 @@ import {
   AutoPlaceRequestBody,
   ResourceDefinitionListQuery,
   UpdateResourceDefinitionRequestBody,
+  ResourceDefinitionCloneRequest,
+  VolumeDefinitionModifyRequestBody,
 } from './types';
 
 const getResourceDefinitionCount = () => {
@@ -75,6 +77,18 @@ const updateResourceDefinition = (resource: string, body: UpdateResourceDefiniti
   });
 };
 
+const updateVolumeDefinition = (resource: string, volume_number: number, body: VolumeDefinitionModifyRequestBody) => {
+  return put('/v1/resource-definitions/{resource}/volume-definitions/{volume_number}', {
+    params: {
+      path: {
+        resource,
+        volume_number,
+      },
+    },
+    body,
+  });
+};
+
 const getVolumeDefinitionListByResource = (resource: string) => {
   return get(`/v1/resource-definitions/{resource}/volume-definitions`, {
     params: {
@@ -82,6 +96,17 @@ const getVolumeDefinitionListByResource = (resource: string) => {
         resource,
       },
     },
+  });
+};
+
+const cloneResourceDefinition = (resource: string, body: ResourceDefinitionCloneRequest) => {
+  return post('/v1/resource-definitions/{resource}/clone', {
+    params: {
+      path: {
+        resource,
+      },
+    },
+    body,
   });
 };
 
@@ -94,4 +119,6 @@ export {
   deleteResourceDefinition,
   getVolumeDefinitionListByResource,
   updateResourceDefinition,
+  cloneResourceDefinition,
+  updateVolumeDefinition,
 };

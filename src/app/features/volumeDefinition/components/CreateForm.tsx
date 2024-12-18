@@ -20,9 +20,10 @@ type FormType = {
 
 type CreateFormProps = {
   refetch: () => void;
+  simple?: boolean;
 };
 
-const CreateForm = ({ refetch }: CreateFormProps) => {
+const CreateForm = ({ refetch, simple }: CreateFormProps) => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [form] = Form.useForm<FormType>();
   const { t } = useTranslation(['volume_definition', 'common']);
@@ -66,9 +67,14 @@ const CreateForm = ({ refetch }: CreateFormProps) => {
 
   return (
     <>
-      <Button type="primary" onClick={() => setShowCreateForm(true)}>
-        {t('common:add')}
-      </Button>
+      {simple ? (
+        <span onClick={() => setShowCreateForm(true)}>{t('common:volume_definition')}</span>
+      ) : (
+        <Button type="primary" onClick={() => setShowCreateForm(true)}>
+          {t('common:add')}
+        </Button>
+      )}
+
       <Modal
         title={t('volume_definition:create')}
         open={showCreateForm}

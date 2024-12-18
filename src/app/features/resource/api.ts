@@ -102,6 +102,48 @@ const getResources = (query?: ResourceListQuery) => {
   });
 };
 
+const getResourcesByResourceName = (resource: string) => {
+  return get('/v1/resource-definitions/{resource}/resources', {
+    params: {
+      path: {
+        resource,
+      },
+    },
+  });
+};
+
+const adjustResourceGroup = ({ resource_group }: { resource_group: string }) => {
+  return post('/v1/resource-groups/{resource_group}/adjust', {
+    params: {
+      path: {
+        resource_group,
+      },
+    },
+  });
+};
+
+const toggleResource = (resource: string, node: string, action: 'to_diskless' | 'to_diskful') => {
+  if (action === 'to_diskful') {
+    return put('/v1/resource-definitions/{resource}/resources/{node}/toggle-disk/diskful', {
+      params: {
+        path: {
+          resource,
+          node,
+        },
+      },
+    });
+  }
+
+  return put('/v1/resource-definitions/{resource}/resources/{node}/toggle-disk/diskless', {
+    params: {
+      path: {
+        resource,
+        node,
+      },
+    },
+  });
+};
+
 export {
   createResourceDefinition,
   createVolumeDefinition,
@@ -112,4 +154,7 @@ export {
   getResources,
   getResourceCount,
   deleteResource,
+  getResourcesByResourceName,
+  adjustResourceGroup,
+  toggleResource,
 };

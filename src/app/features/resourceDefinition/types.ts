@@ -13,3 +13,6 @@ export type ResourceDefinitionListQuery = operations['resourceDefinitionList']['
 export type ResourceDefinition = components['schemas']['ResourceDefinition'];
 export type VolumeDefinition = components['schemas']['VolumeDefinition'];
 export type UpdateResourceDefinitionRequestBody = components['schemas']['ResourceDefinitionModify'];
+export type ResourceDefinitionCloneRequest = components['schemas']['ResourceDefinitionCloneRequest'];
+export type VolumeDefinitionModify = components['schemas']['VolumeDefinitionModify'];
+export type VolumeDefinitionModifyRequestBody = components['schemas']['VolumeDefinitionModify'];

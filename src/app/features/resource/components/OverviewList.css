@@ -1,0 +1,7 @@
+.ant-table-row-primary {
+  background-color: #e6fcd3;
+}
+
+.ant-table-row-primary:hover > td {
+  background-color: #c6ff94 !important;
+}

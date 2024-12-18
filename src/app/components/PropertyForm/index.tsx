@@ -18,18 +18,20 @@ import { Properties } from '@app/features/property';
 
 interface PropertyFormProps {
   type:
-    | 'node'
     | 'controller'
+    | 'node'
     | 'storagepool-definition'
     | 'storagepool'
+    | 'resource-group'
     | 'resource-definition'
-    | 'resource'
     | 'volume-definition'
+    | 'resource'
     | 'volume';
   initialVal?: Record<string, unknown>;
   handleClose: () => void;
   openStatus: boolean;
   handleSubmit: (data: { override_props?: Properties; delete_props?: Array<string> }) => void;
+  loading?: boolean;
 }
 
 type AuxProp = {
@@ -38,7 +40,14 @@ type AuxProp = {
   id: string;
 };
 
-const PropertyForm: React.FC<PropertyFormProps> = ({ type, initialVal, handleClose, handleSubmit, openStatus }) => {
+const PropertyForm: React.FC<PropertyFormProps> = ({
+  type,
+  initialVal,
+  handleClose,
+  handleSubmit,
+  openStatus,
+  loading,
+}) => {
   const [formItemList, setFormItemList] = useState<FormItem[]>([]); // All list
   const [formItems, setFormItems] = useState<FormItem[]>([]); // display list
   const [auxProps, setAuxProps] = useState<AuxProp[]>([]);
@@ -141,7 +150,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ type, initialVal, handleClo
   };
 
   const handleSubmitData = (data) => {
-    const delete_props = deleteAll ? Object.keys(initialVal ?? []) : (deleteProps ?? []);
+    const delete_props = deleteAll ? Object.keys(initialVal ?? []) : deleteProps ?? [];
     const override_props = data ?? {};
 
     handleSubmit({
@@ -191,6 +200,7 @@ const PropertyForm: React.FC<PropertyFormProps> = ({ type, initialVal, handleClo
           handleCancelClick={handleClose}
           extra={handleAuxVal(auxProps)}
           propertyForm={true}
+          submitting={loading}
         />
       </div>
     </Modal>

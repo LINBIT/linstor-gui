@@ -10,18 +10,18 @@ import type { TableProps } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { useHistory, useLocation } from 'react-router-dom';
 import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 
-import { getResources } from '../api';
-import { SearchForm } from './styled';
 import { uniqId } from '@app/utils/stringUtils';
 import { GetResourcesResponseBody, ResourceDataType, ResourceListQuery, VolumeDataType } from '../types';
-
 import { formatBytes } from '@app/utils/size';
 import { useNodes } from '@app/features/node';
 import withCustomColumns from '@app/components/WithCustomColumn';
 import { getResourceDefinition } from '@app/features/resourceDefinition';
 import { getVolumeDefinitionListByResource } from '@app/features/volumeDefinition';
-import { useTranslation } from 'react-i18next';
+
+import { getResources } from '../api';
+import { SearchForm } from './styled';
 
 export const List = () => {
   const [volumeList, setVolumeList] = useState<GetResourcesResponseBody>();
@@ -121,8 +121,6 @@ export const List = () => {
 
       const flattenedVolumes = volumes.flat();
 
-      console.log(flattenedVolumes, 'volumes');
-
       setVolumeList(flattenedVolumes as GetResourcesResponseBody);
     },
   });
@@ -172,7 +170,6 @@ export const List = () => {
       }
   >['columns'] = [
     {
-      // TODO: Add a tooltip to the column header for the name and volume number
       title: t('volume:resource_volume'),
       key: 'resource',
       dataIndex: 'resource_name',

@@ -47,7 +47,7 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
   const { t } = useTranslation(['resource', 'common']);
 
   const backToList = () => {
-    history.push('/storage-configuration/resources');
+    history.goBack();
   };
 
   const { isLoading: nodesIsLoading, data: nodes } = useNodes();

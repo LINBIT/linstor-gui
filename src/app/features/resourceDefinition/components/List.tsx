@@ -16,7 +16,6 @@ import {
   getResourceDefinition,
   getResourceDefinitionCount,
   deleteResourceDefinition,
-  getVolumeDefinitionListByResource,
   updateResourceDefinition,
 } from '../api';
 import { ResourceDefinition, ResourceDefinitionListQuery, UpdateResourceDefinitionRequestBody } from '../types';
@@ -55,14 +54,6 @@ export const List = () => {
   const { data: resourceDefinition, refetch } = useQuery({
     queryKey: ['getResourceDefinition', query],
     queryFn: () => getResourceDefinition(query),
-    onSuccess: (data) => {
-      data?.data?.forEach(async (item) => {
-        if (item?.name) {
-          const vd = await getVolumeDefinitionListByResource(item?.name);
-          console.log(vd, 'vd');
-        }
-      });
-    },
   });
 
   const { data: stats } = useQuery({

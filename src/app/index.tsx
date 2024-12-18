@@ -18,6 +18,7 @@ import { AppLayout } from '@app/layouts/AppLayout';
 import { AppRoutes } from '@app/routes/routes';
 import '@app/app.css';
 import { useQuery } from '@tanstack/react-query';
+import { NavProvider } from './NavContext';
 
 const MSG = 'The SpaceTracking service is not installed.';
 
@@ -48,9 +49,11 @@ const App: React.FunctionComponent = () => {
           }}
           locale={locale}
         >
-          <AppLayout registered={appEnabled}>
-            <AppRoutes />
-          </AppLayout>
+          <NavProvider>
+            <AppLayout registered={appEnabled}>
+              <AppRoutes />
+            </AppLayout>
+          </NavProvider>
         </ConfigProvider>
       </Router>
     </Provider>

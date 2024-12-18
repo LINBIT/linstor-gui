@@ -19,6 +19,7 @@ import { Button } from 'antd';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { MainContent, SectionHead } from './styled';
+import { WidthProvider } from './WidthContext';
 
 interface Props {
   title: string;
@@ -68,8 +69,9 @@ const PageBasic: React.FC<PropsWithChildren<Props>> = ({ showBack, loading, erro
 
         {showBack && <Button onClick={() => history.goBack()}>&#8592;&nbsp;{t('common:back')}</Button>}
       </SectionHead>
-
-      <MainContent className="content">{children}</MainContent>
+      <WidthProvider>
+        <MainContent className="content">{children}</MainContent>
+      </WidthProvider>
     </PageSection>
   );
 };

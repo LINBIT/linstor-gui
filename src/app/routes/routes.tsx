@@ -20,7 +20,6 @@ import StoragePoolCreate from '@app/pages/Inventory/StoragePools/create';
 import StoragePoolEdit from '@app/pages/Inventory/StoragePools/edit';
 
 import ResourceGroupList from '@app/pages/SoftwareDefined/ResourceGroups';
-import ResourceGroupCreate from '@app/pages/SoftwareDefined/ResourceGroups/create';
 import ResourceGroupEdit from '@app/pages/SoftwareDefined/ResourceGroups/edit';
 import ResourceDefinitionList from '@app/pages/SoftwareDefined/ResourceDefinitions';
 import ResourceDefinitionCreate from '@app/pages/SoftwareDefined/ResourceDefinitions/create';
@@ -54,6 +53,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Dispatch, RootState } from '@app/store';
 import VolumeDefinitionList from '@app/pages/SoftwareDefined/VolumeDefinitions';
 import { Controller } from '@app/pages/Inventory/Controller';
+import ResourceOverview from '@app/pages/SoftwareDefined/Resources/overview';
 
 export interface IAppRoute {
   label?: string; // Excluding the label will exclude the route from the nav sidebar in AppLayout
@@ -162,12 +162,6 @@ const routes: AppRouteConfig[] = [
         title: 'LINSTOR | Storage Configuration | Resource Groups | Edit',
       },
       {
-        component: ResourceGroupCreate,
-        exact: true,
-        path: '/storage-configuration/resource-groups/create',
-        title: 'LINSTOR | Storage Configuration | Resource Groups | Create',
-      },
-      {
         component: ResourceDefinitionList,
         exact: true,
         label: 'resource_definitions',
@@ -199,6 +193,13 @@ const routes: AppRouteConfig[] = [
         label: 'resources',
         path: '/storage-configuration/resources',
         title: 'LINSTOR | Storage Configuration | Resources',
+      },
+      {
+        component: ResourceOverview,
+        exact: true,
+        label: 'resource_overview',
+        path: '/storage-configuration/resource-overview',
+        title: 'LINSTOR | Storage Configuration | Resource Overview',
       },
       {
         component: ResourceCreate,

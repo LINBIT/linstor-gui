@@ -40,7 +40,7 @@ import './AppLayout.css';
 import isSvg from 'is-svg';
 import { ChangePassword, Login } from '@app/features/authentication';
 import { ImgIcon, SideMenu } from './styled';
-import { useUIModeStorage, usePersistentMenuState } from '@app/hooks';
+import { useUIModeStorage } from '@app/hooks';
 import { useEffect, useState } from 'react';
 import {
   AppstoreOutlined,
@@ -64,6 +64,7 @@ import styled from '@emotion/styled';
 import LogSidebar from './components/LogSidebar';
 import { isUrl } from '@app/utils/stringUtils';
 import { useTranslation } from 'react-i18next';
+import { useNav } from '../NavContext';
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -214,7 +215,6 @@ function getItem(
 }
 
 const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }) => {
-  const [isNavOpen, setIsNavOpen] = usePersistentMenuState(true);
   const [isMobileView, setIsMobileView] = useState(true);
   const [isNavOpenMobile, setIsNavOpenMobile] = useState(false);
   const { UIMode, updateUIMode } = useUIModeStorage();
@@ -226,6 +226,8 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const { isNavOpen, toggleNav } = useNav();
+
   const handleOk = () => {
     setIsModalOpen(false);
   };
@@ -235,7 +237,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
   };
 
   const onModeChange = (mode: Mode) => {
-    setIsNavOpen(true);
+    toggleNav();
     updateUIMode(mode);
     dispatch.setting.setVSANMode(mode === 'VSAN');
     history.push(mode === 'VSAN' ? '/vsan/dashboard' : '/');
@@ -296,7 +298,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
     setIsNavOpenMobile(!isNavOpenMobile);
   };
   const onNavToggle = () => {
-    setIsNavOpen && setIsNavOpen(!isNavOpen);
+    toggleNav();
   };
   const onPageResize = (props: { mobileView: boolean; windowSize: number }) => {
     setIsMobileView(props.mobileView);
@@ -531,19 +533,23 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
             <Link to="/storage-configuration/resource-groups">{t('resource_groups')}</Link>,
             '/storage-configuration/resource-groups',
           ),
+          // getItem(
+          //   <Link to="/storage-configuration/resource-definitions">{t('resource_definitions')}</Link>,
+          //   '/storage-configuration/resource-definitions',
+          // ),
+          // getItem(
+          //   <Link to="/storage-configuration/volume-definitions">{t('volume_definitions')}</Link>,
+          //   '/storage-configuration/volume-definitions',
+          // ),
           getItem(
-            <Link to="/storage-configuration/resource-definitions">{t('resource_definitions')}</Link>,
-            '/storage-configuration/resource-definitions',
+            <Link to="/storage-configuration/resource-overview">{t('resource_overview')}</Link>,
+            '/storage-configuration/resource-overview',
           ),
-          getItem(
-            <Link to="/storage-configuration/volume-definitions">{t('volume_definitions')}</Link>,
-            '/storage-configuration/volume-definitions',
-          ),
-          getItem(
-            <Link to="/storage-configuration/resources">{t('resources')}</Link>,
-            '/storage-configuration/resources',
-          ),
-          getItem(<Link to="/storage-configuration/volumes">{t('volumes')}</Link>, '/storage-configuration/volumes'),
+          // getItem(
+          //   <Link to="/storage-configuration/resources">{t('resources')}</Link>,
+          //   '/storage-configuration/resources',
+          // ),
+          // getItem(<Link to="/storage-configuration/volumes">{t('volumes')}</Link>, '/storage-configuration/volumes'),
         ]),
         getItem(<Link to="/remote/list">{t('remotes')}</Link>, '/remote/list', <CloudServerOutlined />),
         getItem(<Link to="/snapshot">{t('snapshot')}</Link>, '/snapshot', <FileProtectOutlined />),
