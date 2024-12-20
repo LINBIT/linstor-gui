@@ -9,13 +9,14 @@ import { Button, Form, Space, Table, Input, Flex, Tag, Dropdown, Popconfirm, Sel
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useHistory, useLocation } from 'react-router-dom';
-
+import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import get from 'lodash.get';
+import uniqBy from 'lodash.uniqby';
+import { MoreOutlined } from '@ant-design/icons';
 
 import { uniqId } from '@app/utils/stringUtils';
-import { GetResourcesResponseBody, ResourceDataType, ResourceModifyRequestBody } from '../types';
 import { formatBytes } from '@app/utils/size';
-
 import {
   deleteResourceDefinition,
   getResourceDefinition,
@@ -26,6 +27,8 @@ import {
   VolumeDefinitionModify,
 } from '@app/features/resourceDefinition';
 import { CreateForm, getVolumeDefinitionListByResource } from '@app/features/volumeDefinition';
+import { useWidth } from '@app/components/PageBasic/WidthContext';
+import PropertyForm from '@app/components/PropertyForm';
 
 import {
   adjustResourceGroup,
@@ -35,16 +38,11 @@ import {
   resourceModify,
   toggleResource,
 } from '../api';
+import { GetResourcesResponseBody, ResourceDataType, ResourceModifyRequestBody } from '../types';
+import { CloneForm } from './Clone';
+import { ResourceMigrateForm } from './ResourceMigrateForm';
 import { SearchForm } from './styled';
 import './OverviewList.css';
-import { MoreOutlined } from '@ant-design/icons';
-import get from 'lodash.get';
-
-import PropertyForm from '@app/components/PropertyForm';
-import { CloneForm } from './Clone';
-import { useDispatch } from 'react-redux';
-import { ResourceMigrateForm } from './ResourceMigrateForm';
-import { useWidth } from '@app/components/PageBasic/WidthContext';
 
 const TAG_COLORS = ['cyan', 'blue', 'geekblue', 'purple'];
 
@@ -283,6 +281,9 @@ export const OverviewList = () => {
 
     let failStr = '';
     const conn = get(resourceItem, 'layer_object.drbd.connections', {}) as any;
+    if (Object.keys(conn).length === 0) {
+      return 'OK';
+    }
     let count = 0;
     let fail = false;
     for (const nodeName in conn) {

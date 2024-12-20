@@ -244,6 +244,9 @@ export const List = ({ handleOpenMigrate, handleSnapshot }: ListProps) => {
   const handleConnectStatusDisplay = (resourceItem: ResourceDataType) => {
     let failStr = '';
     const conn = get(resourceItem, 'layer_object.drbd.connections', {});
+    if (Object.keys(conn).length === 0) {
+      return 'OK';
+    }
     let count = 0;
     let fail = false;
     for (const nodeName in conn) {
