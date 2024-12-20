@@ -101,20 +101,25 @@ function formatBytes(bytes: number): string {
   const units = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
   if (bytes === 0) return '0 Bytes';
 
+  if (bytes < 1) {
+    const byteValue = bytes * 1024;
+    return `${Math.round(byteValue)} Bytes`;
+  }
+
   const k = 1024;
   const dm = 2;
 
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
   if (i === 0) {
-    return `${bytes} Bytes`;
+    return `${bytes.toFixed(dm)} KiB`;
   }
 
-  if (i >= units.length) {
-    return (bytes / Math.pow(k, units.length - 1)).toFixed(dm) + ' ' + units[units.length - 1];
+  if (i >= units.length - 1) {
+    return (bytes / Math.pow(k, units.length - 2)).toFixed(dm) + ' ' + units[units.length - 1];
   }
 
-  return (bytes / Math.pow(k, i)).toFixed(dm) + ' ' + units[i];
+  return (bytes / Math.pow(k, i)).toFixed(dm) + ' ' + units[i + 1];
 }
 
 function kibToGib(kib: number) {
