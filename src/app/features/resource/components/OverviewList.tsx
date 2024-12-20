@@ -277,8 +277,6 @@ export const OverviewList = () => {
   };
 
   const handleConnectStatusDisplay = (resourceItem: ResourceDataType) => {
-    console.log('resourceItem', resourceItem);
-
     let failStr = '';
     const conn = get(resourceItem, 'layer_object.drbd.connections', {}) as any;
     if (Object.keys(conn).length === 0) {
@@ -568,12 +566,13 @@ export const OverviewList = () => {
               showSearch
               allowClear
               style={{ width: 200 }}
-              options={
+              options={uniqBy(
                 resourceDefinitionList?.map((e: any) => ({
                   label: e.resource_group_name,
                   value: e.resource_group_name,
-                })) || []
-              }
+                })) || [],
+                'value',
+              )}
               placeholder="Select a resource group"
             />
           </Form.Item>
@@ -795,7 +794,11 @@ export const OverviewList = () => {
           },
           rowExpandable: (record) => (record?.volumes?.length ?? 0) > 0,
         }}
-        dataSource={resourceDefinitionList?.filter((e: any) => e?.resource_group_name != resource_group) ?? []}
+        dataSource={
+          resource_group
+            ? resourceDefinitionList?.filter((e: any) => e?.resource_group_name === resource_group) ?? []
+            : resourceDefinitionList
+        }
         rowKey={(item) => item?.name ?? uniqId()}
       />
 
