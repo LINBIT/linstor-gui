@@ -1,5 +1,13 @@
 # Changelog
 
+# 1.8.8 - 2024-12-20
+
+### Fixed
+
+- Corrected the display of all sizes
+- Resolved issues with incorrect connections status on the resource overview page in certain cases
+- Fixed the resource group filtering issue on the resource overview page
+
 # 1.8.7 - 2024-12-18
 
 ### Added
