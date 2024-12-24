@@ -248,6 +248,8 @@ const zh = {
     from: '所在的节点',
     to: '迁移至的节点',
     connection_status: '连接状态',
+    add_disk: '添加硬盘',
+    remove_disk: '移除硬盘',
   },
   error_report: {
     id: 'ID',

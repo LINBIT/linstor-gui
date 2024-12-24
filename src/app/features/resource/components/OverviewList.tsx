@@ -698,88 +698,101 @@ export const OverviewList = () => {
                     key: 'action',
                     width: 150,
                     fixed: 'right',
-                    render: (_, record) => (
-                      <>
-                        <Popconfirm
-                          title="Toggle the resource"
-                          description="Are you sure to toggle this resource?"
-                          okText="Yes"
-                          cancelText="No"
-                          onConfirm={() => {
-                            const isDiskless = record.flags && record.flags.includes('DRBD_DISKLESS');
+                    align: 'center',
+                    render: (_, record) => {
+                      console.log('record', record);
 
-                            toggleResourceMutation.mutate({
-                              resource: record.resource_name,
-                              node: record.node_name,
-                              action: isDiskless ? 'to_diskful' : 'to_diskless',
-                            });
-                          }}
-                        >
-                          <Button type="primary">{t('common:toggle')}</Button>
-                        </Popconfirm>
+                      const isDisklessOrTieBreaker =
+                        record.flags &&
+                        (record.flags.includes('DRBD_DISKLESS') || record.flags.includes('TIE_BREAKER'));
 
-                        <Dropdown
-                          menu={{
-                            items: [
-                              {
-                                key: 'property',
-                                label: t('common:property'),
-                                onClick: () => {
-                                  setCurrent({
-                                    ...record?.resource.props,
-                                    resource_name: record.resource_name,
-                                    node_name: record.node_name,
-                                  });
+                      return (
+                        <>
+                          <Dropdown
+                            menu={{
+                              items: [
+                                {
+                                  key: 'toggle',
+                                  label: (
+                                    <Popconfirm
+                                      title="Toggle the resource"
+                                      description="Are you sure to toggle this resource?"
+                                      okText="Yes"
+                                      cancelText="No"
+                                      onConfirm={() => {
+                                        toggleResourceMutation.mutate({
+                                          resource: record.resource_name,
+                                          node: record.node_name,
+                                          action: isDisklessOrTieBreaker ? 'to_diskful' : 'to_diskless',
+                                        });
+                                      }}
+                                    >
+                                      <span>
+                                        {isDisklessOrTieBreaker ? t('resource:add_disk') : t('resource:remove_disk')}
+                                      </span>
+                                    </Popconfirm>
+                                  ),
+                                },
+                                {
+                                  key: 'property',
+                                  label: t('common:property'),
+                                  onClick: () => {
+                                    setCurrent({
+                                      ...record?.resource.props,
+                                      resource_name: record.resource_name,
+                                      node_name: record.node_name,
+                                    });
 
-                                  const currentData = record?.resource.props;
-                                  setInitialProps({
-                                    ...currentData,
-                                    name: record?.resource_name,
-                                  });
-                                  setResourcePropertyModalOpen(true);
+                                    const currentData = record?.resource.props;
+                                    setInitialProps({
+                                      ...currentData,
+                                      name: record?.resource_name,
+                                    });
+                                    setResourcePropertyModalOpen(true);
+                                  },
                                 },
-                              },
-                              {
-                                key: 'snapshot',
-                                label: t('common:snapshot'),
-                                onClick: () => {
-                                  handleSnapshot(record.resource_name ?? '');
+                                {
+                                  key: 'snapshot',
+                                  label: t('common:snapshot'),
+                                  onClick: () => {
+                                    handleSnapshot(record.resource_name ?? '');
+                                  },
                                 },
-                              },
-                              {
-                                key: 'migrate',
-                                label: t('common:migrate'),
-                                onClick: () => {
-                                  handleOpenMigrate(record.resource_name ?? '', record.node_name ?? '');
+                                {
+                                  key: 'migrate',
+                                  label: t('common:migrate'),
+                                  onClick: () => {
+                                    handleOpenMigrate(record.resource_name ?? '', record.node_name ?? '');
+                                  },
                                 },
-                              },
-                              {
-                                key: 'delete',
-                                label: (
-                                  <Popconfirm
-                                    key="delete"
-                                    title="Delete the resource"
-                                    description="Are you sure to delete this resource?"
-                                    okText="Yes"
-                                    cancelText="No"
-                                    onConfirm={() => {
-                                      deleteResourceMutation.mutate({
-                                        resource: record.resource_name ?? '',
-                                        node: record.node_name ?? '',
-                                      });
-                                    }}
-                                  >
-                                    {t('common:delete')}
-                                  </Popconfirm>
-                                ),
-                              },
-                            ],
-                          }}
-                        >
-                          <Button type="text" icon={<MoreOutlined />} />
-                        </Dropdown>
-                      </>
-                    ),
+                                {
+                                  key: 'delete',
+                                  label: (
+                                    <Popconfirm
+                                      key="delete"
+                                      title="Delete the resource"
+                                      description="Are you sure to delete this resource?"
+                                      okText="Yes"
+                                      cancelText="No"
+                                      onConfirm={() => {
+                                        deleteResourceMutation.mutate({
+                                          resource: record.resource_name ?? '',
+                                          node: record.node_name ?? '',
+                                        });
+                                      }}
+                                    >
+                                      {t('common:delete')}
+                                    </Popconfirm>
+                                  ),
+                                },
+                              ],
+                            }}
+                          >
+                            <Button type="text" icon={<MoreOutlined />} />
+                          </Dropdown>
+                        </>
+                      );
+                    },
                   },
                 ]}
                 dataSource={record.volumes}

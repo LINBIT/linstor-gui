@@ -256,6 +256,8 @@ const en = {
     from: 'From Node',
     to: 'To Node',
     connection_status: 'Connections',
+    add_disk: 'Add Disk',
+    remove_disk: 'Remove Disk',
   },
   volume: {
     list: 'Volume List',
