@@ -656,12 +656,29 @@ export const OverviewList = () => {
                   {
                     title: t('common:size'),
                     key: 'size',
-                    render: (_, record) => {
+                    render: (_, record: any) => {
                       return (
                         <span>
                           {formatBytes(record.allocated_size_kib ?? 0)} / {formatBytes(record?.size_kib ?? 0)} (
                           {(((record.allocated_size_kib ?? 0) / (record.size_kib ?? 0)) * 100).toFixed(2)}%)
                         </span>
+                      );
+                    },
+                  },
+                  {
+                    title: t('common:storage_pool'),
+                    key: 'storage_pool',
+                    dataIndex: 'storage_pool_name',
+                    render: (storage_pool_name) => {
+                      return (
+                        <Button
+                          type="link"
+                          onClick={() => {
+                            history.push(`/inventory/storage-pools?storage_pools=${storage_pool_name}`);
+                          }}
+                        >
+                          {storage_pool_name}
+                        </Button>
                       );
                     },
                   },
