@@ -814,7 +814,12 @@ export const OverviewList = () => {
                 ]}
                 dataSource={record.volumes}
                 rowKey={(item) => item?.uuid ?? uniqId()}
-                pagination={false}
+                pagination={{
+                  showSizeChanger: true,
+                  showQuickJumper: true,
+                  pageSizeOptions: ['10', '20', '50', '100', '200'],
+                  showTotal: (total) => `Total ${total} items`,
+                }}
                 rowClassName={(record) => {
                   const isPrimaryNode = record?.node_name?.toLowerCase() === record?.primary_node?.toLowerCase();
                   return isPrimaryNode ? 'ant-table-row-primary' : '';
@@ -830,6 +835,12 @@ export const OverviewList = () => {
             : resourceDefinitionList
         }
         rowKey={(item) => item?.name ?? uniqId()}
+        pagination={{
+          showSizeChanger: true,
+          showQuickJumper: true,
+          pageSizeOptions: ['10', '20', '50', '100', '200'],
+          showTotal: (total) => `Total ${total} items`,
+        }}
       />
 
       <PropertyForm
