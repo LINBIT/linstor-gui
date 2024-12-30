@@ -8,6 +8,8 @@ import styled from '@emotion/styled';
 
 export const MainContent = styled.div`
   padding-top: 1em;
+  overflow-y: auto;
+  height: calc(100vh - 170px);
 `;
 
 export const SectionHead = styled.div`

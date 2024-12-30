@@ -7,21 +7,23 @@
 import styled from '@emotion/styled';
 
 export const MainContent = styled.div`
-  flex: 1;
+  flex: 4;
   padding: 24px;
   overflow: auto;
+  border: 1px solid #eee;
+  border-left: none;
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 16px;
 `;
 
-export const BG = styled.div`
-  margin: -40px 0 -24px -24px;
-  img {
-    object-fit: cover;
-    width: 100%;
-    height: calc(100vh - 94px);
-  }
+export const BG = styled.img`
+  object-fit: cover;
+  flex: 1;
+  height: calc(100vh - 200px);
 `;
 
 export const StyledSection = styled.div`
   display: flex;
-  height: 100%;
+  border-radius: 16px;
+  background-color: #fff;
 `;

@@ -78,11 +78,9 @@ export const UserManagement = () => {
   }, [authenticationEnabled]);
 
   return (
-    <PageBasic title="">
+    <PageBasic title="Authentication & Users">
       <StyledSection>
-        <BG>
-          <img src={bg} title="bg" height={800} />
-        </BG>
+        <BG src={bg} title="bg" />
         <MainContent>
           {isAdminOrNotEnabled && (
             <>
@@ -154,7 +152,6 @@ export const UserManagement = () => {
           )}
         </MainContent>
       </StyledSection>
-      <StyledSection></StyledSection>
     </PageBasic>
   );
 };
