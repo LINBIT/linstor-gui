@@ -4,8 +4,8 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useState } from 'react';
-import { Button, Form, Space, Table, Input, Flex, Tag, Dropdown, Popconfirm, Select, Modal } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Button, Form, Space, Table, Input, Flex, Tag, Dropdown, Popconfirm, Select, Modal, Tooltip } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useHistory, useLocation } from 'react-router-dom';
@@ -13,7 +13,7 @@ import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import get from 'lodash.get';
 import uniqBy from 'lodash.uniqby';
-import { MoreOutlined } from '@ant-design/icons';
+import { MoreOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 
 import { uniqId } from '@app/utils/stringUtils';
 import { formatBytes } from '@app/utils/size';
@@ -43,16 +43,19 @@ import { CloneForm } from './Clone';
 import { ResourceMigrateForm } from './ResourceMigrateForm';
 import { SearchForm } from './styled';
 import './OverviewList.css';
+import { filterResourceList } from './filterResourceList';
 
 const TAG_COLORS = ['cyan', 'blue', 'geekblue', 'purple'];
 
 export const OverviewList = () => {
-  const [resourceDefinitionList, setResourceDefinitionList] = useState<GetResourcesResponseBody>();
+  const [resourceDefinitionList, setResourceDefinitionList] = useState<any>();
   const [current, setCurrent] = useState<any>();
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
   const [rdPropertyModalOpen, setRdPropertyModalOpen] = useState(false);
   const [vdPropertyModalOpen, setVdPropertyModalOpen] = useState(false);
   const [resourcePropertyModalOpen, setResourcePropertyModalOpen] = useState(false);
+  const [searchKey, setSearchKey] = useState<string>('');
+  const [filteredList, setFilteredList] = useState<GetResourcesResponseBody>();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [migrateModalOpen, setMigrateModalOpen] = useState(false);
@@ -74,6 +77,16 @@ export const OverviewList = () => {
   const [form] = Form.useForm();
   const location = useLocation();
   const resource_group = Form.useWatch('resource_group', form);
+
+  useEffect(() => {
+    const filtered = filterResourceList(resourceDefinitionList, resource_group, searchKey);
+    setFilteredList(filtered);
+  }, [resourceDefinitionList, resource_group, searchKey]);
+
+  const onSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchKey(value);
+  };
 
   const { t } = useTranslation(['volume', 'common']);
 
@@ -183,23 +196,6 @@ export const OverviewList = () => {
     queryKey: ['getResourceDefinitionList', query],
     queryFn: fetchData,
   });
-
-  const handleSearch = () => {
-    const values = form.getFieldsValue();
-    const queryS = new URLSearchParams({});
-    const newQuery: ResourceDefinitionListQuery = { ...query };
-
-    if (values.name) {
-      newQuery.resource_definitions = [values.name];
-      queryS.set('resource-definitions', values.name);
-    }
-
-    setQuery(newQuery);
-
-    const new_url = `${location.pathname}?${queryS.toString()}`;
-
-    history.push(new_url);
-  };
 
   const adjustResourceGroupMutation = useMutation({
     mutationKey: ['adjustResourceGroupMutation'],
@@ -549,16 +545,23 @@ export const OverviewList = () => {
   return (
     <>
       <SearchForm>
-        <Form
-          form={form}
-          name="storage_pool_search"
-          layout="inline"
-          initialValues={{
-            show_default: true,
-          }}
-        >
-          <Form.Item name="name" label={t('common:name')}>
-            <Input placeholder="Name" />
+        <Form form={form} name="storage_pool_search" layout="inline">
+          <Form.Item
+            name="name"
+            label={
+              <>
+                {t('common:name')}
+                <Tooltip title={t('resource:search_placeholder')}>
+                  <QuestionCircleOutlined style={{ marginLeft: 5 }} />
+                </Tooltip>
+              </>
+            }
+          >
+            <Input
+              placeholder={t('resource:search_placeholder')}
+              onChange={onSearchInputChange}
+              onPressEnter={(e) => setSearchKey(e.currentTarget.value)}
+            />
           </Form.Item>
 
           <Form.Item name="resource_group" label={t('common:resource_group')}>
@@ -581,14 +584,6 @@ export const OverviewList = () => {
             <Space size="small">
               <Button type="default" onClick={handleReset}>
                 {t('common:reset')}
-              </Button>
-              <Button
-                type="primary"
-                onClick={() => {
-                  handleSearch();
-                }}
-              >
-                {t('common:search')}
               </Button>
             </Space>
           </Form.Item>
@@ -829,11 +824,7 @@ export const OverviewList = () => {
           },
           rowExpandable: (record) => (record?.volumes?.length ?? 0) > 0,
         }}
-        dataSource={
-          resource_group
-            ? resourceDefinitionList?.filter((e: any) => e?.resource_group_name === resource_group) ?? []
-            : resourceDefinitionList
-        }
+        dataSource={filteredList}
         rowKey={(item) => item?.name ?? uniqId()}
         pagination={{
           showSizeChanger: true,

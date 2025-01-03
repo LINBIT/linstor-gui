@@ -95,6 +95,7 @@ const en = {
     layers: 'Layers',
     volume_definition: 'Volume Definition',
     volume_number_short: 'V#',
+    keyword: 'Keyword',
   },
   menu: {
     dashboard: 'Dashboard',
@@ -258,6 +259,7 @@ const en = {
     connection_status: 'Connections',
     add_disk: 'Add Disk',
     remove_disk: 'Remove Disk',
+    search_placeholder: 'Search by resource name or aux property value',
   },
   volume: {
     list: 'Volume List',

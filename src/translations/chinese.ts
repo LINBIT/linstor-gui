@@ -89,6 +89,7 @@ const zh = {
     toggle: '切换',
     volume_definition: '卷定义',
     layers: '存储层',
+    keyword: '关键字',
   },
   menu: {
     dashboard: '概览',
@@ -250,6 +251,7 @@ const zh = {
     connection_status: '连接状态',
     add_disk: '添加硬盘',
     remove_disk: '移除硬盘',
+    search_placeholder: '根据名称或者自定义属性值搜索',
   },
   error_report: {
     id: 'ID',
