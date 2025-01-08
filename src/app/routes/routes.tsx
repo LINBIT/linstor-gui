@@ -21,6 +21,7 @@ import StoragePoolEdit from '@app/pages/Inventory/StoragePools/edit';
 
 import ResourceGroupList from '@app/pages/SoftwareDefined/ResourceGroups';
 import ResourceGroupEdit from '@app/pages/SoftwareDefined/ResourceGroups/edit';
+import ResourceGroupCreate from '@app/pages/SoftwareDefined/ResourceGroups/create';
 import ResourceDefinitionList from '@app/pages/SoftwareDefined/ResourceDefinitions';
 import ResourceDefinitionCreate from '@app/pages/SoftwareDefined/ResourceDefinitions/create';
 import ResourceDefinitionEdit from '@app/pages/SoftwareDefined/ResourceDefinitions/edit';
@@ -160,6 +161,12 @@ const routes: AppRouteConfig[] = [
         exact: true,
         path: '/storage-configuration/resource-groups/:resourceGroup/edit',
         title: 'LINSTOR | Storage Configuration | Resource Groups | Edit',
+      },
+      {
+        component: ResourceGroupCreate,
+        exact: true,
+        path: '/storage-configuration/resource-groups/create',
+        title: 'LINSTOR | Storage Configuration | Resource Groups | Create',
       },
       {
         component: ResourceDefinitionList,
