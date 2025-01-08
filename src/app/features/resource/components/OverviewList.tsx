@@ -268,7 +268,7 @@ export const OverviewList = () => {
       resource_definitions: undefined,
     });
 
-    history.push(location.pathname);
+    setSearchKey('');
     refetch();
   };
 
