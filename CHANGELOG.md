@@ -1,5 +1,22 @@
 # Changelog
 
+# 1.8.9 - 2025-01-07
+
+### Added
+
+- Pagination on the resource overview page
+- Display of the storage pool name on the resource overview page
+
+### Fixed
+
+- 404 error when accessing the resource group creation page
+
+### Changed
+
+- Page layout for better scrolling
+- Improved the search functionality on the resource overview page
+- Updated dependencies
+
 # 1.8.8 - 2024-12-20
 
 ### Fixed
