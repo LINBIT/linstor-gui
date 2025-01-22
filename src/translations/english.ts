@@ -96,6 +96,7 @@ const en = {
     volume_definition: 'Volume Definition',
     volume_number_short: 'V#',
     keyword: 'Keyword',
+    action_short: 'A',
   },
   menu: {
     dashboard: 'Dashboard',

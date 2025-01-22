@@ -351,11 +351,13 @@ export const OverviewList = () => {
 
   const CSProps = Array.from(
     new Set(
-      resourceDefinitionList?.flatMap((item) => Object.keys(item.props ?? {}).filter((key) => key.startsWith('Aux'))),
+      resourceDefinitionList?.flatMap((item: any) =>
+        Object.keys(item.props ?? {}).filter((key) => key.startsWith('Aux')),
+      ),
     ),
   );
 
-  const extraColumns = isLargeScreen
+  const extraColumns: any = isLargeScreen
     ? [
         {
           title: t('common:port'),
@@ -437,106 +439,121 @@ export const OverviewList = () => {
       title: t('common:state'),
       key: 'state',
       render: (_, rd) => {
-        const state = rd.flags?.find((flag: string) => flag === 'DELETE') != null ? 'DELETING' : 'OK';
-        return <Tag color={state === 'DELETING' ? 'red' : 'green'}>{state}</Tag>;
+        const stateOfResources = rd.volumes.map((e: any) => handleConnectStatusDisplay(e.resource));
+
+        console.log('stateOfResources', stateOfResources);
+
+        const isAllOK = stateOfResources.every((e: any) => e === 'OK');
+
+        return (
+          <Tag color={isAllOK ? 'green' : 'red'}>
+            {isAllOK ? 'OK' : stateOfResources.filter((e: any) => e !== 'OK').join(',')}
+          </Tag>
+        );
       },
     },
     ...extraColumns,
     {
-      title: t('common:action'),
+      title: () => (
+        <Tooltip title={t('common:action')}>
+          <span>{t('common:action_short')}</span>
+        </Tooltip>
+      ),
       key: 'action',
-      width: 150,
+      width: 10,
       fixed: 'right',
       render: (_, record) => {
         const isUsingZFS = record.volumes.every((e: any) => e.provider_kind === 'ZFS');
         return (
-          <Space size="small">
-            <Popconfirm
-              title="Adjust the resource"
-              description="Are you sure to adjust this resource?"
-              okText="Yes"
-              cancelText="No"
-              onConfirm={() => {
-                adjustResourceGroupMutation.mutate({
-                  resource_group: record.resource_group_name,
-                });
-              }}
-            >
-              <Button type="primary">{t('common:adjust')}</Button>
-            </Popconfirm>
-
-            <Dropdown
-              menu={{
-                items: [
-                  {
-                    key: 'clone',
-                    label: <CloneForm resource={record.name} isUsingZFS={isUsingZFS} />,
-                  },
-                  {
-                    key: 'property',
-                    label: (
-                      <Dropdown
-                        menu={{
-                          items: [
-                            {
-                              key: '1',
-                              label: (
-                                <span
-                                  onClick={() => {
-                                    setCurrent(record);
-                                    setInitialProps(record.props ?? {});
-                                    setRdPropertyModalOpen(true);
-                                  }}
-                                >
-                                  {t('common:resource_definition')}
-                                </span>
-                              ),
-                            },
-                            {
-                              key: '2',
-                              label: (
-                                <span
-                                  onClick={() => {
-                                    setCurrent(record);
-                                    setInitialProps(record.volumeDefinitions[0].props ?? {});
-                                    setVdPropertyModalOpen(true);
-                                  }}
-                                >
-                                  {t('common:volume_definition')}
-                                </span>
-                              ),
-                            },
-                          ],
-                        }}
-                        placement="bottomRight"
-                      >
-                        <span>{t('common:property')}</span>
-                      </Dropdown>
-                    ),
-                  },
-                  {
-                    key: 'delete',
-                    label: (
-                      <Popconfirm
-                        key="delete"
-                        title="Delete the resource definition"
-                        description="Are you sure to delete this resource definitions?"
-                        okText="Yes"
-                        cancelText="No"
-                        onConfirm={() => {
-                          deleteMutation.mutate(record.name);
-                        }}
-                      >
-                        {t('common:delete')}
-                      </Popconfirm>
-                    ),
-                  },
-                ],
-              }}
-            >
-              <Button type="text" icon={<MoreOutlined />} />
-            </Dropdown>
-          </Space>
+          <Dropdown
+            menu={{
+              items: [
+                {
+                  key: 'adjust',
+                  label: (
+                    <Popconfirm
+                      title="Adjust the resource"
+                      description="Are you sure to adjust this resource?"
+                      okText="Yes"
+                      cancelText="No"
+                      onConfirm={() => {
+                        adjustResourceGroupMutation.mutate({
+                          resource_group: record.resource_group_name,
+                        });
+                      }}
+                    >
+                      <span>{t('common:adjust')}</span>
+                    </Popconfirm>
+                  ),
+                },
+                {
+                  key: 'clone',
+                  label: <CloneForm resource={record.name} isUsingZFS={isUsingZFS} />,
+                },
+                {
+                  key: 'property',
+                  label: (
+                    <Dropdown
+                      menu={{
+                        items: [
+                          {
+                            key: '1',
+                            label: (
+                              <span
+                                onClick={() => {
+                                  setCurrent(record);
+                                  setInitialProps(record.props ?? {});
+                                  setRdPropertyModalOpen(true);
+                                }}
+                              >
+                                {t('common:resource_definition')}
+                              </span>
+                            ),
+                          },
+                          {
+                            key: '2',
+                            label: (
+                              <span
+                                onClick={() => {
+                                  setCurrent(record);
+                                  setInitialProps(record.volumeDefinitions[0].props ?? {});
+                                  setVdPropertyModalOpen(true);
+                                }}
+                              >
+                                {t('common:volume_definition')}
+                              </span>
+                            ),
+                          },
+                        ],
+                      }}
+                      placement="bottomRight"
+                    >
+                      <span>{t('common:property')}</span>
+                    </Dropdown>
+                  ),
+                },
+                {
+                  key: 'delete',
+                  label: (
+                    <Popconfirm
+                      key="delete"
+                      title="Delete the resource definition"
+                      description="Are you sure to delete this resource definitions?"
+                      okText="Yes"
+                      cancelText="No"
+                      onConfirm={() => {
+                        deleteMutation.mutate(record.name);
+                      }}
+                    >
+                      {t('common:delete')}
+                    </Popconfirm>
+                  ),
+                },
+              ],
+            }}
+          >
+            <Button type="text" icon={<MoreOutlined />} />
+          </Dropdown>
         );
       },
     },
@@ -706,9 +723,13 @@ export const OverviewList = () => {
                     },
                   },
                   {
-                    title: t('common:action'),
+                    title: () => (
+                      <Tooltip title={t('common:action')}>
+                        <span>{t('common:action_short')}</span>
+                      </Tooltip>
+                    ),
                     key: 'action',
-                    width: 150,
+                    width: 10,
                     fixed: 'right',
                     align: 'center',
                     render: (_, record) => {
@@ -809,12 +830,6 @@ export const OverviewList = () => {
                 ]}
                 dataSource={record.volumes}
                 rowKey={(item) => item?.uuid ?? uniqId()}
-                pagination={{
-                  showSizeChanger: true,
-                  showQuickJumper: true,
-                  pageSizeOptions: ['10', '20', '50', '100', '200'],
-                  showTotal: (total) => `Total ${total} items`,
-                }}
                 rowClassName={(record) => {
                   const isPrimaryNode = record?.node_name?.toLowerCase() === record?.primary_node?.toLowerCase();
                   return isPrimaryNode ? 'ant-table-row-primary' : '';
