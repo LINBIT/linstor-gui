@@ -69,6 +69,7 @@ import { useNav } from '../NavContext';
 interface IAppLayout {
   children: React.ReactNode;
   registered?: boolean;
+  isFetched?: boolean;
 }
 
 const NoSupport = styled.div`
@@ -214,7 +215,7 @@ function getItem(
   } as MenuItem;
 }
 
-const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }) => {
+const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered, isFetched }) => {
   const [isMobileView, setIsMobileView] = useState(true);
   const [isNavOpenMobile, setIsNavOpenMobile] = useState(false);
   const { UIMode, updateUIMode } = useUIModeStorage();
@@ -247,11 +248,13 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
     dispatch.auth.checkLoginStatus();
   }, [dispatch.auth]);
 
+  const isNotOfficialBuild = isFetched && !registered;
+
   useEffect(() => {
-    if (typeof registered !== 'undefined' && !registered) {
+    if (typeof isNotOfficialBuild !== 'undefined' && isNotOfficialBuild) {
       setIsModalOpen(true);
     }
-  }, [registered]);
+  }, [isNotOfficialBuild]);
 
   const { KVS, authInfo, logoSrc, vsanModeFromSetting, isAdmin, gatewayAvailable, VSANEvalMode } = useSelector(
     (state: RootState) => ({
@@ -414,7 +417,7 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered }
   const headerTools = (
     <PageHeaderTools>
       <PageHeaderToolsGroup>
-        {!registered && (
+        {isNotOfficialBuild && (
           <PageHeaderToolsItem>
             <NoSupport>
               <WarningLogo src={warning} />

@@ -28,15 +28,19 @@ const App: React.FunctionComponent = () => {
       .then((res) => res.json())
       .then((res) => {
         return res?.reportText;
+      })
+      .catch((error) => {
+        console.log('error', error);
+        return MSG;
       });
 
-  const { data } = useQuery({
+  const { isFetched, data } = useQuery({
     queryKey: ['getSpaceReport'],
     queryFn: getSpaceReport,
   });
 
   // Check if has space-report result
-  const appEnabled = data && data !== MSG;
+  const appEnabled = isFetched && data && data !== MSG;
 
   return (
     <Provider store={store as any}>
@@ -50,7 +54,7 @@ const App: React.FunctionComponent = () => {
           locale={locale}
         >
           <NavProvider>
-            <AppLayout registered={appEnabled}>
+            <AppLayout registered={appEnabled} isFetched={isFetched}>
               <AppRoutes />
             </AppLayout>
           </NavProvider>
