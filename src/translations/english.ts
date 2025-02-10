@@ -99,6 +99,9 @@ const en = {
     action_short: 'A',
     resource_definition_properties: 'Resource Definition Properties',
     volume_definition_properties: 'Volume Definition Properties',
+    storage_pool_overview: 'Storage Pool Overview',
+    free_capacity: 'Free Capacity',
+    used_capacity: 'Used Capacity',
   },
   menu: {
     dashboard: 'Dashboard',

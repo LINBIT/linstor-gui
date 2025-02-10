@@ -95,7 +95,5 @@ export const StoragePool = ({ data }: StoragePoolProp) => {
     colors: ['#499BBB', '#C4DBE6'],
   };
 
-  // return <div>hi</div>;
-
   return <Chart options={options} series={series} type="bar" height={350} />;
 };

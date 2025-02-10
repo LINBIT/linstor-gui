@@ -16,38 +16,17 @@ import { getString } from '@app/utils/stringUtils';
 import { fetchMetrics, resourcesDetailList } from '@app/requests/dashboard';
 
 import PageBasic from '@app/components/PageBasic';
-import PieChart from './components/PieChart';
 import SummeryCard from './components/SummeryCard';
 
 import './Dashboard.css';
-
-type TDashItem = {
-  help: string;
-  name: string;
-  type: string;
-  metrics: Array<{ value: string; labels: unknown }>;
-};
+import { StoragePoolInfo } from './components/StoragePoolInfo';
 
 const NODE = 'linstor_node_state';
 const RESOURCE = 'linstor_resource_state';
 const VOLUME = 'linstor_volume_state';
 const ERROR_REPORT = 'linstor_error_reports_count';
 
-type metricData = {
-  metrics: TDashItem[];
-  pieChartData: {
-    y: number;
-    x: string;
-  }[];
-  stateMap: {
-    [key: number]: string;
-  };
-};
-
 const Dashboard: React.FunctionComponent = () => {
-  const [nodeInfo, setNodeInfo] = useState<metricData>();
-  const [resourceInfo, setResourceInfo] = useState<metricData>();
-  const [volumeInfo, setVolumeInfo] = useState<metricData>();
   const { t } = useTranslation(['dashboard', 'common']);
 
   const [summeryData, setSummeryData] = useState<{
@@ -57,18 +36,10 @@ const Dashboard: React.FunctionComponent = () => {
     errorReport: number;
   }>();
 
-  const {
-    data: metrics,
-    error,
-    loading,
-  } = useRequest(fetchMetrics, {
-    throwOnError: true,
-    defaultLoading: true,
-  });
+  const { data: metrics, error, loading } = useRequest(fetchMetrics);
 
   // For disk creation records
   useRequest(resourcesDetailList, {
-    throwOnError: true,
     onSuccess: (resourcesDetail) => {
       let date = new Date().getTime();
       const lineData: { x: string; y: number }[] = [];
@@ -161,9 +132,6 @@ const Dashboard: React.FunctionComponent = () => {
         };
 
         setSummeryData(summery);
-        setNodeInfo(nodeData);
-        setVolumeInfo(volumeData);
-        setResourceInfo(resourceData);
       } catch (error) {
         console.log(error, error);
       }
@@ -200,23 +168,7 @@ const Dashboard: React.FunctionComponent = () => {
       </div>
 
       <div className="pie">
-        <PieChart
-          title={t('common:nodes')}
-          data={nodeInfo?.pieChartData}
-          legendData={nodeInfo?.pieChartData?.map((e) => ({ name: `${e.x}: ${e.y}` }))}
-        />
-
-        <PieChart
-          title={t('common:resources')}
-          data={resourceInfo?.pieChartData}
-          legendData={resourceInfo?.pieChartData?.map((e) => ({ name: `${e.x}: ${e.y}` }))}
-        />
-
-        <PieChart
-          title={t('common:volumes')}
-          data={volumeInfo?.pieChartData}
-          legendData={volumeInfo?.pieChartData?.map((e) => ({ name: `${e.x}: ${e.y}` }))}
-        />
+        <StoragePoolInfo />
       </div>
       {/*
       <div className="line-chart">

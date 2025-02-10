@@ -10,8 +10,6 @@
 
 .pie {
   margin-top: 40px;
-  display: flex;
-  gap: 48px;
 }
 
 .line-chart {
