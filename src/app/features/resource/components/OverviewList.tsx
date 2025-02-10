@@ -491,45 +491,31 @@ export const OverviewList = () => {
                   label: <CloneForm resource={record.name} isUsingZFS={isUsingZFS} />,
                 },
                 {
-                  key: 'property',
+                  key: 'resource_definition',
                   label: (
-                    <Dropdown
-                      menu={{
-                        items: [
-                          {
-                            key: '1',
-                            label: (
-                              <span
-                                onClick={() => {
-                                  setCurrent(record);
-                                  setInitialProps(record.props ?? {});
-                                  setRdPropertyModalOpen(true);
-                                }}
-                              >
-                                {t('common:resource_definition')}
-                              </span>
-                            ),
-                          },
-                          {
-                            key: '2',
-                            label: (
-                              <span
-                                onClick={() => {
-                                  setCurrent(record);
-                                  setInitialProps(record.volumeDefinitions[0].props ?? {});
-                                  setVdPropertyModalOpen(true);
-                                }}
-                              >
-                                {t('common:volume_definition')}
-                              </span>
-                            ),
-                          },
-                        ],
+                    <span
+                      onClick={() => {
+                        setCurrent(record);
+                        setInitialProps(record.props ?? {});
+                        setRdPropertyModalOpen(true);
                       }}
-                      placement="bottomRight"
                     >
-                      <span>{t('common:property')}</span>
-                    </Dropdown>
+                      {t('common:resource_definition_properties')}
+                    </span>
+                  ),
+                },
+                {
+                  key: 'volume_definition',
+                  label: (
+                    <span
+                      onClick={() => {
+                        setCurrent(record);
+                        setInitialProps(record.volumeDefinitions[0].props ?? {});
+                        setVdPropertyModalOpen(true);
+                      }}
+                    >
+                      {t('common:volume_definition_properties')}
+                    </span>
                   ),
                 },
                 {

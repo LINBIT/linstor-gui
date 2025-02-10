@@ -97,6 +97,8 @@ const en = {
     volume_number_short: 'V#',
     keyword: 'Keyword',
     action_short: 'A',
+    resource_definition_properties: 'Resource Definition Properties',
+    volume_definition_properties: 'Volume Definition Properties',
   },
   menu: {
     dashboard: 'Dashboard',
