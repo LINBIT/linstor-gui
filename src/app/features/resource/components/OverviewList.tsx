@@ -655,6 +655,7 @@ export const OverviewList = () => {
                     title: t('common:size'),
                     key: 'size',
                     render: (_, record: any) => {
+                      console.log('record', record);
                       return (
                         <span>
                           {formatBytes(record.allocated_size_kib ?? 0)} / {formatBytes(record?.size_kib ?? 0)} (

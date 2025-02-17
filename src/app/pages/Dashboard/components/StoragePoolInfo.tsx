@@ -34,14 +34,23 @@ export const StoragePoolInfo: React.FC = () => {
 
     const categories = [] as string[];
 
-    Object.entries(groupedByNode).forEach(([nodeName, pools]) => {
-      const totalCapacity = pools.reduce((sum, pool) => sum + pool.total_capacity, 0);
-      const freeCapacity = pools.reduce((sum, pool) => sum + pool.free_capacity, 0);
+    Object.entries(groupedByNode).forEach(([nodeName, pools]: any) => {
+      pools.forEach((pool: any) => {
+        const freeCapacity = Number((pool.free_capacity / 1024 / 1024).toFixed(2));
+        const usedCapacity = Number(((pool.total_capacity - pool.free_capacity) / 1024 / 1024).toFixed(2));
+
+        series[0].data.push(freeCapacity);
+        series[1].data.push(usedCapacity);
+        categories.push(`${pool.storage_pool_name} (${nodeName})`);
+      });
+
+      const totalCapacity = pools.reduce((sum: any, pool: any) => sum + pool.total_capacity, 0);
+      const freeCapacity = pools.reduce((sum: any, pool: any) => sum + pool.free_capacity, 0);
       const usedCapacity = totalCapacity - freeCapacity;
 
       series[0].data.push(Number((freeCapacity / 1024 / 1024).toFixed(2)));
       series[1].data.push(Number((usedCapacity / 1024 / 1024).toFixed(2)));
-      categories.push(nodeName);
+      categories.push(`Total (${nodeName})`);
     });
 
     return {
@@ -64,6 +73,10 @@ export const StoragePoolInfo: React.FC = () => {
           title: {
             text: t('common:nodes'),
           },
+          labels: {
+            rotate: -45,
+            trim: false,
+          },
         },
         yaxis: {
           title: {
@@ -73,7 +86,7 @@ export const StoragePoolInfo: React.FC = () => {
             formatter: (val: number) => val.toFixed(2),
           },
         },
-        colors: ['#52c41a', '#ff4d4f'],
+        colors: ['#1890ff', '#69c0ff'],
         legend: {
           position: 'top' as const,
         },
