@@ -295,6 +295,12 @@ export const OverviewList = () => {
     return failStr;
   };
 
+  const calculatePercentage = (allocated: number = 0, total: number = 0): string => {
+    if (total === 0) return '0.00';
+    const percentage = (allocated / total) * 100;
+    return Math.min(percentage, 100).toFixed(2);
+  };
+
   const getVolumeCellState = (
     vlm_state: { disk_state: string },
     rsc_flags: string | string[],
@@ -659,7 +665,7 @@ export const OverviewList = () => {
                       return (
                         <span>
                           {formatBytes(record.allocated_size_kib ?? 0)} / {formatBytes(record?.size_kib ?? 0)} (
-                          {(((record.allocated_size_kib ?? 0) / (record.size_kib ?? 0)) * 100).toFixed(2)}%)
+                          {calculatePercentage(record.allocated_size_kib, record.size_kib)}%)
                         </span>
                       );
                     },
