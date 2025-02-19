@@ -121,7 +121,7 @@ export const StoragePoolInfo: React.FC = () => {
   };
 
   return (
-    <Card title={t('common:storage_pool_overview')} bordered={false}>
+    <Card title={t('common:storage_pool_overview')}>
       <Chart options={options} series={chartData.series} type="bar" height={350} />
     </Card>
   );

@@ -447,8 +447,6 @@ export const OverviewList = () => {
       render: (_, rd) => {
         const stateOfResources = rd.volumes.map((e: any) => handleConnectStatusDisplay(e.resource));
 
-        console.log('stateOfResources', stateOfResources);
-
         const isAllOK = stateOfResources.every((e: any) => e === 'OK');
 
         return (
@@ -827,6 +825,7 @@ export const OverviewList = () => {
                   const isPrimaryNode = record?.node_name?.toLowerCase() === record?.primary_node?.toLowerCase();
                   return isPrimaryNode ? 'ant-table-row-primary' : '';
                 }}
+                pagination={false}
               />
             );
           },

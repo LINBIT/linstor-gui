@@ -102,6 +102,8 @@ const en = {
     storage_pool_overview: 'Storage Pool Overview',
     free_capacity: 'Free Capacity',
     used_capacity: 'Used Capacity',
+    faulty_resource: 'Faulty Resource',
+    all_resources_are_healthy: 'All resources are healthy',
   },
   menu: {
     dashboard: 'Dashboard',

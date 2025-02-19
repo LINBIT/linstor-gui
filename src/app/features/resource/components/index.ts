@@ -9,3 +9,4 @@ export { ResourceMigrateForm } from './ResourceMigrateForm';
 export { List } from './List';
 export { OverviewList } from './OverviewList';
 export { CloneForm } from './Clone';
+export { FaultyList } from './FaultyList';
