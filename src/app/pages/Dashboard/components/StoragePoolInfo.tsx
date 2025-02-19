@@ -1,10 +1,11 @@
 import React, { useMemo } from 'react';
 import { Card, Spin } from 'antd';
 import { useQuery } from '@tanstack/react-query';
-import { useTranslation } from 'react-i18next';
 import Chart from 'react-apexcharts';
-import { groupBy } from 'lodash';
+import { useTranslation } from 'react-i18next';
+import { groupBy, union } from 'lodash';
 import { getStoragePool } from '@app/features/storagePool';
+import { formatBytes } from '@app/utils/size';
 
 export const StoragePoolInfo: React.FC = () => {
   const { t } = useTranslation();
@@ -15,94 +16,67 @@ export const StoragePoolInfo: React.FC = () => {
   });
 
   const chartData = useMemo(() => {
-    if (!poolsData) return null;
+    if (!poolsData || poolsData?.data?.length === 0) {
+      return {
+        series: [],
+        categories: [],
+      };
+    }
 
-    const filteredPools = poolsData?.data?.filter((pool) => pool.provider_kind !== 'DISKLESS');
+    const validPools = poolsData?.data?.filter((p) => p.provider_kind !== 'DISKLESS');
 
-    const groupedByNode = groupBy(filteredPools, 'node_name');
+    const groupedByNode = groupBy(validPools, 'node_name');
+    const allNodes = Object.keys(groupedByNode);
 
-    const series = [
-      {
-        name: t('common:free_capacity'),
-        data: [] as number[],
-      },
-      {
-        name: t('common:used_capacity'),
-        data: [] as number[],
-      },
-    ];
+    const allPools = union(...allNodes.map((node) => groupedByNode[node].map((sp) => sp.storage_pool_name)));
 
-    const categories = [] as string[];
-
-    Object.entries(groupedByNode).forEach(([nodeName, pools]: any) => {
-      pools.forEach((pool: any) => {
-        const freeCapacity = Number((pool.free_capacity / 1024 / 1024).toFixed(2));
-        const usedCapacity = Number(((pool.total_capacity - pool.free_capacity) / 1024 / 1024).toFixed(2));
-
-        series[0].data.push(freeCapacity);
-        series[1].data.push(usedCapacity);
-        categories.push(`${pool.storage_pool_name} (${nodeName})`);
-      });
-
-      const totalCapacity = pools.reduce((sum: any, pool: any) => sum + pool.total_capacity, 0);
-      const freeCapacity = pools.reduce((sum: any, pool: any) => sum + pool.free_capacity, 0);
-      const usedCapacity = totalCapacity - freeCapacity;
-
-      series[0].data.push(Number((freeCapacity / 1024 / 1024).toFixed(2)));
-      series[1].data.push(Number((usedCapacity / 1024 / 1024).toFixed(2)));
-      categories.push(`Total (${nodeName})`);
+    const nodeTotals: Record<string, number> = {};
+    const nodeUsed: Record<string, number> = {};
+    allNodes.forEach((node) => {
+      const nodeSp = groupedByNode[node];
+      nodeTotals[node] = nodeSp.reduce((acc, item) => acc + (item.total_capacity || 0), 0);
+      nodeUsed[node] = nodeSp.reduce((acc, item) => acc + ((item.total_capacity || 0) - (item.free_capacity || 0)), 0);
     });
 
-    return {
-      options: {
-        chart: {
-          type: 'bar' as const,
-          stacked: true,
-          toolbar: {
-            show: false,
-          },
-        },
-        plotOptions: {
-          bar: {
-            horizontal: false,
-            columnWidth: '55%',
-          },
-        },
-        xaxis: {
-          categories,
-          title: {
-            text: t('common:nodes'),
-          },
-          labels: {
-            rotate: -45,
-            trim: false,
-          },
-        },
-        yaxis: {
-          title: {
-            text: t('common:capacity') + ' (GiB)',
-          },
-          labels: {
-            formatter: (val: number) => val.toFixed(2),
-          },
-        },
-        colors: ['#1890ff', '#69c0ff'],
-        legend: {
-          position: 'top' as const,
-        },
-        dataLabels: {
-          enabled: true,
-          formatter: (val: number) => val.toFixed(2),
-        },
-        tooltip: {
-          y: {
-            formatter: (val: number) => val.toFixed(2) + ' GiB',
-          },
-        },
-      },
-      series,
+    const spSeries: any[] = [];
+    allPools.forEach((pool) => {
+      const totalsForPool: number[] = [];
+      const usedForPool: number[] = [];
+      allNodes.forEach((node) => {
+        const found = groupedByNode[node].find((i) => i.storage_pool_name === pool);
+        const total = found?.total_capacity ?? 0;
+        const used = total - (found?.free_capacity ?? 0);
+        totalsForPool.push(total);
+        usedForPool.push(used);
+      });
+      spSeries.push({
+        name: `${pool} Total`,
+        group: pool,
+        data: totalsForPool,
+      });
+      spSeries.push({
+        name: `${pool} Used`,
+        group: pool,
+        data: usedForPool,
+      });
+    });
+
+    const nodeTotalSeries = {
+      name: 'Node Total',
+      group: 'NodeAll',
+      data: allNodes.map((n) => nodeTotals[n]),
     };
-  }, [poolsData, t]);
+    const nodeUsedSeries = {
+      name: 'Node Used',
+      group: 'NodeAll',
+      data: allNodes.map((n) => nodeUsed[n]),
+    };
+
+    return {
+      series: [...spSeries, nodeTotalSeries, nodeUsedSeries],
+      categories: allNodes,
+    };
+  }, [poolsData]);
 
   if (isLoading) {
     return (
@@ -112,9 +86,43 @@ export const StoragePoolInfo: React.FC = () => {
     );
   }
 
+  const options = {
+    chart: {
+      type: 'bar' as const,
+      stacked: true,
+      height: 450,
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+      },
+    },
+    xaxis: {
+      categories: chartData.categories,
+    },
+    legend: {
+      position: 'bottom' as const,
+    },
+    dataLabels: {
+      formatter: (val: number) => formatBytes(val),
+    },
+    yaxis: {
+      labels: {
+        formatter: (val: number) => formatBytes(val),
+      },
+    },
+    fill: {
+      opacity: 1,
+    },
+    stroke: {
+      width: 1,
+      colors: ['#fff'],
+    },
+  };
+
   return (
     <Card title={t('common:storage_pool_overview')} bordered={false}>
-      {chartData && <Chart options={chartData.options} series={chartData.series} type="bar" height={350} />}
+      <Chart options={options} series={chartData.series} type="bar" height={350} />
     </Card>
   );
 };

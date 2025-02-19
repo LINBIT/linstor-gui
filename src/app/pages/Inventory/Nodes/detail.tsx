@@ -22,7 +22,6 @@ import {
 } from '@app/features/ip';
 import { fullySuccess } from '@app/features/requests';
 import { useStoragePools } from '@app/features/storagePool';
-import { kibToGib } from '@app/utils/size';
 import { useResources } from '@app/features/snapshot';
 
 import NetInterfaceList from './components/NetInterfaceList';
@@ -45,7 +44,7 @@ const handleStorageData = (storagePool, node) => {
     return {
       storagePool: item.storage_pool_name,
       type: 'Used',
-      value: kibToGib(item.total_capacity - item.free_capacity),
+      value: item.total_capacity - item.free_capacity,
     };
   });
 
@@ -53,7 +52,7 @@ const handleStorageData = (storagePool, node) => {
     return {
       storagePool: item.storage_pool_name,
       type: 'Total',
-      value: kibToGib(item.total_capacity),
+      value: item.total_capacity,
     };
   });
 
@@ -76,13 +75,13 @@ const handleStorageData = (storagePool, node) => {
   const storagePoolOnNodeTotalData = {
     storagePool: `Total on ${node}`,
     type: 'Total',
-    value: kibToGib(nodeTotalCapacity),
+    value: nodeTotalCapacity,
   };
 
   const storagePoolOnNodeFreeData = {
     storagePool: `Total on ${node}`,
     type: 'Used',
-    value: kibToGib(nodeTotalCapacity - nodeFreeCapacity),
+    value: nodeTotalCapacity - nodeFreeCapacity,
   };
 
   return [...storagePoolUsedData, ...storagePoolFreeData, storagePoolOnNodeFreeData, storagePoolOnNodeTotalData];

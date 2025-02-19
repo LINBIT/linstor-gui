@@ -6,7 +6,8 @@
 
 import React from 'react';
 import Chart from 'react-apexcharts';
-import { forEach, groupBy } from 'lodash-es';
+import { forEach, groupBy } from 'lodash';
+import { formatBytes } from '@app/utils/size';
 
 type DataItem = {
   type: string;
@@ -39,19 +40,6 @@ export const StoragePool = ({ data }: StoragePoolProp) => {
       tooltip: false,
     });
   });
-  const config = {
-    data,
-    xField: 'storagePool',
-    yField: 'value',
-    stack: true,
-    colorField: 'type',
-    label: {
-      text: 'value',
-      textBaseline: 'bottom',
-      position: 'inside',
-    },
-    annotations,
-  };
 
   const series = [
     {
@@ -81,14 +69,14 @@ export const StoragePool = ({ data }: StoragePoolProp) => {
       opacity: 1,
     },
     dataLabels: {
-      formatter: (val) => {
-        return val + 'GiB';
+      formatter: (val: number) => {
+        return formatBytes(val);
       },
     },
     yaxis: {
       labels: {
-        formatter: (val) => {
-          return val + 'GiB';
+        formatter: (val: number) => {
+          return formatBytes(val);
         },
       },
     },
