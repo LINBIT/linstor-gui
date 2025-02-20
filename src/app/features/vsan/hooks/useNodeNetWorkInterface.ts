@@ -16,7 +16,7 @@ const useNodeNetWorkInterface = () => {
   return {
     isLoading,
     error,
-    data: data?.data.filter((s) => s.prefix !== '127.'),
+    data: data?.data?.prefixes?.filter((s) => s.prefix !== '127.'),
   };
 };
 

@@ -248,8 +248,6 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered, 
     dispatch.auth.checkLoginStatus();
   }, [dispatch.auth]);
 
-  const isNotOfficialBuild = isFetched && !registered;
-
   useEffect(() => {
     if (typeof isNotOfficialBuild !== 'undefined' && isNotOfficialBuild) {
       setIsModalOpen(true);
@@ -348,6 +346,8 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered, 
 
   const VSANAvailable = KVS?.vsanMode;
   const normalWithoutAuth = !VSANAvailable && !authenticationEnabled;
+
+  const isNotOfficialBuild = isFetched && !registered && !vsanModeFromSetting;
 
   const menu = {
     items: [
