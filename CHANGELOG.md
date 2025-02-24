@@ -1,5 +1,21 @@
 # Changelog
 
+# 1.9.0 - 2025-02-25
+
+### Added
+
+- new dashboard with more detailed information about storage pool and resources
+
+### Fixed
+
+- Blank page error in VSAN mode
+- Used capacity exceeds 100 on node detail page
+
+### Changed
+
+- Actions styled on resource overview page
+- Property editor entries for RD on resource overview page
+
 # 1.8.9 - 2025-01-07
 
 ### Added
