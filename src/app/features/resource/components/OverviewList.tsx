@@ -8,7 +8,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, Form, Space, Table, Input, Flex, Tag, Dropdown, Popconfirm, Select, Modal, Tooltip } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useHistory, useLocation, useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import get from 'lodash.get';
@@ -93,12 +93,20 @@ export const OverviewList = () => {
   const [query, setQuery] = useState<ResourceDefinitionListQuery>(() => {
     const query = new URLSearchParams(location.search);
     const resource_definitions = query.get('resource-definitions')?.split(',');
+    const resource = query.get('resource');
+
+    console.log(resource, 'resource');
 
     const queryO: ResourceDefinitionListQuery = {};
 
     if (resource_definitions) {
       form.setFieldValue('name', resource_definitions);
       queryO['resource_definitions'] = resource_definitions;
+    }
+
+    if (resource) {
+      form.setFieldValue('name', resource);
+      setSearchKey(resource);
     }
 
     return {

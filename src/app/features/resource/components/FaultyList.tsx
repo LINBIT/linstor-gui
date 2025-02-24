@@ -214,14 +214,18 @@ export const FaultyList = () => {
       title: t('common:name'),
       key: 'name',
       dataIndex: 'name',
-      sorter: (a, b) => {
-        if (a.name && b.name) {
-          return a.name.localeCompare(b.name);
-        } else {
-          return 0;
-        }
+      render: (item) => {
+        return (
+          <Button
+            type="link"
+            onClick={() => {
+              history.push(`/storage-configuration/resource-overview?resource=${item}`);
+            }}
+          >
+            {item}
+          </Button>
+        );
       },
-      showSorterTooltip: false,
     },
     {
       title: t('common:node'),
