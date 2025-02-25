@@ -90,6 +90,9 @@ const zh = {
     volume_definition: '卷定义',
     layers: '存储层',
     keyword: '关键字',
+    faulty_resource: '故障资源',
+    storage_pool_overview: '存储池概览',
+    all_resources_are_healthy: '所有资源正常',
   },
   menu: {
     dashboard: '概览',

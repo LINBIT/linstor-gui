@@ -248,12 +248,6 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered, 
     dispatch.auth.checkLoginStatus();
   }, [dispatch.auth]);
 
-  useEffect(() => {
-    if (typeof isNotOfficialBuild !== 'undefined' && isNotOfficialBuild) {
-      setIsModalOpen(true);
-    }
-  }, [isNotOfficialBuild]);
-
   const { KVS, authInfo, logoSrc, vsanModeFromSetting, isAdmin, gatewayAvailable, VSANEvalMode } = useSelector(
     (state: RootState) => ({
       KVS: state.setting.KVS,
@@ -348,6 +342,14 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered, 
   const normalWithoutAuth = !VSANAvailable && !authenticationEnabled;
 
   const isNotOfficialBuild = isFetched && !registered && !vsanModeFromSetting;
+
+  console.log('isNotOfficialBuild', isNotOfficialBuild);
+
+  useEffect(() => {
+    if (typeof isNotOfficialBuild !== 'undefined' && isNotOfficialBuild) {
+      setIsModalOpen(true);
+    }
+  }, [isNotOfficialBuild]);
 
   const menu = {
     items: [

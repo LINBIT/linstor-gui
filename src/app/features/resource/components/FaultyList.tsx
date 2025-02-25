@@ -182,7 +182,7 @@ export const FaultyList = () => {
   return (
     <Content>
       <h3>{t('common:faulty_resource')}</h3>
-      {resources ? (
+      {resources?.length ? (
         <Table columns={columns as any} dataSource={resources ?? []} pagination={false} />
       ) : (
         <div>{t('common:all_resources_are_healthy')}</div>
