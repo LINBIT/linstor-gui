@@ -1,88 +1,140 @@
+interface Connection {
+  connected: boolean;
+  message?: string;
+}
+
+interface Volume {
+  flags?: string[];
+  state?: {
+    disk_state?: string;
+  };
+  data_v1?: {
+    layer_data_list?: Array<{
+      type: string;
+    }>;
+    state?: {
+      disk_state?: string;
+    };
+  };
+  layer_data_list?: Array<{
+    type: string;
+    data?: any;
+  }>;
+  reports?: Array<{
+    is_error: () => boolean;
+  }>;
+}
+
 interface Resource {
   name: string;
   node_name: string;
   flags: string[];
-  volumes: Array<{
-    flags: string[];
-    state?: {
-      disk_state?: string;
-    };
-  }>;
-  layer_data: {
-    layer_stack: string[];
+  volumes?: Volume[];
+  layer_data?: {
     drbd_resource?: {
-      connections: {
-        [key: string]: {
-          connected: boolean;
-          message?: string;
-        };
-      };
+      connections?: Record<string, Connection>;
     };
   };
-  state?: {
-    in_use?: boolean;
+  layer_object?: {
+    type: string;
+    drbd?: {
+      connections?: Record<string, Connection>;
+    };
   };
 }
 
-interface ResourceState {
-  node_name: string;
-  name: string;
-  in_use: boolean;
-}
-
-export function isFaultyResource(resource: Resource, resourceStates: ResourceState[]): boolean {
-  const stateKey = resource.node_name + resource.name;
-  const resourceState = resourceStates.find((state) => state.node_name + state.name === stateKey);
-
-  const markedDelete = resource.flags.includes('DELETE') || resource.flags.includes('DRBD_DELETE');
-  if (markedDelete) {
+export function isFaultyResource(resource: Resource): boolean {
+  // Check if resource is marked for deletion
+  if (resource?.flags?.includes('DELETE') || resource?.flags?.includes('DRBD_DELETE')) {
     return true;
   }
 
-  if (resourceState) {
-    if (resource.volumes) {
-      for (const volume of resource.volumes) {
-        const [state, hasError] = getVolumeState(volume, resource.flags);
-        if (hasError) {
-          return true;
-        }
-        if (resource.flags.includes('EVACUATE')) {
-          return true;
-        }
+  // Check if resource is inactive
+  if (resource?.flags?.includes('RSC_INACTIVE')) {
+    return true;
+  }
+
+  // Check for bad volume states
+  let hasBadVolumeState = false;
+  if (resource?.volumes) {
+    for (const volume of resource.volumes) {
+      const [_, isBad] = getVolumeState(volume, resource?.flags ?? []);
+      if (isBad) {
+        hasBadVolumeState = true;
+        break;
+      }
+
+      if (volume?.reports?.some((report) => report.is_error())) {
+        hasBadVolumeState = true;
+        break;
       }
     }
   }
 
+  if (hasBadVolumeState) {
+    return true;
+  }
+
+  // Check for skip disk state flags
   const skipDiskState = getSkipDiskState(resource);
   if (skipDiskState) {
     return true;
   }
 
-  const connectionStatus = getConnectionStatus(resource);
-  if (connectionStatus !== 'Ok' && connectionStatus !== '') {
+  // Check DRBD connections from either layer_data or layer_object
+  const drbdConnections = resource?.layer_data?.drbd_resource?.connections || resource?.layer_object?.drbd?.connections;
+
+  if (drbdConnections) {
+    for (const conn of Object.values(drbdConnections)) {
+      if (!conn.connected) {
+        return true;
+      }
+    }
+  }
+
+  // Check overall resource state
+  const state = getResourceState(resource);
+  if (state === 'Unknown') {
     return true;
   }
 
   return false;
 }
 
-function getVolumeState(
-  volume: { flags: string[]; state?: { disk_state?: string } },
-  resourceFlags: string[],
-): [string, boolean] {
-  const diskState = volume.state?.disk_state || 'Unknown';
-  const hasError = diskState !== 'UpToDate';
-  return [diskState, hasError];
+export function getResourceState(resource: Resource): string {
+  // Check deletion flags
+  if (resource?.flags?.includes('DELETE') || resource?.flags?.includes('DRBD_DELETE')) {
+    return 'DELETING';
+  }
+
+  // Check inactive flag
+  if (resource?.flags?.includes('RSC_INACTIVE')) {
+    return 'RSC_INACTIVE';
+  }
+
+  // Get state from volumes
+  if (resource?.volumes && resource.volumes.length > 0) {
+    for (const volume of resource.volumes) {
+      const [state] = getVolumeState(volume, resource?.flags ?? []);
+      if (state !== 'Unknown') {
+        return state;
+      }
+    }
+  }
+
+  return 'Unknown';
 }
 
 function getSkipDiskState(resource: Resource): string | null {
   const skipFlags: string[] = [];
 
-  if (resource.flags.includes('SKIP_DISK')) {
+  // Check resource level skip disk flag
+  if (resource?.flags?.includes('SKIP_DISK')) {
     skipFlags.push('R');
   }
 
-  if (resource.volumes?.some((v) => v.flags.includes('SKIP_DISK'))) {
+  // Check volume level skip disk flags
+  if (resource?.volumes?.some((volume) => volume.flags?.includes('SKIP_DISK'))) {
     skipFlags.push('V');
   }
 
@@ -93,33 +145,56 @@ function getSkipDiskState(resource: Resource): string | null {
   return null;
 }
 
-function getConnectionStatus(resource: Resource): string {
-  if (!resource.layer_data?.drbd_resource) {
-    return 'Ok';
+export function getVolumeState(volume: Volume, resourceFlags: string[]): [string, boolean] {
+  // Check if volume is being resized
+  const resizing = volume?.flags?.includes('RESIZE');
+  const statePrefix = resizing ? 'Resizing, ' : '';
+
+  // Check if this is a DRBD volume
+  const expectDiskState =
+    volume?.data_v1?.layer_data_list?.[0]?.type === 'DRBD' ||
+    volume?.layer_data_list?.some((layer) => layer.type === 'DRBD');
+
+  if (!expectDiskState) {
+    return [statePrefix + 'Created', false];
   }
 
-  const failedConns: { [key: string]: string[] } = {};
-  const connections = resource.layer_data.drbd_resource.connections;
+  // Get disk state from available paths
+  const diskState = volume?.data_v1?.state?.disk_state || volume?.state?.disk_state;
 
-  for (const [key, conn] of Object.entries(connections)) {
-    if (!conn.connected) {
-      const msg = conn.message || 'Unknown error';
-      if (!failedConns[msg]) {
-        failedConns[msg] = [];
-      }
-      failedConns[msg].push(key);
+  if (!diskState) {
+    return [statePrefix + 'Unknown', true];
+  }
+
+  if (diskState === 'DUnknown') {
+    return [statePrefix + 'Unknown', true];
+  }
+
+  // Handle diskless state
+  if (diskState === 'Diskless') {
+    if (!resourceFlags.includes('DISKLESS')) {
+      return [statePrefix + diskState, true];
     }
+    if (resourceFlags.includes('TIE_BREAKER')) {
+      return ['TieBreaker', false];
+    }
+    return [statePrefix + diskState, false];
   }
 
-  if (Object.keys(failedConns).length === 0) {
-    return 'Ok';
+  // Handle problematic states
+  if (['Inconsistent', 'Failed', 'To: Creating', 'To: Attachable', 'To: Attaching'].includes(diskState)) {
+    return [statePrefix + diskState, true];
   }
 
-  return Object.entries(failedConns)
-    .map(([status, nodes]) => `${status}(${nodes.join(',')})`)
-    .join(',');
+  // Handle healthy states
+  if (['UpToDate', 'Created', 'Attached'].includes(diskState)) {
+    return [statePrefix + diskState, false];
+  }
+
+  // Default for any other state
+  return [statePrefix + diskState, true];
 }
 
-export function getFaultyResources(resources: Resource[], resourceStates: ResourceState[]): Resource[] {
-  return resources.filter((resource) => isFaultyResource(resource, resourceStates));
+export function getFaultyResources(resources: Resource[]): Resource[] {
+  return resources.filter(isFaultyResource);
 }

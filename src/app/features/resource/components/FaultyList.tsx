@@ -17,6 +17,7 @@ import styled from '@emotion/styled';
 import { formatTime } from '@app/utils/time';
 import { getResources } from '../api';
 import { ResourceDataType } from '../types';
+import { getFaultyResources, getResourceState } from '@app/utils/resource';
 
 const Content = styled.div`
   margin-top: 20px;
@@ -46,73 +47,6 @@ interface Resource {
   };
 }
 
-export enum ResourceState {
-  UNKNOWN = 'Unknown',
-  DELETING = 'DELETING',
-  INACTIVE = 'INACTIVE',
-  UP_TO_DATE = 'UpToDate',
-  DISKLESS = 'Diskless',
-}
-
-function isFaultyResource(resource: Resource): boolean {
-  let state = ResourceState.UNKNOWN;
-
-  if (resource.flags?.some((flag) => ['DELETE', 'DRBD_DELETE'].includes(flag))) {
-    state = ResourceState.DELETING;
-    return true;
-  }
-
-  if (resource.flags?.includes('RSC_INACTIVE')) {
-    state = ResourceState.INACTIVE;
-    return true;
-  }
-
-  if (resource.volumes?.length) {
-    for (const volume of resource.volumes) {
-      const diskState = volume.state?.disk_state;
-
-      if (!diskState || diskState === 'Unknown' || diskState === 'DUnknown') {
-        return true;
-      }
-
-      if (
-        diskState === 'Diskless' &&
-        !resource.flags?.includes('DISKLESS') &&
-        !resource.flags?.includes('TIE_BREAKER')
-      ) {
-        return true;
-      }
-
-      if (['Inconsistent', 'Failed'].includes(diskState)) {
-        return true;
-      }
-    }
-  }
-
-  if (resource.flags?.includes('EVACUATE')) {
-    return true;
-  }
-
-  const connections = resource.layer_object?.drbd_resource?.connections;
-  if (connections) {
-    for (const [_, conn] of Object.entries(connections)) {
-      if (!conn.connected) {
-        return true;
-      }
-    }
-  }
-
-  if (state === ResourceState.UNKNOWN) {
-    return true;
-  }
-
-  return false;
-}
-
-function getFaultyResources(resources: Resource[]): Resource[] {
-  return resources.filter(isFaultyResource);
-}
-
 export const FaultyList = () => {
   const { t } = useTranslation(['common', 'resource']);
 
@@ -129,62 +63,6 @@ export const FaultyList = () => {
       return faulty;
     },
   });
-
-  console.log('resources', resources);
-
-  const getVolumeCellState = (
-    vlm_state: { disk_state: string },
-    rsc_flags: string | string[],
-    vlm_flags: string | string[],
-  ) => {
-    const state_prefix = vlm_flags.indexOf('RESIZE') > -1 ? 'Resizing, ' : '';
-    let state = state_prefix + 'Unknown';
-    if (vlm_state && vlm_state.disk_state) {
-      const disk_state = vlm_state.disk_state;
-      if (disk_state == 'DUnknown') {
-        state = state_prefix + 'Unknown';
-      } else if (disk_state == 'Diskless') {
-        if (!rsc_flags.includes('DISKLESS')) {
-          state = state_prefix + disk_state;
-        } else if (rsc_flags.includes('TIE_BREAKER')) {
-          state = 'TieBreaker';
-        } else {
-          state = state_prefix + disk_state;
-        }
-      } else {
-        state = state_prefix + disk_state;
-      }
-    }
-    return state;
-  };
-
-  const handleResourceStateDisplay = (resourceItem: ResourceDataType) => {
-    let stateStr = 'Unknown';
-    const flags = resourceItem.flags || [];
-    const rsc_state_obj = resourceItem.state || {};
-    const volumes = resourceItem.volumes || [];
-
-    if (flags.includes('DELETE')) {
-      stateStr = 'DELETING';
-    } else if (flags.includes('INACTIVE')) {
-      stateStr = 'INACTIVE';
-    } else if (rsc_state_obj) {
-      if (typeof rsc_state_obj.in_use !== 'undefined') {
-        for (let i = 0; i < volumes.length; ++i) {
-          const volume = volumes[i];
-          const vlm_state = volume.state || {};
-          const vlm_flags = volume.flags || [];
-          stateStr = getVolumeCellState(vlm_state as any, flags, vlm_flags);
-
-          if (flags.includes('EVACUATE')) {
-            stateStr += ', Evacuating';
-          }
-        }
-      }
-    }
-
-    return stateStr;
-  };
 
   const handleConnectStatusDisplay = (resourceItem: ResourceDataType) => {
     let failStr = '';
@@ -292,7 +170,7 @@ export const FaultyList = () => {
       key: 'state',
       align: 'center',
       render: (_, item) => {
-        return <span>{handleResourceStateDisplay(item)}</span>;
+        return <span>{getResourceState(item as any)}</span>;
       },
     },
   ];
