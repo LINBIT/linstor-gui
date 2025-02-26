@@ -16,6 +16,7 @@ import styled from '@emotion/styled';
 
 const ChartContainer = styled.div`
   overflow-x: auto;
+  overflow-y: hidden;
 `;
 
 export const StoragePoolInfo: React.FC = () => {
@@ -45,6 +46,30 @@ export const StoragePoolInfo: React.FC = () => {
     // Union of all unique storage pool names across all nodes
     const allPools = union(...allNodes.map((node) => groupedByNode[node].map((sp) => sp.storage_pool_name)));
 
+    const generateColorPairs = (count: number) => {
+      const basePairs = [
+        { used: '#01579B', free: '#B3E5FC' },
+        { used: '#B71C1C', free: '#FFCDD2' },
+        { used: '#1B5E20', free: '#C8E6C9' },
+        { used: '#4A148C', free: '#E1BEE7' },
+        { used: '#E65100', free: '#FFE0B2' },
+        { used: '#880E4F', free: '#F8BBD0' },
+        { used: '#5D4037', free: '#D7CCC8' },
+        { used: '#827717', free: '#F0F4C3' },
+        { used: '#311B92', free: '#D1C4E9' },
+        { used: '#BF360C', free: '#FFCCBC' },
+        { used: '#33691E', free: '#DCEDC8' },
+      ];
+
+      const result = [];
+      for (let i = 0; i < count; i++) {
+        result.push(basePairs[i % basePairs.length]);
+      }
+      return result;
+    };
+
+    const colorPairs = generateColorPairs(allPools.length);
+
     const nodeTotals: Record<string, number> = {};
     const nodeUsed: Record<string, number> = {};
     allNodes.forEach((node) => {
@@ -54,7 +79,10 @@ export const StoragePoolInfo: React.FC = () => {
     });
 
     const spSeries: any[] = [];
-    allPools.forEach((pool) => {
+    allPools.forEach((pool, idx) => {
+      const colorIndex = idx % colorPairs.length;
+      const colors = colorPairs[colorIndex];
+
       const totalsForPool: number[] = [];
       const freeForPool: number[] = [];
       allNodes.forEach((node) => {
@@ -69,7 +97,7 @@ export const StoragePoolInfo: React.FC = () => {
         name: `${pool} Used`, // Show Used above
         group: pool,
         data: totalsForPool.map((total, idx) => total - freeForPool[idx]), // Used = Total - Free
-        color: '#499BBB', // Lighter color for used (light green)
+        color: colors.used,
       });
 
       // Used data should come first (on top), followed by free data
@@ -77,7 +105,7 @@ export const StoragePoolInfo: React.FC = () => {
         name: `${pool} Free`, // Show Free below
         group: pool,
         data: freeForPool,
-        color: '#C4DBE6',
+        color: colors.free,
       });
     });
 
@@ -85,14 +113,14 @@ export const StoragePoolInfo: React.FC = () => {
       name: 'Node Free', // Change the name to indicate free space
       group: 'NodeAll',
       data: allNodes.map((n) => nodeTotals[n] - nodeUsed[n]), // Free = Total - Used
-      color: '#C4DBE6', // Darker color for free (green)
+      color: '#D5E6C4', // Darker color for free (green)
     };
 
     const nodeUsedSeries = {
       name: 'Node Used', // Used data should be on top
       group: 'NodeAll',
       data: allNodes.map((n) => nodeUsed[n]),
-      color: '#499BBB', // Lighter color for used (light green)
+      color: '#82BB49', // Lighter color for used (light green)
     };
 
     return {
@@ -146,7 +174,7 @@ export const StoragePoolInfo: React.FC = () => {
   };
 
   const nodeCount = chartData.categories.length;
-  const chartWidth = nodeCount * 350; // adjust as needed
+  const chartWidth = nodeCount * 400; // adjust as needed
 
   const width =
     nodeCount >= 5
@@ -158,7 +186,7 @@ export const StoragePoolInfo: React.FC = () => {
   return (
     <Card title={t('common:storage_pool_overview')}>
       <ChartContainer>
-        <Chart options={options} series={chartData.series} type="bar" height={400} {...width} />
+        <Chart options={options} series={chartData.series} type="bar" height={500} {...width} />
       </ChartContainer>
     </Card>
   );

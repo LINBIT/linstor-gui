@@ -23,29 +23,10 @@ const Content = styled.div`
   margin-top: 20px;
 `;
 
-interface Resource {
-  name: string;
-  node_name: string;
-  flags?: string[];
-  state?: {
-    in_use?: boolean;
-  };
-  volumes?: Array<{
-    state?: {
-      disk_state?: string;
-    };
-  }>;
-  layer_object?: {
-    drbd_resource?: {
-      connections?: {
-        [key: string]: {
-          connected: boolean;
-          message: string;
-        };
-      };
-    };
-  };
-}
+const EmptyContent = styled.div`
+  margin-top: 20px;
+  color: #999;
+`;
 
 export const FaultyList = () => {
   const { t } = useTranslation(['common', 'resource']);
@@ -185,7 +166,7 @@ export const FaultyList = () => {
       {resources?.length ? (
         <Table columns={columns as any} dataSource={resources ?? []} pagination={false} />
       ) : (
-        <div>{t('common:all_resources_are_healthy')}</div>
+        <EmptyContent>{t('common:all_resources_are_healthy')}</EmptyContent>
       )}
     </Content>
   );
