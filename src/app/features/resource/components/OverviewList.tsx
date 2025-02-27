@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button, Form, Space, Table, Input, Flex, Tag, Dropdown, Popconfirm, Select, Modal, Tooltip } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -56,6 +56,10 @@ export const OverviewList = () => {
   const [resourcePropertyModalOpen, setResourcePropertyModalOpen] = useState(false);
   const [searchKey, setSearchKey] = useState<string>('');
   const [filteredList, setFilteredList] = useState<GetResourcesResponseBody>();
+  const [pagination, setPagination] = useState<any>({
+    current: 1,
+    pageSize: 10,
+  });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [migrateModalOpen, setMigrateModalOpen] = useState(false);
@@ -94,8 +98,6 @@ export const OverviewList = () => {
     const query = new URLSearchParams(location.search);
     const resource_definitions = query.get('resource-definitions')?.split(',');
     const resource = query.get('resource');
-
-    console.log(resource, 'resource');
 
     const queryO: ResourceDefinitionListQuery = {};
 
@@ -159,10 +161,12 @@ export const OverviewList = () => {
       return;
     }
 
+    const resources = (await getResources()).data;
+
     const updatedData = await Promise.all(
       data.data.map(async (resource) => {
         const { name } = resource;
-        const resources = await getResources({ resources: [name ?? ''] });
+
         const volumeDefinitions = await getVolumeDefinitionListByResource(name ?? '');
 
         const resourceWithVolumes = {
@@ -172,24 +176,26 @@ export const OverviewList = () => {
         } as any;
 
         // Merge volumes with the outer layer
-        resourceWithVolumes.volumes = resources?.data?.flatMap(
-          (e) =>
-            e.volumes?.map((v) => {
-              const matchingVolume = volumeDefinitions.data?.find((vd) => vd.volume_number === v.volume_number);
-              return {
-                ...v,
-                size_kib: matchingVolume?.size_kib || 0,
-                node_name: e.node_name,
-                resource_name: e.name,
-                primary_node: e.state?.in_use ? e.node_name : '',
-                resource_group_name: resource.resource_group_name || '',
-                flags: e.flags,
-                volume_definition: matchingVolume,
-                resource: e,
-                resourceDefinition: resource,
-              };
-            }) || [],
-        );
+        resourceWithVolumes.volumes = resources
+          ?.filter((e) => e.name === name)
+          ?.flatMap(
+            (e) =>
+              e.volumes?.map((v) => {
+                const matchingVolume = volumeDefinitions.data?.find((vd) => vd.volume_number === v.volume_number);
+                return {
+                  ...v,
+                  size_kib: matchingVolume?.size_kib || 0,
+                  node_name: e.node_name,
+                  resource_name: e.name,
+                  primary_node: e.state?.in_use ? e.node_name : '',
+                  resource_group_name: resource.resource_group_name || '',
+                  flags: e.flags,
+                  volume_definition: matchingVolume,
+                  resource: e,
+                  resourceDefinition: resource,
+                };
+              }) || [],
+          );
 
         return resourceWithVolumes;
       }),
@@ -371,191 +377,229 @@ export const OverviewList = () => {
     ),
   );
 
-  const extraColumns: any = isLargeScreen
-    ? [
-        {
-          title: t('common:port'),
-          key: 'port',
-          render: (item: any) => {
-            const DRBDData = item?.layer_data?.find((e: any) => e.type === 'DRBD');
-            return <span>{get(DRBDData, 'data.port', 'N/A')}</span>;
+  const extraColumns: any = useMemo(() => {
+    return isLargeScreen
+      ? [
+          {
+            title: t('common:port'),
+            key: 'port',
+            render: (item: any) => {
+              const DRBDData = item?.layer_data?.find((e: any) => e.type === 'DRBD');
+              return <span>{get(DRBDData, 'data.port', 'N/A')}</span>;
+            },
           },
-        },
+        ]
+      : [];
+  }, [isLargeScreen, t]);
 
-        ...(CSProps?.map((e) => {
+  const columns: TableProps<any>['columns'] = useMemo(() => {
+    return [
+      {
+        title: t('common:name'),
+        key: 'resource',
+        dataIndex: 'name',
+        sorter: (a, b) => {
+          if (a.name && b.name) {
+            return a.name.localeCompare(b.name);
+          } else {
+            return 0;
+          }
+        },
+        showSorterTooltip: false,
+      },
+      {
+        title: t('common:resource_group'),
+        key: 'resource_group_name',
+        dataIndex: 'resource_group_name',
+        render: (resource_group_name) => {
+          return (
+            <Button
+              type="link"
+              onClick={() => {
+                history.push(`/storage-configuration/resource-groups?resource_groups=${resource_group_name}`);
+              }}
+            >
+              {resource_group_name}
+            </Button>
+          );
+        },
+      },
+      {
+        title: t('common:layers'),
+        key: 'layers',
+        render: (_, record) => {
+          return (
+            <Flex gap="4px 0" wrap>
+              {record?.layer_data?.map(
+                (
+                  layer: {
+                    type: string;
+                  },
+                  index: number,
+                ) => {
+                  return (
+                    <Tag key={index} color={TAG_COLORS[index]} bordered={false}>
+                      {layer.type}
+                    </Tag>
+                  );
+                },
+              )}
+            </Flex>
+          );
+        },
+      },
+      {
+        title: t('common:state'),
+        key: 'state',
+        render: (_, rd) => {
+          const stateOfResources = rd.volumes?.map((e: any) => handleConnectStatusDisplay(e.resource));
+
+          const isAllOK = stateOfResources?.every((e: any) => e === 'OK');
+
+          return (
+            <Tag color={isAllOK ? 'green' : 'red'}>
+              {isAllOK ? 'OK' : stateOfResources?.filter((e: any) => e !== 'OK').join(',')}
+            </Tag>
+          );
+        },
+      },
+      {
+        title: () => (
+          <Tooltip title={t('common:action')}>
+            <span>{t('common:action_short')}</span>
+          </Tooltip>
+        ),
+        key: 'action',
+        width: 10,
+        fixed: 'right',
+        render: (_, record) => {
+          const isUsingZFS = record.volumes?.every((e: any) => e.provider_kind === 'ZFS');
+          return (
+            <Dropdown
+              menu={{
+                items: [
+                  {
+                    key: 'adjust',
+                    label: (
+                      <Popconfirm
+                        title="Adjust the resource"
+                        description="Are you sure to adjust this resource?"
+                        okText="Yes"
+                        cancelText="No"
+                        onConfirm={() => {
+                          adjustResourceGroupMutation.mutate({
+                            resource_group: record.resource_group_name,
+                          });
+                        }}
+                      >
+                        <span>{t('common:adjust')}</span>
+                      </Popconfirm>
+                    ),
+                  },
+                  {
+                    key: 'clone',
+                    label: <CloneForm resource={record.name} isUsingZFS={isUsingZFS} />,
+                  },
+                  {
+                    key: 'resource_definition',
+                    label: (
+                      <span
+                        onClick={() => {
+                          setCurrent(record);
+                          setInitialProps(record.props ?? {});
+                          setRdPropertyModalOpen(true);
+                        }}
+                      >
+                        {t('common:resource_definition_properties')}
+                      </span>
+                    ),
+                  },
+                  {
+                    key: 'volume_definition',
+                    label: (
+                      <span
+                        onClick={() => {
+                          setCurrent(record);
+                          setInitialProps(record.volumeDefinitions[0].props ?? {});
+                          setVdPropertyModalOpen(true);
+                        }}
+                      >
+                        {t('common:volume_definition_properties')}
+                      </span>
+                    ),
+                  },
+                  {
+                    key: 'delete',
+                    label: (
+                      <Popconfirm
+                        key="delete"
+                        title="Delete the resource definition"
+                        description="Are you sure to delete this resource definitions?"
+                        okText="Yes"
+                        cancelText="No"
+                        onConfirm={() => {
+                          deleteMutation.mutate(record.name);
+                        }}
+                      >
+                        {t('common:delete')}
+                      </Popconfirm>
+                    ),
+                  },
+                ],
+              }}
+            >
+              <Button type="text" icon={<MoreOutlined />} />
+            </Dropdown>
+          );
+        },
+      },
+    ];
+  }, [adjustResourceGroupMutation, deleteMutation, history, t]);
+
+  const handlePaginationChange = useCallback((pagination: any) => {
+    setPagination(pagination);
+  }, []);
+
+  const extra = useMemo(() => {
+    const currentData = filteredList?.slice(
+      pagination.pageSize * (pagination.current - 1),
+      pagination.pageSize * pagination.current,
+    );
+
+    const shouldShowCSProps = currentData?.some((e) => {
+      return CSProps.some((key: any) => e.props?.[key]);
+    });
+
+    if (shouldShowCSProps) {
+      return [
+        ...extraColumns,
+        ...(CSProps?.map((e: any) => {
           return {
             title: e,
             key: e,
             render: (item: any) => {
-              return <span>{get(item, `props.${e}`)}</span>;
+              return <span>{item?.props?.[e]}</span>;
             },
           };
         }) ?? []),
-      ]
-    : [];
+      ];
+    } else {
+      return extraColumns;
+    }
+  }, [CSProps, extraColumns, filteredList, pagination]);
 
-  const columns: TableProps<any>['columns'] = [
-    {
-      title: t('common:name'),
-      key: 'resource',
-      dataIndex: 'name',
-      sorter: (a, b) => {
-        if (a.name && b.name) {
-          return a.name.localeCompare(b.name);
-        } else {
-          return 0;
-        }
-      },
-      showSorterTooltip: false,
-    },
-    {
-      title: t('common:resource_group'),
-      key: 'resource_group_name',
-      dataIndex: 'resource_group_name',
-      render: (resource_group_name) => {
-        return (
-          <Button
-            type="link"
-            onClick={() => {
-              history.push(`/storage-configuration/resource-groups?resource_groups=${resource_group_name}`);
-            }}
-          >
-            {resource_group_name}
-          </Button>
-        );
-      },
-    },
-    {
-      title: t('common:layers'),
-      key: 'layers',
-      render: (_, record) => {
-        return (
-          <Flex gap="4px 0" wrap>
-            {record?.layer_data?.map(
-              (
-                layer: {
-                  type: string;
-                },
-                index: number,
-              ) => {
-                return (
-                  <Tag key={index} color={TAG_COLORS[index]} bordered={false}>
-                    {layer.type}
-                  </Tag>
-                );
-              },
-            )}
-          </Flex>
-        );
-      },
-    },
-    {
-      title: t('common:state'),
-      key: 'state',
-      render: (_, rd) => {
-        const stateOfResources = rd.volumes.map((e: any) => handleConnectStatusDisplay(e.resource));
+  const finalColumns = useMemo(() => {
+    return [...columns, ...extra];
+  }, [columns, extra]);
 
-        const isAllOK = stateOfResources.every((e: any) => e === 'OK');
-
-        return (
-          <Tag color={isAllOK ? 'green' : 'red'}>
-            {isAllOK ? 'OK' : stateOfResources.filter((e: any) => e !== 'OK').join(',')}
-          </Tag>
-        );
-      },
-    },
-    ...extraColumns,
-    {
-      title: () => (
-        <Tooltip title={t('common:action')}>
-          <span>{t('common:action_short')}</span>
-        </Tooltip>
-      ),
-      key: 'action',
-      width: 10,
-      fixed: 'right',
-      render: (_, record) => {
-        const isUsingZFS = record.volumes.every((e: any) => e.provider_kind === 'ZFS');
-        return (
-          <Dropdown
-            menu={{
-              items: [
-                {
-                  key: 'adjust',
-                  label: (
-                    <Popconfirm
-                      title="Adjust the resource"
-                      description="Are you sure to adjust this resource?"
-                      okText="Yes"
-                      cancelText="No"
-                      onConfirm={() => {
-                        adjustResourceGroupMutation.mutate({
-                          resource_group: record.resource_group_name,
-                        });
-                      }}
-                    >
-                      <span>{t('common:adjust')}</span>
-                    </Popconfirm>
-                  ),
-                },
-                {
-                  key: 'clone',
-                  label: <CloneForm resource={record.name} isUsingZFS={isUsingZFS} />,
-                },
-                {
-                  key: 'resource_definition',
-                  label: (
-                    <span
-                      onClick={() => {
-                        setCurrent(record);
-                        setInitialProps(record.props ?? {});
-                        setRdPropertyModalOpen(true);
-                      }}
-                    >
-                      {t('common:resource_definition_properties')}
-                    </span>
-                  ),
-                },
-                {
-                  key: 'volume_definition',
-                  label: (
-                    <span
-                      onClick={() => {
-                        setCurrent(record);
-                        setInitialProps(record.volumeDefinitions[0].props ?? {});
-                        setVdPropertyModalOpen(true);
-                      }}
-                    >
-                      {t('common:volume_definition_properties')}
-                    </span>
-                  ),
-                },
-                {
-                  key: 'delete',
-                  label: (
-                    <Popconfirm
-                      key="delete"
-                      title="Delete the resource definition"
-                      description="Are you sure to delete this resource definitions?"
-                      okText="Yes"
-                      cancelText="No"
-                      onConfirm={() => {
-                        deleteMutation.mutate(record.name);
-                      }}
-                    >
-                      {t('common:delete')}
-                    </Popconfirm>
-                  ),
-                },
-              ],
-            }}
-          >
-            <Button type="text" icon={<MoreOutlined />} />
-          </Dropdown>
-        );
-      },
-    },
-  ];
+  const tablePagination = useMemo(() => {
+    return {
+      showSizeChanger: true,
+      showQuickJumper: true,
+      pageSizeOptions: ['10', '20', '50', '100', '200'],
+      showTotal: (total: number) => `Total ${total} items`,
+    };
+  }, []);
 
   return (
     <>
@@ -639,7 +683,7 @@ export const OverviewList = () => {
 
       <Table
         loading={isLoading}
-        columns={columns}
+        columns={finalColumns}
         expandable={{
           expandedRowRender: (record) => {
             return (
@@ -667,7 +711,6 @@ export const OverviewList = () => {
                     title: t('common:size'),
                     key: 'size',
                     render: (_, record: any) => {
-                      console.log('record', record);
                       return (
                         <span>
                           {formatBytes(record.allocated_size_kib ?? 0)} / {formatBytes(record?.size_kib ?? 0)} (
@@ -732,8 +775,6 @@ export const OverviewList = () => {
                     fixed: 'right',
                     align: 'center',
                     render: (_, record) => {
-                      console.log('record', record);
-
                       const isDisklessOrTieBreaker =
                         record.flags &&
                         (record.flags.includes('DRBD_DISKLESS') || record.flags.includes('TIE_BREAKER'));
@@ -841,12 +882,8 @@ export const OverviewList = () => {
         }}
         dataSource={filteredList}
         rowKey={(item) => item?.name ?? uniqId()}
-        pagination={{
-          showSizeChanger: true,
-          showQuickJumper: true,
-          pageSizeOptions: ['10', '20', '50', '100', '200'],
-          showTotal: (total) => `Total ${total} items`,
-        }}
+        pagination={tablePagination}
+        onChange={handlePaginationChange}
       />
 
       <PropertyForm
