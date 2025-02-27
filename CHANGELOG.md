@@ -1,5 +1,17 @@
 # Changelog
 
+# 1.9.1 - 2025-02-27
+
+### Fixed
+
+- Fixed faulty resource list on the dashboard page
+- Fixed missing aux properties on the resource overview page
+- Fixed scrollbar issue on the dashboard page
+
+### Changed
+
+- Use different colors for different resource types on the dashboard page
+
 # 1.9.0 - 2025-02-25
 
 ### Added
