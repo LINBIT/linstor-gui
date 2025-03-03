@@ -9,7 +9,7 @@ import React, { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import PageBasic from '@app/components/PageBasic';
-import PropertyForm from '@app/components/PropertyForm';
+import PropertyForm from '@app/components/PropertyEditor';
 import { getControllerProperties, updateController } from '@app/features/node';
 import { handlePropsToFormOption } from '@app/utils/property';
 import { MinusOutlined } from '@ant-design/icons';
@@ -136,7 +136,7 @@ export const Controller = () => {
       />
 
       <PropertyForm
-        initialVal={{}}
+        initialVal={properties?.data}
         openStatus={propertyModalOpen}
         type="controller"
         handleSubmit={(data) => {

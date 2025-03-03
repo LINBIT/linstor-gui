@@ -1,0 +1,18 @@
+/*
+ * SPDX-License-Identifier: GPL-3.0
+ * Copyright (c) 2024 LINBIT
+ * Author: Liang Li <liang.li@linbit.com>
+ */
+.aux-prop-container {
+  margin-bottom: 16px;
+}
+
+.aux-header {
+  margin-bottom: 8px;
+  padding: 0 8px;
+}
+
+.aux-row {
+  margin-bottom: 8px;
+  align-items: center;
+}
