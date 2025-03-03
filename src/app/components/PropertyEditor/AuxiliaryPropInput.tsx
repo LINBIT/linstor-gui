@@ -5,10 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState, useEffect } from 'react';
-import { Input, Button, Row, Col, Typography } from 'antd';
+import { Input, Button, Typography } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
-
-import './AuxiliaryPropInput.css';
 
 const { Text } = Typography;
 
@@ -42,21 +40,20 @@ const AuxiliaryPropInput: React.FC<AuxiliaryPropInputProp> = ({
   }, [initialVal]);
 
   return (
-    <div className="aux-prop-container">
+    <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '12px' }}>
       {isFirst && (
-        <Row className="aux-header" gutter={16}>
-          <Col span={10}>
-            <Text strong>Property Name</Text>
-          </Col>
-          <Col span={10}>
-            <Text strong>Property Value</Text>
-          </Col>
-          <Col span={4}></Col>
-        </Row>
+        <div style={{ display: 'flex', fontWeight: 'bold', marginBottom: '8px' }}>
+          <div style={{ width: '40%' }}>
+            <Text>Property Name</Text>
+          </div>
+          <div style={{ width: '40%' }}>
+            <Text>Property Value</Text>
+          </div>
+          <div style={{ width: '20%' }} />
+        </div>
       )}
-
-      <Row gutter={16} className="aux-row">
-        <Col span={10}>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div style={{ width: '40%' }}>
           <Input
             value={name}
             onChange={(e) => {
@@ -66,9 +63,8 @@ const AuxiliaryPropInput: React.FC<AuxiliaryPropInputProp> = ({
             }}
             placeholder="Please input property name"
           />
-        </Col>
-
-        <Col span={10}>
+        </div>
+        <div style={{ width: '40%', marginLeft: '8px' }}>
           <Input
             value={value}
             onChange={(e) => {
@@ -78,12 +74,11 @@ const AuxiliaryPropInput: React.FC<AuxiliaryPropInputProp> = ({
             }}
             placeholder="Please input property value"
           />
-        </Col>
-
-        <Col span={4} style={{ textAlign: 'center' }}>
-          <Button danger icon={<DeleteOutlined />} shape="circle" onClick={() => handleDeleteAuxProp(initialVal.id)} />
-        </Col>
-      </Row>
+        </div>
+        <div style={{ width: '20%', textAlign: 'right' }}>
+          <Button danger icon={<DeleteOutlined />} onClick={() => handleDeleteAuxProp(initialVal.id)} shape="circle" />
+        </div>
+      </div>
     </div>
   );
 };

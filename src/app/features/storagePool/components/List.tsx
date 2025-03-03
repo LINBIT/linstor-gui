@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button, Form, Space, Table, Tag, Select, Popconfirm, Input, Dropdown, Switch } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -13,12 +13,13 @@ import { CheckCircleFilled, CloseCircleFilled, MoreOutlined } from '@ant-design/
 
 import { useNodes } from '@app/features/node';
 import { formatBytes } from '@app/utils/size';
-import PropertyForm from '@app/components/PropertyForm';
+import PropertyForm from '@app/components/PropertyEditor';
 import { GetStoragePoolQuery, StoragePool, UpdateStoragePoolRequestBody } from '../types';
 import { deleteStoragePoolV2, getStoragePool, getStoragePoolCount, updateStoragePool } from '../api';
 
 import { SearchForm } from './styled';
 import { useTranslation } from 'react-i18next';
+import { PropertyFormRef } from '@app/components/PropertyEditor';
 
 export const List = () => {
   const [form] = Form.useForm();
@@ -51,7 +52,7 @@ export const List = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const nodes = useNodes();
 
-  const [propertyModalOpen, setPropertyModalOpen] = useState(false);
+  const propertyFormRef = useRef<PropertyFormRef>(null);
 
   const [storagePoolListDisplay, setStoragePoolListDisplay] = useState<StoragePool[]>();
   const [current, setCurrent] = useState<StoragePool>();
@@ -284,7 +285,7 @@ export const List = () => {
                   label: t('common:property'),
                   onClick: () => {
                     setCurrent(record);
-                    setPropertyModalOpen(true);
+                    propertyFormRef.current?.openModal();
                   },
                 },
               ],
@@ -386,8 +387,8 @@ export const List = () => {
       />
 
       <PropertyForm
+        ref={propertyFormRef}
         initialVal={current?.props}
-        openStatus={propertyModalOpen}
         type="storagepool"
         handleSubmit={(data) =>
           updateStoragePoolMutation.mutate({
@@ -396,7 +397,6 @@ export const List = () => {
             storagepool: current?.storage_pool_name ?? '',
           })
         }
-        handleClose={() => setPropertyModalOpen(!propertyModalOpen)}
       />
     </>
   );

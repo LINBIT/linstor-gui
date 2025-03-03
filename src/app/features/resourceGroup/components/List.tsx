@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Button, Form, Space, Table, Tag, Popconfirm, Input, Dropdown } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -12,7 +12,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { MoreOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
-import PropertyForm from '@app/components/PropertyForm';
+import PropertyForm, { PropertyFormRef } from '@app/components/PropertyEditor';
 import { getResourceGroups, getResourceGroupCount, deleteResourceGroup, updateResourceGroup } from '../api';
 import { CreateResourceGroupRequestBody, ResourceGroupListQuery, UpdateResourceGroupRequestBody } from '../types';
 import { SearchForm } from './styled';
@@ -23,7 +23,8 @@ export const List = () => {
   const { t } = useTranslation(['resource_group', 'common']);
   const [current, setCurrent] = useState<CreateResourceGroupRequestBody>();
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const [propertyModalOpen, setPropertyModalOpen] = useState(false);
+
+  const propertyFormRef = useRef<PropertyFormRef>(null);
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
 
   const history = useHistory();
@@ -155,7 +156,7 @@ export const List = () => {
       key: 'Storage Pool(s)',
       render: (_, item) => {
         const sp = Array.isArray(item?.select_filter?.storage_pool_list)
-          ? item?.select_filter?.storage_pool_list ?? []
+          ? (item?.select_filter?.storage_pool_list ?? [])
           : [t('auto')];
         return (
           <>
@@ -229,8 +230,7 @@ export const List = () => {
                   label: t('common:property'),
                   onClick: () => {
                     setCurrent(record);
-                    setInitialProps(record.props ?? {});
-                    setPropertyModalOpen(true);
+                    propertyFormRef.current?.openModal();
                   },
                 },
               ],
@@ -316,11 +316,10 @@ export const List = () => {
       />
 
       <PropertyForm
-        initialVal={initialProps}
-        openStatus={propertyModalOpen}
+        ref={propertyFormRef}
+        initialVal={current?.props}
         type="resource-definition"
         handleSubmit={(data) => updateMutation.mutate(data)}
-        handleClose={() => setPropertyModalOpen(!propertyModalOpen)}
       />
     </>
   );

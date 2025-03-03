@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Button, Form, Space, Table, Tag, Popconfirm, Input, Dropdown } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -12,7 +12,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { CheckCircleFilled, CloseCircleFilled, MoreOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
-import PropertyForm from '@app/components/PropertyForm';
+import PropertyForm, { PropertyFormRef } from '@app/components/PropertyEditor';
 import { getNodes, getNodeCount, deleteNode, updateNode, lostNode } from '../api';
 import { SearchForm } from './styled';
 import { uniqId } from '@app/utils/stringUtils';
@@ -21,7 +21,7 @@ import { omit } from '@app/utils/object';
 
 export const List = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const [propertyModalOpen, setPropertyModalOpen] = useState(false);
+  const propertyFormRef = useRef<PropertyFormRef>(null);
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
   const [current, setCurrent] = useState<NodeDataType>();
 
@@ -235,7 +235,7 @@ export const List = () => {
                       ...currentData,
                       name: record.name,
                     });
-                    setPropertyModalOpen(true);
+                    propertyFormRef.current?.openModal();
                   },
                 },
                 {
@@ -370,11 +370,10 @@ export const List = () => {
       />
 
       <PropertyForm
+        ref={propertyFormRef}
         initialVal={initialProps}
-        openStatus={propertyModalOpen}
         type="node"
         handleSubmit={(data) => updateMutation.mutate(data)}
-        handleClose={() => setPropertyModalOpen(!propertyModalOpen)}
       />
     </>
   );

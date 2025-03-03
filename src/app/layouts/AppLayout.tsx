@@ -343,8 +343,6 @@ const AppLayout: React.FunctionComponent<IAppLayout> = ({ children, registered, 
 
   const isNotOfficialBuild = isFetched && !registered && !vsanModeFromSetting;
 
-  console.log('isNotOfficialBuild', isNotOfficialBuild);
-
   useEffect(() => {
     if (typeof isNotOfficialBuild !== 'undefined' && isNotOfficialBuild) {
       setIsModalOpen(true);

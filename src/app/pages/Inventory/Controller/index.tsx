@@ -115,7 +115,17 @@ export const Controller = () => {
       <Space>
         {t('common:edit')}: <Switch onChange={() => setEditMode((editMode) => !editMode)} />
         <Divider type="vertical" />
-        <Button onClick={() => setPropertyModalOpen(true)}>{t('common:add_property')}</Button>
+        <PropertyForm
+          initialVal={properties?.data}
+          type="controller"
+          handleSubmit={(data) => {
+            mutation.mutate(data);
+            setPropertyModalOpen(false);
+          }}
+          handleClose={() => setPropertyModalOpen(!propertyModalOpen)}
+        >
+          <Button onClick={() => setPropertyModalOpen(true)}>{t('common:add_property')}</Button>
+        </PropertyForm>
       </Space>
 
       <List
@@ -133,17 +143,6 @@ export const Controller = () => {
             </List.Item>
           );
         }}
-      />
-
-      <PropertyForm
-        initialVal={properties?.data}
-        openStatus={propertyModalOpen}
-        type="controller"
-        handleSubmit={(data) => {
-          mutation.mutate(data);
-          setPropertyModalOpen(false);
-        }}
-        handleClose={() => setPropertyModalOpen(!propertyModalOpen)}
       />
     </PageBasic>
   );

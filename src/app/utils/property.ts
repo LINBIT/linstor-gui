@@ -97,7 +97,7 @@ export function handlePropsToFormOption(key: string, prop = {}): FormItem[] {
       case 'numeric-or-symbol':
         formInfo = {
           id: uniqId(),
-          type: TYPE_MAP.MULTIPLE_SELECT,
+          type: TYPE_MAP.SINGLE_SELECT,
           label: title,
           name: field,
           defaultValue: value || '',

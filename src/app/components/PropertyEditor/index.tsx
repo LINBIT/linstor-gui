@@ -5,16 +5,13 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { handlePropsToFormOption } from '@app/utils/property';
-import React, { useState, useEffect, useCallback } from 'react';
-import { Modal, ModalVariant } from '@patternfly/react-core';
-
+import React, { useState, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
 import { FormItem } from '@app/interfaces/dynamicFormType';
 import { uniqId } from '@app/utils/stringUtils';
-
 import SingleSelectDescription from './PropertySelector';
-import DynamicForm from '../DynamicForm';
-import AuxiliaryPropInput from './AuxiliaryPropInput';
 import { Properties } from '@app/features/property';
+import { Button, Checkbox, Form, Input, InputNumber, Modal, Radio, Select, Slider } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
 
 interface PropertyFormProps {
   type:
@@ -28,10 +25,13 @@ interface PropertyFormProps {
     | 'resource'
     | 'volume';
   initialVal?: Record<string, unknown>;
-  handleClose: () => void;
-  openStatus: boolean;
   handleSubmit: (data: { override_props?: Properties; delete_props?: Array<string> }) => void;
-  loading?: boolean;
+  children?: React.ReactNode;
+}
+
+export interface PropertyFormRef {
+  openModal: () => void;
+  closeModal: () => void;
 }
 
 type AuxProp = {
@@ -40,175 +40,371 @@ type AuxProp = {
   id: string;
 };
 
-const PropertyForm: React.FC<PropertyFormProps> = ({
-  type,
-  initialVal,
-  handleClose,
-  handleSubmit,
-  openStatus,
-  loading,
-}) => {
-  const [formItemList, setFormItemList] = useState<FormItem[]>([]); // All list
-  const [formItems, setFormItems] = useState<FormItem[]>([]); // display list
-  const [auxProps, setAuxProps] = useState<AuxProp[]>([]);
-  const [deleteAll, setDeleteAll] = useState(false);
-  const [deleteProps, setDeleteProps] = useState<Array<string>>([]);
+const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
+  ({ type, initialVal, handleSubmit, children }, ref) => {
+    const [formItemList, setFormItemList] = useState<FormItem[]>([]);
+    const [formItems, setFormItems] = useState<FormItem[]>([]);
+    const [auxProps, setAuxProps] = useState<AuxProp[]>([]);
+    const [deleteAll, setDeleteAll] = useState(false);
+    const [deleteProps, setDeleteProps] = useState<Array<string>>([]);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [form] = Form.useForm();
 
-  useEffect(() => {
-    const nodePropertyList: FormItem[] = handlePropsToFormOption(type, initialVal);
-    const displayItems = nodePropertyList.filter((e) => !e.hide);
-    setFormItemList(nodePropertyList);
-    setFormItems(displayItems);
+    useImperativeHandle(ref, () => ({
+      openModal: () => {
+        form.resetFields();
+        setDeleteProps([]);
+        setDeleteAll(false);
 
-    /**
-     * handle aux props
-     */
-    const originalAuxItems: AuxProp[] = [];
-    for (const propsKey in initialVal) {
-      const strings = propsKey.split('/');
-      const first = strings[0];
-      if (strings.length > 0 && first === 'Aux') {
-        originalAuxItems.push({
-          name: strings.slice(1).join('/'),
-          value: initialVal[propsKey] as string,
-          id: uniqId(),
-        });
-      }
-    }
-    setAuxProps(originalAuxItems);
-  }, [initialVal, setFormItems, type]);
+        const nodePropertyList: FormItem[] = handlePropsToFormOption(type, initialVal);
+        const displayItems = nodePropertyList.filter((e) => !e.hide);
+        setFormItemList(nodePropertyList);
+        setFormItems(displayItems);
 
-  const handleAddProperty = (propertyName: string) => {
-    const property = formItemList.find((e) => e.name === propertyName) || ({} as FormItem);
-    const newFormItems = [...formItems, { ...property, hide: false }];
-    setFormItems(newFormItems);
-    setFormItemList(formItemList.map((e) => (e.name === propertyName ? { ...e, hide: false } : e)));
-  };
+        if (initialVal) {
+          const formValues: Record<string, unknown> = {};
+          displayItems.forEach((item) => {
+            if (!item.hide && item.name in initialVal) {
+              formValues[item.name] = initialVal[item.name];
+            }
+          });
 
-  const handleRemoveProperty = useCallback(
-    (propertyName: string) => {
-      const newFormItem = formItems.map((e) => (e.name === propertyName ? { ...e, hide: true } : e));
-      setFormItems(newFormItem);
-      setFormItemList(formItemList.map((e) => (e.name === propertyName ? { ...e, hide: true } : e)));
-      setDeleteProps([...deleteProps, propertyName]);
-    },
-    [formItemList, formItems, deleteProps],
-  );
+          setTimeout(() => form.setFieldsValue(formValues), 0);
+        }
 
-  const handleAddAuxProp = () => {
-    setAuxProps([
-      ...auxProps,
-      {
-        name: '',
-        value: '',
-        id: uniqId(),
+        setModalVisible(true);
       },
-    ]);
-  };
+      closeModal: () => {
+        form.resetFields();
+        setModalVisible(false);
+      },
+    }));
 
-  const handleDeleteAuxProp = (id: string) => {
-    setAuxProps(auxProps.filter((e) => e.id !== id));
+    useEffect(() => {
+      if (!initialVal) return;
 
-    const deleteAuxProp = auxProps.find((e) => e.id === id);
+      // Parse existing props into form items
+      const nodePropertyList: FormItem[] = handlePropsToFormOption(type, initialVal);
+      const displayItems = nodePropertyList.filter((e) => !e.hide);
+      setFormItemList(nodePropertyList);
+      setFormItems(displayItems);
 
-    if (deleteAuxProp) {
-      setDeleteProps([...deleteProps, `Aux/${deleteAuxProp?.name}`]);
-    }
-  };
-
-  const handleAuxChange = ({ name, value, id }) => {
-    setAuxProps(auxProps.map((e) => (e.id === id ? { ...e, name, value } : e)));
-  };
-
-  /**
-   * handle auxiliary props and pass them to DynamicForm
-   * @param val
-   * @returns {[x: string]: string}
-   */
-  const handleAuxVal = (val: AuxProp[]) => {
-    const res = {};
-
-    for (const item of val) {
-      if (item.name !== '' && item.value !== '') {
-        /**
-         * Needs a prefix 'Aux/'
-         */
-        res[`Aux/${item.name}`] = item.value;
+      // Parse existing auxiliary props
+      const originalAuxItems: AuxProp[] = [];
+      for (const propsKey in initialVal) {
+        const strings = propsKey.split('/');
+        const first = strings[0];
+        if (strings.length > 0 && first === 'Aux') {
+          originalAuxItems.push({
+            name: strings.slice(1).join('/'),
+            value: initialVal[propsKey] as string,
+            id: uniqId(),
+          });
+        }
       }
-    }
+      setAuxProps(originalAuxItems);
 
-    return res;
-  };
+      form.resetFields();
 
-  /**
-   * Delete All props
-   */
-  const handleDeleteAllProp = () => {
-    setFormItems([]);
-    setAuxProps([]);
-    setDeleteAll(true);
-  };
+      setTimeout(() => {
+        const formValues: Record<string, unknown> = {};
+        displayItems.forEach((item) => {
+          if (!item.hide && item.name in initialVal) {
+            formValues[item.name] = initialVal[item.name];
+          } else if (!item.hide) {
+            formValues[item.name] = item.defaultValue;
+          }
+        });
 
-  const handleSubmitData = (data) => {
-    console.log(data, 'data');
+        form.setFieldsValue(formValues);
+      }, 0);
 
-    const delete_props = deleteAll ? Object.keys(initialVal ?? []) : (deleteProps ?? []);
-    const override_props = data ?? {};
+      setDeleteProps([]);
+      setDeleteAll(false);
+    }, [initialVal, type, form]);
 
-    handleSubmit({
-      override_props,
-      delete_props,
-    });
-  };
+    // Handle showing a previously hidden property
+    const handleAddProperty = (propertyName: string) => {
+      const property = formItemList.find((e) => e.name === propertyName) || ({} as FormItem);
+      const newFormItems = [...formItems, { ...property, hide: false }];
+      setFormItems(newFormItems);
+      setFormItemList(formItemList.map((e) => (e.name === propertyName ? { ...e, hide: false } : e)));
+    };
 
-  console.log(formItems, 'formItems');
+    // Hide a property (mark it for deletion)
+    const handleRemoveProperty = useCallback(
+      (propertyName: string) => {
+        const newFormItem = formItems.map((e) => (e.name === propertyName ? { ...e, hide: true } : e));
+        setFormItems(newFormItem);
+        setFormItemList(formItemList.map((e) => (e.name === propertyName ? { ...e, hide: true } : e)));
+        setDeleteProps([...deleteProps, propertyName]);
+      },
+      [formItemList, formItems, deleteProps],
+    );
 
-  return openStatus ? (
-    <Modal
-      variant={ModalVariant.medium}
-      title="Property Editor"
-      isOpen={openStatus}
-      onClose={() => {
-        handleClose();
-      }}
-      className="property__modal"
-    >
-      <div style={{ minHeight: 400, paddingBottom: '1em' }}>
-        <SingleSelectDescription
-          options={formItemList
-            .filter((e) => e.hide)
-            .map((e) => ({
-              value: e.name,
-              label: e.label,
-              isPlaceholder: false,
-              isDisabled: false,
-              description: e.tipLabel,
-            }))}
-          handleAddProperty={handleAddProperty}
-          handleAddAuxProp={handleAddAuxProp}
-          handleDeleteAllAuxProp={handleDeleteAllProp}
-        />
-        {auxProps.map((e) => (
-          <AuxiliaryPropInput
-            key={e.id}
-            initialVal={e}
-            handleDeleteAuxProp={handleDeleteAuxProp}
-            onChange={handleAuxChange}
-          />
-        ))}
-        <DynamicForm
-          formItems={formItems}
-          handleSubmitData={handleSubmitData}
-          handleRemoveItem={handleRemoveProperty}
-          removable
-          handleCancelClick={handleClose}
-          extra={handleAuxVal(auxProps)}
-          propertyForm={true}
-          submitting={loading}
-        />
-      </div>
-    </Modal>
-  ) : null;
-};
+    // Add a new auxiliary property
+    const handleAddAuxProp = () => {
+      setAuxProps((prev) => [
+        ...prev,
+        {
+          name: '',
+          value: '',
+          id: uniqId(),
+        },
+      ]);
+    };
+
+    // Delete a specific auxiliary property
+    const handleDeleteAuxProp = (id: string) => {
+      setAuxProps((prev) => prev.filter((e) => e.id !== id));
+      const toRemove = auxProps.find((e) => e.id === id);
+      if (toRemove) {
+        setDeleteProps((prev) => [...prev, `Aux/${toRemove.name}`]);
+      }
+    };
+
+    // Update an auxiliary property
+    const handleAuxChange = ({ name, value, id }: AuxProp) => {
+      setAuxProps((prev) => prev.map((e) => (e.id === id ? { ...e, name, value } : e)));
+    };
+
+    // Convert aux props to object with "Aux/" prefix
+    const handleAuxVal = (val: AuxProp[]) => {
+      const res: { [key: string]: string } = {};
+      for (const item of val) {
+        if (item.name !== '' && item.value !== '') {
+          res[`Aux/${item.name}`] = item.value;
+        }
+      }
+      return res;
+    };
+
+    // Delete all properties
+    const handleDeleteAllProp = () => {
+      setFormItems([]);
+      setAuxProps([]);
+      setDeleteAll(true);
+    };
+
+    // Submit only changed data after validation
+    const handleSubmitData = (data: Record<string, unknown>) => {
+      const original = initialVal ?? {};
+      const changedData: Record<string, unknown> = {};
+
+      // Compare each field in form data with initialVal
+      Object.entries(data).forEach(([key, val]) => {
+        if (original[key] !== val) {
+          changedData[key] = val;
+        }
+      });
+
+      // Compare aux props
+      const newAuxObj = handleAuxVal(auxProps);
+      Object.entries(newAuxObj).forEach(([key, val]) => {
+        if (original[key] !== val) {
+          changedData[key] = val;
+        }
+      });
+
+      // Delete all overrides everything
+      const delete_props = deleteAll ? Object.keys(original) : deleteProps;
+
+      handleSubmit({
+        override_props: changedData as any,
+        delete_props,
+      });
+
+      setModalVisible(false);
+    };
+
+    // Reset the form when closing the modal
+    const handleModalClose = () => {
+      form.resetFields();
+      setModalVisible(false);
+    };
+
+    return (
+      <>
+        <div
+          onClick={() => {
+            setModalVisible(true);
+          }}
+        >
+          {children}
+        </div>
+        <Modal
+          title="Property Editor"
+          open={modalVisible}
+          onCancel={handleModalClose}
+          okText="Submit"
+          cancelText="Cancel"
+          className="property__modal"
+          width={800}
+          styles={{
+            body: { maxHeight: '70vh', overflow: 'auto' },
+          }}
+          onOk={() => form.submit()}
+        >
+          <div style={{ minHeight: 400, paddingBottom: '1em' }}>
+            <SingleSelectDescription
+              options={formItemList
+                .filter((e) => e.hide)
+                .map((e) => ({
+                  value: e.name,
+                  label: e.label,
+                  isPlaceholder: false,
+                  isDisabled: false,
+                  description: e.tipLabel,
+                }))}
+              handleAddProperty={handleAddProperty}
+              handleAddAuxProp={handleAddAuxProp}
+              handleDeleteAllAuxProp={handleDeleteAllProp}
+            />
+
+            {/* Aux props inline */}
+            {auxProps.map((prop, index) => (
+              <div key={prop.id} style={{ display: 'flex', flexDirection: 'column', marginBottom: '12px' }}>
+                {index === 0 && (
+                  <div style={{ display: 'flex', fontWeight: 'bold', marginBottom: '8px' }}>
+                    <div style={{ width: '40%' }}>Property Name</div>
+                    <div style={{ width: '40%' }}>Property Value</div>
+                    <div style={{ width: '20%' }} />
+                  </div>
+                )}
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <div style={{ width: '40%' }}>
+                    <Input
+                      value={prop.name}
+                      onChange={(e) => {
+                        const newName = e.target.value;
+                        handleAuxChange({ id: prop.id, name: newName, value: prop.value });
+                      }}
+                      placeholder="Please input property name"
+                    />
+                  </div>
+                  <div style={{ width: '40%', marginLeft: '8px' }}>
+                    <Input
+                      value={prop.value}
+                      onChange={(e) => {
+                        const newValue = e.target.value;
+                        handleAuxChange({ id: prop.id, name: prop.name, value: newValue });
+                      }}
+                      placeholder="Please input property value"
+                    />
+                  </div>
+                  <div style={{ width: '20%', textAlign: 'right' }}>
+                    <Button
+                      danger
+                      icon={<DeleteOutlined />}
+                      onClick={() => handleDeleteAuxProp(prop.id)}
+                      shape="circle"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {/* Visible form items with required validation */}
+            <Form
+              form={form}
+              onFinish={handleSubmitData}
+              onFinishFailed={() =>
+                Modal.error({
+                  title: 'Validation Error',
+                  content: 'Please fill in all required fields.',
+                })
+              }
+              style={{ marginTop: '2em' }}
+            >
+              {formItems.map((item) => {
+                if (item.hide) return null;
+                const commonFormProps = {
+                  key: item.id,
+                  label: item.label,
+                  name: item.name,
+                  initialValue: item.defaultValue,
+                  tooltip: item.tipLabel,
+                  style: { marginBottom: 0, flexGrow: 1 },
+                  rules: [{ required: true, message: `Please input ${item.label}` }],
+                };
+
+                let element: React.ReactNode = null;
+                switch (item.type) {
+                  case 'text':
+                    element = <Input />;
+                    break;
+                  case 'single_select':
+                    element = (
+                      <Select>
+                        {item.extraInfo?.options?.map((opt) => (
+                          <Select.Option key={opt.value} value={opt.value} disabled={opt.isDisabled}>
+                            {opt.label}
+                          </Select.Option>
+                        ))}
+                      </Select>
+                    );
+                    break;
+                  case 'multiple_select':
+                    element = (
+                      <Select mode="multiple">
+                        {item.extraInfo?.options?.map((opt) => (
+                          <Select.Option key={opt.value} value={opt.value} disabled={opt.isDisabled}>
+                            {opt.label}
+                          </Select.Option>
+                        ))}
+                      </Select>
+                    );
+                    break;
+                  case 'integer':
+                    element = <InputNumber style={{ width: '100%' }} />;
+                    break;
+                  case 'text_area':
+                    element = <Input.TextArea rows={4} />;
+                    break;
+                  case 'checkbox':
+                    element = <Checkbox />;
+                    break;
+                  case 'radio':
+                    element = (
+                      <Radio.Group>
+                        {item.extraInfo?.options?.map((opt) => (
+                          <Radio key={opt.value} value={opt.value} disabled={opt.isDisabled}>
+                            {opt.label}
+                          </Radio>
+                        ))}
+                      </Radio.Group>
+                    );
+                    break;
+                  case 'slider':
+                    element = <Slider />;
+                    break;
+                  default:
+                    return null;
+                }
+
+                return (
+                  <div key={item.id} style={{ display: 'flex', alignItems: 'center', marginBottom: '1em' }}>
+                    <Form.Item {...commonFormProps} valuePropName={item.type === 'checkbox' ? 'checked' : undefined}>
+                      {element}
+                    </Form.Item>
+                    <Button
+                      danger
+                      icon={<DeleteOutlined />}
+                      shape="circle"
+                      style={{ marginLeft: 8 }}
+                      onClick={() => handleRemoveProperty(item.name)}
+                    />
+                  </div>
+                );
+              })}
+            </Form>
+          </div>
+        </Modal>
+      </>
+    );
+  },
+);
+
+PropertyForm.displayName = 'PropertyForm';
 
 export default PropertyForm;
