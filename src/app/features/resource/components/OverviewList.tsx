@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Form, Space, Table, Input, Flex, Tag, Dropdown, Popconfirm, Select, Modal, Tooltip } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -28,7 +28,7 @@ import {
 } from '@app/features/resourceDefinition';
 import { CreateForm, getVolumeDefinitionListByResource } from '@app/features/volumeDefinition';
 import { useWidth } from '@app/components/PageBasic/WidthContext';
-import PropertyForm from '@app/components/PropertyForm';
+import PropertyForm from '@app/components/PropertyEditor';
 
 import {
   adjustResourceGroup,
@@ -44,6 +44,7 @@ import { ResourceMigrateForm } from './ResourceMigrateForm';
 import { SearchForm } from './styled';
 import './OverviewList.css';
 import { filterResourceList } from './filterResourceList';
+import { PropertyFormRef } from '@app/components/PropertyEditor';
 
 const TAG_COLORS = ['cyan', 'blue', 'geekblue', 'purple'];
 
@@ -51,9 +52,11 @@ export const OverviewList = () => {
   const [resourceDefinitionList, setResourceDefinitionList] = useState<any>();
   const [current, setCurrent] = useState<any>();
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
-  const [rdPropertyModalOpen, setRdPropertyModalOpen] = useState(false);
-  const [vdPropertyModalOpen, setVdPropertyModalOpen] = useState(false);
-  const [resourcePropertyModalOpen, setResourcePropertyModalOpen] = useState(false);
+
+  const rdPropertyFormRef = useRef<PropertyFormRef>(null);
+  const vdPropertyFormRef = useRef<PropertyFormRef>(null);
+  const resourcePropertyFormRef = useRef<PropertyFormRef>(null);
+
   const [searchKey, setSearchKey] = useState<string>('');
   const [filteredList, setFilteredList] = useState<GetResourcesResponseBody>();
   const [pagination, setPagination] = useState<any>({
@@ -244,7 +247,7 @@ export const OverviewList = () => {
       return resourceModify(current?.resource_name ?? '', current?.node_name ?? '', data);
     },
     onSuccess: () => {
-      setResourcePropertyModalOpen(false);
+      resourcePropertyFormRef.current?.closeModal();
       refetch();
     },
   });
@@ -254,7 +257,7 @@ export const OverviewList = () => {
     mutationFn: (data: UpdateResourceDefinitionRequestBody) =>
       updateResourceDefinition(current?.name ?? '', data as any),
     onSuccess: () => {
-      setRdPropertyModalOpen(false);
+      rdPropertyFormRef.current?.closeModal();
       refetch();
     },
   });
@@ -263,7 +266,7 @@ export const OverviewList = () => {
     mutationKey: ['updateVolumeDefinition'],
     mutationFn: (data: VolumeDefinitionModify) => updateVolumeDefinition(current?.name ?? '', 0, data as any),
     onSuccess: () => {
-      setVdPropertyModalOpen(false);
+      vdPropertyFormRef.current?.closeModal();
       refetch();
     },
   });
@@ -507,7 +510,7 @@ export const OverviewList = () => {
                         onClick={() => {
                           setCurrent(record);
                           setInitialProps(record.props ?? {});
-                          setRdPropertyModalOpen(true);
+                          rdPropertyFormRef.current?.openModal();
                         }}
                       >
                         {t('common:resource_definition_properties')}
@@ -521,7 +524,7 @@ export const OverviewList = () => {
                         onClick={() => {
                           setCurrent(record);
                           setInitialProps(record.volumeDefinitions[0].props ?? {});
-                          setVdPropertyModalOpen(true);
+                          vdPropertyFormRef.current?.openModal();
                         }}
                       >
                         {t('common:volume_definition_properties')}
@@ -821,7 +824,7 @@ export const OverviewList = () => {
                                       ...currentData,
                                       name: record?.resource_name,
                                     });
-                                    setResourcePropertyModalOpen(true);
+                                    resourcePropertyFormRef.current?.openModal();
                                   },
                                 },
                                 {
@@ -887,30 +890,24 @@ export const OverviewList = () => {
       />
 
       <PropertyForm
+        ref={rdPropertyFormRef}
         initialVal={initialProps}
-        openStatus={rdPropertyModalOpen}
         type="resource-definition"
         handleSubmit={(data) => updateResourceDefinitionMutation.mutate(data)}
-        handleClose={() => setRdPropertyModalOpen(!rdPropertyModalOpen)}
-        loading={updateResourceDefinitionMutation.isLoading}
       />
 
       <PropertyForm
+        ref={vdPropertyFormRef}
         initialVal={initialProps}
-        openStatus={vdPropertyModalOpen}
         type="volume-definition"
         handleSubmit={(data) => updateVolumeDefinitionMutation.mutate(data)}
-        handleClose={() => setVdPropertyModalOpen(!vdPropertyModalOpen)}
-        loading={updateVolumeDefinitionMutation.isLoading}
       />
 
       <PropertyForm
+        ref={resourcePropertyFormRef}
         initialVal={initialProps}
-        openStatus={resourcePropertyModalOpen}
         type="resource"
         handleSubmit={(data) => updateResourceMutation.mutate(data)}
-        handleClose={() => setResourcePropertyModalOpen(!resourcePropertyModalOpen)}
-        loading={updateResourceMutation.isLoading}
       />
 
       <Modal
