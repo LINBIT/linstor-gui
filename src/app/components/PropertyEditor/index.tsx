@@ -266,8 +266,8 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
               <div key={prop.id} style={{ display: 'flex', flexDirection: 'column', marginBottom: '12px' }}>
                 {index === 0 && (
                   <div style={{ display: 'flex', fontWeight: 'bold', marginBottom: '8px' }}>
-                    <div style={{ width: '40%' }}>Property Name</div>
-                    <div style={{ width: '40%' }}>Property Value</div>
+                    <div style={{ width: '40%' }}>Name</div>
+                    <div style={{ width: '40%' }}>Value</div>
                     <div style={{ width: '20%' }} />
                   </div>
                 )}
@@ -280,6 +280,8 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
                         handleAuxChange({ id: prop.id, name: newName, value: prop.value });
                       }}
                       placeholder="Please input property name"
+                      addonBefore="Aux/"
+                      style={{ fontWeight: 'normal' }}
                     />
                   </div>
                   <div style={{ width: '40%', marginLeft: '8px' }}>
@@ -290,6 +292,7 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
                         handleAuxChange({ id: prop.id, name: prop.name, value: newValue });
                       }}
                       placeholder="Please input property value"
+                      style={{ fontWeight: 'normal' }}
                     />
                   </div>
                   <div style={{ width: '20%', textAlign: 'right' }}>
@@ -298,6 +301,20 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
                       icon={<DeleteOutlined />}
                       onClick={() => handleDeleteAuxProp(prop.id)}
                       shape="circle"
+                      onMouseEnter={(e) => {
+                        const parent = e.currentTarget.parentElement!.parentElement!;
+                        parent.style.fontWeight = 'bold';
+                        parent.querySelectorAll('input').forEach((input) => {
+                          input.style.fontWeight = 'bold';
+                        });
+                      }}
+                      onMouseLeave={(e) => {
+                        const parent = e.currentTarget.parentElement!.parentElement!;
+                        parent.style.fontWeight = 'normal';
+                        parent.querySelectorAll('input').forEach((input) => {
+                          input.style.fontWeight = 'normal';
+                        });
+                      }}
                     />
                   </div>
                 </div>
@@ -393,6 +410,8 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
                       shape="circle"
                       style={{ marginLeft: 8 }}
                       onClick={() => handleRemoveProperty(item.name)}
+                      onMouseEnter={(e) => (e.currentTarget.parentElement!.style.fontWeight = 'bold')}
+                      onMouseLeave={(e) => (e.currentTarget.parentElement!.style.fontWeight = 'normal')}
                     />
                   </div>
                 );

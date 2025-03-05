@@ -45,6 +45,7 @@ const PropertySelector: React.FC<PropertySelectorProps> = ({ options, handleAddP
           width: '70%',
         }}
         allowClear
+        value={selected}
         onChange={handleChange}
         optionRender={(option) => (
           <div>
@@ -58,7 +59,7 @@ const PropertySelector: React.FC<PropertySelectorProps> = ({ options, handleAddP
           </div>
         )}
       />
-      <Button className="add" type="primary" onClick={handleAdd}>
+      <Button className="add" type="primary" onClick={handleAdd} disabled={!selected}>
         Add
       </Button>
 
