@@ -124,7 +124,7 @@ export const StoragePoolInfo: React.FC = () => {
     };
 
     return {
-      series: [...spSeries, nodeUsedSeries, nodeTotalSeries],
+      series: allPools.length > 1 ? [...spSeries, nodeUsedSeries, nodeTotalSeries] : [...spSeries],
       categories: allNodes,
     };
   }, [poolsData]);
