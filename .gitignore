@@ -8,3 +8,4 @@ storybook-static
 .idea
 .env
 .vscode/
+deploy-linstor-gui.sh

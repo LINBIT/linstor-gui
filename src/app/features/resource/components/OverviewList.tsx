@@ -380,6 +380,8 @@ export const OverviewList = () => {
     ),
   );
 
+  console.log('isLargeScreen', isLargeScreen);
+
   const extraColumns: any = useMemo(() => {
     return isLargeScreen
       ? [
@@ -592,8 +594,15 @@ export const OverviewList = () => {
   }, [CSProps, extraColumns, filteredList, pagination]);
 
   const finalColumns = useMemo(() => {
-    return [...columns, ...extra];
-  }, [columns, extra]);
+    if (isLargeScreen) {
+      const columnsWithoutLast = columns.slice(0, -1);
+      const lastColumn = columns[columns.length - 1];
+
+      return [...columnsWithoutLast, ...extra, lastColumn];
+    } else {
+      return columns;
+    }
+  }, [columns, extra, isLargeScreen]);
 
   const tablePagination = useMemo(() => {
     return {
