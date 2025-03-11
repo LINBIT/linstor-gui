@@ -11,7 +11,7 @@ import { useMutation, useQueries, useQuery } from '@tanstack/react-query';
 import { useHistory, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-import PropertyForm from '@app/components/PropertyForm';
+import PropertyForm from '@app/components/PropertyEditor';
 import {
   getResourceDefinition,
   deleteVolumeDefinition,
@@ -66,7 +66,7 @@ export const List = () => {
 
   const vdList = useQueries({
     queries: resourceDefinition
-      ? resourceDefinition?.data?.map(({ name, resource_group_name }) => {
+      ? (resourceDefinition?.data?.map(({ name, resource_group_name }) => {
           return {
             queryKey: ['getVolumeDefinitionListByResource', name],
             queryFn: () => getVolumeDefinitionListByResource(name || ''),
@@ -83,7 +83,7 @@ export const List = () => {
               return vdList;
             },
           };
-        }) ?? []
+        }) ?? [])
       : [],
   });
 
@@ -272,10 +272,8 @@ export const List = () => {
 
       <PropertyForm
         initialVal={initialProps}
-        openStatus={propertyModalOpen}
         type="resource-definition"
         handleSubmit={(data) => updateMutation.mutate(data)}
-        handleClose={() => setPropertyModalOpen(!propertyModalOpen)}
       />
     </>
   );

@@ -11,7 +11,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useHistory, useLocation } from 'react-router-dom';
 import { MoreOutlined } from '@ant-design/icons';
 
-import PropertyForm from '@app/components/PropertyForm';
+import PropertyForm from '@app/components/PropertyEditor';
 import {
   getResourceDefinition,
   getResourceDefinitionCount,
@@ -19,7 +19,6 @@ import {
   updateResourceDefinition,
 } from '../api';
 import { ResourceDefinition, ResourceDefinitionListQuery, UpdateResourceDefinitionRequestBody } from '../types';
-import get from 'lodash.get';
 import { SearchForm } from './styled';
 import { SpawnForm } from './SpawnForm';
 import { uniqId } from '@app/utils/stringUtils';
@@ -169,7 +168,7 @@ export const List = () => {
       key: 'Port',
       dataIndex: 'layer_data',
       render: (layer_data) => {
-        const port = get(layer_data, '[0].data.port', '');
+        const port = layer_data?.[0]?.data?.port || '';
         return <span>{port}</span>;
       },
     },

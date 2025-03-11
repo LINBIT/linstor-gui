@@ -4,16 +4,6 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-export const isValidRegex = (regexp: string): boolean => {
-  let isReg;
-  try {
-    isReg = eval(regexp) instanceof RegExp;
-  } catch (e) {
-    isReg = false;
-  }
-  return isReg;
-};
-
 /**
  * return unique id
  * @returns id

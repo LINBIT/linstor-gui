@@ -59,7 +59,6 @@ export const StoragePool = ({ data }: StoragePoolProp) => {
     chart: {
       type: 'bar' as const,
       stacked: true,
-      height: 350,
     },
     legend: {
       position: 'right' as const,
@@ -83,5 +82,5 @@ export const StoragePool = ({ data }: StoragePoolProp) => {
     colors: ['#499BBB', '#C4DBE6'],
   };
 
-  return <Chart options={options} series={series} type="bar" height={350} />;
+  return <Chart options={options} series={series} type="bar" height={500} />;
 };

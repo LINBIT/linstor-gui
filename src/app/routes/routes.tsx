@@ -22,13 +22,9 @@ import StoragePoolEdit from '@app/pages/Inventory/StoragePools/edit';
 import ResourceGroupList from '@app/pages/SoftwareDefined/ResourceGroups';
 import ResourceGroupEdit from '@app/pages/SoftwareDefined/ResourceGroups/edit';
 import ResourceGroupCreate from '@app/pages/SoftwareDefined/ResourceGroups/create';
-import ResourceDefinitionList from '@app/pages/SoftwareDefined/ResourceDefinitions';
-import ResourceDefinitionCreate from '@app/pages/SoftwareDefined/ResourceDefinitions/create';
-import ResourceDefinitionEdit from '@app/pages/SoftwareDefined/ResourceDefinitions/edit';
-import ResourceList from '@app/pages/SoftwareDefined/Resources';
+
 import ResourceCreate from '@app/pages/SoftwareDefined/Resources/create';
 import ResourceEdit from '@app/pages/SoftwareDefined/Resources/edit';
-import VolumeList from '@app/pages/SoftwareDefined/Volumes';
 import RemoteList from '@app/pages/Remote/RemoteList';
 import BackupList from '@app/pages/Remote/BackupList';
 import ErrorReportList from '@app/pages/ErrorReport/index';
@@ -52,7 +48,6 @@ import { About } from '@app/pages/VSAN/About';
 import { ResourceGroup } from '@app/pages/VSAN/ResourceGroup';
 import { useDispatch, useSelector } from 'react-redux';
 import { Dispatch, RootState } from '@app/store';
-import VolumeDefinitionList from '@app/pages/SoftwareDefined/VolumeDefinitions';
 import { Controller } from '@app/pages/Inventory/Controller';
 import ResourceOverview from '@app/pages/SoftwareDefined/Resources/overview';
 
@@ -169,39 +164,6 @@ const routes: AppRouteConfig[] = [
         title: 'LINSTOR | Storage Configuration | Resource Groups | Create',
       },
       {
-        component: ResourceDefinitionList,
-        exact: true,
-        label: 'resource_definitions',
-        path: '/storage-configuration/resource-definitions',
-        title: 'LINSTOR | Storage Configuration | Resource Definitions',
-      },
-      {
-        component: VolumeDefinitionList,
-        exact: true,
-        label: 'volume_definitions',
-        path: '/storage-configuration/volume-definitions',
-        title: 'LINSTOR | Storage Configuration | Volume Definitions',
-      },
-      {
-        component: ResourceDefinitionCreate,
-        exact: true,
-        path: '/storage-configuration/resource-definitions/create',
-        title: 'LINSTOR | Storage Configuration | Resource Definitions | Create',
-      },
-      {
-        component: ResourceDefinitionEdit,
-        exact: true,
-        path: '/storage-configuration/resource-definitions/:resourceDefinition/edit',
-        title: 'LINSTOR | Storage Configuration | Resource Definitions | Edit',
-      },
-      {
-        component: ResourceList,
-        exact: true,
-        label: 'resources',
-        path: '/storage-configuration/resources',
-        title: 'LINSTOR | Storage Configuration | Resources',
-      },
-      {
         component: ResourceOverview,
         exact: true,
         label: 'resource_overview',
@@ -219,13 +181,6 @@ const routes: AppRouteConfig[] = [
         exact: true,
         path: '/storage-configuration/resources/:node/:resource/edit',
         title: 'LINSTOR | Storage Configuration | Resources | Edit',
-      },
-      {
-        component: VolumeList,
-        exact: true,
-        label: 'volumes',
-        path: '/storage-configuration/volumes',
-        title: 'LINSTOR | Storage Configuration | Volumes',
       },
     ],
   },
@@ -381,9 +336,10 @@ const AppRoutes = (): React.ReactElement => {
   }));
 
   const dispatch = useDispatch<Dispatch>();
-
   useEffect(() => {
     const vsanModeFromKVS = KVS?.vsanMode;
+    const gatewayEnabled = KVS?.gatewayEnabled;
+    const dashboardEnabled = KVS?.dashboardEnabled;
 
     const initialOpenFromVSAN =
       history.location.pathname === '/vsan/dashboard' && history.location.search === '?vsan=true';
@@ -393,16 +349,33 @@ const AppRoutes = (): React.ReactElement => {
     if (VSAN_MODE) {
       setDisplayedRoutes(vsanRoutes);
     } else {
+      let filteredRoutes = [...flattenedRoutes];
+      if (!gatewayEnabled) {
+        filteredRoutes = filteredRoutes.filter((route) => !route.path.startsWith('/gateway'));
+      }
+
+      if (!dashboardEnabled) {
+        filteredRoutes = filteredRoutes.filter((route) => route.path !== '/grafana');
+      }
+
       if (KVS?.authenticationEnabled && !isAdmin) {
-        const filteredRoutesForNonAdmin = flattenedRoutes.filter((route) => {
+        filteredRoutes = filteredRoutes.filter((route) => {
           return !adminRoutes.includes(route.path);
         });
-        setDisplayedRoutes(filteredRoutesForNonAdmin);
-      } else {
-        setDisplayedRoutes(flattenedRoutes);
       }
+
+      setDisplayedRoutes(filteredRoutes);
     }
-  }, [dispatch.setting, history, KVS?.vsanMode, vsanModeFromSettings, isAdmin, KVS?.authenticationEnabled]);
+  }, [
+    dispatch.setting,
+    history,
+    KVS?.vsanMode,
+    vsanModeFromSettings,
+    isAdmin,
+    KVS?.authenticationEnabled,
+    KVS?.gatewayEnabled,
+    KVS?.dashboardEnabled,
+  ]);
 
   return (
     <Switch>

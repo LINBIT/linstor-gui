@@ -206,99 +206,6 @@ const NodeDetail: React.FC = () => {
     };
   };
 
-  const items: TabsProps['items'] = [
-    {
-      key: '1',
-      label: t('title'),
-      children: (
-        <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
-          <Card size="small">
-            <Space direction="vertical" size="small" style={{ display: 'flex' }}>
-              <div>
-                <LabelText>{t('node_name')}:</LabelText>
-                {nodeData?.name}
-              </div>
-              <div>
-                <LabelText>{t('node_type')}:</LabelText> {nodeData?.type?.toLowerCase()}
-              </div>
-              <div>
-                <LabelText>{t('node_status')}: </LabelText>
-                {nodeData?.connection_status === 'ONLINE' && (
-                  <CheckCircleOutlined style={{ color: 'green', marginRight: 4 }} />
-                )}
-                {nodeData?.connection_status?.toLowerCase()}
-              </div>
-              <TagContainer>
-                <LabelText>{t('resource_layers')}:</LabelText>
-
-                {nodeData
-                  ? nodeData?.resource_layers?.map((e) => (
-                      <Tag key={e} color="success">
-                        {e}
-                      </Tag>
-                    ))
-                  : null}
-                {nodeData
-                  ? Object.keys(nodeData?.unsupported_layers ?? {}).map((e) => (
-                      <Tag key={e} color="error">
-                        {e}
-                      </Tag>
-                    ))
-                  : null}
-              </TagContainer>
-
-              <TagContainer>
-                <LabelText>{t('storage_providers')}:</LabelText>
-                {nodeData
-                  ? nodeData?.storage_providers?.map((e) => (
-                      <Tag key={e} color="success">
-                        {e}
-                      </Tag>
-                    ))
-                  : null}
-                {nodeData
-                  ? Object.keys(nodeData?.unsupported_providers ?? {}).map((e) => (
-                      <Tag key={e} color="error">
-                        {e}
-                      </Tag>
-                    ))
-                  : null}
-              </TagContainer>
-            </Space>
-          </Card>
-
-          <Card title={t('network_interfaces')} size="small">
-            <NetInterfaceList
-              list={nodeInterfaceInfo?.data || []}
-              handleDeleteNetWorkInterface={handleDeleteNetWorkInterface}
-              handleSetActiveNetWorkInterface={handleUpdateNetWorkInterface}
-            />
-
-            <CreateForm node={nodeInfo?.[0].name} refetch={refetch} />
-          </Card>
-
-          <Row gutter={16}>
-            <Col span={12}>
-              <Card title={t('storage_pool_info')} size="small">
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <Container>{storagePoolData.length > 0 && <StoragePool data={storagePoolData} />}</Container>
-                </div>
-              </Card>
-            </Col>
-
-            <Col span={12}>
-              <Card title={t('resource_info')} size="small">
-                <div style={{ display: 'flex', justifyContent: 'center', minHeight: 385 }}>
-                  {resourceData.length > 0 && <Resource data={resourceData} />}
-                </div>
-              </Card>
-            </Col>
-          </Row>
-        </Space>
-      ),
-    },
-  ];
-
   return (
     <PageBasic title={t('title')} showBack>
       {/* TODO: add grafana dashboard here */}
@@ -313,7 +220,82 @@ const NodeDetail: React.FC = () => {
         )}
       </Card> */}
 
-      <Tabs defaultActiveKey="1" items={items} />
+      <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
+        <Card size="small">
+          <Space direction="vertical" size="small" style={{ display: 'flex' }}>
+            <div>
+              <LabelText>{t('node_name')}:</LabelText>
+              {nodeData?.name}
+            </div>
+            <div>
+              <LabelText>{t('node_type')}:</LabelText> {nodeData?.type?.toLowerCase()}
+            </div>
+            <div>
+              <LabelText>{t('node_status')}: </LabelText>
+              {nodeData?.connection_status === 'ONLINE' && (
+                <CheckCircleOutlined style={{ color: 'green', marginRight: 4 }} />
+              )}
+              {nodeData?.connection_status?.toLowerCase()}
+            </div>
+            <TagContainer>
+              <LabelText>{t('resource_layers')}:</LabelText>
+
+              {nodeData
+                ? nodeData?.resource_layers?.map((e) => (
+                    <Tag key={e} color="success">
+                      {e}
+                    </Tag>
+                  ))
+                : null}
+              {nodeData
+                ? Object.keys(nodeData?.unsupported_layers ?? {}).map((e) => (
+                    <Tag key={e} color="error">
+                      {e}
+                    </Tag>
+                  ))
+                : null}
+            </TagContainer>
+
+            <TagContainer>
+              <LabelText>{t('storage_providers')}:</LabelText>
+              {nodeData
+                ? nodeData?.storage_providers?.map((e) => (
+                    <Tag key={e} color="success">
+                      {e}
+                    </Tag>
+                  ))
+                : null}
+              {nodeData
+                ? Object.keys(nodeData?.unsupported_providers ?? {}).map((e) => (
+                    <Tag key={e} color="error">
+                      {e}
+                    </Tag>
+                  ))
+                : null}
+            </TagContainer>
+          </Space>
+        </Card>
+
+        <Card title={t('network_interfaces')} size="small">
+          <NetInterfaceList
+            list={nodeInterfaceInfo?.data || []}
+            handleDeleteNetWorkInterface={handleDeleteNetWorkInterface}
+            handleSetActiveNetWorkInterface={handleUpdateNetWorkInterface}
+          />
+
+          <CreateForm node={nodeInfo?.[0].name} refetch={refetch} />
+        </Card>
+
+        <div className="flex gap-4">
+          <Card title={t('storage_pool_info')} size="small" style={{ flex: 1 }}>
+            <Container>{storagePoolData.length > 0 && <StoragePool data={storagePoolData} />}</Container>
+          </Card>
+
+          <Card title={t('resource_info')} size="small" style={{ flex: 1 }}>
+            {resourceData.length > 0 && <Resource data={resourceData} />}
+          </Card>
+        </div>
+      </Space>
 
       <Modal title="Import Grafana Dashboard" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
         <DashboardContainer>

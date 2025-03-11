@@ -6,7 +6,6 @@
 
 import React, { FunctionComponent } from 'react';
 import { useParams } from 'react-router-dom';
-import get from 'lodash.get';
 import { useQuery } from '@tanstack/react-query';
 
 import PageBasic from '@app/components/PageBasic';
@@ -32,7 +31,7 @@ const ResourceEdit: FunctionComponent = () => {
 
   const initialValues = {
     ...detailData,
-    storage_pool: get(detailData, 'props.StorPoolName', ''),
+    storage_pool: detailData?.props?.StorPoolName || '',
   };
 
   return (

@@ -8,7 +8,6 @@ import React, { useState } from 'react';
 import { Alert, Button, Form, Input } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { Dispatch, RootState } from '@app/store';
-import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 type FormType = {
@@ -24,7 +23,6 @@ const isDefaultCredentials = (values: FormType) => {
 const AuthForm: React.FC = () => {
   const { t } = useTranslation(['common']);
   const [isError, setIsError] = useState(false);
-  const history = useHistory();
   const dispatch = useDispatch<Dispatch>();
   const { KVS, vsanModeFromSetting } = useSelector((state: RootState) => ({
     KVS: state.setting.KVS,
@@ -39,9 +37,9 @@ const AuthForm: React.FC = () => {
       }
 
       if (vsanModeFromSetting && KVS?.vsanMode) {
-        history.push('/vsan/dashboard');
+        window.location.href = '/vsan/dashboard';
       } else {
-        history.push('/');
+        window.location.href = '/';
       }
     } else {
       setIsError(true);

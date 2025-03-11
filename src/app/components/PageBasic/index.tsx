@@ -5,20 +5,9 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { PropsWithChildren } from 'react';
-import {
-  Bullseye,
-  EmptyState,
-  EmptyStateBody,
-  EmptyStateVariant,
-  PageSection,
-  Spinner,
-  Title,
-  PageSectionVariants,
-} from '@patternfly/react-core';
 import { Button } from 'antd';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { MainContent, SectionHead } from './styled';
 import { WidthProvider } from './WidthContext';
 
 interface Props {
@@ -29,50 +18,20 @@ interface Props {
   showBack?: boolean;
 }
 
-const PageBasic: React.FC<PropsWithChildren<Props>> = ({ showBack, loading, error, title, children }) => {
+const PageBasic: React.FC<PropsWithChildren<Props>> = ({ showBack, title, children }) => {
   const history = useHistory();
   const { t } = useTranslation(['common']);
 
-  // loading state
-  if (loading) {
-    return (
-      <PageSection>
-        <Bullseye>
-          <Spinner size="xl" />
-        </Bullseye>
-      </PageSection>
-    );
-  }
-
-  // error state
-  if (error) {
-    return (
-      <PageSection>
-        <EmptyState variant={EmptyStateVariant.large}>
-          <Title headingLevel="h2" size="lg" key="empty_title">
-            Unable to connect
-          </Title>
-          <EmptyStateBody key="empty_body">
-            There was an error retrieving data. Check your connection and try again.
-          </EmptyStateBody>
-        </EmptyState>
-      </PageSection>
-    );
-  }
-
   return (
-    <PageSection variant={PageSectionVariants.light}>
-      <SectionHead>
-        <Title headingLevel="h1" size="lg">
-          {title}
-        </Title>
+    <main className="content">
+      {/* className content is used by WidthProvider */}
+      <div className="flex items-center justify-between pb-4">
+        <h1 className="text-lg font-semibold">{title}</h1>
 
         {showBack && <Button onClick={() => history.goBack()}>&#8592;&nbsp;{t('common:back')}</Button>}
-      </SectionHead>
-      <WidthProvider>
-        <MainContent className="content">{children}</MainContent>
-      </WidthProvider>
-    </PageSection>
+      </div>
+      <WidthProvider>{children}</WidthProvider>
+    </main>
   );
 };
 

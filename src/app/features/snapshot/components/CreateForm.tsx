@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react';
 import { Button, Form, Input, Modal, Select } from 'antd';
-import uniqby from 'lodash.uniqby';
+import { uniqBy } from 'lodash';
 import { useTranslation } from 'react-i18next';
 
 import { useNodes } from '@app/features/node';
@@ -35,7 +35,7 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
   const [open, setOpen] = useState(false);
   const { t } = useTranslation(['common', 'snapshot']);
 
-  const resourceList = uniqby(resources, 'name')?.map((e) => ({
+  const resourceList = uniqBy(resources, 'name')?.map((e) => ({
     label: e.name,
     value: e.name,
   }));

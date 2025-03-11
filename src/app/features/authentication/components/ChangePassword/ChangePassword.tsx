@@ -130,6 +130,7 @@ const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordPr
           onClick={(e) => {
             setOpen(true);
           }}
+          className="flex items-center"
         >
           {admin ? (
             <Button disabled={disabled}> {t('reset_password')} </Button>

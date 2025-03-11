@@ -7,7 +7,6 @@
 import React from 'react';
 import { Button, Table } from 'antd';
 import type { TableProps } from 'antd';
-import get from 'lodash.get';
 import { useQuery } from '@tanstack/react-query';
 import { useHistory } from 'react-router-dom';
 import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
@@ -47,7 +46,7 @@ export const FaultyList = () => {
 
   const handleConnectStatusDisplay = (resourceItem: ResourceDataType) => {
     let failStr = '';
-    const conn = get(resourceItem, 'layer_object.drbd.connections', {}) as any;
+    const conn = resourceItem?.layer_object?.drbd?.connections ?? {};
     if (Object.keys(conn).length === 0) {
       return 'OK';
     }
@@ -55,12 +54,12 @@ export const FaultyList = () => {
     let fail = false;
     for (const nodeName in conn) {
       count++;
-      if (!conn[nodeName].connected) {
+      if (!conn?.[nodeName]?.connected) {
         fail = true;
         if (failStr !== '') {
           failStr += ',';
         }
-        failStr += `${nodeName} ${conn[nodeName].message}`;
+        failStr += `${nodeName} ${conn?.[nodeName]?.message}`;
       }
     }
     fail = count === 0 ? true : fail;
@@ -115,7 +114,7 @@ export const FaultyList = () => {
       title: t('common:port'),
       key: 'port',
       render: (item) => {
-        return <span>{get(item, 'layer_object.drbd.drbd_resource_definition.port')}</span>;
+        return <span>{item?.layer_object?.drbd?.drbd_resource_definition?.port}</span>;
       },
     },
     {

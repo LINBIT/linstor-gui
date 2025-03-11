@@ -11,8 +11,7 @@ import { useSelector } from 'react-redux';
 
 const IFramePage = styled.iframe`
   width: 100%;
-  height: 100%;
-  border-radius: 1em;
+  height: calc(100vh - 148px);
 `;
 
 export const GrafanaDashboard = () => {

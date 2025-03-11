@@ -396,7 +396,7 @@ export const VSANNodeList = () => {
             <a
               href={
                 IS_DEV
-                  ? process.env.VSAN_API_HOST + '/addnode.html'
+                  ? import.meta.env.VITE_VSAN_API_HOST + '/addnode.html'
                   : 'https://' + window.location.hostname + '/addnode.html'
               }
               target="_blank"
@@ -410,7 +410,7 @@ export const VSANNodeList = () => {
             <a
               href={
                 IS_DEV
-                  ? process.env.VSAN_API_HOST + '/delnode.html'
+                  ? import.meta.env.VITE_VSAN_API_HOST + '/delnode.html'
                   : 'https://' + window.location.hostname + '/delnode.html'
               }
               target="_blank"

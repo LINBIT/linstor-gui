@@ -3,9 +3,11 @@
  * Copyright (c) 2024 LINBIT
  * Author: Liang Li <liang.li@linbit.com>
  */
+
 @import url('react-toastify/dist/ReactToastify.css');
-@import url('react-dropzone-uploader/dist/styles.css');
 @import url('antd/dist/reset.css');
+
+@import 'tailwindcss';
 
 html,
 body,

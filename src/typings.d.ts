@@ -29,3 +29,12 @@ const resErrorData = {
 type resError = typeof resErrorData;
 type alertList = Array<{ title: string; variant: string; key: string }>;
 type SelectOptions = Array<{ value?: string; label?: string; isDisabled?: boolean; isPlaceholder?: boolean }>;
+
+interface ImportMetaEnv {
+  readonly VITE_VERSION: string;
+  readonly VITE_VSAN_API_HOST?: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}

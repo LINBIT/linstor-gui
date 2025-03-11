@@ -8,7 +8,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import { App } from '@app/index';
+import { App } from './app';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import translations from './translations';

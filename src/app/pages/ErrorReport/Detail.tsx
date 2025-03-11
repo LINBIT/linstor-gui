@@ -25,8 +25,6 @@ const ErrorReportDetail = () => {
 
   const { t } = useTranslation('error_report');
 
-  console.log(data?.data?.[0].text);
-
   return (
     <PageBasic title={t('detail_title')} loading={isLoading} showBack>
       <Card>

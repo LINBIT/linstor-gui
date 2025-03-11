@@ -44,17 +44,17 @@ LB_LINSTOR_API_HOST is required, LB_GATEWAY_API_HOST is optional, default is `ht
 
 ```
 # The hostname or IP address running the `linstor-gui` (optional)
-HOST=127.0.0.1
+VITE_HOST=127.0.0.1
 # The port of the `linstor-gui` (optional)
-PORT=8080
+VITE_PORT=8080
 # The version of the `linstor-gui` (optional)
-VERSION=DEV
+VITE_VERSION=DEV
 # The host of the LINSTOR API
-LINSTOR_API_HOST=http://192.168.123.214:3370
+VITE_LINSTOR_API_HOST=http://192.168.123.214:3370
 # The host of the LINSTOR GATEWAY API (optional)
-GATEWAY_API_HOST=http://192.168.123.214:8080
+VITE_GATEWAY_API_HOST=http://192.168.123.214:8080
 # The host of the LINBIT VSAN API (optional)
-VSAN_API_HOST=https://192.168.123.214
+VITE_VSAN_API_HOST=https://192.168.123.214
 ```
 
 - `npm run start:dev`,

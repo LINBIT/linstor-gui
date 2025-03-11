@@ -5,7 +5,6 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
-import { Spinner } from '@patternfly/react-core';
 
 import { useTranslation } from 'react-i18next';
 
@@ -26,7 +25,7 @@ const ConnectStatus: React.FC = () => {
   const { t } = useTranslation('common');
 
   if (isLoading) {
-    return <Spinner isSVG size="sm" />;
+    return null;
   }
 
   return (

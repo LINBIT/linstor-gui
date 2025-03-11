@@ -10,7 +10,7 @@ import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useHistory, useLocation } from 'react-router-dom';
 import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
-import uniqby from 'lodash.uniqby';
+import { uniqBy } from 'lodash';
 import { useTranslation } from 'react-i18next';
 
 import { formatBytes } from '@app/utils/size';
@@ -244,7 +244,7 @@ export const List = () => {
               style={{ width: 180 }}
               allowClear
               placeholder="Please select resource"
-              options={uniqby(resourceList?.data, 'name')?.map((e: { name: string }) => ({
+              options={uniqBy(resourceList?.data, 'name')?.map((e: any) => ({
                 label: e.name,
                 value: e.name,
               }))}

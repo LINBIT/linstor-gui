@@ -5,42 +5,30 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import * as React from 'react';
-import { ExclamationTriangleIcon } from '@patternfly/react-icons';
-import {
-  PageSection,
-  Title,
-  Button,
-  EmptyState,
-  EmptyStateIcon,
-  EmptyStateBody,
-} from '@patternfly/react-core';
+import { Button, Result } from 'antd';
 import { useHistory } from 'react-router-dom';
 
 const NotFound: React.FunctionComponent = () => {
-  function GoHomeBtn() {
-    const history = useHistory();
-    function handleClick() {
-      history.push('/');
-    }
-    return (
-      <Button onClick={handleClick}>Take me home</Button>
-    );
-  }
+  const history = useHistory();
+
+  const handleGoHome = () => {
+    history.push('/');
+  };
 
   return (
-    <PageSection>
-    <EmptyState variant="full">
-      <EmptyStateIcon icon={ExclamationTriangleIcon} />
-      <Title headingLevel="h1" size="lg">
-        404 Page not found
-      </Title>
-      <EmptyStateBody>
-        We didn&apos;t find a page that matches the address you navigated to.
-      </EmptyStateBody>
-      <GoHomeBtn />
-    </EmptyState>
-  </PageSection>
-  )
+    <div className="flex items-center justify-center min-h-[calc(100vh-64px)]">
+      <Result
+        status="404"
+        title="404 Page not found"
+        subTitle="We didn't find a page that matches the address you navigated to."
+        extra={
+          <Button type="primary" onClick={handleGoHome}>
+            Take me home
+          </Button>
+        }
+      />
+    </div>
+  );
 };
 
 export { NotFound };

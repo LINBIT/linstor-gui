@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Button, Checkbox, Col, Divider, Form, Input, Popover, Radio, Row, Select, Switch } from 'antd';
 import { useHistory } from 'react-router-dom';
-import uniqby from 'lodash.uniqby';
+import { uniqBy } from 'lodash';
 import { toast } from 'react-toastify';
 
 import { useStoragePools } from '@app/features/storagePool';
@@ -411,7 +411,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
               allowClear
               placeholder="Please select storage pool"
               mode="multiple"
-              options={uniqby(storagePools, 'storage_pool_name')?.map((e) => ({
+              options={uniqBy(storagePools, 'storage_pool_name')?.map((e) => ({
                 label: e.storage_pool_name,
                 value: e.storage_pool_name,
               }))}

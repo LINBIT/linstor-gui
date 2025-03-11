@@ -26,12 +26,12 @@ export const About = () => {
       <h2>GUI version</h2>
       <p
         onClick={() => {
-          if (process.env.VERSION?.indexOf('DEV') !== -1) {
+          if (import.meta.env.VITE_VERSION?.indexOf('DEV') !== -1) {
             setHostModal(true);
           }
         }}
       >
-        {process.env.VERSION ? process.env.VERSION : 'DEV'}
+        {import.meta.env.VITE_VERSION ? import.meta.env.VITE_VERSION : 'DEV'}
       </p>
       <h2>Open Source</h2>
       <p>

@@ -12,7 +12,7 @@ import { createBackup } from '../api';
 import { RemoteBackupCreateRequestBody } from '../types';
 import { useParams } from 'react-router-dom';
 import { getResources } from '@app/features/resource';
-import uniqBy from 'lodash.uniqby';
+import { uniqBy } from 'lodash';
 
 type FormType = {
   rsc_name: string;

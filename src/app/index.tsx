@@ -8,17 +8,16 @@ import * as React from 'react';
 import { HashRouter as Router } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { ConfigProvider } from 'antd';
+import { useQuery } from '@tanstack/react-query';
 import locale from 'antd/locale/en_US';
 
-import '@patternfly/react-core/dist/styles/base.css';
+import AppLayout from '@app/layouts/AppLayout';
+import { AppRoutes } from '@app/routes/routes';
 
 import { store } from './store';
-
-import { AppLayout } from '@app/layouts/AppLayout';
-import { AppRoutes } from '@app/routes/routes';
-import '@app/app.css';
-import { useQuery } from '@tanstack/react-query';
 import { NavProvider } from './NavContext';
+
+import '@app/app.css';
 
 const MSG = 'The SpaceTracking service is not installed.';
 

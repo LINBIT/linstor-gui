@@ -7,7 +7,7 @@
 import React, { useState } from 'react';
 import { Button, Tooltip } from 'antd';
 import AddColumnModal from './AddColumnModal';
-import uniqBy from 'lodash.uniqby';
+import { uniqBy } from 'lodash';
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
 import ResetIcon from './reset.svg';

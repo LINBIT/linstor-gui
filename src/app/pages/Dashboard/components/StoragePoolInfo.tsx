@@ -13,14 +13,18 @@ import { groupBy, union } from 'lodash';
 import { getStoragePool } from '@app/features/storagePool';
 import { formatBytes } from '@app/utils/size';
 import styled from '@emotion/styled';
+import { useWindowSize } from '@app/hooks';
 
 const ChartContainer = styled.div`
   overflow-x: auto;
-  overflow-y: hidden;
 `;
 
 export const StoragePoolInfo: React.FC = () => {
   const { t } = useTranslation();
+
+  const { width, height } = useWindowSize();
+
+  console.log(`Window size: ${width} x ${height}`);
 
   // Fetching the storage pool data from the API
   const { data: poolsData, isLoading } = useQuery({
@@ -176,7 +180,7 @@ export const StoragePoolInfo: React.FC = () => {
   const nodeCount = chartData.categories.length;
   const chartWidth = nodeCount * 400; // adjust as needed
 
-  const width =
+  const widthForChart =
     nodeCount >= 5
       ? {
           width: chartWidth,
@@ -186,7 +190,13 @@ export const StoragePoolInfo: React.FC = () => {
   return (
     <Card title={t('common:storage_pool_overview')}>
       <ChartContainer>
-        <Chart options={options} series={chartData.series} type="bar" height={500} {...width} />
+        <Chart
+          options={options}
+          series={chartData.series}
+          type="bar"
+          height={height > 900 ? 500 : 300}
+          {...widthForChart}
+        />
       </ChartContainer>
     </Card>
   );

@@ -17,44 +17,12 @@ type ResourceProp = {
 };
 
 export const Resource = ({ data }: ResourceProp) => {
-  // const config = {
-  //   data,
-  //   angleField: 'value',
-  //   colorField: 'type',
-  //   label: {
-  //     text: 'value',
-  //     style: {
-  //       fontWeight: 'bold',
-  //     },
-  //   },
-  //   legend: {
-  //     color: {
-  //       title: false,
-  //       position: 'right',
-  //       rowPadding: 5,
-  //     },
-  //   },
-  // };
   const options = {
     labels: data.map((d) => d.type),
     legend: {
       position: 'bottom' as const,
     },
     colors: ['#499BBB', '#8FF9FF'],
-    width: 400,
-    responsive: [
-      {
-        breakpoint: 480,
-        options: {
-          chart: {
-            width: 200,
-          },
-          legend: {
-            position: 'bottom',
-          },
-        },
-      },
-    ],
   };
 
   const series = data.map((d) => d.value);

@@ -8,7 +8,7 @@ import React from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Form, Input, Radio, Select, Switch } from 'antd';
 import { useHistory, useParams } from 'react-router-dom';
-import uniqby from 'lodash.uniqby';
+import { uniqBy } from 'lodash';
 
 import { useStoragePools } from '@app/features/storagePool';
 import { useResourceDefinitions } from '@app/features/resourceDefinition';
@@ -186,7 +186,7 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
   const isAuto = allocate_method === 'auto';
 
   const spList = isAuto
-    ? uniqby(storagePools, 'storage_pool_name')
+    ? uniqBy(storagePools, 'storage_pool_name')
         ?.filter((e) => {
           return e.provider_kind !== 'DISKLESS';
         })
@@ -194,7 +194,7 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
           label: e.storage_pool_name,
           value: e.storage_pool_name,
         }))
-    : uniqby(storagePools, 'storage_pool_name')?.map((e) => ({
+    : uniqBy(storagePools, 'storage_pool_name')?.map((e) => ({
         label: e.storage_pool_name,
         value: e.storage_pool_name,
       }));

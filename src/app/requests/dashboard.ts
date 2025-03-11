@@ -5,7 +5,6 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import service from '@app/requests';
-import get from 'lodash.get';
 
 export const fetchMetrics = async (): Promise<string> => {
   try {
@@ -30,16 +29,16 @@ export async function resourcesList() {
 
 export async function resourcesDetailList() {
   return Array.from(await resourcesList())
-    .map((it) => {
+    .map((it: any) => {
       let failStr = 'OK';
       let stateStr;
       {
-        const conn = get(it, 'layer_object.drbd.connections', {});
+        const conn = it?.layer_object?.drbd?.connections || {};
         let count = 0;
         let fail = false;
         for (const nodeName in conn) {
           count++;
-          if (!(conn[nodeName].connected || false)) {
+          if (!(conn[nodeName]?.connected || false)) {
             fail = true;
             if (failStr !== '') {
               failStr += ',';
@@ -58,11 +57,10 @@ export async function resourcesDetailList() {
       } else if (flags.includes('INACTIVE')) {
         stateStr = 'INACTIVE';
       } else if (it.state?.in_use) {
-        // TODO
         stateStr = 'InUse';
       } else {
         stateStr = 'Unused';
-        const disk_state = get(it, 'volumes[0].state.disk_state', '');
+        const disk_state = it?.volumes?.[0]?.state?.disk_state || '';
         if (disk_state === 'Diskless') {
           if (flags.includes('TIE_BREAKER')) {
             return null;
@@ -75,8 +73,8 @@ export async function resourcesDetailList() {
       return {
         name: it.name,
         node: it.node_name,
-        port: get(it, 'layer_object.drbd.drbd_resource_definition.port', ''),
-        usage: get(it, 'state.in_use', false) ? 'InUse' : 'Unused',
+        port: it?.layer_object?.drbd?.drbd_resource_definition?.port || '',
+        usage: it?.state?.in_use ? 'InUse' : 'Unused',
         conns: failStr,
         state: stateStr,
         created_on: it.create_timestamp,

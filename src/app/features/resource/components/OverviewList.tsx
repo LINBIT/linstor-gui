@@ -11,8 +11,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useHistory, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import get from 'lodash.get';
-import uniqBy from 'lodash.uniqby';
+import { uniqBy } from 'lodash';
 import { MoreOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 
 import { uniqId } from '@app/utils/stringUtils';
@@ -291,7 +290,7 @@ export const OverviewList = () => {
 
   const handleConnectStatusDisplay = (resourceItem: ResourceDataType) => {
     let failStr = '';
-    const conn = get(resourceItem, 'layer_object.drbd.connections', {}) as any;
+    const conn = resourceItem?.layer_object?.drbd?.connections || {};
     if (Object.keys(conn).length === 0) {
       return 'OK';
     }
@@ -299,12 +298,12 @@ export const OverviewList = () => {
     let fail = false;
     for (const nodeName in conn) {
       count++;
-      if (!conn[nodeName].connected) {
+      if (!conn?.[nodeName]?.connected) {
         fail = true;
         if (failStr !== '') {
           failStr += ',';
         }
-        failStr += `${nodeName} ${conn[nodeName].message}`;
+        failStr += `${nodeName} ${conn?.[nodeName]?.message}`;
       }
     }
     fail = count === 0 ? true : fail;
@@ -380,8 +379,6 @@ export const OverviewList = () => {
     ),
   );
 
-  console.log('isLargeScreen', isLargeScreen);
-
   const extraColumns: any = useMemo(() => {
     return isLargeScreen
       ? [
@@ -390,7 +387,7 @@ export const OverviewList = () => {
             key: 'port',
             render: (item: any) => {
               const DRBDData = item?.layer_data?.find((e: any) => e.type === 'DRBD');
-              return <span>{get(DRBDData, 'data.port', 'N/A')}</span>;
+              return <span>{DRBDData?.data?.port || 'N/A'}</span>;
             },
           },
         ]
@@ -614,7 +611,7 @@ export const OverviewList = () => {
   }, []);
 
   return (
-    <>
+    <div className="overflow-x-auto relative">
       <SearchForm>
         <Form form={form} name="storage_pool_search" layout="inline">
           <Form.Item
@@ -887,6 +884,7 @@ export const OverviewList = () => {
                   return isPrimaryNode ? 'ant-table-row-primary' : '';
                 }}
                 pagination={false}
+                scroll={{ x: 'max-content' }}
               />
             );
           },
@@ -896,6 +894,7 @@ export const OverviewList = () => {
         rowKey={(item) => item?.name ?? uniqId()}
         pagination={tablePagination}
         onChange={handlePaginationChange}
+        sticky
       />
 
       <PropertyForm
@@ -942,6 +941,6 @@ export const OverviewList = () => {
         }}
         onCreate={handleMigrate}
       />
-    </>
+    </div>
   );
 };

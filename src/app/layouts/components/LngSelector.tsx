@@ -5,9 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState, useEffect } from 'react';
-import { Dropdown, DropdownToggle, DropdownItem } from '@patternfly/react-core';
-import { CaretDownIcon } from '@patternfly/react-icons';
-
+import { Dropdown, MenuProps } from 'antd';
+import { DownOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
 import './LngSelector.css';
@@ -22,13 +21,10 @@ const items = [
 ];
 
 const LngSelector: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState('English');
-
   const { i18n } = useTranslation();
 
   useEffect(() => {
-    // Load the saved language from localStorage, if available
     const savedLangKey = localStorage.getItem('selectedLanguageKey');
     const savedLangText = localStorage.getItem('selectedLanguageText');
     if (savedLangKey && savedLangText) {
@@ -40,30 +36,22 @@ const LngSelector: React.FC = () => {
   const handleLanguageChange = (lang: { key: string; text: string }) => {
     i18n.changeLanguage(lang.key);
     setSelected(lang.text);
-
-    // Save the selected language to localStorage
     localStorage.setItem('selectedLanguageKey', lang.key);
     localStorage.setItem('selectedLanguageText', lang.text);
   };
 
-  const dropdownItems = items.map((e) => (
-    <DropdownItem key={e.key} component="button" onClick={() => handleLanguageChange(e)}>
-      {e.text}
-    </DropdownItem>
-  ));
+  const menuItems: MenuProps['items'] = items.map((e) => ({
+    key: e.key,
+    label: e.text,
+    onClick: () => handleLanguageChange(e),
+  }));
 
   return (
-    <Dropdown
-      onSelect={() => setIsOpen(!isOpen)}
-      toggle={
-        <DropdownToggle id="toggle-id" onToggle={() => setIsOpen(!isOpen)} toggleIndicator={CaretDownIcon}>
-          {selected}
-        </DropdownToggle>
-      }
-      isOpen={isOpen}
-      dropdownItems={dropdownItems}
-      className="linbit__drop"
-    />
+    <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+      <span className="ant-dropdown-link" onClick={(e) => e.preventDefault()}>
+        {selected} <DownOutlined />
+      </span>
+    </Dropdown>
   );
 };
 
