@@ -1,5 +1,19 @@
 # Changelog
 
+# 1.9.2 - 2025-03-12
+
+### Fixed
+
+- Display issue of SP chart on the dashboard
+- Display issue of aux properties on the resource overview
+
+### Changed
+
+- New property editor
+- Replaced webpack with Vite as the build tool
+- Adjusted page layout
+- Removed PatternFly and other unnecessary dependencies
+
 # 1.9.1 - 2025-02-27
 
 ### Fixed
