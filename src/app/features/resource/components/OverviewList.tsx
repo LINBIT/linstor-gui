@@ -13,6 +13,7 @@ import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { uniqBy } from 'lodash';
 import { MoreOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { LiaToolsSolid } from 'react-icons/lia';
 
 import { uniqId } from '@app/utils/stringUtils';
 import { formatBytes } from '@app/utils/size';
@@ -468,7 +469,9 @@ export const OverviewList = () => {
       {
         title: () => (
           <Tooltip title={t('common:action')}>
-            <span>{t('common:action_short')}</span>
+            <span className="flex justify-center">
+              <LiaToolsSolid />
+            </span>
           </Tooltip>
         ),
         key: 'action',
@@ -610,6 +613,200 @@ export const OverviewList = () => {
     };
   }, []);
 
+  const expandableRender = (record: any) => {
+    return (
+      <Table
+        bordered
+        size="small"
+        columns={[
+          {
+            title: t('common:node'),
+            key: 'node_name',
+            dataIndex: 'node_name',
+            render: (node_name) => {
+              return <span>{node_name}</span>;
+            },
+          },
+          {
+            title: t('common:volume_number_short'),
+            key: 'volume_number',
+            dataIndex: 'volume_number',
+            render: (volume_number) => {
+              return <span>{volume_number}</span>;
+            },
+          },
+          {
+            title: t('common:size'),
+            key: 'size',
+            render: (_, record: any) => {
+              return (
+                <span>
+                  {formatBytes(record.allocated_size_kib ?? 0)} / {formatBytes(record?.size_kib ?? 0)} (
+                  {calculatePercentage(record.allocated_size_kib, record.size_kib)}%)
+                </span>
+              );
+            },
+          },
+          {
+            title: t('common:storage_pool'),
+            key: 'storage_pool',
+            dataIndex: 'storage_pool_name',
+            render: (storage_pool_name) => {
+              return (
+                <Button
+                  type="link"
+                  onClick={() => {
+                    history.push(`/inventory/storage-pools?storage_pools=${storage_pool_name}`);
+                  }}
+                >
+                  {storage_pool_name}
+                </Button>
+              );
+            },
+          },
+          {
+            title: t('volume:device_name'),
+            key: 'device_path',
+            dataIndex: 'device_path',
+          },
+          {
+            title: t('resource:connection_status'),
+            key: 'connection_status',
+            render: (record) => {
+              const connectionStatus = handleConnectStatusDisplay(record?.resource);
+              return <Tag color={connectionStatus === 'OK' ? 'green' : 'red'}>{connectionStatus}</Tag>;
+            },
+          },
+          {
+            title: t('common:state'),
+            key: 'state',
+            dataIndex: 'state',
+            render: (state, record) => {
+              const isPrimaryNode = record?.node_name?.toLowerCase() === record?.primary_node?.toLowerCase();
+              const stateStr = handleResourceStateDisplay(record.resource);
+              return (
+                <>
+                  <Tag color="geekblue">{stateStr}</Tag>
+                  {isPrimaryNode && <Tag color="cyan">{t('common:primary')}</Tag>}
+                </>
+              );
+            },
+          },
+          {
+            title: () => (
+              <Tooltip title={t('common:action')}>
+                <span className="flex justify-center">
+                  <LiaToolsSolid />
+                </span>
+              </Tooltip>
+            ),
+            key: 'action',
+            width: 10,
+            fixed: 'right',
+            align: 'center',
+            render: (_, record) => {
+              const isDisklessOrTieBreaker =
+                record.flags && (record.flags.includes('DRBD_DISKLESS') || record.flags.includes('TIE_BREAKER'));
+
+              return (
+                <>
+                  <Dropdown
+                    menu={{
+                      items: [
+                        {
+                          key: 'toggle',
+                          label: (
+                            <Popconfirm
+                              title="Toggle the resource"
+                              description="Are you sure to toggle this resource?"
+                              okText="Yes"
+                              cancelText="No"
+                              onConfirm={() => {
+                                toggleResourceMutation.mutate({
+                                  resource: record.resource_name,
+                                  node: record.node_name,
+                                  action: isDisklessOrTieBreaker ? 'to_diskful' : 'to_diskless',
+                                });
+                              }}
+                            >
+                              <span>{isDisklessOrTieBreaker ? t('resource:add_disk') : t('resource:remove_disk')}</span>
+                            </Popconfirm>
+                          ),
+                        },
+                        {
+                          key: 'property',
+                          label: t('common:property'),
+                          onClick: () => {
+                            setCurrent({
+                              ...record?.resource.props,
+                              resource_name: record.resource_name,
+                              node_name: record.node_name,
+                            });
+
+                            const currentData = record?.resource.props;
+                            setInitialProps({
+                              ...currentData,
+                              name: record?.resource_name,
+                            });
+                            resourcePropertyFormRef.current?.openModal();
+                          },
+                        },
+                        {
+                          key: 'snapshot',
+                          label: t('common:snapshot'),
+                          onClick: () => {
+                            handleSnapshot(record.resource_name ?? '');
+                          },
+                        },
+                        {
+                          key: 'migrate',
+                          label: t('common:migrate'),
+                          onClick: () => {
+                            handleOpenMigrate(record.resource_name ?? '', record.node_name ?? '');
+                          },
+                        },
+                        {
+                          key: 'delete',
+                          label: (
+                            <Popconfirm
+                              key="delete"
+                              title="Delete the resource"
+                              description="Are you sure to delete this resource?"
+                              okText="Yes"
+                              cancelText="No"
+                              onConfirm={() => {
+                                deleteResourceMutation.mutate({
+                                  resource: record.resource_name ?? '',
+                                  node: record.node_name ?? '',
+                                });
+                              }}
+                            >
+                              {t('common:delete')}
+                            </Popconfirm>
+                          ),
+                        },
+                      ],
+                    }}
+                  >
+                    <Button type="text" icon={<MoreOutlined />} />
+                  </Dropdown>
+                </>
+              );
+            },
+          },
+        ]}
+        dataSource={record.volumes}
+        rowKey={(item) => item?.uuid ?? uniqId()}
+        rowClassName={(record) => {
+          const isPrimaryNode = record?.node_name?.toLowerCase() === record?.primary_node?.toLowerCase();
+          return isPrimaryNode ? 'ant-table-row-primary' : '';
+        }}
+        pagination={false}
+        scroll={{ x: 'max-content' }}
+      />
+    );
+  };
+
   return (
     <div className="overflow-x-auto relative">
       <SearchForm>
@@ -694,207 +891,14 @@ export const OverviewList = () => {
         loading={isLoading}
         columns={finalColumns}
         expandable={{
-          expandedRowRender: (record) => {
-            return (
-              <Table
-                bordered
-                size="small"
-                columns={[
-                  {
-                    title: t('common:node'),
-                    key: 'node_name',
-                    dataIndex: 'node_name',
-                    render: (node_name) => {
-                      return <span>{node_name}</span>;
-                    },
-                  },
-                  {
-                    title: t('common:volume_number_short'),
-                    key: 'volume_number',
-                    dataIndex: 'volume_number',
-                    render: (volume_number) => {
-                      return <span>{volume_number}</span>;
-                    },
-                  },
-                  {
-                    title: t('common:size'),
-                    key: 'size',
-                    render: (_, record: any) => {
-                      return (
-                        <span>
-                          {formatBytes(record.allocated_size_kib ?? 0)} / {formatBytes(record?.size_kib ?? 0)} (
-                          {calculatePercentage(record.allocated_size_kib, record.size_kib)}%)
-                        </span>
-                      );
-                    },
-                  },
-                  {
-                    title: t('common:storage_pool'),
-                    key: 'storage_pool',
-                    dataIndex: 'storage_pool_name',
-                    render: (storage_pool_name) => {
-                      return (
-                        <Button
-                          type="link"
-                          onClick={() => {
-                            history.push(`/inventory/storage-pools?storage_pools=${storage_pool_name}`);
-                          }}
-                        >
-                          {storage_pool_name}
-                        </Button>
-                      );
-                    },
-                  },
-                  {
-                    title: t('volume:device_name'),
-                    key: 'device_path',
-                    dataIndex: 'device_path',
-                  },
-                  {
-                    title: t('resource:connection_status'),
-                    key: 'connection_status',
-                    render: (record) => {
-                      const connectionStatus = handleConnectStatusDisplay(record?.resource);
-                      return <Tag color={connectionStatus === 'OK' ? 'green' : 'red'}>{connectionStatus}</Tag>;
-                    },
-                  },
-                  {
-                    title: t('common:state'),
-                    key: 'state',
-                    dataIndex: 'state',
-                    render: (state, record) => {
-                      const isPrimaryNode = record?.node_name?.toLowerCase() === record?.primary_node?.toLowerCase();
-                      const stateStr = handleResourceStateDisplay(record.resource);
-                      return (
-                        <>
-                          <Tag color="geekblue">{stateStr}</Tag>
-                          {isPrimaryNode && <Tag color="cyan">{t('common:primary')}</Tag>}
-                        </>
-                      );
-                    },
-                  },
-                  {
-                    title: () => (
-                      <Tooltip title={t('common:action')}>
-                        <span>{t('common:action_short')}</span>
-                      </Tooltip>
-                    ),
-                    key: 'action',
-                    width: 10,
-                    fixed: 'right',
-                    align: 'center',
-                    render: (_, record) => {
-                      const isDisklessOrTieBreaker =
-                        record.flags &&
-                        (record.flags.includes('DRBD_DISKLESS') || record.flags.includes('TIE_BREAKER'));
-
-                      return (
-                        <>
-                          <Dropdown
-                            menu={{
-                              items: [
-                                {
-                                  key: 'toggle',
-                                  label: (
-                                    <Popconfirm
-                                      title="Toggle the resource"
-                                      description="Are you sure to toggle this resource?"
-                                      okText="Yes"
-                                      cancelText="No"
-                                      onConfirm={() => {
-                                        toggleResourceMutation.mutate({
-                                          resource: record.resource_name,
-                                          node: record.node_name,
-                                          action: isDisklessOrTieBreaker ? 'to_diskful' : 'to_diskless',
-                                        });
-                                      }}
-                                    >
-                                      <span>
-                                        {isDisklessOrTieBreaker ? t('resource:add_disk') : t('resource:remove_disk')}
-                                      </span>
-                                    </Popconfirm>
-                                  ),
-                                },
-                                {
-                                  key: 'property',
-                                  label: t('common:property'),
-                                  onClick: () => {
-                                    setCurrent({
-                                      ...record?.resource.props,
-                                      resource_name: record.resource_name,
-                                      node_name: record.node_name,
-                                    });
-
-                                    const currentData = record?.resource.props;
-                                    setInitialProps({
-                                      ...currentData,
-                                      name: record?.resource_name,
-                                    });
-                                    resourcePropertyFormRef.current?.openModal();
-                                  },
-                                },
-                                {
-                                  key: 'snapshot',
-                                  label: t('common:snapshot'),
-                                  onClick: () => {
-                                    handleSnapshot(record.resource_name ?? '');
-                                  },
-                                },
-                                {
-                                  key: 'migrate',
-                                  label: t('common:migrate'),
-                                  onClick: () => {
-                                    handleOpenMigrate(record.resource_name ?? '', record.node_name ?? '');
-                                  },
-                                },
-                                {
-                                  key: 'delete',
-                                  label: (
-                                    <Popconfirm
-                                      key="delete"
-                                      title="Delete the resource"
-                                      description="Are you sure to delete this resource?"
-                                      okText="Yes"
-                                      cancelText="No"
-                                      onConfirm={() => {
-                                        deleteResourceMutation.mutate({
-                                          resource: record.resource_name ?? '',
-                                          node: record.node_name ?? '',
-                                        });
-                                      }}
-                                    >
-                                      {t('common:delete')}
-                                    </Popconfirm>
-                                  ),
-                                },
-                              ],
-                            }}
-                          >
-                            <Button type="text" icon={<MoreOutlined />} />
-                          </Dropdown>
-                        </>
-                      );
-                    },
-                  },
-                ]}
-                dataSource={record.volumes}
-                rowKey={(item) => item?.uuid ?? uniqId()}
-                rowClassName={(record) => {
-                  const isPrimaryNode = record?.node_name?.toLowerCase() === record?.primary_node?.toLowerCase();
-                  return isPrimaryNode ? 'ant-table-row-primary' : '';
-                }}
-                pagination={false}
-                scroll={{ x: 'max-content' }}
-              />
-            );
-          },
+          expandedRowRender: expandableRender,
           rowExpandable: (record) => (record?.volumes?.length ?? 0) > 0,
         }}
         dataSource={filteredList}
         rowKey={(item) => item?.name ?? uniqId()}
         pagination={tablePagination}
         onChange={handlePaginationChange}
-        sticky
+        scroll={{ x: 'max-content' }}
       />
 
       <PropertyForm
