@@ -34,6 +34,7 @@ import { Controller } from '@app/pages/Inventory/Controller';
 import { UserManagement } from '@app/features/authentication';
 import GeneralSettings from '@app/pages/Settings';
 import ResourceOverview from '@app/pages/SoftwareDefined/Resources/overview';
+import ResourceDefinitionCreate from '@app/pages/SoftwareDefined/ResourceDefinitions/create';
 
 import gateway from './gateway';
 import snapshot from './snapshot';
@@ -167,6 +168,13 @@ const routes: AppRouteConfig[] = [
         exact: true,
         path: '/storage-configuration/resources/:node/:resource/edit',
         title: 'LINSTOR | Storage Configuration | Resources | Edit',
+      },
+      {
+        component: ResourceDefinitionCreate,
+        exact: true,
+        label: 'resource_definition_create',
+        path: '/storage-configuration/resource-definitions/create',
+        title: 'LINSTOR | Storage Configuration | Resource Definitions | Create',
       },
     ],
   },
