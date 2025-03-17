@@ -219,10 +219,6 @@ export const List = () => {
     },
   ];
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <>
       <SearchForm>
@@ -292,6 +288,7 @@ export const List = () => {
           showSizeChanger: true,
           showTotal: (total) => `Total ${total} items`,
         }}
+        loading={isLoading}
       />
     </>
   );
