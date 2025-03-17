@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Button, Checkbox, Col, Divider, Form, Input, Popover, Radio, Row, Select, Switch } from 'antd';
 import { useNavigate } from 'react-router-dom';
@@ -68,6 +68,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
   const navigate = useNavigate();
   const [form] = Form.useForm<FormType>();
   const { t } = useTranslation(['resource_group', 'common']);
+  const [expand, setExpand] = useState(false);
 
   const deploy = Form.useWatch('deploy', form);
   const layer_stack = Form.useWatch('layer_stack', form);
