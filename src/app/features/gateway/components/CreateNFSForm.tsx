@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button, Form, Input, Select } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
@@ -33,13 +33,13 @@ type FormType = {
 };
 
 const CreateNFSForm = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [form] = Form.useForm<FormType>();
   const { data: resourceGroupsFromLinstor } = useResourceGroups({ excludeDefault: true });
   const { t } = useTranslation(['nfs', 'common']);
 
   const backToList = () => {
-    history.push('/gateway/NFS');
+    navigate('/gateway/NFS');
   };
 
   const createNFTMutation = useMutation({

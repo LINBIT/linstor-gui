@@ -7,7 +7,7 @@
 import React from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Checkbox, Form, Input, Radio, Select } from 'antd';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { CreateNetWorkInterfaceRequestBody, updateNetWorkInterface, createNetWorkInterface } from '@app/features/ip';
 import { getNodes, useNodes } from '@app/features/node';
@@ -27,12 +27,12 @@ type FormProps = {
 
 const CreateForm = ({ editing }: FormProps) => {
   const { node, ip } = useParams() as { node: string; ip: string };
-  const history = useHistory();
+  const navigate = useNavigate();
   const [form] = Form.useForm<FormType>();
   const nodes = useNodes();
 
   const backToList = () => {
-    history.push('/inventory/ip');
+    navigate('/inventory/ip');
   };
 
   const createNetWorkInterfaceMutation = useMutation({

@@ -7,7 +7,7 @@
 import React from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Collapse, Form, Input, message, Radio, Select, Switch, Tooltip } from 'antd';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import {
   getPhysicalStoragePoolByNode,
@@ -44,7 +44,7 @@ type FormType = {
 
 const CreateForm = () => {
   const nodes = useNodes();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { t } = useTranslation(['common', 'storage_pool']);
 
   const queryClient = useQueryClient();
@@ -60,7 +60,7 @@ const CreateForm = () => {
     queryClient.refetchQueries({
       queryKey: ['getStoragePool'],
     });
-    history.goBack();
+    navigate(-1);
   };
 
   const { data: devicePathOptions } = useQuery({

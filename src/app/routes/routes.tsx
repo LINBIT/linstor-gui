@@ -4,59 +4,45 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import * as React from 'react';
+import React from 'react';
 import { useEffect, useState } from 'react';
-import { Route, RouteComponentProps, Switch, useHistory } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { Dispatch, RootState } from '@app/store';
 
 import Dashboard from '@app/pages/Dashboard/Dashboard';
-
 import NodeList from '@app/pages/Inventory/Nodes';
 import NodeDetail from '@app/pages/Inventory/Nodes/detail';
 import NodeCreate from '@app/pages/Inventory/Nodes/create';
 import NodeEdit from '@app/pages/Inventory/Nodes/edit';
-
 import StoragePoolList from '@app/pages/Inventory/StoragePools';
 import StoragePoolCreate from '@app/pages/Inventory/StoragePools/create';
 import StoragePoolEdit from '@app/pages/Inventory/StoragePools/edit';
-
 import ResourceGroupList from '@app/pages/SoftwareDefined/ResourceGroups';
 import ResourceGroupEdit from '@app/pages/SoftwareDefined/ResourceGroups/edit';
 import ResourceGroupCreate from '@app/pages/SoftwareDefined/ResourceGroups/create';
-
 import ResourceCreate from '@app/pages/SoftwareDefined/Resources/create';
 import ResourceEdit from '@app/pages/SoftwareDefined/Resources/edit';
 import RemoteList from '@app/pages/Remote/RemoteList';
 import BackupList from '@app/pages/Remote/BackupList';
 import ErrorReportList from '@app/pages/ErrorReport/index';
 import ErrorReportDetail from '@app/pages/ErrorReport/Detail';
-
 import { NotFound } from '@app/pages/NotFound/NotFound';
-import GeneralSettings from '@app/pages/Settings';
 import { useDocumentTitle } from '@app/utils/useDocumentTitle';
-
-import { GrafanaDashboard } from '@app/pages/Granfana';
+import { GrafanaDashboard } from '@app/pages/Grafana';
+import { Controller } from '@app/pages/Inventory/Controller';
 import { UserManagement } from '@app/features/authentication';
+import GeneralSettings from '@app/pages/Settings';
+import ResourceOverview from '@app/pages/SoftwareDefined/Resources/overview';
 
 import gateway from './gateway';
 import snapshot from './snapshot';
-import { Dashboard as VSANDashboard } from '@app/pages/VSAN/Dashboard';
-import { NVMeoF } from '@app/pages/VSAN/NVMeoF';
-import { NFS } from '@app/pages/VSAN/NFS';
-import { ISCSI } from '@app/pages/VSAN/ISCSI';
-import { PhysicalStorage } from '@app/pages/VSAN/PhysicalStorage';
-import { About } from '@app/pages/VSAN/About';
-import { ResourceGroup } from '@app/pages/VSAN/ResourceGroup';
-import { useDispatch, useSelector } from 'react-redux';
-import { Dispatch, RootState } from '@app/store';
-import { Controller } from '@app/pages/Inventory/Controller';
-import ResourceOverview from '@app/pages/SoftwareDefined/Resources/overview';
+import vsan from './vsan';
 
 export interface IAppRoute {
-  label?: string; // Excluding the label will exclude the route from the nav sidebar in AppLayout
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  component: React.ComponentType<RouteComponentProps<any>> | React.ComponentType<any>;
-  /* eslint-enable @typescript-eslint/no-explicit-any */
-  exact?: boolean;
+  label?: string;
+  component: React.ComponentType<any>;
+  exact?: boolean; // Not needed in v7 but kept for backward compatibility
   path: string;
   title: string;
   isAsync?: boolean;
@@ -237,97 +223,21 @@ const routes: AppRouteConfig[] = [
   },
 ];
 
-const RouteWithTitleUpdates = ({ component: Component, isAsync = false, title, ...rest }: IAppRoute) => {
+// Component to handle setting document title and rendering the component
+const RouteWithTitleUpdates = ({ component: Component, title, ...rest }: IAppRoute) => {
   useDocumentTitle(title);
-
-  function routeWithTitle(routeProps: RouteComponentProps) {
-    return <Component {...rest} {...routeProps} />;
-  }
-
-  return <Route render={routeWithTitle} {...rest} />;
-};
-
-const PageNotFound = ({ title }: { title: string }) => {
-  useDocumentTitle(title);
-  return <Route component={NotFound} />;
+  return <Component {...rest} />;
 };
 
 const flattenedRoutes: IAppRoute[] = routes
   .reduce((flattened, route) => [...flattened, ...(route.routes ? route.routes : [route])], [] as IAppRoute[])
   .filter((e) => !e.hide);
 
-const vsanRoutes: IAppRoute[] = [
-  {
-    component: VSANDashboard,
-    path: '/vsan/dashboard',
-    title: 'VSAN | Dashboard',
-  },
-  {
-    component: NVMeoF,
-    path: '/vsan/nvmeof',
-    title: 'VSAN | NVMe-oF',
-  },
-  {
-    component: ISCSI,
-    path: '/vsan/iscsi',
-    title: 'VSAN | iSCSI',
-  },
-  {
-    component: NFS,
-    path: '/vsan/nfs',
-    title: 'VSAN | NFS',
-  },
-  {
-    component: UserManagement,
-    path: '/vsan/users',
-    title: 'VSAN | Users',
-  },
-  {
-    component: NodeDetail,
-    exact: true,
-    path: '/vsan/nodes/:node',
-    title: 'VSAN | Nodes',
-  },
-  {
-    component: PhysicalStorage,
-    exact: true,
-    path: '/vsan/physical-storage',
-    title: 'VSAN | Physical Storage',
-  },
-  {
-    component: ResourceGroup,
-    exact: true,
-    path: '/vsan/resource-groups',
-    title: 'VSAN | Resource Groups',
-  },
-  {
-    component: ErrorReportList,
-    exact: true,
-    isAsync: true,
-    label: 'error_reports',
-    path: '/vsan/error-reports',
-    title: 'VSAN | Error Reports',
-  },
-  {
-    component: ErrorReportDetail,
-    exact: true,
-    isAsync: true,
-    path: '/error-reports/:id',
-    title: 'VSAN | Error Report Detail',
-  },
-  {
-    component: About,
-    exact: true,
-    path: '/vsan/about',
-    title: 'VSAN | About',
-  },
-];
-
 const adminRoutes = ['/settings', '/users'];
 
 const AppRoutes = (): React.ReactElement => {
   const [displayedRoutes, setDisplayedRoutes] = useState(flattenedRoutes);
-  const history = useHistory();
+  const location = useLocation();
 
   const { KVS, vsanModeFromSettings, isAdmin } = useSelector((state: RootState) => ({
     KVS: state.setting.KVS,
@@ -341,13 +251,12 @@ const AppRoutes = (): React.ReactElement => {
     const gatewayEnabled = KVS?.gatewayEnabled;
     const dashboardEnabled = KVS?.dashboardEnabled;
 
-    const initialOpenFromVSAN =
-      history.location.pathname === '/vsan/dashboard' && history.location.search === '?vsan=true';
+    const initialOpenFromVSAN = location.pathname === '/vsan/dashboard' && location.search === '?vsan=true';
 
     const VSAN_MODE = (vsanModeFromSettings && vsanModeFromKVS) || initialOpenFromVSAN;
 
     if (VSAN_MODE) {
-      setDisplayedRoutes(vsanRoutes);
+      setDisplayedRoutes(vsan);
     } else {
       let filteredRoutes = [...flattenedRoutes];
       if (!gatewayEnabled) {
@@ -368,7 +277,7 @@ const AppRoutes = (): React.ReactElement => {
     }
   }, [
     dispatch.setting,
-    history,
+    location,
     KVS?.vsanMode,
     vsanModeFromSettings,
     isAdmin,
@@ -378,19 +287,16 @@ const AppRoutes = (): React.ReactElement => {
   ]);
 
   return (
-    <Switch>
-      {displayedRoutes.map(({ path, exact, component, title, isAsync }, idx) => (
-        <RouteWithTitleUpdates
-          path={path}
-          exact={exact}
-          component={component}
+    <Routes>
+      {displayedRoutes.map(({ path, component: Component, title, isAsync }, idx) => (
+        <Route
           key={idx}
-          title={title}
-          isAsync={isAsync}
+          path={path}
+          element={<RouteWithTitleUpdates component={Component} path={path} title={title} isAsync={isAsync} />}
         />
       ))}
-      <PageNotFound title="404 Page Not Found" />
-    </Switch>
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 };
 

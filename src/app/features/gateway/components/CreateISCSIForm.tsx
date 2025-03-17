@@ -7,7 +7,7 @@
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Button, Form, Input, Select, Space } from 'antd';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import { SizeInput } from '@app/components/SizeInput';
@@ -37,7 +37,7 @@ const formItemLayoutWithOutLabel = {
 };
 
 const CreateISCSIForm = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [form] = Form.useForm<FormType>();
 
   const { data: resourceGroupsFromLinstor } = useResourceGroups({ excludeDefault: true });
@@ -46,7 +46,7 @@ const CreateISCSIForm = () => {
   const { t } = useTranslation(['common', 'iscsi']);
 
   const backToList = () => {
-    history.push('/gateway/iscsi');
+    navigate('/gateway/iscsi');
   };
 
   const createMutation = useMutation({

@@ -8,7 +8,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Button, Form, Space, Table, Tag, Select, Popconfirm, Input, Dropdown, Switch } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { CheckCircleFilled, CloseCircleFilled, MoreOutlined } from '@ant-design/icons';
 
 import { useNodes } from '@app/features/node';
@@ -23,7 +23,7 @@ import { PropertyFormRef } from '@app/components/PropertyEditor';
 
 export const List = () => {
   const [form] = Form.useForm();
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation(['common', 'storage_pool']);
   const [query, setQuery] = useState<GetStoragePoolQuery>(() => {
@@ -127,13 +127,13 @@ export const List = () => {
 
     const new_url = `${location.pathname}?${queryS.toString()}`;
 
-    history.push(new_url);
+    navigate(new_url);
   };
 
   const handleReset = () => {
     form.resetFields();
     setQuery({});
-    history.push('/inventory/storage-pools');
+    navigate('/inventory/storage-pools');
   };
 
   const handleDelete = (node: string, storagepool: string) => {
@@ -184,7 +184,7 @@ export const List = () => {
           <Button
             type="link"
             onClick={() => {
-              history.push(`/inventory/nodes/${node_name}`);
+              navigate(`/inventory/nodes/${node_name}`);
             }}
           >
             {node_name}
@@ -261,7 +261,7 @@ export const List = () => {
           <Button
             type="default"
             onClick={() =>
-              history.push(`/inventory/storage-pools/${record.node_name}/${record.storage_pool_name}/edit`)
+              navigate(`/inventory/storage-pools/${record.node_name}/${record.storage_pool_name}/edit`)
             }
           >
             {t('common:edit')}
@@ -358,7 +358,7 @@ export const List = () => {
           </Form.Item>
         </Form>
 
-        <Button type="primary" onClick={() => history.push('/inventory/storage-pools/create')}>
+        <Button type="primary" onClick={() => navigate('/inventory/storage-pools/create')}>
           {t('common:add')}
         </Button>
       </SearchForm>

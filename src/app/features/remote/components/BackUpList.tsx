@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { Button, Form, Space, Table, Input, Popconfirm } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useHistory, useLocation, useParams } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 
 import { deleteBackup, getBackup } from '../api';
 import { SearchForm } from './styled';
@@ -24,7 +24,7 @@ type RemoteQuery = {
 export const List = () => {
   const [dataList, setDataList] = useState<any[]>();
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const [form] = Form.useForm();
   const location = useLocation();
 
@@ -89,14 +89,14 @@ export const List = () => {
 
     setDataList(newList);
 
-    history.push(new_url);
+    navigate(new_url);
   };
 
   const handleReset = () => {
     form.resetFields();
     setQuery({});
 
-    history.push(location.pathname);
+    navigate(location.pathname);
   };
 
   const deleteRemoteMutation = useMutation({

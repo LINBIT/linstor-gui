@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { Layout, message } from 'antd';
@@ -48,7 +48,8 @@ const handleSupportClick = () => {
 const AppLayout = ({ children, registered, isFetched }: IAppLayout) => {
   const { UIMode, updateUIMode } = useUIModeStorage();
   const dispatch = useDispatch<Dispatch>();
-  const history = useHistory();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation(['menu']);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -67,7 +68,7 @@ const AppLayout = ({ children, registered, isFetched }: IAppLayout) => {
     toggleNav();
     updateUIMode(mode);
     dispatch.setting.setVSANMode(mode === 'VSAN');
-    history.push(mode === 'VSAN' ? '/vsan/dashboard' : '/');
+    navigate(mode === 'VSAN' ? '/vsan/dashboard' : '/');
   };
 
   useEffect(() => {
@@ -90,9 +91,9 @@ const AppLayout = ({ children, registered, isFetched }: IAppLayout) => {
   const authenticationEnabled = KVS?.authenticationEnabled;
 
   useEffect(() => {
-    const VSAN_URL = history.location.pathname.includes('/vsan');
+    const VSAN_URL = location.pathname.includes('/vsan');
     const initialOpenFromVSAN =
-      history.location.pathname === '/vsan/dashboard' && history.location.search === '?vsan=true';
+      location.pathname === '/vsan/dashboard' && location.search === '?vsan=true';
 
     if (initialOpenFromVSAN) {
       dispatch.setting.initSettingStore(VSAN_URL);
@@ -104,7 +105,7 @@ const AppLayout = ({ children, registered, isFetched }: IAppLayout) => {
       dispatch.setting.setVSANMode(true);
       dispatch.setting.getMyLinbitStatus();
     }
-  }, [dispatch.setting, history.location.pathname, history.location.search]);
+  }, [dispatch.setting, location.pathname, location.search]);
 
   useEffect(() => {
     dispatch.setting.getSettings();

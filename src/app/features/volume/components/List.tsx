@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { Button, Form, Space, Table, Input, Select } from 'antd';
 import type { TableProps } from 'antd';
 import { useQuery } from '@tanstack/react-query';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
@@ -26,7 +26,7 @@ import { SearchForm } from './styled';
 export const List = () => {
   const [volumeList, setVolumeList] = useState<GetResourcesResponseBody>();
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const [form] = Form.useForm();
   const location = useLocation();
 
@@ -148,7 +148,7 @@ export const List = () => {
 
     const new_url = `${location.pathname}?${queryS.toString()}`;
 
-    history.push(new_url);
+    navigate(new_url);
   };
 
   const handleReset = () => {
@@ -158,7 +158,7 @@ export const List = () => {
       offset: 0,
     });
 
-    history.push(location.pathname);
+    navigate(location.pathname);
   };
 
   const columns: TableProps<
@@ -194,7 +194,7 @@ export const List = () => {
           <Button
             type="link"
             onClick={() => {
-              history.push(`/inventory/nodes/${node_name}`);
+              navigate(`/inventory/nodes/${node_name}`);
             }}
           >
             {node_name}
@@ -210,7 +210,7 @@ export const List = () => {
           <Button
             type="link"
             onClick={() => {
-              history.push(`/inventory/storage-pools?storage_pools=${item.resourceProps?.StorPoolName}`);
+              navigate(`/inventory/storage-pools?storage_pools=${item.resourceProps?.StorPoolName}`);
             }}
           >
             {item.resourceProps?.StorPoolName}

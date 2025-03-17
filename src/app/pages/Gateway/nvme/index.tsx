@@ -13,13 +13,13 @@ import { Dispatch, RootState } from '@app/store';
 import PageBasic from '@app/components/PageBasic';
 
 import { NVMeList as NVMeListV2 } from '@app/features/gateway';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const List = () => {
   const { t } = useTranslation(['nvme', 'common']);
   const dispatch = useDispatch<Dispatch>();
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const { list } = useSelector((state: RootState) => ({
     list: state.nvme.list,
@@ -30,7 +30,7 @@ const List = () => {
   }, [dispatch.nvme]);
 
   const createISCSI = () => {
-    history.push(`/gateway/nvme-of/create`);
+    navigate(`/gateway/nvme-of/create`);
   };
 
   const handleDelete = (nqn: string) => {

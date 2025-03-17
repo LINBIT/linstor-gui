@@ -4,10 +4,10 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Button, Checkbox, Col, Divider, Form, Input, Popover, Radio, Row, Select, Switch } from 'antd';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { uniqBy } from 'lodash';
 import { toast } from 'react-toastify';
 
@@ -65,8 +65,7 @@ type CreateFormProps = {
 };
 
 const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
-  const [expand, setExpand] = useState(false);
-  const history = useHistory();
+  const navigate = useNavigate();
   const [form] = Form.useForm<FormType>();
   const { t } = useTranslation(['resource_group', 'common']);
 
@@ -75,9 +74,9 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
 
   const backToList = () => {
     if (isEdit) {
-      history.goBack();
+      navigate(-1);
     } else {
-      history.push('/storage-configuration/resource-groups');
+      navigate('/storage-configuration/resource-groups');
     }
   };
 

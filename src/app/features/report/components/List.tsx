@@ -12,7 +12,7 @@ import { deleteReport, deleteReportBulk, getErrorReports } from '../api';
 import { ErrorReport, ErrorReportDeleteRangeRequest, GetErrorReportRequestQuery } from '../types';
 import { formatTime, getTime } from '@app/utils/time';
 import { useNodes } from '@app/features/node';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';
 import styled from '@emotion/styled';
@@ -39,7 +39,7 @@ export const List = () => {
   const [displayData, setDisplayData] = useState<ErrorReport[]>([]);
   const nodes = useNodes();
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
 
   const { vsanModeFromSetting } = useSelector((state: RootState) => ({
@@ -117,7 +117,7 @@ export const List = () => {
 
     const new_url = `${location.pathname}?${query.toString()}`;
 
-    history.push(new_url);
+    navigate(new_url);
 
     setQuery(newQuery);
   };
@@ -133,7 +133,7 @@ export const List = () => {
 
   // handle click on view button
   const handleView = (id: string) => {
-    history.push(`/error-reports/${id}`);
+    navigate(`/error-reports/${id}`);
   };
 
   const columns: TableProps<ErrorReport>['columns'] = [
@@ -160,7 +160,7 @@ export const List = () => {
             type="link"
             onClick={() => {
               const url = vsanModeFromSetting ? '/vsan/nodes' : '/inventory/nodes';
-              history.push(`${url}/${node_name}`);
+              navigate(`${url}/${node_name}`);
             }}
           >
             {node_name}

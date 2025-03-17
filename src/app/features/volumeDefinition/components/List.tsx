@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { Button, Form, Space, Table, Popconfirm, Select } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQueries, useQuery } from '@tanstack/react-query';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import PropertyForm from '@app/components/PropertyEditor';
@@ -35,7 +35,7 @@ export const List = () => {
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
   const { t } = useTranslation(['volume_definition', 'common']);
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
 
   const [form] = Form.useForm();
@@ -103,7 +103,7 @@ export const List = () => {
 
       const new_url = `${location.pathname}?${query.toString()}`;
 
-      history.push(new_url);
+      navigate(new_url);
     }
 
     setQuery(newQuery);
@@ -112,7 +112,7 @@ export const List = () => {
   const handleReset = () => {
     form.resetFields();
     setQuery({});
-    history.push('/storage-configuration/volume-definitions');
+    navigate('/storage-configuration/volume-definitions');
   };
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {

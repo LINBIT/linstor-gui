@@ -7,7 +7,7 @@
 import React from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Button, Checkbox, Form, Input, Radio, Select, Switch } from 'antd';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { useResourceGroups } from '@app/features/resourceGroup';
 import { useStoragePools } from '@app/features/storagePool';
@@ -38,7 +38,7 @@ type CreateFormProps = {
 };
 
 const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [form] = Form.useForm<FormType>();
 
   const deploy = Form.useWatch('deploy', form);
@@ -46,7 +46,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
   const { t } = useTranslation(['common', 'resource_definition']);
 
   const backToList = () => {
-    history.goBack();
+    navigate(-1);
   };
 
   const { isLoading: resourceGroupsIsLoading, data: resourceGroups } = useResourceGroups({});

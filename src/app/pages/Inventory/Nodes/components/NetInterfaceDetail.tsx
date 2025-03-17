@@ -14,7 +14,7 @@ import { Button, Modal } from 'antd';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 type NetInterfaceDetailProp = {
   item: NetWorkInterface;
@@ -35,7 +35,7 @@ export const NetInterfaceDetail = ({ item }: NetInterfaceDetailProp) => {
   const { t } = useTranslation(['common', 'node_detail']);
 
   const nodes = useNodes({});
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const resourceGroups = useQuery({
     queryKey: ['resourceGroup'],
@@ -101,7 +101,7 @@ export const NetInterfaceDetail = ({ item }: NetInterfaceDetailProp) => {
                   type="link"
                   onClick={() => {
                     const url = vsanModeFromSetting ? '/vsan/nodes' : '/inventory/nodes';
-                    history.push(`${url}/${nw?.node}`);
+                    navigate(`${url}/${nw?.node}`);
                   }}
                 >
                   {nw?.node}

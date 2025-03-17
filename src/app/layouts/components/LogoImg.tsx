@@ -1,5 +1,5 @@
 import React from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import SVG from 'react-inlinesvg';
 import { isUrl } from '@app/utils/stringUtils';
 import isSvg from 'is-svg';
@@ -25,10 +25,10 @@ const renderLogo = (logoSrc?: string) => {
 };
 
 export const LogoImg: React.FC<LogoImgProps> = ({ vsanModeFromSetting, KVS, logoSrc }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   function handleClick() {
-    history.push(vsanModeFromSetting && KVS?.vsanMode ? '/vsan/dashboard' : '/');
+    navigate(vsanModeFromSetting && KVS?.vsanMode ? '/vsan/dashboard' : '/');
   }
 
   return (

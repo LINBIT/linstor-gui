@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { Button, Form, Table, Select, Popconfirm, Space } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import { uniqBy } from 'lodash';
 import { useTranslation } from 'react-i18next';
@@ -25,7 +25,7 @@ import { CreateSnapshotForm } from './CreateForm';
 
 export const List = () => {
   const [form] = Form.useForm();
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
 
   const { t } = useTranslation(['common', 'snapshot']);
@@ -104,7 +104,7 @@ export const List = () => {
 
     const new_url = `${location.pathname}?${queryS.toString()}`;
 
-    history.push(new_url);
+    navigate(new_url);
   };
 
   const handleDeleteBulk = () => {
@@ -123,7 +123,7 @@ export const List = () => {
   const handleReset = () => {
     form.resetFields();
     setQuery({});
-    history.push('/snapshot');
+    navigate('/snapshot');
   };
 
   const columns: TableProps<SnapshotType>['columns'] = [

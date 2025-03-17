@@ -6,7 +6,7 @@
 
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from 'antd';
@@ -20,7 +20,7 @@ const List: React.FunctionComponent = () => {
   const { t } = useTranslation(['iscsi', 'common']);
   const dispatch = useDispatch<Dispatch>();
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const { list } = useSelector((state: RootState) => ({
     list: state.iscsi.list,
@@ -31,7 +31,7 @@ const List: React.FunctionComponent = () => {
   }, [dispatch.iscsi]);
 
   const createISCSI = () => {
-    history.push(`/gateway/iscsi/create`);
+    navigate(`/gateway/iscsi/create`);
   };
 
   const handleDelete = (iqn: string) => {

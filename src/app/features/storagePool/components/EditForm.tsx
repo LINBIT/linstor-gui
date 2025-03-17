@@ -7,7 +7,7 @@
 import React from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Form, Input, Select } from 'antd';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import {
   ProviderKind,
@@ -28,7 +28,7 @@ type FormType = {
 
 const EditForm = () => {
   const nodes = useNodes();
-  const history = useHistory();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [form] = Form.useForm<FormType>();
   const provider_kind = Form.useWatch('provider_kind', form);
@@ -39,7 +39,7 @@ const EditForm = () => {
     queryClient.refetchQueries({
       queryKey: ['getStoragePool'],
     });
-    history.push('/inventory/storage-pools');
+    navigate('/inventory/storage-pools');
   };
 
   useQuery({
@@ -97,7 +97,7 @@ const EditForm = () => {
         onSuccess: (data) => {
           if (fullySuccess(data.data)) {
             setTimeout(() => {
-              history.push('/inventory/storage-pools');
+              navigate('/inventory/storage-pools');
             }, 1000);
           }
         },

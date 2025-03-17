@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { Button, Form, Space, Table, Tag, Popconfirm, Input, Dropdown } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { MoreOutlined } from '@ant-design/icons';
 
 import PropertyForm from '@app/components/PropertyEditor';
@@ -30,7 +30,7 @@ export const List = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
   const [form] = Form.useForm();
   const { t } = useTranslation(['common', 'resource_definitions']);
@@ -74,7 +74,7 @@ export const List = () => {
 
       const new_url = `${location.pathname}?${query.toString()}`;
 
-      history.push(new_url);
+      navigate(new_url);
     }
 
     setQuery(newQuery);
@@ -83,7 +83,7 @@ export const List = () => {
   const handleReset = () => {
     form.resetFields();
     setQuery({});
-    history.push('/storage-configuration/resource-definitions');
+    navigate('/storage-configuration/resource-definitions');
   };
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
@@ -125,7 +125,7 @@ export const List = () => {
   };
 
   const edit = (resourceDefinitionName?: string) => {
-    history.push(`/storage-configuration/resource-definitions/${resourceDefinitionName}/edit`);
+    navigate(`/storage-configuration/resource-definitions/${resourceDefinitionName}/edit`);
   };
 
   const columns: TableProps<ResourceDefinition>['columns'] = [
@@ -155,7 +155,7 @@ export const List = () => {
           <Button
             type="link"
             onClick={() => {
-              history.push(`/storage-configuration/resource-groups?resource_groups=${resource_group_name}`);
+              navigate(`/storage-configuration/resource-groups?resource_groups=${resource_group_name}`);
             }}
           >
             {resource_group_name}
@@ -283,7 +283,7 @@ export const List = () => {
           </Form.Item>
         </Form>
 
-        <Button type="primary" onClick={() => history.push('/storage-configuration/resource-definitions/create')}>
+        <Button type="primary" onClick={() => navigate('/storage-configuration/resource-definitions/create')}>
           {t('common:add')}
         </Button>
       </SearchForm>

@@ -6,7 +6,7 @@
 
 import React, { PropsWithChildren } from 'react';
 import { Button } from 'antd';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { WidthProvider } from './WidthContext';
 
@@ -19,7 +19,7 @@ interface Props {
 }
 
 const PageBasic: React.FC<PropsWithChildren<Props>> = ({ showBack, title, children }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { t } = useTranslation(['common']);
 
   return (
@@ -28,7 +28,7 @@ const PageBasic: React.FC<PropsWithChildren<Props>> = ({ showBack, title, childr
       <div className="flex items-center justify-between pb-4">
         <h1 className="text-lg font-semibold">{title}</h1>
 
-        {showBack && <Button onClick={() => history.goBack()}>&#8592;&nbsp;{t('common:back')}</Button>}
+        {showBack && <Button onClick={() => navigate(-1)}>&#8592;&nbsp;{t('common:back')}</Button>}
       </div>
       <WidthProvider>{children}</WidthProvider>
     </main>

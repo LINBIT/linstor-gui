@@ -8,7 +8,7 @@ import React, { useRef, useState } from 'react';
 import { Button, Form, Space, Table, Tag, Popconfirm, Input, Dropdown } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { MoreOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
@@ -27,7 +27,7 @@ export const List = () => {
   const propertyFormRef = useRef<PropertyFormRef>(null);
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
   const [form] = Form.useForm();
 
@@ -70,7 +70,7 @@ export const List = () => {
 
       const new_url = `${location.pathname}?${query.toString()}`;
 
-      history.push(new_url);
+      navigate(new_url);
     }
 
     setQuery(newQuery);
@@ -79,7 +79,7 @@ export const List = () => {
   const handleReset = () => {
     form.resetFields();
     setQuery({});
-    history.push('/storage-configuration/resource-groups');
+    navigate('/storage-configuration/resource-groups');
   };
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
@@ -120,7 +120,7 @@ export const List = () => {
   };
 
   const edit = (resource_group?: string) => {
-    history.push(`/storage-configuration/resource-groups/${resource_group}/edit`);
+    navigate(`/storage-configuration/resource-groups/${resource_group}/edit`);
   };
 
   const replicationMap = {
@@ -287,7 +287,7 @@ export const List = () => {
           </Form.Item>
         </Form>
 
-        <Button type="primary" onClick={() => history.push('/storage-configuration/resource-groups/create')}>
+        <Button type="primary" onClick={() => navigate('/storage-configuration/resource-groups/create')}>
           {t('common:add')}
         </Button>
       </SearchForm>

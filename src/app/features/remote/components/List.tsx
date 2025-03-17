@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { Button, Form, Space, Table, Input, Select, Popconfirm } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import { deleteRemote, getRemoteList } from '../api';
@@ -23,7 +23,7 @@ type RemoteQuery = {
 export const List = () => {
   const [dataList, setDataList] = useState<any[]>();
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const [form] = Form.useForm();
   const location = useLocation();
 
@@ -125,14 +125,14 @@ export const List = () => {
 
     setDataList(newList);
 
-    history.push(new_url);
+    navigate(new_url);
   };
 
   const handleReset = () => {
     form.resetFields();
     setQuery({});
 
-    history.push(location.pathname);
+    navigate(location.pathname);
   };
 
   const deleteRemoteMutation = useMutation({
@@ -197,7 +197,7 @@ export const List = () => {
             <Button
               onClick={() => {
                 if (record.type === 's3_remotes') {
-                  history.push(`/remote/${record.remote_name}/backups`);
+                  navigate(`/remote/${record.remote_name}/backups`);
                 } else {
                   window.open(`${info.url}/ui/#!/storage-configuration/resources `);
                 }

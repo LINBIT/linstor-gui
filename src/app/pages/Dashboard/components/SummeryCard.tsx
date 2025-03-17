@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import './SummeryCard.css';
 
@@ -17,10 +17,10 @@ interface Props {
 }
 
 const SummeryCard: React.FC<Props> = ({ title, value, icon, url }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   return (
-    <div className="summery__card" onClick={() => history.push(url)}>
+    <div className="summery__card" onClick={() => navigate(url)}>
       <div className="summery__title">
         {icon} <span>{title}</span>
       </div>

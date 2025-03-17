@@ -8,7 +8,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button, Form, Space, Table, Input, Flex, Tag, Dropdown, Popconfirm, Select, Modal, Tooltip } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { uniqBy } from 'lodash';
@@ -80,7 +80,7 @@ export const OverviewList = () => {
 
   const isLargeScreen = width >= 1080;
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const [form] = Form.useForm();
   const location = useLocation();
   const resource_group = Form.useWatch('resource_group', form);
@@ -419,7 +419,7 @@ export const OverviewList = () => {
             <Button
               type="link"
               onClick={() => {
-                history.push(`/storage-configuration/resource-groups?resource_groups=${resource_group_name}`);
+                navigate(`/storage-configuration/resource-groups?resource_groups=${resource_group_name}`);
               }}
             >
               {resource_group_name}
@@ -559,7 +559,7 @@ export const OverviewList = () => {
         },
       },
     ];
-  }, [adjustResourceGroupMutation, deleteMutation, history, t]);
+  }, [adjustResourceGroupMutation, deleteMutation, navigate, t]);
 
   const handlePaginationChange = useCallback((pagination: any) => {
     setPagination(pagination);
@@ -656,7 +656,7 @@ export const OverviewList = () => {
                 <Button
                   type="link"
                   onClick={() => {
-                    history.push(`/inventory/storage-pools?storage_pools=${storage_pool_name}`);
+                    navigate(`/inventory/storage-pools?storage_pools=${storage_pool_name}`);
                   }}
                 >
                   {storage_pool_name}
@@ -860,7 +860,7 @@ export const OverviewList = () => {
               {
                 key: '1',
                 label: (
-                  <span onClick={() => history.push('/storage-configuration/resource-definitions/create')}>
+                  <span onClick={() => navigate('/storage-configuration/resource-definitions/create')}>
                     {t('common:resource_definition')}
                   </span>
                 ),
@@ -872,7 +872,7 @@ export const OverviewList = () => {
               {
                 key: '3',
                 label: (
-                  <span onClick={() => history.push('/storage-configuration/resources/create')}>
+                  <span onClick={() => navigate('/storage-configuration/resources/create')}>
                     {t('common:resource')}
                   </span>
                 ),

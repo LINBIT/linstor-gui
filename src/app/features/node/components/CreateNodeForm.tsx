@@ -7,7 +7,7 @@
 import React from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Form, Input, Select } from 'antd';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -36,14 +36,14 @@ type CreateNodeFormProps = {
 };
 
 const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [form] = Form.useForm<FormType>();
   const [defaultNetwork, setDefaultNetwork] = React.useState<UpdateNetInterfaceRequestBody>();
 
   const { t } = useTranslation(['node', 'common']);
 
   const backToList = () => {
-    history.goBack();
+    navigate(-1);
   };
 
   const { node } = useParams() as { node: string };
@@ -104,7 +104,7 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
       ]);
 
       if (fullySuccess(updateNodeNetworkMutationRes.data && updateNodeMutationRes.data)) {
-        history.goBack();
+        navigate(-1);
       }
 
       return;

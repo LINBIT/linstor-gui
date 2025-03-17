@@ -22,7 +22,7 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import { getNodesFromVSAN, setNodeStandBy } from '../api';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { compareIPv4 } from '@app/utils/ip';
 import { InfoCircleOutlined, SettingOutlined } from '@ant-design/icons';
 import { ActionContainer, UpdateStatus } from './styled';
@@ -41,7 +41,7 @@ interface DataType {
 }
 
 export const VSANNodeList = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [intervalModal, setIntervalModal] = useState(false);
   const [refetchInterval, setRefetchInterval] = useState<number | null>(10);
   const [tempIntervalVal, setTempIntervalVal] = useState<number | null>(null);
@@ -189,7 +189,7 @@ export const VSANNodeList = () => {
   });
 
   const goToDetailPage = (node) => {
-    history.push(`/vsan/nodes/${node}`);
+    navigate(`/vsan/nodes/${node}`);
   };
 
   const doStandBy = (host: { hostname: string; checked: boolean }) => {

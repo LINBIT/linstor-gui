@@ -8,7 +8,7 @@ import React, { useRef, useState } from 'react';
 import { Button, Form, Space, Table, Tag, Popconfirm, Input, Dropdown } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { CheckCircleFilled, CloseCircleFilled, MoreOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
@@ -25,7 +25,7 @@ export const List = () => {
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
   const [current, setCurrent] = useState<NodeDataType>();
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
 
   const [form] = Form.useForm();
@@ -71,7 +71,7 @@ export const List = () => {
 
       const new_url = `${location.pathname}?${query.toString()}`;
 
-      history.push(new_url);
+      navigate(new_url);
     }
 
     setQuery(newQuery);
@@ -80,7 +80,7 @@ export const List = () => {
   const handleReset = () => {
     form.resetFields();
     setQuery({});
-    history.push('/inventory/nodes');
+    navigate('/inventory/nodes');
   };
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
@@ -209,7 +209,7 @@ export const List = () => {
           <Button
             type="primary"
             onClick={() => {
-              history.push(`/inventory/nodes/${record.name}`);
+              navigate(`/inventory/nodes/${record.name}`);
             }}
           >
             {t('common:view')}
@@ -222,7 +222,7 @@ export const List = () => {
                   key: 'edit',
                   label: t('common:edit'),
                   onClick: () => {
-                    history.push(`/inventory/nodes/edit/${record.name}`);
+                    navigate(`/inventory/nodes/edit/${record.name}`);
                   },
                 },
                 {
@@ -341,7 +341,7 @@ export const List = () => {
           </Form.Item>
         </Form>
 
-        <Button type="primary" onClick={() => history.push('/inventory/nodes/create')}>
+        <Button type="primary" onClick={() => navigate('/inventory/nodes/create')}>
           {t('common:add')}
         </Button>
       </SearchForm>

@@ -6,13 +6,13 @@
 
 import * as React from 'react';
 import { Button, Result } from 'antd';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const NotFound: React.FunctionComponent = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleGoHome = () => {
-    history.push('/');
+    navigate('/');
   };
 
   return (

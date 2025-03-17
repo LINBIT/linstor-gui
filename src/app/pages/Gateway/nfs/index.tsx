@@ -13,13 +13,13 @@ import { Dispatch, RootState } from '@app/store';
 import PageBasic from '@app/components/PageBasic';
 
 import { NFSList as NFSListV2 } from '@app/features/gateway';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const List: React.FunctionComponent = () => {
   const { t } = useTranslation(['nfs', 'common']);
   const dispatch = useDispatch<Dispatch>();
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const { list } = useSelector((state: RootState) => ({
     list: state.nfs.list,
@@ -30,7 +30,7 @@ const List: React.FunctionComponent = () => {
   }, [dispatch.nfs]);
 
   const createNFS = () => {
-    history.push(`/gateway/nfs/create`);
+    navigate(`/gateway/nfs/create`);
   };
 
   const handleDelete = (iqn: string) => {

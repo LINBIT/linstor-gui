@@ -8,7 +8,7 @@ import React from 'react';
 import { Button, Table } from 'antd';
 import type { TableProps } from 'antd';
 import { useQuery } from '@tanstack/react-query';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import styled from '@emotion/styled';
@@ -30,7 +30,7 @@ const EmptyContent = styled.div`
 export const FaultyList = () => {
   const { t } = useTranslation(['common', 'resource']);
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const { data: resources, isLoading } = useQuery({
     queryKey: ['getResources'],
@@ -77,7 +77,7 @@ export const FaultyList = () => {
           <Button
             type="link"
             onClick={() => {
-              history.push(`/storage-configuration/resource-overview?resource=${item}`);
+              navigate(`/storage-configuration/resource-overview?resource=${item}`);
             }}
           >
             {item}
@@ -94,7 +94,7 @@ export const FaultyList = () => {
           <Button
             type="link"
             onClick={() => {
-              history.push(`/inventory/nodes/${node_name}`);
+              navigate(`/inventory/nodes/${node_name}`);
             }}
           >
             {node_name}

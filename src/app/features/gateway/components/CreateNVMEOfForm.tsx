@@ -7,7 +7,7 @@
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Button, Form, Input, Select, Space } from 'antd';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { notify } from '@app/utils/toast';
 import { SizeInput } from '@app/components/SizeInput';
@@ -29,7 +29,7 @@ type FormType = {
 
 const CreateNVMEOfForm = () => {
   const { t } = useTranslation(['common', 'nvme']);
-  const history = useHistory();
+  const navigate = useNavigate();
   const [form] = Form.useForm<FormType>();
   const { data: resourceGroupsFromLinstor } = useResourceGroups({ excludeDefault: true });
 
@@ -37,7 +37,7 @@ const CreateNVMEOfForm = () => {
   const [domain, setDomain] = useState('');
 
   const backToList = () => {
-    history.push('/gateway/nvme-of');
+    navigate('/gateway/nvme-of');
   };
 
   const createMutation = useMutation({
