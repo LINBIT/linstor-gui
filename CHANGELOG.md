@@ -1,5 +1,13 @@
 # Changelog
 
+# 1.9.3 - 2025-03-18
+
+### Fixed
+
+- Fixed the loading indicator on the list pages
+- Fixed the 404 error when creating a resource definition
+- Fixed the white page error on the resource group creation page
+
 # 1.9.2 - 2025-03-12
 
 ### Fixed
