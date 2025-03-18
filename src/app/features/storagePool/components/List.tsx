@@ -59,11 +59,15 @@ export const List = () => {
 
   const show_default = Form.useWatch('show_default', form);
 
-  const { data: storagePoolList, refetch } = useQuery(['getStoragePool', query], () => {
+  const {
+    data: storagePoolList,
+    refetch,
+    isLoading,
+  } = useQuery(['getStoragePool', query], () => {
     return getStoragePool(query);
   });
 
-  const { data: stats } = useQuery({
+  const { data: stats, isLoading: isStatsLoading } = useQuery({
     queryKey: ['getStoragePoolCount'],
     queryFn: () => getStoragePoolCount(),
   });
@@ -260,9 +264,7 @@ export const List = () => {
         <Space size="small">
           <Button
             type="default"
-            onClick={() =>
-              navigate(`/inventory/storage-pools/${record.node_name}/${record.storage_pool_name}/edit`)
-            }
+            onClick={() => navigate(`/inventory/storage-pools/${record.node_name}/${record.storage_pool_name}/edit`)}
           >
             {t('common:edit')}
           </Button>
@@ -384,6 +386,7 @@ export const List = () => {
             });
           },
         }}
+        loading={isLoading || isStatsLoading}
       />
 
       <PropertyForm

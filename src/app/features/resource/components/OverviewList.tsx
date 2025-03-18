@@ -470,7 +470,7 @@ export const OverviewList = () => {
         title: () => (
           <Tooltip title={t('common:action')}>
             <span className="flex justify-center">
-              <LiaToolsSolid />
+              <LiaToolsSolid className="w-4 h-4" />
             </span>
           </Tooltip>
         ),
@@ -696,7 +696,7 @@ export const OverviewList = () => {
             title: () => (
               <Tooltip title={t('common:action')}>
                 <span className="flex justify-center">
-                  <LiaToolsSolid />
+                  <LiaToolsSolid className="w-4 h-4" />
                 </span>
               </Tooltip>
             ),

@@ -50,7 +50,7 @@ export const List = () => {
 
   const module = Form.useWatch('module', form);
 
-  const { data, refetch } = useQuery(['getErrors', query], () => {
+  const { data, refetch, isLoading } = useQuery(['getErrors', query], () => {
     return getErrorReports(query);
   });
 
@@ -306,6 +306,7 @@ export const List = () => {
           showSizeChanger: true,
           showTotal: (total) => `Total ${total} items`,
         }}
+        loading={isLoading}
       />
     </>
   );

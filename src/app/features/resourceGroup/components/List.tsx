@@ -25,7 +25,6 @@ export const List = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
   const propertyFormRef = useRef<PropertyFormRef>(null);
-  const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -46,12 +45,16 @@ export const List = () => {
     };
   });
 
-  const { data: resourceGroups, refetch } = useQuery({
+  const {
+    data: resourceGroups,
+    refetch,
+    isLoading,
+  } = useQuery({
     queryKey: ['getResourceGroups', query],
     queryFn: () => getResourceGroups(query),
   });
 
-  const { data: stats } = useQuery({
+  const { data: stats, isLoading: isStatsLoading } = useQuery({
     queryKey: ['getResourceGroupCount'],
     queryFn: () => getResourceGroupCount(),
   });
@@ -313,6 +316,7 @@ export const List = () => {
             });
           },
         }}
+        loading={isLoading || isStatsLoading}
       />
 
       <PropertyForm

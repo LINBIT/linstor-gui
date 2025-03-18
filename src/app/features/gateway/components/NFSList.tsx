@@ -35,7 +35,7 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart }: NFSList
       key: 'name',
     },
     {
-      title: t('nfs:node'),
+      title: t('common:node'),
       key: 'node',
       render: (_, item) => {
         return <span>{item?.status?.primary}</span>;

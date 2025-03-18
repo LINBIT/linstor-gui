@@ -47,12 +47,16 @@ export const List = () => {
     };
   });
 
-  const { data: nodes, refetch } = useQuery({
+  const {
+    data: nodes,
+    refetch,
+    isLoading: nodeLoading,
+  } = useQuery({
     queryKey: ['getNodes', query],
     queryFn: () => getNodes(query),
   });
 
-  const { data: stats } = useQuery({
+  const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['getNodeCount'],
     queryFn: () => getNodeCount(),
   });
@@ -367,6 +371,7 @@ export const List = () => {
             });
           },
         }}
+        loading={nodeLoading || statsLoading}
       />
 
       <PropertyForm
