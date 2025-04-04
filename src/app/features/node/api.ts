@@ -27,6 +27,10 @@ const getControllerConfig = () => {
   return get('/v1/controller/config');
 };
 
+const getControllerVersion = () => {
+  return get('/v1/controller/version');
+};
+
 const getNodeCount = () => {
   return get('/v1/stats/nodes');
 };
@@ -125,4 +129,5 @@ export {
   lostNode,
   updateController,
   getControllerProperties,
+  getControllerVersion,
 };

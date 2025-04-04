@@ -1,22 +1,16 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { fetchMetrics } from '@app/requests/dashboard';
-import parsePrometheusTextFormat from 'parse-prometheus-text-format';
 import { useTranslation } from 'react-i18next';
+import { CloseOutlined } from '@ant-design/icons';
 
+import { getControllerVersion } from '@app/features/node';
 import FEATHER_INFO from '@app/assets/feather-info.svg';
 import brandImg from '@app/assets/Linbit_Logo_White-1.png';
 import bgImg from '@app/assets/about_image.png';
-import { CloseOutlined } from '@ant-design/icons';
 
 const HeaderAboutModal: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { t } = useTranslation('about');
-
-  const { data: metrics } = useQuery({
-    queryKey: ['getMetrics'],
-    queryFn: fetchMetrics,
-  });
 
   const handleModalToggle = () => {
     setIsModalOpen(!isModalOpen);
@@ -24,17 +18,10 @@ const HeaderAboutModal: React.FC = () => {
 
   const hostName = window ? window.location.host : '';
 
-  const linstorVersion = useMemo(() => {
-    let data: any = [];
-    try {
-      data = metrics && parsePrometheusTextFormat(metrics || []);
-      const linstorInfo = data?.find((e: any) => e?.name === 'linstor_info');
-      return linstorInfo?.metrics?.[0]?.labels?.version || 'unknown';
-    } catch (error) {
-      console.log(error, 'error');
-    }
-    return 'unknown';
-  }, [metrics]);
+  const { data: linstorVersion } = useQuery({
+    queryKey: ['linstorVersion'],
+    queryFn: () => getControllerVersion(),
+  });
 
   const version = import.meta.env.VITE_VERSION ?? 'DEV';
 
@@ -65,7 +52,7 @@ const HeaderAboutModal: React.FC = () => {
                   <dl className="space-y-4 text-white text-lg">
                     <div className="flex justify-between">
                       <dt className="font-bold">{t('linstor_version')}</dt>
-                      <dd>{linstorVersion}</dd>
+                      <dd>{linstorVersion?.data?.version || 'unknown'}</dd>
                     </div>
                     <div className="flex justify-between">
                       <dt className="font-bold">{t('ui_version')}</dt>

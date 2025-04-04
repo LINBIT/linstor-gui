@@ -4,8 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React from 'react';
-import { Button, Table } from 'antd';
+import { Button, Spin, Table } from 'antd';
 import type { TableProps } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -37,8 +36,6 @@ export const FaultyList = () => {
     queryFn: async () => {
       const all = await getResources();
       const faulty = getFaultyResources(all?.data ?? ([] as any));
-
-      console.log('faulty', faulty);
 
       return faulty;
     },
@@ -155,18 +152,16 @@ export const FaultyList = () => {
     },
   ];
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <Content>
-      <h3>{t('common:faulty_resource')}</h3>
-      {resources?.length ? (
-        <Table columns={columns as any} dataSource={resources ?? []} pagination={false} />
-      ) : (
-        <EmptyContent>{t('common:all_resources_are_healthy')}</EmptyContent>
-      )}
+      <Spin spinning={isLoading} size="large" tip={t('common:loading')}>
+        <h3>{t('common:faulty_resource')}</h3>
+        {resources?.length ? (
+          <Table columns={columns as any} dataSource={resources ?? []} pagination={false} />
+        ) : (
+          <EmptyContent>{t('common:all_resources_are_healthy')}</EmptyContent>
+        )}
+      </Spin>
     </Content>
   );
 };

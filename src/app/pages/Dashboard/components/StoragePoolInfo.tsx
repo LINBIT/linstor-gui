@@ -24,8 +24,6 @@ export const StoragePoolInfo: React.FC = () => {
 
   const { width, height } = useWindowSize();
 
-  console.log(`Window size: ${width} x ${height}`);
-
   // Fetching the storage pool data from the API
   const { data: poolsData, isLoading } = useQuery({
     queryKey: ['getStoragePool'],
