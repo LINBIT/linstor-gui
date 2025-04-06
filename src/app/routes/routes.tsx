@@ -23,8 +23,10 @@ import ResourceGroupEdit from '@app/pages/SoftwareDefined/ResourceGroups/edit';
 import ResourceGroupCreate from '@app/pages/SoftwareDefined/ResourceGroups/create';
 import ResourceCreate from '@app/pages/SoftwareDefined/Resources/create';
 import ResourceEdit from '@app/pages/SoftwareDefined/Resources/edit';
-import RemoteList from '@app/pages/Remote/RemoteList';
-import BackupList from '@app/pages/Remote/BackupList';
+import RemoteList from '@app/pages/Backup/Remote/RemoteList';
+import ScheduleList from '@app/pages/Backup/ScheduleList';
+import ScheduleResource from '@app/pages/Backup/ScheduleList/ScheduleByResourceist';
+import BackupList from '@app/pages/Backup/Remote/BackupList';
 import ErrorReportList from '@app/pages/ErrorReport/index';
 import ErrorReportDetail from '@app/pages/ErrorReport/Detail';
 import { NotFound } from '@app/pages/NotFound/NotFound';
@@ -180,7 +182,7 @@ const routes: AppRouteConfig[] = [
   },
   ...snapshot,
   {
-    label: 'remotes & backups',
+    label: 'Backup/DR',
     routes: [
       {
         component: RemoteList,
@@ -188,6 +190,20 @@ const routes: AppRouteConfig[] = [
         label: 'remote',
         path: '/remote/list',
         title: 'LINSTOR | Remote | List',
+      },
+      {
+        component: ScheduleResource,
+        exact: true,
+        label: 'schedule',
+        path: '/schedule/list-by-resource',
+        title: 'LINSTOR | Schedule | List By Resource',
+      },
+      {
+        component: ScheduleList,
+        exact: true,
+        label: 'schedule',
+        path: '/schedule/list',
+        title: 'LINSTOR | Schedule | List',
       },
       {
         component: BackupList,

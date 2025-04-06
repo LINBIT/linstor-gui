@@ -49,7 +49,7 @@ export const List = () => {
   const { isLoading, refetch } = useQuery({
     queryKey: ['getBackup', query],
     queryFn: async () => {
-      const res = await getBackup(remote_name);
+      const res = await getBackup(remote_name ?? '');
 
       let list = Object.keys(res.data?.linstor || {}).map((key) => {
         const item = res.data?.linstor?.[key];
@@ -193,10 +193,6 @@ export const List = () => {
     },
   ];
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <>
       <SearchForm>
@@ -246,6 +242,7 @@ export const List = () => {
           showSizeChanger: true,
           showTotal: (total) => `Total ${total} items`,
         }}
+        loading={isLoading}
       />
     </>
   );

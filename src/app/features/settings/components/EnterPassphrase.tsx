@@ -79,7 +79,7 @@ export const EnterPassphrase: React.FC = () => {
         <Button shape="circle" icon={<SettingOutlined />} onClick={showModal} />
       </Tooltip>
 
-      <Modal title="LINSTOR Pass-Phrase" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+      <Modal title="LINSTOR Pass-Phrase" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} footer={null}>
         <Wrapper>
           <Input.Password
             value={passphrase}
@@ -89,6 +89,7 @@ export const EnterPassphrase: React.FC = () => {
             aria-label="pass-phrase"
             type="password"
             width={100}
+            placeholder="Enter passphrase"
           />
         </Wrapper>
         <Button type="primary" onClick={handleSave}>

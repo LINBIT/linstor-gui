@@ -6,6 +6,10 @@
 
 import dayjs from 'dayjs';
 
+import utc from 'dayjs/plugin/utc';
+
+dayjs.extend(utc);
+
 /**
  * Convert time
  * @param unixTime timestamp
@@ -17,6 +21,11 @@ export const formatTime = (unixTime: number, format = 'YYYY-MM-DD HH:mm:ss'): st
   return dayjs(time).format(format);
 };
 
-export const getTime = (time) => {
+export const formatTimeUTC = (unixTime: number, format = 'YYYY-MM-DD HH:mm:ss'): string => {
+  const time = dayjs(unixTime).utc();
+  return dayjs(time).format(format);
+};
+
+export const getTime = (time: string | number | Date | dayjs.Dayjs | null | undefined) => {
   return dayjs(time).valueOf();
 };

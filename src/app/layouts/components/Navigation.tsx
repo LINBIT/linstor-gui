@@ -8,6 +8,7 @@ import {
   ContainerOutlined,
   DatabaseOutlined,
   DesktopOutlined,
+  FieldTimeOutlined,
   FileProtectOutlined,
   InfoCircleOutlined,
   MailOutlined,
@@ -17,6 +18,9 @@ import {
   UserOutlined,
   WarningOutlined,
 } from '@ant-design/icons';
+import { LuDatabaseBackup } from 'react-icons/lu';
+import { RiDashboard2Line } from 'react-icons/ri';
+
 import { SideMenu } from '../styled';
 
 type MenuItem = Required<MenuProps>['items'][number];
@@ -97,7 +101,15 @@ const Navigation: React.FC<NavigationProps> = ({
             '/storage-configuration/resource-overview',
           ),
         ]),
-        getItem(<Link to="/remote/list">{t('remotes')}</Link>, '/remote/list', <CloudServerOutlined />),
+        getItem(`${t('backup&dr')}`, '/backup-and-dr', <LuDatabaseBackup />, [
+          getItem(<Link to="/remote/list">{t('remotes')}</Link>, '/remote/list', <CloudServerOutlined />),
+          getItem(
+            <Link to="/schedule/list-by-resource">{t('schedule_list')}</Link>,
+            '/schedule/list-by-resource',
+            <FieldTimeOutlined />,
+          ),
+        ]),
+
         getItem(<Link to="/snapshot">{t('snapshot')}</Link>, '/snapshot', <FileProtectOutlined />),
         getItem(<Link to="/error-reports">{t('error_reports')}</Link>, '/error-reports', <WarningOutlined />),
       ];
@@ -119,7 +131,7 @@ const Navigation: React.FC<NavigationProps> = ({
         {
           key: '/grafana',
           label: <Link to="/grafana">Grafana</Link>,
-          icon: <PieChartOutlined />,
+          icon: <RiDashboard2Line />,
         },
       ];
 
