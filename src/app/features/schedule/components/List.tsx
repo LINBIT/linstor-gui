@@ -36,7 +36,7 @@ export const List = () => {
     mutationFn: async (schedule_name: string) => {
       try {
         await deleteSchedule(schedule_name);
-
+        message.success('Schedule deleted successfully');
         refetch();
       } catch (error) {
         message.error('Delete failed: ' + error);

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Button, Form, Table, Input, Popconfirm } from 'antd';
+import { Button, Form, Table, Input, Popconfirm, message, Space, Checkbox } from 'antd';
 import type { TableProps } from 'antd';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 
-import { getScheduleByResource } from '../api';
+import { getScheduleByResource, disableSchedule, deleteBackupSchedule } from '../api';
 import { SearchForm } from './styled';
 import { formatTimeUTC } from '@app/utils/time';
 import { EnterPassphrase } from '@app/features/settings';
@@ -14,16 +14,46 @@ import EnableScheduleForm from './EnableScheduleForm';
 export const ScheduleByResourceList = () => {
   const [form] = Form.useForm();
   const [searchResource, setSearchResource] = useState<string>('');
+  const [showAll, setShowAll] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  const { data: dataList, isLoading } = useQuery({
-    queryKey: ['getScheduleByResource'],
+  const {
+    data: dataList,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ['getScheduleByResource', showAll],
     queryFn: async () => {
-      const res = await getScheduleByResource({
-        'active-only': true,
-      });
+      const params = showAll ? {} : { 'active-only': true };
+      const res = await getScheduleByResource(params);
 
       return res?.data?.data;
+    },
+  });
+
+  const disableScheduleMutation = useMutation({
+    mutationFn: async (record: ScheduleByResource) => {
+      try {
+        await disableSchedule(record.remote_name, record.schedule_name);
+        message.success('Schedule disabled successfully');
+        refetch();
+      } catch (error) {
+        console.error('Disable schedule error:', error);
+        message.error('Failed to disable schedule');
+      }
+    },
+  });
+
+  const deleteScheduleMutation = useMutation({
+    mutationFn: async (record: ScheduleByResource) => {
+      try {
+        await deleteBackupSchedule(record.remote_name, record.schedule_name);
+        message.success('Schedule deleted successfully');
+        refetch();
+      } catch (error) {
+        console.error('Delete schedule error:', error);
+        message.error('Failed to delete schedule');
+      }
     },
   });
 
@@ -95,11 +125,25 @@ export const ScheduleByResourceList = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (record) => {
+      render: (_, record) => {
         return (
-          <Popconfirm title="Delete this backup?" onConfirm={() => {}}>
-            <Button danger>Delete</Button>
-          </Popconfirm>
+          record?.reason !== 'none set' && (
+            <Space>
+              <Popconfirm
+                title="Are you sure you want to disable this schedule?"
+                onConfirm={() => disableScheduleMutation.mutate(record)}
+              >
+                <Button danger>Disable</Button>
+              </Popconfirm>
+              <Popconfirm
+                title="Are you sure you want to delete this schedule?"
+                description="This action cannot be undone!"
+                onConfirm={() => deleteScheduleMutation.mutate(record)}
+              >
+                <Button danger>Delete</Button>
+              </Popconfirm>
+            </Space>
+          )
         );
       },
     },
@@ -125,8 +169,12 @@ export const ScheduleByResourceList = () => {
             />
           </Form.Item>
 
+          <Form.Item name="show_all" valuePropName="checked">
+            <Checkbox onChange={(e) => setShowAll(e.target.checked)}>Show All</Checkbox>
+          </Form.Item>
+
           <Form.Item>
-            <EnableScheduleForm />
+            <EnableScheduleForm onSuccess={refetch} />
           </Form.Item>
 
           <Form.Item>

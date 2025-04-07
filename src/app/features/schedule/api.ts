@@ -50,6 +50,29 @@ const enableSchedule = (remote_name: string, schedule_name: string, body: Backup
   });
 };
 
+const disableSchedule = (remote_name: string, schedule_name: string, body?: BackupSchedule) => {
+  return put('/v1/remotes/{remote_name}/backups/schedule/{schedule_name}/disable', {
+    params: {
+      path: {
+        remote_name,
+        schedule_name,
+      },
+    },
+    body,
+  });
+};
+
+const deleteBackupSchedule = (remote_name: string, schedule_name: string) => {
+  return del('/v1/remotes/{remote_name}/backups/schedule/{schedule_name}/delete', {
+    params: {
+      path: {
+        remote_name,
+        schedule_name,
+      },
+    },
+  });
+};
+
 const getScheduleByResource = (query: {
   rsc?: string;
   remote?: string;
@@ -65,4 +88,13 @@ const getScheduleByResource = (query: {
   });
 };
 
-export { getScheduleList, createSchedule, modifySchedule, deleteSchedule, enableSchedule, getScheduleByResource };
+export {
+  getScheduleList,
+  createSchedule,
+  modifySchedule,
+  deleteSchedule,
+  enableSchedule,
+  disableSchedule,
+  deleteBackupSchedule,
+  getScheduleByResource,
+};
