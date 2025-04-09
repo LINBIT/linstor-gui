@@ -1,5 +1,17 @@
 # Changelog
 
+# 1.9.4 - 2025-04-08
+
+### Added
+
+- Added scheduled backup shipping
+
+### Changed
+
+- Icons for the main menu
+- API for getting the LINSTOR cluster version
+- Updated to the latest version of LINSTOR REST API
+
 # 1.9.3 - 2025-03-18
 
 ### Fixed
