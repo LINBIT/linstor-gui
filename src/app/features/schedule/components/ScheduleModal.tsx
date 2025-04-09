@@ -18,7 +18,7 @@ interface Schedule {
   inc_cron?: string;
   keep_local?: number;
   keep_remote?: number;
-  on_failure?: 'SKIP' | 'RETRY';
+  on_failure: 'SKIP' | 'RETRY';
   max_retries?: number;
 }
 
@@ -98,7 +98,7 @@ const ScheduleModal = ({ refetch, schedule }: ScheduleModalProps) => {
   return (
     <div>
       {/* Button to open the modal */}
-      <Button onClick={showModal} type={schedule ? 'link' : 'primary'}>
+      <Button onClick={showModal} type="primary">
         {schedule ? 'Edit' : 'Create'}
       </Button>
 

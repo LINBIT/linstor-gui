@@ -19,7 +19,13 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
   const [visible, setVisible] = useState(false);
 
   const { data: scheduleList, isLoading: isScheduleLoading } = useQuery(['getScheduleListOption'], getScheduleList, {
-    select: (data) => data?.data?.data?.map((item: { schedule_name: string }) => item.schedule_name) || [],
+    select: (data) =>
+      data?.data?.data?.map((item: { schedule_name: string; full_cron: string }) => {
+        return {
+          schedule_name: item.schedule_name,
+          full_cron: item.full_cron,
+        };
+      }) || [],
     onError: (error) => {
       message.error('Failed to fetch schedule list: ' + (error as any).message);
     },
@@ -95,8 +101,6 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
     mutation.mutate(values);
   };
 
-  console.log(remoteList, scheduleList);
-
   return (
     <>
       <Button type="primary" onClick={() => setVisible(true)}>
@@ -162,8 +166,8 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
               filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
               options={
                 scheduleList?.map((schedule) => ({
-                  label: schedule,
-                  value: schedule,
+                  label: schedule.schedule_name + ' (' + schedule.full_cron + ')',
+                  value: schedule.schedule_name,
                 })) || []
               }
             />

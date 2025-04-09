@@ -62,13 +62,20 @@ const disableSchedule = (remote_name: string, schedule_name: string, body?: Back
   });
 };
 
-const deleteBackupSchedule = (remote_name: string, schedule_name: string) => {
+const deleteBackupSchedule = (
+  remote_name: string,
+  schedule_name: string,
+  query: {
+    rsc_dfn_name?: string;
+  },
+) => {
   return del('/v1/remotes/{remote_name}/backups/schedule/{schedule_name}/delete', {
     params: {
       path: {
         remote_name,
         schedule_name,
       },
+      query,
     },
   });
 };
