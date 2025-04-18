@@ -9,7 +9,6 @@ import { Input, Button, message, Modal, Tooltip } from 'antd';
 import styled from '@emotion/styled';
 import { useMutation } from '@tanstack/react-query';
 import { enterPassPhrase } from '@app/features/settings/passphrase';
-import { SettingOutlined } from '@ant-design/icons';
 import { FaUnlockAlt } from 'react-icons/fa';
 
 const Wrapper = styled.div`
@@ -37,6 +36,9 @@ export const EnterPassphrase: React.FC = () => {
         type: 'success',
         content: 'Unlock successfully.',
       });
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     },
     onError: () => {
       messageApi.open({
