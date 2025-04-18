@@ -21,9 +21,10 @@ type FormType = {
 
 type SpawnFormProps = {
   resource_group?: string;
+  isInDropdown?: boolean;
 };
 
-const SpawnForm = ({ resource_group }: SpawnFormProps) => {
+const SpawnForm = ({ resource_group, isInDropdown = false }: SpawnFormProps) => {
   const [showSpawnForm, setShowSpawnForm] = useState(false);
   const [form] = Form.useForm<FormType>();
   const { t } = useTranslation(['resource_group', 'common']);
@@ -48,9 +49,13 @@ const SpawnForm = ({ resource_group }: SpawnFormProps) => {
 
   return (
     <>
-      <Button type="primary" onClick={() => setShowSpawnForm(true)}>
-        {t('common:spawn')}
-      </Button>
+      {isInDropdown ? (
+        <span onClick={() => setShowSpawnForm(true)}>{t('common:spawn')}</span>
+      ) : (
+        <Button type="primary" onClick={() => setShowSpawnForm(true)}>
+          {t('common:spawn')}
+        </Button>
+      )}
       <Modal
         title="Spawn"
         open={showSpawnForm}

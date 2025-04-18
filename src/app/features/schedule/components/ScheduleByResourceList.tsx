@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Button, Form, Table, Input, Popconfirm, message, Space, Checkbox } from 'antd';
+import { Button, Form, Table, Input, Popconfirm, message, Space, Checkbox, Dropdown, Tooltip } from 'antd';
 import type { TableProps } from 'antd';
 import { useQuery, useMutation } from '@tanstack/react-query';
+import { MoreOutlined } from '@ant-design/icons';
+import { LiaToolsSolid } from 'react-icons/lia';
 
 import { getScheduleByResource, disableSchedule, deleteBackupSchedule, enableSchedule } from '../api';
 import { SearchForm } from './styled';
@@ -146,48 +148,71 @@ export const ScheduleByResourceList = () => {
       dataIndex: 'reason',
     },
     {
-      title: 'Action',
+      title: () => (
+        <Tooltip title="Action">
+          <span className="flex justify-center">
+            <LiaToolsSolid className="w-4 h-4" />
+          </span>
+        </Tooltip>
+      ),
       key: 'action',
+      width: 150,
+      fixed: 'right',
+      align: 'center',
       render: (_, record) => {
         if (record?.reason === 'none set') {
           return null;
         }
 
-        if (record?.reason === 'disabled') {
-          return (
-            <Space>
-              <Popconfirm
-                title="Are you sure you want to enable this schedule?"
-                onConfirm={() => enableScheduleMutation.mutate(record)}
-              >
-                <Button type="primary">Enable</Button>
-              </Popconfirm>
-              <Popconfirm
-                title="Are you sure you want to delete this schedule?"
-                description="This action cannot be undone!"
-                onConfirm={() => deleteScheduleMutation.mutate(record)}
-              >
-                <Button danger>Delete</Button>
-              </Popconfirm>
-            </Space>
-          );
-        }
-
         return (
-          <Space>
-            <Popconfirm
-              title="Are you sure you want to disable this schedule?"
-              onConfirm={() => disableScheduleMutation.mutate(record)}
+          <Space size="small">
+            <Dropdown
+              menu={{
+                items: [
+                  ...(record?.reason === 'disabled'
+                    ? [
+                        {
+                          key: 'enable',
+                          label: (
+                            <Popconfirm
+                              title="Are you sure you want to enable this schedule?"
+                              onConfirm={() => enableScheduleMutation.mutate(record)}
+                            >
+                              Enable
+                            </Popconfirm>
+                          ),
+                        },
+                      ]
+                    : [
+                        {
+                          key: 'disable',
+                          label: (
+                            <Popconfirm
+                              title="Are you sure you want to disable this schedule?"
+                              onConfirm={() => disableScheduleMutation.mutate(record)}
+                            >
+                              Disable
+                            </Popconfirm>
+                          ),
+                        },
+                      ]),
+                  {
+                    key: 'delete',
+                    label: (
+                      <Popconfirm
+                        title="Are you sure you want to delete this schedule?"
+                        description="This action cannot be undone!"
+                        onConfirm={() => deleteScheduleMutation.mutate(record)}
+                      >
+                        Delete
+                      </Popconfirm>
+                    ),
+                  },
+                ],
+              }}
             >
-              <Button danger>Disable</Button>
-            </Popconfirm>
-            <Popconfirm
-              title="Are you sure you want to delete this schedule?"
-              description="This action cannot be undone!"
-              onConfirm={() => deleteScheduleMutation.mutate(record)}
-            >
-              <Button danger>Delete</Button>
-            </Popconfirm>
+              <Button type="text" icon={<MoreOutlined />} />
+            </Dropdown>
           </Space>
         );
       },

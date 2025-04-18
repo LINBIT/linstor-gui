@@ -5,11 +5,13 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Button, Form, Space, Table, Input, Select, Popconfirm } from 'antd';
+import { Button, Form, Space, Table, Input, Select, Popconfirm, Dropdown, Tooltip } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { MoreOutlined } from '@ant-design/icons';
+import { LiaToolsSolid } from 'react-icons/lia';
 
 import { deleteRemote, getRemoteList } from '../api';
 import { SearchForm } from './styled';
@@ -189,30 +191,52 @@ export const List = () => {
       },
     },
     {
-      title: t('common:action'),
+      title: () => (
+        <Tooltip title={t('common:action')}>
+          <span className="flex justify-center">
+            <LiaToolsSolid className="w-4 h-4" />
+          </span>
+        </Tooltip>
+      ),
       key: 'action',
+      width: 150,
+      fixed: 'right',
+      align: 'center',
       render: (record, info) => {
         return (
-          <Space>
-            <Button
-              onClick={() => {
-                if (record.type === 's3_remotes') {
-                  navigate(`/remote/${record.remote_name}/backups`);
-                } else {
-                  window.open(`${info.url}/ui/#!/storage-configuration/resources `);
-                }
+          <Space size="small">
+            <Dropdown
+              menu={{
+                items: [
+                  {
+                    key: 'backups',
+                    label: t('remote:backups'),
+                    onClick: () => {
+                      if (record.type === 's3_remotes') {
+                        navigate(`/remote/${record.remote_name}/backups`);
+                      } else {
+                        window.open(`${info.url}/ui/#!/storage-configuration/resources `);
+                      }
+                    },
+                  },
+                  {
+                    key: 'delete',
+                    label: (
+                      <Popconfirm
+                        title="Delete this remote object?"
+                        onConfirm={() => {
+                          handleDelete(record.remote_name);
+                        }}
+                      >
+                        {t('common:delete')}
+                      </Popconfirm>
+                    ),
+                  },
+                ],
               }}
             >
-              {t('remote:backups')}
-            </Button>
-            <Popconfirm
-              title="Delete this remote object?"
-              onConfirm={() => {
-                handleDelete(record.remote_name);
-              }}
-            >
-              <Button danger>{t('common:delete')}</Button>
-            </Popconfirm>
+              <Button type="text" icon={<MoreOutlined />} />
+            </Dropdown>
           </Space>
         );
       },

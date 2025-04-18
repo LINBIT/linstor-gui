@@ -9,6 +9,7 @@ import { Modal, Form, Input, Select, InputNumber, Button, message } from 'antd';
 import { useMutation } from '@tanstack/react-query';
 import { createSchedule, modifySchedule } from '../api';
 import CronInput from './CronInput';
+import { useTranslation } from 'react-i18next';
 
 const { Option } = Select;
 
@@ -22,14 +23,17 @@ interface Schedule {
   max_retries?: number;
 }
 
+// 添加 isInDropdown 到组件属性
 type ScheduleModalProps = {
-  refetch: () => void; // Function to refetch data after creating or modifying a schedule
-  schedule?: Schedule; // Optional schedule object for editing
+  refetch: () => void;
+  schedule?: Schedule;
+  isInDropdown?: boolean;
 };
 
-const ScheduleModal = ({ refetch, schedule }: ScheduleModalProps) => {
+const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModalProps) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
+  const { t } = useTranslation(['schedule', 'common']);
 
   // Mutation for creating a schedule
   const createMutation = useMutation(createSchedule, {
@@ -97,10 +101,14 @@ const ScheduleModal = ({ refetch, schedule }: ScheduleModalProps) => {
 
   return (
     <div>
-      {/* Button to open the modal */}
-      <Button onClick={showModal} type="primary">
-        {schedule ? 'Edit' : 'Create'}
-      </Button>
+      {/* Button or text to open the modal */}
+      {isInDropdown ? (
+        <span onClick={showModal}>{schedule ? t('common:edit') : t('common:create')}</span>
+      ) : (
+        <Button onClick={showModal} type="primary">
+          {schedule ? t('common:edit') : t('common:create')}
+        </Button>
+      )}
 
       {/* Modal with the form */}
       <Modal

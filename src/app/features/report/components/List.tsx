@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Space, Table, Tag, DatePicker, Select, Popconfirm } from 'antd';
+import { Button, Form, Space, Table, Tag, DatePicker, Select, Popconfirm, Dropdown, Tooltip } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { deleteReport, deleteReportBulk, getErrorReports } from '../api';
@@ -16,6 +16,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';
 import styled from '@emotion/styled';
+import { MoreOutlined } from '@ant-design/icons';
+import { LiaToolsSolid } from 'react-icons/lia';
 import DownloadSOS from './DownloadSOS';
 import { useTranslation } from 'react-i18next';
 
@@ -141,6 +143,18 @@ export const List = () => {
       title: t('error_report:id'),
       key: 'id',
       dataIndex: 'id',
+      render: (id, record) => {
+        return (
+          <Button
+            type="link"
+            onClick={() => {
+              handleView(getId(record));
+            }}
+          >
+            {id}
+          </Button>
+        );
+      },
     },
     {
       title: t('error_report:time'),
@@ -186,27 +200,49 @@ export const List = () => {
       ),
     },
     {
-      title: t('common:action'),
+      title: () => (
+        <Tooltip title={t('common:action')}>
+          <span className="flex justify-center">
+            <LiaToolsSolid className="w-4 h-4" />
+          </span>
+        </Tooltip>
+      ),
       key: 'action',
       width: 150,
       fixed: 'right',
+      align: 'center',
       render: (_, record) => (
         <Space size="small">
-          <Button type="primary" onClick={() => handleView(getId(record))}>
-            {t('common:view')}
-          </Button>
-          <Popconfirm
-            key="delete"
-            title="Delete the error report"
-            description="Are you sure to delete this error report?"
-            okText="Yes"
-            cancelText="No"
-            onConfirm={() => {
-              handleDelete(getId(record));
+          <Dropdown
+            menu={{
+              items: [
+                {
+                  key: 'view',
+                  label: t('common:view'),
+                  onClick: () => handleView(getId(record)),
+                },
+                {
+                  key: 'delete',
+                  label: (
+                    <Popconfirm
+                      key="delete"
+                      title="Delete the error report"
+                      description="Are you sure to delete this error report?"
+                      okText="Yes"
+                      cancelText="No"
+                      onConfirm={() => {
+                        handleDelete(getId(record));
+                      }}
+                    >
+                      {t('common:delete')}
+                    </Popconfirm>
+                  ),
+                },
+              ],
             }}
           >
-            <Button danger>{t('common:delete')}</Button>
-          </Popconfirm>
+            <Button type="text" icon={<MoreOutlined />} />
+          </Dropdown>
         </Space>
       ),
     },
@@ -307,6 +343,7 @@ export const List = () => {
           showTotal: (total) => `Total ${total} items`,
         }}
         loading={isLoading}
+        scroll={{ x: 'max-content' }}
       />
     </>
   );

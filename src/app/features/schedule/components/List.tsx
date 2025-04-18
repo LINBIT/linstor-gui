@@ -5,10 +5,12 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Button, Form, Space, Table, Input, Select, Popconfirm, message } from 'antd';
+import { Button, Form, Space, Table, Input, Select, Popconfirm, message, Dropdown, Tooltip } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { MoreOutlined } from '@ant-design/icons';
+import { LiaToolsSolid } from 'react-icons/lia';
 
 import { deleteSchedule, getScheduleList } from '../api';
 import { SearchForm } from './styled';
@@ -99,21 +101,45 @@ export const List = () => {
       dataIndex: 'on_failure',
     },
     {
-      title: t('common:action'),
+      title: () => (
+        <Tooltip title={t('common:action')}>
+          <span className="flex justify-center">
+            <LiaToolsSolid className="w-4 h-4" />
+          </span>
+        </Tooltip>
+      ),
       key: 'action',
+      width: 150,
+      fixed: 'right',
       align: 'center',
       render: (record) => {
         return (
-          <Space>
-            <ScheduleModal refetch={refetch} schedule={record} />
-            <Popconfirm
-              title="Delete this schedule?"
-              onConfirm={() => {
-                handleDelete(record.schedule_name);
+          <Space size="small">
+            <Dropdown
+              menu={{
+                items: [
+                  {
+                    key: 'edit',
+                    label: <ScheduleModal refetch={refetch} schedule={record} isInDropdown={true} />,
+                  },
+                  {
+                    key: 'delete',
+                    label: (
+                      <Popconfirm
+                        title="Delete this schedule?"
+                        onConfirm={() => {
+                          handleDelete(record.schedule_name);
+                        }}
+                      >
+                        {t('common:delete')}
+                      </Popconfirm>
+                    ),
+                  },
+                ],
               }}
             >
-              <Button danger>{t('common:delete')}</Button>
-            </Popconfirm>
+              <Button type="text" icon={<MoreOutlined />} />
+            </Dropdown>
           </Space>
         );
       },

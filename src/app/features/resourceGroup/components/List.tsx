@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useRef, useState } from 'react';
-import { Button, Form, Space, Table, Tag, Popconfirm, Input, Dropdown } from 'antd';
+import { Button, Form, Space, Table, Tag, Popconfirm, Input, Dropdown, Tooltip } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -18,6 +18,7 @@ import { CreateResourceGroupRequestBody, ResourceGroupListQuery, UpdateResourceG
 import { SearchForm } from './styled';
 import { SpawnForm } from './SpawnForm';
 import { uniqId } from '@app/utils/stringUtils';
+import { LiaToolsSolid } from 'react-icons/lia';
 
 export const List = () => {
   const { t } = useTranslation(['resource_group', 'common']);
@@ -197,30 +198,26 @@ export const List = () => {
       dataIndex: 'description',
     },
     {
-      title: t('common:action'),
+      title: () => (
+        <Tooltip title={t('common:action')}>
+          <span className="flex justify-center">
+            <LiaToolsSolid className="w-4 h-4" />
+          </span>
+        </Tooltip>
+      ),
       key: 'action',
       width: 150,
       fixed: 'right',
+      align: 'center',
       render: (_, record) => (
         <Space size="small">
-          <SpawnForm resource_group={record.name} />
-
-          <Popconfirm
-            key="delete"
-            title="Delete the resource group"
-            description="Are you sure to delete this resource group?"
-            okText="Yes"
-            cancelText="No"
-            onConfirm={() => {
-              deleteMutation.mutate(record.name || '');
-            }}
-          >
-            <Button danger>{t('common:delete')}</Button>
-          </Popconfirm>
-
           <Dropdown
             menu={{
               items: [
+                {
+                  key: 'spawn',
+                  label: <SpawnForm resource_group={record.name} isInDropdown={true} />,
+                },
                 {
                   key: 'edit',
                   label: t('common:edit'),
@@ -235,6 +232,23 @@ export const List = () => {
                     setCurrent(record);
                     propertyFormRef.current?.openModal();
                   },
+                },
+                {
+                  key: 'delete',
+                  label: (
+                    <Popconfirm
+                      key="delete"
+                      title="Delete the resource group"
+                      description="Are you sure to delete this resource group?"
+                      okText="Yes"
+                      cancelText="No"
+                      onConfirm={() => {
+                        deleteMutation.mutate(record.name || '');
+                      }}
+                    >
+                      {t('common:delete')}
+                    </Popconfirm>
+                  ),
                 },
               ],
             }}

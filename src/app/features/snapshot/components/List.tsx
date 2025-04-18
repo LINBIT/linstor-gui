@@ -5,11 +5,12 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Button, Form, Table, Select, Popconfirm, Space } from 'antd';
+import { Button, Form, Table, Select, Popconfirm, Space, Dropdown, Tooltip } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
+import { CheckCircleFilled, CloseCircleFilled, MoreOutlined } from '@ant-design/icons';
+import { LiaToolsSolid } from 'react-icons/lia';
 import { uniqBy } from 'lodash';
 import { useTranslation } from 'react-i18next';
 
@@ -195,23 +196,45 @@ export const List = () => {
       align: 'center',
     },
     {
-      title: t('common:action'),
+      title: () => (
+        <Tooltip title={t('common:action')}>
+          <span className="flex justify-center">
+            <LiaToolsSolid className="w-4 h-4" />
+          </span>
+        </Tooltip>
+      ),
       key: 'action',
       width: 150,
       fixed: 'right',
+      align: 'center',
       render: (_, record) => (
-        <Popconfirm
-          key="delete"
-          title="Delete the snapshot"
-          description="Are you sure to delete this snapshot?"
-          okText="Yes"
-          cancelText="No"
-          onConfirm={() => {
-            deleteMutation.mutate({ resource: record.resource_name ?? '', snapshot: record.name ?? '' });
-          }}
-        >
-          <Button danger>{t('common:delete')}</Button>
-        </Popconfirm>
+        <Space size="small">
+          <Dropdown
+            menu={{
+              items: [
+                {
+                  key: 'delete',
+                  label: (
+                    <Popconfirm
+                      key="delete"
+                      title="Delete the snapshot"
+                      description="Are you sure to delete this snapshot?"
+                      okText="Yes"
+                      cancelText="No"
+                      onConfirm={() => {
+                        deleteMutation.mutate({ resource: record.resource_name ?? '', snapshot: record.name ?? '' });
+                      }}
+                    >
+                      {t('common:delete')}
+                    </Popconfirm>
+                  ),
+                },
+              ],
+            }}
+          >
+            <Button type="text" icon={<MoreOutlined />} />
+          </Dropdown>
+        </Space>
       ),
     },
   ];

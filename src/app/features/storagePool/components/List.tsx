@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Form, Space, Table, Tag, Select, Popconfirm, Input, Dropdown, Switch } from 'antd';
+import { Button, Form, Space, Table, Tag, Select, Popconfirm, Input, Dropdown, Switch, Tooltip } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -20,6 +20,7 @@ import { deleteStoragePoolV2, getStoragePool, getStoragePoolCount, updateStorage
 import { SearchForm } from './styled';
 import { useTranslation } from 'react-i18next';
 import { PropertyFormRef } from '@app/components/PropertyEditor';
+import { LiaToolsSolid } from 'react-icons/lia';
 
 export const List = () => {
   const [form] = Form.useForm();
@@ -201,8 +202,8 @@ export const List = () => {
       title: t('storage_pool:provider_kind'),
       key: 'provider_kind',
       dataIndex: 'provider_kind',
-      render: (provider_kind) => {
-        const color = providerKindColorMap[provider_kind] ?? 'default';
+      render: (provider_kind: string) => {
+        const color = providerKindColorMap?.[provider_kind as keyof typeof providerKindColorMap] ?? 'default';
         return <Tag color={color}>{provider_kind}</Tag>;
       },
     },
@@ -256,32 +257,43 @@ export const List = () => {
       align: 'center',
     },
     {
-      title: t('common:action'),
+      title: () => (
+        <Tooltip title={t('common:action')}>
+          <span className="flex justify-center">
+            <LiaToolsSolid className="w-4 h-4" />
+          </span>
+        </Tooltip>
+      ),
       key: 'action',
       width: 150,
       fixed: 'right',
+      align: 'center',
       render: (_, record) => (
         <Space size="small">
-          <Button
-            type="default"
-            onClick={() => navigate(`/inventory/storage-pools/${record.node_name}/${record.storage_pool_name}/edit`)}
-          >
-            {t('common:edit')}
-          </Button>
-          <Popconfirm
-            key="delete"
-            title="Delete the storage pool"
-            description="Are you sure to delete this storage pool?"
-            okText="Yes"
-            cancelText="No"
-            onConfirm={() => handleDelete(record.node_name ?? '', record.storage_pool_name)}
-          >
-            <Button danger>{t('common:delete')}</Button>
-          </Popconfirm>
-
           <Dropdown
             menu={{
               items: [
+                {
+                  key: 'edit',
+                  label: t('common:edit'),
+                  onClick: () =>
+                    navigate(`/inventory/storage-pools/${record.node_name}/${record.storage_pool_name}/edit`),
+                },
+                {
+                  key: 'delete',
+                  label: (
+                    <Popconfirm
+                      key="delete"
+                      title="Delete the storage pool"
+                      description="Are you sure to delete this storage pool?"
+                      okText="Yes"
+                      cancelText="No"
+                      onConfirm={() => handleDelete(record.node_name ?? '', record.storage_pool_name)}
+                    >
+                      {t('common:delete')}
+                    </Popconfirm>
+                  ),
+                },
                 {
                   key: 'property',
                   label: t('common:property'),

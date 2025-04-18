@@ -5,15 +5,17 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Button, Form, Space, Table, Input, Popconfirm } from 'antd';
+import { Button, Form, Space, Table, Input, Popconfirm, Dropdown, Tooltip } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { CheckCircleFilled, CloseCircleFilled, MoreOutlined } from '@ant-design/icons';
+import { LiaToolsSolid } from 'react-icons/lia';
 
 import { deleteBackup, getBackup } from '../api';
 import { SearchForm } from './styled';
 import { formatTime } from '@app/utils/time';
-import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import { CreateBackupForm } from './CreateBackupForm';
 import { EnterPassphrase } from '@app/features/settings';
 
@@ -29,6 +31,8 @@ export const List = () => {
   const location = useLocation();
 
   const { remote_name } = useParams<{ remote_name: string }>();
+
+  const { t } = useTranslation(['remote', 'common']);
 
   const [query, setQuery] = useState<RemoteQuery>(() => {
     const query = new URLSearchParams(location.search);
@@ -176,18 +180,42 @@ export const List = () => {
       },
     },
     {
-      title: 'Action',
+      title: () => (
+        <Tooltip title={t('common:action')}>
+          <span className="flex justify-center">
+            <LiaToolsSolid className="w-4 h-4" />
+          </span>
+        </Tooltip>
+      ),
       key: 'action',
+      width: 150,
+      fixed: 'right',
+      align: 'center',
       render: (record) => {
         return (
-          <Popconfirm
-            title="Delete this backup?"
-            onConfirm={() => {
-              handleDelete(record.finished_time);
-            }}
-          >
-            <Button danger>Delete</Button>
-          </Popconfirm>
+          <Space size="small">
+            <Dropdown
+              menu={{
+                items: [
+                  {
+                    key: 'delete',
+                    label: (
+                      <Popconfirm
+                        title="Delete this backup?"
+                        onConfirm={() => {
+                          handleDelete(record.finished_time);
+                        }}
+                      >
+                        {t('common:delete')}
+                      </Popconfirm>
+                    ),
+                  },
+                ],
+              }}
+            >
+              <Button type="text" icon={<MoreOutlined />} />
+            </Dropdown>
+          </Space>
         );
       },
     },
