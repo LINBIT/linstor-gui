@@ -17,6 +17,8 @@ export type ScheduleModifyRequest = components['schemas']['ScheduleModify'];
 export type BackupSchedule = components['schemas']['BackupSchedule'];
 export type ScheduleByResource = components['schemas']['ScheduledRscs'];
 
+export type ScheduleDetails = components['schemas']['ScheduleDetails'];
+
 export type BackupDeleteQuery = {
   /** @description ID of the specific backup to be deleted */
   id?: string;

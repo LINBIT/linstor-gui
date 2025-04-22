@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
-import { Button, Form, Table, Input, Popconfirm, message, Space, Checkbox, Dropdown, Tooltip } from 'antd';
+import { Button, Form, Table, Input, Popconfirm, message, Space, Checkbox, Dropdown, Tooltip, Tag } from 'antd';
 import type { TableProps } from 'antd';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { MoreOutlined } from '@ant-design/icons';
+import { MoreOutlined, CheckCircleFilled } from '@ant-design/icons';
 import { LiaToolsSolid } from 'react-icons/lia';
 
-import { getScheduleByResource, disableSchedule, deleteBackupSchedule, enableSchedule } from '../api';
+import {
+  getScheduleByResource,
+  disableSchedule,
+  deleteBackupSchedule,
+  enableSchedule,
+  getScheduleByResourceName,
+} from '../api';
 import { SearchForm } from './styled';
 import { formatTimeUTC } from '@app/utils/time';
 import { EnterPassphrase } from '@app/features/settings';
-import { ScheduleByResource } from '../types';
+import { ScheduleByResource, ScheduleDetails } from '../types';
 import { useNavigate } from 'react-router-dom';
 import EnableScheduleForm from './EnableScheduleForm';
 
@@ -17,6 +23,7 @@ export const ScheduleByResourceList = () => {
   const [form] = Form.useForm();
   const [searchResource, setSearchResource] = useState<string>('');
   const [showAll, setShowAll] = useState<boolean>(false);
+  const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
   const navigate = useNavigate();
 
   const {
@@ -81,6 +88,89 @@ export const ScheduleByResourceList = () => {
       }
     },
   });
+
+  const { data: resourceDetailData, isLoading: detailLoading } = useQuery({
+    queryKey: ['getScheduleByResourceName', expandedRowKeys],
+    queryFn: async () => {
+      if (!expandedRowKeys.length) return null;
+
+      try {
+        const rscName = expandedRowKeys[0];
+        const res = await getScheduleByResourceName(rscName);
+        return res?.data?.data;
+      } catch (error) {
+        console.error('Failed to fetch resource details:', error);
+        message.error('Failed to load resource details');
+        return null;
+      }
+    },
+    enabled: expandedRowKeys.length > 0,
+  });
+
+  const handleExpand = (expanded: boolean, record: ScheduleByResource) => {
+    setExpandedRowKeys(expanded ? [record.rsc_name] : []);
+  };
+
+  const expandedRowRender = () => {
+    const detailColumns: TableProps<ScheduleDetails>['columns'] = [
+      {
+        title: 'Remote',
+        dataIndex: 'remote_name',
+        key: 'remote_name',
+      },
+      {
+        title: 'Schedule',
+        dataIndex: 'schedule_name',
+        key: 'schedule_name',
+      },
+      {
+        title: 'Resource-Definition',
+        dataIndex: 'rsc_dfn',
+        key: 'rsc_dfn',
+        render: (enabled) => {
+          return enabled ? <Tag color="green">Enabled</Tag> : '';
+        },
+      },
+      {
+        title: 'Resource-Group',
+        dataIndex: 'rsc_grp',
+        key: 'rsc_grp',
+        render: (enabled) => {
+          return enabled ? <Tag color="green">Enabled</Tag> : '';
+        },
+      },
+      {
+        title: 'Controller',
+        dataIndex: 'ctrl',
+        key: 'ctrl',
+        render: (enabled) => {
+          return enabled ? <Tag color="green">Enabled</Tag> : '';
+        },
+      },
+    ];
+
+    const detailData: ScheduleDetails[] = resourceDetailData
+      ? (Array.isArray(resourceDetailData) ? resourceDetailData : [resourceDetailData]).map((item: any) => ({
+          remote_name: item.remote_name || '',
+          schedule_name: item.schedule_name || '',
+          rsc_dfn: item.rsc_dfn,
+          rsc_grp: item.rsc_grp,
+          ctrl: item.ctrl,
+        }))
+      : [];
+
+    return (
+      <Table
+        columns={detailColumns}
+        dataSource={detailData}
+        pagination={false}
+        loading={detailLoading}
+        bordered
+        size="small"
+        rowKey={(record) => `${record.remote_name}-${record.schedule_name}`}
+      />
+    );
+  };
 
   const filteredData = (dataList ?? [])?.filter((item) =>
     item.rsc_name.toLowerCase().includes(searchResource.toLowerCase()),
@@ -268,6 +358,12 @@ export const ScheduleByResourceList = () => {
           showTotal: (total) => `Total ${total} items`,
         }}
         loading={isLoading}
+        rowKey={(record) => record.rsc_name}
+        expandable={{
+          expandedRowRender,
+          onExpand: handleExpand,
+          expandedRowKeys,
+        }}
       />
     </>
   );

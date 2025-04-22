@@ -95,6 +95,16 @@ const getScheduleByResource = (query: {
   });
 };
 
+const getScheduleByResourceName = (rscName: string) => {
+  return get('/v1/view/schedules-by-resource/{rscName}', {
+    params: {
+      path: {
+        rscName,
+      },
+    },
+  });
+};
+
 export {
   getScheduleList,
   createSchedule,
@@ -104,4 +114,5 @@ export {
   disableSchedule,
   deleteBackupSchedule,
   getScheduleByResource,
+  getScheduleByResourceName,
 };
