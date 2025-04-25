@@ -8,8 +8,9 @@ import axios from 'axios';
 import { i18n } from '../../index';
 
 // create an axios instance
+const linstorHost = typeof window !== 'undefined' ? window.localStorage.getItem('LINSTOR_HOST') : '';
 const service = axios.create({
-  baseURL: '', // url = base url + request url
+  baseURL: linstorHost || '/', // url = base url + request url
   timeout: 1000 * 60 * 10, // request timeout
 });
 
@@ -38,13 +39,13 @@ const handleError = (statsCode, res) => {
 
 // handle gateway request host
 service.interceptors.request.use((req) => {
-  const GATEWAY_HOST = window.localStorage.getItem('GATEWAY_HOST');
+  const LINSTOR_HOST = window.localStorage.getItem('LINSTOR_HOST');
   const VSAN_HOST = window.localStorage.getItem('VSAN_HOST');
 
   if (process.env.NODE_ENV !== 'development') {
-    if (req.url?.startsWith('/api/v2/') && GATEWAY_HOST) {
+    if (req.url?.startsWith('/api/v2/') && LINSTOR_HOST) {
       // For gateway mode, use gateway host
-      req.baseURL = GATEWAY_HOST;
+      req.baseURL = LINSTOR_HOST;
     } else if (req.url?.startsWith('/api/frontend/v1') && VSAN_HOST) {
       // FOR VSAN Mode, use https and hostname
       req.baseURL = VSAN_HOST;

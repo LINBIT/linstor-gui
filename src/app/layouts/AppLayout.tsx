@@ -10,7 +10,6 @@ import { ToastContainer } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { Layout, message } from 'antd';
 import SVG from 'react-inlinesvg';
-import { useTranslation } from 'react-i18next';
 
 import { Dispatch, RootState } from '@app/store';
 import { ChangePassword, Login } from '@app/features/authentication';
@@ -50,7 +49,6 @@ const AppLayout = ({ children, registered, isFetched }: IAppLayout) => {
   const dispatch = useDispatch<Dispatch>();
   const navigate = useNavigate();
   const location = useLocation();
-  const { t } = useTranslation(['menu']);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -92,8 +90,7 @@ const AppLayout = ({ children, registered, isFetched }: IAppLayout) => {
 
   useEffect(() => {
     const VSAN_URL = location.pathname.includes('/vsan');
-    const initialOpenFromVSAN =
-      location.pathname === '/vsan/dashboard' && location.search === '?vsan=true';
+    const initialOpenFromVSAN = location.pathname === '/vsan/dashboard' && location.search === '?vsan=true';
 
     if (initialOpenFromVSAN) {
       dispatch.setting.initSettingStore(VSAN_URL);

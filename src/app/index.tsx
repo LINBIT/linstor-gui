@@ -13,17 +13,32 @@ import locale from 'antd/locale/en_US';
 
 import AppLayout from '@app/layouts/AppLayout';
 import { AppRoutes } from '@app/routes/routes';
+import { resolveAndStoreLinstorHost } from '@app/utils/resolveLinstorHost';
 
 import { store } from './store';
 import { NavProvider } from './NavContext';
 
 import '@app/app.css';
 
+if (typeof window !== 'undefined') {
+  const url = new URL(window.location.href);
+  let host = url.searchParams.get('host');
+  if (host) {
+    // Use pathname as base for correct relative path support
+    const resolvedHost = resolveAndStoreLinstorHost(host, window.location.origin + window.location.pathname);
+    if (resolvedHost) {
+      url.searchParams.delete('host');
+      window.location.replace(url.pathname + url.search + url.hash);
+    }
+  }
+}
+
 const MSG = 'The SpaceTracking service is not installed.';
 
 const App: React.FunctionComponent = () => {
-  const getSpaceReport = () =>
-    fetch('/v1/space-report')
+  const getSpaceReport = () => {
+    const linstorHost = localStorage.getItem('LINSTOR_HOST') || '';
+    return fetch(`${linstorHost}/v1/space-report`)
       .then((res) => res.json())
       .then((res) => {
         return res?.reportText;
@@ -32,6 +47,7 @@ const App: React.FunctionComponent = () => {
         console.log('error', error);
         return MSG;
       });
+  };
 
   const { isFetched, data } = useQuery({
     queryKey: ['getSpaceReport'],
@@ -43,7 +59,7 @@ const App: React.FunctionComponent = () => {
 
   return (
     <Provider store={store as any}>
-      <Router hashType="hashbang">
+      <Router>
         <ConfigProvider
           theme={{
             token: {

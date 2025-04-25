@@ -72,8 +72,9 @@ const partiallySuccess = (res?: APICALLRCLIST) => {
   return res.some((item) => item.ret_code < 0) && res.some((item) => item.ret_code > 0);
 };
 
+const linstorHost = typeof window !== 'undefined' ? window.localStorage.getItem('LINSTOR_HOST') : '';
 const { GET, POST, DELETE, PUT, PATCH, HEAD, TRACE, OPTIONS } = createClient<paths>({
-  baseUrl: '',
+  baseUrl: linstorHost || '/',
   fetch: window.fetch,
   querySerializer: {
     array: {
