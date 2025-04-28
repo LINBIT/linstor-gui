@@ -6,10 +6,9 @@
 
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Button, Checkbox, Col, Divider, Form, Input, Popover, Radio, Row, Select, Switch } from 'antd';
+import { Button, Checkbox, Col, Divider, Form, Input, message, Popover, Radio, Row, Select, Switch } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { uniqBy } from 'lodash';
-import { toast } from 'react-toastify';
 
 import { useStoragePools } from '@app/features/storagePool';
 import { fullySuccess } from '@app/features/requests';
@@ -376,9 +375,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
               onChange={(val) => {
                 if (!layer_stack?.includes('drbd') && val.includes('drbd')) {
                   form.setFieldValue('data_copy_mode', 'C');
-                  toast('Please make sure you have drbd-kmod installed on the nodes you wish to use DRBD on', {
-                    type: 'info',
-                  });
+                  message.info('Please make sure you have drbd-kmod installed on the nodes you wish to use DRBD on');
                 }
               }}
             />

@@ -6,7 +6,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { Layout, message } from 'antd';
 import SVG from 'react-inlinesvg';
@@ -124,23 +123,7 @@ const AppLayout = ({ children, registered, isFetched }: IAppLayout) => {
   }, [isNotOfficialBuild]);
 
   if (authenticationEnabled && !authInfo.isLoggedIn) {
-    return (
-      <>
-        <Login />
-        <ToastContainer
-          position="top-right"
-          autoClose={2000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          limit={3}
-        />
-      </>
-    );
+    return <Login />;
   }
 
   return (
@@ -191,19 +174,6 @@ const AppLayout = ({ children, registered, isFetched }: IAppLayout) => {
           <Content className="p-[24px] m-[12px] bg-white rounded-xl">{children}</Content>
         </Layout>
       </Layout>
-
-      <ToastContainer
-        position="top-right"
-        autoClose={6000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        limit={3}
-      />
 
       {authenticationEnabled && authInfo.isAdmin && authInfo.isLoggedIn && (
         <ChangePassword defaultOpen={authInfo.needsPasswordChange} admin={authInfo.isAdmin} />

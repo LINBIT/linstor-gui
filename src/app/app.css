@@ -4,7 +4,6 @@
  * Author: Liang Li <liang.li@linbit.com>
  */
 
-@import url('react-toastify/dist/ReactToastify.css');
 @import url('antd/dist/reset.css');
 
 @import 'tailwindcss';

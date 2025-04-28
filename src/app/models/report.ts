@@ -9,7 +9,7 @@ import { createModel } from '@rematch/core';
 import { RootModel } from '.';
 
 import { ErrorReportDeleteRequest, ReportType } from '@app/interfaces/report';
-import { notify, notifyList } from '@app/utils/toast';
+import { notify, notifyMessages } from '@app/utils/toast';
 import { ApiCallRcList } from '@app/interfaces/common';
 
 type ReportState = {
@@ -75,7 +75,7 @@ export const report = createModel<RootModel>()({
         ids?: string[];
         deleteAll?: boolean;
       },
-      state
+      state,
     ) {
       try {
         let req = {};
@@ -93,7 +93,7 @@ export const report = createModel<RootModel>()({
 
         const result = await service.patch<ErrorReportDeleteRequest, { data: ApiCallRcList }>(`/v1/error-reports`, req);
 
-        notifyList(result.data);
+        notifyMessages(result.data);
 
         dispatch.report.getReportList({
           page: state.report.pageInfo.currentPage,

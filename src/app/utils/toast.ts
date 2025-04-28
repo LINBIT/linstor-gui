@@ -4,7 +4,6 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { toast, ToastOptions } from 'react-toastify';
 import { components } from '@app/apis/schema';
 import { message } from 'antd';
 
@@ -12,13 +11,23 @@ const handleLinstorMessage = (e: { message: string; ret_code: number }) => {
   return { title: e.message, type: e.ret_code > 0 ? 'success' : 'error' };
 };
 
-const notify = (content: string, options?: ToastOptions): void => {
+const notify = (
+  content: string,
+  options?: {
+    type?: 'success' | 'error' | 'info' | 'warning' | undefined;
+  },
+): void => {
   if (!content) {
     return;
   }
-  toast(content, {
-    ...options,
-  });
+  // toast(content, {
+  //   ...options,
+  // });
+  if (options?.type === 'success') {
+    message.success(content);
+  } else if (options?.type === 'error') {
+    message.error(content);
+  }
 };
 
 type APICALLRC = components['schemas']['ApiCallRc'];
@@ -207,15 +216,23 @@ const handleAPICallRes = (callRes: APICALLRCLIST, url: string) => {
   logManager.addBulkLogs(normalRes, url);
 };
 
-const notifyList = (list: { message: string; ret_code: number }[], options?: ToastOptions): void => {
+const notifyMessages = (list: { message: string; ret_code: number }[]): void => {
   if (!list) {
     return;
   }
-  for (const item of list) {
-    notify(String(item.message), {
-      type: item.ret_code > 0 ? 'success' : 'error',
-    });
+  const hasError = list.some((e) => e.ret_code < 0);
+  if (hasError) {
+    const errorMessages = list.filter((e) => e.ret_code < 0);
+
+    for (const item of errorMessages) {
+      message.error(String(item.message));
+    }
+  } else {
+    for (const item of list) {
+      message.success(String(item.message));
+    }
   }
 };
 
-export { notify, handleLinstorMessage, notifyList, handleAPICallRes, LogItem, ApiLogManager, logManager };
+export { notifyMessages, notify, handleLinstorMessage, handleAPICallRes, ApiLogManager, logManager };
+export type { LogItem };

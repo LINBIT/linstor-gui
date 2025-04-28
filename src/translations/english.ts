@@ -341,6 +341,8 @@ const en = {
     volumes: 'Volumes',
     create: 'Create Snapshot',
     nodes: 'Nodes',
+    create_failed: 'Create Snapshot Failed',
+    create_success: 'Create Snapshot Success',
   },
   users: {
     description: 'You can enable or disable user authentication from here.',

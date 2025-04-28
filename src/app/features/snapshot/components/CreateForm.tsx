@@ -5,12 +5,12 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Button, Form, Input, Modal, Select } from 'antd';
+import { Button, Form, Input, message, Modal, Select } from 'antd';
 import { uniqBy } from 'lodash';
 import { useTranslation } from 'react-i18next';
 
 import { useNodes } from '@app/features/node';
-import { notify } from '@app/utils/toast';
+import { notifyMessages } from '@app/utils/toast';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { getStoragePool } from '@app/features/storagePool';
 
@@ -63,9 +63,7 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
     },
     onSuccess: (data) => {
       if (data?.data && Array.isArray(data?.data)) {
-        notify('Snapshot created!', {
-          type: 'success',
-        });
+        notifyMessages(data.data);
       }
 
       setTimeout(() => {
@@ -74,9 +72,7 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
       }, 200);
     },
     onError: () => {
-      notify('Create snapshot failed!', {
-        type: 'error',
-      });
+      message.error(t('snapshot:create_failed'));
     },
   });
 
