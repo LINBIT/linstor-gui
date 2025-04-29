@@ -4,15 +4,15 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { Button, Checkbox, Col, Divider, Form, Input, message, Popover, Radio, Row, Select, Switch } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { Button, Checkbox, Col, Divider, Form, Input, message, Popover, Radio, Row, Select, Switch, Spin } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { uniqBy } from 'lodash';
 
 import { useStoragePools } from '@app/features/storagePool';
 import { fullySuccess } from '@app/features/requests';
-import { createResourceGroup, addVolumeToResourceGroup, updateResourceGroup } from '../api';
+import { createResourceGroup, addVolumeToResourceGroup, updateResourceGroup, getResourceGroups } from '../api';
 import { ResourceGroupCreateRequestBody, AddVolumeRequestBody, ResourceGroupModifyRequestBody } from '../types';
 import { DownOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { SizeInput } from '@app/components/SizeInput';
@@ -60,17 +60,50 @@ const providerList = [
 
 type CreateFormProps = {
   isEdit?: boolean;
-  initialValues?: Partial<FormType>;
+  resourceGroup?: string;
+  form?: any;
 };
 
-const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
+const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormProps) => {
   const navigate = useNavigate();
   const [form] = Form.useForm<FormType>();
+  const usedForm = externalForm || form;
   const { t } = useTranslation(['resource_group', 'common']);
   const [expand, setExpand] = useState(false);
 
-  const deploy = Form.useWatch('deploy', form);
-  const layer_stack = Form.useWatch('layer_stack', form);
+  const { data, isLoading } = useQuery({
+    queryKey: ['getRGDetail', resourceGroup],
+    queryFn: () => getResourceGroups({ resource_groups: [resourceGroup!] }),
+    enabled: !!isEdit && !!resourceGroup,
+  });
+
+  const detailData = data?.data;
+  const initialVal =
+    isEdit && detailData?.[0]
+      ? {
+          name: detailData?.[0]?.name,
+          description: detailData?.[0]?.description,
+          data_copy_mode: detailData?.[0]?.props?.['DrbdOptions/Net/protocol'],
+          diskless_on_remaining: detailData?.[0]?.select_filter?.diskless_on_remaining,
+          storage_pool_list: detailData?.[0]?.select_filter?.storage_pool_list ?? [],
+          layer_stack: detailData?.[0]?.select_filter?.layer_stack?.map((e: string) => e.toLowerCase()) ?? [],
+          provider_list: detailData?.[0]?.select_filter?.provider_list?.map((e: string) => e.toLowerCase()) ?? [],
+          replicas_on_same: detailData?.[0]?.select_filter?.replicas_on_same ?? [],
+          replicas_on_different: detailData?.[0]?.select_filter?.replicas_on_different ?? [],
+          not_place_with_rsc: detailData?.[0]?.select_filter?.not_place_with_rsc ?? '',
+          not_place_with_rsc_regex: detailData?.[0]?.select_filter?.not_place_with_rsc_regex ?? '',
+          place_count: detailData?.[0]?.select_filter?.place_count ?? 2,
+        }
+      : undefined;
+
+  useEffect(() => {
+    if (isEdit && detailData && detailData[0]) {
+      usedForm.setFieldsValue(initialVal);
+    }
+  }, [isEdit, detailData]);
+
+  const deploy = Form.useWatch('deploy', usedForm);
+  const layer_stack = Form.useWatch('layer_stack', usedForm);
 
   const backToList = () => {
     if (isEdit) {
@@ -122,6 +155,8 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
         layer_stack: values.layer_stack,
         provider_list: values.provider_list,
         place_count: Number(values.place_count),
+        storage_pool_diskless_list: [],
+        x_replicas_on_different_map: {},
       },
     };
 
@@ -177,18 +212,22 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
 
   const drbdLayer = layer_stack?.includes('drbd');
 
+  if (isEdit && isLoading) {
+    return <Spin />;
+  }
+
   return (
     <Form<FormType>
       size="large"
       layout="horizontal"
       labelCol={{ span: 8 }}
       wrapperCol={{ span: 16 }}
-      form={form}
+      form={usedForm}
       initialValues={{
         data_copy_mode: 'C',
         deploy: false,
         place_count: 2,
-        ...initialValues,
+        ...initialVal,
       }}
       onFinish={onFinish}
     >
@@ -311,32 +350,32 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
             label={
               <LabelContainer>
                 <TooltipLabelContainer>
-                  <span>{t('resource_group:storage_providers')}</span>
+                  <span>{t('resource_group:storage_pool')}</span>
                 </TooltipLabelContainer>
                 <Popover
                   content={
                     <TooltipContainer>
                       <p>
-                        Select storage providers. Only storage pools backed by the selected storage providers will be
-                        considered for automatic resource placement when creating resources from this resource group.
+                        Select storage pool. Resources created from this resource group will be automatically placed
+                        into selected storage pool.
                       </p>
                     </TooltipContainer>
                   }
-                  title={t('resource_group:storage_providers')}
+                  title={t('resource_group:storage_pool')}
                 >
                   <QuestionCircleOutlined />
                 </Popover>
               </LabelContainer>
             }
-            name="provider_list"
+            name="storage_pool_list"
           >
             <Select
               allowClear
+              placeholder="Please select storage pool"
               mode="multiple"
-              placeholder="Please select providers"
-              options={providerList?.map((e) => ({
-                label: e,
-                value: e,
+              options={uniqBy(storagePools, 'storage_pool_name')?.map((e) => ({
+                label: e.storage_pool_name,
+                value: e.storage_pool_name,
               }))}
             />
           </Form.Item>
@@ -374,7 +413,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
               }))}
               onChange={(val) => {
                 if (!layer_stack?.includes('drbd') && val.includes('drbd')) {
-                  form.setFieldValue('data_copy_mode', 'C');
+                  usedForm.setFieldValue('data_copy_mode', 'C');
                   message.info('Please make sure you have drbd-kmod installed on the nodes you wish to use DRBD on');
                 }
               }}
@@ -385,32 +424,32 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
             label={
               <LabelContainer>
                 <TooltipLabelContainer>
-                  <span>{t('resource_group:storage_pool')}</span>
+                  <span>{t('resource_group:storage_providers')}</span>
                 </TooltipLabelContainer>
                 <Popover
                   content={
                     <TooltipContainer>
                       <p>
-                        Select storage pool. Resources created from this resource group will be automatically placed
-                        into selected storage pool.
+                        Select storage providers. Only storage pools backed by the selected storage providers will be
+                        considered for automatic resource placement when creating resources from this resource group.
                       </p>
                     </TooltipContainer>
                   }
-                  title={t('resource_group:storage_pool')}
+                  title={t('resource_group:storage_providers')}
                 >
                   <QuestionCircleOutlined />
                 </Popover>
               </LabelContainer>
             }
-            name="storage_pool_list"
+            name="provider_list"
           >
             <Select
               allowClear
-              placeholder="Please select storage pool"
               mode="multiple"
-              options={uniqBy(storagePools, 'storage_pool_name')?.map((e) => ({
-                label: e.storage_pool_name,
-                value: e.storage_pool_name,
+              placeholder="Please select providers"
+              options={providerList?.map((e) => ({
+                label: e,
+                value: e,
               }))}
             />
           </Form.Item>
