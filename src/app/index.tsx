@@ -33,29 +33,36 @@ if (typeof window !== 'undefined') {
   }
 }
 
-const MSG = 'The SpaceTracking service is not installed.';
+const SPACE_TRACKING_UNAVAILABLE_MSG = 'The SpaceTracking service is not installed.';
 
 const App: React.FunctionComponent = () => {
-  const getSpaceReport = () => {
+  const getSpaceReport = async () => {
     const linstorHost = localStorage.getItem('LINSTOR_HOST') || '';
-    return fetch(`${linstorHost}/v1/space-report`)
-      .then((res) => res.json())
-      .then((res) => {
-        return res?.reportText;
-      })
-      .catch((error) => {
-        console.log('error', error);
-        return MSG;
-      });
+    try {
+      const response = await fetch(`${linstorHost}/v1/space-report`);
+
+      if (!response.ok) {
+        throw new Error(SPACE_TRACKING_UNAVAILABLE_MSG);
+      }
+      const res = await response.json();
+
+      if (!res?.reportText || res.reportText === SPACE_TRACKING_UNAVAILABLE_MSG) {
+        throw new Error(SPACE_TRACKING_UNAVAILABLE_MSG);
+      }
+      return res.reportText;
+    } catch (error: any) {
+      throw new Error(SPACE_TRACKING_UNAVAILABLE_MSG);
+    }
   };
 
-  const { isFetched, data } = useQuery({
-    queryKey: ['getSpaceReport'],
+  const { isFetched, isSuccess } = useQuery<string, Error>({
+    queryKey: ['getSpaceReportStatus'],
     queryFn: getSpaceReport,
+    retry: 1,
   });
 
-  // Check if has space-report result
-  const appEnabled = isFetched && data && data !== MSG;
+  const isSpaceTrackingAvailable = isSuccess;
+  const isCheckingStatus = !isFetched;
 
   return (
     <Provider store={store as any}>
@@ -69,7 +76,7 @@ const App: React.FunctionComponent = () => {
           locale={locale}
         >
           <NavProvider>
-            <AppLayout registered={appEnabled} isFetched={isFetched}>
+            <AppLayout isSpaceTrackingAvailable={isSpaceTrackingAvailable} isCheckingStatus={isCheckingStatus}>
               <AppRoutes />
             </AppLayout>
           </NavProvider>

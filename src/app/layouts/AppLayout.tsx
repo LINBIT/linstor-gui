@@ -35,15 +35,15 @@ const { Header, Content, Sider } = Layout;
 
 interface IAppLayout {
   children: React.ReactNode;
-  registered?: boolean;
-  isFetched?: boolean;
+  isSpaceTrackingAvailable?: boolean;
+  isCheckingStatus?: boolean;
 }
 
 const handleSupportClick = () => {
   window.open('https://linbit.com/sds-subscription/', '_blank');
 };
 
-const AppLayout = ({ children, registered, isFetched }: IAppLayout) => {
+const AppLayout = ({ children, isSpaceTrackingAvailable, isCheckingStatus }: IAppLayout) => {
   const { UIMode, updateUIMode } = useUIModeStorage();
   const dispatch = useDispatch<Dispatch>();
   const navigate = useNavigate();
@@ -114,13 +114,16 @@ const AppLayout = ({ children, registered, isFetched }: IAppLayout) => {
 
   const VSANAvailable = KVS?.vsanMode;
   const normalWithoutAuth = !VSANAvailable && !authenticationEnabled;
-  const isNotOfficialBuild = isFetched && !registered && !vsanModeFromSetting;
+  // Recalculate when to show the modal
+  const isNotOfficialBuild = !isCheckingStatus && !isSpaceTrackingAvailable && !vsanModeFromSetting;
 
   useEffect(() => {
-    if (typeof isNotOfficialBuild !== 'undefined' && isNotOfficialBuild) {
+    if (isNotOfficialBuild) {
       setIsModalOpen(true);
+    } else {
+      setIsModalOpen(false);
     }
-  }, [isNotOfficialBuild]);
+  }, [isNotOfficialBuild, isCheckingStatus]);
 
   if (authenticationEnabled && !authInfo.isLoggedIn) {
     return <Login />;
