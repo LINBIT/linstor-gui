@@ -1,5 +1,23 @@
 # Changelog
 
+# 1.9.5 - 2025-04-29
+
+### Added
+
+- Support for using a customized API host
+- Added schedule detail view
+
+### Fixed
+
+- Initial value not shown when editing resource group
+- Optimized create snapshot notification
+- Refetch after inputting pass phrase
+
+### Changed
+
+- Optimized the logic of the unofficial modal
+- Action style adjustment for all list pages
+
 # 1.9.4 - 2025-04-08
 
 ### Added
