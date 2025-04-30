@@ -22,7 +22,7 @@ const ChartContainer = styled.div`
 export const StoragePoolInfo: React.FC = () => {
   const { t } = useTranslation();
 
-  const { width, height } = useWindowSize();
+  const { height } = useWindowSize();
 
   // Fetching the storage pool data from the API
   const { data: poolsData, isLoading } = useQuery({
@@ -131,14 +131,6 @@ export const StoragePoolInfo: React.FC = () => {
     };
   }, [poolsData]);
 
-  if (isLoading) {
-    return (
-      <Card>
-        <Spin />
-      </Card>
-    );
-  }
-
   const options = {
     chart: {
       stacked: true,
@@ -176,7 +168,7 @@ export const StoragePoolInfo: React.FC = () => {
   };
 
   const nodeCount = chartData.categories.length;
-  const chartWidth = nodeCount * 400; // adjust as needed
+  const chartWidth = nodeCount * 400;
 
   const widthForChart =
     nodeCount >= 5
@@ -187,15 +179,17 @@ export const StoragePoolInfo: React.FC = () => {
 
   return (
     <Card title={t('common:storage_pool_overview')}>
-      <ChartContainer>
-        <Chart
-          options={options}
-          series={chartData.series}
-          type="bar"
-          height={height > 900 ? 500 : 300}
-          {...widthForChart}
-        />
-      </ChartContainer>
+      <Spin spinning={isLoading}>
+        <ChartContainer>
+          <Chart
+            options={options}
+            series={chartData.series}
+            type="bar"
+            height={height > 900 ? 500 : 300}
+            {...widthForChart}
+          />
+        </ChartContainer>
+      </Spin>
     </Card>
   );
 };

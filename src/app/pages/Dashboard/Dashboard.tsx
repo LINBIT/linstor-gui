@@ -11,8 +11,6 @@ import PageBasic from '@app/components/PageBasic';
 import { StoragePoolInfo } from './components/StoragePoolInfo';
 import { FaultyList } from '@app/features/resource';
 
-import './Dashboard.css';
-
 const Dashboard: React.FunctionComponent = () => {
   const { t } = useTranslation(['dashboard', 'common']);
 

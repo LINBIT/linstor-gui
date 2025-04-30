@@ -154,14 +154,12 @@ export const FaultyList = () => {
 
   return (
     <Content>
-      <Spin spinning={isLoading} size="large" tip={t('common:loading')}>
-        <h3>{t('common:faulty_resource')}</h3>
-        {resources?.length ? (
-          <Table columns={columns as any} dataSource={resources ?? []} pagination={false} />
-        ) : (
-          <EmptyContent>{t('common:all_resources_are_healthy')}</EmptyContent>
-        )}
-      </Spin>
+      <h3 className="font-semibold text-[16px]">{t('common:faulty_resource')}</h3>
+      {resources?.length ? (
+        <Table columns={columns as any} dataSource={resources ?? []} pagination={false} loading={isLoading} />
+      ) : (
+        <EmptyContent>{t('common:all_resources_are_healthy')}</EmptyContent>
+      )}
     </Content>
   );
 };
