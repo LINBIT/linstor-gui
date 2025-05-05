@@ -7,7 +7,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Layout, message } from 'antd';
+import { Layout, message, FloatButton } from 'antd';
+import { VerticalAlignTopOutlined } from '@ant-design/icons';
 import SVG from 'react-inlinesvg';
 
 import { Dispatch, RootState } from '@app/store';
@@ -50,6 +51,7 @@ const AppLayout = ({ children, isSpaceTrackingAvailable, isCheckingStatus }: IAp
   const location = useLocation();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showBackTop, setShowBackTop] = useState(false);
 
   const { isNavOpen, toggleNav } = useNav();
 
@@ -111,6 +113,15 @@ const AppLayout = ({ children, isSpaceTrackingAvailable, isCheckingStatus }: IAp
       maxCount: 3,
     });
   }, [dispatch.setting]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBackTop(window.scrollY > 300);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const VSANAvailable = KVS?.vsanMode;
   const normalWithoutAuth = !VSANAvailable && !authenticationEnabled;
@@ -177,6 +188,18 @@ const AppLayout = ({ children, isSpaceTrackingAvailable, isCheckingStatus }: IAp
           <Content className="p-[24px] m-[12px] bg-white rounded-xl">{children}</Content>
         </Layout>
       </Layout>
+
+      <FloatButton
+        type="primary"
+        icon={<VerticalAlignTopOutlined />}
+        style={{
+          display: showBackTop ? 'block' : 'none',
+          right: '40px',
+          bottom: '40px',
+        }}
+        tooltip="回到顶部"
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      />
 
       {authenticationEnabled && authInfo.isAdmin && authInfo.isLoggedIn && (
         <ChangePassword defaultOpen={authInfo.needsPasswordChange} admin={authInfo.isAdmin} />
