@@ -197,7 +197,7 @@ const AppLayout = ({ children, isSpaceTrackingAvailable, isCheckingStatus }: IAp
           right: '40px',
           bottom: '40px',
         }}
-        tooltip="回到顶部"
+        tooltip="back to top"
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
       />
 
