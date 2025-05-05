@@ -29,7 +29,7 @@ const items: TabsProps['items'] = [
   },
   {
     key: 'nfs',
-    label: 'NFS Targets',
+    label: 'NFS Exports',
     children: <NFSExportList />,
   },
 ];
