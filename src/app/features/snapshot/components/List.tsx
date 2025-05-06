@@ -23,6 +23,7 @@ import { getResources } from '@app/features/resource';
 
 import { SearchForm } from './styled';
 import { CreateSnapshotForm } from './CreateForm';
+import { RollbackSnapshotForm } from './RollbackForm';
 
 export const List = () => {
   const [form] = Form.useForm();
@@ -60,6 +61,17 @@ export const List = () => {
   });
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
+  // State for rollback snapshot modal
+  const [rollbackModalInfo, setRollbackModalInfo] = useState<{
+    visible: boolean;
+    resource: string;
+    snapshot: string;
+  }>({
+    visible: false,
+    resource: '',
+    snapshot: '',
+  });
+
   const {
     data: snapshotList,
     isLoading,
@@ -75,6 +87,24 @@ export const List = () => {
       refetch();
     },
   });
+
+  // Handle rollback modal open
+  const handleOpenRollbackModal = (resource: string, snapshot: string) => {
+    setRollbackModalInfo({
+      visible: true,
+      resource,
+      snapshot,
+    });
+  };
+
+  // Handle rollback modal close
+  const handleCloseRollbackModal = () => {
+    setRollbackModalInfo({
+      visible: false,
+      resource: '',
+      snapshot: '',
+    });
+  };
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
     setSelectedRowKeys(newSelectedRowKeys);
@@ -213,20 +243,29 @@ export const List = () => {
             menu={{
               items: [
                 {
+                  key: 'rollback',
+                  label: (
+                    <Button
+                      type="text"
+                      onClick={() => {
+                        handleOpenRollbackModal(record.resource_name ?? '', record.name ?? '');
+                      }}
+                    >
+                      {t('snapshot:rollback')}
+                    </Button>
+                  ),
+                },
+                {
                   key: 'delete',
                   label: (
-                    <Popconfirm
-                      key="delete"
-                      title="Delete the snapshot"
-                      description="Are you sure to delete this snapshot?"
-                      okText="Yes"
-                      cancelText="No"
-                      onConfirm={() => {
+                    <Button
+                      type="text"
+                      onClick={() => {
                         deleteMutation.mutate({ resource: record.resource_name ?? '', snapshot: record.name ?? '' });
                       }}
                     >
                       {t('common:delete')}
-                    </Popconfirm>
+                    </Button>
                   ),
                 },
               ],
@@ -317,6 +356,15 @@ export const List = () => {
           showSizeChanger: true,
           showTotal: (total) => `Total ${total} items`,
         }}
+      />
+
+      {/* Rollback snapshot modal */}
+      <RollbackSnapshotForm
+        visible={rollbackModalInfo.visible}
+        resource={rollbackModalInfo.resource}
+        snapshot={rollbackModalInfo.snapshot}
+        onClose={handleCloseRollbackModal}
+        onSuccess={refetch}
       />
     </>
   );

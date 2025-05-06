@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { post, get, del } from '../requests';
-import { CreateSnapshotRequestBody, ResourceListQuery, SnapshotListQuery } from './types';
+import { CreateSnapshotRequestBody, ResourceListQuery, RestoreSnapshotRequestBody, SnapshotListQuery } from './types';
 
 const getAllResources = (query?: ResourceListQuery) => {
   return get('/v1/view/resources', {
@@ -45,4 +45,27 @@ const createSnapshot = (resource: string, body: CreateSnapshotRequestBody) => {
   });
 };
 
-export { createSnapshot, getAllResources, getSnapshots, deleteSnapshot };
+const restoreSnapshot = (resource: string, snapshot: string, body: RestoreSnapshotRequestBody) => {
+  return post('/v1/resource-definitions/{resource}/snapshot-restore-resource/{snapshot}', {
+    params: {
+      path: {
+        resource,
+        snapshot,
+      },
+    },
+    body,
+  });
+};
+
+const rollbackSnapshot = (resource: string, snapshot: string) => {
+  return post('/v1/resource-definitions/{resource}/snapshot-rollback/{snapshot}', {
+    params: {
+      path: {
+        resource,
+        snapshot,
+      },
+    },
+  });
+};
+
+export { createSnapshot, getAllResources, getSnapshots, deleteSnapshot, restoreSnapshot, rollbackSnapshot };

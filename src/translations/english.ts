@@ -343,6 +343,12 @@ const en = {
     nodes: 'Nodes',
     create_failed: 'Create Snapshot Failed',
     create_success: 'Create Snapshot Success',
+    rollback: 'Rollback',
+    rollback_snapshot: 'Rollback Snapshot',
+    rollback_confirmation_message: 'Are you sure you want to rollback resource {{resource}} to snapshot {{snapshot}}?',
+    rollback_warning:
+      'Warning: This operation will revert the resource to the state of the selected snapshot. Any data changes after the snapshot was created will be lost.',
+    rollback_usage_warning: 'The resource must not be in use. That is, the resource must not be mounted on any nodes.',
   },
   users: {
     description: 'You can enable or disable user authentication from here.',

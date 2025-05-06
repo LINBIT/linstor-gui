@@ -311,6 +311,13 @@ const zh = {
     volumes: '卷',
     create: '创建快照',
     nodes: '节点',
+    create_failed: '创建快照失败',
+    create_success: '创建快照成功',
+    rollback: '回滚',
+    rollback_snapshot: '回滚快照',
+    rollback_confirmation_message: '确定要将资源 {{resource}} 回滚到快照 {{snapshot}} 吗？',
+    rollback_warning: '警告：此操作将使资源恢复到选定快照的状态。快照创建后的所有数据更改都将丢失。',
+    rollback_usage_warning: '资源不能处于使用中。即，资源不能被挂载在任何节点上。',
   },
   settings: {
     title: '设置',
