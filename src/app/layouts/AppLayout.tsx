@@ -127,14 +127,15 @@ const AppLayout = ({ children, isSpaceTrackingAvailable, isCheckingStatus }: IAp
   const normalWithoutAuth = !VSANAvailable && !authenticationEnabled;
   // Recalculate when to show the modal
   const isNotOfficialBuild = !isCheckingStatus && !isSpaceTrackingAvailable && !vsanModeFromSetting;
+  const isDevelopment = import.meta.env.MODE === 'development';
 
   useEffect(() => {
-    if (isNotOfficialBuild) {
+    if (isNotOfficialBuild && !isDevelopment) {
       setIsModalOpen(true);
     } else {
       setIsModalOpen(false);
     }
-  }, [isNotOfficialBuild, isCheckingStatus]);
+  }, [isNotOfficialBuild, isCheckingStatus, isDevelopment]);
 
   if (authenticationEnabled && !authInfo.isLoggedIn) {
     return <Login />;
