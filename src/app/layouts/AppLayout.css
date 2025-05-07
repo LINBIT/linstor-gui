@@ -3,10 +3,6 @@
  * Copyright (c) 2024 LINBIT
  * Author: Liang Li <liang.li@linbit.com>
  */
-* {
-  --pf-c-page__sidebar--BackgroundColor: var(--pf-global--BackgroundColor--dark-100);
-}
-
 .logo_wrap {
   display: flex;
   justify-content: center;

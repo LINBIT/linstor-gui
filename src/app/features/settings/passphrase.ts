@@ -4,7 +4,11 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { patch, post, put } from '../requests';
+import { get, patch, post, put } from '../requests';
+
+const getPassphraseStatus = () => {
+  return get('/v1/encryption/passphrase');
+};
 
 const createPassphrase = (passphrase: string) => {
   return post('/v1/encryption/passphrase', {
@@ -29,4 +33,4 @@ const enterPassPhrase = (passphrase: string) => {
   });
 };
 
-export { enterPassPhrase, createPassphrase, editPassphrase };
+export { enterPassPhrase, createPassphrase, editPassphrase, getPassphraseStatus };

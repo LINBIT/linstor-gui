@@ -17,7 +17,7 @@
     "type-check": "tsc --noEmit",
     "clean": "rimraf dist",
     "generate-api": "npm run generate-api:linstor && npm run generate-api:gateway",
-    "generate-api:linstor": "openapi-typescript ./src/app/apis/Linstor-Linstor-1.24.0-resolved.yaml --output ./src/app/apis/schema.ts",
+    "generate-api:linstor": "openapi-typescript ./src/app/apis/Linstor-Linstor-1.25.0-resolved.yaml --output ./src/app/apis/schema.ts",
     "generate-api:gateway": "openapi-typescript ./src/app/apis/Linstor-linstor-gateway-2.0.0-resolved.yaml --output ./src/app/apis/gatewayschema.ts"
   },
   "devDependencies": {

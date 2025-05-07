@@ -7,6 +7,7 @@
 import React from 'react';
 
 import { useTranslation } from 'react-i18next';
+import { Tooltip } from 'antd';
 
 import CONNECTED_SVG from '@app/assets/awesome-plug.svg';
 import DISCONNECTED_SVG from '@app/assets/disconnected-icon.svg';
@@ -31,13 +32,13 @@ const ConnectStatus: React.FC = () => {
   return (
     <div className="connect__status">
       {error ? (
-        <>
-          <img className="connected__img" src={DISCONNECTED_SVG} /> <span>{t('disconnected')}</span>
-        </>
+        <Tooltip title={t('disconnected')}>
+          <img className="connected__img" src={DISCONNECTED_SVG} />
+        </Tooltip>
       ) : (
-        <>
-          <img className="connected__img" src={CONNECTED_SVG} /> <span>{t('connected')}</span>
-        </>
+        <Tooltip title={t('connected')}>
+          <img className="connected__img" src={CONNECTED_SVG} />
+        </Tooltip>
       )}
     </div>
   );

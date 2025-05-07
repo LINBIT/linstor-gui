@@ -4086,7 +4086,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Check if master passphrase is set and/or unlocked
+         * @description Check if master passphrase is set and/or unlocked
+         */
+        get: operations["passphraseStatus"];
         /** modifies the encryption passphrase */
         put: operations["encryptionPassphraseModify"];
         /** create a encryption passphrase */
@@ -6665,6 +6669,15 @@ export interface components {
         };
         VolumeState: {
             disk_state?: string;
+            replication_states?: components["schemas"]["ReplicationStates"];
+        };
+        ReplicationStates: {
+            [key: string]: components["schemas"]["ReplicationState"];
+        };
+        ReplicationState: {
+            replication_state?: string;
+            /** Format: double */
+            done_percentage?: number;
         };
         ResourceGroup: {
             /**
@@ -7442,6 +7455,10 @@ export interface components {
              *     is an item of NodeQueue.queue
              *      */
             queue?: components["schemas"]["NodeQueue"][];
+        };
+        PassphraseStatus: {
+            /** @enum {string} */
+            status: "unset" | "locked" | "unlocked";
         };
         PassPhraseCreate: {
             new_passphrase?: string;
@@ -10623,6 +10640,27 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiCallRcList"];
+                };
+            };
+            500: components["responses"]["OperationFailed"];
+        };
+    };
+    passphraseStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description status object */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PassphraseStatus"][];
                 };
             };
             500: components["responses"]["OperationFailed"];

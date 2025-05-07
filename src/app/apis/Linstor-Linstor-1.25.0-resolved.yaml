@@ -18,7 +18,7 @@ info:
     ```
 
     After setting this properties restart the controller and the new values should be used.
-  version: 1.24.0
+  version: 1.25.0
   title: Linstor REST API
   contact:
     email: rene.peinthor@linbit.com
@@ -4337,6 +4337,23 @@ paths:
           $ref: '#/components/responses/OperationFailed'
 
   /v1/encryption/passphrase:
+    get:
+      tags:
+        - developers
+      operationId: passphraseStatus
+      summary: Check if master passphrase is set and/or unlocked
+      description: Check if master passphrase is set and/or unlocked
+      responses:
+        '200':
+          description: status object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PassphraseStatus'
+        '500':
+          $ref: '#/components/responses/OperationFailed'
     post:
       tags:
         - developers
@@ -7138,6 +7155,20 @@ components:
       properties:
         disk_state:
           type: string
+        replication_states:
+          $ref: '#/components/schemas/ReplicationStates'
+    ReplicationStates:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/ReplicationState'
+    ReplicationState:
+      type: object
+      properties:
+        replication_state:
+          type: string
+        done_percentage:
+          type: number
+          format: double
     ResourceGroup:
       type: object
       properties:
@@ -8438,6 +8469,17 @@ components:
           description: |
             The list of nodes this snapshot is queued on. Will be empty if this 
             is an item of NodeQueue.queue
+    PassphraseStatus:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - unset
+            - locked
+            - unlocked
     PassPhraseCreate:
       type: object
       properties:

@@ -9,15 +9,18 @@ import { Avatar, Dropdown } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { DeploymentUnitOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
+import { useQuery } from '@tanstack/react-query';
 import { Dispatch } from '@app/store';
 import { ChangePassword } from '@app/features/authentication';
 import { Mode } from '@app/hooks/useUIModeStorage';
 import { BRAND_COLOR } from '@app/const/color';
+import { getControllerVersion } from '@app/features/node';
 
 import LogSidebar from './LogSidebar';
 import HeaderAboutModal from './HeaderAboutModal';
 import ConnectStatus from './ConnectStatus';
 import LngSelector from './LngSelector';
+import PassphrasePrompt from './PassphrasePrompt';
 
 import logout from '@app/assets/logout.svg';
 import user from '@app/assets/user.svg';
@@ -39,6 +42,24 @@ interface HeaderToolsProps {
   handleSupportClick: () => void;
 }
 
+// This function compares two version strings and returns true if version1 is greater than or equal to version2.
+const compareVersions = (version1: string | undefined, version2: string): boolean => {
+  if (!version1) return false;
+
+  const v1Parts = version1.split('.').map(Number);
+  const v2Parts = version2.split('.').map(Number);
+
+  for (let i = 0; i < Math.max(v1Parts.length, v2Parts.length); i++) {
+    const v1 = v1Parts[i] || 0;
+    const v2 = v2Parts[i] || 0;
+
+    if (v1 > v2) return true;
+    if (v1 < v2) return false;
+  }
+
+  return true; // Equal versions
+};
+
 const HeaderTools: React.FC<HeaderToolsProps> = ({
   authInfo,
   vsanModeFromSetting,
@@ -53,7 +74,14 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
 }) => {
   const { t } = useTranslation(['menu']);
   const dispatch = useDispatch<Dispatch>();
-  const IS_DEV = process.env.NODE_ENV === 'development';
+  const IS_DEV = import.meta.env.MODE === 'development';
+
+  const { data: linstorVersion, isFetched } = useQuery({
+    queryKey: ['linstorVersion'],
+    queryFn: () => getControllerVersion(),
+  });
+
+  const checkPassphraseAvailable = isFetched && compareVersions(linstorVersion?.data?.rest_api_version, '1.25.0');
 
   const menu = {
     items: [
@@ -154,10 +182,12 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
       )}
       <ConnectStatus />
 
+      {checkPassphraseAvailable && <PassphrasePrompt />}
+
       <div className="flex items-center">
         {!vsanModeFromSetting && (
           <>
-            <HeaderAboutModal />
+            <HeaderAboutModal linstorVersion={linstorVersion?.data} />
             <LngSelector />
             <LogSidebar />
           </>
