@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Button, Form, Table, Select, Popconfirm, Space, Dropdown, Tooltip } from 'antd';
+import { Button, Form, Table, Select, Popconfirm, Space, Dropdown, Tooltip, Modal } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -24,6 +24,7 @@ import { getResources } from '@app/features/resource';
 import { SearchForm } from './styled';
 import { CreateSnapshotForm } from './CreateForm';
 import { RollbackSnapshotForm } from './RollbackForm';
+import RestoreFrom from './RestoreFrom';
 
 export const List = () => {
   const [form] = Form.useForm();
@@ -72,6 +73,17 @@ export const List = () => {
     snapshot: '',
   });
 
+  // State for restore snapshot modal
+  const [restoreModalInfo, setRestoreModalInfo] = useState<{
+    visible: boolean;
+    resource: string;
+    snapshot: string;
+  }>({
+    visible: false,
+    resource: '',
+    snapshot: '',
+  });
+
   const {
     data: snapshotList,
     isLoading,
@@ -100,6 +112,24 @@ export const List = () => {
   // Handle rollback modal close
   const handleCloseRollbackModal = () => {
     setRollbackModalInfo({
+      visible: false,
+      resource: '',
+      snapshot: '',
+    });
+  };
+
+  // Open restore modal
+  const handleOpenRestoreModal = (resource: string, snapshot: string) => {
+    setRestoreModalInfo({
+      visible: true,
+      resource,
+      snapshot,
+    });
+  };
+
+  // Close restore modal
+  const handleCloseRestoreModal = () => {
+    setRestoreModalInfo({
       visible: false,
       resource: '',
       snapshot: '',
@@ -274,6 +304,19 @@ export const List = () => {
                   ),
                 },
                 {
+                  key: 'restore',
+                  label: (
+                    <Button
+                      type="text"
+                      onClick={() => {
+                        handleOpenRestoreModal(record.resource_name ?? '', record.name ?? '');
+                      }}
+                    >
+                      {t('snapshot:restore', 'Restore')}
+                    </Button>
+                  ),
+                },
+                {
                   key: 'delete',
                   label: (
                     <Button
@@ -384,6 +427,24 @@ export const List = () => {
         onClose={handleCloseRollbackModal}
         onSuccess={refetch}
       />
+
+      {/* Restore snapshot modal */}
+      <Modal
+        title={t('snapshot:restore_snapshot', 'Restore Snapshot')}
+        open={restoreModalInfo.visible}
+        onCancel={handleCloseRestoreModal}
+        footer={null}
+      >
+        <RestoreFrom
+          sourceResource={restoreModalInfo.resource}
+          sourceSnapshot={restoreModalInfo.snapshot}
+          onSuccess={() => {
+            handleCloseRestoreModal();
+            refetch();
+          }}
+          onCancel={handleCloseRestoreModal}
+        />
+      </Modal>
     </>
   );
 };
