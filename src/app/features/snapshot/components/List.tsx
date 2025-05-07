@@ -11,7 +11,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { CheckCircleFilled, CloseCircleFilled, MoreOutlined } from '@ant-design/icons';
 import { LiaToolsSolid } from 'react-icons/lia';
-import { uniqBy } from 'lodash';
+import { uniqBy, groupBy } from 'lodash';
 import { useTranslation } from 'react-i18next';
 
 import { formatBytes } from '@app/utils/size';
@@ -157,6 +157,23 @@ export const List = () => {
     navigate('/snapshot');
   };
 
+  const latestSnapshotMap: Record<string, string> = React.useMemo(() => {
+    if (!snapshotList?.data) return {};
+    const groups = groupBy(snapshotList.data, 'resource_name');
+    const map: Record<string, string> = {};
+    Object.entries(groups).forEach(([resource, snaps]) => {
+      const sorted = [...snaps].sort((a, b) => {
+        const aTime = a.snapshots?.[0]?.create_timestamp || 0;
+        const bTime = b.snapshots?.[0]?.create_timestamp || 0;
+        return bTime - aTime;
+      });
+      if (sorted[0]) {
+        map[resource] = sorted[0].uuid ?? '';
+      }
+    });
+    return map;
+  }, [snapshotList]);
+
   const columns: TableProps<SnapshotType>['columns'] = [
     {
       title: t('snapshot:resource_name'),
@@ -247,6 +264,7 @@ export const List = () => {
                   label: (
                     <Button
                       type="text"
+                      disabled={latestSnapshotMap[record.resource_name ?? ''] !== record.uuid}
                       onClick={() => {
                         handleOpenRollbackModal(record.resource_name ?? '', record.name ?? '');
                       }}
