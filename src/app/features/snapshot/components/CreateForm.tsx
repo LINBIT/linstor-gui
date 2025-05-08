@@ -77,6 +77,7 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
   });
 
   const canDoSnapshot = data?.data?.every((e) => e.supports_snapshots);
+  const disabledStatus = resource && !canDoSnapshot && !isLoading;
 
   return (
     <>
@@ -107,6 +108,10 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
             .catch((info) => {
               console.log('Validate Failed:', info);
             });
+        }}
+        okButtonProps={{
+          disabled: disabledStatus,
+          loading: createResourceMutation.isLoading,
         }}
       >
         <Form<FormType>
@@ -146,6 +151,7 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
                   label: e.name,
                   value: e.name,
                 }))}
+              disabled={disabledStatus}
             />
           </Form.Item>
         </Form>
