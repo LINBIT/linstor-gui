@@ -41,6 +41,9 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
   }));
 
   const resource = Form.useWatch('resource_name', form);
+
+  const resourceNodeNames = resources?.filter((e) => e.name === resource).map((e) => e.node_name);
+
   const resourceObj = resources?.find((e) => e.name === resource);
   const disklessNodes = resources
     ?.filter((e) => e.name === resource && e.flags?.includes('DISKLESS') && e.flags.includes('DRBD_DISKLESS'))
@@ -146,7 +149,7 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
               placeholder="Please select nodes"
               mode="multiple"
               options={nodes
-                ?.filter((e) => !disklessNodes?.includes(e.name))
+                ?.filter((e) => resourceNodeNames?.includes(e.name) && !disklessNodes?.includes(e.name))
                 ?.map((e) => ({
                   label: e.name,
                   value: e.name,
