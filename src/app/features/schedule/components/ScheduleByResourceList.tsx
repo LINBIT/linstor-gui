@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, Form, Table, Input, Popconfirm, message, Space, Checkbox, Dropdown, Tooltip, Tag } from 'antd';
 import type { TableProps } from 'antd';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { MoreOutlined, CheckCircleFilled } from '@ant-design/icons';
+import { MoreOutlined } from '@ant-design/icons';
 import { LiaToolsSolid } from 'react-icons/lia';
 
 import {
@@ -14,7 +14,6 @@ import {
 } from '../api';
 import { SearchForm } from './styled';
 import { formatTimeUTC } from '@app/utils/time';
-import { EnterPassphrase } from '@app/features/settings';
 import { ScheduleByResource, ScheduleDetails } from '../types';
 import { useNavigate } from 'react-router-dom';
 import EnableScheduleForm from './EnableScheduleForm';
@@ -343,8 +342,6 @@ export const ScheduleByResourceList = () => {
             </Button>
           </Form.Item>
         </Form>
-
-        <EnterPassphrase />
       </SearchForm>
 
       <br />

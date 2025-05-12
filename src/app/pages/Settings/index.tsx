@@ -41,11 +41,6 @@ const GeneralSettings = () => {
       label: t('settings:grafana'),
       children: <Dashboard />,
     },
-    {
-      key: '4',
-      label: t('settings:passphrase'),
-      children: <Passphrase />,
-    },
   ];
 
   useEffect(() => {

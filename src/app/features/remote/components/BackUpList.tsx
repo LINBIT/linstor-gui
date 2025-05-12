@@ -17,7 +17,6 @@ import { deleteBackup, getBackup } from '../api';
 import { SearchForm } from './styled';
 import { formatTime } from '@app/utils/time';
 import { CreateBackupForm } from './CreateBackupForm';
-import { EnterPassphrase } from '@app/features/settings';
 
 type RemoteQuery = {
   origin_rsc?: string | null;
@@ -256,8 +255,6 @@ export const List = () => {
             <CreateBackupForm refetch={refetch} />
           </Form.Item>
         </Form>
-
-        <EnterPassphrase />
       </SearchForm>
 
       <br />

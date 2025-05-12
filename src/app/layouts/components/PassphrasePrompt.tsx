@@ -190,7 +190,7 @@ const PassphrasePrompt: React.FC = () => {
           )}
 
           <Form.Item>
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-2">
               <Button
                 className="mr-2"
                 onClick={() => {
@@ -200,7 +200,12 @@ const PassphrasePrompt: React.FC = () => {
               >
                 {t('common:cancel', 'Cancel')}
               </Button>
-              <Button type="primary" htmlType="submit">
+              <Button
+                type="primary"
+                htmlType="submit"
+                className="ml-2"
+                loading={createPassphraseMutation.isLoading || enterPassphraseMutation.isLoading}
+              >
                 {submitButtonText}
               </Button>
             </div>
