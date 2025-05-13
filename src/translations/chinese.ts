@@ -93,6 +93,8 @@ const zh = {
     faulty_resource: '故障资源',
     storage_pool_overview: '存储池概览',
     all_resources_are_healthy: '所有资源正常',
+    creating: '创建中...',
+    failed: '失败',
   },
   menu: {
     dashboard: '概览',

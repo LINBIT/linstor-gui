@@ -105,7 +105,7 @@ export const List = () => {
   const deleteRemoteMutation = useMutation({
     mutationFn: async (timestamp: string) => {
       try {
-        await deleteBackup(remote_name, {
+        await deleteBackup(remote_name ?? '', {
           timestamp,
         });
 
@@ -126,6 +126,7 @@ export const List = () => {
     finished_timestamp: number;
     success: boolean;
     finished_time: string;
+    shipping: boolean;
   }>['columns'] = [
     {
       title: <span>Resource</span>,
@@ -165,7 +166,14 @@ export const List = () => {
       title: 'Status',
       key: 'status',
       dataIndex: 'success',
-      render: (success) => {
+      render: (success, record) => {
+        if (record?.shipping) {
+          return (
+            <div>
+              <span style={{ color: 'orange', fontWeight: 500 }}>{t('common:creating')}</span>
+            </div>
+          );
+        }
         return (
           <div>
             {success ? (
@@ -173,7 +181,7 @@ export const List = () => {
             ) : (
               <CloseCircleFilled style={{ color: 'grey', fontSize: '16px' }} />
             )}{' '}
-            <span>{success ? 'Success' : 'Failed'}</span>
+            <span>{success ? t('common:success') : t('common:failed')}</span>
           </div>
         );
       },

@@ -105,6 +105,8 @@ const en = {
     used_capacity: 'Used Capacity',
     faulty_resource: 'Faulty Resource',
     all_resources_are_healthy: 'All resources are healthy',
+    creating: 'Creating...',
+    failed: 'Failed',
   },
   menu: {
     dashboard: 'Dashboard',
