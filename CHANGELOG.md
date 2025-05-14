@@ -1,5 +1,27 @@
 # Changelog
 
+# 1.9.6 - 2025-05-14
+
+### Added
+
+- Enhanced snapshot management:
+  - Added snapshot rollback functionality
+  - Added snapshot restore functionality
+- Unlock LINSTOR system with passphrase
+- Display creation status in backup list view
+- Added back-to-top functionality
+- Added PassphrasePrompt component for LINSTOR encryption
+- Hide popups in development environment
+
+### Changed
+
+- Changed "NFS Targets" text to "NFS Exports"
+- Reload page after unlock to update state
+
+### Fixed
+
+- Fixed back-to-top text display issue
+
 # 1.9.5 - 2025-04-29
 
 ### Added
