@@ -59,6 +59,9 @@ const PassphrasePrompt: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['passphraseStatus'] });
       setIsModalOpen(false);
       form.resetFields();
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     },
     onError: (error) => {
       console.error('Failed to unlock passphrase:', error);
