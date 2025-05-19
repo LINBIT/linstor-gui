@@ -4,17 +4,19 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { getNetWorkInterfaceByNode, NetWorkInterface } from '@app/features/ip';
-import { useNodes } from '@app/features/node';
-import { getResourceGroups } from '@app/features/resourceGroup';
-import { RootState } from '@app/store';
-import styled from '@emotion/styled';
+import React, { useState } from 'react';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { Button, Modal } from 'antd';
-import React, { useState } from 'react';
+import { getNetWorkInterfaceByNode, NetWorkInterface } from '@app/features/ip';
+import styled from '@emotion/styled';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+
+import { useNodes } from '@app/features/node';
+import { getResourceGroups } from '@app/features/resourceGroup';
+import { UIMode } from '@app/models/setting';
+import { RootState } from '@app/store';
 
 type NetInterfaceDetailProp = {
   item: NetWorkInterface;
@@ -43,7 +45,7 @@ export const NetInterfaceDetail = ({ item }: NetInterfaceDetailProp) => {
   });
 
   const { vsanModeFromSetting } = useSelector((state: RootState) => ({
-    vsanModeFromSetting: state.setting.vsanMode,
+    vsanModeFromSetting: state.setting.mode === UIMode.VSAN,
   }));
 
   const networkQueries = useQueries({

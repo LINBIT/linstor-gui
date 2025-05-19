@@ -4,9 +4,9 @@ import SVG from 'react-inlinesvg';
 import { isUrl } from '@app/utils/stringUtils';
 import isSvg from 'is-svg';
 import logo from '@app/assets/Linbit_Logo_White-1.png';
+import { UIMode } from '@app/models/setting';
 
 interface LogoImgProps {
-  vsanModeFromSetting?: boolean;
   KVS?: any;
   logoSrc?: string;
 }
@@ -24,12 +24,18 @@ const renderLogo = (logoSrc?: string) => {
   return null;
 };
 
-export const LogoImg: React.FC<LogoImgProps> = ({ vsanModeFromSetting, KVS, logoSrc }) => {
+export const LogoImg: React.FC<LogoImgProps> = ({ KVS, logoSrc }) => {
   const navigate = useNavigate();
 
-  function handleClick() {
-    navigate(vsanModeFromSetting && KVS?.vsanMode ? '/vsan/dashboard' : '/');
-  }
+  const handleClick = () => {
+    if (KVS?.mode === UIMode.HCI) {
+      navigate('/hci/dashboard');
+    } else if (KVS?.mode === UIMode.VSAN) {
+      navigate('/vsan/dashboard');
+    } else {
+      navigate('/');
+    }
+  };
 
   return (
     <div className="cursor-pointer">

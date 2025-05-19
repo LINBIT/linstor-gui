@@ -58,7 +58,6 @@ const App: React.FunctionComponent = () => {
   const { isFetched, isSuccess } = useQuery<string, Error>({
     queryKey: ['getSpaceReportStatus'],
     queryFn: getSpaceReport,
-    retry: 1,
   });
 
   const isSpaceTrackingAvailable = isSuccess;

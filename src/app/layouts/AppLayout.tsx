@@ -15,6 +15,7 @@ import { Dispatch, RootState } from '@app/store';
 import { ChangePassword, Login } from '@app/features/authentication';
 import { useUIModeStorage } from '@app/hooks';
 import { Mode } from '@app/hooks/useUIModeStorage';
+import { UIMode as SettingUIMode } from '@app/models/setting'; // import SettingUIMode enum
 import { useNav } from '../NavContext';
 import Navigation from './components/Navigation';
 import HeaderTools from './components/HeaderTools';
@@ -66,44 +67,62 @@ const AppLayout = ({ children, isSpaceTrackingAvailable, isCheckingStatus }: IAp
   const onModeChange = (mode: Mode) => {
     toggleNav();
     updateUIMode(mode);
-    dispatch.setting.setVSANMode(mode === 'VSAN');
-    navigate(mode === 'VSAN' ? '/vsan/dashboard' : '/');
+    // update UI mode in store using SettingUIMode enum
+    dispatch.setting.setMode(mode as SettingUIMode);
+    // navigate to the selected mode dashboard
+    if (mode === 'VSAN') {
+      navigate('/vsan/dashboard');
+    } else if (mode === 'HCI') {
+      navigate('/hci/dashboard');
+    } else {
+      navigate('/');
+    }
   };
 
   useEffect(() => {
     dispatch.auth.checkLoginStatus();
   }, [dispatch.auth]);
 
-  const { KVS, authInfo, logoSrc, vsanModeFromSetting, isAdmin, gatewayAvailable, VSANEvalMode } = useSelector(
+  const { KVS, authInfo, logoSrc, modeFromSetting, isAdmin, gatewayAvailable, VSANEvalMode } = useSelector(
     (state: RootState) => ({
       KVS: state.setting.KVS,
       authInfo: state.auth,
       logoSrc: state.setting.logo,
-      vsanModeFromSetting: state.setting.vsanMode,
+      modeFromSetting: state.setting.mode,
       isAdmin: state.setting.isAdmin,
       gatewayAvailable: state.setting.gatewayAvailable,
       VSANEvalMode: state.setting.evalMode,
     }),
   );
 
+  const vsanModeFromSetting = modeFromSetting === SettingUIMode.VSAN;
+  const hciModeFromSetting = modeFromSetting === SettingUIMode.HCI;
+
   // if authenticationEnabled is false then just enter the page
   const authenticationEnabled = KVS?.authenticationEnabled;
 
   useEffect(() => {
-    const VSAN_URL = location.pathname.includes('/vsan');
-    const initialOpenFromVSAN = location.pathname === '/vsan/dashboard' && location.search === '?vsan=true';
-
-    if (initialOpenFromVSAN) {
-      dispatch.setting.initSettingStore(VSAN_URL);
-    } else {
-      dispatch.setting.initSettingStore(false);
-    }
-
-    if (VSAN_URL) {
-      dispatch.setting.setVSANMode(true);
+    // initialize store and UI mode based on URL prefix
+    if (location.pathname.startsWith('/vsan')) {
+      dispatch.setting.initSettingStore(SettingUIMode.VSAN);
+      dispatch.setting.setMode(SettingUIMode.VSAN);
       dispatch.setting.getMyLinbitStatus();
+      updateUIMode('VSAN');
+    } else if (location.pathname.startsWith('/hci')) {
+      dispatch.setting.initSettingStore(SettingUIMode.HCI);
+      dispatch.setting.setMode(SettingUIMode.HCI);
+      dispatch.setting.getMyLinbitStatus();
+      updateUIMode('HCI');
+    } else {
+      dispatch.setting.initSettingStore(SettingUIMode.NORMAL);
+      dispatch.setting.setMode(SettingUIMode.NORMAL);
+      updateUIMode('NORMAL');
     }
-  }, [dispatch.setting, location.pathname, location.search]);
+    // remove any query parameters
+    if (location.search) {
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     dispatch.setting.getSettings();
@@ -123,10 +142,9 @@ const AppLayout = ({ children, isSpaceTrackingAvailable, isCheckingStatus }: IAp
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const VSANAvailable = KVS?.vsanMode;
+  const VSANAvailable = KVS?.mode === SettingUIMode.VSAN;
   const normalWithoutAuth = !VSANAvailable && !authenticationEnabled;
-  // Recalculate when to show the modal
-  const isNotOfficialBuild = !isCheckingStatus && !isSpaceTrackingAvailable && !vsanModeFromSetting;
+  const isNotOfficialBuild = !isCheckingStatus && !isSpaceTrackingAvailable && !modeFromSetting;
   const isDevelopment = import.meta.env.MODE === 'development';
 
   useEffect(() => {
@@ -155,7 +173,7 @@ const AppLayout = ({ children, isSpaceTrackingAvailable, isCheckingStatus }: IAp
             backgroundColor: '#1e2939',
           }}
         >
-          <LogoImg vsanModeFromSetting={vsanModeFromSetting} KVS={KVS} logoSrc={logoSrc} />
+          <LogoImg KVS={KVS} logoSrc={logoSrc} />
           <HeaderTools
             authInfo={authInfo}
             vsanModeFromSetting={vsanModeFromSetting}
@@ -180,6 +198,7 @@ const AppLayout = ({ children, isSpaceTrackingAvailable, isCheckingStatus }: IAp
             <Navigation
               isNavOpen={isNavOpen}
               vsanModeFromSetting={vsanModeFromSetting}
+              hciModeFromSetting={hciModeFromSetting}
               KVS={KVS}
               gatewayAvailable={gatewayAvailable}
               authenticationEnabled={authenticationEnabled}

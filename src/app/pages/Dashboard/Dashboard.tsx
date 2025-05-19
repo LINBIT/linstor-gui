@@ -8,7 +8,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 import PageBasic from '@app/components/PageBasic';
-import { StoragePoolInfo } from './components/StoragePoolInfo';
+import { StoragePoolInfo } from '@app/components/StoragePoolInfo';
 import { FaultyList } from '@app/features/resource';
 
 const Dashboard: React.FunctionComponent = () => {

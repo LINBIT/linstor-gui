@@ -44,6 +44,7 @@ function getItem(
 interface NavigationProps {
   isNavOpen?: boolean;
   vsanModeFromSetting?: boolean;
+  hciModeFromSetting?: boolean;
   KVS?: any;
   gatewayAvailable?: boolean;
   authenticationEnabled?: boolean;
@@ -53,6 +54,7 @@ interface NavigationProps {
 const Navigation: React.FC<NavigationProps> = ({
   isNavOpen,
   vsanModeFromSetting,
+  hciModeFromSetting,
   KVS,
   gatewayAvailable,
   authenticationEnabled,
@@ -83,6 +85,66 @@ const Navigation: React.FC<NavigationProps> = ({
         getItem(<Link to="/vsan/users">Users</Link>, '/vsan/users', <UserOutlined />),
         getItem(<Link to="/vsan/about">About</Link>, '/vsan/about', <InfoCircleOutlined />),
       ];
+    } else if (hciModeFromSetting) {
+      const hciItems = [
+        getItem(<Link to="/hci/dashboard">{t('dashboard')}</Link>, '/hci/dashboard', <PieChartOutlined />),
+        getItem(`${t('inventory')}`, '/hci/inventory', <DesktopOutlined />, [
+          getItem(<Link to="/hci/inventory/nodes">{t('node')}</Link>, '/hci/inventory/nodes'),
+          getItem(<Link to="/hci/inventory/controller">{t('controller')}</Link>, '/hci/inventory/controller'),
+          getItem(<Link to="/hci/inventory/storage-pools">{t('storage_pools')}</Link>, '/hci/inventory/storage-pools'),
+        ]),
+        getItem(`${t('software_defined')}`, '/hci/storage-configuration', <DatabaseOutlined />, [
+          getItem(
+            <Link to="/hci/storage-configuration/resource-groups">{t('resource_groups')}</Link>,
+            '/hci/storage-configuration/resource-groups',
+          ),
+          getItem(
+            <Link to="/hci/storage-configuration/resource-overview">{t('resource_overview')}</Link>,
+            '/hci/storage-configuration/resource-overview',
+          ),
+        ]),
+        getItem(`${t('backup&dr')}`, '/hci/backup-and-dr', <LuDatabaseBackup />, [
+          getItem(<Link to="/hci/remote/list">{t('remotes')}</Link>, '/hci/remote/list', <CloudServerOutlined />),
+          getItem(
+            <Link to="/hci/schedule/list-by-resource">{t('schedule_list')}</Link>,
+            '/hci/schedule/list-by-resource',
+            <FieldTimeOutlined />,
+          ),
+        ]),
+
+        getItem(<Link to="/hci/snapshot">{t('snapshot')}</Link>, '/hci/snapshot', <FileProtectOutlined />),
+        getItem(<Link to="/hci/error-reports">{t('error_reports')}</Link>, '/hci/error-reports', <WarningOutlined />),
+      ];
+
+      const settingsAndUsers = [
+        getItem(<Link to="/hci/users">{t('users')}</Link>, '/hci/users', <UserOutlined />),
+        getItem(<Link to="/hci/settings">{t('settings')}</Link>, '/hci/settings', <SettingOutlined />),
+      ];
+
+      const gatewayItems = [
+        getItem('Gateway', '/hci/gateway', <NodeIndexOutlined />, [
+          getItem(<Link to="/hci/gateway/nfs">NFS</Link>, '/hci/gateway/nfs'),
+          getItem(<Link to="/hci/gateway/iscsi">iSCSI</Link>, '/hci/gateway/iscsi'),
+          getItem(<Link to="/hci/gateway/nvme-of">NVMe-oF</Link>, '/hci/gateway/nvme-of'),
+        ]),
+      ];
+
+      const grafanaItem = [
+        {
+          key: '/hci/grafana',
+          label: <Link to="/hci/grafana">Grafana</Link>,
+          icon: <RiDashboard2Line />,
+        },
+      ];
+
+      const itemsRes = [
+        ...hciItems,
+        ...(KVS?.dashboardEnabled ? grafanaItem : []),
+        ...(KVS?.gatewayEnabled && gatewayAvailable ? gatewayItems : []),
+        ...(!authenticationEnabled || isAdmin ? settingsAndUsers : []),
+      ];
+
+      return itemsRes;
     } else {
       const normalItems = [
         getItem(<Link to="/">{t('dashboard')}</Link>, '/', <PieChartOutlined />),
@@ -152,15 +214,15 @@ const Navigation: React.FC<NavigationProps> = ({
     isAdmin,
     t,
     vsanModeFromSetting,
+    hciModeFromSetting,
   ]);
-
   React.useEffect(() => {
     const currentMenu = items.find(
-      (e) => e?.key === location.pathname || (e as any)?.children?.find((c) => c.key === location.pathname),
+      (e) => e?.key === location.pathname || (e as any)?.children?.find((c: any) => c.key === location.pathname),
     ) as any;
 
     if (currentMenu?.children) {
-      setSelectedMenu(currentMenu.children.find((c) => c.key === location.pathname)?.key as string);
+      setSelectedMenu(currentMenu.children.find((c: any) => c.key === location.pathname)?.key as string);
     } else {
       setSelectedMenu(currentMenu?.key as string);
     }

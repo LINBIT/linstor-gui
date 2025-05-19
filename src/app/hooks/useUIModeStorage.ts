@@ -5,20 +5,21 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { useState, useEffect } from 'react';
-// VSAN Mode could be "VSAN" or "NORMAL"
 // "VSAN" UIMode is for vSAN UI
+// "HCI" UIMode is for HCI UI
 // "NORMAL" UIMode is for other UI
-export type Mode = 'VSAN' | 'NORMAL';
+// UI modes: VSAN UI, NORMAL UI, or HCI UI
+export type Mode = 'VSAN' | 'NORMAL' | 'HCI';
 
 const useUIModeStorage = () => {
   // Get UIMode from localStorage
 
+  // Initialize UIMode from localStorage, default to NORMAL if invalid
   const [UIMode, setUIMode] = useState<Mode>(() => {
-    // default mode is "VSAN" if there is no mode in localStorage
-
     const storedUIMode = localStorage.getItem('__gui__mode');
-    const initialMode = storedUIMode === 'NORMAL' ? 'NORMAL' : 'VSAN';
-    return initialMode;
+    if (storedUIMode === 'NORMAL') return 'NORMAL';
+    if (storedUIMode === 'HCI') return 'HCI';
+    return 'NORMAL';
   });
 
   useEffect(() => {

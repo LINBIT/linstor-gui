@@ -41,6 +41,8 @@ import ResourceDefinitionCreate from '@app/pages/SoftwareDefined/ResourceDefinit
 import gateway from './gateway';
 import snapshot from './snapshot';
 import vsan from './vsan';
+import hci from './hci';
+import { UIMode } from '@app/models/setting';
 
 export interface IAppRoute {
   label?: string;
@@ -263,24 +265,29 @@ const AppRoutes = (): React.ReactElement => {
   const [displayedRoutes, setDisplayedRoutes] = useState(flattenedRoutes);
   const location = useLocation();
 
-  const { KVS, vsanModeFromSettings, isAdmin } = useSelector((state: RootState) => ({
+  const { KVS, vsanModeFromSettings, hciModeFromSettings, isAdmin } = useSelector((state: RootState) => ({
     KVS: state.setting.KVS,
-    vsanModeFromSettings: state.setting.vsanMode,
+    vsanModeFromSettings: state.setting.mode === UIMode.VSAN,
+    hciModeFromSettings: state.setting.mode === UIMode.HCI,
     isAdmin: state.setting.isAdmin,
   }));
 
   const dispatch = useDispatch<Dispatch>();
   useEffect(() => {
-    const vsanModeFromKVS = KVS?.vsanMode;
     const gatewayEnabled = KVS?.gatewayEnabled;
     const dashboardEnabled = KVS?.dashboardEnabled;
 
     const initialOpenFromVSAN = location.pathname === '/vsan/dashboard' && location.search === '?vsan=true';
+    const initialOpenFromHCI = location.pathname === '/hci/dashboard' && location.search === '?hci=true';
 
-    const VSAN_MODE = (vsanModeFromSettings && vsanModeFromKVS) || initialOpenFromVSAN;
+    const VSAN_MODE = vsanModeFromSettings || initialOpenFromVSAN;
+    const HCI_MODE = hciModeFromSettings || initialOpenFromHCI;
+    console.log(HCI_MODE, 'HCI_MODE');
 
     if (VSAN_MODE) {
       setDisplayedRoutes(vsan);
+    } else if (HCI_MODE) {
+      setDisplayedRoutes(hci);
     } else {
       let filteredRoutes = [...flattenedRoutes];
       if (!gatewayEnabled) {
@@ -302,8 +309,9 @@ const AppRoutes = (): React.ReactElement => {
   }, [
     dispatch.setting,
     location,
-    KVS?.vsanMode,
+    KVS?.mode,
     vsanModeFromSettings,
+    hciModeFromSettings,
     isAdmin,
     KVS?.authenticationEnabled,
     KVS?.gatewayEnabled,

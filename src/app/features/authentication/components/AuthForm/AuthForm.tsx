@@ -9,6 +9,7 @@ import { Alert, Button, Form, Input } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { Dispatch, RootState } from '@app/store';
 import { useTranslation } from 'react-i18next';
+import { UIMode } from '@app/models/setting';
 
 type FormType = {
   username: string;
@@ -26,7 +27,7 @@ const AuthForm: React.FC = () => {
   const dispatch = useDispatch<Dispatch>();
   const { KVS, vsanModeFromSetting } = useSelector((state: RootState) => ({
     KVS: state.setting.KVS,
-    vsanModeFromSetting: state.setting.vsanMode,
+    vsanModeFromSetting: state.setting.mode === UIMode.VSAN,
   }));
 
   const onFinish = async (values: FormType) => {
@@ -36,7 +37,7 @@ const AuthForm: React.FC = () => {
         dispatch.auth.setNeedsPasswordChange(true);
       }
 
-      if (vsanModeFromSetting && KVS?.vsanMode) {
+      if (vsanModeFromSetting && KVS?.mode === UIMode.VSAN) {
         window.location.href = '/vsan/dashboard';
       } else {
         window.location.href = '/';

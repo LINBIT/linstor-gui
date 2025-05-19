@@ -21,16 +21,22 @@ const defaultGatewayHost = window.location.protocol + '//' + window.location.hos
 // KVS only stores values as string
 const SETTING_KEY = GUI_KEY_VALUE_STORE_KEY;
 const GATEWAY_HOST = 'GATEWAY_HOST';
-const VSAN_HOST = 'VSAN_HOST';
+const HCI_VSAN_HOST = 'HCI_VSAN_HOST';
 
 const authAPI = new UserAuthAPI();
+
+export enum UIMode {
+  NORMAL = 'NORMAL',
+  VSAN = 'VSAN',
+  HCI = 'HCI',
+}
 
 type Setting = {
   gatewayAvailable?: boolean;
   KVS?: SettingsProps;
   initialized?: boolean;
   logo?: string;
-  vsanMode?: boolean;
+  mode?: UIMode;
   isAdmin?: boolean;
   // VSAN Eval Mode
   evalMode?: boolean;
@@ -43,7 +49,7 @@ export const setting = createModel<RootModel>()({
     KVS: {},
     initialized: false,
     logo: '',
-    vsanMode: false,
+    mode: UIMode.NORMAL,
     isAdmin: false,
   } as Setting,
   reducers: {
@@ -53,18 +59,18 @@ export const setting = createModel<RootModel>()({
         gatewayAvailable: payload,
       };
     },
+    setMode(state, payload: UIMode) {
+      return {
+        ...state,
+        mode: payload,
+      };
+    },
     setSettings(state, payload: SettingsProps) {
       return {
         ...state,
         KVS: {
           ...payload,
         },
-      };
-    },
-    setVSANMode(state, payload: boolean) {
-      return {
-        ...state,
-        vsanMode: payload,
       };
     },
     setInitialized(state, payload: boolean) {
@@ -133,20 +139,27 @@ export const setting = createModel<RootModel>()({
       return false;
     },
 
-    async initSettingStore(vsanMode: boolean) {
+    async initSettingStore(mode: UIMode) {
       const res = await SettingsAPI.instanceExists();
 
       const userStore = await kvStore.instanceExists('users');
 
       if (res) {
-        if (vsanMode) {
-          await settingAPI.setProps({
-            vsanMode: true,
-          });
+        // update mode flags mutually exclusively
+        if (mode === UIMode.VSAN) {
+          await settingAPI.setProps({ vsanMode: true, hciMode: false });
+        } else if (mode === UIMode.HCI) {
+          await settingAPI.setProps({ vsanMode: false, hciMode: true });
+        } else {
+          await settingAPI.setProps({ vsanMode: false, hciMode: false });
         }
         await dispatch.setting.getSettings();
       } else {
-        await SettingsAPI.init(vsanMode);
+        // initialize backend with vsan flag, and explicitly set both mode props
+        await SettingsAPI.init(mode);
+        await settingAPI.setProps({ vsanMode: mode === UIMode.VSAN, hciMode: mode === UIMode.HCI });
+
+        await dispatch.setting.getSettings();
       }
 
       if (!userStore) {
@@ -168,16 +181,16 @@ export const setting = createModel<RootModel>()({
         dispatch.setting.setSettings(props);
 
         if (props.vsanMode) {
-          const gui_mode = localStorage.getItem('__gui_mode');
-          if (gui_mode === 'VSAN') {
-            dispatch.setting.setVSANMode(true);
-          }
-
-          // allow user to set VSAN_HOST
-          const host = window.localStorage.getItem(VSAN_HOST);
-
+          dispatch.setting.setMode(UIMode.VSAN);
+        } else if (props.hciMode) {
+          dispatch.setting.setMode(UIMode.HCI);
+        } else {
+          dispatch.setting.setMode(UIMode.NORMAL);
+        }
+        if (props.vsanMode || props.hciMode) {
+          const host = window.localStorage.getItem(HCI_VSAN_HOST);
           if (!host) {
-            window.localStorage.setItem(VSAN_HOST, 'https://' + window.location.hostname);
+            window.localStorage.setItem(HCI_VSAN_HOST, 'https://' + window.location.hostname);
           }
         }
 
@@ -190,7 +203,7 @@ export const setting = createModel<RootModel>()({
         } else {
           window.localStorage.removeItem(GATEWAY_HOST);
         }
-        // // put logo string together
+        // put logo string together
         if (props.customLogoEnabled) {
           const logoProps = await kvStore.get('logo');
 
@@ -214,14 +227,14 @@ export const setting = createModel<RootModel>()({
 
       dispatch.setting.setAdmin();
     },
-    async saveKey(payload: Record<string, number | string | boolean>, state) {
+    async saveKey(payload: Record<string, number | string | boolean>, _state) {
       await service.put(`/v1/key-value-store/${SETTING_KEY}`, {
         override_props: {
           ...payload,
         },
       });
     },
-    async deleteKey(payload: string[], state) {
+    async deleteKey(payload: string[], _state) {
       await service.put(`/v1/key-value-store/${SETTING_KEY}`, {
         delete_props: payload,
       });
@@ -285,11 +298,8 @@ export const setting = createModel<RootModel>()({
       }
     },
     async exitVSANMode() {
-      await dispatch.setting.saveKey({
-        vsanMode: false,
-      });
-      dispatch.setting.setVSANMode(false);
-      // reload page and remove search params
+      await dispatch.setting.saveKey({ mode: UIMode.VSAN });
+      dispatch.setting.setMode(UIMode.NORMAL);
       window.location.reload();
     },
 
@@ -314,7 +324,7 @@ export const setting = createModel<RootModel>()({
       }
     },
 
-    async setLogo(payload: { logoSvg: string; logoUrl?: string }, state) {
+    async setLogo(payload: { logoSvg: string; logoUrl?: string }, _state) {
       // delete old logo
       // const { logoStr } = state.setting.KVS;
       // if (logoStr) {

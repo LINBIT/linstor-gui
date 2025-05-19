@@ -188,7 +188,7 @@ export const VSANNodeList = () => {
     },
   });
 
-  const goToDetailPage = (node) => {
+  const goToDetailPage = (node: string) => {
     navigate(`/vsan/nodes/${node}`);
   };
 

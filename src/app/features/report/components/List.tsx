@@ -20,6 +20,7 @@ import { MoreOutlined } from '@ant-design/icons';
 import { LiaToolsSolid } from 'react-icons/lia';
 import DownloadSOS from './DownloadSOS';
 import { useTranslation } from 'react-i18next';
+import { UIMode } from '@app/models/setting';
 
 const { RangePicker } = DatePicker;
 
@@ -45,7 +46,7 @@ export const List = () => {
   const location = useLocation();
 
   const { vsanModeFromSetting } = useSelector((state: RootState) => ({
-    vsanModeFromSetting: state.setting.vsanMode,
+    vsanModeFromSetting: state.setting.mode === UIMode.VSAN,
   }));
 
   const [query, setQuery] = useState({});

@@ -4,14 +4,16 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
+import { UIMode } from '@app/models/setting';
+
 export interface SettingsProps {
   gatewayEnabled?: boolean;
   dashboardEnabled?: boolean;
   gatewayCustomHost?: boolean;
-  vsanMode?: boolean;
   dashboardURL?: string;
   authenticationEnabled?: boolean;
   customLogoEnabled?: boolean;
   gatewayHost?: string;
   hideDefaultCredential?: boolean;
+  mode?: UIMode;
 }

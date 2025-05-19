@@ -7,6 +7,7 @@
 import { GUI_KEY_VALUE_STORE_KEY } from '@app/const/settings';
 import { authAPI } from '../authentication';
 import { KeyValueStoreType, kvStore } from '../keyValueStore';
+import { UIMode } from '@app/models/setting'; // import UIMode enum
 
 // Field definitions for better maintainability
 export const SETTINGS_FIELDS = {
@@ -15,6 +16,7 @@ export const SETTINGS_FIELDS = {
     'dashboardEnabled',
     'gatewayCustomHost',
     'vsanMode',
+    'hciMode',
     'authenticationEnabled',
     'customLogoEnabled',
     'hideDefaultCredential',
@@ -49,6 +51,10 @@ const VALIDATION_RULES: ValidationRule[] = [
     condition: (props) => Boolean(props.gatewayHost !== undefined && !props.gatewayCustomHost),
     message: 'gatewayCustomHost must be true before gatewayHost can be set',
   },
+  {
+    condition: (props) => Boolean(props.vsanMode && props.hciMode),
+    message: 'vsanMode and hciMode cannot both be true',
+  },
 ];
 
 export class SettingsAPI {
@@ -64,12 +70,13 @@ export class SettingsAPI {
     return response.includes(this.instance);
   }
 
-  public static async init(vsanMode: boolean): Promise<void> {
+  public static async init(mode: UIMode): Promise<void> {
     const defaultSettings: SettingsProps = {
       gatewayEnabled: false,
       dashboardEnabled: false,
       gatewayCustomHost: false,
-      vsanMode,
+      vsanMode: mode === UIMode.VSAN,
+      hciMode: mode === UIMode.HCI,
       dashboardURL: '',
       authenticationEnabled: false,
       customLogoEnabled: false,
