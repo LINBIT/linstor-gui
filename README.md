@@ -54,7 +54,7 @@ VITE_LINSTOR_API_HOST=http://192.168.123.214:3370
 # The host of the LINSTOR GATEWAY API (optional)
 VITE_GATEWAY_API_HOST=http://192.168.123.214:8080
 # The host of the LINBIT VSAN API (optional)
-VITE_VSAN_API_HOST=https://192.168.123.214
+VITE_HCI_VSAN_API_HOST=https://192.168.123.214
 ```
 
 - `npm run start:dev`,

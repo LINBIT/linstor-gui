@@ -168,7 +168,7 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
             <a
               href={
                 IS_DEV
-                  ? import.meta.env.VITE_VSAN_API_HOST + '/register.html'
+                  ? import.meta.env.VITE_HCI_VSAN_API_HOST + '/register.html'
                   : 'https://' + window.location.hostname + '/register.html'
               }
               target="_blank"

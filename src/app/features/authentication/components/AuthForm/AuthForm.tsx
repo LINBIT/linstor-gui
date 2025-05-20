@@ -25,9 +25,9 @@ const AuthForm: React.FC = () => {
   const { t } = useTranslation(['common']);
   const [isError, setIsError] = useState(false);
   const dispatch = useDispatch<Dispatch>();
-  const { KVS, vsanModeFromSetting } = useSelector((state: RootState) => ({
-    KVS: state.setting.KVS,
+  const { hciModeFromSetting, vsanModeFromSetting } = useSelector((state: RootState) => ({
     vsanModeFromSetting: state.setting.mode === UIMode.VSAN,
+    hciModeFromSetting: state.setting.mode === UIMode.HCI,
   }));
 
   const onFinish = async (values: FormType) => {
@@ -37,8 +37,10 @@ const AuthForm: React.FC = () => {
         dispatch.auth.setNeedsPasswordChange(true);
       }
 
-      if (vsanModeFromSetting && KVS?.mode === UIMode.VSAN) {
+      if (vsanModeFromSetting) {
         window.location.href = '/vsan/dashboard';
+      } else if (hciModeFromSetting) {
+        window.location.href = '/hci/dashboard';
       } else {
         window.location.href = '/';
       }

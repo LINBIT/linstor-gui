@@ -40,15 +40,15 @@ const handleError = (statsCode, res) => {
 // handle gateway request host
 service.interceptors.request.use((req) => {
   const LINSTOR_HOST = window.localStorage.getItem('LINSTOR_HOST');
-  const VSAN_HOST = window.localStorage.getItem('VSAN_HOST');
+  const HCI_VSAN_HOST = window.localStorage.getItem('HCI_VSAN_HOST');
 
   if (process.env.NODE_ENV !== 'development') {
     if (req.url?.startsWith('/api/v2/') && LINSTOR_HOST) {
       // For gateway mode, use gateway host
       req.baseURL = LINSTOR_HOST;
-    } else if (req.url?.startsWith('/api/frontend/v1') && VSAN_HOST) {
+    } else if (req.url?.startsWith('/api/frontend/v1') && HCI_VSAN_HOST) {
       // FOR VSAN Mode, use https and hostname
-      req.baseURL = VSAN_HOST;
+      req.baseURL = HCI_VSAN_HOST;
     }
   }
 

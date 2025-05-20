@@ -12,11 +12,11 @@ import { Input, Modal } from 'antd';
 export const About = () => {
   const [hostModal, setHostModal] = useState(false);
   const [host, setHost] = useState(() => {
-    return window.localStorage.getItem('VSAN_HOST') || '';
+    return window.localStorage.getItem('HCI_VSAN_HOST') || '';
   });
 
   const handleSetHost = () => {
-    window.localStorage.setItem('VSAN_HOST', host);
+    window.localStorage.setItem('HCI_VSAN_HOST', host);
     window.location.reload();
   };
 

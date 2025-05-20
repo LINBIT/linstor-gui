@@ -45,8 +45,9 @@ export const List = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { vsanModeFromSetting } = useSelector((state: RootState) => ({
+  const { vsanModeFromSetting, hciModeFromSetting } = useSelector((state: RootState) => ({
     vsanModeFromSetting: state.setting.mode === UIMode.VSAN,
+    hciModeFromSetting: state.setting.mode === UIMode.HCI,
   }));
 
   const [query, setQuery] = useState({});
@@ -174,8 +175,16 @@ export const List = () => {
           <Button
             type="link"
             onClick={() => {
-              const url = vsanModeFromSetting ? '/vsan/nodes' : '/inventory/nodes';
-              navigate(`${url}/${node_name}`);
+              const url = () => {
+                if (vsanModeFromSetting) {
+                  return '/vsan/nodes';
+                } else if (hciModeFromSetting) {
+                  return '/hci/nodes';
+                } else {
+                  return '/inventory/nodes';
+                }
+              };
+              navigate(`${url()}/${node_name}`);
             }}
           >
             {node_name}

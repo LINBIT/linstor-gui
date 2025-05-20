@@ -32,7 +32,7 @@ type SelectOptions = Array<{ value?: string; label?: string; isDisabled?: boolea
 
 interface ImportMetaEnv {
   readonly VITE_VERSION: string;
-  readonly VITE_VSAN_API_HOST?: string;
+  readonly VITE_HCI_VSAN_API_HOST?: string;
   readonly VITE_LINSTOR_HOST?: string;
   readonly MODE: string;
   readonly DEV: boolean;

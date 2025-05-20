@@ -19,7 +19,7 @@ export default defineConfig(({ command, mode }) => {
   const PORT = Number(env.VITE_PORT) || 8000;
   const API_HOST = env.VITE_LINSTOR_API_HOST || 'http://192.168.123.214:3370';
   const GATEWAY_API_HOST = env.VITE_GATEWAY_API_HOST || 'http://192.168.123.214:8080';
-  const VSAN_API_HOST = env.VITE_VSAN_API_HOST || 'https://192.168.123.214';
+  const VSAN_API_HOST = env.VITE_HCI_VSAN_API_HOST || 'https://192.168.123.214';
 
   return {
     plugins: [react(), tailwindcss(), tsconfigPaths()],

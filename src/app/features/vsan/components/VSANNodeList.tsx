@@ -29,6 +29,9 @@ import { ActionContainer, UpdateStatus } from './styled';
 import { BRAND_COLOR, ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
 import { REFETCH_INTERVAL } from '@app/const/time';
 import { ErrorMessage } from '../types';
+import { RootState } from '@app/store';
+import { useSelector } from 'react-redux';
+import { UIMode } from '@app/models/setting';
 
 interface DataType {
   hostname: string;
@@ -64,6 +67,13 @@ export const VSANNodeList = () => {
   >({});
 
   const [currentNode, setCurrentNode] = useState('');
+
+  const { modeFromSetting } = useSelector((state: RootState) => ({
+    modeFromSetting: state.setting.mode,
+  }));
+
+  const isVSAN = modeFromSetting === UIMode.VSAN;
+  const isHCI = modeFromSetting === UIMode.HCI;
 
   const upgradeNode = (nodeName: string) => {
     const IS_DEV = process.env.NODE_ENV === 'development';
@@ -189,7 +199,14 @@ export const VSANNodeList = () => {
   });
 
   const goToDetailPage = (node: string) => {
-    navigate(`/vsan/nodes/${node}`);
+    if (isVSAN) {
+      navigate(`/vsan/nodes/${node}`);
+      return;
+    }
+    if (isHCI) {
+      navigate(`/hci/nodes/${node}`);
+      return;
+    }
   };
 
   const doStandBy = (host: { hostname: string; checked: boolean }) => {
@@ -396,7 +413,7 @@ export const VSANNodeList = () => {
             <a
               href={
                 IS_DEV
-                  ? import.meta.env.VITE_VSAN_API_HOST + '/addnode.html'
+                  ? import.meta.env.VITE_HCI_VSAN_API_HOST + '/addnode.html'
                   : 'https://' + window.location.hostname + '/addnode.html'
               }
               target="_blank"
@@ -410,7 +427,7 @@ export const VSANNodeList = () => {
             <a
               href={
                 IS_DEV
-                  ? import.meta.env.VITE_VSAN_API_HOST + '/delnode.html'
+                  ? import.meta.env.VITE_HCI_VSAN_API_HOST + '/delnode.html'
                   : 'https://' + window.location.hostname + '/delnode.html'
               }
               target="_blank"
