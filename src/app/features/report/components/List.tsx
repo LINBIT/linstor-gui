@@ -21,6 +21,7 @@ import { LiaToolsSolid } from 'react-icons/lia';
 import DownloadSOS from './DownloadSOS';
 import { useTranslation } from 'react-i18next';
 import { UIMode } from '@app/models/setting';
+import { mode } from 'crypto-js';
 
 const { RangePicker } = DatePicker;
 
@@ -137,7 +138,12 @@ export const List = () => {
 
   // handle click on view button
   const handleView = (id: string) => {
-    navigate(`/error-reports/${id}`);
+    const url = vsanModeFromSetting
+      ? `/vsan/error-reports/${id}`
+      : hciModeFromSetting
+        ? `/hci/error-reports/${id}`
+        : `/error-reports/${id}`;
+    navigate(url);
   };
 
   const columns: TableProps<ErrorReport>['columns'] = [

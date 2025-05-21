@@ -106,11 +106,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
   const layer_stack = Form.useWatch('layer_stack', usedForm);
 
   const backToList = () => {
-    if (isEdit) {
-      navigate(-1);
-    } else {
-      navigate('/storage-configuration/resource-groups');
-    }
+    navigate(-1);
   };
 
   const { isLoading: storagePoolsIsLoading, data: storagePools } = useStoragePools();

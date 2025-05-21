@@ -19,6 +19,9 @@ import { uniqId } from '@app/utils/stringUtils';
 import { NodeDataType, NodeListQuery, UpdateNodeRequestBody } from '../types';
 import { omit } from '@app/utils/object';
 import { LiaToolsSolid } from 'react-icons/lia';
+import { useSelector } from 'react-redux';
+import { RootState } from '@app/store';
+import { UIMode } from '@app/models/setting';
 
 export const List = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -47,6 +50,10 @@ export const List = () => {
       nodes,
     };
   });
+
+  const { mode } = useSelector((state: RootState) => ({
+    mode: state.setting.mode,
+  }));
 
   const {
     data: nodes,
@@ -85,7 +92,7 @@ export const List = () => {
   const handleReset = () => {
     form.resetFields();
     setQuery({});
-    navigate('/inventory/nodes');
+    navigate(mode === UIMode.HCI ? '/hci/inventory/nodes' : '/inventory/nodes');
   };
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
@@ -166,7 +173,7 @@ export const List = () => {
         <Button
           type="link"
           onClick={() => {
-            navigate(`/inventory/nodes/${record.name}`);
+            navigate(mode === UIMode.HCI ? `/hci/inventory/nodes/${record.name}` : `/inventory/nodes/${record.name}`);
           }}
         >
           {text}
@@ -234,14 +241,20 @@ export const List = () => {
                   key: 'view',
                   label: t('common:view'),
                   onClick: () => {
-                    navigate(`/inventory/nodes/${record.name}`);
+                    navigate(
+                      mode === UIMode.HCI ? `/hci/inventory/nodes/${record.name}` : `/inventory/nodes/${record.name}`,
+                    );
                   },
                 },
                 {
                   key: 'edit',
                   label: t('common:edit'),
                   onClick: () => {
-                    navigate(`/inventory/nodes/edit/${record.name}`);
+                    navigate(
+                      mode === UIMode.HCI
+                        ? `/hci/inventory/nodes/edit/${record.name}`
+                        : `/inventory/nodes/edit/${record.name}`,
+                    );
                   },
                 },
                 {
@@ -360,7 +373,10 @@ export const List = () => {
           </Form.Item>
         </Form>
 
-        <Button type="primary" onClick={() => navigate('/inventory/nodes/create')}>
+        <Button
+          type="primary"
+          onClick={() => navigate(mode === UIMode.HCI ? '/hci/inventory/nodes/create' : '/inventory/nodes/create')}
+        >
           {t('common:add')}
         </Button>
       </SearchForm>

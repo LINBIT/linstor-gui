@@ -21,12 +21,19 @@ import { SearchForm } from './styled';
 import { useTranslation } from 'react-i18next';
 import { PropertyFormRef } from '@app/components/PropertyEditor';
 import { LiaToolsSolid } from 'react-icons/lia';
+import { useSelector } from 'react-redux';
+import { RootState } from '@app/store';
+import { UIMode } from '@app/models/setting';
 
 export const List = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation(['common', 'storage_pool']);
+
+  const { mode } = useSelector((state: RootState) => ({
+    mode: state.setting.mode,
+  }));
   const [query, setQuery] = useState<GetStoragePoolQuery>(() => {
     const query = new URLSearchParams(location.search);
     const nodes = query.get('nodes');
@@ -138,7 +145,7 @@ export const List = () => {
   const handleReset = () => {
     form.resetFields();
     setQuery({});
-    navigate('/inventory/storage-pools');
+    navigate(mode === UIMode.HCI ? '/hci/inventory/storage-pools' : '/inventory/storage-pools');
   };
 
   const handleDelete = (node: string, storagepool: string) => {
@@ -189,7 +196,7 @@ export const List = () => {
           <Button
             type="link"
             onClick={() => {
-              navigate(`/inventory/nodes/${node_name}`);
+              navigate(mode === UIMode.HCI ? `/hci/inventory/nodes/${node_name}` : `/inventory/nodes/${node_name}`);
             }}
           >
             {node_name}
@@ -277,7 +284,11 @@ export const List = () => {
                   key: 'edit',
                   label: t('common:edit'),
                   onClick: () =>
-                    navigate(`/inventory/storage-pools/${record.node_name}/${record.storage_pool_name}/edit`),
+                    navigate(
+                      mode === UIMode.HCI
+                        ? `/hci/inventory/storage-pools/${record.node_name}/${record.storage_pool_name}/edit`
+                        : `/inventory/storage-pools/${record.node_name}/${record.storage_pool_name}/edit`,
+                    ),
                 },
                 {
                   key: 'delete',
@@ -372,7 +383,12 @@ export const List = () => {
           </Form.Item>
         </Form>
 
-        <Button type="primary" onClick={() => navigate('/inventory/storage-pools/create')}>
+        <Button
+          type="primary"
+          onClick={() =>
+            navigate(mode === UIMode.HCI ? '/hci/inventory/storage-pools/create' : '/inventory/storage-pools/create')
+          }
+        >
           {t('common:add')}
         </Button>
       </SearchForm>

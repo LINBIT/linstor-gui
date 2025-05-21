@@ -25,11 +25,18 @@ import { SearchForm } from './styled';
 import { CreateSnapshotForm } from './CreateForm';
 import { RollbackSnapshotForm } from './RollbackForm';
 import RestoreFrom from './RestoreFrom';
+import { RootState } from '@app/store';
+import { useSelector } from 'react-redux';
+import { UIMode } from '@app/models/setting';
 
 export const List = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const { mode } = useSelector((state: RootState) => ({
+    mode: state.setting.mode,
+  }));
 
   const { t } = useTranslation(['common', 'snapshot']);
 
@@ -184,7 +191,8 @@ export const List = () => {
   const handleReset = () => {
     form.resetFields();
     setQuery({});
-    navigate('/snapshot');
+    const url = mode === UIMode.HCI ? '/hci/snapshots' : '/snapshots';
+    navigate(url);
   };
 
   const latestSnapshotMap: Record<string, string> = React.useMemo(() => {

@@ -11,6 +11,9 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { MoreOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
+import { RootState } from '@app/store';
+import { UIMode } from '@app/models/setting';
 
 import PropertyForm, { PropertyFormRef } from '@app/components/PropertyEditor';
 import { getResourceGroups, getResourceGroupCount, deleteResourceGroup, updateResourceGroup } from '../api';
@@ -30,6 +33,10 @@ export const List = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [form] = Form.useForm();
+
+  const { mode } = useSelector((state: RootState) => ({
+    mode: state.setting.mode,
+  }));
 
   const [query, setQuery] = useState<ResourceGroupListQuery>(() => {
     const query = new URLSearchParams(location.search);
@@ -83,7 +90,9 @@ export const List = () => {
   const handleReset = () => {
     form.resetFields();
     setQuery({});
-    navigate('/storage-configuration/resource-groups');
+    navigate(
+      mode === UIMode.HCI ? '/hci/storage-configuration/resource-groups' : '/storage-configuration/resource-groups',
+    );
   };
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
@@ -124,7 +133,11 @@ export const List = () => {
   };
 
   const edit = (resource_group?: string) => {
-    navigate(`/storage-configuration/resource-groups/${resource_group}/edit`);
+    navigate(
+      mode === UIMode.HCI
+        ? `/hci/storage-configuration/resource-groups/${resource_group}/edit`
+        : `/storage-configuration/resource-groups/${resource_group}/edit`,
+    );
   };
 
   const replicationMap = {
@@ -304,7 +317,16 @@ export const List = () => {
           </Form.Item>
         </Form>
 
-        <Button type="primary" onClick={() => navigate('/storage-configuration/resource-groups/create')}>
+        <Button
+          type="primary"
+          onClick={() =>
+            navigate(
+              mode === UIMode.HCI
+                ? '/hci/storage-configuration/resource-groups/create'
+                : '/storage-configuration/resource-groups/create',
+            )
+          }
+        >
           {t('common:add')}
         </Button>
       </SearchForm>

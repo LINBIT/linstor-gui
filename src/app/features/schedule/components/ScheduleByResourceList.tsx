@@ -17,6 +17,9 @@ import { formatTimeUTC } from '@app/utils/time';
 import { ScheduleByResource, ScheduleDetails } from '../types';
 import { useNavigate } from 'react-router-dom';
 import EnableScheduleForm from './EnableScheduleForm';
+import { RootState } from '@app/store';
+import { useSelector } from 'react-redux';
+import { UIMode } from '@app/models/setting';
 
 export const ScheduleByResourceList = () => {
   const [form] = Form.useForm();
@@ -24,6 +27,10 @@ export const ScheduleByResourceList = () => {
   const [showAll, setShowAll] = useState<boolean>(false);
   const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
   const navigate = useNavigate();
+
+  const { mode } = useSelector((state: RootState) => ({
+    mode: state.setting.mode,
+  }));
 
   const {
     data: dataList,
@@ -337,7 +344,16 @@ export const ScheduleByResourceList = () => {
           </Form.Item>
 
           <Form.Item>
-            <Button type="primary" onClick={() => navigate('/schedule/list')}>
+            <Button
+              type="primary"
+              onClick={() => {
+                if (mode === UIMode.HCI) {
+                  navigate('/hci/schedule/list');
+                } else {
+                  navigate('/schedule/list');
+                }
+              }}
+            >
               Schedules
             </Button>
           </Form.Item>

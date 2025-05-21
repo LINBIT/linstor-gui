@@ -9,7 +9,7 @@ import { Button, Form, Space, Table, Input, Flex, Tag, Dropdown, Popconfirm, Sel
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { uniqBy } from 'lodash';
 import { MoreOutlined, QuestionCircleOutlined } from '@ant-design/icons';
@@ -45,6 +45,8 @@ import { SearchForm } from './styled';
 import './OverviewList.css';
 import { filterResourceList } from './filterResourceList';
 import { PropertyFormRef } from '@app/components/PropertyEditor';
+import { RootState } from '@app/store';
+import { UIMode } from '@app/models/setting';
 
 const TAG_COLORS = ['cyan', 'blue', 'geekblue', 'purple'];
 
@@ -120,6 +122,10 @@ export const OverviewList = () => {
   });
 
   const dispatch = useDispatch();
+
+  const { mode } = useSelector((state: RootState) => ({
+    mode: state.setting.mode,
+  }));
 
   const migrateResourceMutation = useMutation({
     mutationFn: resourceMigration,
@@ -419,7 +425,11 @@ export const OverviewList = () => {
             <Button
               type="link"
               onClick={() => {
-                navigate(`/storage-configuration/resource-groups?resource_groups=${resource_group_name}`);
+                const url =
+                  mode === UIMode.HCI
+                    ? `/hci/storage-configuration/resource-groups?resource_groups=${resource_group_name}`
+                    : `/storage-configuration/resource-groups?resource_groups=${resource_group_name}`;
+                navigate(url);
               }}
             >
               {resource_group_name}
@@ -656,7 +666,11 @@ export const OverviewList = () => {
                 <Button
                   type="link"
                   onClick={() => {
-                    navigate(`/inventory/storage-pools?storage_pools=${storage_pool_name}`);
+                    const url =
+                      mode === UIMode.HCI
+                        ? `/hci/inventory/storage-pools?storage_pools=${storage_pool_name}`
+                        : `/inventory/storage-pools?storage_pools=${storage_pool_name}`;
+                    navigate(url);
                   }}
                 >
                   {storage_pool_name}
@@ -860,7 +874,15 @@ export const OverviewList = () => {
               {
                 key: '1',
                 label: (
-                  <span onClick={() => navigate('/storage-configuration/resource-definitions/create')}>
+                  <span
+                    onClick={() => {
+                      const url =
+                        mode === UIMode.HCI
+                          ? `/hci/storage-configuration/resource-definitions/create`
+                          : `/storage-configuration/resource-definitions/create`;
+                      navigate(url);
+                    }}
+                  >
                     {t('common:resource_definition')}
                   </span>
                 ),
@@ -872,7 +894,15 @@ export const OverviewList = () => {
               {
                 key: '3',
                 label: (
-                  <span onClick={() => navigate('/storage-configuration/resources/create')}>
+                  <span
+                    onClick={() => {
+                      const url =
+                        mode === UIMode.HCI
+                          ? `/hci/storage-configuration/resources/create`
+                          : `/storage-configuration/resources/create`;
+                      navigate(url);
+                    }}
+                  >
                     {t('common:resource')}
                   </span>
                 ),

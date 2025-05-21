@@ -16,6 +16,9 @@ import { LiaToolsSolid } from 'react-icons/lia';
 import { deleteRemote, getRemoteList } from '../api';
 import { SearchForm } from './styled';
 import { CreateRemoteForm } from './CreateRemoteForm';
+import { UIMode } from '@app/models/setting';
+import { RootState } from '@app/store';
+import { useSelector } from 'react-redux';
 
 type RemoteQuery = {
   name?: string | null;
@@ -30,6 +33,10 @@ export const List = () => {
   const location = useLocation();
 
   const { t } = useTranslation(['remote', 'common']);
+
+  const { mode } = useSelector((state: RootState) => ({
+    mode: state.setting.mode,
+  }));
 
   const type = Form.useWatch('type', form);
   const name = Form.useWatch('name', form);
@@ -213,7 +220,11 @@ export const List = () => {
                     label: t('remote:backups'),
                     onClick: () => {
                       if (record.type === 's3_remotes') {
-                        navigate(`/remote/${record.remote_name}/backups`);
+                        const url =
+                          mode === UIMode.HCI
+                            ? `/hci/remote/${record.remote_name}/backups`
+                            : `/remote/${record.remote_name}/backups`;
+                        navigate(url);
                       } else {
                         window.open(`${info.url}/ui/#!/storage-configuration/resources `);
                       }

@@ -5,9 +5,10 @@ import { isUrl } from '@app/utils/stringUtils';
 import isSvg from 'is-svg';
 import logo from '@app/assets/Linbit_Logo_White-1.png';
 import { UIMode } from '@app/models/setting';
+import { RootState } from '@app/store';
+import { useSelector } from 'react-redux';
 
 interface LogoImgProps {
-  KVS?: any;
   logoSrc?: string;
 }
 
@@ -24,13 +25,17 @@ const renderLogo = (logoSrc?: string) => {
   return null;
 };
 
-export const LogoImg: React.FC<LogoImgProps> = ({ KVS, logoSrc }) => {
+export const LogoImg: React.FC<LogoImgProps> = ({ logoSrc }) => {
+  const { mode } = useSelector((state: RootState) => ({
+    mode: state.setting.mode,
+  }));
+
   const navigate = useNavigate();
 
   const handleClick = () => {
-    if (KVS?.mode === UIMode.HCI) {
+    if (mode === UIMode.HCI) {
       navigate('/hci/dashboard');
-    } else if (KVS?.mode === UIMode.VSAN) {
+    } else if (mode === UIMode.VSAN) {
       navigate('/vsan/dashboard');
     } else {
       navigate('/');
