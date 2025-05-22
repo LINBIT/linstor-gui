@@ -204,7 +204,7 @@ export const VSANNodeList = () => {
       return;
     }
     if (isHCI) {
-      navigate(`/hci/nodes/${node}`);
+      navigate(`/hci/inventory/nodes/${node}`);
       return;
     }
   };
