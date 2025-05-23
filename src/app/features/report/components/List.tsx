@@ -21,7 +21,6 @@ import { LiaToolsSolid } from 'react-icons/lia';
 import DownloadSOS from './DownloadSOS';
 import { useTranslation } from 'react-i18next';
 import { UIMode } from '@app/models/setting';
-import { mode } from 'crypto-js';
 
 const { RangePicker } = DatePicker;
 

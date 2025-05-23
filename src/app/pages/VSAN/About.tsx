@@ -4,8 +4,8 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import PageBasic from '@app/components/PageBasic';
 import React, { useState } from 'react';
+import PageBasic from '@app/components/PageBasic';
 import { StyledUL } from './styled';
 import { Input, Modal } from 'antd';
 

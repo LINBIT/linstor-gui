@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import SVG from 'react-inlinesvg';
 import { isUrl } from '@app/utils/stringUtils';
 import isSvg from 'is-svg';
-import logo from '@app/assets/Linbit_Logo_White-1.png';
+import logo from '@app/assets/brand-dark.svg';
 import { UIMode } from '@app/models/setting';
 import { RootState } from '@app/store';
 import { useSelector } from 'react-redux';
@@ -44,7 +44,7 @@ export const LogoImg: React.FC<LogoImgProps> = ({ logoSrc }) => {
 
   return (
     <div className="cursor-pointer">
-      <img src={logo} className="logo" onClick={handleClick} alt="LINBIT Logo" />
+      <img src={logo} className="w-40" onClick={handleClick} alt="LINBIT logo" />
       {'  '}
       <div className="customerlogo">{renderLogo(logoSrc)}</div>
     </div>
