@@ -33,9 +33,9 @@ deps: ## install dependencies
 	npm install
 
 .PHONY: release
-release: checkVERSION build
+release: checkVERSION build sbom/linstor-gui.cdx.json sbom/linstor-gui.spdx.json
 	mkdir -p /tmp/$(PROG)-$(VERSION)
-	cp -r dist Makefile README.md COPYING /tmp/$(PROG)-$(VERSION)
+	cp -r dist Makefile README.md COPYING sbom /tmp/$(PROG)-$(VERSION)
 	tar -C /tmp --owner=0 --group=0 -czvf $(PROG)-$(VERSION).tar.gz $(PROG)-$(VERSION)
 
 .PHONY: release-docker
@@ -58,3 +58,14 @@ debrelease-docker: checkVERSION ## build a release in a node container
 	docker run -it --rm -v $(PWD):/src:ro,z -v $$tmpdir:/out:z node:$(NODEVERSION) /bin/bash -c \
 		'install /dev/null /usr/local/bin/lbvers.py && cd $$HOME && cp -r /src . && cd ./src && make debrelease VERSION=$(VERSION) && cp $(PROG)-$(VERSION).tar.gz /out' && \
 	mv $$tmpdir/*.tar.gz . && echo "rm -rf $$tmpdir"
+
+sbom/linstor-gui.cdx.json: package.json package-lock.json
+	test -d sbom || mkdir sbom
+	npm sbom --sbom-format cyclonedx > $@
+
+sbom/linstor-gui.spdx.json: package.json package-lock.json
+	test -d sbom || mkdir sbom
+	npm sbom --sbom-format spdx > $@
+
+.PHONY: sbom
+sbom: sbom/linstor-gui.cdx.json sbom/linstor-gui.spdx.json ## generate software bill of materials

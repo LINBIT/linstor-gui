@@ -11,3 +11,4 @@ storybook-static
 deploy-linstor-gui.sh
 *.tar.gz
 *.rpm
+sbom/

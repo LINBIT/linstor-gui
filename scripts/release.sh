@@ -25,6 +25,8 @@ dch -v "$version_and_release" \
 	"New upstream release" \
 	&& dch -r ""
 
+npm version --no-git-tag-version "${version}"
+
 git add linstor-gui.spec debian/changelog
 git commit --message "Release v$version"
 git tag "v$version"
