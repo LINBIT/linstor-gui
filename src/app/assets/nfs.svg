@@ -1,0 +1,9 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <path d="M8 20V52a4 4 0 004 4h40a4 4 0 004-4V20a4 4 0 00-4-4H32l-4-6H12a4 4 0 00-4 4z"
+        fill="none" stroke="white" stroke-width="2"/>
+
+  <text x="50%" y="72%" text-anchor="middle" font-family="Arial, sans-serif"
+        font-size="16" fill="white" font-weight="bold">
+    NFS
+  </text>
+</svg>

@@ -3,7 +3,6 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, MenuProps } from 'antd';
 import { useTranslation } from 'react-i18next';
 import {
-  AppstoreOutlined,
   CloudServerOutlined,
   ContainerOutlined,
   DatabaseOutlined,
@@ -11,7 +10,6 @@ import {
   FieldTimeOutlined,
   FileProtectOutlined,
   InfoCircleOutlined,
-  MailOutlined,
   NodeIndexOutlined,
   PieChartOutlined,
   SettingOutlined,
@@ -20,6 +18,12 @@ import {
 } from '@ant-design/icons';
 import { LuDatabaseBackup } from 'react-icons/lu';
 import { RiDashboard2Line } from 'react-icons/ri';
+import { MdOutlineStorage } from 'react-icons/md';
+import { BsHddRack } from 'react-icons/bs';
+import { BsNvme } from 'react-icons/bs';
+import SVG from 'react-inlinesvg';
+
+import NFS from '@app/assets/nfs.svg';
 
 import { SideMenu } from '../styled';
 
@@ -71,16 +75,16 @@ const Navigation: React.FC<NavigationProps> = ({
         getItem(
           <Link to="/vsan/physical-storage">Physical Storage</Link>,
           '/vsan/physical-storage',
-          <DesktopOutlined />,
+          <MdOutlineStorage />,
         ),
         getItem(
           <Link to="/vsan/resource-groups">Resource Groups</Link>,
           '/vsan/resource-groups',
           <ContainerOutlined />,
         ),
-        getItem(<Link to="/vsan/iscsi">iSCSI</Link>, '/vsan/iscsi', <MailOutlined />),
-        getItem(<Link to="/vsan/nvmeof">NVMe-oF</Link>, '/vsan/nvmeof', <AppstoreOutlined />),
-        getItem(<Link to="/vsan/nfs">NFS</Link>, '/vsan/nfs', <CloudServerOutlined />),
+        getItem(<Link to="/vsan/iscsi">iSCSI</Link>, '/vsan/iscsi', <BsHddRack />),
+        getItem(<Link to="/vsan/nvmeof">NVMe-oF</Link>, '/vsan/nvmeof', <BsNvme />),
+        getItem(<Link to="/vsan/nfs">NFS</Link>, '/vsan/nfs', <SVG src={NFS} width="16" height="16" color="white" />),
         getItem(<Link to="/vsan/error-reports">Error Reports</Link>, '/vsan/error-reports', <WarningOutlined />),
         getItem(<Link to="/vsan/users">Users</Link>, '/vsan/users', <UserOutlined />),
         getItem(<Link to="/vsan/about">About</Link>, '/vsan/about', <InfoCircleOutlined />),

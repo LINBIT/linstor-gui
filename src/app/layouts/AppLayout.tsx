@@ -173,7 +173,7 @@ const AppLayout = ({ children, isSpaceTrackingAvailable, isCheckingStatus }: IAp
             backgroundColor: '#1e2939',
           }}
         >
-          <LogoImg KVS={KVS} logoSrc={logoSrc} />
+          <LogoImg logoSrc={logoSrc} />
           <HeaderTools
             authInfo={authInfo}
             vsanModeFromSetting={vsanModeFromSetting}
