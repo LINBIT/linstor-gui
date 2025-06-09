@@ -16,4 +16,5 @@ export interface SettingsProps {
   gatewayHost?: string;
   hideDefaultCredential?: boolean;
   mode?: UIMode;
+  vsanAvailable?: boolean;
 }

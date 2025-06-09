@@ -41,6 +41,8 @@ type Setting = {
   // VSAN Eval Mode
   evalMode?: boolean;
   isEvalContract?: boolean;
+  // VSAN Available
+  vsanAvailable?: boolean;
 };
 
 export const setting = createModel<RootModel>()({
@@ -51,6 +53,9 @@ export const setting = createModel<RootModel>()({
     logo: '',
     mode: UIMode.NORMAL,
     isAdmin: false,
+    evalMode: false,
+    isEvalContract: false,
+    vsanAvailable: false,
   } as Setting,
   reducers: {
     setGatewayAvailable(state, payload: boolean) {
@@ -147,7 +152,7 @@ export const setting = createModel<RootModel>()({
       if (res) {
         // update mode flags mutually exclusively
         if (mode === UIMode.VSAN) {
-          await settingAPI.setProps({ vsanMode: true, hciMode: false });
+          await settingAPI.setProps({ vsanMode: true, hciMode: false, vsanAvailable: true });
         } else if (mode === UIMode.HCI) {
           await settingAPI.setProps({ vsanMode: false, hciMode: true });
         } else {

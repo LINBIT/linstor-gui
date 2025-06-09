@@ -20,6 +20,7 @@ export const SETTINGS_FIELDS = {
     'authenticationEnabled',
     'customLogoEnabled',
     'hideDefaultCredential',
+    'vsanAvailable',
   ] as const,
 
   STRING: ['dashboardURL', 'gatewayHost'] as const,
@@ -82,6 +83,7 @@ export class SettingsAPI {
       customLogoEnabled: false,
       hideDefaultCredential: false,
       gatewayHost: '',
+      vsanAvailable: false,
     };
 
     if (!(await kvStore.instanceExists(SettingsAPI.instance))) {

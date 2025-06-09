@@ -142,7 +142,7 @@ const AppLayout = ({ children, isSpaceTrackingAvailable, isCheckingStatus }: IAp
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const VSANAvailable = KVS?.mode === SettingUIMode.VSAN;
+  const VSANAvailable = KVS?.vsanAvailable;
   const normalWithoutAuth = !VSANAvailable && !authenticationEnabled;
   const isNotOfficialBuild = !isCheckingStatus && !isSpaceTrackingAvailable && !modeFromSetting;
   const isDevelopment = import.meta.env.MODE === 'development';
