@@ -6,4 +6,5 @@
 
 export * from './api';
 export * from './components';
+export * from './hooks/useFaultyResources';
 export type * from './types';

@@ -282,7 +282,6 @@ const AppRoutes = (): React.ReactElement => {
 
     const VSAN_MODE = vsanModeFromSettings || initialOpenFromVSAN;
     const HCI_MODE = hciModeFromSettings || initialOpenFromHCI;
-    console.log(HCI_MODE, 'HCI_MODE');
 
     if (VSAN_MODE) {
       setDisplayedRoutes(vsan);

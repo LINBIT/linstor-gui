@@ -4,18 +4,17 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { Button, Spin, Table } from 'antd';
+import { Button, Table } from 'antd';
 import type { TableProps } from 'antd';
-import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import styled from '@emotion/styled';
 
 import { formatTime } from '@app/utils/time';
-import { getResources } from '../api';
 import { ResourceDataType } from '../types';
-import { getFaultyResources, getResourceState } from '@app/utils/resource';
+import { getResourceState } from '@app/utils/resource';
+import { useFaultyResources } from '../hooks/useFaultyResources';
 
 const Content = styled.div`
   margin-top: 20px;
@@ -31,15 +30,7 @@ export const FaultyList = () => {
 
   const navigate = useNavigate();
 
-  const { data: resources, isLoading } = useQuery({
-    queryKey: ['getResources'],
-    queryFn: async () => {
-      const all = await getResources();
-      const faulty = getFaultyResources(all?.data ?? ([] as any));
-
-      return faulty;
-    },
-  });
+  const { data: resources, isLoading } = useFaultyResources();
 
   const handleConnectStatusDisplay = (resourceItem: ResourceDataType) => {
     let failStr = '';
