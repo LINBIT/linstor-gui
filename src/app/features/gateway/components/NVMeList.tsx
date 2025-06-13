@@ -104,9 +104,9 @@ export const NVMeList = ({
       },
     },
     {
-      title: t('nvme:service_ips'),
-      dataIndex: 'service_ips',
-      key: 'service_ips',
+      title: t('nvme:service_ip'),
+      dataIndex: 'service_ip',
+      key: 'service_ip',
       render: (_, item) => {
         return <span>{item?.service_ip}</span>;
       },
