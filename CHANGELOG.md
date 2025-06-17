@@ -1,5 +1,17 @@
 # Changelog
 
+# 1.9.7 - 2025-06-17
+
+### Added
+
+- HCI (Hyper-Converged Infrastructure) mode support
+- New Logo and branding updates
+- VSAN mode icons and visual enhancements
+
+### Fixed
+
+- Fixed gateway host configuration issues
+
 # 1.9.6 - 2025-05-14
 
 ### Added
