@@ -99,12 +99,15 @@ const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordPr
   const [open, setOpen] = useState(!!defaultOpen);
   const dispatch = useDispatch<Dispatch>();
   const { t } = useTranslation('users');
+  const normalUser = user !== 'admin';
 
-  const onCreate = (values: any) => {
+  const onCreate = async (values: any) => {
+    debugger;
+    let res = null;
     if (admin) {
-      dispatch.auth.resetPassword({ user: user || 'admin', newPassword: values.newPassword });
+      res = await dispatch.auth.resetPassword({ user: user || 'admin', newPassword: values.newPassword });
     } else {
-      dispatch.auth.changePassword({
+      res = await dispatch.auth.changePassword({
         user: localStorage.getItem(USER_LOCAL_STORAGE_KEY),
         newPassword: values.newPassword,
         oldPassword: values.currentPassword,
@@ -113,14 +116,18 @@ const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordPr
 
     setOpen(false);
 
-    message.success(t('password_changed'));
+    if (res) {
+      message.success(t('password_changed'));
 
-    setTimeout(() => {
-      if (admin) {
-        dispatch.auth.logout();
-        window.location.reload();
+      if (!admin) {
+        setTimeout(() => {
+          dispatch.auth.logout();
+          window.location.reload();
+        }, 1000);
       }
-    }, 1000);
+    } else {
+      message.error(t('password_change_failed'));
+    }
   };
 
   return (
