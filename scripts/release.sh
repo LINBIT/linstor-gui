@@ -27,7 +27,7 @@ dch -v "$version_and_release" \
 
 npm version --no-git-tag-version "${version}"
 
-git add linstor-gui.spec debian/changelog
+git add linstor-gui.spec debian/changelog package.json package-lock.json
 git commit --message "Release v$version"
 git tag "v$version"
 
