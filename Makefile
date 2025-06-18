@@ -61,11 +61,11 @@ debrelease-docker: checkVERSION ## build a release in a node container
 
 sbom/linstor-gui.cdx.json: package.json package-lock.json
 	test -d sbom || mkdir sbom
-	npm sbom --sbom-format cyclonedx > $@
+	npm sbom --sbom-format cyclonedx --sbom-type application > $@
 
 sbom/linstor-gui.spdx.json: package.json package-lock.json
 	test -d sbom || mkdir sbom
-	npm sbom --sbom-format spdx > $@
+	npm sbom --sbom-format spdx --sbom-type application > $@
 
 .PHONY: sbom
 sbom: sbom/linstor-gui.cdx.json sbom/linstor-gui.spdx.json ## generate software bill of materials
