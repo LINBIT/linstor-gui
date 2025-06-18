@@ -456,6 +456,7 @@ const en = {
     please_confirm_passphrase: 'Please confirm your passphrase!',
     passphrase_not_match: 'The two passphrases do not match!',
     confirm_passphrase_placeholder: 'Confirm passphrase',
+    logo_size_error: 'The logo file size should not exceed 16KB.',
   },
   about: {
     linstor_version: 'LINSTOR VERSION',

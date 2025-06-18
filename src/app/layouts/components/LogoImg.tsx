@@ -43,7 +43,7 @@ export const LogoImg: React.FC<LogoImgProps> = ({ logoSrc }) => {
   };
 
   return (
-    <div className="cursor-pointer">
+    <div className="cursor-pointer flex">
       <img src={logo} className="w-40" onClick={handleClick} alt="LINBIT logo" />
       {'  '}
       <div className="customerlogo">{renderLogo(logoSrc)}</div>

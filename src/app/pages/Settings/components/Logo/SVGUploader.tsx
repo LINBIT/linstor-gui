@@ -6,7 +6,7 @@
 
 import React, { useEffect } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
-import { Form, Switch, Upload, Button, Input } from 'antd';
+import { Form, Switch, Upload, Button, Input, message } from 'antd';
 import SVG from 'react-inlinesvg';
 import isSvg from 'is-svg';
 import { useDispatch, useSelector } from 'react-redux';
@@ -99,6 +99,13 @@ export const SVGFileUpload: React.FunctionComponent = () => {
               maxCount={1}
               beforeUpload={(file) => {
                 if (file.size > 16 * 1024) {
+                  form.setFields([
+                    {
+                      name: 'customLogoEnabled',
+                      errors: [t('settings:logo_size_error')],
+                    },
+                  ]);
+                  message.error(t('settings:logo_size_error'));
                   return false;
                 }
                 const reader = new FileReader();
