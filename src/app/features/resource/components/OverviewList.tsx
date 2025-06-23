@@ -164,7 +164,8 @@ export const OverviewList = () => {
   const fetchData = async () => {
     const data = await getResourceDefinition({
       ...query,
-    });
+      with_volume_definitions: true,
+    } as any);
 
     if (!data?.data) {
       return;
@@ -173,15 +174,13 @@ export const OverviewList = () => {
     const resources = (await getResources()).data;
 
     const updatedData = await Promise.all(
-      data.data.map(async (resource) => {
-        const { name } = resource;
-
-        const volumeDefinitions = await getVolumeDefinitionListByResource(name ?? '');
+      data.data.map((resource) => {
+        const { name, volume_definitions: volumeDefinitions } = resource;
 
         const resourceWithVolumes = {
           ...resource,
           volumes: [],
-          volumeDefinitions: volumeDefinitions.data,
+          volumeDefinitions: volumeDefinitions || [],
         } as any;
 
         // Merge volumes with the outer layer
@@ -190,7 +189,7 @@ export const OverviewList = () => {
           ?.flatMap(
             (e) =>
               e.volumes?.map((v) => {
-                const matchingVolume = volumeDefinitions.data?.find((vd) => vd.volume_number === v.volume_number);
+                const matchingVolume = volumeDefinitions?.find((vd) => vd.volume_number === v.volume_number);
                 return {
                   ...v,
                   size_kib: matchingVolume?.size_kib || 0,
