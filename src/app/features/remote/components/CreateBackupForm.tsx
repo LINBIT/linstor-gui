@@ -42,7 +42,7 @@ const CreateBackupForm = ({ refetch }: CreateBackupFormProps) => {
 
   const createBackupMutation = useMutation({
     mutationFn: (data: RemoteBackupCreateRequestBody) => {
-      return createBackup(remote_name, data);
+      return createBackup(remote_name ?? '', data);
     },
   });
 
@@ -71,7 +71,7 @@ const CreateBackupForm = ({ refetch }: CreateBackupFormProps) => {
       <Modal
         title="Create"
         open={modelOpen}
-        onOk={() => onFinish(form.getFieldsValue())}
+        onOk={() => form.submit()}
         onCancel={() => setModelOpen(false)}
         okText="Confirm"
         width={800}
@@ -93,12 +93,18 @@ const CreateBackupForm = ({ refetch }: CreateBackupFormProps) => {
           }}
           onFinish={onFinish}
         >
-          <Form.Item name="rsc_name" label="Resource" required>
+          <Form.Item
+            name="rsc_name"
+            label="Resource"
+            required
+            rules={[{ required: true, message: 'Please select a resource' }]}
+          >
             <Select
               options={uniqBy(resourceList?.data, 'name').map((e) => ({
                 label: e.name,
                 value: e.name,
               }))}
+              placeholder="Select a resource"
             />
           </Form.Item>
 
