@@ -57,6 +57,18 @@ const restoreSnapshot = (resource: string, snapshot: string, body: RestoreSnapsh
   });
 };
 
+const restoreVolumeDefinition = (resource: string, snapshot: string, body: RestoreSnapshotRequestBody) => {
+  return post('/v1/resource-definitions/{resource}/snapshot-restore-volume-definition/{snapshot}', {
+    params: {
+      path: {
+        resource,
+        snapshot,
+      },
+    },
+    body,
+  });
+};
+
 const rollbackSnapshot = (resource: string, snapshot: string) => {
   return post('/v1/resource-definitions/{resource}/snapshot-rollback/{snapshot}', {
     params: {
@@ -68,4 +80,12 @@ const rollbackSnapshot = (resource: string, snapshot: string) => {
   });
 };
 
-export { createSnapshot, getAllResources, getSnapshots, deleteSnapshot, restoreSnapshot, rollbackSnapshot };
+export {
+  createSnapshot,
+  getAllResources,
+  getSnapshots,
+  deleteSnapshot,
+  restoreSnapshot,
+  rollbackSnapshot,
+  restoreVolumeDefinition,
+};
