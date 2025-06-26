@@ -7,7 +7,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Card, Col, Input, Modal, Row, Space, Tabs, TabsProps, Tag } from 'antd';
+import { Card, Input, Modal, Space, Tag } from 'antd';
 import { CheckCircleOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
@@ -25,7 +25,8 @@ import { useStoragePools } from '@app/features/storagePool';
 import { useResources } from '@app/features/snapshot';
 
 import NetInterfaceList from './components/NetInterfaceList';
-import { Container, DashboardContainer, EmptyDashboard, LabelText, TagContainer } from './detail.styled';
+import { DashboardContainer, LabelText, TagContainer } from './detail.styled';
+import { useWindowSize } from '@app/hooks';
 
 const isValidArray = (nodeRes) => {
   return Array.isArray(nodeRes) && nodeRes.length > 0;
@@ -287,11 +288,11 @@ const NodeDetail: React.FC = () => {
         </Card>
 
         <div className="flex gap-4">
-          <Card title={t('storage_pool_info')} size="small" style={{ flex: 1 }}>
-            <Container>{storagePoolData.length > 0 && <StoragePool data={storagePoolData} />}</Container>
+          <Card title={t('storage_pool_info')} size="small" style={{ width: '50%' }}>
+            {storagePoolData.length > 0 && <StoragePool data={storagePoolData} />}
           </Card>
 
-          <Card title={t('resource_info')} size="small" style={{ flex: 1 }}>
+          <Card title={t('resource_info')} size="small" style={{ width: '50%' }}>
             {resourceData.length > 0 && <Resource data={resourceData} />}
           </Card>
         </div>

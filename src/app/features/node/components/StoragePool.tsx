@@ -59,7 +59,23 @@ export const StoragePool = ({ data }: StoragePoolProp) => {
     chart: {
       type: 'bar' as const,
       stacked: true,
+      toolbar: {
+        show: false,
+      },
     },
+    responsive: [
+      {
+        breakpoint: 768,
+        options: {
+          legend: {
+            position: 'bottom' as const,
+          },
+          chart: {
+            height: 400,
+          },
+        },
+      },
+    ],
     legend: {
       position: 'right' as const,
       offsetY: 40,

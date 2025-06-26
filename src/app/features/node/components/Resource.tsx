@@ -27,5 +27,5 @@ export const Resource = ({ data }: ResourceProp) => {
 
   const series = data.map((d) => d.value);
 
-  return <Chart options={options} series={series} type="pie" height={350} />;
+  return <Chart options={options} series={series} type="pie" height={500} />;
 };
