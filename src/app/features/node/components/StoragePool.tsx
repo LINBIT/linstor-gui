@@ -20,8 +20,17 @@ type StoragePoolProp = {
 };
 
 export const StoragePool = ({ data }: StoragePoolProp) => {
-  const annotations = [] as any;
-  forEach(groupBy(data, 'storagePool'), (values, k) => {
+  const storagePoolNames = Array.from(new Set(data.map((d) => d.storagePool)));
+  const actualStoragePools = storagePoolNames.filter((name) => !name.includes('Total on'));
+  const storagePoolCount = actualStoragePools.length;
+
+  let filteredData = data;
+  if (storagePoolCount === 1) {
+    filteredData = data.filter((item) => !item.storagePool.includes('Total on'));
+  }
+
+  const annotations: unknown[] = [];
+  forEach(groupBy(filteredData, 'storagePool'), (values, k) => {
     const value = values.reduce((a, b) => a + b.value, 0);
 
     annotations.push({
@@ -44,23 +53,28 @@ export const StoragePool = ({ data }: StoragePoolProp) => {
   const series = [
     {
       name: 'total',
-      data: data?.filter((e) => e.type === 'Total')?.map((d) => d.value),
+      data: filteredData?.filter((e) => e.type === 'Total')?.map((d) => d.value),
     },
     {
       name: 'used',
-      data: data?.filter((e) => e.type === 'Used')?.map((d) => d.value),
+      data: filteredData?.filter((e) => e.type === 'Used')?.map((d) => d.value),
     },
   ];
 
   const options = {
     xaxis: {
-      categories: Array.from(new Set(data.map((d) => d.storagePool))),
+      categories: Array.from(new Set(filteredData.map((d) => d.storagePool))),
     },
     chart: {
       type: 'bar' as const,
       stacked: true,
       toolbar: {
         show: false,
+      },
+    },
+    plotOptions: {
+      bar: {
+        columnWidth: storagePoolCount === 1 ? '30%' : '70%',
       },
     },
     responsive: [
