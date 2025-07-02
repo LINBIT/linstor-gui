@@ -6,14 +6,14 @@
 
 import React, { useState } from 'react';
 import { Button, Form, Space, Table, Input, Select, Popconfirm, Dropdown, Tooltip } from 'antd';
-import type { TableProps } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { MoreOutlined } from '@ant-design/icons';
 import { LiaToolsSolid } from 'react-icons/lia';
 
-import { deleteRemote, getRemoteList } from '../api';
+import { deleteRemote, getRemoteList, getBackup } from '../api';
 import { SearchForm } from './styled';
 import { CreateRemoteForm } from './CreateRemoteForm';
 import { UIMode } from '@app/models/setting';
@@ -88,7 +88,31 @@ export const List = () => {
         list = list.filter((e) => e.remote_name === name);
       }
 
-      setDataList(list);
+      // fetch backup count for each remote
+      const listWithCount = await Promise.all(
+        list.map(async (e) => {
+          let count = 0;
+          if (e.type === 's3_remotes' || e.type === 'linstor_remotes') {
+            try {
+              const resB = await getBackup(e.remote_name);
+              const lin = resB.data?.linstor || {};
+              count = Object.keys(lin).length;
+            } catch {
+              count = 0;
+            }
+          } else if (e.type === 'ebs_remotes') {
+            try {
+              const resB = await getBackup(e.remote_name);
+              const lin = resB.data?.other || {};
+              count = Object.keys(lin).length;
+            } catch {
+              count = 0;
+            }
+          }
+          return { ...e, backup_count: count };
+        }),
+      );
+      setDataList(listWithCount);
     },
   });
 
@@ -160,25 +184,22 @@ export const List = () => {
     deleteRemoteMutation.mutate(remote_name);
   };
 
-  const columns: TableProps<{
-    name: string;
+  // Define row type including backup_count
+  interface ExtendedRemote {
+    remote_name: string;
     type: string;
     region: string;
     endpoint: string;
     bucket: string;
     url?: string;
-  }>['columns'] = [
+    backup_count: number;
+  }
+  const columns: ColumnsType<ExtendedRemote> = [
     {
       title: t('remote:name'),
-      key: 'name',
+      key: 'remote_name',
       dataIndex: 'remote_name',
-      sorter: (a, b) => {
-        if (a.name && b.name) {
-          return a.name.localeCompare(b.name);
-        } else {
-          return 0;
-        }
-      },
+      sorter: (a, b) => a.remote_name.localeCompare(b.remote_name),
       showSorterTooltip: false,
     },
     {
@@ -189,13 +210,30 @@ export const List = () => {
     {
       title: t('remote:Info'),
       key: 'info',
-      render: (record, info) => {
-        if (record.type === 'linstor_remotes') {
-          return <span>{`${info.url}`}</span>;
-        }
-
-        return <span>{`${info.region}.${info.endpoint}/${info.bucket}`}</span>;
-      },
+      render: (_text, record) =>
+        record.type === 'linstor_remotes' ? (
+          <span>{record.url}</span>
+        ) : (
+          <span>{`${record.region}.${record.endpoint}/${record.bucket}`}</span>
+        ),
+    },
+    {
+      title: t('remote:backup_count') || 'Backup Count',
+      key: 'backup_count',
+      dataIndex: 'backup_count',
+      render: (count: number, record) => (
+        <a
+          onClick={() => {
+            const url =
+              mode === UIMode.HCI
+                ? `/hci/remote/${record.remote_name}/backups`
+                : `/remote/${record.remote_name}/backups`;
+            navigate(url);
+          }}
+        >
+          {count}
+        </a>
+      ),
     },
     {
       title: () => (
@@ -316,7 +354,7 @@ export const List = () => {
       <br />
 
       <Table
-        columns={columns as any}
+        columns={columns}
         dataSource={dataList ?? []}
         pagination={{
           total: dataList?.length ?? 0,

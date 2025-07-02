@@ -403,6 +403,7 @@ const en = {
     secret_key: 'Secret Key',
     url: 'URL',
     use_path_style: 'Use Path Style',
+    backup_count: 'Backup Count',
   },
   schedule: {
     list: 'Schedule List',
