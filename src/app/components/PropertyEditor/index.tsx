@@ -221,6 +221,38 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
     const handleModalClose = () => {
       form.resetFields();
       setModalVisible(false);
+
+      // Reset all states to initial values
+      setDeleteProps([]);
+      setDeleteAll(false);
+
+      // Reset form items to original state
+      if (initialVal) {
+        const nodePropertyList: FormItem[] = handlePropsToFormOption(type, initialVal);
+        const displayItems = nodePropertyList.filter((e) => !e.hide);
+        setFormItemList(nodePropertyList);
+        setFormItems(displayItems);
+
+        // Reset aux props to original state
+        const originalAuxItems: AuxProp[] = [];
+        for (const propsKey in initialVal) {
+          const strings = propsKey.split('/');
+          const first = strings[0];
+          if (strings.length > 0 && first === 'Aux') {
+            originalAuxItems.push({
+              name: strings.slice(1).join('/'),
+              value: initialVal[propsKey] as string,
+              id: uniqId(),
+            });
+          }
+        }
+        setAuxProps(originalAuxItems);
+      } else {
+        // If no initial values, reset to empty state
+        setFormItemList([]);
+        setFormItems([]);
+        setAuxProps([]);
+      }
     };
 
     return (
