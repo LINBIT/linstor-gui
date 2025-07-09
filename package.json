@@ -17,12 +17,19 @@
     "format": "prettier --check --write ./src/**/*.{tsx,ts}",
     "type-check": "tsc --noEmit",
     "clean": "rimraf dist",
+    "test": "vitest --coverage",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
     "generate-api": "npm run generate-api:linstor && npm run generate-api:gateway",
     "generate-api:linstor": "openapi-typescript ./src/app/apis/Linstor-Linstor-1.25.0-resolved.yaml --output ./src/app/apis/schema.ts",
-    "generate-api:gateway": "openapi-typescript ./src/app/apis/Linstor-linstor-gateway-2.0.0-resolved.yaml --output ./src/app/apis/gatewayschema.ts"
+    "generate-api:gateway": "openapi-typescript ./src/app/apis/Linstor-linstor-gateway-2.0.0-resolved.yaml --output ./src/app/apis/gatewayschema.ts",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/crypto-js": "^4.1.1",
     "@types/lodash": "^4.17.16",
     "@types/node": "^22.13.10",
@@ -30,10 +37,14 @@
     "@typescript-eslint/eslint-plugin": "^8.26.0",
     "@typescript-eslint/parser": "^8.26.0",
     "@vitejs/plugin-react": "^4.3.4",
+    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/ui": "^3.2.4",
     "eslint": "^9.22.0",
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.0.0",
+    "husky": "^9.1.7",
     "openapi-typescript": "^7.6.1",
     "prettier": "^3.2.5",
     "rimraf": "^6.0.1",
@@ -42,7 +53,8 @@
     "typescript": "^5.4.5",
     "typescript-eslint": "^8.26.1",
     "vite": "^6.2.1",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.2.4"
   },
   "dependencies": {
     "@ant-design/icons": "^5.3.7",

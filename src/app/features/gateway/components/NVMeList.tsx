@@ -156,7 +156,11 @@ export const NVMeList = ({
                   title={`Are you sure to ${isStarted ? 'stop' : 'start'} this target?`}
                   onConfirm={() => {
                     if (record.nqn) {
-                      isStarted ? handleStop(record.nqn) : handleStart(record.nqn);
+                      if (isStarted) {
+                        handleStop(record.nqn);
+                      } else {
+                        handleStart(record.nqn);
+                      }
                     }
                   }}
                   okText="Yes"

@@ -62,7 +62,9 @@ const CreateForm = ({ refetch, simple }: CreateFormProps) => {
 
     createVD.mutate(VDData);
     setShowCreateForm(false);
-    refetch && refetch();
+    if (refetch) {
+      refetch();
+    }
   };
 
   return (

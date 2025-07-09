@@ -74,7 +74,9 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
       });
 
       setCreateFormModal(false);
-      refetch && refetch();
+      if (refetch) {
+        refetch();
+      }
     },
     onError: (err: ErrorMessage) => {
       api.error({

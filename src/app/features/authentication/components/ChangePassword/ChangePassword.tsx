@@ -102,7 +102,6 @@ const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordPr
   const normalUser = user !== 'admin';
 
   const onCreate = async (values: any) => {
-    debugger;
     let res = null;
     if (admin) {
       res = await dispatch.auth.resetPassword({ user: user || 'admin', newPassword: values.newPassword });
@@ -134,7 +133,7 @@ const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordPr
     <div>
       {!defaultOpen && (
         <div
-          onClick={(e) => {
+          onClick={() => {
             setOpen(true);
           }}
           className="flex items-center"

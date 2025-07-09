@@ -52,7 +52,10 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
   const modifyMutation = useMutation(
     (values: Schedule) => {
       const { schedule_name, ...restValues } = values;
-      return modifySchedule(schedule?.schedule_name!, restValues);
+      if (!schedule || !schedule.schedule_name) {
+        throw new Error('Schedule or schedule_name is undefined');
+      }
+      return modifySchedule(schedule.schedule_name, restValues);
     },
     {
       onSuccess: () => {

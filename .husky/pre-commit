@@ -1,0 +1,36 @@
+# Run style checks
+echo "🔍 Running style checks..."
+
+# 1. ESLint check
+echo "📋 Running ESLint..."
+npm run lint
+if [ $? -ne 0 ]; then
+  echo "❌ ESLint failed. Please fix the errors above."
+  exit 1
+fi
+
+# 2. Prettier format check
+echo "🎨 Running Prettier..."
+npm run format
+if [ $? -ne 0 ]; then
+  echo "❌ Prettier failed. Please fix the formatting issues above."
+  exit 1
+fi
+
+# 3. TypeScript type check
+echo "📝 Running TypeScript type check..."
+npm run type-check
+if [ $? -ne 0 ]; then
+  echo "❌ TypeScript type check failed. Please fix the type errors above."
+  exit 1
+fi
+
+# 4. Run tests
+echo "🧪 Running tests..."
+npm test -- --run
+if [ $? -ne 0 ]; then
+  echo "❌ Tests failed. Please fix the failing tests above."
+  exit 1
+fi
+
+echo "✅ All checks passed! Ready to commit."

@@ -4,6 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
+/// <reference types="vitest" />
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
@@ -11,7 +12,7 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import { resolve } from 'path';
 
 // https://vitejs.dev/config/
-export default defineConfig(({ command, mode }) => {
+export default defineConfig(({ mode }) => {
   // Load env variables based on mode
   const env = loadEnv(mode, process.cwd(), 'VITE_');
 
@@ -100,5 +101,22 @@ export default defineConfig(({ command, mode }) => {
 
     // Copy static assets similar to CopyPlugin
     publicDir: 'public',
+    test: {
+      globals: true,
+      environment: 'jsdom',
+      setupFiles: './src/setupTests.ts',
+      css: true,
+      coverage: {
+        enabled: true,
+        provider: 'v8',
+        reporter: ['text', 'json', 'html', 'cobertura'],
+        reportsDirectory: './coverage',
+        exclude: ['node_modules/', 'src/setupTests.ts', '**/*.d.ts', '**/*.config.*', '**/dist/**'],
+      },
+      reporters: ['default', 'junit'],
+      outputFile: {
+        junit: './junit.xml',
+      },
+    },
   };
 });

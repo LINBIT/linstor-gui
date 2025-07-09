@@ -212,7 +212,7 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
           </Tooltip>
         ),
       };
-    })
+    }),
   );
 
   const onCheckedChanged = (ev: PhysicalStorageChangeEvent) => {
@@ -318,7 +318,7 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
     physicalStoragePoolRequest.diskPaths.forEach((paths, key) => {
       paths.forEach((p) => {
         disks?.data.forEach((disk) => {
-          disk.nodes[key] &&
+          if (disk.nodes[key]) {
             disk.nodes[key].forEach((diskPath) => {
               if (diskPath.device === p) {
                 checkedCt++;
@@ -328,6 +328,7 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
                 }
               }
             });
+          }
         });
       });
     });

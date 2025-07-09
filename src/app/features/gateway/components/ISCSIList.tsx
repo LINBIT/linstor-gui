@@ -156,7 +156,11 @@ export const ISCSIList = ({
                   title={`Are you sure to ${isStarted ? 'stop' : 'start'} this target?`}
                   onConfirm={() => {
                     if (record.iqn) {
-                      isStarted ? handleStop(record.iqn) : handleStart(record.iqn);
+                      if (isStarted) {
+                        handleStop(record.iqn);
+                      } else {
+                        handleStart(record.iqn);
+                      }
                     }
                   }}
                   okText="Yes"

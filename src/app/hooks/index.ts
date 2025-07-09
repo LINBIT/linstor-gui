@@ -9,3 +9,4 @@ export { default as usePersistentMenuState } from './usePersistentMenuState';
 export { default as useUIModeStorage } from './useUIModeStorage';
 export { default as useIsAdmin } from './useIsAdmin';
 export { useWindowSize } from './useWindowSize';
+export { useDocumentTitle } from './useDocumentTitle';

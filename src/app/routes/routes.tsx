@@ -30,7 +30,7 @@ import BackupList from '@app/pages/Backup/Remote/BackupList';
 import ErrorReportList from '@app/pages/ErrorReport/index';
 import ErrorReportDetail from '@app/pages/ErrorReport/Detail';
 import { NotFound } from '@app/pages/NotFound/NotFound';
-import { useDocumentTitle } from '@app/utils/useDocumentTitle';
+import { useDocumentTitle } from '@app/hooks';
 import { GrafanaDashboard } from '@app/pages/Grafana';
 import { Controller } from '@app/pages/Inventory/Controller';
 import { UserManagement } from '@app/features/authentication';

@@ -22,7 +22,7 @@ import '@app/app.css';
 
 if (typeof window !== 'undefined') {
   const url = new URL(window.location.href);
-  let host = url.searchParams.get('host');
+  const host = url.searchParams.get('host');
   if (host) {
     // Use pathname as base for correct relative path support
     const resolvedHost = resolveAndStoreLinstorHost(host, window.location.origin + window.location.pathname);

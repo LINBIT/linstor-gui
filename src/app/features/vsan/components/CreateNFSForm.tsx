@@ -86,7 +86,9 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
 
       setCreateFormModal(false);
 
-      refetch && refetch();
+      if (refetch) {
+        refetch();
+      }
     },
     onError: (err: ErrorMessage) => {
       api.error({

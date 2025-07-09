@@ -26,7 +26,9 @@ export const SizeInput = ({ value, onChange, placeholder, disabled, defaultUnit,
     const val = e.target.value;
     const size = convertRoundUp(sizeUnit, val);
     setInputVal(val);
-    onChange && onChange(size);
+    if (onChange) {
+      onChange(size);
+    }
   };
 
   useEffect(() => {

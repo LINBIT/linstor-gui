@@ -209,6 +209,7 @@ export const properties = {
       unit_prefix: '1',
       min: 16777216,
       default: 16777216,
+      // eslint-disable-next-line no-loss-of-precision
       max: 9223372036854775807,
       drbd_option_name: 'memlimit',
       internal: true,

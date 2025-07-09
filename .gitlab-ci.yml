@@ -4,10 +4,34 @@ variables:
 image: node:20
 
 stages:
+  - test
   - build
+
+test:
+  stage: test
+  rules:
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
+    - if: $CI_COMMIT_BRANCH == "main"
+  before_script:
+    - npm ci
+  script:
+    - npm run lint
+    - npm run type-check
+    - npm run test
+  coverage: '/All files.*?(\d+(?:\.\d+)?)\s*\|/'
+  artifacts:
+    reports:
+      junit: junit.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
+    expire_in: '30 days'
 
 build:
   stage: build
+  rules:
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
+    - if: $CI_COMMIT_BRANCH == "main"
   interruptible: true
   before_script:
     - git init build-helpers -q -b unused
@@ -26,14 +50,14 @@ build:
     - build-helpers/dummy-release.sh linstor-gui $VERSION 1 linstor-gui.spec
     - make VERSION="$VERSION" debrelease
     - curl -isSf -u $LINBIT_REGISTRY_USER:$LINBIT_REGISTRY_PASSWORD
-          --upload-file linstor-gui-*.tar.gz
-          $LINBIT_REGISTRY_URL/repository/lbbuild-upstream/
+      --upload-file linstor-gui-*.tar.gz
+      $LINBIT_REGISTRY_URL/repository/lbbuild-upstream/
     - lbbuildctl build linstor-gui --ci -v "$VERSION"
-          -e LINBIT_REGISTRY_USER=$LINBIT_REGISTRY_USER
-          -e LINBIT_REGISTRY_PASSWORD=$LINBIT_REGISTRY_PASSWORD
-          -e LINBIT_REGISTRY_URL=$LINBIT_REGISTRY_URL
-          --arch amd64
-          -d ubuntu-noble -d rhel9.0
+      -e LINBIT_REGISTRY_USER=$LINBIT_REGISTRY_USER
+      -e LINBIT_REGISTRY_PASSWORD=$LINBIT_REGISTRY_PASSWORD
+      -e LINBIT_REGISTRY_URL=$LINBIT_REGISTRY_URL
+      --arch amd64
+      -d ubuntu-noble -d rhel9.0
 
   artifacts:
     paths:

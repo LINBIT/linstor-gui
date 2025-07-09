@@ -82,7 +82,11 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart }: NFSList
               title={`Are you sure to ${isStarted ? 'stop' : 'start'} this target?`}
               onConfirm={() => {
                 if (record.name) {
-                  isStarted ? handleStop(record.name) : handleStart(record.name);
+                  if (isStarted) {
+                    handleStop(record.name);
+                  } else {
+                    handleStart(record.name);
+                  }
                 }
               }}
               okText="Yes"

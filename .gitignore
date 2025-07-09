@@ -12,3 +12,4 @@ deploy-linstor-gui.sh
 *.tar.gz
 *.rpm
 sbom/
+junit.xml
