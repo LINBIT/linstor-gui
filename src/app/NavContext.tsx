@@ -23,7 +23,7 @@ export const useNav = () => {
 };
 
 export const NavProvider: React.FC<PropsWithChildren> = ({ children }) => {
-  const [isNavOpen, setIsNavOpen] = usePersistentMenuState(true); // 使用 usePersistentMenuState
+  const [isNavOpen, setIsNavOpen] = usePersistentMenuState(true);
 
   const toggleNav = () => {
     setIsNavOpen((prev) => !prev);
