@@ -11,7 +11,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { MoreOutlined } from '@ant-design/icons';
 
-import PropertyForm from '@app/components/PropertyEditor';
+import PropertyForm from '@app/components/PropertyForm';
 import {
   getResourceDefinition,
   getResourceDefinitionCount,

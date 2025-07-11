@@ -15,7 +15,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';
 import { UIMode } from '@app/models/setting';
 
-import PropertyForm, { PropertyFormRef } from '@app/components/PropertyEditor';
+import PropertyForm, { PropertyFormRef } from '@app/components/PropertyForm';
 import { getResourceGroups, getResourceGroupCount, deleteResourceGroup, updateResourceGroup } from '../api';
 import { CreateResourceGroupRequestBody, ResourceGroupListQuery, UpdateResourceGroupRequestBody } from '../types';
 import { SearchForm } from './styled';
@@ -26,6 +26,7 @@ import { LiaToolsSolid } from 'react-icons/lia';
 export const List = () => {
   const { t } = useTranslation(['resource_group', 'common']);
   const [current, setCurrent] = useState<CreateResourceGroupRequestBody>();
+  const [currentProps, setCurrentProps] = useState<Record<string, unknown> | undefined>();
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
   const propertyFormRef = useRef<PropertyFormRef>(null);
@@ -243,7 +244,10 @@ export const List = () => {
                   label: t('common:property'),
                   onClick: () => {
                     setCurrent(record);
-                    propertyFormRef.current?.openModal();
+                    setCurrentProps(record.props);
+                    setTimeout(() => {
+                      propertyFormRef.current?.openModal();
+                    }, 0);
                   },
                 },
                 {
@@ -357,7 +361,7 @@ export const List = () => {
 
       <PropertyForm
         ref={propertyFormRef}
-        initialVal={current?.props}
+        initialVal={currentProps}
         type="resource-definition"
         handleSubmit={(data) => updateMutation.mutate(data)}
       />

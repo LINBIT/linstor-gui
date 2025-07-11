@@ -28,7 +28,7 @@ import {
 } from '@app/features/resourceDefinition';
 import { CreateForm, getVolumeDefinitionListByResource } from '@app/features/volumeDefinition';
 import { useWidth } from '@app/components/PageBasic/WidthContext';
-import PropertyForm from '@app/components/PropertyEditor';
+import PropertyForm from '@app/components/PropertyForm';
 
 import {
   adjustResourceGroup,
@@ -44,7 +44,7 @@ import { ResourceMigrateForm } from './ResourceMigrateForm';
 import { SearchForm } from './styled';
 import './OverviewList.css';
 import { filterResourceList } from './filterResourceList';
-import { PropertyFormRef } from '@app/components/PropertyEditor';
+import { PropertyFormRef } from '@app/components/PropertyForm';
 import { RootState } from '@app/store';
 import { UIMode } from '@app/models/setting';
 

@@ -13,13 +13,13 @@ import { CheckCircleFilled, CloseCircleFilled, MoreOutlined } from '@ant-design/
 
 import { useNodes } from '@app/features/node';
 import { formatBytes } from '@app/utils/size';
-import PropertyForm from '@app/components/PropertyEditor';
+import PropertyForm from '@app/components/PropertyForm';
 import { GetStoragePoolQuery, StoragePool, UpdateStoragePoolRequestBody } from '../types';
 import { deleteStoragePoolV2, getStoragePool, getStoragePoolCount, updateStoragePool } from '../api';
 
 import { SearchForm } from './styled';
 import { useTranslation } from 'react-i18next';
-import { PropertyFormRef } from '@app/components/PropertyEditor';
+import { PropertyFormRef } from '@app/components/PropertyForm';
 import { LiaToolsSolid } from 'react-icons/lia';
 import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';

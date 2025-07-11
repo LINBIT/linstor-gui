@@ -48,31 +48,54 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
     const [deleteAll, setDeleteAll] = useState(false);
     const [deleteProps, setDeleteProps] = useState<Array<string>>([]);
     const [modalVisible, setModalVisible] = useState(false);
+    const [currentInitialVal, setCurrentInitialVal] = useState<Record<string, unknown> | undefined>();
     const [form] = Form.useForm();
 
     useImperativeHandle(ref, () => ({
       openModal: () => {
+        const currentInitial = initialVal;
+        setCurrentInitialVal(currentInitial);
+
         form.resetFields();
         setDeleteProps([]);
         setDeleteAll(false);
 
-        const nodePropertyList: FormItem[] = handlePropsToFormOption(type, initialVal);
+        const nodePropertyList: FormItem[] = handlePropsToFormOption(type, currentInitial);
         const displayItems = nodePropertyList.filter((e) => !e.hide);
         setFormItemList(nodePropertyList);
         setFormItems(displayItems);
 
-        if (initialVal) {
-          const formValues: Record<string, unknown> = {};
-          displayItems.forEach((item) => {
-            if (!item.hide && item.name in initialVal) {
-              formValues[item.name] = initialVal[item.name];
+        const originalAuxItems: AuxProp[] = [];
+        if (currentInitial) {
+          for (const propsKey in currentInitial) {
+            const strings = propsKey.split('/');
+            const first = strings[0];
+            if (strings.length > 0 && first === 'Aux') {
+              originalAuxItems.push({
+                name: strings.slice(1).join('/'),
+                value: currentInitial[propsKey] as string,
+                id: uniqId(),
+              });
             }
-          });
-
-          setTimeout(() => form.setFieldsValue(formValues), 0);
+          }
         }
+        setAuxProps(originalAuxItems);
 
         setModalVisible(true);
+
+        setTimeout(() => {
+          if (currentInitial) {
+            const formValues: Record<string, unknown> = {};
+            displayItems.forEach((item) => {
+              if (!item.hide && item.name in currentInitial) {
+                formValues[item.name] = currentInitial[item.name];
+              } else if (!item.hide) {
+                formValues[item.name] = item.defaultValue;
+              }
+            });
+            form.setFieldsValue(formValues);
+          }
+        }, 50);
       },
       closeModal: () => {
         form.resetFields();
@@ -188,10 +211,10 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
 
     // Submit only changed data after validation
     const handleSubmitData = (data: Record<string, unknown>) => {
-      const original = initialVal ?? {};
+      const original = currentInitialVal ?? {};
       const changedData: Record<string, unknown> = {};
 
-      // Compare each field in form data with initialVal
+      // Compare each field in form data with currentInitialVal
       Object.entries(data).forEach(([key, val]) => {
         if (original[key] !== val) {
           changedData[key] = val;
@@ -210,7 +233,7 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
       const delete_props = deleteAll ? Object.keys(original) : deleteProps;
 
       handleSubmit({
-        override_props: changedData as any,
+        override_props: changedData as Properties,
         delete_props,
       });
 
@@ -265,7 +288,9 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
           {children}
         </div>
         <Modal
+          key={JSON.stringify(initialVal)}
           title="Property Editor"
+          destroyOnClose
           open={modalVisible}
           onCancel={handleModalClose}
           okText="Submit"
@@ -355,6 +380,7 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
 
             {/* Visible form items with required validation */}
             <Form
+              key={JSON.stringify(currentInitialVal)}
               form={form}
               onFinish={handleSubmitData}
               onFinishFailed={() =>

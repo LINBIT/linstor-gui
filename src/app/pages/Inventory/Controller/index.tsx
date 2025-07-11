@@ -9,7 +9,7 @@ import React, { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import PageBasic from '@app/components/PageBasic';
-import PropertyForm from '@app/components/PropertyEditor';
+import PropertyForm from '@app/components/PropertyForm';
 import { getControllerProperties, updateController } from '@app/features/node';
 import { handlePropsToFormOption } from '@app/utils/property';
 import { MinusOutlined } from '@ant-design/icons';

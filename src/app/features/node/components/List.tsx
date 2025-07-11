@@ -12,7 +12,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { CheckCircleFilled, CloseCircleFilled, MoreOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
-import PropertyForm, { PropertyFormRef } from '@app/components/PropertyEditor';
+import PropertyForm, { PropertyFormRef } from '@app/components/PropertyForm';
 import { getNodes, getNodeCount, deleteNode, updateNode, lostNode } from '../api';
 import { SearchForm } from './styled';
 import { uniqId } from '@app/utils/stringUtils';

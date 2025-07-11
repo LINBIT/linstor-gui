@@ -11,7 +11,7 @@ import { useMutation, useQueries, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-import PropertyForm from '@app/components/PropertyEditor';
+import PropertyForm from '@app/components/PropertyForm';
 import {
   getResourceDefinition,
   deleteVolumeDefinition,
