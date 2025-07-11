@@ -35,7 +35,7 @@ const PropertySelector: React.FC<PropertySelectorProps> = ({ options, handleAddP
   };
 
   return (
-    <div style={{ marginBottom: '1em', display: 'flex', alignItems: 'center' }}>
+    <div className="mb-4 flex items-center">
       <Select
         showSearch
         placeholder="Select a property"

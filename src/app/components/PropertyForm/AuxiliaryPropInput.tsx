@@ -40,20 +40,20 @@ const AuxiliaryPropInput: React.FC<AuxiliaryPropInputProp> = ({
   }, [initialVal]);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '12px' }}>
+    <div className="flex flex-col mb-3">
       {isFirst && (
-        <div style={{ display: 'flex', fontWeight: 'bold', marginBottom: '8px' }}>
-          <div style={{ width: '40%' }}>
+        <div className="flex font-bold mb-2">
+          <div className="w-2/5">
             <Text>Property Name</Text>
           </div>
-          <div style={{ width: '40%' }}>
+          <div className="w-2/5">
             <Text>Property Value</Text>
           </div>
-          <div style={{ width: '20%' }} />
+          <div className="w-1/5" />
         </div>
       )}
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <div style={{ width: '40%' }}>
+      <div className="flex items-center">
+        <div className="w-2/5">
           <Input
             value={name}
             onChange={(e) => {
@@ -64,7 +64,7 @@ const AuxiliaryPropInput: React.FC<AuxiliaryPropInputProp> = ({
             placeholder="Please input property name"
           />
         </div>
-        <div style={{ width: '40%', marginLeft: '8px' }}>
+        <div className="w-2/5 ml-2">
           <Input
             value={value}
             onChange={(e) => {
@@ -75,7 +75,7 @@ const AuxiliaryPropInput: React.FC<AuxiliaryPropInputProp> = ({
             placeholder="Please input property value"
           />
         </div>
-        <div style={{ width: '20%', textAlign: 'right' }}>
+        <div className="w-1/5 text-right">
           <Button danger icon={<DeleteOutlined />} onClick={() => handleDeleteAuxProp(initialVal.id)} shape="circle" />
         </div>
       </div>

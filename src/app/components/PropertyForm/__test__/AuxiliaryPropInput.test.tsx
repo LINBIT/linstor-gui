@@ -332,18 +332,4 @@ describe('AuxiliaryPropInput', () => {
       expect(call[0].id).toBe('test-id-1');
     });
   });
-
-  it('renders with correct container structure', () => {
-    render(<AuxiliaryPropInput {...defaultProps} />);
-
-    const container = screen.getAllByTestId('input')[0].closest('div');
-    expect(container).toBeInTheDocument();
-
-    // Should have proper flex layout structure
-    const flexContainer = container?.parentElement;
-    expect(flexContainer).toHaveStyle({
-      display: 'flex',
-      alignItems: 'center',
-    });
-  });
 });

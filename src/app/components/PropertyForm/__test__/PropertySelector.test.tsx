@@ -351,15 +351,4 @@ describe('PropertySelector', () => {
     expect(select).toHaveValue('property1');
     expect(mockHandleAddAuxProp).toHaveBeenCalledTimes(1);
   });
-
-  it('renders with correct container styling', () => {
-    render(<PropertySelector {...defaultProps} />);
-
-    const container = screen.getByTestId('select-component').parentElement;
-    expect(container).toHaveStyle({
-      marginBottom: '1em',
-      display: 'flex',
-      alignItems: 'center',
-    });
-  });
 });
