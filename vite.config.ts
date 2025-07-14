@@ -106,12 +106,21 @@ export default defineConfig(({ mode }) => {
       environment: 'jsdom',
       setupFiles: './src/setupTests.ts',
       css: true,
+      include: ['src/app/**/__test__/**/*.{ts,tsx}', 'src/app/**/*.test.{ts,tsx}', 'src/app/**/*.spec.{ts,tsx}'],
       coverage: {
         enabled: true,
         provider: 'v8',
         reporter: ['text', 'json', 'html', 'cobertura'],
         reportsDirectory: './coverage',
-        exclude: ['node_modules/', 'src/setupTests.ts', '**/*.d.ts', '**/*.config.*', '**/dist/**'],
+        exclude: [
+          'node_modules/',
+          'src/setupTests.ts',
+          '**/*.d.ts',
+          '**/*.config.*',
+          '**/dist/**',
+          'src/app/apis/**/*',
+          'src/translations/**/*',
+        ],
       },
       reporters: ['default', 'junit'],
       outputFile: {

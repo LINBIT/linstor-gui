@@ -205,6 +205,7 @@ const zh = {
     semi_sync: '半同步（B）',
     sync: '同步（C）',
     diskless: '在剩余节点上无盘',
+    auto_select_filter: '自动选择过滤器',
     description: '描述',
     create: '创建资源组',
     storage_providers: '存储提供者',

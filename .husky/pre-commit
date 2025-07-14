@@ -9,12 +9,18 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# 2. Prettier format check
-echo "🎨 Running Prettier..."
-npm run format
-if [ $? -ne 0 ]; then
-  echo "❌ Prettier failed. Please fix the formatting issues above."
-  exit 1
+# 2. Prettier format check on staged files
+echo "🎨 Running Prettier on staged files..."
+staged_files=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|jsx|ts|tsx|json|css|scss|md)$' | tr '\n' ' ')
+if [ -n "$staged_files" ]; then
+  npx prettier --check $staged_files
+  if [ $? -ne 0 ]; then
+    echo "❌ Prettier failed. Please fix the formatting issues above."
+    echo "💡 You can run: npx prettier --write $staged_files"
+    exit 1
+  fi
+else
+  echo "📝 No staged files found that need Prettier check."
 fi
 
 # 3. TypeScript type check

@@ -141,17 +141,12 @@ export const List = () => {
     );
   };
 
-  const replicationMap = {
-    A: t('async'),
-    B: t('semi_sync'),
-    C: t('sync'),
-  };
-
   const columns: TableProps<CreateResourceGroupRequestBody>['columns'] = [
     {
       title: t('resource_group:name'),
       key: 'name',
       dataIndex: 'name',
+      width: 150,
       sorter: (a, b) => {
         if (a.name && b.name) {
           return a.name.localeCompare(b.name);
@@ -164,6 +159,7 @@ export const List = () => {
     {
       title: t('resource_group:place_count'),
       key: 'place_count',
+      width: 100,
       render: (_, item) => {
         return item?.select_filter?.place_count;
       },
@@ -172,6 +168,7 @@ export const List = () => {
     {
       title: t('resource_group:storage_pools'),
       key: 'Storage Pool(s)',
+      width: 120,
       render: (_, item) => {
         const sp = Array.isArray(item?.select_filter?.storage_pool_list)
           ? (item?.select_filter?.storage_pool_list ?? [])
@@ -186,30 +183,61 @@ export const List = () => {
       },
     },
     {
-      title: t('resource_group:replication'),
-      key: 'Replication Mode',
+      title: t('resource_group:auto_select_filter'),
+      key: 'auto_select_filter',
+      width: 200,
       render: (_, item) => {
-        const protocol = item?.props?.['DrbdOptions/Net/protocol'] as 'A' | 'B' | 'C' | undefined;
-        if (protocol) {
-          return <span>{replicationMap[protocol]}</span>;
-        } else {
-          return replicationMap['C'];
-        }
+        const filter = item?.select_filter;
+        if (!filter) return null;
+
+        // Filter out place_count and storage pool related fields
+        const filteredEntries = Object.entries(filter).filter(([key, value]) => {
+          return (
+            key !== 'place_count' &&
+            key !== 'storage_pool' &&
+            value != null &&
+            value !== '' &&
+            !(Array.isArray(value) && value.length === 0)
+          );
+        });
+
+        if (filteredEntries.length === 0) return null;
+
+        const filterTexts = filteredEntries.map(([key, value]) => {
+          // Truncate key name if too long
+          const displayKey = key.length > 15 ? `${key.substring(0, 12)}...` : key;
+
+          if (Array.isArray(value)) {
+            return `${displayKey}: [${value.join(', ')}]`;
+          } else if (typeof value === 'object') {
+            return `${displayKey}: ${JSON.stringify(value)}`;
+          } else {
+            return `${displayKey}: ${value}`;
+          }
+        });
+
+        const fullText = filteredEntries
+          .map(([key, value]) => {
+            if (Array.isArray(value)) {
+              return `${key}: [${value.join(', ')}]`;
+            } else if (typeof value === 'object') {
+              return `${key}: ${JSON.stringify(value)}`;
+            } else {
+              return `${key}: ${value}`;
+            }
+          })
+          .join('\n');
+
+        return (
+          <Tooltip title={fullText} placement="top">
+            <div>
+              {filterTexts.map((text, index) => (
+                <div key={index}>{text}</div>
+              ))}
+            </div>
+          </Tooltip>
+        );
       },
-    },
-    {
-      title: t('resource_group:diskless'),
-      key: 'state',
-      align: 'center',
-      render: (_, item) => {
-        const state = item.select_filter?.diskless_on_remaining ? 'Yes' : 'No';
-        return <Tag>{state}</Tag>;
-      },
-    },
-    {
-      title: t('resource_group:description'),
-      key: 'description',
-      dataIndex: 'description',
     },
     {
       title: () => (

@@ -229,6 +229,7 @@ const en = {
     semi_sync: 'Memory synchronous(B)',
     sync: 'Synchronous(C)',
     diskless: 'Diskless on remaining',
+    auto_select_filter: 'Auto Select Filter',
     description: 'Description',
     create: 'Create Resource Group',
     storage_providers: 'Storage Providers',
