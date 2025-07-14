@@ -92,18 +92,10 @@ export const List = () => {
       const listWithCount = await Promise.all(
         list.map(async (e) => {
           let count = 0;
-          if (e.type === 's3_remotes' || e.type === 'linstor_remotes') {
+          if (e.type === 's3_remotes') {
             try {
               const resB = await getBackup(e.remote_name);
               const lin = resB.data?.linstor || {};
-              count = Object.keys(lin).length;
-            } catch {
-              count = 0;
-            }
-          } else if (e.type === 'ebs_remotes') {
-            try {
-              const resB = await getBackup(e.remote_name);
-              const lin = resB.data?.other || {};
               count = Object.keys(lin).length;
             } catch {
               count = 0;
@@ -221,19 +213,24 @@ export const List = () => {
       title: t('remote:backup_count') || 'Backup Count',
       key: 'backup_count',
       dataIndex: 'backup_count',
-      render: (count: number, record) => (
-        <a
-          onClick={() => {
-            const url =
-              mode === UIMode.HCI
-                ? `/hci/remote/${record.remote_name}/backups`
-                : `/remote/${record.remote_name}/backups`;
-            navigate(url);
-          }}
-        >
-          {count}
-        </a>
-      ),
+      render: (count: number, record) => {
+        if (record.type === 's3_remotes') {
+          return (
+            <a
+              onClick={() => {
+                const url =
+                  mode === UIMode.HCI
+                    ? `/hci/remote/${record.remote_name}/backups`
+                    : `/remote/${record.remote_name}/backups`;
+                navigate(url);
+              }}
+            >
+              {count}
+            </a>
+          );
+        }
+        return 'N/A';
+      },
     },
     {
       title: () => (

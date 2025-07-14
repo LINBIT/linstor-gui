@@ -39,7 +39,7 @@ const CreateForm = ({ editing }: FormProps) => {
     mutationFn: (
       data: CreateNetWorkInterfaceRequestBody & {
         node: string;
-      }
+      },
     ) => {
       const { node, ...rest } = data;
 
@@ -56,7 +56,7 @@ const CreateForm = ({ editing }: FormProps) => {
     mutationFn: (
       data: CreateNetWorkInterfaceRequestBody & {
         node: string;
-      }
+      },
     ) => {
       const { node, ...rest } = data;
 

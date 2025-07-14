@@ -276,4 +276,4 @@ const volumes = [
 
 export type ResourceListType = typeof listResData;
 
-export type VolumeType = typeof volumes[0];
+export type VolumeType = (typeof volumes)[0];

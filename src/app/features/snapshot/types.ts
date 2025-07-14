@@ -11,4 +11,3 @@ export type ResourceListQuery = operations['viewResources']['parameters']['query
 export type SnapshotListQuery = operations['viewSnapshots']['parameters']['query'];
 export type SnapshotType = components['schemas']['Snapshot'];
 export type RestoreSnapshotRequestBody = components['schemas']['SnapshotRestore'];
-
