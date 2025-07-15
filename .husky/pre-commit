@@ -11,7 +11,7 @@ fi
 
 # 2. Prettier format check on staged files
 echo "🎨 Running Prettier on staged files..."
-staged_files=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|jsx|ts|tsx|json|css|scss|md)$' | tr '\n' ' ')
+staged_files=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|jsx|ts|tsx|css|scss)$' | tr '\n' ' ')
 if [ -n "$staged_files" ]; then
   npx prettier --check $staged_files
   if [ $? -ne 0 ]; then

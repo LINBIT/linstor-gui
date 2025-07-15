@@ -1,10 +1,35 @@
 # Changelog
 
+# 1.9.8 - 2025-07-15
+
+### Added
+
+- Backup Count column to remote list
+- Unit tests for key components (SizeInput, PropertyForm, utils)
+- Snapshot restore to new resource functionality
+- Request optimization on resource overview page
+
+### Fixed
+
+- Improve bulk delete UX and layout consistency
+- Property form shows previous value on RG page
+- Property editor incorrect item display after canceled deletion
+- Correct error message for password reset failure
+- Incorrect placement of user logo and add warning for oversized logos
+- Display backup count only for s3_remotes
+- Chart container style on node detail page
+- Add check for resource selection when creating backup
+
+### Changed
+
+- Show properties and auto select filters on resource group list page
+- Improve StoragePool chart display logic and responsiveness
+
 # 1.9.7 - 2025-06-17
 
 ### Added
 
-- HCI (Hyper-Converged Infrastructure) mode support
+- HCI mode support
 - New Logo and branding updates
 - VSAN mode icons and visual enhancements
 
