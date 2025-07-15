@@ -230,6 +230,7 @@ const en = {
     sync: 'Synchronous(C)',
     diskless: 'Diskless on remaining',
     auto_select_filter: 'Auto Select Filter',
+    properties: 'Properties',
     description: 'Description',
     create: 'Create Resource Group',
     storage_providers: 'Storage Providers',

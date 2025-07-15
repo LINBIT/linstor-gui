@@ -166,23 +166,6 @@ export const List = () => {
       showSorterTooltip: false,
     },
     {
-      title: t('resource_group:storage_pools'),
-      key: 'Storage Pool(s)',
-      width: 120,
-      render: (_, item) => {
-        const sp = Array.isArray(item?.select_filter?.storage_pool_list)
-          ? (item?.select_filter?.storage_pool_list ?? [])
-          : [t('auto')];
-        return (
-          <>
-            {sp.map((e) => (
-              <Tag key={e}>{e}</Tag>
-            ))}
-          </>
-        );
-      },
-    },
-    {
       title: t('resource_group:auto_select_filter'),
       key: 'auto_select_filter',
       width: 200,
@@ -203,12 +186,89 @@ export const List = () => {
 
         if (filteredEntries.length === 0) return null;
 
-        const filterTexts = filteredEntries.map(([key, value]) => {
+        const filterTexts = filteredEntries.map(([key, value], index) => {
           // Truncate key name if too long
-          const displayKey = key.length > 15 ? `${key.substring(0, 12)}...` : key;
+          const displayKey = key;
+
+          if (key === 'storage_pool_list' && Array.isArray(value) && value.length > 0) {
+            const storagePoolsParam = value.join(',');
+            const url =
+              mode === UIMode.HCI
+                ? `/hci/inventory/storage-pools?storage_pools=${storagePoolsParam}`
+                : `/inventory/storage-pools?storage_pools=${storagePoolsParam}`;
+
+            return (
+              <div key={index}>
+                {displayKey}:{' '}
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate(url);
+                  }}
+                  className="text-blue-600 hover:text-blue-800 underline"
+                >
+                  {value.join(', ')}
+                </a>
+              </div>
+            );
+          }
+
+          let displayValue: string;
+          if (Array.isArray(value)) {
+            displayValue = value.join(', ');
+          } else if (typeof value === 'object') {
+            displayValue = JSON.stringify(value);
+          } else {
+            displayValue = String(value);
+          }
+
+          return (
+            <div key={index}>
+              {displayKey}: {displayValue}
+            </div>
+          );
+        });
+
+        const fullText = filteredEntries
+          .map(([key, value]) => {
+            if (Array.isArray(value)) {
+              return `${key}: ${value.join(', ')}`;
+            } else if (typeof value === 'object') {
+              return `${key}: ${JSON.stringify(value)}`;
+            } else {
+              return `${key}: ${value}`;
+            }
+          })
+          .join('\n');
+
+        return (
+          <Tooltip title={fullText} placement="top">
+            <div>{filterTexts}</div>
+          </Tooltip>
+        );
+      },
+    },
+    {
+      title: t('resource_group:properties'),
+      key: 'properties',
+      width: 200,
+      render: (_, item) => {
+        const props = item?.props;
+        if (!props || Object.keys(props).length === 0) return null;
+
+        const propEntries = Object.entries(props).filter(([, value]) => {
+          return value != null && value !== '';
+        });
+
+        if (propEntries.length === 0) return null;
+
+        const propTexts = propEntries.map(([key, value]) => {
+          // Truncate property name if longer than 15 characters
+          const displayKey = key.length > 15 ? `${key.substring(0, 15)}...` : key;
 
           if (Array.isArray(value)) {
-            return `${displayKey}: [${value.join(', ')}]`;
+            return `${displayKey}: ${value.join(', ')}`;
           } else if (typeof value === 'object') {
             return `${displayKey}: ${JSON.stringify(value)}`;
           } else {
@@ -216,10 +276,10 @@ export const List = () => {
           }
         });
 
-        const fullText = filteredEntries
+        const fullText = propEntries
           .map(([key, value]) => {
             if (Array.isArray(value)) {
-              return `${key}: [${value.join(', ')}]`;
+              return `${key}: ${value.join(', ')}`;
             } else if (typeof value === 'object') {
               return `${key}: ${JSON.stringify(value)}`;
             } else {
@@ -231,7 +291,7 @@ export const List = () => {
         return (
           <Tooltip title={fullText} placement="top">
             <div>
-              {filterTexts.map((text, index) => (
+              {propTexts.map((text, index) => (
                 <div key={index}>{text}</div>
               ))}
             </div>
@@ -248,7 +308,7 @@ export const List = () => {
         </Tooltip>
       ),
       key: 'action',
-      width: 150,
+      width: 20,
       fixed: 'right',
       align: 'center',
       render: (_, record) => (
@@ -333,18 +393,18 @@ export const List = () => {
               >
                 {t('common:search')}
               </Button>
-              {hasSelected && (
-                <Popconfirm
-                  key="delete"
-                  title="Delete selected resource groups"
-                  description="Are you sure to delete selected resource groups?"
-                  okText="Yes"
-                  cancelText="No"
-                  onConfirm={handleDeleteBulk}
-                >
-                  <Button danger>{t('common:delete')}</Button>
-                </Popconfirm>
-              )}
+              <Popconfirm
+                key="delete"
+                title="Delete selected resource groups"
+                description="Are you sure to delete selected resource groups?"
+                okText="Yes"
+                cancelText="No"
+                onConfirm={handleDeleteBulk}
+              >
+                <Button danger disabled={!hasSelected}>
+                  {t('common:delete')}
+                </Button>
+              </Popconfirm>
             </Space>
           </Form.Item>
         </Form>

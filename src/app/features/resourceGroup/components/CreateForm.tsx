@@ -90,7 +90,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
           provider_list: detailData?.[0]?.select_filter?.provider_list?.map((e: string) => e.toLowerCase()) ?? [],
           replicas_on_same: detailData?.[0]?.select_filter?.replicas_on_same ?? [],
           replicas_on_different: detailData?.[0]?.select_filter?.replicas_on_different ?? [],
-          not_place_with_rsc: detailData?.[0]?.select_filter?.not_place_with_rsc ?? '',
+          not_place_with_rsc: detailData?.[0]?.select_filter?.not_place_with_rsc ?? [],
           not_place_with_rsc_regex: detailData?.[0]?.select_filter?.not_place_with_rsc_regex ?? '',
           place_count: detailData?.[0]?.select_filter?.place_count ?? 2,
         }
