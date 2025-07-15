@@ -148,6 +148,7 @@ const en = {
     node_detail: 'Node Detail',
     create_node: 'Create Node',
     edit_node: 'Edit Node',
+    lost_tooltip_offline_required: 'Only offline nodes can be marked as lost',
   },
   node_detail: {
     title: 'Node Detail',

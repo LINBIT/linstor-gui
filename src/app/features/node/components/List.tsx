@@ -134,6 +134,14 @@ export const List = () => {
 
   const hasSelected = selectedRowKeys.length > 0;
 
+  // Check if all selected nodes are offline (for lost button)
+  const allSelectedOffline =
+    hasSelected &&
+    selectedRowKeys.every((key) => {
+      const node = nodes?.data?.find((e) => e.uuid === key);
+      return node?.connection_status !== 'CONNECTED' && node?.connection_status !== 'ONLINE';
+    });
+
   const handleDeleteBulk = () => {
     selectedRowKeys.forEach((ele) => {
       const node = nodes?.data?.find((e) => e.uuid === ele);
@@ -342,33 +350,36 @@ export const List = () => {
               >
                 {t('common:search')}
               </Button>
-              {hasSelected && (
-                <>
-                  <Popconfirm
-                    key="delete"
-                    title="Delete nodes"
-                    description="Are you sure to delete selected nodes?"
-                    okText="Yes"
-                    cancelText="No"
-                    onConfirm={handleDeleteBulk}
-                  >
-                    <Button danger>{t('common:delete')}</Button>
-                  </Popconfirm>
 
-                  <Popconfirm
-                    key="lost"
-                    title="Lost nodes"
-                    description="Are you sure to lost the selected nodes?"
-                    okText="Yes"
-                    cancelText="No"
-                    onConfirm={handleLostBulk}
-                  >
-                    <Button type="primary" danger>
-                      {t('common:lost')}
-                    </Button>
-                  </Popconfirm>
-                </>
-              )}
+              <Popconfirm
+                key="delete"
+                title="Delete nodes"
+                description="Are you sure to delete selected nodes?"
+                okText="Yes"
+                cancelText="No"
+                onConfirm={handleDeleteBulk}
+                disabled={!hasSelected}
+              >
+                <Button danger disabled={!hasSelected}>
+                  {t('common:delete')}
+                </Button>
+              </Popconfirm>
+
+              <Tooltip title={!allSelectedOffline && hasSelected ? t('node:lost_tooltip_offline_required') : ''}>
+                <Popconfirm
+                  key="lost"
+                  title="Lost nodes"
+                  description="Are you sure to lost the selected nodes?"
+                  okText="Yes"
+                  cancelText="No"
+                  onConfirm={handleLostBulk}
+                  disabled={!allSelectedOffline}
+                >
+                  <Button type="primary" danger disabled={!allSelectedOffline}>
+                    {t('common:lost')}
+                  </Button>
+                </Popconfirm>
+              </Tooltip>
             </Space>
           </Form.Item>
         </Form>

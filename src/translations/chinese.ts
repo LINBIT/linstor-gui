@@ -137,6 +137,7 @@ const zh = {
     lost_node: '强删',
     node_detail: '节点详情',
     create_node: '创建节点',
+    lost_tooltip_offline_required: '只有离线状态的节点才能被标记为丢失',
   },
   node_detail: {
     title: '节点详情',

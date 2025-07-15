@@ -191,7 +191,7 @@ export const List = () => {
   const handleReset = () => {
     form.resetFields();
     setQuery({});
-    const url = mode === UIMode.HCI ? '/hci/snapshots' : '/snapshots';
+    const url = mode === UIMode.HCI ? '/hci/snapshot' : '/snapshot';
     navigate(url);
   };
 
@@ -375,10 +375,11 @@ export const List = () => {
               style={{ width: 180 }}
               allowClear
               placeholder="Please select resource"
-              options={uniqBy(resourceList?.data, 'name')?.map((e: any) => ({
+              options={uniqBy(resourceList?.data, 'name')?.map((e) => ({
                 label: e.name,
                 value: e.name,
               }))}
+              filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
             />
           </Form.Item>
 
@@ -395,25 +396,24 @@ export const List = () => {
               >
                 {t('common:search')}
               </Button>
+
+              <Popconfirm
+                key="delete"
+                title="Delete snapshots"
+                description="Are you sure to delete selected snapshots?"
+                okText="Yes"
+                cancelText="No"
+                onConfirm={handleDeleteBulk}
+                disabled={!hasSelected}
+              >
+                <Button type="primary" danger disabled={!hasSelected}>
+                  {t('common:delete')}
+                </Button>
+              </Popconfirm>
             </Space>
           </Form.Item>
         </Form>
         <CreateSnapshotForm refetch={refetch} />
-
-        {hasSelected && (
-          <Popconfirm
-            key="delete"
-            title="Delete snapshots"
-            description="Are you sure to delete selected snapshots?"
-            okText="Yes"
-            cancelText="No"
-            onConfirm={handleDeleteBulk}
-          >
-            <Button type="primary" danger>
-              {t('common:delete')}
-            </Button>
-          </Popconfirm>
-        )}
       </SearchForm>
       <Table
         loading={isLoading}

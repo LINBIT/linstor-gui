@@ -367,18 +367,20 @@ export const List = () => {
               >
                 {t('common:search')}
               </Button>
-              {hasSelected && (
-                <Popconfirm
-                  key="delete"
-                  title="Delete storage pools"
-                  description="Are you sure to delete selected storage pools?"
-                  okText="Yes"
-                  cancelText="No"
-                  onConfirm={handleDeleteBulk}
-                >
-                  <Button danger>{t('common:delete')}</Button>
-                </Popconfirm>
-              )}
+
+              <Popconfirm
+                key="delete"
+                title="Delete storage pools"
+                description="Are you sure to delete selected storage pools?"
+                okText="Yes"
+                cancelText="No"
+                onConfirm={handleDeleteBulk}
+                disabled={!hasSelected}
+              >
+                <Button danger disabled={!hasSelected}>
+                  {t('common:delete')}
+                </Button>
+              </Popconfirm>
             </Space>
           </Form.Item>
         </Form>

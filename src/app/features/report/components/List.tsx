@@ -27,7 +27,9 @@ const { RangePicker } = DatePicker;
 const SearchItem = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 1rem;
+  gap: 16px;
 `;
 
 const getId = (report: ErrorReport) => {
@@ -90,7 +92,7 @@ export const List = () => {
         .filter((e) => e.module === module);
     }
 
-    setDisplayData(displayData as any);
+    setDisplayData(displayData || []);
   }, [module, data?.data]);
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
@@ -117,7 +119,17 @@ export const List = () => {
       newQuery.to = getTime(values.range[1]);
     }
 
-    const query = new URLSearchParams(newQuery);
+    const query = new URLSearchParams();
+
+    if (newQuery.node) {
+      query.set('node', newQuery.node);
+    }
+    if (newQuery.since) {
+      query.set('since', newQuery.since.toString());
+    }
+    if (newQuery.to) {
+      query.set('to', newQuery.to.toString());
+    }
 
     const new_url = `${location.pathname}?${query.toString()}`;
 
@@ -285,8 +297,16 @@ export const List = () => {
   return (
     <>
       <SearchItem>
-        <Form form={form} name="error_report" layout="inline">
-          <Form.Item name="node" label={t('common:node')}>
+        <Form
+          form={form}
+          name="error_report"
+          layout="inline"
+          style={{
+            gap: '8px 16px',
+            flexWrap: 'wrap',
+          }}
+        >
+          <Form.Item name="node" label={t('common:node')} style={{ marginBottom: '8px' }}>
             <Select
               style={{ width: 180 }}
               allowClear
@@ -298,7 +318,7 @@ export const List = () => {
             />
           </Form.Item>
 
-          <Form.Item name="module" label={t('error_report:module')}>
+          <Form.Item name="module" label={t('error_report:module')} style={{ marginBottom: '8px' }}>
             <Select
               style={{ width: 180 }}
               allowClear
@@ -310,11 +330,11 @@ export const List = () => {
             />
           </Form.Item>
 
-          <Form.Item name="range" label={t('error_report:time_range')}>
+          <Form.Item name="range" label={t('error_report:time_range')} style={{ marginBottom: '8px' }}>
             <RangePicker />
           </Form.Item>
 
-          <Form.Item>
+          <Form.Item style={{ marginBottom: '8px' }}>
             <Space size="small">
               <Button type="default" onClick={handleReset}>
                 {t('common:reset')}
@@ -327,23 +347,27 @@ export const List = () => {
               >
                 {t('common:search')}
               </Button>
-              {hasSelected && (
-                <Popconfirm
-                  key="delete"
-                  title="Delete the error reports"
-                  description="Are you sure to delete selected error reports?"
-                  okText="Yes"
-                  cancelText="No"
-                  onConfirm={handleDeleteBulk}
-                >
-                  <Button danger>{t('common:delete')}</Button>
-                </Popconfirm>
-              )}
+
+              <Popconfirm
+                key="delete"
+                title="Delete the error reports"
+                description="Are you sure to delete selected error reports?"
+                okText="Yes"
+                cancelText="No"
+                onConfirm={handleDeleteBulk}
+                disabled={!hasSelected}
+              >
+                <Button danger disabled={!hasSelected}>
+                  {t('common:delete')}
+                </Button>
+              </Popconfirm>
             </Space>
           </Form.Item>
         </Form>
 
-        <DownloadSOS />
+        <Space size="small" style={{ marginTop: '8px' }}>
+          <DownloadSOS />
+        </Space>
       </SearchItem>
 
       <br />
