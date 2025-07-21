@@ -16,7 +16,6 @@ import { Dispatch } from '@app/store';
 import Gateway from './components/Gateway';
 import Logo from './components/Logo';
 import Dashboard from './components/Dashboard';
-import Passphrase from './components/Passphrase';
 
 const GeneralSettings = () => {
   const { t } = useTranslation(['common', 'settings']);

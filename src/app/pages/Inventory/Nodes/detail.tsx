@@ -7,7 +7,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Card, Input, Modal, Space, Tag } from 'antd';
+import { Card, Space, Tag } from 'antd';
 import { CheckCircleOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
@@ -25,8 +25,7 @@ import { useStoragePools } from '@app/features/storagePool';
 import { useResources } from '@app/features/snapshot';
 
 import NetInterfaceList from './components/NetInterfaceList';
-import { DashboardContainer, LabelText, TagContainer } from './detail.styled';
-import { useWindowSize } from '@app/hooks';
+import { LabelText, TagContainer } from './detail.styled';
 
 const isValidArray = (nodeRes) => {
   return Array.isArray(nodeRes) && nodeRes.length > 0;
@@ -114,10 +113,6 @@ const handleResourceData = (resource) => {
 const NodeDetail: React.FC = () => {
   const { t } = useTranslation('node_detail');
   const { node } = useParams() as { node: string };
-  const [dashboardUrl, setDashboardUrl] = useState('');
-  const [showDashboard, setShowDashboard] = useState(false);
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data: nodeInfo } = useNodes({
     nodes: [node],
@@ -183,28 +178,6 @@ const NodeDetail: React.FC = () => {
       ...data,
       is_active: true,
     });
-  };
-
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleOk = () => {
-    setIsModalOpen(false);
-
-    if (dashboardUrl) {
-      setShowDashboard(true);
-    }
-  };
-
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
-
-  const createIFrame = () => {
-    return {
-      __html: dashboardUrl,
-    };
   };
 
   return (
@@ -297,16 +270,6 @@ const NodeDetail: React.FC = () => {
           </Card>
         </div>
       </Space>
-
-      <Modal title="Import Grafana Dashboard" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-        <DashboardContainer>
-          <Input.TextArea
-            placeholder="Paste your grafana dashboard link here..."
-            rows={6}
-            onChange={(e) => setDashboardUrl(e.target.value)}
-          />
-        </DashboardContainer>
-      </Modal>
     </PageBasic>
   );
 };

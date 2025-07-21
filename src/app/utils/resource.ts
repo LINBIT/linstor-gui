@@ -18,7 +18,7 @@ interface Volume {
   };
   layer_data_list?: Array<{
     type: string;
-    data?: any;
+    data?: unknown;
   }>;
   reports?: Array<{
     is_error: () => boolean;

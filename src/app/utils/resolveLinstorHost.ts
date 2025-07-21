@@ -22,7 +22,7 @@ export function resolveAndStoreLinstorHost(
     resolvedHost = resolvedHost.endsWith('/') ? resolvedHost.slice(0, -1) : resolvedHost;
     window.localStorage.setItem('LINSTOR_HOST', resolvedHost);
     return resolvedHost;
-  } catch (e) {
+  } catch {
     // invalid host
     return undefined;
   }

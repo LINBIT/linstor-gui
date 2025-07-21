@@ -12,12 +12,10 @@ import { propertyConstants } from '@app/utils/properties/propertyConstants';
 import { FormItem, TYPE_MAP } from '@app/interfaces/dynamicFormType';
 import { uniqId } from './stringUtils';
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function handlePropsToFormOption(key: string, prop = {}): FormItem[] {
   if (!key || key === '') {
     return [];
   }
-  const propInfo = properties.objects[key];
 
   let propsArr = [...properties.objects[key]];
 

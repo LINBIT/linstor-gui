@@ -4,9 +4,8 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { AppRouteConfig, IAppRoute } from './routes';
+import { IAppRoute } from './routes';
 
-import Dashboard from '@app/pages/Dashboard/Dashboard';
 import NodeList from '@app/pages/Inventory/Nodes';
 import NodeDetail from '@app/pages/Inventory/Nodes/detail';
 import NodeCreate from '@app/pages/Inventory/Nodes/create';
