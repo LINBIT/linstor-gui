@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-const item = {
+const _item = {
   iqn: 'iqn.2019-08.com.linbit:example',
   resource_group: 'DfltRscGrp',
   volumes: [
@@ -44,7 +44,7 @@ const item = {
   },
 };
 
-export type ISCSI = typeof item & {
+export type ISCSI = typeof _item & {
   deleting?: boolean;
   starting?: boolean;
   stopping?: boolean;

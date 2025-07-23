@@ -16,7 +16,7 @@ import { ChangePassword, Login } from '@app/features/authentication';
 import { useUIModeStorage } from '@app/hooks';
 import { Mode } from '@app/hooks/useUIModeStorage';
 import { UIMode as SettingUIMode } from '@app/models/setting'; // import SettingUIMode enum
-import { useNav } from '../NavContext';
+import { useNav } from '@app/hooks';
 import Navigation from './components/Navigation';
 import HeaderTools from './components/HeaderTools';
 import { LogoImg } from './components/LogoImg';

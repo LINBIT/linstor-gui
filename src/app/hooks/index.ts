@@ -10,3 +10,5 @@ export { default as useUIModeStorage } from './useUIModeStorage';
 export { default as useIsAdmin } from './useIsAdmin';
 export { useWindowSize } from './useWindowSize';
 export { useDocumentTitle } from './useDocumentTitle';
+export { useNav } from './useNav';
+export { useWidth } from './useWidth';

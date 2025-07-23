@@ -5,22 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { usePersistentMenuState } from '@app/hooks';
-import React, { createContext, useContext, PropsWithChildren } from 'react';
-
-interface NavContextProps {
-  isNavOpen: boolean;
-  toggleNav: () => void;
-}
-
-const NavContext = createContext<NavContextProps | undefined>(undefined);
-
-export const useNav = () => {
-  const context = useContext(NavContext);
-  if (!context) {
-    throw new Error('useNav must be used within a NavProvider');
-  }
-  return context;
-};
+import { NavContext } from '@app/hooks/useNav';
+import React, { PropsWithChildren } from 'react';
 
 export const NavProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const [isNavOpen, setIsNavOpen] = usePersistentMenuState(true);

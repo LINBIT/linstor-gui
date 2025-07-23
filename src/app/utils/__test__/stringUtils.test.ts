@@ -20,6 +20,8 @@ describe('stringUtils', () => {
       expect(capitalize('')).toBe('');
       expect(capitalize('1')).toBe('1');
       expect(capitalize(undefined)).toBe('');
+      // allow null to be passed, but it should return false
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect(capitalize(null as any)).toBe('');
     });
   });
@@ -60,6 +62,8 @@ describe('stringUtils', () => {
       expect(isUrl('not a url')).toBe(false);
       expect(isUrl('')).toBe(false);
       expect(isUrl(undefined)).toBe(false);
+      // allow null to be passed, but it should return false
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect(isUrl(null as any)).toBe(false);
     });
   });

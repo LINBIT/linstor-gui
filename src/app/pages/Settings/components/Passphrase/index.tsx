@@ -44,7 +44,7 @@ const Passphrase: React.FC = () => {
     }
   };
 
-  const validateConfirmPassword = (_: any, value: FieldType) => {
+  const validateConfirmPassword = (_: unknown, value: string) => {
     if (value && value !== form.getFieldValue('password')) {
       return Promise.reject(new Error('The two passphrases not match!'));
     }

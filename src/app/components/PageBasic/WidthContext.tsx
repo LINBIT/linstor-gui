@@ -4,16 +4,9 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { createContext, useContext, useState, useEffect, useCallback, PropsWithChildren } from 'react';
-import { useNav } from '@app/NavContext';
-
-interface WidthContextProps {
-  width: number;
-}
-
-const WidthContext = createContext<WidthContextProps>({ width: 0 });
-
-export const useWidth = () => useContext(WidthContext);
+import React, { useState, useEffect, useCallback, PropsWithChildren } from 'react';
+import { useNav } from '@app/hooks';
+import { WidthContext } from '@app/hooks/useWidth';
 
 export const WidthProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const [width, setWidth] = useState(0);

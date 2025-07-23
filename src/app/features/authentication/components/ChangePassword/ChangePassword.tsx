@@ -99,9 +99,8 @@ const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordPr
   const [open, setOpen] = useState(!!defaultOpen);
   const dispatch = useDispatch<Dispatch>();
   const { t } = useTranslation('users');
-  const normalUser = user !== 'admin';
 
-  const onCreate = async (values: any) => {
+  const onCreate = async (values) => {
     let res = null;
     if (admin) {
       res = await dispatch.auth.resetPassword({ user: user || 'admin', newPassword: values.newPassword });

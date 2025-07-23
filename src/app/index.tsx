@@ -50,7 +50,7 @@ const App: React.FunctionComponent = () => {
         throw new Error(SPACE_TRACKING_UNAVAILABLE_MSG);
       }
       return res.reportText;
-    } catch (error: any) {
+    } catch {
       throw new Error(SPACE_TRACKING_UNAVAILABLE_MSG);
     }
   };
@@ -64,7 +64,7 @@ const App: React.FunctionComponent = () => {
   const isCheckingStatus = !isFetched;
 
   return (
-    <Provider store={store as any}>
+    <Provider store={store}>
       <Router>
         <ConfigProvider
           theme={{

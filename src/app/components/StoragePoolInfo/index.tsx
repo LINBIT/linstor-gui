@@ -15,6 +15,13 @@ import { formatBytes } from '@app/utils/size';
 import styled from '@emotion/styled';
 import { useWindowSize } from '@app/hooks';
 
+type SeriesItem = {
+  name: string;
+  group: string;
+  data: number[];
+  color: string;
+};
+
 const ChartContainer = styled.div`
   overflow-x: auto;
 `;
@@ -80,7 +87,7 @@ export const StoragePoolInfo: React.FC = () => {
       nodeUsed[node] = nodeSp.reduce((acc, item) => acc + ((item.total_capacity || 0) - (item.free_capacity || 0)), 0);
     });
 
-    const spSeries: any[] = [];
+    const spSeries: SeriesItem[] = [];
     allPools.forEach((pool, idx) => {
       const colorIndex = idx % colorPairs.length;
       const colors = colorPairs[colorIndex];

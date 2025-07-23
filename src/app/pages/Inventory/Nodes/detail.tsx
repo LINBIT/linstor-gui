@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Card, Space, Tag } from 'antd';
@@ -27,20 +27,46 @@ import { useResources } from '@app/features/snapshot';
 import NetInterfaceList from './components/NetInterfaceList';
 import { LabelText, TagContainer } from './detail.styled';
 
-const isValidArray = (nodeRes) => {
+interface NodeResource {
+  storage_pool_name?: string;
+  total_capacity?: number;
+  free_capacity?: number;
+  state?: {
+    in_use?: boolean;
+  };
+}
+
+interface StoragePoolItem {
+  storage_pool_name: string;
+  total_capacity: number;
+  free_capacity: number;
+}
+
+interface StoragePoolData {
+  storagePool: string;
+  type: 'Used' | 'Total';
+  value: number;
+}
+
+interface ResourceDataItem {
+  type: 'in use' | 'not in use';
+  value: number;
+}
+
+const isValidArray = (nodeRes: NodeResource[] | undefined | null): nodeRes is NodeResource[] => {
   return Array.isArray(nodeRes) && nodeRes.length > 0;
 };
 
 const DEFAULT_SP = 'DfltDisklessStorPool';
 
-const handleStorageData = (storagePool, node) => {
+const handleStorageData = (storagePool: StoragePoolItem[] | undefined, node: string): StoragePoolData[] => {
   const validData = storagePool?.filter((item) => item.storage_pool_name !== DEFAULT_SP);
 
   if (!isValidArray(validData)) {
     return [];
   }
 
-  const storagePoolUsedData = validData.map((item) => {
+  const storagePoolUsedData: StoragePoolData[] = validData.map((item) => {
     return {
       storagePool: item.storage_pool_name,
       type: 'Used',
@@ -48,7 +74,7 @@ const handleStorageData = (storagePool, node) => {
     };
   });
 
-  const storagePoolFreeData = validData.map((item) => {
+  const storagePoolFreeData: StoragePoolData[] = validData.map((item) => {
     return {
       storagePool: item.storage_pool_name,
       type: 'Total',
@@ -56,7 +82,7 @@ const handleStorageData = (storagePool, node) => {
     };
   });
 
-  const nodeFreeCapacity = validData.reduce((acc, curr) => {
+  const nodeFreeCapacity: number = validData.reduce((acc, curr) => {
     if (curr.free_capacity) {
       return acc + curr.free_capacity;
     } else {
@@ -64,7 +90,7 @@ const handleStorageData = (storagePool, node) => {
     }
   }, 0);
 
-  const nodeTotalCapacity = validData.reduce((acc, curr) => {
+  const nodeTotalCapacity: number = validData.reduce((acc, curr) => {
     if (curr.total_capacity) {
       return acc + curr.total_capacity;
     } else {
@@ -72,13 +98,13 @@ const handleStorageData = (storagePool, node) => {
     }
   }, 0);
 
-  const storagePoolOnNodeTotalData = {
+  const storagePoolOnNodeTotalData: StoragePoolData = {
     storagePool: `Total on ${node}`,
     type: 'Total',
     value: nodeTotalCapacity,
   };
 
-  const storagePoolOnNodeFreeData = {
+  const storagePoolOnNodeFreeData: StoragePoolData = {
     storagePool: `Total on ${node}`,
     type: 'Used',
     value: nodeTotalCapacity - nodeFreeCapacity,
@@ -87,15 +113,15 @@ const handleStorageData = (storagePool, node) => {
   return [...storagePoolUsedData, ...storagePoolFreeData, storagePoolOnNodeFreeData, storagePoolOnNodeTotalData];
 };
 
-const handleResourceData = (resource) => {
+const handleResourceData = (resource: NodeResource[] | undefined): ResourceDataItem[] => {
   if (!isValidArray(resource)) {
     return [];
   }
 
-  const resourceData =
-    resource.reduce((acc, curr) => {
+  const resourceData: ResourceDataItem[] =
+    resource.reduce((acc: ResourceDataItem[], curr: NodeResource) => {
       const inUse = curr.state?.in_use;
-      const inUseType = inUse ? 'in use' : 'not in use';
+      const inUseType: 'in use' | 'not in use' = inUse ? 'in use' : 'not in use';
 
       const existingItem = acc.find((item) => item.type === inUseType);
       if (existingItem) {
@@ -132,7 +158,7 @@ const NodeDetail: React.FC = () => {
   });
 
   const nodeData = nodeInfo?.[0];
-  const storagePoolData = handleStorageData(nodeStoragePoolInfo?.data, node) || [];
+  const storagePoolData = handleStorageData(nodeStoragePoolInfo?.data as StoragePoolItem[], node) || [];
   const resourceData = handleResourceData(resourceInfo?.data) || [];
 
   const deleteNetWorkInterfaceMutation = useMutation({

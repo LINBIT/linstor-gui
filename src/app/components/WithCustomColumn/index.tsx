@@ -18,13 +18,13 @@ interface CustomColumn {
   title: string;
   dataIndex: string;
   key: string;
-  render?: (text: string, record: any) => React.ReactNode;
+  render?: (text: string, record: Record<string, unknown>) => React.ReactNode;
   isCustom?: boolean;
 }
 
 interface WithCustomColumnsProps {
   initialColumns: CustomColumn[];
-  dataSource: Record<string, any>[];
+  dataSource: Record<string, unknown>[];
   storageKey: string;
 }
 
@@ -64,7 +64,9 @@ const withCustomColumns = <P extends object>(
             ...originalCol,
             ...savedCol,
             render:
-              originalCol?.render || ((text: string, record: any) => record.parent.props[savedCol.dataIndex] || text),
+              originalCol?.render ||
+              ((text: string, record: Record<string, unknown> & { parent: { props: Record<string, unknown> } }) =>
+                record.parent.props[savedCol.dataIndex] || text),
           };
         });
       }
@@ -85,7 +87,8 @@ const withCustomColumns = <P extends object>(
           {
             ...newColumn,
             isCustom: true,
-            render: (text: string, record: any) => record.parent.props[newColumn.dataIndex] || text,
+            render: (text: string, record: Record<string, unknown> & { parent: { props: Record<string, unknown> } }) =>
+              record.parent.props[newColumn.dataIndex] || text,
           },
           prevColumns[prevColumns.length - 1],
         ];

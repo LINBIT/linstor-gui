@@ -26,8 +26,8 @@ import {
   updateVolumeDefinition,
   VolumeDefinitionModify,
 } from '@app/features/resourceDefinition';
-import { CreateForm, getVolumeDefinitionListByResource } from '@app/features/volumeDefinition';
-import { useWidth } from '@app/components/PageBasic/WidthContext';
+import { CreateForm } from '@app/features/volumeDefinition';
+import { useWidth } from '@app/hooks';
 import PropertyForm from '@app/components/PropertyForm';
 
 import {

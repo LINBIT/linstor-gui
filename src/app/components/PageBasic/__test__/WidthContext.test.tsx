@@ -6,7 +6,8 @@
 
 import { render, screen, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { WidthProvider, useWidth } from '../WidthContext';
+import { WidthProvider } from '../WidthContext';
+import { useWidth } from '@app/hooks';
 
 // Mock the NavContext
 const mockToggleNav = vi.fn();
@@ -15,9 +16,13 @@ const mockUseNav = vi.fn(() => ({
   toggleNav: mockToggleNav,
 }));
 
-vi.mock('@app/NavContext', () => ({
-  useNav: () => mockUseNav(),
-}));
+vi.mock('@app/hooks', async (importOriginal) => {
+  const original = await importOriginal<typeof import('@app/hooks')>();
+  return {
+    ...original,
+    useNav: () => mockUseNav(),
+  };
+});
 
 // Test component that uses the useWidth hook
 const TestComponent = () => {

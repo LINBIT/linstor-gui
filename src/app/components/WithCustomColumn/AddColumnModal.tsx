@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 
 interface AddColumnModalProps {
   isVisible: boolean;
-  onConfirm: (values: any) => void;
+  onConfirm: (values: { dataIndex: string; title: string }) => void;
   onCancel: () => void;
   options: { label: string; value: string }[];
 }

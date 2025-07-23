@@ -46,8 +46,8 @@ import { UIMode } from '@app/models/setting';
 
 export interface IAppRoute {
   label?: string;
-  component: React.ComponentType<any>;
-  exact?: boolean; // Not needed in v7 but kept for backward compatibility
+  component: React.ComponentType<Record<string, unknown>>;
+  exact?: boolean;
   path: string;
   title: string;
   isAsync?: boolean;

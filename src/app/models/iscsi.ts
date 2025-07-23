@@ -44,11 +44,10 @@ export const iscsi = createModel<RootModel>()({
   },
   effects: (dispatch) => ({
     // getISCSIList
-    async getList(payload: any, state) {
+    async getList() {
       const res = await service.get('/api/v2/iscsi');
       const data = res.data ?? [];
 
-      // TODO: handle volumes
       const iscsiList = [];
 
       for (const item of data) {
@@ -63,7 +62,7 @@ export const iscsi = createModel<RootModel>()({
       });
     },
     // Create iSCSI
-    async createISCSI(payload: CreateDataType, state) {
+    async createISCSI(payload: CreateDataType) {
       try {
         const res = await service.post('/api/v2/iscsi', {
           ...payload,
@@ -76,7 +75,7 @@ export const iscsi = createModel<RootModel>()({
         }
       } catch (error) {
         console.log(error, 'error');
-        notify(String(error.message), {
+        notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
       }
@@ -101,11 +100,11 @@ export const iscsi = createModel<RootModel>()({
           notify('Deleted Successfully', {
             type: 'success',
           });
-          dispatch.iscsi.getList({});
+          dispatch.iscsi.getList();
         }
       } catch (error) {
         console.log(error, 'error');
-        notify(String(error.message), {
+        notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
       }
@@ -131,11 +130,11 @@ export const iscsi = createModel<RootModel>()({
           notify('Started Successfully', {
             type: 'success',
           });
-          dispatch.iscsi.getList({});
+          dispatch.iscsi.getList();
         }
       } catch (error) {
         console.log(error, 'error');
-        notify(String(error.message), {
+        notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
       }
@@ -161,24 +160,17 @@ export const iscsi = createModel<RootModel>()({
           notify('Stopped Successfully', {
             type: 'success',
           });
-          dispatch.iscsi.getList({});
+          dispatch.iscsi.getList();
         }
       } catch (error) {
         console.log(error, 'error');
-        notify(String(error.message), {
+        notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
       }
     },
     // Add LUN
-    async addLUN(
-      payload: {
-        iqn: string;
-        LUN: number;
-        size_kib: number;
-      },
-      state,
-    ) {
+    async addLUN(payload: { iqn: string; LUN: number; size_kib: number }) {
       try {
         const res = await service.put(`/api/v2/iscsi/${payload.iqn}/${payload.LUN}`, {
           size_kib: payload.size_kib,
@@ -189,17 +181,17 @@ export const iscsi = createModel<RootModel>()({
           notify('Added Successfully', {
             type: 'success',
           });
-          dispatch.iscsi.getList({});
+          dispatch.iscsi.getList();
         }
       } catch (error) {
         console.log(error, 'error');
-        notify(String(error.message), {
+        notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
       }
     },
     // Delete LUN
-    async deleteLUN(payload: Array<string | number>, state) {
+    async deleteLUN(payload: Array<string | number>) {
       try {
         const res = await service.delete(`/api/v2/iscsi/${payload[0]}/${payload[1]}`);
 
@@ -207,11 +199,11 @@ export const iscsi = createModel<RootModel>()({
           notify('Deleted Successfully', {
             type: 'success',
           });
-          dispatch.iscsi.getList({});
+          dispatch.iscsi.getList();
         }
       } catch (error) {
         console.log(error, 'error');
-        notify(String(error.message), {
+        notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
       }

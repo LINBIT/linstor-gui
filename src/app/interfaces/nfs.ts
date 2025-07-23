@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-const item = {
+const _item = {
   name: 'example2',
   service_ip: '192.168.211.122/24',
   allowed_ips: ['0.0.0.0/0'],
@@ -37,7 +37,7 @@ const item = {
   },
 };
 
-export type NFS = typeof item & {
+export type NFS = typeof _item & {
   deleting?: boolean;
   starting?: boolean;
   stopping?: boolean;

@@ -6,15 +6,20 @@
 
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { NavProvider, useNav } from '../NavContext';
+import { NavProvider } from '../NavContext';
+import { useNav } from '@app/hooks';
 
 // Mock the usePersistentMenuState hook
 const mockSetIsNavOpen = vi.fn();
 const mockUsePersistentMenuState = vi.fn(() => [false, mockSetIsNavOpen]);
 
-vi.mock('@app/hooks', () => ({
-  usePersistentMenuState: () => mockUsePersistentMenuState(),
-}));
+vi.mock('@app/hooks', async (importOriginal) => {
+  const original = await importOriginal<typeof import('@app/hooks')>();
+  return {
+    ...original,
+    usePersistentMenuState: () => mockUsePersistentMenuState(),
+  };
+});
 
 // Mock sessionStorage
 const mockSessionStorage = {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, Form, Input, Button, message, Select } from 'antd';
+import { Modal, Form, Button, message, Select } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { BackupSchedule, enableSchedule, getScheduleList } from '@app/features/schedule';
 import { getRemoteList } from '@app/features/remote';
@@ -27,7 +27,7 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
         };
       }) || [],
     onError: (error) => {
-      message.error('Failed to fetch schedule list: ' + (error as any).message);
+      message.error('Failed to fetch schedule list: ' + (error as Error).message);
     },
   });
 
@@ -39,7 +39,7 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
       return [...s3Remotes, ...linstorRemotes];
     },
     onError: (error) => {
-      message.error('Failed to fetch remote list: ' + (error as any).message);
+      message.error('Failed to fetch remote list: ' + (error as Error).message);
     },
   });
 
@@ -49,7 +49,7 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
     {
       select: (data) => data?.data?.map((item: { name?: string }) => item.name) || [],
       onError: (error) => {
-        message.error('Failed to fetch resource list: ' + (error as any).message);
+        message.error('Failed to fetch resource list: ' + (error as Error).message);
       },
     },
   );
@@ -60,7 +60,7 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
     {
       select: (data) => data?.data?.map((item: { name?: string }) => item.name) || [],
       onError: (error) => {
-        message.error('Failed to fetch resource group list: ' + (error as any).message);
+        message.error('Failed to fetch resource group list: ' + (error as Error).message);
       },
     },
   );
@@ -76,6 +76,7 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
     ) => {
       const finalRemoteName = remote_name || values.remote_name!;
       const finalScheduleName = schedule_name || values.schedule_name!;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { remote_name: _, schedule_name: __, ...body } = values;
       return enableSchedule(finalRemoteName, finalScheduleName, body);
     },
@@ -86,7 +87,7 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
         onSuccess?.();
         setVisible(false);
       },
-      onError: (error: any) => {
+      onError: (error: Error) => {
         message.error('Failed to enable schedule: ' + error.message);
       },
     },

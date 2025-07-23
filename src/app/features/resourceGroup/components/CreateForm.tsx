@@ -4,9 +4,10 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Checkbox, Col, Divider, Form, Input, message, Popover, Radio, Row, Select, Switch, Spin } from 'antd';
+import type { FormInstance } from 'antd/es/form';
 import { useNavigate } from 'react-router-dom';
 import { uniqBy } from 'lodash';
 
@@ -57,11 +58,10 @@ const providerList = [
   'OPENFLEX_TARGET',
   'EXOS',
 ];
-
 type CreateFormProps = {
   isEdit?: boolean;
   resourceGroup?: string;
-  form?: any;
+  form?: FormInstance<FormType>;
 };
 
 const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormProps) => {
@@ -78,29 +78,32 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
   });
 
   const detailData = data?.data;
-  const initialVal =
-    isEdit && detailData?.[0]
-      ? {
-          name: detailData?.[0]?.name,
-          description: detailData?.[0]?.description,
-          data_copy_mode: detailData?.[0]?.props?.['DrbdOptions/Net/protocol'],
-          diskless_on_remaining: detailData?.[0]?.select_filter?.diskless_on_remaining,
-          storage_pool_list: detailData?.[0]?.select_filter?.storage_pool_list ?? [],
-          layer_stack: detailData?.[0]?.select_filter?.layer_stack?.map((e: string) => e.toLowerCase()) ?? [],
-          provider_list: detailData?.[0]?.select_filter?.provider_list?.map((e: string) => e.toLowerCase()) ?? [],
-          replicas_on_same: detailData?.[0]?.select_filter?.replicas_on_same ?? [],
-          replicas_on_different: detailData?.[0]?.select_filter?.replicas_on_different ?? [],
-          not_place_with_rsc: detailData?.[0]?.select_filter?.not_place_with_rsc ?? [],
-          not_place_with_rsc_regex: detailData?.[0]?.select_filter?.not_place_with_rsc_regex ?? '',
-          place_count: detailData?.[0]?.select_filter?.place_count ?? 2,
-        }
-      : undefined;
+  const initialVal = useMemo(
+    () =>
+      isEdit && detailData?.[0]
+        ? {
+            name: detailData?.[0]?.name,
+            description: detailData?.[0]?.description,
+            data_copy_mode: detailData?.[0]?.props?.['DrbdOptions/Net/protocol'] as 'A' | 'C' | undefined,
+            diskless_on_remaining: detailData?.[0]?.select_filter?.diskless_on_remaining,
+            storage_pool_list: detailData?.[0]?.select_filter?.storage_pool_list ?? [],
+            layer_stack: detailData?.[0]?.select_filter?.layer_stack?.map((e: string) => e.toLowerCase()) ?? [],
+            provider_list: detailData?.[0]?.select_filter?.provider_list?.map((e: string) => e.toLowerCase()) ?? [],
+            replicas_on_same: detailData?.[0]?.select_filter?.replicas_on_same ?? [],
+            replicas_on_different: detailData?.[0]?.select_filter?.replicas_on_different ?? [],
+            not_place_with_rsc: detailData?.[0]?.select_filter?.not_place_with_rsc ?? [],
+            not_place_with_rsc_regex: detailData?.[0]?.select_filter?.not_place_with_rsc_regex ?? '',
+            place_count: detailData?.[0]?.select_filter?.place_count ?? 2,
+          }
+        : undefined,
+    [isEdit, detailData],
+  );
 
   useEffect(() => {
-    if (isEdit && detailData && detailData[0]) {
+    if (isEdit && detailData && detailData[0] && initialVal) {
       usedForm.setFieldsValue(initialVal);
     }
-  }, [isEdit, detailData]);
+  }, [isEdit, detailData, initialVal, usedForm]);
 
   const deploy = Form.useWatch('deploy', usedForm);
   const layer_stack = Form.useWatch('layer_stack', usedForm);
