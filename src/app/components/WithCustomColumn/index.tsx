@@ -57,18 +57,24 @@ const withCustomColumns = <P extends object>(
     const [columns, setColumns] = useState<CustomColumn[]>(() => {
       const savedColumns = localStorage.getItem(`${storageKey}-columns`);
       if (savedColumns) {
-        const parsedColumns = JSON.parse(savedColumns);
-        return parsedColumns.map((savedCol: CustomColumn) => {
-          const originalCol = initialColumns.find((col) => col.title === savedCol.title);
-          return {
-            ...originalCol,
-            ...savedCol,
-            render:
-              originalCol?.render ||
-              ((text: string, record: Record<string, unknown> & { parent: { props: Record<string, unknown> } }) =>
-                record.parent.props[savedCol.dataIndex] || text),
-          };
-        });
+        try {
+          const parsedColumns = JSON.parse(savedColumns);
+          return parsedColumns.map((savedCol: CustomColumn) => {
+            const originalCol = initialColumns.find((col) => col.title === savedCol.title);
+            return {
+              ...originalCol,
+              ...savedCol,
+              render:
+                originalCol?.render ||
+                ((text: string, record: Record<string, unknown> & { parent: { props: Record<string, unknown> } }) =>
+                  record.parent.props[savedCol.dataIndex] || text),
+            };
+          });
+        } catch (error) {
+          // If localStorage data is corrupted, fall back to initial columns
+          console.warn('Failed to parse saved columns from localStorage:', error);
+          return initialColumns;
+        }
       }
       return initialColumns;
     });
