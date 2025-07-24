@@ -5,8 +5,13 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 const useIsAdmin = (): boolean => {
-  const storedValue = localStorage.getItem('linstorname');
-  return storedValue === 'admin';
+  try {
+    const storedValue = localStorage.getItem('linstorname');
+    return storedValue === 'admin';
+  } catch {
+    // If localStorage is not available or throws an error, default to false
+    return false;
+  }
 };
 
 export default useIsAdmin;
