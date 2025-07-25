@@ -13,3 +13,5 @@ deploy-linstor-gui.sh
 *.rpm
 sbom/
 junit.xml
+.prompts/
+.claude/
