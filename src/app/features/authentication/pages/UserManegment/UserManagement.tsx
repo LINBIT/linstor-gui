@@ -47,10 +47,11 @@ export const UserManagement = () => {
     },
     onError: (error) => {
       console.log(error);
-      notify('Failed to update the authentication status', { type: 'error' });
+      notify(t('users:authentication_update_failed'), { type: 'error' });
     },
     onSuccess: (data, newProps) => {
-      notify('Authentication is now ' + (newProps ? 'enabled' : 'disabled') + ' successfully', {
+      const message = newProps ? t('users:authentication_enabled') : t('users:authentication_disabled');
+      notify(message, {
         type: 'success',
       });
 
@@ -78,7 +79,7 @@ export const UserManagement = () => {
   }, [authenticationEnabled]);
 
   return (
-    <PageBasic title="Authentication & Users">
+    <PageBasic title={t('users:title')}>
       <StyledSection>
         <BG src={bg} title="bg" />
         <MainContent>
@@ -88,8 +89,8 @@ export const UserManagement = () => {
                 <p>{t('users:description')}</p>
                 <span>{t('users:authentication')}: &nbsp;</span>
                 <Switch
-                  checkedChildren="On"
-                  unCheckedChildren="Off"
+                  checkedChildren={t('users:switch_on')}
+                  unCheckedChildren={t('users:switch_off')}
                   checked={checked}
                   onChange={handleToggleEnableAuthentication}
                   loading={toggleMutation.isLoading}
@@ -115,10 +116,10 @@ export const UserManagement = () => {
 
                       <Popconfirm
                         key="delete"
-                        title="Delete the user"
-                        description="Are you sure to delete this user?"
-                        okText="Yes"
-                        cancelText="No"
+                        title={t('users:delete_user_title')}
+                        description={t('users:delete_user_description')}
+                        okText={t('users:yes')}
+                        cancelText={t('users:no')}
                         icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
                         onConfirm={() => {
                           dispatch.auth.deleteUser(user.title);
@@ -141,7 +142,7 @@ export const UserManagement = () => {
                           {user.title}
                         </a>
                       }
-                      description={`User ${index + 1}`}
+                      description={`${t('users:user_description')} ${index + 1}`}
                     />
                   </List.Item>
                 )}

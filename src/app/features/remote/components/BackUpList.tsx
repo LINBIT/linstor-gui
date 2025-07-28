@@ -273,7 +273,7 @@ export const List = () => {
         pagination={{
           total: dataList?.length ?? 0,
           showSizeChanger: true,
-          showTotal: (total) => `Total ${total} items`,
+          showTotal: (total) => t('common:total_items', { total }),
         }}
         loading={isLoading}
       />

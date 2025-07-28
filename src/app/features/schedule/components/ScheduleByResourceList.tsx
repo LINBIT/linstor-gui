@@ -4,6 +4,7 @@ import type { TableProps } from 'antd';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { MoreOutlined } from '@ant-design/icons';
 import { LiaToolsSolid } from 'react-icons/lia';
+import { useTranslation } from 'react-i18next';
 
 import {
   getScheduleByResource,
@@ -22,6 +23,7 @@ import { useSelector } from 'react-redux';
 import { UIMode } from '@app/models/setting';
 
 export const ScheduleByResourceList = () => {
+  const { t } = useTranslation(['schedule', 'common']);
   const [form] = Form.useForm();
   const [searchResource, setSearchResource] = useState<string>('');
   const [showAll, setShowAll] = useState<boolean>(false);
@@ -54,11 +56,11 @@ export const ScheduleByResourceList = () => {
           force_mv_rsc_grp: false,
           force_restore: false,
         });
-        message.success('Schedule disabled successfully');
+        message.success(t('schedule:schedule_disabled_success'));
         refetch();
       } catch (error) {
         console.error('Disable schedule error:', error);
-        message.error('Failed to disable schedule');
+        message.error(t('schedule:schedule_disable_failed'));
       }
     },
   });
@@ -71,11 +73,11 @@ export const ScheduleByResourceList = () => {
           force_mv_rsc_grp: false,
           force_restore: false,
         });
-        message.success('Schedule enabled successfully');
+        message.success(t('schedule:schedule_enabled_success'));
         refetch();
       } catch (error) {
         console.error('Enable schedule error:', error);
-        message.error('Failed to enable schedule');
+        message.error(t('schedule:schedule_enable_failed'));
       }
     },
   });
@@ -86,11 +88,11 @@ export const ScheduleByResourceList = () => {
         await deleteBackupSchedule(record.remote_name, record.schedule_name, {
           rsc_dfn_name: record.rsc_name,
         });
-        message.success('Schedule deleted successfully');
+        message.success(t('schedule:schedule_deleted_success'));
         refetch();
       } catch (error) {
         console.error('Delete schedule error:', error);
-        message.error('Failed to delete schedule');
+        message.error(t('schedule:schedule_delete_failed'));
       }
     },
   });
@@ -106,7 +108,7 @@ export const ScheduleByResourceList = () => {
         return res?.data?.data;
       } catch (error) {
         console.error('Failed to fetch resource details:', error);
-        message.error('Failed to load resource details');
+        message.error(t('schedule:resource_details_load_failed'));
         return null;
       }
     },
@@ -120,37 +122,37 @@ export const ScheduleByResourceList = () => {
   const expandedRowRender = () => {
     const detailColumns: TableProps<ScheduleDetails>['columns'] = [
       {
-        title: 'Remote',
+        title: t('schedule:remote'),
         dataIndex: 'remote_name',
         key: 'remote_name',
       },
       {
-        title: 'Schedule',
+        title: t('schedule:schedule'),
         dataIndex: 'schedule_name',
         key: 'schedule_name',
       },
       {
-        title: 'Resource-Definition',
+        title: t('schedule:resource_definition'),
         dataIndex: 'rsc_dfn',
         key: 'rsc_dfn',
         render: (enabled) => {
-          return enabled ? <Tag color="green">Enabled</Tag> : '';
+          return enabled ? <Tag color="green">{t('schedule:enabled')}</Tag> : '';
         },
       },
       {
-        title: 'Resource-Group',
+        title: t('schedule:resource_group'),
         dataIndex: 'rsc_grp',
         key: 'rsc_grp',
         render: (enabled) => {
-          return enabled ? <Tag color="green">Enabled</Tag> : '';
+          return enabled ? <Tag color="green">{t('schedule:enabled')}</Tag> : '';
         },
       },
       {
-        title: 'Controller',
+        title: t('schedule:controller'),
         dataIndex: 'ctrl',
         key: 'ctrl',
         render: (enabled) => {
-          return enabled ? <Tag color="green">Enabled</Tag> : '';
+          return enabled ? <Tag color="green">{t('schedule:enabled')}</Tag> : '';
         },
       },
     ];
@@ -184,22 +186,22 @@ export const ScheduleByResourceList = () => {
 
   const columns: TableProps<ScheduleByResource>['columns'] = [
     {
-      title: <span>Resource</span>,
+      title: <span>{t('schedule:resource')}</span>,
       key: 'rsc_name',
       dataIndex: 'rsc_name',
     },
     {
-      title: 'Remote',
+      title: t('schedule:remote'),
       key: 'remote',
       dataIndex: 'remote_name',
     },
     {
-      title: 'Schedule',
+      title: t('schedule:schedule'),
       key: 'schedule_name',
       dataIndex: 'schedule_name',
     },
     {
-      title: 'Last',
+      title: t('schedule:last'),
       key: 'Last',
       dataIndex: 'last_snap_time',
       render: (last_snap_time) => {
@@ -209,7 +211,7 @@ export const ScheduleByResourceList = () => {
       },
     },
     {
-      title: 'Next',
+      title: t('schedule:next'),
       key: 'next',
       dataIndex: 'next_exec_time',
       render: (next_exec_time) => {
@@ -219,7 +221,7 @@ export const ScheduleByResourceList = () => {
       },
     },
     {
-      title: 'Planned Inc',
+      title: t('schedule:planned_inc'),
       key: 'planned_inc',
       dataIndex: 'next_planned_inc',
       render: (next_planned_inc) => {
@@ -229,7 +231,7 @@ export const ScheduleByResourceList = () => {
       },
     },
     {
-      title: 'Planned Full',
+      title: t('schedule:planned_full'),
       key: 'planned_full',
       dataIndex: 'next_planned_full',
       render: (next_planned_full) => {
@@ -239,13 +241,13 @@ export const ScheduleByResourceList = () => {
       },
     },
     {
-      title: 'Reason',
+      title: t('schedule:reason'),
       key: 'reason',
       dataIndex: 'reason',
     },
     {
       title: () => (
-        <Tooltip title="Action">
+        <Tooltip title={t('common:action')}>
           <span className="flex justify-center">
             <LiaToolsSolid className="w-4 h-4" />
           </span>
@@ -271,10 +273,10 @@ export const ScheduleByResourceList = () => {
                           key: 'enable',
                           label: (
                             <Popconfirm
-                              title="Are you sure you want to enable this schedule?"
+                              title={t('schedule:enable_schedule_confirm')}
                               onConfirm={() => enableScheduleMutation.mutate(record)}
                             >
-                              Enable
+                              {t('schedule:enable')}
                             </Popconfirm>
                           ),
                         },
@@ -284,10 +286,10 @@ export const ScheduleByResourceList = () => {
                           key: 'disable',
                           label: (
                             <Popconfirm
-                              title="Are you sure you want to disable this schedule?"
+                              title={t('schedule:disable_schedule_confirm')}
                               onConfirm={() => disableScheduleMutation.mutate(record)}
                             >
-                              Disable
+                              {t('schedule:disable')}
                             </Popconfirm>
                           ),
                         },
@@ -296,11 +298,11 @@ export const ScheduleByResourceList = () => {
                     key: 'delete',
                     label: (
                       <Popconfirm
-                        title="Are you sure you want to delete this schedule?"
-                        description="This action cannot be undone!"
+                        title={t('schedule:delete_schedule_confirm')}
+                        description={t('schedule:delete_schedule_warning')}
                         onConfirm={() => deleteScheduleMutation.mutate(record)}
                       >
-                        Delete
+                        {t('common:delete')}
                       </Popconfirm>
                     ),
                   },
@@ -326,9 +328,9 @@ export const ScheduleByResourceList = () => {
             show_default: true,
           }}
         >
-          <Form.Item name="origin_rsc" label="Resource">
+          <Form.Item name="origin_rsc" label={t('schedule:resource')}>
             <Input
-              placeholder="Resource"
+              placeholder={t('schedule:resource')}
               value={searchResource}
               onChange={(e) => setSearchResource(e.target.value)}
               allowClear
@@ -336,7 +338,7 @@ export const ScheduleByResourceList = () => {
           </Form.Item>
 
           <Form.Item name="show_all" valuePropName="checked">
-            <Checkbox onChange={(e) => setShowAll(e.target.checked)}>Show All</Checkbox>
+            <Checkbox onChange={(e) => setShowAll(e.target.checked)}>{t('schedule:show_all')}</Checkbox>
           </Form.Item>
 
           <Form.Item>
@@ -354,7 +356,7 @@ export const ScheduleByResourceList = () => {
                 }
               }}
             >
-              Schedules
+              {t('schedule:schedules')}
             </Button>
           </Form.Item>
         </Form>
@@ -368,7 +370,7 @@ export const ScheduleByResourceList = () => {
         pagination={{
           total: filteredData?.length ?? 0,
           showSizeChanger: true,
-          showTotal: (total) => `Total ${total} items`,
+          showTotal: (total) => t('common:total_items', { total }),
         }}
         loading={isLoading}
         rowKey={(record) => record.rsc_name}

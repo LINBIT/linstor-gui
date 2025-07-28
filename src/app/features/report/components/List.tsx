@@ -379,7 +379,7 @@ export const List = () => {
         rowKey={(item) => item?.filename || ''}
         pagination={{
           showSizeChanger: true,
-          showTotal: (total) => `Total ${total} items`,
+          showTotal: (total) => t('common:total_items', { total }),
         }}
         loading={isLoading}
         scroll={{ x: 'max-content' }}

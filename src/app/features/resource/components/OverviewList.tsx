@@ -618,7 +618,7 @@ export const OverviewList = () => {
       showSizeChanger: true,
       showQuickJumper: true,
       pageSizeOptions: ['10', '20', '50', '100', '200'],
-      showTotal: (total: number) => `Total ${total} items`,
+      showTotal: (total: number) => t('common:total_items', { total }),
     };
   }, []);
 

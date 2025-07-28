@@ -405,7 +405,7 @@ export const List = () => {
         pagination={{
           total: stats?.data?.count ?? 0,
           showSizeChanger: true,
-          showTotal: (total) => `Total ${total} items`,
+          showTotal: (total) => t('common:total_items', { total }),
           defaultCurrent: (query?.offset ?? 0) + 1,
           pageSize: query?.limit,
           onChange(page, pageSize) {

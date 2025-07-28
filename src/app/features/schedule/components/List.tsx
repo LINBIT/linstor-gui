@@ -168,7 +168,7 @@ export const List = () => {
         pagination={{
           total: filteredData?.length ?? 0,
           showSizeChanger: true,
-          showTotal: (total) => `Total ${total} items`,
+          showTotal: (total) => t('common:total_items', { total }),
         }}
         loading={isLoading}
       />

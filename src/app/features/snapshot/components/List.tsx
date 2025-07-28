@@ -423,7 +423,7 @@ export const List = () => {
         rowKey={(item) => item?.uuid || ''}
         pagination={{
           showSizeChanger: true,
-          showTotal: (total) => `Total ${total} items`,
+          showTotal: (total) => t('common:total_items', { total }),
         }}
       />
 

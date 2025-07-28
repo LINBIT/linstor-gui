@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Form, Button, message, Select } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { BackupSchedule, enableSchedule, getScheduleList } from '@app/features/schedule';
 import { getRemoteList } from '@app/features/remote';
 import { getResources } from '@app/features/resource';
@@ -15,6 +16,7 @@ interface EnableScheduleFormProps {
 }
 
 const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, schedule_name, onSuccess }) => {
+  const { t } = useTranslation(['schedule', 'common']);
   const [form] = Form.useForm();
   const [visible, setVisible] = useState(false);
 
@@ -27,7 +29,7 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
         };
       }) || [],
     onError: (error) => {
-      message.error('Failed to fetch schedule list: ' + (error as Error).message);
+      message.error(t('schedule:failed_to_fetch_schedule_list') + ': ' + (error as Error).message);
     },
   });
 
@@ -39,7 +41,7 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
       return [...s3Remotes, ...linstorRemotes];
     },
     onError: (error) => {
-      message.error('Failed to fetch remote list: ' + (error as Error).message);
+      message.error(t('schedule:failed_to_fetch_remote_list') + ': ' + (error as Error).message);
     },
   });
 
@@ -49,7 +51,7 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
     {
       select: (data) => data?.data?.map((item: { name?: string }) => item.name) || [],
       onError: (error) => {
-        message.error('Failed to fetch resource list: ' + (error as Error).message);
+        message.error(t('schedule:failed_to_fetch_resource_list') + ': ' + (error as Error).message);
       },
     },
   );
@@ -60,7 +62,7 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
     {
       select: (data) => data?.data?.map((item: { name?: string }) => item.name) || [],
       onError: (error) => {
-        message.error('Failed to fetch resource group list: ' + (error as Error).message);
+        message.error(t('schedule:failed_to_fetch_resource_group_list') + ': ' + (error as Error).message);
       },
     },
   );
@@ -83,12 +85,12 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
     {
       onSuccess: () => {
         form.resetFields();
-        message.success('Schedule enabled successfully!');
+        message.success(t('schedule:schedule_enabled_successfully'));
         onSuccess?.();
         setVisible(false);
       },
       onError: (error: Error) => {
-        message.error('Failed to enable schedule: ' + error.message);
+        message.error(t('schedule:failed_to_enable_schedule') + ': ' + error.message);
       },
     },
   );
@@ -105,19 +107,19 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
   return (
     <>
       <Button type="primary" onClick={() => setVisible(true)}>
-        Enable
+        {t('schedule:enable')}
       </Button>
 
       <Modal
-        title="Enable Schedule"
+        title={t('schedule:enable_schedule')}
         open={visible}
         onCancel={() => setVisible(false)}
         footer={[
           <Button key="cancel" onClick={() => setVisible(false)}>
-            Cancel
+            {t('common:cancel')}
           </Button>,
           <Button key="submit" type="primary" loading={mutation.isLoading} onClick={() => form.submit()}>
-            Enable
+            {t('schedule:enable')}
           </Button>,
         ]}
       >
@@ -132,12 +134,12 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
         >
           {!remote_name && (
             <Form.Item
-              label="Remote Name"
+              label={t('schedule:remote_name')}
               name="remote_name"
-              rules={[{ required: true, message: 'Please select the remote name!' }]}
+              rules={[{ required: true, message: t('schedule:please_select_remote_name') }]}
             >
               <Select
-                placeholder="Select remote name"
+                placeholder={t('schedule:select_remote_name')}
                 loading={isRemoteLoading}
                 allowClear
                 showSearch
@@ -154,12 +156,12 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
           )}
 
           <Form.Item
-            label="Schedule Name"
+            label={t('schedule:schedule_name')}
             name="schedule_name"
-            rules={[{ required: true, message: 'Please select the schedule name!' }]}
+            rules={[{ required: true, message: t('schedule:please_select_schedule_name') }]}
           >
             <Select
-              placeholder="Select schedule name"
+              placeholder={t('schedule:select_schedule_name')}
               loading={isScheduleLoading}
               allowClear
               showSearch
@@ -174,9 +176,9 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
             />
           </Form.Item>
 
-          <Form.Item label="Resource Name" name="rsc_name">
+          <Form.Item label={t('schedule:resource_name')} name="rsc_name">
             <Select
-              placeholder="Select resource name"
+              placeholder={t('schedule:select_resource_name')}
               loading={isResourceLoading}
               allowClear
               showSearch
@@ -197,9 +199,9 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
             />
           </Form.Item>
 
-          <Form.Item label="Resource Group Name" name="grp_name">
+          <Form.Item label={t('schedule:resource_group_name')} name="grp_name">
             <Select
-              placeholder="Select resource group name"
+              placeholder={t('schedule:select_resource_group_name')}
               loading={isResourceGroupLoading}
               allowClear
               showSearch
@@ -214,9 +216,9 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
             />
           </Form.Item>
 
-          <Form.Item label="Node Name" name="node_name">
+          <Form.Item label={t('schedule:node_name')} name="node_name">
             <Select
-              placeholder="Select node name"
+              placeholder={t('schedule:select_node_name')}
               loading={isNodeLoading}
               allowClear
               showSearch
