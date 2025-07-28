@@ -18,6 +18,8 @@ const items = [
   { key: 'ja', text: '日本語 (Japanese)' },
   { key: 'tr', text: 'Türkçe (Turkish)' },
   { key: 'es', text: 'Español (Spanish)' },
+  { key: 'fr', text: 'Français (French)' },
+  { key: 'ru', text: 'Русский (Russian)' },
 ];
 
 const LngSelector: React.FC = () => {
