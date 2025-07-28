@@ -72,7 +72,7 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
   onModeChange,
   handleSupportClick,
 }) => {
-  const { t } = useTranslation(['menu']);
+  const { t } = useTranslation(['menu', 'about']);
   const dispatch = useDispatch<Dispatch>();
   const IS_DEV = import.meta.env.MODE === 'development';
 
@@ -154,9 +154,9 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
       {isNotOfficialBuild && (
         <div className="hidden lg:flex text-white items-center font-semibold mr-4">
           <WarningLogo src={warning} />
-          <Attention>Attention! You are using an unsupported build.</Attention>
+          <Attention>{t('about:unofficial_build_header_attention')}</Attention>
           <OfficialBuild onClick={handleSupportClick}>
-            For Official Builds <OutLink src={outlink} className="outlink-svg" />
+            {t('about:unofficial_build_header_get_official')} <OutLink src={outlink} className="outlink-svg" />
           </OfficialBuild>
         </div>
       )}

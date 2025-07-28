@@ -544,6 +544,16 @@ const ja = {
     controller_active_on: 'コントローラーアクティブ',
     trademark:
       'LINSTOR-GUIはフリーソフトウェアです。Free Software Foundation が公開したGNU General Public License のバージョン3の条件下で再配布および/または変更することができます。このプログラムは有用であることを願って配布されていますが、いかなる保証もありません。商品性や特定の目的への適合性の黙示的保証さえもありません。詳細については、GNU General Public License を参照してください。',
+    // Unofficial build modal
+    unofficial_build_attention: '注意！このソフトウェアのサポートされていないビルドを使用しています。',
+    unofficial_build_description: 'LINBITのサポートサブスクリプションを通じて公式バージョンを入手することで：',
+    unofficial_build_benefit_support: 'LINBITエキスパートサポートチームへのアクセスを得られます。',
+    unofficial_build_benefit_packages: 'LINBIT SDS技術スタック全体の事前ビルドパッケージへのアクセスを得られます。',
+    unofficial_build_benefit_development: 'LINBIT SDS技術スタックの継続的な開発を支援します。',
+    unofficial_build_get_official: '公式ビルドのために',
+    // Header tools
+    unofficial_build_header_attention: '注意！サポートされていないビルドを使用しています。',
+    unofficial_build_header_get_official: '公式ビルドのために',
   },
 };
 

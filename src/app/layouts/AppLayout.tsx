@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Layout, message, FloatButton } from 'antd';
 import { VerticalAlignTopOutlined } from '@ant-design/icons';
 import SVG from 'react-inlinesvg';
+import { useTranslation } from 'react-i18next';
 
 import { Dispatch, RootState } from '@app/store';
 import { ChangePassword, Login } from '@app/features/authentication';
@@ -37,7 +38,7 @@ const { Header, Content, Sider } = Layout;
 
 interface IAppLayout {
   children: React.ReactNode;
-  isSpaceTrackingAvailable?: boolean;
+  isSpaceTrackingUnavailable?: boolean;
   isCheckingStatus?: boolean;
 }
 
@@ -45,7 +46,8 @@ const handleSupportClick = () => {
   window.open('https://linbit.com/sds-subscription/', '_blank');
 };
 
-const AppLayout = ({ children, isSpaceTrackingAvailable, isCheckingStatus }: IAppLayout) => {
+const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: IAppLayout) => {
+  const { t } = useTranslation(['about']);
   const { UIMode, updateUIMode } = useUIModeStorage();
   const dispatch = useDispatch<Dispatch>();
   const navigate = useNavigate();
@@ -144,16 +146,15 @@ const AppLayout = ({ children, isSpaceTrackingAvailable, isCheckingStatus }: IAp
 
   const VSANAvailable = KVS?.vsanAvailable;
   const normalWithoutAuth = !VSANAvailable && !authenticationEnabled;
-  const isNotOfficialBuild = !isCheckingStatus && !isSpaceTrackingAvailable && !modeFromSetting;
-  const isDevelopment = import.meta.env.MODE === 'development';
+  const isNotOfficialBuild = !isCheckingStatus && isSpaceTrackingUnavailable;
 
   useEffect(() => {
-    if (isNotOfficialBuild && !isDevelopment) {
+    if (isNotOfficialBuild) {
       setIsModalOpen(true);
     } else {
       setIsModalOpen(false);
     }
-  }, [isNotOfficialBuild, isCheckingStatus, isDevelopment]);
+  }, [isNotOfficialBuild, isCheckingStatus]);
 
   if (authenticationEnabled && !authInfo.isLoggedIn) {
     return <Login />;
@@ -237,17 +238,17 @@ const AppLayout = ({ children, isSpaceTrackingAvailable, isCheckingStatus }: IAp
         <ModalContent>
           <Warning src={warning} />
           <StyledContent>
-            <div>Attention! You are using an unsupported build of this software. </div>
-            <div>By acquiring an official version through a support subscription from LINBIT:</div>
+            <div>{t('about:unofficial_build_attention')}</div>
+            <div>{t('about:unofficial_build_description')}</div>
 
             <SupportList>
-              <SupportListItem>You get access to the LINBIT expert support team.</SupportListItem>
-              <SupportListItem>You get access to prebuilt packages for the whole LINBIT SDS stack.</SupportListItem>
-              <SupportListItem>You support the continued development of the LINBIT SDS stack.</SupportListItem>
+              <SupportListItem>{t('about:unofficial_build_benefit_support')}</SupportListItem>
+              <SupportListItem>{t('about:unofficial_build_benefit_packages')}</SupportListItem>
+              <SupportListItem>{t('about:unofficial_build_benefit_development')}</SupportListItem>
             </SupportList>
 
             <ForOfficialBuild onClick={handleSupportClick}>
-              For Official Builds <SVG src={arrowRight} className="outlink-svg" />
+              {t('about:unofficial_build_get_official')} <SVG src={arrowRight} className="outlink-svg" />
             </ForOfficialBuild>
           </StyledContent>
         </ModalContent>

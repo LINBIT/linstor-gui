@@ -412,7 +412,6 @@ const zh = {
     // Enable Schedule Form
     enable_schedule: '启用计划任务',
     remote_name: '远程名称',
-    schedule_name: '计划任务名称',
     resource_name: '资源名称',
     resource_group_name: '资源组名称',
     node_name: '节点名称',
@@ -527,6 +526,16 @@ const zh = {
     controller_active_on: '控制器活动于',
     trademark:
       'LINSTOR-GUI 是自由软件：您可以根据 GNU 通用公共许可证的条款（由自由软件基金会发布的许可证的第 3 版）重新分发或修改它。本程序是基于希望它将是有用的，但没有任何保证；甚至没有适销性或适用于特定目的的暗示保证。有关更多详细信息，请参阅 GNU 通用公共许可证。',
+    // Unofficial build modal
+    unofficial_build_attention: '注意！您正在使用不受支持的软件版本。',
+    unofficial_build_description: '通过从 LINBIT 获取官方版本的支持订阅：',
+    unofficial_build_benefit_support: '您可以访问 LINBIT 专家支持团队。',
+    unofficial_build_benefit_packages: '您可以访问整个 LINBIT SDS 技术栈的预构建包。',
+    unofficial_build_benefit_development: '您支持 LINBIT SDS 技术栈的持续开发。',
+    unofficial_build_get_official: '获取官方版本',
+    // Header tools
+    unofficial_build_header_attention: '注意！您正在使用不受支持的版本。',
+    unofficial_build_header_get_official: '获取官方版本',
   },
 };
 

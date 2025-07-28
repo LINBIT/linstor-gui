@@ -542,6 +542,17 @@ const tr = {
     controller_active_on: 'Denetleyici Aktif',
     trademark:
       "LINSTOR-GUI özgür yazılımdır: Free Software Foundation tarafından yayınlanan GNU Genel Kamu Lisansı'nın 3. sürümü koşulları altında yeniden dağıtabilir ve/veya değiştirebilirsiniz. Bu program faydalı olacağı umuduyla dağıtılmaktadır, ancak HİÇBİR GARANTİ YOKTUR; hatta SATILABİLİRLİK veya BELİRLİ BİR AMACA UYGUNLUK konusunda zımni garanti bile yoktur. Daha fazla ayrıntı için GNU Genel Kamu Lisansı'na bakın.",
+    // Unofficial build modal
+    unofficial_build_attention: 'Dikkat! Bu yazılımın desteklenmeyen bir yapılandırmasını kullanıyorsunuz.',
+    unofficial_build_description: "LINBIT'ten bir destek aboneliği aracılığıyla resmi bir sürüm edinerek:",
+    unofficial_build_benefit_support: 'LINBIT uzman destek ekibine erişim sağlarsınız.',
+    unofficial_build_benefit_packages:
+      "Tüm LINBIT SDS teknoloji stack'i için önceden derlenmiş paketlere erişim sağlarsınız.",
+    unofficial_build_benefit_development: "LINBIT SDS teknoloji stack'inin sürekli geliştirilmesini desteklersiniz.",
+    unofficial_build_get_official: 'Resmi yapılandırmalar için',
+    // Header tools
+    unofficial_build_header_attention: 'Dikkat! Desteklenmeyen bir yapılandırma kullanıyorsunuz.',
+    unofficial_build_header_get_official: 'Resmi yapılandırmalar için',
   },
 };
 

@@ -42,25 +42,25 @@ const App: React.FunctionComponent = () => {
       const response = await fetch(`${linstorHost}/v1/space-report`);
 
       if (!response.ok) {
-        throw new Error(SPACE_TRACKING_UNAVAILABLE_MSG);
+        return null;
       }
       const res = await response.json();
 
-      if (!res?.reportText || res.reportText === SPACE_TRACKING_UNAVAILABLE_MSG) {
-        throw new Error(SPACE_TRACKING_UNAVAILABLE_MSG);
+      if (res?.reportText === SPACE_TRACKING_UNAVAILABLE_MSG) {
+        return SPACE_TRACKING_UNAVAILABLE_MSG;
       }
       return res.reportText;
     } catch {
-      throw new Error(SPACE_TRACKING_UNAVAILABLE_MSG);
+      return null;
     }
   };
 
-  const { isFetched, isSuccess } = useQuery<string, Error>({
+  const { isFetched, isSuccess, data } = useQuery<string | null, Error>({
     queryKey: ['getSpaceReportStatus'],
     queryFn: getSpaceReport,
   });
 
-  const isSpaceTrackingAvailable = isSuccess;
+  const isSpaceTrackingUnavailable = isSuccess && data === SPACE_TRACKING_UNAVAILABLE_MSG;
   const isCheckingStatus = !isFetched;
 
   return (
@@ -75,7 +75,7 @@ const App: React.FunctionComponent = () => {
           locale={locale}
         >
           <NavProvider>
-            <AppLayout isSpaceTrackingAvailable={isSpaceTrackingAvailable} isCheckingStatus={isCheckingStatus}>
+            <AppLayout isSpaceTrackingUnavailable={isSpaceTrackingUnavailable} isCheckingStatus={isCheckingStatus}>
               <AppRoutes />
             </AppLayout>
           </NavProvider>

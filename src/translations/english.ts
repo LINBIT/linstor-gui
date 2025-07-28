@@ -475,7 +475,6 @@ const en = {
     // Enable Schedule Form
     enable_schedule: 'Enable Schedule',
     remote_name: 'Remote Name',
-    schedule_name: 'Schedule Name',
     resource_name: 'Resource Name',
     resource_group_name: 'Resource Group Name',
     node_name: 'Node Name',
@@ -543,6 +542,16 @@ const en = {
     controller_active_on: 'Controller Active On',
     trademark:
       'LINSTOR-GUI is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3 of the License. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.',
+    // Unofficial build modal
+    unofficial_build_attention: 'Attention! You are using an unsupported build of this software.',
+    unofficial_build_description: 'By acquiring an official version through a support subscription from LINBIT:',
+    unofficial_build_benefit_support: 'You get access to the LINBIT expert support team.',
+    unofficial_build_benefit_packages: 'You get access to prebuilt packages for the whole LINBIT SDS stack.',
+    unofficial_build_benefit_development: 'You support the continued development of the LINBIT SDS stack.',
+    unofficial_build_get_official: 'For Official Builds',
+    // Header tools
+    unofficial_build_header_attention: 'Attention! You are using an unsupported build.',
+    unofficial_build_header_get_official: 'For Official Builds',
   },
 };
 
