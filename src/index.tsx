@@ -4,7 +4,6 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React from 'react';
 import { createRoot } from 'react-dom/client';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
@@ -31,7 +30,7 @@ i18n
 export { i18n };
 
 const queryClient = new QueryClient();
-const domNode = document.getElementById('root');
+const domNode = document.getElementById('root') || document.createElement('div');
 const root = createRoot(domNode);
 
 root.render(

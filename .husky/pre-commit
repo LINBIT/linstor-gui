@@ -11,14 +11,14 @@ fi
 
 # 2. Prettier auto-fix formatting
 echo "🎨 Running Prettier auto-fix..."
-staged_files=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|jsx|ts|tsx|css|scss)$' | tr '\n' ' ')
+staged_files=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx|css)$' | tr '\n' ' ')
 if [ -n "$staged_files" ]; then
   npx prettier --write $staged_files
   # Re-add the formatted files to staging
   git add $staged_files
   echo "✅ Prettier formatting applied and files re-staged."
 else
-  echo "� No staged files found that need Prettier formatting."
+  echo "📝 No staged files found that need Prettier formatting."
 fi
 
 # 3. TypeScript type check
