@@ -9,18 +9,16 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# 2. Prettier format check on staged files
-echo "🎨 Running Prettier on staged files..."
+# 2. Prettier auto-fix formatting
+echo "🎨 Running Prettier auto-fix..."
 staged_files=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|jsx|ts|tsx|css|scss)$' | tr '\n' ' ')
 if [ -n "$staged_files" ]; then
-  npx prettier --check $staged_files
-  if [ $? -ne 0 ]; then
-    echo "❌ Prettier failed. Please fix the formatting issues above."
-    echo "💡 You can run: npx prettier --write $staged_files"
-    exit 1
-  fi
+  npx prettier --write $staged_files
+  # Re-add the formatted files to staging
+  git add $staged_files
+  echo "✅ Prettier formatting applied and files re-staged."
 else
-  echo "📝 No staged files found that need Prettier check."
+  echo "� No staged files found that need Prettier formatting."
 fi
 
 # 3. TypeScript type check
