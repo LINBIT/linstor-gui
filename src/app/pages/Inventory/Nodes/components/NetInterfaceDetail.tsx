@@ -73,7 +73,7 @@ export const NetInterfaceDetail = ({ item }: NetInterfaceDetailProp) => {
   };
 
   if (nodes.isLoading || networkQueries.some((item) => item.isLoading)) {
-    return <div>loading...</div>;
+    return <div>{t('node_detail:loading')}</div>;
   }
 
   const nodeListInfo =
@@ -90,10 +90,8 @@ export const NetInterfaceDetail = ({ item }: NetInterfaceDetailProp) => {
     <>
       <Button onClick={onDetail}>{t('common:detail')}</Button>
       <Modal open={open} wrapClassName="netinterface-modal" footer={null} onCancel={onCancel}>
-        <Title>
-          Network interface <h5>&nbsp;{item.name}&nbsp;</h5> is used by:
-        </Title>
-        <Title>Nodes: </Title>
+        <Title>{t('node_detail:network_interface_used_by', { name: item.name })}</Title>
+        <Title>{t('node_detail:nodes')} </Title>
         <Content>
           {nodeListInfo.map((nw) => {
             return (
@@ -108,14 +106,14 @@ export const NetInterfaceDetail = ({ item }: NetInterfaceDetailProp) => {
                 >
                   {nw?.node}
                 </Button>
-                {nw?.address === item.address ? '(current node)' : ''}
+                {nw?.address === item.address ? t('node_detail:current_node') : ''}
               </div>
             );
           })}
         </Content>
 
-        <Title>Resource Group: </Title>
-        {resourceGroupInfo.length === 0 && <Content>Not used by any resource group</Content>}
+        <Title>{t('node_detail:resource_group')} </Title>
+        {resourceGroupInfo.length === 0 && <Content>{t('node_detail:not_used_by_resource_group')}</Content>}
         <Content>
           {resourceGroupInfo.map((rg) => {
             return <div key={rg?.uuid}>{rg?.name}</div>;

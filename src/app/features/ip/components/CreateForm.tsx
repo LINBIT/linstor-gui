@@ -29,7 +29,7 @@ type FormProps = {
 const CreateForm = ({ editing, node, refetch }: FormProps) => {
   const [form] = Form.useForm<FormType>();
   const [open, setOpen] = useState(false);
-  const { t } = useTranslation('node_detail');
+  const { t } = useTranslation(['node_detail', 'common']);
 
   const createNetWorkInterfaceMutation = useMutation({
     mutationFn: (data: CreateNetWorkInterfaceRequestBody) => {
@@ -60,9 +60,9 @@ const CreateForm = ({ editing, node, refetch }: FormProps) => {
       </Button>
       <Modal
         open={open}
-        title="Create network interface"
-        okText="Confirm"
-        cancelText="Cancel"
+        title={t('create_network_interface')}
+        okText={t('common:confirm')}
+        cancelText={t('common:cancel')}
         onCancel={() => {
           form.resetFields();
           setOpen(false);
@@ -93,53 +93,49 @@ const CreateForm = ({ editing, node, refetch }: FormProps) => {
           }}
           onFinish={onFinish}
         >
-          <Form.Item label="Alias" name="name" required>
-            <Input placeholder="Please input alias" disabled={editing} />
+          <Form.Item label={t('alias')} name="name" required>
+            <Input placeholder={t('please_input_alias')} disabled={editing} />
           </Form.Item>
 
           <Form.Item
             name="address"
-            label="IP Address"
+            label={t('ip_address')}
             required
             rules={[
               {
                 pattern: /\b(?:\d{1,3}\.){3}\d{1,3}\b/,
-                message: 'Please input valid IP address',
+                message: t('please_input_valid_ip_address'),
               },
             ]}
-            tooltip="Must be valid IP address, like 192.168.1.1, 10.10.1.1"
+            tooltip={t('valid_ip_tooltip')}
           >
-            <Input placeholder="Please input IP address" />
+            <Input placeholder={t('please_input_ip_address')} />
           </Form.Item>
 
           <Form.Item
             name="satellite_port"
-            label="TCP Port"
+            label={t('tcp_port')}
             required
-            tooltip="Must be valid port"
+            tooltip={t('valid_port_tooltip')}
             rules={[
               {
                 pattern: /^([1-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/,
-                message: 'Please input valid port, 0-65535',
+                message: t('please_input_valid_port'),
               },
             ]}
           >
-            <Input placeholder="Please input TCP port" type="number" />
+            <Input placeholder={t('please_input_tcp_port')} type="number" />
           </Form.Item>
 
-          <Form.Item
-            label="Encryption Type"
-            name="satellite_encryption_type"
-            tooltip="If satellite port and satellite encryption type are given the netinterface can also work as connection to the controller"
-          >
+          <Form.Item label={t('encryption_type')} name="satellite_encryption_type" tooltip={t('encryption_tooltip')}>
             <Radio.Group>
-              <Radio value="PLAIN">Plain</Radio>
-              <Radio value="SSL">SSL</Radio>
+              <Radio value="PLAIN">{t('plain')}</Radio>
+              <Radio value="SSL">{t('ssl')}</Radio>
             </Radio.Group>
           </Form.Item>
 
           <Form.Item name="is_active" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
-            <Checkbox>Default IP</Checkbox>
+            <Checkbox>{t('default_ip')}</Checkbox>
           </Form.Item>
 
           {/* <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
