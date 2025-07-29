@@ -34,7 +34,7 @@ interface HeaderToolsProps {
   vsanModeFromSetting?: boolean;
   isNotOfficialBuild?: boolean;
   VSANEvalMode?: boolean;
-  UIMode: string;
+  hciModeFromSetting?: boolean;
   normalWithoutAuth?: boolean;
   authenticationEnabled?: boolean;
   VSANAvailable?: boolean;
@@ -65,12 +65,12 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
   vsanModeFromSetting,
   isNotOfficialBuild,
   VSANEvalMode,
-  UIMode,
   normalWithoutAuth,
   authenticationEnabled,
   VSANAvailable,
   onModeChange,
   handleSupportClick,
+  hciModeFromSetting,
 }) => {
   const { t } = useTranslation(['menu', 'about']);
   const dispatch = useDispatch<Dispatch>();
@@ -117,13 +117,13 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
             href="#"
             onClick={(e) => {
               e.preventDefault();
-              onModeChange(UIMode === 'VSAN' ? 'NORMAL' : 'VSAN');
+              onModeChange(vsanModeFromSetting ? 'NORMAL' : 'VSAN');
             }}
             className="flex items-center"
           >
             <DeploymentUnitOutlined style={{ color: BRAND_COLOR, marginLeft: 2, marginRight: '1rem' }} />
 
-            <span>{UIMode === 'VSAN' ? 'Switch to advanced mode' : 'Leave advanced mode'}</span>
+            <span>{vsanModeFromSetting ? 'Switch to advanced mode' : 'Leave advanced mode'}</span>
           </a>
         ),
         hidden: !VSANAvailable,
@@ -193,7 +193,7 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
           </>
         )}
 
-        {!normalWithoutAuth && (
+        {!normalWithoutAuth && !hciModeFromSetting && (
           <Dropdown menu={menu} placement="bottomLeft">
             <Avatar
               size={40}

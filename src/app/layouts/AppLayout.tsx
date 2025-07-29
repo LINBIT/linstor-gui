@@ -180,12 +180,12 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
             vsanModeFromSetting={vsanModeFromSetting}
             isNotOfficialBuild={isNotOfficialBuild}
             VSANEvalMode={VSANEvalMode}
-            UIMode={UIMode}
             normalWithoutAuth={normalWithoutAuth}
             authenticationEnabled={authenticationEnabled}
             VSANAvailable={VSANAvailable}
             onModeChange={onModeChange}
             handleSupportClick={handleSupportClick}
+            hciModeFromSetting={hciModeFromSetting}
           />
         </Header>
         <Layout>
