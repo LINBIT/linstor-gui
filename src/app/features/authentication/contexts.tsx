@@ -31,7 +31,7 @@ const AuthContext = createContext<AuthContextProps>({
   username: null,
   register: () => Promise.resolve(false),
   login: () => Promise.resolve(false),
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
+
   logout: () => {},
   deleteUser: () => Promise.resolve(),
   changePassword: () => Promise.resolve(false),

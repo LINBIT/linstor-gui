@@ -78,7 +78,7 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
     ) => {
       const finalRemoteName = remote_name || values.remote_name!;
       const finalScheduleName = schedule_name || values.schedule_name!;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
       const { remote_name: _, schedule_name: __, ...body } = values;
       return enableSchedule(finalRemoteName, finalScheduleName, body);
     },
