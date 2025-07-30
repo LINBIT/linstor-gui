@@ -43,7 +43,7 @@ const CronInput: React.FC<CronInputProps> = ({ value = '0 0 * * *', onChange }) 
     try {
       cronParser.parse(expression);
       return null;
-    } catch (err) {
+    } catch {
       return 'Invalid cron expression. Please check the format.';
     }
   };
@@ -118,7 +118,7 @@ const CronInput: React.FC<CronInputProps> = ({ value = '0 0 * * *', onChange }) 
         nextTimes.push(interval.next().toString());
       }
       setPreviewExecutions(nextTimes);
-    } catch (err) {
+    } catch {
       setPreviewExecutions(['Invalid Cron Expression']);
     }
   }, [tempCronValue]);

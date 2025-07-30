@@ -26,7 +26,7 @@ const List = () => {
   }));
 
   useEffect(() => {
-    dispatch.nvme.getList({});
+    dispatch.nvme.getList();
   }, [dispatch.nvme]);
 
   const createISCSI = () => {
@@ -70,7 +70,7 @@ const List = () => {
       </Button>
 
       <NVMeListV2
-        list={list as any}
+        list={list}
         handleDelete={handleDelete}
         handleStart={handleStart}
         handleStop={handleStop}

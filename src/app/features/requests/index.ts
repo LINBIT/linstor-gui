@@ -30,7 +30,7 @@ window.fetch = new Proxy(window.fetch, {
                 handleAPICallRes(data, res.url);
               }
             });
-        } catch (error) {
+        } catch {
           return res;
         }
 
@@ -46,7 +46,7 @@ window.fetch = new Proxy(window.fetch, {
               // handle error, notice that res.json() returns a promise
               handleAPICallRes(err, res.url);
             });
-        } catch (error) {
+        } catch {
           return res;
         }
 

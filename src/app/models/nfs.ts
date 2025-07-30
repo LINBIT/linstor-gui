@@ -44,7 +44,7 @@ export const nfs = createModel<RootModel>()({
   },
   effects: (dispatch) => ({
     // getNFSList
-    async getList(payload: any, state) {
+    async getList() {
       const res = await service.get('/api/v2/nfs');
       const data = res.data ?? [];
 
@@ -54,7 +54,7 @@ export const nfs = createModel<RootModel>()({
       });
     },
     // Create NFS
-    async createNFS(payload: CreateDataType, state) {
+    async createNFS(payload: CreateDataType) {
       try {
         const res = await service.post('/api/v2/nfs', {
           ...payload,
@@ -93,7 +93,7 @@ export const nfs = createModel<RootModel>()({
           notify('Deleted Successfully', {
             type: 'success',
           });
-          dispatch.nfs.getList({});
+          dispatch.nfs.getList();
         }
       } catch (error) {
         console.log(error, 'error');
@@ -123,7 +123,7 @@ export const nfs = createModel<RootModel>()({
           notify('Started Successfully', {
             type: 'success',
           });
-          dispatch.nfs.getList({});
+          dispatch.nfs.getList();
         }
       } catch (error) {
         console.log(error, 'error');
@@ -153,7 +153,7 @@ export const nfs = createModel<RootModel>()({
           notify('Stopped Successfully', {
             type: 'success',
           });
-          dispatch.nfs.getList({});
+          dispatch.nfs.getList();
         }
       } catch (error) {
         console.log(error, 'error');

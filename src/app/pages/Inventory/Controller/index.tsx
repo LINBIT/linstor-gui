@@ -40,7 +40,7 @@ export const Controller = () => {
 
   const nodePropertyList = handlePropsToFormOption('controller', properties?.data);
 
-  const renderItem = (item: { key: any; value: any }) => {
+  const renderItem = (item: { key: string; value: string }) => {
     const isBoolean = item.value === 'false' || item.value === 'true';
 
     const info = nodePropertyList.find((e) => e.label === item.key);
@@ -120,11 +120,9 @@ export const Controller = () => {
           type="controller"
           handleSubmit={(data) => {
             mutation.mutate(data);
-            setPropertyModalOpen(false);
           }}
-          handleClose={() => setPropertyModalOpen(!propertyModalOpen)}
         >
-          <Button onClick={() => setPropertyModalOpen(true)}>{t('common:add_property')}</Button>
+          <Button>{t('common:add_property')}</Button>
         </PropertyForm>
       </Space>
 

@@ -138,7 +138,7 @@ export const setting = createModel<RootModel>()({
           dispatch.setting.setGatewayAvailable(false);
           return false;
         }
-      } catch (error) {
+      } catch {
         dispatch.setting.setGatewayAvailable(false);
       }
       return false;
@@ -296,7 +296,7 @@ export const setting = createModel<RootModel>()({
             type: 'success',
           });
         }
-      } catch (error) {
+      } catch {
         notify('Cannot connect to LINSTOR-Gateway', {
           type: 'error',
         });
@@ -322,7 +322,7 @@ export const setting = createModel<RootModel>()({
         setTimeout(() => {
           window.location.reload();
         }, 1000);
-      } catch (error) {
+      } catch {
         notify('Error', {
           type: 'error',
         });

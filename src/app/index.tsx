@@ -11,7 +11,7 @@ import { ConfigProvider } from 'antd';
 import locale from 'antd/locale/en_US';
 
 import AppLayout from '@app/layouts/AppLayout';
-import { AppRoutes } from '@app/routes/routes';
+import AppRoutes from '@app/routes/routes';
 import { resolveAndStoreLinstorHost } from '@app/utils/resolveLinstorHost';
 import { useSpaceReportStatus } from '@app/hooks/useSpaceReportStatus';
 

@@ -30,7 +30,9 @@ import outlink from '@app/assets/out-link.svg';
 import { Attention, ImgIcon, NoSupport, OfficialBuild, OutLink, WarningLogo } from '../styled';
 
 interface HeaderToolsProps {
-  authInfo: any;
+  authInfo: {
+    username: string;
+  };
   vsanModeFromSetting?: boolean;
   isNotOfficialBuild?: boolean;
   VSANEvalMode?: boolean;

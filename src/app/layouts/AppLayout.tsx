@@ -48,7 +48,7 @@ const handleSupportClick = () => {
 
 const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: IAppLayout) => {
   const { t } = useTranslation(['about']);
-  const { UIMode, updateUIMode } = useUIModeStorage();
+  const { updateUIMode } = useUIModeStorage();
   const dispatch = useDispatch<Dispatch>();
   const navigate = useNavigate();
   const location = useLocation();
