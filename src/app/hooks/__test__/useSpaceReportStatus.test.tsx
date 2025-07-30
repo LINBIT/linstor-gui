@@ -105,6 +105,7 @@ describe('useSpaceReportStatus', () => {
     });
 
     it('should handle fetch errors', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       mockGetSpaceReport.mockRejectedValueOnce(new Error('Network error'));
 
       const { result } = renderHook(() => useSpaceReportStatus(), {
@@ -119,6 +120,8 @@ describe('useSpaceReportStatus', () => {
 
       expect(result.current.isSpaceTrackingUnavailable).toBe(false);
       expect(result.current.isSuccess).toBe(false);
+
+      consoleErrorSpy.mockRestore();
     });
   });
 
@@ -201,6 +204,7 @@ describe('useSpaceReportStatus', () => {
     });
 
     it('should handle undefined response by treating it as an error', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       mockGetSpaceReport.mockRejectedValueOnce(new Error('Query returned undefined'));
 
       const { result } = renderHook(() => useSpaceReportStatus(), {
@@ -213,11 +217,14 @@ describe('useSpaceReportStatus', () => {
 
       expect(result.current.isSpaceTrackingUnavailable).toBe(false);
       expect(result.current.isSuccess).toBe(false);
+
+      consoleErrorSpy.mockRestore();
     });
   });
 
   describe('query integration', () => {
     it('should use correct query key', () => {
+      mockGetSpaceReport.mockResolvedValue('test data');
       const { result } = renderHook(() => useSpaceReportStatus(), {
         wrapper: createWrapper(),
       });

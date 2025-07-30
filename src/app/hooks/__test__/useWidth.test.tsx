@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import React from 'react';
 import { useWidth, WidthContext, WidthContextProps } from '../useWidth';
@@ -22,7 +22,7 @@ const TestComponent: React.FC = () => {
 
   return (
     <div>
-      <div data-testid="width-value">{width}</div>
+      <div data-testid="width-value">{String(width)}</div>
       <div data-testid="width-type">{typeof width}</div>
     </div>
   );
@@ -269,6 +269,7 @@ describe('useWidth', () => {
     });
 
     it('should handle NaN values', () => {
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const nanWidth: WidthContextProps = { width: NaN };
 
       render(
@@ -278,6 +279,8 @@ describe('useWidth', () => {
       );
 
       expect(screen.getByTestId('width-value')).toHaveTextContent('NaN');
+
+      consoleWarnSpy.mockRestore();
     });
   });
 });

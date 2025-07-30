@@ -31,7 +31,7 @@ fi
 
 # 4. Run tests
 echo "🧪 Running tests..."
-npm test
+npm run test:coverage
 if [ $? -ne 0 ]; then
   echo "❌ Tests failed. Please fix the failing tests above."
   exit 1

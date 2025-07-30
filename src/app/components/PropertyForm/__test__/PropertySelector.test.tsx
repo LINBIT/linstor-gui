@@ -34,13 +34,14 @@ interface MockButtonProps {
 
 // Mock Antd components
 vi.mock('antd', () => ({
-  Select: ({ options, onChange, value, placeholder, allowClear, ...props }: MockSelectProps) => (
+  Select: ({ options, onChange, value, placeholder, allowClear, showSearch, optionRender }: MockSelectProps) => (
     <div data-testid="select-component">
       <select
         data-testid="select"
         value={value || ''}
         onChange={(e) => onChange && onChange(e.target.value)}
-        {...props}
+        data-show-search={showSearch ? 'true' : 'false'}
+        data-option-render={optionRender ? 'custom' : 'default'}
       >
         <option value="" disabled>
           {placeholder}

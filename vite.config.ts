@@ -12,7 +12,7 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import { resolve } from 'path';
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, command }) => {
   // Load env variables based on mode
   const env = loadEnv(mode, process.cwd(), 'VITE_');
 
@@ -21,6 +21,9 @@ export default defineConfig(({ mode }) => {
   const API_HOST = env.VITE_LINSTOR_API_HOST || 'http://192.168.123.214:3370';
   const GATEWAY_API_HOST = env.VITE_GATEWAY_API_HOST || 'http://192.168.123.214:8080';
   const VSAN_API_HOST = env.VITE_HCI_VSAN_API_HOST || 'https://192.168.123.214';
+
+  // Check if coverage is requested via CLI argument
+  const isCoverageMode = process.argv.includes('--coverage');
 
   return {
     plugins: [react(), tailwindcss(), tsconfigPaths()],
@@ -108,7 +111,7 @@ export default defineConfig(({ mode }) => {
       css: true,
       include: ['src/app/**/__test__/**/*.{ts,tsx}', 'src/app/**/*.test.{ts,tsx}', 'src/app/**/*.spec.{ts,tsx}'],
       coverage: {
-        enabled: true,
+        enabled: isCoverageMode,
         provider: 'v8',
         reporter: ['text', 'json', 'html', 'cobertura'],
         reportsDirectory: './coverage',
@@ -122,10 +125,12 @@ export default defineConfig(({ mode }) => {
           'src/translations/**/*',
         ],
       },
-      reporters: ['default', 'junit'],
-      outputFile: {
-        junit: './junit.xml',
-      },
+      reporters: isCoverageMode ? ['default', 'junit'] : ['default'],
+      outputFile: isCoverageMode
+        ? {
+            junit: './junit.xml',
+          }
+        : undefined,
     },
   };
 });
