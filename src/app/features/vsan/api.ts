@@ -85,6 +85,10 @@ const createPool = (data) => {
   return service.post('/api/frontend/v1/linstor/physical-storage-pools', data);
 };
 
+const getCloudStackNodes = () => {
+  return service.get('/api/frontend/v1/cloudstack/nodes');
+};
+
 export {
   getNetWorkInterfaces,
   createNFSExport,
@@ -105,4 +109,5 @@ export {
   createPool,
   deleteNFSExport,
   deleteISCISExport,
+  getCloudStackNodes,
 };

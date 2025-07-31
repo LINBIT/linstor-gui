@@ -20,7 +20,7 @@ import {
   notification,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { getNodesFromVSAN, setNodeStandBy } from '../api';
+import { getNodesFromVSAN, setNodeStandBy, getCloudStackNodes } from '../api';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { compareIPv4 } from '@app/utils/ip';
@@ -41,7 +41,25 @@ interface DataType {
   has_linstor_controller: boolean;
   upgradeProgress: { maxSteps: number; curStep: number; label: string; message?: string } | null;
   updating?: boolean;
+  num_vms?: number;
 }
+
+interface VSANNode {
+  hostname: string;
+  service_ip: string;
+  online: boolean;
+  standby: boolean;
+  has_linstor_controller: boolean;
+  upgradeProgress: { maxSteps: number; curStep: number; label: string; message?: string } | null;
+  updating?: boolean;
+}
+
+interface CloudStackNode {
+  name: string;
+  num_vms: number;
+}
+
+const IS_DEV = import.meta.env.MODE === 'development';
 
 export const VSANNodeList = () => {
   const navigate = useNavigate();
@@ -50,10 +68,24 @@ export const VSANNodeList = () => {
   const [tempIntervalVal, setTempIntervalVal] = useState<number | null>(null);
   const [api, contextHolder] = notification.useNotification();
 
+  const { modeFromSetting } = useSelector((state: RootState) => ({
+    modeFromSetting: state.setting.mode,
+  }));
+
+  const isVSAN = modeFromSetting === UIMode.VSAN;
+  const isHCI = modeFromSetting === UIMode.HCI;
+
   const nodesFromVSAN = useQuery({
     queryKey: ['nodesFromVSAN'],
     queryFn: () => getNodesFromVSAN(),
     refetchInterval: REFETCH_INTERVAL,
+  });
+
+  const cloudStackNodes = useQuery({
+    queryKey: ['cloudStackNodes'],
+    queryFn: () => getCloudStackNodes(),
+    refetchInterval: REFETCH_INTERVAL,
+    enabled: isHCI,
   });
 
   const [showStandbyWarning, setShowStandbyWarning] = useState(false);
@@ -68,15 +100,7 @@ export const VSANNodeList = () => {
 
   const [currentNode, setCurrentNode] = useState('');
 
-  const { modeFromSetting } = useSelector((state: RootState) => ({
-    modeFromSetting: state.setting.mode,
-  }));
-
-  const isVSAN = modeFromSetting === UIMode.VSAN;
-  const isHCI = modeFromSetting === UIMode.HCI;
-
   const upgradeNode = (nodeName: string) => {
-    const IS_DEV = process.env.NODE_ENV === 'development';
     console.log('Upgrade node: ' + nodeName);
     setUpdatingInfo((prev) => {
       return {
@@ -239,6 +263,23 @@ export const VSANNodeList = () => {
     }
   };
 
+  const mergedNodesData = React.useMemo(() => {
+    const vsanNodes = nodesFromVSAN?.data?.data ?? [];
+    const cloudNodes = cloudStackNodes?.data?.data ?? [];
+
+    if (!isHCI || !cloudNodes.length) {
+      return vsanNodes;
+    }
+
+    return vsanNodes.map((node: VSANNode) => {
+      const cloudNode: CloudStackNode | undefined = cloudNodes.find((cn: CloudStackNode) => cn.name === node.hostname);
+      return {
+        ...node,
+        num_vms: cloudNode?.num_vms || 0,
+      };
+    });
+  }, [nodesFromVSAN?.data?.data, cloudStackNodes?.data?.data, isHCI]);
+
   const columns: ColumnsType<DataType> = [
     {
       title: 'Node Name',
@@ -254,6 +295,18 @@ export const VSANNodeList = () => {
       sorter: (a, b) => compareIPv4(a.service_ip, b.service_ip),
       showSorterTooltip: false,
     },
+    ...(isHCI
+      ? [
+          {
+            title: 'VM Count',
+            dataIndex: 'num_vms',
+            key: 'num_vms',
+            sorter: (a: { num_vms?: number }, b: { num_vms?: number }) => (a.num_vms || 0) - (b.num_vms || 0),
+            showSorterTooltip: false,
+            render: (num_vms: number) => num_vms || 0,
+          },
+        ]
+      : []),
     {
       title: () => (
         <Popover
@@ -300,7 +353,7 @@ export const VSANNodeList = () => {
         return (
           <>
             <Tag color={color}>{statusText}</Tag>
-            {record.has_linstor_controller && <Tag color="#f79133">Controller</Tag>}
+            {record.has_linstor_controller && <Tag color="#f79133">{isHCI ? 'LINSTOR' : 'Controller'}</Tag>}
           </>
         );
       },
@@ -398,8 +451,6 @@ export const VSANNodeList = () => {
     },
   ];
 
-  const IS_DEV = process.env.NODE_ENV === 'development';
-
   return (
     <div>
       {contextHolder}
@@ -443,8 +494,8 @@ export const VSANNodeList = () => {
 
       <Table
         columns={columns}
-        dataSource={nodesFromVSAN?.data?.data ?? []}
-        loading={nodesFromVSAN.isLoading}
+        dataSource={mergedNodesData}
+        loading={nodesFromVSAN.isLoading || (isHCI && cloudStackNodes.isLoading)}
         pagination={false}
       />
 
