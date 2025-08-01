@@ -14,7 +14,7 @@ import { Button } from 'antd';
 import { Dispatch, RootState } from '@app/store';
 import PageBasic from '@app/components/PageBasic';
 
-import { ISCSIList as ISCSIListV2 } from '@app/features/gateway';
+import { ISCSIList as ISCSIListV2, ISCSIResource } from '@app/features/gateway';
 
 const List: React.FunctionComponent = () => {
   const { t } = useTranslation(['iscsi', 'common']);
@@ -70,7 +70,7 @@ const List: React.FunctionComponent = () => {
         {t('common:create')}
       </Button>
       <ISCSIListV2
-        list={list as any}
+        list={list as ISCSIResource[]}
         handleDelete={handleDelete}
         handleStart={handleStart}
         handleStop={handleStop}

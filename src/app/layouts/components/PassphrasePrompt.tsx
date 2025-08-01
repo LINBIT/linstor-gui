@@ -32,7 +32,10 @@ const PassphrasePrompt: React.FC = () => {
   const { data: passphraseData, isLoading } = useQuery<PassphraseStatus>({
     queryKey: ['passphraseStatus'],
     queryFn: async (): Promise<PassphraseStatus> => {
-      const response: any = await getPassphraseStatus();
+      const response = (await getPassphraseStatus()) as unknown as {
+        data: { status: 'unset' | 'locked' | 'unlocked' };
+      };
+      console.log('Passphrase status response:', response);
       return { status: response?.data?.status || 'unset' };
     },
   });
@@ -72,7 +75,7 @@ const PassphrasePrompt: React.FC = () => {
   const handleSetPassphrase = async (values: PassphraseFormValues) => {
     try {
       await createPassphraseMutation.mutateAsync(values.passphrase);
-    } catch (error) {
+    } catch {
       // Error is handled in onError callback
     }
   };
@@ -81,7 +84,7 @@ const PassphrasePrompt: React.FC = () => {
   const handleUnlockPassphrase = async (values: PassphraseFormValues) => {
     try {
       await enterPassphraseMutation.mutateAsync(values.passphrase);
-    } catch (error) {
+    } catch {
       // Error is handled in onError callback
     }
   };

@@ -16,7 +16,6 @@ import { MinusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
 export const Controller = () => {
-  const [propertyModalOpen, setPropertyModalOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
 
   const { t } = useTranslation(['common']);

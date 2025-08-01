@@ -4,7 +4,6 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React from 'react';
 import { Button, Popconfirm, Space, Table, Tag } from 'antd';
 import type { TableProps } from 'antd';
 import { useTranslation } from 'react-i18next';
@@ -73,7 +72,7 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart }: NFSList
     {
       title: t('common:action'),
       key: 'action',
-      render: (text, record) => {
+      render: (_text, record) => {
         const isStarted = record?.status?.service === 'Started';
 
         return (
