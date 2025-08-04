@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-const listResData = [
+const _listResData = [
   {
     name: 'rsc1',
     node_name: 'nodeA',
@@ -219,7 +219,7 @@ const listResData = [
   },
 ];
 
-const volumes = [
+const _volumes = [
   {
     volume_number: 0,
     storage_pool_name: 'string',
@@ -274,6 +274,6 @@ const volumes = [
   },
 ];
 
-export type ResourceListType = typeof listResData;
+export type ResourceListType = typeof _listResData;
 
-export type VolumeType = (typeof volumes)[0];
+export type VolumeType = (typeof _volumes)[0];

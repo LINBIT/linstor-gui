@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-const NetInterface = {
+const _NetInterface = {
   name: 'default',
   address: '10.10.10.10',
   satellite_port: 3366,
@@ -12,4 +12,4 @@ const NetInterface = {
   is_active: true,
 };
 
-export type NetInterfaceType = typeof NetInterface;
+export type NetInterfaceType = typeof _NetInterface;

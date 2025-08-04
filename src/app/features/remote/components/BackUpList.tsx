@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button, Form, Space, Table, Input, Popconfirm, Dropdown, Tooltip } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -22,8 +22,20 @@ type RemoteQuery = {
   origin_rsc?: string | null;
 };
 
+interface BackupItem {
+  id: string;
+  start_time?: string;
+  start_timestamp?: number;
+  finished_time: string;
+  finished_timestamp: number;
+  origin_rsc: string;
+  origin_snap: string;
+  success: boolean;
+  shipping: boolean;
+}
+
 export const List = () => {
-  const [dataList, setDataList] = useState<any[]>();
+  const [dataList, setDataList] = useState<BackupItem[]>([]);
 
   const navigate = useNavigate();
   const [form] = Form.useForm();
@@ -54,11 +66,12 @@ export const List = () => {
     queryFn: async () => {
       const res = await getBackup(remote_name ?? '');
 
-      let list = Object.keys(res.data?.linstor || {}).map((key) => {
-        const item = res.data?.linstor?.[key];
-
-        return item;
-      });
+      let list = Object.keys(res.data?.linstor || {})
+        .map((key) => {
+          const item = res.data?.linstor?.[key];
+          return item;
+        })
+        .filter((item) => item != null) as BackupItem[];
 
       if (query.origin_rsc) {
         list = list.filter((e) => e?.origin_rsc === query.origin_rsc);
@@ -82,7 +95,7 @@ export const List = () => {
 
     const new_url = `${location.pathname}?${queryS.toString()}`;
 
-    const newList = dataList?.filter((e) => {
+    const newList = dataList?.filter((e: BackupItem) => {
       if (values.origin_rsc && e.origin_rsc !== values.origin_rsc) {
         return false;
       }
@@ -268,7 +281,7 @@ export const List = () => {
       <br />
 
       <Table
-        columns={columns as any}
+        columns={columns}
         dataSource={dataList ?? []}
         pagination={{
           total: dataList?.length ?? 0,

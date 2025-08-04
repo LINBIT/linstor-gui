@@ -15,6 +15,12 @@ import { formatBytes } from '@app/utils/size';
 import { clusterPrivateVolumeSizeKib } from '../const';
 import { ErrorMessage } from '@app/features/vsan';
 import { Content } from './styled';
+import { NetworkAddress } from '@app/features/gateway/types';
+
+interface ResourceGroup {
+  name: string;
+  max_volume_size: number;
+}
 
 type FormType = {
   name: string;
@@ -29,6 +35,12 @@ type FormType = {
   time: string;
   domain: string;
 };
+
+interface IPServiceOption {
+  label: string;
+  value: string;
+  mask: number;
+}
 
 type CreateNVMEOfFormProps = {
   refetch?: () => void;
@@ -55,17 +67,19 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
   const gross_size = Form.useWatch('gross_size', form);
   const resource_group = Form.useWatch('resource_group', form);
 
-  const ipServiceOptions = React.useMemo(() => {
-    return ipPrefixes?.map((e) => ({
-      label: e.prefix,
-      value: e.prefix,
-      mask: e.mask,
-    }));
+  const ipServiceOptions: IPServiceOption[] = React.useMemo(() => {
+    return (
+      ipPrefixes?.map((e: NetworkAddress) => ({
+        label: e.prefix,
+        value: e.prefix,
+        mask: e.mask,
+      })) || []
+    );
   }, [ipPrefixes]);
 
   useEffect(() => {
     let maxVolumeSize = 0;
-    const selectedRG = resourceGroupsFromVSAN?.data?.find((e) => e.name === resource_group);
+    const selectedRG = resourceGroupsFromVSAN?.data?.find((e: ResourceGroup) => e.name === resource_group);
     if (selectedRG) {
       maxVolumeSize = selectedRG?.max_volume_size - clusterPrivateVolumeSizeKib;
     }
@@ -235,7 +249,7 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
               <Select
                 allowClear
                 placeholder="Please select resource group"
-                options={resourceGroupsFromVSAN?.data?.map((e) => ({
+                options={resourceGroupsFromVSAN?.data?.map((e: ResourceGroup) => ({
                   label: `${e.name} (${formatBytes(e.max_volume_size)} available)`,
                   value: e.name,
                 }))}
@@ -260,7 +274,9 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
                   options={ipServiceOptions}
                   onChange={(val, option) => {
                     setPrefix(val);
-                    setMask((option as any)?.mask as number);
+                    if (option && typeof option === 'object' && 'mask' in option) {
+                      setMask((option as IPServiceOption).mask);
+                    }
                   }}
                   style={{ minWidth: 140 }}
                   placeholder="192.168.1."

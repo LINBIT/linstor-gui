@@ -29,6 +29,11 @@ import { SideMenu } from '../styled';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
+interface KVSSettings {
+  dashboardEnabled?: boolean;
+  gatewayEnabled?: boolean;
+}
+
 function getItem(
   label: React.ReactNode,
   key: React.Key,
@@ -49,7 +54,7 @@ interface NavigationProps {
   isNavOpen?: boolean;
   vsanModeFromSetting?: boolean;
   hciModeFromSetting?: boolean;
-  KVS?: any;
+  KVS?: KVSSettings;
   gatewayAvailable?: boolean;
   authenticationEnabled?: boolean;
   isAdmin?: boolean;
@@ -221,14 +226,26 @@ const Navigation: React.FC<NavigationProps> = ({
     hciModeFromSetting,
   ]);
   React.useEffect(() => {
-    const currentMenu = items.find(
-      (e) => e?.key === location.pathname || (e as any)?.children?.find((c: any) => c.key === location.pathname),
-    ) as any;
+    const currentMenu = items.find((e) => {
+      if (e?.key === location.pathname) {
+        return true;
+      }
+      // Check if current path matches any children
+      if (e && 'children' in e && Array.isArray(e.children)) {
+        return e.children.some((child) => child && 'key' in child && child.key === location.pathname);
+      }
+      return false;
+    });
 
-    if (currentMenu?.children) {
-      setSelectedMenu(currentMenu.children.find((c: any) => c.key === location.pathname)?.key as string);
-    } else {
-      setSelectedMenu(currentMenu?.key as string);
+    if (currentMenu && 'children' in currentMenu && Array.isArray(currentMenu.children)) {
+      const matchedChild = currentMenu.children.find(
+        (child) => child && 'key' in child && child.key === location.pathname,
+      );
+      if (matchedChild && 'key' in matchedChild) {
+        setSelectedMenu(matchedChild.key as string);
+      }
+    } else if (currentMenu && 'key' in currentMenu) {
+      setSelectedMenu(currentMenu.key as string);
     }
   }, [location, items]);
 

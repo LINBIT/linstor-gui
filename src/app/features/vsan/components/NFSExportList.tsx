@@ -5,7 +5,6 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { useMutation, useQuery } from '@tanstack/react-query';
-import React from 'react';
 import { deleteNFSExport, getNFSExport } from '../api';
 
 import { Button, notification, Popconfirm, Space, Table, Tag } from 'antd';
@@ -26,7 +25,7 @@ interface DataType {
   service_ip: string;
   size: number;
   resource_group: string;
-  children?: any;
+  children?: DataType[];
 }
 
 type NFSExportListProp = {
@@ -141,7 +140,7 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
   });
 
   interface ProcessedNFSData extends DataType {
-    children?: any[];
+    children?: DataType[];
   }
 
   const exportPath = (e: Volume, nfsName: string): string => {
@@ -154,7 +153,6 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
     if (Array.isArray(data)) {
       data.forEach((t) => {
         if (t.status) {
-          // 将第一个volume作为主volume（忽略number为0的），然后将其他的volume作为第一个volume的children
           const nfs = t;
           const volumes = nfs.volumes.filter((v) => v.number !== 0);
 

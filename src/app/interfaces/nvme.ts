@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-const item = {
+const _item = {
   nqn: 'linbit:nvme:example4',
   service_ip: '192.168.211.122/24',
   resource_group: 'DfltRscGrp',
@@ -24,7 +24,7 @@ const item = {
   },
 };
 
-export type NVME = typeof item & {
+export type NVME = typeof _item & {
   deleting?: boolean;
   starting?: boolean;
   stopping?: boolean;

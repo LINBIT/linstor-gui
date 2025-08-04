@@ -25,7 +25,7 @@ interface Volume {
   }>;
 }
 
-interface Resource {
+export interface Resource {
   name: string;
   node_name: string;
   flags: string[];

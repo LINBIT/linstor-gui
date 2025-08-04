@@ -13,7 +13,7 @@ import styled from '@emotion/styled';
 
 import { formatTime } from '@app/utils/time';
 import { ResourceDataType } from '../types';
-import { getResourceState } from '@app/utils/resource';
+import { getResourceState, Resource } from '@app/utils/resource';
 import { useFaultyResources } from '../hooks/useFaultyResources';
 
 const Content = styled.div`
@@ -138,7 +138,7 @@ export const FaultyList = () => {
       key: 'state',
       align: 'center',
       render: (_, item) => {
-        return <span>{getResourceState(item as any)}</span>;
+        return <span>{getResourceState(item as Resource)}</span>;
       },
     },
   ];
@@ -147,7 +147,12 @@ export const FaultyList = () => {
     <Content>
       <h3 className="font-semibold text-[16px]">{t('common:faulty_resource')}</h3>
       {resources?.length ? (
-        <Table columns={columns as any} dataSource={resources ?? []} pagination={false} loading={isLoading} />
+        <Table<ResourceDataType>
+          columns={columns}
+          dataSource={(resources as ResourceDataType[]) ?? []}
+          pagination={false}
+          loading={isLoading}
+        />
       ) : (
         <EmptyContent>{t('common:all_resources_are_healthy')}</EmptyContent>
       )}
