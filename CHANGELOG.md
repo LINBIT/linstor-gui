@@ -1,5 +1,18 @@
 # Changelog
 
+# 1.9.9 - 2025-08-05
+
+### Added
+
+- Translation support for 7 languages
+- VM count display on node list page in CloudStack mode
+
+### Fixed
+
+- Don't show unsupport banner when the controller is unavailable
+- Header tools in CloudStack mode
+- Type warnings
+
 # 1.9.8 - 2025-07-15
 
 ### Added
