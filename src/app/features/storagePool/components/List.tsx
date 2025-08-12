@@ -71,13 +71,25 @@ export const List = () => {
     data: storagePoolList,
     refetch,
     isLoading,
-  } = useQuery(['getStoragePool', query], () => {
-    return getStoragePool(query);
+  } = useQuery(['getStoragePool', query, show_default], () => {
+    // If show_default is false, fetch more data to compensate for filtering
+    const adjustedQuery = { ...query };
+    if (!show_default && query?.limit) {
+      // Fetch extra records to account for filtered default storage pools
+      adjustedQuery.limit = Math.min(query.limit + 5, 100); // Add buffer, cap at 100
+    }
+    return getStoragePool(adjustedQuery);
   });
 
   const { data: stats, isLoading: isStatsLoading } = useQuery({
     queryKey: ['getStoragePoolCount'],
     queryFn: () => getStoragePoolCount(),
+  });
+
+  // Get count of default storage pools that actually exist
+  const { data: defaultStoragePoolList, isLoading: isDefaultStatsLoading } = useQuery({
+    queryKey: ['getDefaultStoragePools'],
+    queryFn: () => getStoragePool({ storage_pools: ['DfltDisklessStorPool'] }),
   });
 
   const updateStoragePoolMutation = useMutation({
@@ -99,8 +111,21 @@ export const List = () => {
       displayData = storagePoolList?.data?.filter((e) => e.storage_pool_name !== 'DfltDisklessStorPool');
     }
 
+    // Ensure we don't show more than the requested page size
+    if (displayData && query?.limit) {
+      displayData = displayData.slice(0, query.limit);
+    }
+
     setStoragePoolListDisplay(displayData);
-  }, [show_default, storagePoolList?.data]);
+  }, [show_default, storagePoolList?.data, query?.limit]);
+
+  // Handle show_default change: reset pagination when show_default changes
+  useEffect(() => {
+    setQuery((prev) => ({
+      ...prev,
+      offset: 0, // Reset to first page when show_default changes
+    }));
+  }, [show_default]);
 
   const deleteMutation = useMutation({
     mutationFn: ({ node, storagepool }: { node: string; storagepool: string }) => {
@@ -403,10 +428,12 @@ export const List = () => {
         rowSelection={rowSelection}
         rowKey={(item) => item?.uuid || ''}
         pagination={{
-          total: stats?.data?.count ?? 0,
+          total: show_default
+            ? (stats?.data?.count ?? 0)
+            : (stats?.data?.count ?? 0) - (defaultStoragePoolList?.data?.length ?? 0), // Subtract actual count of default SPs
           showSizeChanger: true,
           showTotal: (total) => t('common:total_items', { total }),
-          defaultCurrent: (query?.offset ?? 0) + 1,
+          current: Math.floor((query?.offset ?? 0) / (query?.limit ?? 10)) + 1,
           pageSize: query?.limit,
           onChange(page, pageSize) {
             setQuery({
@@ -416,7 +443,7 @@ export const List = () => {
             });
           },
         }}
-        loading={isLoading || isStatsLoading}
+        loading={isLoading || isStatsLoading || isDefaultStatsLoading}
       />
 
       <PropertyForm
