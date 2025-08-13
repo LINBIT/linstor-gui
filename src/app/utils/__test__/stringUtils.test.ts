@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { describe, it, expect } from 'vitest';
-import { capitalize, uniqId, getString, isUrl } from '../stringUtils';
+import { capitalize, uniqId, getString, isUrl, generateUUID } from '../stringUtils';
 
 describe('stringUtils', () => {
   describe('capitalize', () => {
@@ -65,6 +65,36 @@ describe('stringUtils', () => {
       // allow null to be passed, but it should return false
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect(isUrl(null as any)).toBe(false);
+    });
+  });
+
+  describe('generateUUID', () => {
+    it('should generate UUIDs with correct format', () => {
+      const uuid1 = generateUUID();
+      const uuid2 = generateUUID();
+
+      // UUID v4 format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+      expect(uuid1).toMatch(uuidRegex);
+      expect(uuid2).toMatch(uuidRegex);
+      expect(uuid1).not.toBe(uuid2);
+    });
+
+    it('should generate unique UUIDs', () => {
+      const uuids = new Set();
+      for (let i = 0; i < 100; i++) {
+        uuids.add(generateUUID());
+      }
+      expect(uuids.size).toBe(100);
+    });
+
+    it('should always have version 4 indicator', () => {
+      for (let i = 0; i < 10; i++) {
+        const uuid = generateUUID();
+        expect(uuid.charAt(14)).toBe('4'); // Version indicator
+        expect(['8', '9', 'a', 'b']).toContain(uuid.charAt(19).toLowerCase()); // Variant indicator
+      }
     });
   });
 });

@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import styled from '@emotion/styled';
 
 import { formatTime } from '@app/utils/time';
+import { generateUUID } from '@app/utils/stringUtils';
 import { ResourceDataType } from '../types';
 import { getResourceState, Resource } from '@app/utils/resource';
 import { useFaultyResources } from '../hooks/useFaultyResources';
@@ -152,6 +153,7 @@ export const FaultyList = () => {
           dataSource={(resources as ResourceDataType[]) ?? []}
           pagination={false}
           loading={isLoading}
+          rowKey={(item) => item?.uuid || generateUUID()}
         />
       ) : (
         <EmptyContent>{t('common:all_resources_are_healthy')}</EmptyContent>
