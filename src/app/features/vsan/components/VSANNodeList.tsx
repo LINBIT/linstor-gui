@@ -39,6 +39,8 @@ interface DataType {
   online: boolean;
   standby: boolean;
   has_linstor_controller: boolean;
+  has_cloudstack_db?: boolean;
+  has_cloudstack_nfs?: boolean;
   upgradeProgress: { maxSteps: number; curStep: number; label: string; message?: string } | null;
   updating?: boolean;
   num_vms?: number;
@@ -50,6 +52,8 @@ interface VSANNode {
   online: boolean;
   standby: boolean;
   has_linstor_controller: boolean;
+  has_cloudstack_db?: boolean;
+  has_cloudstack_nfs?: boolean;
   upgradeProgress: { maxSteps: number; curStep: number; label: string; message?: string } | null;
   updating?: boolean;
 }
@@ -354,6 +358,8 @@ export const VSANNodeList = () => {
           <>
             <Tag color={color}>{statusText}</Tag>
             {record.has_linstor_controller && <Tag color="#f79133">{isHCI ? 'LINSTOR' : 'Controller'}</Tag>}
+            {isHCI && record?.has_cloudstack_db && <Tag color="#1890ff">CS Manager</Tag>}
+            {isHCI && record?.has_cloudstack_nfs && <Tag color="#722ed1">NFS</Tag>}
           </>
         );
       },
