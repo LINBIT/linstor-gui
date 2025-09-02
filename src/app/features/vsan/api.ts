@@ -17,6 +17,13 @@ const setNodeStandBy = (hostname: string, standby: boolean) => {
   });
 };
 
+// HCI maintenance status
+const setNodeMaintenance = (hostname: string, maintenance: boolean) => {
+  return service.post(`/api/frontend/v1/cloudstack/nodes/${hostname}/maintenance`, {
+    maintenance,
+  });
+};
+
 const getNVMeoFTarget = () => {
   return service.get('/api/frontend/v1/nvme');
 };
@@ -110,4 +117,5 @@ export {
   deleteNFSExport,
   deleteISCISExport,
   getCloudStackNodes,
+  setNodeMaintenance,
 };

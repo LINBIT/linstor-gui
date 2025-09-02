@@ -20,7 +20,7 @@ import {
   notification,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { getNodesFromVSAN, setNodeStandBy, getCloudStackNodes } from '../api';
+import { getNodesFromVSAN, setNodeStandBy, setNodeMaintenance, getCloudStackNodes } from '../api';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { compareIPv4 } from '@app/utils/ip';
@@ -207,8 +207,13 @@ export const VSANNodeList = () => {
   };
 
   const standByMutation = useMutation({
-    mutationFn: ({ hostname, status }: { hostname: string; status: boolean }) => {
-      return setNodeStandBy(hostname, status);
+    mutationFn: async ({ hostname, status }: { hostname: string; status: boolean }) => {
+      // HCI mode needs to call both setNodeStandBy and setNodeMaintenance
+      if (isHCI) {
+        await Promise.all([setNodeStandBy(hostname, status), setNodeMaintenance(hostname, status)]);
+      } else {
+        await setNodeStandBy(hostname, status);
+      }
     },
     onSuccess: () => {
       api.success({
@@ -358,8 +363,8 @@ export const VSANNodeList = () => {
           <>
             <Tag color={color}>{statusText}</Tag>
             {record.has_linstor_controller && <Tag color="#f79133">{isHCI ? 'LINSTOR' : 'Controller'}</Tag>}
-            {isHCI && record?.has_cloudstack_db && <Tag color="#1890ff">CS Manager</Tag>}
-            {isHCI && record?.has_cloudstack_nfs && <Tag color="#722ed1">NFS</Tag>}
+            {isHCI && record?.has_cloudstack_db && <Tag color="#155086">CS Manager</Tag>}
+            {isHCI && record?.has_cloudstack_nfs && <Tag color="#499BBB">NFS</Tag>}
           </>
         );
       },
