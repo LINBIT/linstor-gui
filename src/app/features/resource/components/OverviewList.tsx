@@ -385,21 +385,6 @@ export const OverviewList = () => {
     ),
   );
 
-  const extraColumns: any = useMemo(() => {
-    return isLargeScreen
-      ? [
-          {
-            title: t('common:port'),
-            key: 'port',
-            render: (item: any) => {
-              const DRBDData = item?.layer_data?.find((e: any) => e.type === 'DRBD');
-              return <span>{DRBDData?.data?.port || 'N/A'}</span>;
-            },
-          },
-        ]
-      : [];
-  }, [isLargeScreen, t]);
-
   const columns: TableProps<any>['columns'] = useMemo(() => {
     return [
       {
@@ -586,7 +571,6 @@ export const OverviewList = () => {
 
     if (shouldShowCSProps) {
       return [
-        ...extraColumns,
         ...(CSProps?.map((e: any) => {
           return {
             title: e,
@@ -598,9 +582,9 @@ export const OverviewList = () => {
         }) ?? []),
       ];
     } else {
-      return extraColumns;
+      return [];
     }
-  }, [CSProps, extraColumns, filteredList, pagination]);
+  }, [CSProps, filteredList, pagination]);
 
   const finalColumns = useMemo(() => {
     if (isLargeScreen) {
