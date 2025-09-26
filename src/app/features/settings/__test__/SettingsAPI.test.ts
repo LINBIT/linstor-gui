@@ -125,6 +125,7 @@ describe('SettingsAPI', () => {
         'authenticationEnabled',
         'customLogoEnabled',
         'hideDefaultCredential',
+        'needsPasswordChange',
         'vsanAvailable',
       ]);
 
@@ -293,10 +294,9 @@ describe('SettingsAPI', () => {
       expect(fieldType).toBe('string');
     });
 
-    it('should throw error for unknown fields', () => {
-      expect(() => {
-        settingsAPI['getFieldType']('unknownField' as any);
-      }).toThrow('Unknown field type for field: unknownField');
+    it('should return undefined for unknown fields (backward compatibility)', () => {
+      const result = settingsAPI['getFieldType']('unknownField' as any);
+      expect(result).toBeUndefined();
     });
   });
 

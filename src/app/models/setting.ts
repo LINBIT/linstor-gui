@@ -150,6 +150,29 @@ export const setting = createModel<RootModel>()({
       const userStore = await kvStore.instanceExists('users');
 
       if (res) {
+        // Check for admin password reset flag from CLI first
+        const settingsInstance = await kvStore.get(SettingsAPI.instance);
+        if (settingsInstance?.props?.resetAdminPassword === 'true') {
+          // Reset admin password while preserving other users
+          await authAPI.resetAdminPassword('admin');
+
+          // Set needsPasswordChange to true so admin is prompted to change password
+          await settingAPI.setProps({
+            needsPasswordChange: true,
+            hideDefaultCredential: false,
+          });
+
+          // Remove the reset flag
+          await kvStore.modify(SettingsAPI.instance, {
+            delete_props: ['resetAdminPassword'],
+          });
+
+          console.log('Admin password has been reset to default (admin/admin) via CLI command');
+          notify('Admin password has been reset to default (admin/admin)', {
+            type: 'success',
+          });
+        }
+
         // update mode flags mutually exclusively
         if (mode === UIMode.VSAN) {
           await settingAPI.setProps({ vsanMode: true, hciMode: false, vsanAvailable: true });

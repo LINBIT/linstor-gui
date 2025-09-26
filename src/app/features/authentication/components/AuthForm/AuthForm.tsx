@@ -17,10 +17,6 @@ type FormType = {
   password_validate: string;
 };
 
-const isDefaultCredentials = (values: FormType) => {
-  return values.username === 'admin' && values.password === 'admin';
-};
-
 const AuthForm: React.FC = () => {
   const { t } = useTranslation(['common']);
   const [isError, setIsError] = useState(false);
@@ -33,9 +29,7 @@ const AuthForm: React.FC = () => {
   const onFinish = async (values: FormType) => {
     const res = await dispatch.auth.login({ username: values.username, password: values.password });
     if (res) {
-      if (isDefaultCredentials(values)) {
-        dispatch.auth.setNeedsPasswordChange(true);
-      }
+      // The login effect in auth model will handle needsPasswordChange based on hideDefaultCredential
 
       if (vsanModeFromSetting) {
         window.location.href = '/vsan/dashboard';

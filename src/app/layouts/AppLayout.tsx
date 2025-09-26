@@ -222,8 +222,8 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
       />
 
-      {authenticationEnabled && authInfo.isAdmin && authInfo.isLoggedIn && (
-        <ChangePassword defaultOpen={authInfo.needsPasswordChange} admin={authInfo.isAdmin} />
+      {authenticationEnabled && authInfo.isAdmin && authInfo.isLoggedIn && authInfo.needsPasswordChange && (
+        <ChangePassword defaultOpen={authInfo.needsPasswordChange} admin={false} />
       )}
 
       <StyledModal

@@ -410,6 +410,7 @@ const en = {
     confirm_password: 'Confirm password',
     change_password: 'Change password',
     current_password: 'Current password',
+    dont_show_again: "Don't show this again",
     username: 'Username',
     password: 'Password',
     add: 'Add',

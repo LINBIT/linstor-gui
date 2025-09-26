@@ -34,16 +34,22 @@ export const UserManagement = () => {
   const isAdminOrNotEnabled = !authenticationEnabled || (authenticationEnabled && isAdmin);
 
   const toggleMutation = useMutation({
-    mutationFn: (enable: boolean) => {
+    mutationFn: async (enable: boolean) => {
       window.localStorage.removeItem('linstorname');
-      return settingAPI
-        .setProps({
-          authenticationEnabled: enable,
-          hideDefaultCredential: false,
-        })
-        .then(() => {
-          return authAPI.initUserStore();
-        });
+
+      // Build props object, only including needsPasswordChange if we're enabling
+      const props: any = {
+        authenticationEnabled: enable,
+        hideDefaultCredential: false,
+      };
+
+      // Only set needsPasswordChange for new authentication enables
+      if (enable) {
+        props.needsPasswordChange = true;
+      }
+
+      await settingAPI.setProps(props);
+      return authAPI.initUserStore();
     },
     onError: (error) => {
       console.log(error);

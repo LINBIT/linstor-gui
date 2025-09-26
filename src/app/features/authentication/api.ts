@@ -158,6 +158,48 @@ export class UserAuthAPI {
         return this.register({ username: 'admin', password: 'admin' });
       });
   }
+
+  public async resetAdminPassword(newPassword: string = 'admin'): Promise<boolean> {
+    try {
+      const encryptedPassword = await this.encrypt(newPassword);
+      await this.store.setProperty(this.usersInstance, 'admin', encryptedPassword);
+      return true;
+    } catch (error) {
+      console.error('Failed to reset admin password:', error);
+      return false;
+    }
+  }
+
+  public async resetAuthenticationSystem(preserveUsers: boolean = true): Promise<boolean> {
+    try {
+      if (!preserveUsers) {
+        await this.store.delete(this.usersInstance);
+        await this.initUserStore();
+      } else {
+        const existingUsers = await this.getUsers();
+        const nonAdminUsers: Record<string, string> = {};
+
+        for (const username of existingUsers) {
+          if (username !== 'admin') {
+            const password = await this.store.getProperty(this.usersInstance, username);
+            if (password) {
+              nonAdminUsers[username] = password;
+            }
+          }
+        }
+
+        await this.resetAdminPassword('admin');
+
+        for (const [username, password] of Object.entries(nonAdminUsers)) {
+          await this.store.setProperty(this.usersInstance, username, password);
+        }
+      }
+      return true;
+    } catch (error) {
+      console.error('Failed to reset authentication system:', error);
+      return false;
+    }
+  }
 }
 
 export default new UserAuthAPI();

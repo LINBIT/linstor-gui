@@ -15,3 +15,4 @@ sbom/
 junit.xml
 .prompts/
 .claude/
+CLAUDE.md

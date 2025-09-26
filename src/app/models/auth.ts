@@ -8,6 +8,7 @@ import { createModel } from '@rematch/core';
 import { RootModel } from '.';
 import { authAPI } from '@app/features/authentication';
 import { USER_LOCAL_STORAGE_KEY } from '@app/const/settings';
+import { settingAPI } from '@app/features/settings';
 
 interface UserAuth {
   username: string;
@@ -63,9 +64,28 @@ export const auth = createModel<RootModel>()({
         if (user.username === 'admin') {
           dispatch.auth.setIsAdmin(true);
 
-          if (user.password === 'admin') {
-            // TODO: Remove this once we have a proper password change
-            dispatch.auth.setNeedsPasswordChange(true);
+          // Check needsPasswordChange from settings
+          try {
+            const settings = await settingAPI.getProps();
+
+            // For backward compatibility: if needsPasswordChange is undefined,
+            // check if user is using default password and hasn't hidden the credential tip
+            let shouldPromptPasswordChange = false;
+
+            if (settings?.needsPasswordChange !== undefined) {
+              // New behavior: use the explicit needsPasswordChange flag
+              shouldPromptPasswordChange = settings.needsPasswordChange;
+            } else if (user.password === 'admin') {
+              // Backward compatibility: check hideDefaultCredential for old installations
+              // If hideDefaultCredential is false or undefined, prompt for password change
+              shouldPromptPasswordChange = !settings?.hideDefaultCredential;
+            }
+
+            if (shouldPromptPasswordChange) {
+              dispatch.auth.setNeedsPasswordChange(true);
+            }
+          } catch (error) {
+            console.error('Failed to get settings for password change check:', error);
           }
         }
         localStorage.setItem(USER_LOCAL_STORAGE_KEY, user.username);
@@ -105,12 +125,48 @@ export const auth = createModel<RootModel>()({
       if (username) {
         dispatch.auth.setLoggedIn(true);
         dispatch.auth.setUsername(username);
+
+        // Set isAdmin if the user is admin
+        if (username === 'admin') {
+          dispatch.auth.setIsAdmin(true);
+
+          // Check if admin needs to change password
+          try {
+            const settings = await settingAPI.getProps();
+            if (settings?.needsPasswordChange) {
+              dispatch.auth.setNeedsPasswordChange(true);
+            }
+          } catch (error) {
+            console.error('Failed to check needsPasswordChange on login status check:', error);
+          }
+        }
       }
     },
 
     async getUsers() {
       const users = await authAPI.getUsers();
       dispatch.auth.setUsers(users);
+    },
+
+    async resetAdminPassword(newPassword: string = 'admin') {
+      const success = await authAPI.resetAdminPassword(newPassword);
+      if (success) {
+        dispatch.auth.setNeedsPasswordChange(true);
+      }
+      return success;
+    },
+
+    async resetAuthenticationSystem(preserveUsers: boolean = true) {
+      const success = await authAPI.resetAuthenticationSystem(preserveUsers);
+      if (success) {
+        dispatch.auth.setLoggedIn(false);
+        dispatch.auth.setUsername(null);
+        localStorage.removeItem(USER_LOCAL_STORAGE_KEY);
+        if (preserveUsers) {
+          dispatch.auth.getUsers();
+        }
+      }
+      return success;
     },
   }),
 });

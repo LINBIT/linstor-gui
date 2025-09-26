@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Button, Form, Input, message, Modal } from 'antd';
+import { Button, Form, Input, message, Modal, Space } from 'antd';
 
 import changePassword from '@app/assets/changepassword.svg';
 import changePasswordBG from '@app/assets/changepassword-bg.svg';
@@ -24,7 +24,7 @@ interface Values {
 interface ChangePasswordFormProps {
   open: boolean;
   onCreate: (values: Values) => void;
-  onCancel: () => void;
+  onCancel: (dontShowAgain?: boolean) => void;
   admin?: boolean;
   init?: boolean;
 }
@@ -32,13 +32,24 @@ interface ChangePasswordFormProps {
 const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ open, onCreate, onCancel, admin, init }) => {
   const [form] = Form.useForm();
   const { t } = useTranslation('users');
+
+  const handleCancel = () => {
+    onCancel(false);
+    form.resetFields();
+  };
+
+  const handleDontShowAgain = () => {
+    onCancel(true);
+    form.resetFields();
+  };
+
   return (
     <Modal
       open={open}
       wrapClassName="change-password-modal"
       footer={null}
       width="70%"
-      onCancel={onCancel}
+      onCancel={handleCancel}
       style={{ maxWidth: '90vw', padding: '16px' }}
     >
       <Content>
@@ -77,9 +88,16 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ open, onCreate,
               <Input.Password />
             </Form.Item>
             <Form.Item>
-              <Button type="primary" htmlType="submit">
-                {admin ? t('reset_password') : t('change_password')}
-              </Button>
+              <Space>
+                <Button type="primary" htmlType="submit">
+                  {admin ? t('reset_password') : t('change_password')}
+                </Button>
+                {init && !admin && (
+                  <Button type="default" onClick={handleDontShowAgain}>
+                    {t('dont_show_again') || "Don't show this again"}
+                  </Button>
+                )}
+              </Space>
             </Form.Item>
           </Form>
         </MainSection>
@@ -89,10 +107,10 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ open, onCreate,
 };
 
 type ChangePasswordProps = {
-  admin?: boolean;
-  user?: string;
+  admin?: boolean; // True when admin is resetting another user's password
+  user?: string; // Username to reset (for admin mode)
   disabled?: boolean;
-  defaultOpen?: boolean;
+  defaultOpen?: boolean; // True when auto-opened for default password change
 };
 
 const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordProps) => {
@@ -117,6 +135,15 @@ const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordPr
     if (res) {
       message.success(t('password_changed'));
 
+      // Clear needsPasswordChange flag in settings after successful password change
+      // Note: If password was changed, we always set needsPasswordChange to false regardless of checkbox
+      if (!admin && localStorage.getItem(USER_LOCAL_STORAGE_KEY) === 'admin') {
+        await dispatch.setting.saveKey({
+          needsPasswordChange: false,
+        });
+      }
+      dispatch.auth.setNeedsPasswordChange(false);
+
       if (!admin) {
         setTimeout(() => {
           dispatch.auth.logout();
@@ -125,6 +152,31 @@ const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordPr
       }
     } else {
       message.error(t('password_change_failed'));
+    }
+  };
+
+  const handleCancel = (dontShowAgain?: boolean) => {
+    setOpen(false);
+
+    // If this was a default password change prompt (defaultOpen=true) and user cancelled
+    if (defaultOpen && !admin) {
+      const currentUser = localStorage.getItem(USER_LOCAL_STORAGE_KEY);
+      if (currentUser === 'admin') {
+        if (dontShowAgain) {
+          // User checked "Don't show again" - permanently disable the prompt
+          dispatch.setting.saveKey({
+            needsPasswordChange: false,
+            hideDefaultCredential: true,
+          });
+        } else {
+          // User just closed the modal - hide for this session only
+          dispatch.setting.saveKey({
+            hideDefaultCredential: true,
+          });
+        }
+        // Clear the in-memory flag so modal doesn't keep showing in this session
+        dispatch.auth.setNeedsPasswordChange(false);
+      }
     }
   };
 
@@ -142,20 +194,12 @@ const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordPr
           ) : (
             <>
               <ImgIcon src={changePassword} alt="changepassword" />
-              <span>{t('reset_password')}</span>
+              <span>{t('change_password')}</span>
             </>
           )}
         </div>
       )}
-      <ChangePasswordForm
-        init={defaultOpen}
-        admin={admin}
-        open={open}
-        onCreate={onCreate}
-        onCancel={() => {
-          setOpen(false);
-        }}
-      />
+      <ChangePasswordForm init={defaultOpen} admin={admin} open={open} onCreate={onCreate} onCancel={handleCancel} />
     </div>
   );
 };

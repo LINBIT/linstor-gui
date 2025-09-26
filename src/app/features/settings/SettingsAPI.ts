@@ -20,6 +20,7 @@ export const SETTINGS_FIELDS = {
     'authenticationEnabled',
     'customLogoEnabled',
     'hideDefaultCredential',
+    'needsPasswordChange',
     'vsanAvailable',
   ] as const,
 
@@ -82,6 +83,7 @@ export class SettingsAPI {
       authenticationEnabled: false,
       customLogoEnabled: false,
       hideDefaultCredential: false,
+      needsPasswordChange: false,
       gatewayHost: '',
       vsanAvailable: false,
     };
@@ -112,10 +114,11 @@ export class SettingsAPI {
     );
   }
 
-  private getFieldType(field: keyof SettingsProps): 'boolean' | 'string' {
+  private getFieldType(field: string): 'boolean' | 'string' | undefined {
     if (SETTINGS_FIELDS.BOOLEAN.includes(field as BooleanField)) return 'boolean';
     if (SETTINGS_FIELDS.STRING.includes(field as StringField)) return 'string';
-    throw new Error(`Unknown field type for field: ${field}`);
+    // Return undefined for unknown fields (backward compatibility)
+    return undefined;
   }
 
   private deserializeValue<T extends keyof SettingsProps>(
@@ -125,6 +128,8 @@ export class SettingsAPI {
     if (value === undefined) return undefined;
 
     const fieldType = this.getFieldType(field);
+    if (!fieldType) return undefined; // Unknown field, skip it
+
     return fieldType === 'boolean' ? ((value === 'true') as SettingsProps[T]) : (value as SettingsProps[T]);
   }
 
@@ -138,6 +143,13 @@ export class SettingsAPI {
 
     Object.entries(storeProps.props).forEach(([key, value]) => {
       if (key === '__updated__') return;
+
+      // Skip unknown fields for backward compatibility
+      const fieldType = this.getFieldType(key);
+      if (!fieldType) {
+        console.debug(`Skipping unknown settings field: ${key}`);
+        return;
+      }
 
       const field = key as keyof SettingsProps;
       const deserializedValue = this.deserializeValue(field, value);
@@ -174,6 +186,28 @@ export class SettingsAPI {
 
   public static async clear(): Promise<void> {
     await kvStore.delete(SettingsAPI.instance);
+  }
+
+  public static async resetAdminPasswordOnly(newPassword: string = 'admin'): Promise<boolean> {
+    try {
+      if (!(await kvStore.instanceExists(authAPI.usersInstance))) {
+        await authAPI.initUserStore();
+        return true;
+      }
+      return await authAPI.resetAdminPassword(newPassword);
+    } catch (error) {
+      console.error('Failed to reset admin password:', error);
+      return false;
+    }
+  }
+
+  public static async resetAuthentication(preserveUsers: boolean = true): Promise<boolean> {
+    try {
+      return await authAPI.resetAuthenticationSystem(preserveUsers);
+    } catch (error) {
+      console.error('Failed to reset authentication:', error);
+      return false;
+    }
   }
 }
 
