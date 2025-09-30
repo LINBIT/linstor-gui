@@ -12,14 +12,15 @@ import { RootModel } from '.';
 
 import { settingAPI, SettingsAPI, SettingsProps } from '@app/features/settings';
 import { kvStore } from '@app/features/keyValueStore';
+import { KV_NAMESPACES } from '@app/const/kvstore';
 import { UserAuthAPI } from '@app/features/authentication/api';
-import { GUI_KEY_VALUE_STORE_KEY, USER_LOCAL_STORAGE_KEY } from '@app/const/settings';
+import { USER_LOCAL_STORAGE_KEY, DEFAULT_ADMIN_USER_NAME } from '@app/const/settings';
 
 const defaultGatewayHost = window.location.protocol + '//' + window.location.hostname + ':8080/';
 
 // Use "__gui__settings" namespace of key-value-store(KVS) for saving settings
 // KVS only stores values as string
-const SETTING_KEY = GUI_KEY_VALUE_STORE_KEY;
+const SETTING_KEY = KV_NAMESPACES.SETTINGS;
 const GATEWAY_HOST = 'GATEWAY_HOST';
 const HCI_VSAN_HOST = 'HCI_VSAN_HOST';
 
@@ -93,7 +94,9 @@ export const setting = createModel<RootModel>()({
     setAdmin(state) {
       return {
         ...state,
-        isAdmin: state.KVS?.authenticationEnabled && window.localStorage.getItem(USER_LOCAL_STORAGE_KEY) === 'admin',
+        isAdmin:
+          state.KVS?.authenticationEnabled &&
+          window.localStorage.getItem(USER_LOCAL_STORAGE_KEY) === DEFAULT_ADMIN_USER_NAME,
       };
     },
     setVSANEvalStatus(
@@ -147,32 +150,9 @@ export const setting = createModel<RootModel>()({
     async initSettingStore(mode: UIMode) {
       const res = await SettingsAPI.instanceExists();
 
-      const userStore = await kvStore.instanceExists('users');
+      const userStore = await kvStore.instanceExists(KV_NAMESPACES.LEGACY_USERS);
 
       if (res) {
-        // Check for admin password reset flag from CLI first
-        const settingsInstance = await kvStore.get(SettingsAPI.instance);
-        if (settingsInstance?.props?.resetAdminPassword === 'true') {
-          // Reset admin password while preserving other users
-          await authAPI.resetAdminPassword('admin');
-
-          // Set needsPasswordChange to true so admin is prompted to change password
-          await settingAPI.setProps({
-            needsPasswordChange: true,
-            hideDefaultCredential: false,
-          });
-
-          // Remove the reset flag
-          await kvStore.modify(SettingsAPI.instance, {
-            delete_props: ['resetAdminPassword'],
-          });
-
-          console.log('Admin password has been reset to default (admin/admin) via CLI command');
-          notify('Admin password has been reset to default (admin/admin)', {
-            type: 'success',
-          });
-        }
-
         // update mode flags mutually exclusively
         if (mode === UIMode.VSAN) {
           await settingAPI.setProps({ vsanMode: true, hciMode: false, vsanAvailable: true });

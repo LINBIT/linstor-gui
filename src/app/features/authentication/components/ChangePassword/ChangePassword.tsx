@@ -12,7 +12,7 @@ import changePasswordBG from '@app/assets/changepassword-bg.svg';
 import { BGImg, Content, ImgIcon, MainSection } from './styled';
 import { Dispatch } from '@app/store';
 import { useDispatch } from 'react-redux';
-import { USER_LOCAL_STORAGE_KEY } from '@app/const/settings';
+import { USER_LOCAL_STORAGE_KEY, DEFAULT_ADMIN_USER_NAME } from '@app/const/settings';
 import { useTranslation } from 'react-i18next';
 
 interface Values {
@@ -121,7 +121,10 @@ const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordPr
   const onCreate = async (values) => {
     let res = null;
     if (admin) {
-      res = await dispatch.auth.resetPassword({ user: user || 'admin', newPassword: values.newPassword });
+      res = await dispatch.auth.resetPassword({
+        user: user || DEFAULT_ADMIN_USER_NAME,
+        newPassword: values.newPassword,
+      });
     } else {
       res = await dispatch.auth.changePassword({
         user: localStorage.getItem(USER_LOCAL_STORAGE_KEY),
@@ -137,7 +140,7 @@ const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordPr
 
       // Clear needsPasswordChange flag in settings after successful password change
       // Note: If password was changed, we always set needsPasswordChange to false regardless of checkbox
-      if (!admin && localStorage.getItem(USER_LOCAL_STORAGE_KEY) === 'admin') {
+      if (!admin && localStorage.getItem(USER_LOCAL_STORAGE_KEY) === DEFAULT_ADMIN_USER_NAME) {
         await dispatch.setting.saveKey({
           needsPasswordChange: false,
         });
@@ -161,7 +164,7 @@ const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordPr
     // If this was a default password change prompt (defaultOpen=true) and user cancelled
     if (defaultOpen && !admin) {
       const currentUser = localStorage.getItem(USER_LOCAL_STORAGE_KEY);
-      if (currentUser === 'admin') {
+      if (currentUser === DEFAULT_ADMIN_USER_NAME) {
         if (dontShowAgain) {
           // User checked "Don't show again" - permanently disable the prompt
           dispatch.setting.saveKey({

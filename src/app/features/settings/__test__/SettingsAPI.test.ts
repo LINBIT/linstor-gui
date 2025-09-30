@@ -7,8 +7,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Mock dependencies
-vi.mock('@app/const/settings', () => ({
-  GUI_KEY_VALUE_STORE_KEY: 'test-gui-settings',
+vi.mock('@app/const/kvstore', () => ({
+  KV_NAMESPACES: {
+    SETTINGS: 'test-gui-settings',
+    USERS: 'test-users',
+    LEGACY_USERS: 'users',
+  },
 }));
 
 vi.mock('@app/features/authentication', () => ({

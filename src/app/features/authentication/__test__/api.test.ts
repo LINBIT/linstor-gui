@@ -8,6 +8,7 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { UserAuthAPI } from '../api';
 import { kvStore } from '@app/features/keyValueStore';
 import { USER_LOCAL_STORAGE_KEY } from '@app/const/settings';
+import { KV_NAMESPACES } from '@app/const/kvstore';
 import CryptoJS from 'crypto-js';
 
 // Mock the kvStore
@@ -18,6 +19,9 @@ vi.mock('@app/features/keyValueStore', () => ({
     deleteProperty: vi.fn(),
     listKeys: vi.fn(),
     create: vi.fn(),
+    instanceExists: vi.fn(),
+    get: vi.fn(),
+    delete: vi.fn(),
   },
 }));
 
@@ -58,7 +62,7 @@ describe('UserAuthAPI', () => {
 
   describe('constructor', () => {
     it('should initialize with correct properties', () => {
-      expect(userAuthAPI.usersInstance).toBe('users');
+      expect(userAuthAPI.usersInstance).toBe(KV_NAMESPACES.USERS);
     });
   });
 
@@ -71,8 +75,8 @@ describe('UserAuthAPI', () => {
       const result = await userAuthAPI.register(user);
 
       expect(result).toBe(true);
-      expect(mockKvStore.getProperty).toHaveBeenCalledWith('users', 'testuser');
-      expect(mockKvStore.setProperty).toHaveBeenCalledWith('users', 'testuser', expect.any(String));
+      expect(mockKvStore.getProperty).toHaveBeenCalledWith(KV_NAMESPACES.USERS, 'testuser');
+      expect(mockKvStore.setProperty).toHaveBeenCalledWith(KV_NAMESPACES.USERS, 'testuser', expect.any(String));
     });
 
     it('should fail to register an existing user', async () => {
@@ -143,7 +147,7 @@ describe('UserAuthAPI', () => {
       const result = await userAuthAPI.resetPassword('testuser', 'newpass');
 
       expect(result).toBe(true);
-      expect(mockKvStore.setProperty).toHaveBeenCalledWith('users', 'testuser', expect.any(String));
+      expect(mockKvStore.setProperty).toHaveBeenCalledWith(KV_NAMESPACES.USERS, 'testuser', expect.any(String));
     });
   });
 
@@ -160,7 +164,7 @@ describe('UserAuthAPI', () => {
       const result = await userAuthAPI.changePassword(username, oldPassword, newPassword);
 
       expect(result).toBe(true);
-      expect(mockKvStore.setProperty).toHaveBeenCalledWith('users', 'testuser', expect.any(String));
+      expect(mockKvStore.setProperty).toHaveBeenCalledWith(KV_NAMESPACES.USERS, 'testuser', expect.any(String));
     });
 
     it('should fail to change password with incorrect old password', async () => {
@@ -197,7 +201,7 @@ describe('UserAuthAPI', () => {
       const result = await userAuthAPI.userExists('testuser');
 
       expect(result).toBe(true);
-      expect(mockKvStore.getProperty).toHaveBeenCalledWith('users', 'testuser');
+      expect(mockKvStore.getProperty).toHaveBeenCalledWith(KV_NAMESPACES.USERS, 'testuser');
     });
 
     it('should return false for non-existent user', async () => {
@@ -215,7 +219,7 @@ describe('UserAuthAPI', () => {
 
       await userAuthAPI.deleteUser('testuser');
 
-      expect(mockKvStore.deleteProperty).toHaveBeenCalledWith('users', 'testuser');
+      expect(mockKvStore.deleteProperty).toHaveBeenCalledWith(KV_NAMESPACES.USERS, 'testuser');
     });
   });
 
@@ -227,7 +231,7 @@ describe('UserAuthAPI', () => {
       const result = await userAuthAPI.getUsers();
 
       expect(result).toEqual(mockUsers);
-      expect(mockKvStore.listKeys).toHaveBeenCalledWith('users');
+      expect(mockKvStore.listKeys).toHaveBeenCalledWith(KV_NAMESPACES.USERS);
     });
   });
 
@@ -281,7 +285,7 @@ describe('UserAuthAPI', () => {
 
       await userAuthAPI.initUserStore();
 
-      expect(mockCreate).toHaveBeenCalledWith('users', {
+      expect(mockCreate).toHaveBeenCalledWith(KV_NAMESPACES.USERS, {
         override_props: {
           __updated__: expect.any(String),
         },

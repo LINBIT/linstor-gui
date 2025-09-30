@@ -13,6 +13,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Dispatch } from '@app/store';
 import { ChangePassword } from '@app/features/authentication';
 import { Mode } from '@app/hooks/useUIModeStorage';
+import { DEFAULT_ADMIN_USER_NAME } from '@app/const/settings';
 import { BRAND_COLOR } from '@app/const/color';
 import { getControllerVersion } from '@app/features/node';
 
@@ -100,7 +101,7 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
           >
             <ImgIcon src={user} alt="user" />
             <span>
-              {t('common:user')}: {authInfo.username || 'admin'}
+              {t('common:user')}: {authInfo.username || DEFAULT_ADMIN_USER_NAME}
             </span>
           </a>
         ),

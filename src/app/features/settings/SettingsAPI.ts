@@ -4,7 +4,8 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { GUI_KEY_VALUE_STORE_KEY } from '@app/const/settings';
+import { KV_NAMESPACES } from '@app/const/kvstore';
+import { DEFAULT_ADMIN_USER_NAME, DEFAULT_ADMIN_USER_PASS } from '@app/const/settings';
 import { authAPI } from '../authentication';
 import { KeyValueStoreType, kvStore } from '../keyValueStore';
 import { UIMode } from '@app/models/setting'; // import UIMode enum
@@ -61,7 +62,7 @@ const VALIDATION_RULES: ValidationRule[] = [
 
 export class SettingsAPI {
   private store: KeyValueStoreType;
-  static instance = GUI_KEY_VALUE_STORE_KEY;
+  static instance = KV_NAMESPACES.SETTINGS;
 
   constructor() {
     this.store = kvStore;
@@ -188,13 +189,13 @@ export class SettingsAPI {
     await kvStore.delete(SettingsAPI.instance);
   }
 
-  public static async resetAdminPasswordOnly(newPassword: string = 'admin'): Promise<boolean> {
+  public static async resetAdminPasswordOnly(newPassword: string = DEFAULT_ADMIN_USER_PASS): Promise<boolean> {
     try {
       if (!(await kvStore.instanceExists(authAPI.usersInstance))) {
         await authAPI.initUserStore();
         return true;
       }
-      return await authAPI.resetAdminPassword(newPassword);
+      return await authAPI.resetPassword(DEFAULT_ADMIN_USER_NAME, newPassword);
     } catch (error) {
       console.error('Failed to reset admin password:', error);
       return false;

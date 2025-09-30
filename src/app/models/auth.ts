@@ -7,8 +7,11 @@
 import { createModel } from '@rematch/core';
 import { RootModel } from '.';
 import { authAPI } from '@app/features/authentication';
-import { USER_LOCAL_STORAGE_KEY } from '@app/const/settings';
+import { USER_LOCAL_STORAGE_KEY, DEFAULT_ADMIN_USER_NAME, DEFAULT_ADMIN_USER_PASS } from '@app/const/settings';
 import { settingAPI } from '@app/features/settings';
+
+// System fields that should be filtered from user list
+const SYSTEM_FIELDS = ['__updated__', '__migrated_from__'] as const;
 
 interface UserAuth {
   username: string;
@@ -39,7 +42,11 @@ export const auth = createModel<RootModel>()({
       return { ...state, username: payload };
     },
     setUsers(state, payload: string[]) {
-      return { ...state, users: payload.filter((user) => user !== 'admin' && user !== '__updated__') };
+      // Filter out admin user and system fields
+      return {
+        ...state,
+        users: payload.filter((user) => user !== DEFAULT_ADMIN_USER_NAME && !SYSTEM_FIELDS.includes(user as any)),
+      };
     },
     setNeedsPasswordChange(state, payload: boolean) {
       return { ...state, needsPasswordChange: payload };
@@ -61,7 +68,7 @@ export const auth = createModel<RootModel>()({
       if (success) {
         dispatch.auth.setLoggedIn(true);
         dispatch.auth.setUsername(user.username);
-        if (user.username === 'admin') {
+        if (user.username === DEFAULT_ADMIN_USER_NAME) {
           dispatch.auth.setIsAdmin(true);
 
           // Check needsPasswordChange from settings
@@ -75,7 +82,7 @@ export const auth = createModel<RootModel>()({
             if (settings?.needsPasswordChange !== undefined) {
               // New behavior: use the explicit needsPasswordChange flag
               shouldPromptPasswordChange = settings.needsPasswordChange;
-            } else if (user.password === 'admin') {
+            } else if (user.password === DEFAULT_ADMIN_USER_PASS) {
               // Backward compatibility: check hideDefaultCredential for old installations
               // If hideDefaultCredential is false or undefined, prompt for password change
               shouldPromptPasswordChange = !settings?.hideDefaultCredential;
@@ -127,7 +134,7 @@ export const auth = createModel<RootModel>()({
         dispatch.auth.setUsername(username);
 
         // Set isAdmin if the user is admin
-        if (username === 'admin') {
+        if (username === DEFAULT_ADMIN_USER_NAME) {
           dispatch.auth.setIsAdmin(true);
 
           // Check if admin needs to change password
@@ -146,14 +153,6 @@ export const auth = createModel<RootModel>()({
     async getUsers() {
       const users = await authAPI.getUsers();
       dispatch.auth.setUsers(users);
-    },
-
-    async resetAdminPassword(newPassword: string = 'admin') {
-      const success = await authAPI.resetAdminPassword(newPassword);
-      if (success) {
-        dispatch.auth.setNeedsPasswordChange(true);
-      }
-      return success;
     },
 
     async resetAuthenticationSystem(preserveUsers: boolean = true) {

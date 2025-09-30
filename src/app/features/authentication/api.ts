@@ -4,7 +4,8 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { USER_LOCAL_STORAGE_KEY } from '@app/const/settings';
+import { USER_LOCAL_STORAGE_KEY, DEFAULT_ADMIN_USER_NAME, DEFAULT_ADMIN_USER_PASS } from '@app/const/settings';
+import { KV_NAMESPACES } from '@app/const/kvstore';
 import { KeyValueStoreType, kvStore } from '@app/features/keyValueStore';
 import CryptoJS from 'crypto-js';
 
@@ -15,15 +16,48 @@ export interface UserAuth {
 
 export class UserAuthAPI {
   private store: KeyValueStoreType;
-  public usersInstance = 'users';
+  public usersInstance = KV_NAMESPACES.USERS;
   private key;
-  private iv;
 
   constructor() {
     this.store = kvStore;
     // this.key = CryptoJS.enc.Utf8.parse('1234123412ABCDEF');
-    // this.iv = CryptoJS.enc.Utf8.parse('ABCDEF1234123412');
     this.key = '1234123412ABCDEF';
+  }
+
+  private async migrateUsersNamespace(): Promise<void> {
+    try {
+      // Only check for migration if new namespace doesn't exist
+      const newNamespaceExists = await this.store.instanceExists(KV_NAMESPACES.USERS);
+
+      // If new namespace already exists, no need to migrate
+      if (newNamespaceExists) {
+        return;
+      }
+
+      // Check if old namespace exists and needs migration
+      const oldNamespaceExists = await this.store.instanceExists(KV_NAMESPACES.LEGACY_USERS);
+
+      if (oldNamespaceExists) {
+        // Get all data from old namespace
+        const oldData = await this.store.get(KV_NAMESPACES.LEGACY_USERS);
+
+        // Create new namespace with migrated data
+        await this.store.create(KV_NAMESPACES.USERS, {
+          override_props: {
+            ...oldData.props,
+            __updated__: new Date().toISOString(),
+            __migrated_from__: KV_NAMESPACES.LEGACY_USERS,
+          },
+        });
+
+        // Delete old namespace after successful migration
+        await this.store.delete(KV_NAMESPACES.LEGACY_USERS);
+        console.log(`Successfully migrated ${KV_NAMESPACES.LEGACY_USERS} namespace to ${KV_NAMESPACES.USERS}`);
+      }
+    } catch (error) {
+      console.error('Failed to migrate users namespace:', error);
+    }
   }
 
   public async register(user: UserAuth): Promise<boolean> {
@@ -40,12 +74,18 @@ export class UserAuthAPI {
     if (!encryptedPassword) {
       return false;
     }
-    const decryptedPassword = await this.decrypt(encryptedPassword);
-    const success = decryptedPassword === user.password;
-    if (success) {
-      localStorage.setItem(USER_LOCAL_STORAGE_KEY, user.username);
+    try {
+      const decryptedPassword = await this.decrypt(encryptedPassword);
+      const success = decryptedPassword === user.password;
+      if (success) {
+        localStorage.setItem(USER_LOCAL_STORAGE_KEY, user.username);
+      }
+      return success;
+    } catch (error) {
+      // Handle decryption errors (e.g., corrupted or invalid encrypted data)
+      console.error('Failed to decrypt password:', error);
+      return false;
     }
-    return success;
   }
 
   // reset the password for a user
@@ -147,26 +187,27 @@ export class UserAuthAPI {
     return !!this.getCurrentUser();
   }
 
-  public initUserStore() {
-    this.store
-      .create(this.usersInstance, {
-        override_props: {
-          __updated__: new Date().toISOString(),
-        },
-      })
-      .then(() => {
-        return this.register({ username: 'admin', password: 'admin' });
-      });
-  }
-
-  public async resetAdminPassword(newPassword: string = 'admin'): Promise<boolean> {
+  public async initUserStore() {
     try {
-      const encryptedPassword = await this.encrypt(newPassword);
-      await this.store.setProperty(this.usersInstance, 'admin', encryptedPassword);
-      return true;
+      // Try to migrate from legacy namespace if needed
+      await this.migrateUsersNamespace();
+
+      // Check if user store already exists
+      const exists = await this.store.instanceExists(this.usersInstance);
+
+      if (!exists) {
+        // Only create if it doesn't exist
+        await this.store.create(this.usersInstance, {
+          override_props: {
+            __updated__: new Date().toISOString(),
+          },
+        });
+
+        // Register default admin user only when creating new store
+        await this.register({ username: DEFAULT_ADMIN_USER_NAME, password: DEFAULT_ADMIN_USER_PASS });
+      }
     } catch (error) {
-      console.error('Failed to reset admin password:', error);
-      return false;
+      console.error('Failed to initialize user store:', error);
     }
   }
 
@@ -180,7 +221,7 @@ export class UserAuthAPI {
         const nonAdminUsers: Record<string, string> = {};
 
         for (const username of existingUsers) {
-          if (username !== 'admin') {
+          if (username !== DEFAULT_ADMIN_USER_NAME) {
             const password = await this.store.getProperty(this.usersInstance, username);
             if (password) {
               nonAdminUsers[username] = password;
@@ -188,7 +229,9 @@ export class UserAuthAPI {
           }
         }
 
-        await this.resetAdminPassword('admin');
+        // Reset admin password to default
+        const encryptedPassword = await this.encrypt(DEFAULT_ADMIN_USER_PASS);
+        await this.store.setProperty(this.usersInstance, DEFAULT_ADMIN_USER_NAME, encryptedPassword);
 
         for (const [username, password] of Object.entries(nonAdminUsers)) {
           await this.store.setProperty(this.usersInstance, username, password);
