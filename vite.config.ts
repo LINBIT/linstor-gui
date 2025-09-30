@@ -76,7 +76,31 @@ export default defineConfig(({ mode, command }) => {
       rollupOptions: {
         output: {
           manualChunks: {
-            vendor: ['react', 'react-dom', 'react-i18next', 'i18next', '@tanstack/react-query'],
+            // React core
+            react: ['react', 'react-dom'],
+
+            // Routing
+            router: ['react-router-dom'],
+
+            // Internationalization
+            i18n: ['react-i18next', 'i18next'],
+
+            // State management
+            query: ['@tanstack/react-query'],
+            redux: ['@rematch/core', '@rematch/loading', 'react-redux'],
+
+            // UI libraries
+            antd: ['antd', '@ant-design/icons'],
+            emotion: ['@emotion/react', '@emotion/styled'],
+
+            // Chart libraries
+            charts: ['apexcharts', 'react-apexcharts'],
+
+            // Utility libraries
+            utils: ['lodash', 'dayjs', 'axios', 'crypto-js', 'camelcase'],
+
+            // OpenAPI related
+            openapi: ['openapi-fetch'],
           },
         },
       },
