@@ -1,5 +1,24 @@
 # Changelog
 
+# 1.9.10 - 2025-10-01
+
+### Added
+
+- Chunk splitting support to improve handling of large data payloads
+- Option to skip the enforced admin password change in authentication workflow (for automation / migration scenarios)
+- CloudStack maintenance mode support
+- CloudStack / NFS tags displayed on the node list page for clearer role identification
+
+### Fixed
+
+- Removed the DRBD port field from the resource overview page
+- Pagination data now refreshes correctly when "Show default" is checked on the Storage Pool related listing (previously stale results could appear)
+
+### Changed
+
+- Centralized KV store namespaces and admin credential constants to reduce duplication and ease future maintenance (internal refactor)
+- GUI users namespace changed from "users" to "\_\_gui_users"
+
 # 1.9.9 - 2025-08-05
 
 ### Added
