@@ -24,15 +24,49 @@ sudo apt install linstor-gui
 
 ### Running in a Docker container
 
-```
-docker build -t linstor-gui .
+```bash
+export DOCKER_BUILDKIT=1
 
+# docker-compose build
+docker build --no-cache \
+             --build-arg="LINSTOR_GUI_VERSION=v1.8.1" \
+             --tag linstor-gui .
+
+# docker-compose up
 docker run \
-  -p 8000:8000 \
+  -p 8080:8080 \
   -e LB_LINSTOR_API_HOST=http://192.168.123.105:3370 \
   -e LB_GATEWAY_API_HOST=http://192.168.123.105:8080 \
   linstor-gui
+```
 
+* Optionnal add HTTPS support
+
+```bash
+$ mkdir -p volumes/ssl
+
+# create autosigned cert
+$ openssl req -x509 -nodes -days 3650 -newkey rsa:4096 \
+              -keyout ./volumes/ssl/linstor-gui.key \
+              -out ./volumes/ssl/linstor-gui.crt
+
+# create diffie hellman
+$ openssl dhparam -out ./volumes/ssl/dh.pem 2048
+```
+
+```diff
+--- docker-compose.yml.old
++++ docker-compose.yml
+...
+    environment:
+    ...
++     - EXTERNAL_HTTPS_PORT=443 #default 8443
+    ports:
+      - "80:8080"
++     - "443:8443"
++   volumes:
++     - ./volumes/ssl:/opt/ssl:ro
+...
 ```
 
 LB_LINSTOR_API_HOST is required, LB_GATEWAY_API_HOST is optional, default is `http://localhost:8080`.
