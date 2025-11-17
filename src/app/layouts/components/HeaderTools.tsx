@@ -5,17 +5,20 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import * as React from 'react';
-import { Avatar, Dropdown } from 'antd';
+import { Dropdown, Tooltip } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { DeploymentUnitOutlined } from '@ant-design/icons';
+import { DeploymentUnitOutlined, DownOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
+
 import { Dispatch } from '@app/store';
 import { ChangePassword } from '@app/features/authentication';
 import { Mode } from '@app/hooks/useUIModeStorage';
 import { DEFAULT_ADMIN_USER_NAME } from '@app/const/settings';
 import { BRAND_COLOR } from '@app/const/color';
 import { getControllerVersion } from '@app/features/node';
+import { useFaultyResources } from '@app/features/resource/hooks/useFaultyResources';
+import { createSvgColorStyle } from '@app/utils/colorUtils';
 
 import LogSidebar from './LogSidebar';
 import HeaderAboutModal from './HeaderAboutModal';
@@ -24,11 +27,11 @@ import LngSelector from './LngSelector';
 import PassphrasePrompt from './PassphrasePrompt';
 
 import logout from '@app/assets/logout.svg';
-import user from '@app/assets/user.svg';
 import warning from '@app/assets/warning-icon.svg';
 import outlink from '@app/assets/out-link.svg';
 
 import { Attention, ImgIcon, NoSupport, OfficialBuild, OutLink, WarningLogo } from '../styled';
+import { FaultyResourceIcon, UserIcon } from '@app/components/SVGIcon';
 
 interface HeaderToolsProps {
   authInfo: {
@@ -79,6 +82,9 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
   const dispatch = useDispatch<Dispatch>();
   const IS_DEV = import.meta.env.MODE === 'development';
 
+  const { data: faultyResources } = useFaultyResources();
+  const hasFaultyResources = faultyResources && faultyResources.length > 0;
+
   const { data: linstorVersion, isFetched } = useQuery({
     queryKey: ['linstorVersion'],
     queryFn: () => getControllerVersion(),
@@ -99,7 +105,14 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
             }}
             className="flex items-center"
           >
-            <ImgIcon src={user} alt="user" />
+            <UserIcon
+              style={createSvgColorStyle('brandOrange', {
+                marginLeft: 2,
+                marginRight: '1rem',
+              })}
+              width={16}
+              height={16}
+            />
             <span>
               {t('common:user')}: {authInfo.username || DEFAULT_ADMIN_USER_NAME}
             </span>
@@ -154,58 +167,72 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
 
   return (
     <div className="flex w-full items-center justify-end">
-      {isNotOfficialBuild && (
-        <div className="hidden lg:flex text-white items-center font-semibold mr-4">
-          <WarningLogo src={warning} />
-          <Attention>{t('about:unofficial_build_header_attention')}</Attention>
-          <OfficialBuild onClick={handleSupportClick}>
-            {t('about:unofficial_build_header_get_official')} <OutLink src={outlink} className="outlink-svg" />
-          </OfficialBuild>
+      <div>
+        {isNotOfficialBuild && (
+          <div className="hidden xl:flex flex-col xl:flex-row text-white items-center font-semibold gap-2 xl:gap-0">
+            <div className="flex items-center">
+              <WarningLogo src={warning} />
+              <Attention>{t('about:unofficial_build_header_attention')}</Attention>
+            </div>
+            <OfficialBuild onClick={handleSupportClick}>
+              {t('about:unofficial_build_header_get_official')}{' '}
+              <OutLink src={outlink} className="outlink-svg brightness-0" />
+            </OfficialBuild>
+          </div>
+        )}
+        {vsanModeFromSetting && VSANEvalMode && (
+          <NoSupport>
+            <WarningLogo src={warning} />
+            <Attention>
+              Your eval contract has expired. Please{' '}
+              <a
+                href={
+                  IS_DEV
+                    ? import.meta.env.VITE_HCI_VSAN_API_HOST + '/register.html'
+                    : 'https://' + window.location.hostname + '/register.html'
+                }
+                target="_blank"
+                rel="noreferrer"
+              >
+                re-register
+              </a>{' '}
+              with a new contract. Until then all iSCSI targets will be stopped.
+            </Attention>
+          </NoSupport>
+        )}
+      </div>
+
+      <div className="flex items-center ml-4 sm:ml-0 lg:ml-20">
+        <div className="flex items-center" style={{ gap: '24px' }}>
+          <div className="flex items-center">
+            {hasFaultyResources && (
+              <Tooltip title={t('settings:has_faulty_resources', 'Has faulty resources')}>
+                <div>
+                  <FaultyResourceIcon />
+                </div>
+              </Tooltip>
+            )}
+          </div>
+          <div>
+            <ConnectStatus />
+          </div>
+          <div>{checkPassphraseAvailable && <PassphrasePrompt />}</div>
+          <div>{!vsanModeFromSetting && <LogSidebar />}</div>
         </div>
-      )}
-      {vsanModeFromSetting && VSANEvalMode && (
-        <NoSupport>
-          <WarningLogo src={warning} />
-          <Attention>
-            Your eval contract has expired. Please{' '}
-            <a
-              href={
-                IS_DEV
-                  ? import.meta.env.VITE_HCI_VSAN_API_HOST + '/register.html'
-                  : 'https://' + window.location.hostname + '/register.html'
-              }
-              target="_blank"
-              rel="noreferrer"
-            >
-              re-register
-            </a>{' '}
-            with a new contract. Until then all iSCSI targets will be stopped.
-          </Attention>
-        </NoSupport>
-      )}
-      <ConnectStatus />
 
-      {checkPassphraseAvailable && <PassphrasePrompt />}
+        <div className="flex items-center" style={{ gap: '24px', marginLeft: '84px' }}>
+          {!vsanModeFromSetting && <LngSelector />}
+          {!normalWithoutAuth && !hciModeFromSetting && (
+            <Dropdown menu={menu} placement="bottomLeft" trigger={['hover']}>
+              <div className="flex items-center cursor-pointer text-white">
+                <UserIcon className="text-white w-6 h-6" />
+                <DownOutlined className="ml-1 text-white" />
+              </div>
+            </Dropdown>
+          )}
 
-      <div className="flex items-center">
-        {!vsanModeFromSetting && (
-          <>
-            <HeaderAboutModal linstorVersion={linstorVersion?.data} />
-            <LngSelector />
-            <LogSidebar />
-          </>
-        )}
-
-        {!normalWithoutAuth && !hciModeFromSetting && (
-          <Dropdown menu={menu} placement="bottomLeft">
-            <Avatar
-              size={40}
-              style={{ backgroundColor: '#f7a75c', color: '#1e2939', cursor: 'pointer', marginLeft: 20 }}
-            >
-              {authInfo.username?.charAt(0).toUpperCase() || 'A'}
-            </Avatar>
-          </Dropdown>
-        )}
+          {!vsanModeFromSetting && <HeaderAboutModal linstorVersion={linstorVersion?.data} />}
+        </div>
       </div>
     </div>
   );

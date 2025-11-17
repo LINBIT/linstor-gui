@@ -5,9 +5,10 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import * as React from 'react';
-import { Button, Form, Input, Modal, Tooltip, Spin } from 'antd';
+import { Form, Input, Modal, Tooltip, Spin } from 'antd';
+import { Button } from '@app/components/Button';
 import { IoIosWarning } from 'react-icons/io';
-import { FaLock, FaLockOpen } from 'react-icons/fa';
+import { LockIcon, UnlockedIcon } from '@app/components/SVGIcon';
 import { LoadingOutlined } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -35,7 +36,6 @@ const PassphrasePrompt: React.FC = () => {
       const response = (await getPassphraseStatus()) as unknown as {
         data: { status: 'unset' | 'locked' | 'unlocked' };
       };
-      console.log('Passphrase status response:', response);
       return { status: response?.data?.status || 'unset' };
     },
   });
@@ -101,7 +101,9 @@ const PassphrasePrompt: React.FC = () => {
     if (isLoading) {
       return (
         <Tooltip title={t('settings:linstor_passphrase_loading', 'Loading passphrase status')}>
-          <Spin indicator={<LoadingOutlined style={{ fontSize: 16, color: 'white' }} spin />} />
+          <div>
+            <Spin indicator={<LoadingOutlined style={{ fontSize: 24, color: 'white' }} spin />} />
+          </div>
         </Tooltip>
       );
     }
@@ -110,19 +112,25 @@ const PassphrasePrompt: React.FC = () => {
       case 'unset':
         return (
           <Tooltip title={t('settings:passphrase_not_set', 'Passphrase not set')}>
-            <IoIosWarning className="text-white cursor-pointer" onClick={handleClick} />
+            <div>
+              <IoIosWarning className="text-white cursor-pointer" size={24} onClick={handleClick} />
+            </div>
           </Tooltip>
         );
       case 'locked':
         return (
           <Tooltip title={t('settings:linstor_locked', 'LINSTOR is locked')}>
-            <FaLock className="text-[#f79133] cursor-pointer" onClick={handleClick} />
+            <div className="inline-block cursor-pointer" onClick={handleClick}>
+              <LockIcon className="text-[#FFF]" />
+            </div>
           </Tooltip>
         );
       case 'unlocked':
         return (
           <Tooltip title={t('settings:linstor_unlocked', 'LINSTOR is unlocked')}>
-            <FaLockOpen className="text-[#f79133]" />
+            <div className="inline-block">
+              <UnlockedIcon className="text-[#FFF]" />
+            </div>
           </Tooltip>
         );
       default:
@@ -139,7 +147,7 @@ const PassphrasePrompt: React.FC = () => {
     status === 'unset' ? t('settings:set_passphrase', 'Set Passphrase') : t('common:unlock', 'Unlock');
 
   return (
-    <div className="flex items-center mr-2 text-base">
+    <div className="flex items-center text-base">
       {renderIcon()}
 
       <Modal
@@ -198,7 +206,7 @@ const PassphrasePrompt: React.FC = () => {
           <Form.Item>
             <div className="flex justify-end gap-2">
               <Button
-                className="mr-2"
+                type="secondary"
                 onClick={() => {
                   setIsModalOpen(false);
                   form.resetFields();
@@ -209,7 +217,6 @@ const PassphrasePrompt: React.FC = () => {
               <Button
                 type="primary"
                 htmlType="submit"
-                className="ml-2"
                 loading={createPassphraseMutation.isLoading || enterPassphraseMutation.isLoading}
               >
                 {submitButtonText}

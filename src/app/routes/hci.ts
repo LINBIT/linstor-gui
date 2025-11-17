@@ -4,8 +4,6 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { IAppRoute } from './routes';
-
 import NodeList from '@app/pages/Inventory/Nodes';
 import NodeDetail from '@app/pages/Inventory/Nodes/detail';
 import NodeCreate from '@app/pages/Inventory/Nodes/create';
@@ -39,7 +37,7 @@ import NvmeList from '@app/pages/Gateway/nvme';
 import NvmeCreate from '@app/pages/Gateway/nvme/Create';
 import { HCIDashboard } from '@app/features/hci';
 
-const hci: IAppRoute[] = [
+const hci = [
   {
     component: HCIDashboard,
     exact: true,

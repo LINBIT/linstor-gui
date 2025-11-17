@@ -14,9 +14,34 @@ import { settingAPI, SettingsAPI, SettingsProps } from '@app/features/settings';
 import { kvStore } from '@app/features/keyValueStore';
 import { KV_NAMESPACES } from '@app/const/kvstore';
 import { UserAuthAPI } from '@app/features/authentication/api';
-import { USER_LOCAL_STORAGE_KEY, DEFAULT_ADMIN_USER_NAME } from '@app/const/settings';
+import { GRAFANA_KEY_VALUE_STORE_KEY, USER_LOCAL_STORAGE_KEY, DEFAULT_ADMIN_USER_NAME } from '@app/const/settings';
 
 const defaultGatewayHost = window.location.protocol + '//' + window.location.hostname + ':8080/';
+
+export interface GrafanaConfig {
+  enable: boolean;
+  baseUrl: string;
+  dashboardUid?: string;
+  dashboardTitle?: string;
+  datasourceId?: string;
+  datasourceName?: string;
+  panelIds: {
+    cpu?: number;
+    memory?: number;
+    network?: number;
+    disk?: number;
+    diskIops?: number;
+    ioUsage?: number;
+  };
+  // Full dashboard URL template with ${node} placeholder
+  dashboardUrlTemplate?: string;
+  // DRBD dashboard configuration
+  drbdEnable?: boolean;
+  drbdUrl?: string;
+  drbdUid?: string;
+  drbdWriteRatePanelId?: number;
+  drbdReadRatePanelId?: number;
+}
 
 // Use "__gui__settings" namespace of key-value-store(KVS) for saving settings
 // KVS only stores values as string
@@ -25,6 +50,19 @@ const GATEWAY_HOST = 'GATEWAY_HOST';
 const HCI_VSAN_HOST = 'HCI_VSAN_HOST';
 
 const authAPI = new UserAuthAPI();
+
+// Helper functions to generate Grafana dashboard URLs
+const generateGrafanaDashboardUrl = (uid: string): string => {
+  const protocol = window.location.protocol;
+  const hostname = window.location.hostname;
+  return `${protocol}//${hostname}:3000/d/${uid}/node-exporter-full?orgId=1&refresh=1m`;
+};
+
+const generateDrbdDashboardUrl = (uid: string): string => {
+  const protocol = window.location.protocol;
+  const hostname = window.location.hostname;
+  return `${protocol}//${hostname}:3000/d/${uid}/drbd?orgId=1&refresh=30s`;
+};
 
 export enum UIMode {
   NORMAL = 'NORMAL',
@@ -44,6 +82,8 @@ type Setting = {
   isEvalContract?: boolean;
   // VSAN Available
   vsanAvailable?: boolean;
+  // Grafana configuration
+  grafanaConfig?: GrafanaConfig | null;
 };
 
 export const setting = createModel<RootModel>()({
@@ -57,6 +97,7 @@ export const setting = createModel<RootModel>()({
     evalMode: false,
     isEvalContract: false,
     vsanAvailable: false,
+    grafanaConfig: null,
   } as Setting,
   reducers: {
     setGatewayAvailable(state, payload: boolean) {
@@ -110,6 +151,12 @@ export const setting = createModel<RootModel>()({
         ...state,
         evalMode: payload.evalMode,
         isEvalContract: payload.isEvalContract,
+      };
+    },
+    setGrafanaConfig(state, payload: GrafanaConfig | null) {
+      return {
+        ...state,
+        grafanaConfig: payload,
       };
     },
   },
@@ -229,6 +276,98 @@ export const setting = createModel<RootModel>()({
             dispatch.setting.updateLogo(logoSrc);
           }
         }
+
+        // Load Grafana configuration from __grafana__ui__settings namespace
+        try {
+          // Check if namespace exists first
+          const namespaceExists = await kvStore.instanceExists(GRAFANA_KEY_VALUE_STORE_KEY);
+
+          if (namespaceExists) {
+            const grafanaProps = await kvStore.get(GRAFANA_KEY_VALUE_STORE_KEY);
+
+            if (grafanaProps?.props) {
+              const grafanaConfig = grafanaProps.props;
+
+              // KV store returns values as strings
+              const isEnabled = String(grafanaConfig.enable) === 'true';
+
+              if (isEnabled) {
+                // Auto-generate missing URLs if UID exists
+                const urlsToUpdate: Record<string, string> = {};
+                let dashboardUrl = grafanaConfig.dashboardUrl as string;
+                let drbdUrl = grafanaConfig.drbdUrl as string;
+
+                // Check and generate dashboardUrl if missing
+                if (!dashboardUrl && grafanaConfig.dashboardUid) {
+                  dashboardUrl = generateGrafanaDashboardUrl(grafanaConfig.dashboardUid as string);
+                  urlsToUpdate.dashboardUrl = dashboardUrl;
+                  console.log('Auto-generated missing dashboardUrl:', dashboardUrl);
+                }
+
+                // Check and generate drbdUrl if missing and DRBD is enabled
+                const isDrbdEnabled = String(grafanaConfig.drbdEnable) === 'true';
+                if (isDrbdEnabled && !drbdUrl && grafanaConfig.drbdUid) {
+                  drbdUrl = generateDrbdDashboardUrl(grafanaConfig.drbdUid as string);
+                  urlsToUpdate.drbdUrl = drbdUrl;
+                  console.log('Auto-generated missing drbdUrl:', drbdUrl);
+                }
+
+                // Save auto-generated URLs back to KVS
+                if (Object.keys(urlsToUpdate).length > 0) {
+                  try {
+                    await service.put(`/v1/key-value-store/${GRAFANA_KEY_VALUE_STORE_KEY}`, {
+                      override_props: urlsToUpdate,
+                    });
+                    console.log('Saved auto-generated URLs to KVS:', urlsToUpdate);
+                  } catch (saveError) {
+                    console.error('Failed to save auto-generated URLs:', saveError);
+                    // Continue with the generated URLs even if save fails
+                  }
+                }
+
+                // Extract baseUrl from dashboardUrl
+                let baseUrl = '';
+                if (dashboardUrl) {
+                  try {
+                    const url = new URL(dashboardUrl);
+                    baseUrl = `${url.protocol}//${url.host}`;
+                  } catch (e) {
+                    console.error('Failed to parse dashboardUrl:', e);
+                  }
+                }
+
+                const config: GrafanaConfig = {
+                  enable: isEnabled,
+                  baseUrl: baseUrl,
+                  dashboardUid: grafanaConfig.dashboardUid as string,
+                  panelIds: {
+                    cpu: Number(grafanaConfig.panelIdCpu),
+                    memory: Number(grafanaConfig.panelIdMemory),
+                    network: Number(grafanaConfig.panelIdNetwork),
+                    disk: Number(grafanaConfig.panelIdDisk),
+                    diskIops: Number(grafanaConfig.panelIdDiskIops),
+                    ioUsage: Number(grafanaConfig.panelIdIoUsage),
+                  },
+                  dashboardUrlTemplate: dashboardUrl,
+                  // DRBD configuration
+                  drbdEnable: isDrbdEnabled,
+                  drbdUrl: drbdUrl,
+                  drbdUid: grafanaConfig.drbdUid as string,
+                  drbdWriteRatePanelId: Number(grafanaConfig.drbdWriteRatePanelId) || 28,
+                  drbdReadRatePanelId: Number(grafanaConfig.drbdReadRatePanelId) || 29,
+                };
+                dispatch.setting.setGrafanaConfig(config);
+              } else {
+                dispatch.setting.setGrafanaConfig(null);
+              }
+            }
+          } else {
+            // Namespace doesn't exist yet, set config to null
+            dispatch.setting.setGrafanaConfig(null);
+          }
+        } catch (error) {
+          console.error('Failed to load Grafana configuration:', error);
+        }
       } catch (error) {
         console.log(error);
       }
@@ -236,11 +375,19 @@ export const setting = createModel<RootModel>()({
       dispatch.setting.setAdmin();
     },
     async saveKey(payload: Record<string, number | string | boolean>, _state) {
-      await service.put(`/v1/key-value-store/${SETTING_KEY}`, {
-        override_props: {
-          ...payload,
-        },
-      });
+      console.log('Saving to KV store:', SETTING_KEY, payload);
+      try {
+        const response = await service.put(`/v1/key-value-store/${SETTING_KEY}`, {
+          override_props: {
+            ...payload,
+          },
+        });
+        console.log('KV store save response:', response);
+        return response;
+      } catch (error) {
+        console.error('Failed to save to KV store:', error);
+        throw error;
+      }
     },
     async deleteKey(payload: string[], _state) {
       await service.put(`/v1/key-value-store/${SETTING_KEY}`, {
@@ -311,24 +458,88 @@ export const setting = createModel<RootModel>()({
       window.location.reload();
     },
 
-    async setDashboard({ dashboardEnabled, host }: { dashboardEnabled: boolean; host: string }) {
+    async saveGrafanaConfig(config: any) {
       try {
-        await dispatch.setting.saveKey({
-          dashboardEnabled,
-          dashboardURL: host,
-        });
+        // Save to dedicated __grafana__ui__settings namespace
+        const grafanaConfig = {
+          enable: config.enable || false,
+          dashboardUrl: config.dashboardUrl || '',
+          dashboardUid: config.dashboardUid || '',
+          panelIdCpu: config.panelIds?.cpu,
+          panelIdMemory: config.panelIds?.memory,
+          panelIdNetwork: config.panelIds?.network,
+          panelIdDisk: config.panelIds?.disk,
+          panelIdDiskIops: config.panelIds?.diskIops,
+          panelIdIoUsage: config.panelIds?.ioUsage,
+          // DRBD configuration
+          drbdEnable: config.drbdEnable || false,
+          drbdUrl: config.drbdUrl || '',
+          drbdUid: config.drbdUid || '',
+          drbdWriteRatePanelId: config.drbdWriteRatePanelId || 28,
+          drbdReadRatePanelId: config.drbdReadRatePanelId || 29,
+        };
 
-        notify('Success', {
+        // Check if namespace exists, if not create it first
+        const namespaceExists = await kvStore.instanceExists(GRAFANA_KEY_VALUE_STORE_KEY);
+
+        if (!namespaceExists) {
+          // Create the namespace with initial config
+          await kvStore.create(GRAFANA_KEY_VALUE_STORE_KEY, {
+            override_props: grafanaConfig,
+          });
+        } else {
+          // Update existing namespace
+          await service.put(`/v1/key-value-store/${GRAFANA_KEY_VALUE_STORE_KEY}`, {
+            override_props: grafanaConfig,
+          });
+        }
+
+        // Update Redux state
+        if (config.enable) {
+          // Extract baseUrl from dashboardUrl
+          let baseUrl = '';
+          if (config.dashboardUrl) {
+            try {
+              const url = new URL(config.dashboardUrl);
+              baseUrl = `${url.protocol}//${url.host}`;
+            } catch (e) {
+              console.error('Failed to parse dashboardUrl:', e);
+            }
+          }
+
+          const reduxConfig: GrafanaConfig = {
+            enable: config.enable,
+            baseUrl: baseUrl,
+            dashboardUid: config.dashboardUid,
+            panelIds: config.panelIds || {},
+            dashboardUrlTemplate: config.dashboardUrl,
+            // DRBD configuration
+            drbdEnable: config.drbdEnable,
+            drbdUrl: config.drbdUrl,
+            drbdUid: config.drbdUid,
+            drbdWriteRatePanelId: config.drbdWriteRatePanelId,
+            drbdReadRatePanelId: config.drbdReadRatePanelId,
+          };
+          dispatch.setting.setGrafanaConfig(reduxConfig);
+        } else {
+          dispatch.setting.setGrafanaConfig(null);
+        }
+
+        notify('Grafana configuration saved', {
           type: 'success',
         });
 
         setTimeout(() => {
           window.location.reload();
         }, 1000);
-      } catch {
-        notify('Error', {
+
+        return true;
+      } catch (error) {
+        console.error('Failed to save Grafana config:', error);
+        notify('Failed to save configuration', {
           type: 'error',
         });
+        return false;
       }
     },
 
@@ -342,7 +553,7 @@ export const setting = createModel<RootModel>()({
 
       // check logo store is exist
 
-      const override_props = {
+      const override_props: Record<string, string> = {
         logoStr: '',
         logoUrl: '',
       };

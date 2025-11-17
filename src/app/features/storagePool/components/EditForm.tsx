@@ -6,7 +6,8 @@
 
 import React from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Form, Input, Select } from 'antd';
+import { Form, Input, Select } from 'antd';
+import { Button } from '@app/components/Button';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import {
@@ -179,7 +180,7 @@ const EditForm = () => {
           Submit
         </Button>
 
-        <Button type="text" onClick={backToStoragePoolList}>
+        <Button type="text" onClick={backToStoragePoolList} style={{ marginLeft: '1em' }}>
           Cancel
         </Button>
       </Form.Item>

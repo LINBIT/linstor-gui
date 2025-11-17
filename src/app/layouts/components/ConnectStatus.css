@@ -6,12 +6,10 @@
 .connect__status {
   display: flex;
   align-items: center;
-  margin-right: 8px;
   color: #d3d2d2;
 }
 
 .connected__img {
-  margin-right: 4px;
-  width: 1.4rem;
-  height: 1.4rem;
+  width: 1.5rem;
+  height: 1.5rem;
 }

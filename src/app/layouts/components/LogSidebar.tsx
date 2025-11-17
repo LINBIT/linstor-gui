@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { logManager, LogItem } from '@app/utils/toast'; // Adjust to the correct import path
-import { Drawer, Button, List, Badge, Space, Popconfirm } from 'antd'; // Import Popconfirm
-import { FileTextOutlined } from '@ant-design/icons';
+import { Drawer, List, Badge, Space, Popconfirm } from 'antd'; // Import Popconfirm
+import { Button } from '@app/components/Button';
 import { useTranslation } from 'react-i18next';
+import { LogIcon } from '@app/components/SVGIcon';
 
 const LogSidebar: React.FC = () => {
   const [visible, setVisible] = useState(false); // Controls the visibility of the Drawer
@@ -79,14 +80,13 @@ const LogSidebar: React.FC = () => {
   };
 
   return (
-    <>
+    <div>
       {/* Icon with a red dot badge */}
-      <Badge count={unreadCount}>
-        <FileTextOutlined
-          style={{ fontSize: '20px', cursor: 'pointer', color: 'white', marginTop: 4 }}
-          onClick={showDrawer}
-        />
-      </Badge>
+      <div className="flex items-center">
+        <Badge count={unreadCount}>
+          <LogIcon onClick={showDrawer} />
+        </Badge>
+      </div>
 
       {/* Drawer for logs */}
       <Drawer
@@ -123,9 +123,7 @@ const LogSidebar: React.FC = () => {
                   okText="Yes"
                   cancelText="No"
                 >
-                  <Button type="default" danger>
-                    {t('clear_all_logs')}
-                  </Button>
+                  <Button danger>{t('clear_all_logs')}</Button>
                 </Popconfirm>
               </Space>
             </div>
@@ -161,13 +159,15 @@ const LogSidebar: React.FC = () => {
                 marginTop: 10,
               }}
             >
-              <Button onClick={() => markLogAsRead(selectedLog.key)}>{t('mark_as_read')}</Button>
+              <Button type="secondary" onClick={() => markLogAsRead(selectedLog.key)}>
+                {t('mark_as_read')}
+              </Button>
               <Button onClick={() => setSelectedLog(null)}>{t('back_to_logs')}</Button>
             </Space>
           </>
         )}
       </Drawer>
-    </>
+    </div>
   );
 };
 

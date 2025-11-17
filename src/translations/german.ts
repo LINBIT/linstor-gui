@@ -531,11 +531,11 @@ const de = {
     gateway: 'Gateway',
     linstor_gateway: 'LINSTOR Gateway',
     linstor_gateway_description:
-      'Verwaltet hochverfügbare iSCSI-Targets und NFS-Exports über LINSTOR. Die Installation von linstor-gateway ist Voraussetzung für die Aktivierung dieser Funktion. Nach der Aktivierung wird der Gateway-Eintrag im linken Menü angezeigt.',
+      'Verwaltet hochverfügbare iSCSI-Targets und NFS-Exports über LINSTOR. Die Installation von LINSTOR-Gateway ist Voraussetzung für die Aktivierung dieser Funktion. Nach der Aktivierung wird der Gateway-Eintrag im linken Menü angezeigt.',
     passphrase: 'Passphrase',
     gateway_mode: 'Gateway-Modus',
     gateway_mode_description:
-      'Die Installation von linstor-gateway ist Voraussetzung für die Aktivierung dieser Funktion. Stellen Sie sicher, dass der Endpunkt korrekt konfiguriert ist, um die Kommunikation zwischen LINSTOR Gateway und LINSTOR Server zu ermöglichen.',
+      'Die Installation von LINSTOR-Gateway ist Voraussetzung für die Aktivierung dieser Funktion. Stellen Sie sicher, dass der Endpunkt korrekt konfiguriert ist, um die Kommunikation zwischen LINSTOR Gateway und LINSTOR Server zu ermöglichen.',
     custom_host: 'Benutzerdefinierter Host',
     custom_host_description:
       "Wenn der benutzerdefinierte Host aktiviert ist, müssen Sie die LINSTOR Gateway API-Endpunkte im Abschnitt 'Benutzerdefinierte API' unten eingeben. Der Standardwert ist die LINSTOR Server IP + 8080, wie http://192.168.1.1:8080/. Falls ein benutzerdefinierter Port oder eine andere IP verwendet wird, passen Sie den Endpunkt entsprechend an.",

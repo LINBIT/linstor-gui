@@ -5,14 +5,16 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Form, Space, Table, Input, Flex, Tag, Dropdown, Popconfirm, Select, Modal, Tooltip } from 'antd';
+import { Form, Space, Table, Input, Flex, Tag, Dropdown, Popconfirm, Select, Modal, Tooltip } from 'antd';
+import { Button } from '@app/components/Button';
+import { Link } from '@app/components/Link';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { uniqBy } from 'lodash';
-import { MoreOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { MoreOutlined, QuestionCircleOutlined, LineChartOutlined } from '@ant-design/icons';
 import { LiaToolsSolid } from 'react-icons/lia';
 
 import { uniqId } from '@app/utils/stringUtils';
@@ -123,8 +125,9 @@ export const OverviewList = () => {
 
   const dispatch = useDispatch();
 
-  const { mode } = useSelector((state: RootState) => ({
+  const { mode, grafanaConfig } = useSelector((state: RootState) => ({
     mode: state.setting.mode,
+    grafanaConfig: state.setting.grafanaConfig,
   }));
 
   const migrateResourceMutation = useMutation({
@@ -159,6 +162,19 @@ export const OverviewList = () => {
     if (res.data) {
       setMigrateModalOpen(false);
     }
+  };
+
+  const handleStatsClick = (nodeName: string, resourceName: string) => {
+    if (!grafanaConfig?.enable) {
+      Modal.warning({
+        title: 'Grafana Dashboard Not Enabled',
+        content: 'Please enable and configure Grafana Dashboard in Settings to view stats.',
+      });
+      return;
+    }
+
+    // Navigate to the Grafana stats page with node name and resource name as route params
+    navigate(`/stats/${nodeName}/${encodeURIComponent(resourceName)}`);
   };
 
   const fetchData = async () => {
@@ -405,20 +421,12 @@ export const OverviewList = () => {
         key: 'resource_group_name',
         dataIndex: 'resource_group_name',
         render: (resource_group_name) => {
-          return (
-            <Button
-              type="link"
-              onClick={() => {
-                const url =
-                  mode === UIMode.HCI
-                    ? `/hci/storage-configuration/resource-groups?resource_groups=${resource_group_name}`
-                    : `/storage-configuration/resource-groups?resource_groups=${resource_group_name}`;
-                navigate(url);
-              }}
-            >
-              {resource_group_name}
-            </Button>
-          );
+          const url =
+            mode === UIMode.HCI
+              ? `/hci/storage-configuration/resource-groups?resource_groups=${resource_group_name}`
+              : `/storage-configuration/resource-groups?resource_groups=${resource_group_name}`;
+
+          return <Link to={url}>{resource_group_name}</Link>;
         },
       },
       {
@@ -547,7 +555,7 @@ export const OverviewList = () => {
                 ],
               }}
             >
-              <Button type="text" icon={<MoreOutlined />} />
+              <MoreOutlined style={{ cursor: 'pointer', fontSize: 16 }} />
             </Dropdown>
           );
         },
@@ -645,20 +653,12 @@ export const OverviewList = () => {
             key: 'storage_pool',
             dataIndex: 'storage_pool_name',
             render: (storage_pool_name) => {
-              return (
-                <Button
-                  type="link"
-                  onClick={() => {
-                    const url =
-                      mode === UIMode.HCI
-                        ? `/hci/inventory/storage-pools?storage_pools=${storage_pool_name}`
-                        : `/inventory/storage-pools?storage_pools=${storage_pool_name}`;
-                    navigate(url);
-                  }}
-                >
-                  {storage_pool_name}
-                </Button>
-              );
+              const url =
+                mode === UIMode.HCI
+                  ? `/hci/inventory/storage-pools?storage_pools=${storage_pool_name}`
+                  : `/inventory/storage-pools?storage_pools=${storage_pool_name}`;
+
+              return <Link to={url}>{storage_pool_name}</Link>;
             },
           },
           {
@@ -687,6 +687,37 @@ export const OverviewList = () => {
                   {isPrimaryNode && <Tag color="cyan">{t('common:primary')}</Tag>}
                 </>
               );
+            },
+          },
+          {
+            title: 'Stats',
+            key: 'stats',
+            width: 10,
+            align: 'center',
+            render: (_, record) => {
+              const statsIcon = (
+                <LineChartOutlined
+                  onClick={() => handleStatsClick(record.node_name, record.resource_name)}
+                  style={{
+                    color: grafanaConfig?.enable ? '#1890ff' : '#d9d9d9',
+                    cursor: grafanaConfig?.enable ? 'pointer' : 'not-allowed',
+                  }}
+                  disabled={!grafanaConfig?.enable}
+                />
+              );
+
+              if (!grafanaConfig?.enable) {
+                return (
+                  <Tooltip
+                    title="Please enable and configure Grafana Dashboard in Settings to view stats"
+                    placement="top"
+                  >
+                    {statsIcon}
+                  </Tooltip>
+                );
+              }
+
+              return statsIcon;
             },
           },
           {
@@ -785,7 +816,7 @@ export const OverviewList = () => {
                       ],
                     }}
                   >
-                    <Button type="text" icon={<MoreOutlined />} />
+                    <MoreOutlined style={{ cursor: 'pointer', fontSize: 16 }} />
                   </Dropdown>
                 </>
               );
@@ -844,7 +875,7 @@ export const OverviewList = () => {
 
           <Form.Item>
             <Space size="small">
-              <Button type="default" onClick={handleReset}>
+              <Button type="secondary" onClick={handleReset}>
                 {t('common:reset')}
               </Button>
             </Space>
@@ -856,19 +887,14 @@ export const OverviewList = () => {
             items: [
               {
                 key: '1',
-                label: (
-                  <span
-                    onClick={() => {
-                      const url =
-                        mode === UIMode.HCI
-                          ? `/hci/storage-configuration/resource-definitions/create`
-                          : `/storage-configuration/resource-definitions/create`;
-                      navigate(url);
-                    }}
-                  >
-                    {t('common:resource_definition')}
-                  </span>
-                ),
+                label: t('common:resource_definition'),
+                onClick: () => {
+                  navigate(
+                    mode === UIMode.HCI
+                      ? `/hci/storage-configuration/resource-definitions/create`
+                      : `/storage-configuration/resource-definitions/create`,
+                  );
+                },
               },
               {
                 key: '2',
@@ -876,25 +902,20 @@ export const OverviewList = () => {
               },
               {
                 key: '3',
-                label: (
-                  <span
-                    onClick={() => {
-                      const url =
-                        mode === UIMode.HCI
-                          ? `/hci/storage-configuration/resources/create`
-                          : `/storage-configuration/resources/create`;
-                      navigate(url);
-                    }}
-                  >
-                    {t('common:resource')}
-                  </span>
-                ),
+                label: t('common:resource'),
+                onClick: () => {
+                  navigate(
+                    mode === UIMode.HCI
+                      ? `/hci/storage-configuration/resources/create`
+                      : `/storage-configuration/resources/create`,
+                  );
+                },
               },
             ],
           }}
           placement="bottomRight"
         >
-          <Button type="primary">{t('common:add')}</Button>
+          <Button type="secondary">+ {t('common:add')}</Button>
         </Dropdown>
       </SearchForm>
 

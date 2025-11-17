@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Button, Form, Input, message, Modal, Space } from 'antd';
+import { Form, Input, message, Modal, Space } from 'antd';
+import { Button } from '@app/components/Button';
 
 import changePassword from '@app/assets/changepassword.svg';
 import changePasswordBG from '@app/assets/changepassword-bg.svg';
@@ -48,7 +49,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ open, onCreate,
       open={open}
       wrapClassName="change-password-modal"
       footer={null}
-      width="70%"
+      width={960}
       onCancel={handleCancel}
       style={{ maxWidth: '90vw', padding: '16px' }}
     >
@@ -76,14 +77,28 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ open, onCreate,
             <Form.Item
               name="newPassword"
               label={t('new_password')}
-              rules={[{ required: true, message: 'Please input new password!' }]}
+              rules={[
+                { required: true, message: 'Please input new password!' },
+                { min: 5, message: 'Password must be at least 5 characters long!' },
+              ]}
             >
               <Input.Password />
             </Form.Item>
             <Form.Item
               name="confirmPassword"
               label={t('confirm_password')}
-              rules={[{ required: true, message: 'Please input new password again!' }]}
+              dependencies={['newPassword']}
+              rules={[
+                { required: true, message: 'Please input new password again!' },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue('newPassword') === value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error('The two passwords that you entered do not match!'));
+                  },
+                }),
+              ]}
             >
               <Input.Password />
             </Form.Item>
@@ -119,18 +134,40 @@ const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordPr
   const { t } = useTranslation('users');
 
   const onCreate = async (values) => {
+    console.log('ChangePassword form values:', values);
+    console.log('Is admin mode:', admin);
+    console.log('User:', localStorage.getItem(USER_LOCAL_STORAGE_KEY));
+
     let res = null;
     if (admin) {
+      console.log('Calling resetPassword with newPassword:', values.newPassword);
       res = await dispatch.auth.resetPassword({
         user: user || DEFAULT_ADMIN_USER_NAME,
         newPassword: values.newPassword,
       });
     } else {
-      res = await dispatch.auth.changePassword({
-        user: localStorage.getItem(USER_LOCAL_STORAGE_KEY),
-        newPassword: values.newPassword,
-        oldPassword: values.currentPassword,
-      });
+      // Check if this is a forced password change (first login scenario)
+      if (defaultOpen) {
+        // For forced password change after first login, skip old password verification
+        console.log('Calling updatePassword (forced change) with newPassword:', values.newPassword);
+        res = await dispatch.auth.updatePassword({
+          user: localStorage.getItem(USER_LOCAL_STORAGE_KEY),
+          newPassword: values.newPassword,
+        });
+      } else {
+        // For regular password changes, verify old password
+        console.log(
+          'Calling changePassword with oldPassword:',
+          values.currentPassword,
+          'newPassword:',
+          values.newPassword,
+        );
+        res = await dispatch.auth.changePassword({
+          user: localStorage.getItem(USER_LOCAL_STORAGE_KEY),
+          newPassword: values.newPassword,
+          oldPassword: values.currentPassword,
+        });
+      }
     }
 
     setOpen(false);
@@ -142,7 +179,7 @@ const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordPr
       // Note: If password was changed, we always set needsPasswordChange to false regardless of checkbox
       if (!admin && localStorage.getItem(USER_LOCAL_STORAGE_KEY) === DEFAULT_ADMIN_USER_NAME) {
         await dispatch.setting.saveKey({
-          needsPasswordChange: false,
+          needsPasswordChange: false, // Set to false to indicate password has been changed
         });
       }
       dispatch.auth.setNeedsPasswordChange(false);
@@ -154,7 +191,15 @@ const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordPr
         }, 1000);
       }
     } else {
-      message.error(t('password_change_failed'));
+      // Provide more specific error message for password change failure
+      if (!admin) {
+        message.error(
+          t('password_change_failed') + '. ' + t('check_current_password') ||
+            'Please check your current password and try again.',
+        );
+      } else {
+        message.error(t('password_change_failed'));
+      }
     }
   };
 

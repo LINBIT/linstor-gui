@@ -6,12 +6,13 @@
 
 import React, { useState } from 'react';
 import { useQueries, useQuery } from '@tanstack/react-query';
-import { Button, Modal } from 'antd';
+import { Modal } from 'antd';
+import { Button } from '@app/components/Button';
+import { Link } from '@app/components/Link';
 import { getNetWorkInterfaceByNode, NetWorkInterface } from '@app/features/ip';
 import styled from '@emotion/styled';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 
 import { useNodes } from '@app/features/node';
 import { getResourceGroups } from '@app/features/resourceGroup';
@@ -37,7 +38,6 @@ export const NetInterfaceDetail = ({ item }: NetInterfaceDetailProp) => {
   const { t } = useTranslation(['common', 'node_detail']);
 
   const nodes = useNodes({});
-  const navigate = useNavigate();
 
   const resourceGroups = useQuery({
     queryKey: ['resourceGroup'],
@@ -88,7 +88,9 @@ export const NetInterfaceDetail = ({ item }: NetInterfaceDetailProp) => {
 
   return (
     <>
-      <Button onClick={onDetail}>{t('common:detail')}</Button>
+      <Button type="secondary" onClick={onDetail}>
+        {t('common:detail')}
+      </Button>
       <Modal open={open} wrapClassName="netinterface-modal" footer={null} onCancel={onCancel}>
         <Title>{t('node_detail:network_interface_used_by', { name: item.name })}</Title>
         <Title>{t('node_detail:nodes')} </Title>
@@ -97,15 +99,7 @@ export const NetInterfaceDetail = ({ item }: NetInterfaceDetailProp) => {
             return (
               <div key={nw?.uuid}>
                 {nw?.name} -
-                <Button
-                  type="link"
-                  onClick={() => {
-                    const url = vsanModeFromSetting ? '/vsan/nodes' : '/inventory/nodes';
-                    navigate(`${url}/${nw?.node}`);
-                  }}
-                >
-                  {nw?.node}
-                </Button>
+                <Link to={`${vsanModeFromSetting ? '/vsan/nodes' : '/inventory/nodes'}/${nw?.node}`}>{nw?.node}</Link>
                 {nw?.address === item.address ? t('node_detail:current_node') : ''}
               </div>
             );

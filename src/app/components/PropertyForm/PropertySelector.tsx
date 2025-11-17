@@ -5,9 +5,10 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Select, Tooltip, Button } from 'antd';
+import { Select, Tooltip } from 'antd';
 
 import './index.css';
+import Button from '@app/components/Button';
 
 interface PropertySelectorProps {
   options: Array<
@@ -63,7 +64,7 @@ const PropertySelector: React.FC<PropertySelectorProps> = ({ options, handleAddP
         Add
       </Button>
 
-      <Button className="add" type="primary" onClick={() => handleAddAuxProp()}>
+      <Button className="add" type="secondary" onClick={() => handleAddAuxProp()}>
         Add Auxiliary Property
       </Button>
     </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Button, Form, Table, Input, Popconfirm, message, Space, Checkbox, Dropdown, Tooltip, Tag } from 'antd';
+import { Form, Table, Input, Popconfirm, message, Space, Checkbox, Dropdown, Tooltip, Tag } from 'antd';
+import { Button } from '@app/components/Button';
 import type { TableProps } from 'antd';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { MoreOutlined } from '@ant-design/icons';
@@ -327,6 +328,7 @@ export const ScheduleByResourceList = () => {
           initialValues={{
             show_default: true,
           }}
+          style={{ display: 'flex', alignItems: 'center' }}
         >
           <Form.Item name="origin_rsc" label={t('schedule:resource')}>
             <Input
@@ -345,9 +347,9 @@ export const ScheduleByResourceList = () => {
             <EnableScheduleForm onSuccess={refetch} />
           </Form.Item>
 
-          <Form.Item>
+          <Form.Item style={{ marginLeft: 'auto', marginRight: 0 }}>
             <Button
-              type="primary"
+              type="secondary"
               onClick={() => {
                 if (mode === UIMode.HCI) {
                   navigate('/hci/schedule/list');

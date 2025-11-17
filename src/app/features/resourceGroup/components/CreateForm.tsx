@@ -6,7 +6,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Checkbox, Col, Divider, Form, Input, message, Popover, Radio, Row, Select, Switch, Spin } from 'antd';
+import { Checkbox, Col, Divider, Form, Input, message, Popover, Radio, Row, Select, Switch, Spin } from 'antd';
+import { Button } from '@app/components/Button';
 import type { FormInstance } from 'antd/es/form';
 import { useNavigate } from 'react-router-dom';
 import { uniqBy } from 'lodash';
@@ -36,7 +37,6 @@ type FormType = {
   storage_pool_list: string[];
   layer_stack: string[];
   provider_list: string[];
-  data_copy_mode: 'A' | 'C';
 };
 
 /**
@@ -84,7 +84,6 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
         ? {
             name: detailData?.[0]?.name,
             description: detailData?.[0]?.description,
-            data_copy_mode: detailData?.[0]?.props?.['DrbdOptions/Net/protocol'] as 'A' | 'C' | undefined,
             diskless_on_remaining: detailData?.[0]?.select_filter?.diskless_on_remaining,
             storage_pool_list: detailData?.[0]?.select_filter?.storage_pool_list ?? [],
             layer_stack: detailData?.[0]?.select_filter?.layer_stack?.map((e: string) => e.toLowerCase()) ?? [],
@@ -163,9 +162,6 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
       const editInfo = {
         resource_group: rg.name,
         description: rg.description,
-        override_props: {
-          'DrbdOptions/Net/protocol': values.data_copy_mode,
-        },
         select_filter: rg.select_filter,
       };
 
@@ -188,10 +184,6 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
     if (fullySuccess(rgRes.data)) {
       const modifyResourceGroupRes = await updateResourceGroupMutation.mutateAsync({
         resource_group: values.name,
-        override_props: {
-          'DrbdOptions/Net/protocol': values.data_copy_mode,
-          'DrbdOptions/PeerDevice/c-max-rate': '4194304',
-        },
       });
 
       const addVolumeRes = await addVolumeToResourceGroupMutation.mutateAsync({
@@ -223,7 +215,6 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
       wrapperCol={{ span: 16 }}
       form={usedForm}
       initialValues={{
-        data_copy_mode: 'C',
         deploy: false,
         place_count: 2,
         ...initialVal,
@@ -254,41 +245,6 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
               }}
             />
           </Form.Item>
-
-          <Form.Item
-            label={
-              <LabelContainer>
-                <TooltipLabelContainer>
-                  <span>{drbdLayer ? t('resource_group:drbd_protocol') : t('resource_group:replication')}</span>
-                </TooltipLabelContainer>
-                <Popover
-                  content={
-                    <TooltipContainer>
-                      <p>
-                        Asynchronous replication: Local write operations on the primary node are considered completed as
-                        soon as the local disk write has finished, and the replication packet has been placed in the
-                        local TCP send buffer.
-                      </p>
-                      <p>
-                        Synchronous replication: Local write operations on the primary node are considered completed
-                        only after both the local and the peer disk write(s) have been confirmed.
-                      </p>
-                    </TooltipContainer>
-                  }
-                  title={drbdLayer ? t('resource_group:drbd_protocol') : t('resource_group:replication')}
-                >
-                  <QuestionCircleOutlined />
-                </Popover>
-              </LabelContainer>
-            }
-            name="data_copy_mode"
-          >
-            <Radio.Group disabled={drbdLayer}>
-              <Radio value="A">Asynchronous(A)</Radio>
-              <Radio value="C">Synchronous(C)</Radio>
-            </Radio.Group>
-          </Form.Item>
-
           <Form.Item name="place_count" label={t('resource_group:place_count')} required>
             <Input placeholder="Please input place count" type="number" min={0} />
           </Form.Item>
@@ -412,7 +368,6 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
               }))}
               onChange={(val) => {
                 if (!layer_stack?.includes('drbd') && val.includes('drbd')) {
-                  usedForm.setFieldValue('data_copy_mode', 'C');
                   message.info('Please make sure you have drbd-kmod installed on the nodes you wish to use DRBD on');
                 }
               }}
@@ -543,7 +498,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
           {t('common:submit')}
         </Button>
 
-        <Button type="text" onClick={backToList}>
+        <Button type="secondary" onClick={backToList} style={{ marginLeft: '1em' }}>
           {isEdit ? 'Back' : 'Cancel'}
         </Button>
       </div>

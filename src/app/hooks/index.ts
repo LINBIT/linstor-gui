@@ -12,3 +12,4 @@ export { useWindowSize } from './useWindowSize';
 export { useDocumentTitle } from './useDocumentTitle';
 export { useNav } from './useNav';
 export { useWidth } from './useWidth';
+export { usePreloadIframes, preconnectToGrafana } from './usePreloadIframes';

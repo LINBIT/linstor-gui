@@ -188,7 +188,6 @@ describe('FaultyList', () => {
       expect(screen.getByText('Name')).toBeInTheDocument();
       expect(screen.getByText('Node')).toBeInTheDocument();
       expect(screen.getByText('Created On')).toBeInTheDocument();
-      expect(screen.getByText('Port')).toBeInTheDocument();
       expect(screen.getByText('Usage Status')).toBeInTheDocument();
       expect(screen.getByText('Connection Status')).toBeInTheDocument();
       expect(screen.getByText('State')).toBeInTheDocument();
@@ -264,10 +263,9 @@ describe('FaultyList', () => {
 
       renderWithProviders(<FaultyList />);
 
-      const resourceLink = screen.getByRole('button', { name: 'test-resource' });
-      fireEvent.click(resourceLink);
-
-      expect(mockNavigate).toHaveBeenCalledWith('/storage-configuration/resource-overview?resource=test-resource');
+      const resourceLink = screen.getByRole('link', { name: 'test-resource' });
+      expect(resourceLink).toBeInTheDocument();
+      expect(resourceLink).toHaveAttribute('href', '/storage-configuration/resource-overview?resource=test-resource');
     });
 
     it('should navigate to node page when clicking node name', () => {
@@ -288,10 +286,9 @@ describe('FaultyList', () => {
 
       renderWithProviders(<FaultyList />);
 
-      const nodeLink = screen.getByRole('button', { name: 'test-node' });
-      fireEvent.click(nodeLink);
-
-      expect(mockNavigate).toHaveBeenCalledWith('/inventory/nodes/test-node');
+      const nodeLink = screen.getByRole('link', { name: 'test-node' });
+      expect(nodeLink).toBeInTheDocument();
+      expect(nodeLink).toHaveAttribute('href', '/inventory/nodes/test-node');
     });
   });
 
@@ -443,57 +440,6 @@ describe('FaultyList', () => {
       renderWithProviders(<FaultyList />);
 
       expect(screen.getByText('node2 Timeout,node3 Network error')).toBeInTheDocument();
-    });
-  });
-
-  describe('Port Display', () => {
-    it('should display port number from DRBD resource definition', () => {
-      const mockFaultyResources = [
-        {
-          name: 'resource-with-port',
-          node_name: 'test-node',
-          create_timestamp: '2024-01-01T00:00:00Z',
-          state: { in_use: false },
-          layer_object: {
-            drbd: {
-              drbd_resource_definition: { port: 7777 },
-              connections: {},
-            },
-          },
-        },
-      ];
-
-      mockUseFaultyResources.mockReturnValue({
-        data: mockFaultyResources,
-        isLoading: false,
-      });
-
-      renderWithProviders(<FaultyList />);
-
-      expect(screen.getByText('7777')).toBeInTheDocument();
-    });
-
-    it('should handle missing port information', () => {
-      const mockFaultyResources = [
-        {
-          name: 'resource-no-port',
-          node_name: 'test-node',
-          create_timestamp: '2024-01-01T00:00:00Z',
-          state: { in_use: false },
-          layer_object: {
-            drbd: { connections: {} },
-          },
-        },
-      ];
-
-      mockUseFaultyResources.mockReturnValue({
-        data: mockFaultyResources,
-        isLoading: false,
-      });
-
-      renderWithProviders(<FaultyList />);
-
-      expect(screen.getByRole('table')).toBeInTheDocument();
     });
   });
 

@@ -6,7 +6,8 @@
 
 import React, { useEffect } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
-import { Form, Switch, Upload, Button, Input, message } from 'antd';
+import { Form, Upload, Input, message } from 'antd';
+import { Switch } from '@app/components/Switch';
 import SVG from 'react-inlinesvg';
 import isSvg from 'is-svg';
 import { useDispatch, useSelector } from 'react-redux';
@@ -14,6 +15,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Dispatch, RootState } from '@app/store';
 import { isUrl } from '@app/utils/stringUtils';
 import { useTranslation } from 'react-i18next';
+import Button from '@app/components/Button';
 
 type FormType = {
   customLogoEnabled: boolean;
@@ -77,7 +79,7 @@ export const SVGFileUpload: React.FunctionComponent = () => {
       labelCol={{ span: 6 }}
       wrapperCol={{ span: 18 }}
       layout="horizontal"
-      style={{ maxWidth: 600 }}
+      style={{ maxWidth: 600, marginLeft: 0 }}
       form={form}
     >
       <Form.Item
@@ -134,7 +136,9 @@ export const SVGFileUpload: React.FunctionComponent = () => {
       )}
 
       <Form.Item wrapperCol={{ span: 4, offset: 6 }}>
-        <Button onClick={handleSave}>{t('common:save')}</Button>
+        <Button type="primary" onClick={handleSave}>
+          {t('common:save')}
+        </Button>
       </Form.Item>
     </Form>
   );

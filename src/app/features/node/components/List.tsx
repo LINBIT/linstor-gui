@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useRef, useState } from 'react';
-import { Button, Form, Space, Table, Tag, Popconfirm, Input, Dropdown, Tooltip } from 'antd';
+import { Button as AntButton, Form, Space, Table, Tag, Popconfirm, Input, Dropdown, Tooltip } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -13,6 +13,8 @@ import { CheckCircleFilled, CloseCircleFilled, MoreOutlined } from '@ant-design/
 import { useTranslation } from 'react-i18next';
 
 import PropertyForm, { PropertyFormRef } from '@app/components/PropertyForm';
+import Button from '@app/components/Button';
+import { Link } from '@app/components/Link';
 import { getNodes, getNodeCount, deleteNode, updateNode, lostNode } from '../api';
 import { SearchForm } from './styled';
 import { uniqId } from '@app/utils/stringUtils';
@@ -177,16 +179,11 @@ export const List = () => {
         }
       },
       showSorterTooltip: false,
-      render: (text, record) => (
-        <Button
-          type="link"
-          onClick={() => {
-            navigate(mode === UIMode.HCI ? `/hci/inventory/nodes/${record.name}` : `/inventory/nodes/${record.name}`);
-          }}
-        >
-          {text}
-        </Button>
-      ),
+      render: (text, record) => {
+        const nodeUrl = mode === UIMode.HCI ? `/hci/inventory/nodes/${record.name}` : `/inventory/nodes/${record.name}`;
+
+        return <Link to={nodeUrl}>{text}</Link>;
+      },
     },
     {
       title: t('node:default_ip'),
@@ -315,7 +312,7 @@ export const List = () => {
               ],
             }}
           >
-            <Button type="text" icon={<MoreOutlined />} />
+            <AntButton type="text" icon={<MoreOutlined />} />
           </Dropdown>
         </Space>
       ),
@@ -339,9 +336,6 @@ export const List = () => {
 
           <Form.Item>
             <Space size="small">
-              <Button type="default" onClick={handleReset}>
-                {t('common:reset')}
-              </Button>
               <Button
                 type="primary"
                 onClick={() => {
@@ -349,6 +343,10 @@ export const List = () => {
                 }}
               >
                 {t('common:search')}
+              </Button>
+
+              <Button type="secondary" onClick={handleReset}>
+                {t('common:reset')}
               </Button>
 
               <Popconfirm
@@ -375,7 +373,7 @@ export const List = () => {
                   onConfirm={handleLostBulk}
                   disabled={!allSelectedOffline}
                 >
-                  <Button type="primary" danger disabled={!allSelectedOffline}>
+                  <Button danger disabled={!allSelectedOffline}>
                     {t('common:lost')}
                   </Button>
                 </Popconfirm>
@@ -384,12 +382,9 @@ export const List = () => {
           </Form.Item>
         </Form>
 
-        <Button
-          type="primary"
-          onClick={() => navigate(mode === UIMode.HCI ? '/hci/inventory/nodes/create' : '/inventory/nodes/create')}
-        >
-          {t('common:add')}
-        </Button>
+        <Link type="primary" to={mode === UIMode.HCI ? '/hci/inventory/nodes/create' : '/inventory/nodes/create'}>
+          + {t('common:add')}
+        </Link>
       </SearchForm>
 
       <br />

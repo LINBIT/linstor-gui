@@ -28,17 +28,21 @@ const AppRoutes = (): React.ReactElement => {
   const [displayedRoutes, setDisplayedRoutes] = useState(flattenedRoutes);
   const location = useLocation();
 
-  const { KVS, vsanModeFromSettings, hciModeFromSettings, isAdmin } = useSelector((state: RootState) => ({
-    KVS: state.setting.KVS,
-    vsanModeFromSettings: state.setting.mode === UIMode.VSAN,
-    hciModeFromSettings: state.setting.mode === UIMode.HCI,
-    isAdmin: state.setting.isAdmin,
-  }));
+  const { KVS, vsanModeFromSettings, hciModeFromSettings, isAdmin, grafanaConfig } = useSelector(
+    (state: RootState) => ({
+      KVS: state.setting.KVS,
+      vsanModeFromSettings: state.setting.mode === UIMode.VSAN,
+      hciModeFromSettings: state.setting.mode === UIMode.HCI,
+      isAdmin: state.setting.isAdmin,
+      grafanaConfig: state.setting.grafanaConfig,
+    }),
+  );
 
   const dispatch = useDispatch<Dispatch>();
   useEffect(() => {
     const gatewayEnabled = KVS?.gatewayEnabled;
-    const dashboardEnabled = KVS?.dashboardEnabled;
+    // Use grafanaConfig to determine if dashboard is enabled
+    const dashboardEnabled = !!grafanaConfig?.baseUrl;
 
     const initialOpenFromVSAN = location.pathname === '/vsan/dashboard' && location.search === '?vsan=true';
     const initialOpenFromHCI = location.pathname === '/hci/dashboard' && location.search === '?hci=true';
@@ -57,7 +61,9 @@ const AppRoutes = (): React.ReactElement => {
       }
 
       if (!dashboardEnabled) {
-        filteredRoutes = filteredRoutes.filter((route) => route.path !== '/grafana');
+        filteredRoutes = filteredRoutes.filter((route) => {
+          return route.path !== '/grafana' && !route.path.startsWith('/stats/');
+        });
       }
 
       if (KVS?.authenticationEnabled && !isAdmin) {
@@ -71,13 +77,12 @@ const AppRoutes = (): React.ReactElement => {
   }, [
     dispatch.setting,
     location,
-    KVS?.mode,
     vsanModeFromSettings,
     hciModeFromSettings,
     isAdmin,
     KVS?.authenticationEnabled,
     KVS?.gatewayEnabled,
-    KVS?.dashboardEnabled,
+    grafanaConfig,
   ]);
 
   return (

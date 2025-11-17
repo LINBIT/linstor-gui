@@ -9,13 +9,11 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tooltip } from 'antd';
 
-import CONNECTED_SVG from '@app/assets/awesome-plug.svg';
-import DISCONNECTED_SVG from '@app/assets/disconnected-icon.svg';
-
 import './ConnectStatus.css';
 
 import { useQuery } from '@tanstack/react-query';
 import { getControllerConfig } from '@app/features/node';
+import { ConnectedIcon, DisconnectedIcon } from '@app/components/SVGIcon';
 
 const ConnectStatus: React.FC = () => {
   const { isLoading, error } = useQuery({
@@ -33,11 +31,15 @@ const ConnectStatus: React.FC = () => {
     <div className="connect__status">
       {error ? (
         <Tooltip title={t('disconnected')}>
-          <img className="connected__img" src={DISCONNECTED_SVG} />
+          <div className="inline-block">
+            <DisconnectedIcon />
+          </div>
         </Tooltip>
       ) : (
         <Tooltip title={t('connected')}>
-          <img className="connected__img" src={CONNECTED_SVG} />
+          <div className="inline-block">
+            <ConnectedIcon />
+          </div>
         </Tooltip>
       )}
     </div>

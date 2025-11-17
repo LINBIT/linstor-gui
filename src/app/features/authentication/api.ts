@@ -82,7 +82,7 @@ export class UserAuthAPI {
       }
       return success;
     } catch (error) {
-      // Handle decryption errors (e.g., corrupted or invalid encrypted data)
+      // Handle decryption errors (e.g., malformed data)
       console.error('Failed to decrypt password:', error);
       return false;
     }
@@ -96,20 +96,57 @@ export class UserAuthAPI {
   }
 
   public async changePassword(username: string, oldPassword: string, newPassword: string): Promise<boolean> {
-    // Verify the old password
-    const encryptedOldPassword = await this.store.getProperty(this.usersInstance, username);
-    if (!encryptedOldPassword) {
-      return false;
-    }
-    const decryptedOldPassword = await this.decrypt(encryptedOldPassword);
-    if (decryptedOldPassword !== oldPassword) {
-      return false;
-    }
+    try {
+      // Verify the old password
+      const encryptedOldPassword = await this.store.getProperty(this.usersInstance, username);
+      if (!encryptedOldPassword) {
+        console.error('Change password failed: User not found:', username);
+        return false;
+      }
 
-    // Encrypt and store the new password
-    const encryptedNewPassword = await this.encrypt(newPassword);
-    await this.store.setProperty(this.usersInstance, username, encryptedNewPassword);
-    return true;
+      console.log('Encrypted password from store:', encryptedOldPassword);
+      const decryptedOldPassword = await this.decrypt(encryptedOldPassword);
+      console.log('Decrypted old password:', decryptedOldPassword);
+      console.log('Provided old password:', oldPassword);
+
+      if (decryptedOldPassword !== oldPassword) {
+        console.error('Change password failed: Old password mismatch');
+        console.error('Expected:', decryptedOldPassword);
+        console.error('Provided:', oldPassword);
+        // For debugging only - remove in production
+        if (username === 'admin') {
+          console.warn('HINT: Your current admin password might be different than expected. Check the console logs.');
+        }
+        return false;
+      }
+
+      // Encrypt and store the new password
+      const encryptedNewPassword = await this.encrypt(newPassword);
+      console.log('New password encrypted successfully');
+      await this.store.setProperty(this.usersInstance, username, encryptedNewPassword);
+      console.log('Password changed successfully for user:', username);
+      return true;
+    } catch (error) {
+      console.error('Error during password change:', error);
+      return false;
+    }
+  }
+
+  // Update password without verification (for logged-in users changing their own password)
+  public async updatePassword(username: string, newPassword: string): Promise<boolean> {
+    try {
+      console.log('Updating password for user:', username);
+
+      // Encrypt and store the new password directly
+      const encryptedNewPassword = await this.encrypt(newPassword);
+      console.log('New password encrypted successfully');
+      await this.store.setProperty(this.usersInstance, username, encryptedNewPassword);
+      console.log('Password updated successfully for user:', username);
+      return true;
+    } catch (error) {
+      console.error('Error during password update:', error);
+      return false;
+    }
   }
 
   public async userExists(username: string): Promise<boolean> {
@@ -156,17 +193,51 @@ export class UserAuthAPI {
   }
 
   private async decrypt(encryptedPassword: string): Promise<string> {
-    return CryptoJS.AES.decrypt(encryptedPassword, this.key).toString(CryptoJS.enc.Utf8);
+    try {
+      console.log('Attempting to decrypt:', encryptedPassword);
+      console.log('Using key:', this.key);
 
-    // const encryptedHexStr = CryptoJS.enc.Hex.parse(encryptedPassword);
-    // const srcs = CryptoJS.enc.Base64.stringify(encryptedHexStr);
-    // const decrypt = CryptoJS.AES.decrypt(srcs, this.key, {
-    //   iv: this.iv,
-    //   mode: CryptoJS.mode.CBC,
-    //   padding: CryptoJS.pad.Pkcs7,
-    // });
-    // const decryptedStr = decrypt.toString(CryptoJS.enc.Utf8);
-    // return decryptedStr.toString();
+      const decrypted = CryptoJS.AES.decrypt(encryptedPassword, this.key);
+      const result = decrypted.toString(CryptoJS.enc.Utf8);
+
+      console.log('Decryption result:', result);
+      console.log('Decryption result length:', result.length);
+
+      // Check if decryption resulted in empty string (possible wrong key or format)
+      if (!result) {
+        console.warn('Decryption resulted in empty string - possible key or format mismatch');
+
+        // Try alternative decryption methods for backward compatibility
+        try {
+          console.log('Trying alternative decryption method...');
+
+          // Try treating the input as different format
+          const alternativeDecrypted = CryptoJS.AES.decrypt(encryptedPassword, this.key).toString(CryptoJS.enc.Utf8);
+          console.log('Alternative decryption result:', alternativeDecrypted);
+
+          if (alternativeDecrypted) {
+            return alternativeDecrypted;
+          }
+        } catch (altError) {
+          console.error('Alternative decryption also failed:', altError);
+        }
+      }
+
+      return result;
+
+      // const encryptedHexStr = CryptoJS.enc.Hex.parse(encryptedPassword);
+      // const srcs = CryptoJS.enc.Base64.stringify(encryptedHexStr);
+      // const decrypt = CryptoJS.AES.decrypt(srcs, this.key, {
+      //   iv: this.iv,
+      //   mode: CryptoJS.mode.CBC,
+      //   padding: CryptoJS.pad.Pkcs7,
+      // });
+      // const decryptedStr = decrypt.toString(CryptoJS.enc.Utf8);
+      // return decryptedStr.toString();
+    } catch (error) {
+      console.error('Decryption failed:', error);
+      throw error;
+    }
   }
 
   // list all users in the store

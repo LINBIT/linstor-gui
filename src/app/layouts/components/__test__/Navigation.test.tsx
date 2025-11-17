@@ -208,9 +208,9 @@ describe('Navigation Component', () => {
   });
 
   describe('Conditional Menu Items', () => {
-    it('should include Grafana item when dashboard is enabled', () => {
-      const KVS = { dashboardEnabled: true };
-      const shouldIncludeGrafana = !!KVS?.dashboardEnabled;
+    it('should include Grafana item when grafana is configured', () => {
+      const grafanaConfig = { baseUrl: 'http://grafana.example.com' };
+      const shouldIncludeGrafana = !!grafanaConfig?.baseUrl;
 
       const grafanaItem = shouldIncludeGrafana ? [{ key: '/grafana', label: 'Grafana' }] : [];
 
@@ -219,9 +219,9 @@ describe('Navigation Component', () => {
       expect(grafanaItem[0].key).toBe('/grafana');
     });
 
-    it('should exclude Grafana item when dashboard is disabled', () => {
-      const KVS = { dashboardEnabled: false };
-      const shouldIncludeGrafana = !!KVS?.dashboardEnabled;
+    it('should exclude Grafana item when grafana is not configured', () => {
+      const grafanaConfig = null as { baseUrl?: string } | null;
+      const shouldIncludeGrafana = !!grafanaConfig?.baseUrl;
 
       const grafanaItem = shouldIncludeGrafana ? [{ key: '/grafana', label: 'Grafana' }] : [];
 
@@ -325,7 +325,7 @@ describe('Navigation Component', () => {
   describe('useMemo Dependencies', () => {
     it('should recalculate items when dependencies change', () => {
       const dependencies = [
-        'KVS?.dashboardEnabled',
+        'grafanaConfig',
         'KVS?.gatewayEnabled',
         'authenticationEnabled',
         'gatewayAvailable',
@@ -336,6 +336,7 @@ describe('Navigation Component', () => {
       ];
 
       expect(dependencies).toHaveLength(8);
+      expect(dependencies).toContain('grafanaConfig');
       expect(dependencies).toContain('vsanModeFromSetting');
       expect(dependencies).toContain('hciModeFromSetting');
       expect(dependencies).toContain('authenticationEnabled');

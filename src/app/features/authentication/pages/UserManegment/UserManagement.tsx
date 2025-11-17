@@ -8,7 +8,7 @@ import React, { useEffect, useState } from 'react';
 import PageBasic from '@app/components/PageBasic';
 import { Dispatch, RootState } from '@app/store';
 import { useDispatch, useSelector } from 'react-redux';
-import { Avatar, Button, List, Popconfirm, Switch, Divider } from 'antd';
+import { Avatar, Button, List, Popconfirm, Divider } from 'antd';
 import bg from '@app/assets/user_bg.svg';
 import { BG, MainContent, StyledSection } from './styled';
 import { QuestionCircleOutlined } from '@ant-design/icons';
@@ -19,6 +19,7 @@ import { useMutation } from '@tanstack/react-query';
 import { authAPI } from '@app/features/authentication';
 import { useIsAdmin } from '@app/hooks';
 import { useTranslation } from 'react-i18next';
+import { Switch } from '@app/components/Switch';
 
 export const UserManagement = () => {
   const dispatch = useDispatch<Dispatch>();

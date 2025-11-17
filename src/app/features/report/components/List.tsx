@@ -5,7 +5,9 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Space, Table, Tag, DatePicker, Select, Popconfirm, Dropdown, Tooltip } from 'antd';
+import { Form, Space, Table, Tag, DatePicker, Select, Popconfirm, Dropdown, Tooltip } from 'antd';
+import { Button } from '@app/components/Button';
+import { Link } from '@app/components/Link';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { deleteReport, deleteReportBulk, getErrorReports } from '../api';
@@ -27,7 +29,7 @@ const { RangePicker } = DatePicker;
 const SearchItem = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   margin-bottom: 1rem;
   gap: 16px;
 `;
@@ -163,16 +165,14 @@ export const List = () => {
       key: 'id',
       dataIndex: 'id',
       render: (id, record) => {
-        return (
-          <Button
-            type="link"
-            onClick={() => {
-              handleView(getId(record));
-            }}
-          >
-            {id}
-          </Button>
-        );
+        const reportId = getId(record);
+        const url = vsanModeFromSetting
+          ? `/vsan/error-reports/${reportId}`
+          : hciModeFromSetting
+            ? `/hci/error-reports/${reportId}`
+            : `/error-reports/${reportId}`;
+
+        return <Link to={url}>{id}</Link>;
       },
     },
     {
@@ -188,25 +188,11 @@ export const List = () => {
       key: 'node_name',
       dataIndex: 'node_name',
       render: (node_name) => {
-        return (
-          <Button
-            type="link"
-            onClick={() => {
-              const url = () => {
-                if (vsanModeFromSetting) {
-                  return '/vsan/nodes';
-                } else if (hciModeFromSetting) {
-                  return '/hci/nodes';
-                } else {
-                  return '/inventory/nodes';
-                }
-              };
-              navigate(`${url()}/${node_name}`);
-            }}
-          >
-            {node_name}
-          </Button>
-        );
+        const baseUrl = vsanModeFromSetting ? '/vsan/nodes' : hciModeFromSetting ? '/hci/nodes' : '/inventory/nodes';
+
+        const nodeUrl = `${baseUrl}/${node_name}`;
+
+        return <Link to={nodeUrl}>{node_name}</Link>;
       },
     },
     {
@@ -268,7 +254,7 @@ export const List = () => {
               ],
             }}
           >
-            <Button type="text" icon={<MoreOutlined />} />
+            <MoreOutlined style={{ cursor: 'pointer', fontSize: 16 }} />
           </Dropdown>
         </Space>
       ),
@@ -304,9 +290,10 @@ export const List = () => {
           style={{
             gap: '8px 16px',
             flexWrap: 'wrap',
+            alignItems: 'center',
           }}
         >
-          <Form.Item name="node" label={t('common:node')} style={{ marginBottom: '8px' }}>
+          <Form.Item name="node" label={t('common:node')} style={{ marginBottom: '0' }}>
             <Select
               style={{ width: 180 }}
               allowClear
@@ -318,7 +305,7 @@ export const List = () => {
             />
           </Form.Item>
 
-          <Form.Item name="module" label={t('error_report:module')} style={{ marginBottom: '8px' }}>
+          <Form.Item name="module" label={t('error_report:module')} style={{ marginBottom: '0' }}>
             <Select
               style={{ width: 180 }}
               allowClear
@@ -330,15 +317,12 @@ export const List = () => {
             />
           </Form.Item>
 
-          <Form.Item name="range" label={t('error_report:time_range')} style={{ marginBottom: '8px' }}>
+          <Form.Item name="range" label={t('error_report:time_range')} style={{ marginBottom: '0' }}>
             <RangePicker />
           </Form.Item>
 
-          <Form.Item style={{ marginBottom: '8px' }}>
+          <Form.Item style={{ marginBottom: '0' }}>
             <Space size="small">
-              <Button type="default" onClick={handleReset}>
-                {t('common:reset')}
-              </Button>
               <Button
                 type="primary"
                 onClick={() => {
@@ -346,6 +330,10 @@ export const List = () => {
                 }}
               >
                 {t('common:search')}
+              </Button>
+
+              <Button type="secondary" onClick={handleReset}>
+                {t('common:reset')}
               </Button>
 
               <Popconfirm
@@ -365,9 +353,7 @@ export const List = () => {
           </Form.Item>
         </Form>
 
-        <Space size="small" style={{ marginTop: '8px' }}>
-          <DownloadSOS />
-        </Space>
+        <DownloadSOS />
       </SearchItem>
 
       <br />

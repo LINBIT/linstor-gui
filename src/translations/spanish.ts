@@ -530,11 +530,11 @@ const es = {
     gateway: 'Gateway',
     linstor_gateway: 'Gateway LINSTOR',
     linstor_gateway_description:
-      'Gestiona objetivos iSCSI y exportaciones NFS de alta disponibilidad a través de LINSTOR. Instalar linstor-gateway es un prerrequisito para habilitar esta característica. Después de habilitar esta característica, la entrada Gateway se mostrará en el menú del lado izquierdo.',
+      'Gestiona objetivos iSCSI y exportaciones NFS de alta disponibilidad a través de LINSTOR. Instalar LINSTOR-Gateway es un prerrequisito para habilitar esta característica. Después de habilitar esta característica, la entrada Gateway se mostrará en el menú del lado izquierdo.',
     passphrase: 'Frase de paso',
     gateway_mode: 'Modo Gateway',
     gateway_mode_description:
-      'Instalar linstor-gateway es un prerrequisito para habilitar esta característica. Y asegúrese de que el punto final esté configurado correctamente para permitir la comunicación entre el Gateway LINSTOR y el Servidor LINSTOR.',
+      'Instalar LINSTOR-Gateway es un prerrequisito para habilitar esta característica. Y asegúrese de que el punto final esté configurado correctamente para permitir la comunicación entre el Gateway LINSTOR y el Servidor LINSTOR.',
     custom_host: 'Host personalizado',
     custom_host_description:
       "Cuando el host personalizado está habilitado, necesita ingresar los puntos finales de la API del Gateway LINSTOR en la sección 'API personalizada' a continuación. El valor predeterminado es la IP del servidor LINSTOR + 8080, como http://192.168.1.1:8080/. Si se usa un puerto personalizado o una IP diferente, ajuste el punto final en consecuencia.",

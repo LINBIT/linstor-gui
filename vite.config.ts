@@ -17,10 +17,11 @@ export default defineConfig(({ mode, command }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_');
 
   const HOST = env.VITE_HOST || '127.0.0.1';
-  const PORT = Number(env.VITE_PORT) || 8000;
+  const PORT = Number(env.VITE_PORT) || 3373;
   const API_HOST = env.VITE_LINSTOR_API_HOST || 'http://192.168.123.214:3370';
   const GATEWAY_API_HOST = env.VITE_GATEWAY_API_HOST || 'http://192.168.123.214:8080';
   const VSAN_API_HOST = env.VITE_HCI_VSAN_API_HOST || 'https://192.168.123.214';
+  const GRAFANA_HOST = env.VITE_GRAFANA_HOST || 'http://192.168.123.117:3000';
 
   // Check if coverage is requested via CLI argument
   const isCoverageMode = process.argv.includes('--coverage');
@@ -65,6 +66,55 @@ export default defineConfig(({ mode, command }) => {
           ws: true,
           changeOrigin: true,
           secure: false,
+        },
+        '/grafana-proxy': {
+          target: GRAFANA_HOST,
+          changeOrigin: true,
+          secure: false,
+          rewrite: (path) => path.replace(/^\/grafana-proxy/, ''),
+          configure: (proxy) => {
+            proxy.on('proxyReq', (proxyReq, req) => {
+              // Get the Grafana URL from header and update target dynamically if provided
+              const grafanaUrl = req.headers['x-grafana-url'];
+              if (grafanaUrl && typeof grafanaUrl === 'string') {
+                try {
+                  const url = new URL(grafanaUrl);
+                  proxyReq.setHeader('host', url.host);
+                  // Set the correct origin for CORS
+                  proxyReq.setHeader('origin', url.origin);
+                } catch (e) {
+                  console.error('Invalid Grafana URL:', grafanaUrl);
+                }
+              } else {
+                // Use default GRAFANA_HOST from env
+                const url = new URL(GRAFANA_HOST);
+                proxyReq.setHeader('host', url.host);
+                proxyReq.setHeader('origin', url.origin);
+              }
+              // Remove any authentication headers that might interfere
+              proxyReq.removeHeader('cookie');
+              proxyReq.removeHeader('authorization');
+            });
+
+            proxy.on('error', (err, req, res) => {
+              console.error('Proxy error:', err);
+              if (res && typeof res.writeHead === 'function') {
+                res.writeHead(500, {
+                  'Content-Type': 'application/json',
+                });
+                res.end(JSON.stringify({ error: 'Proxy error', message: err.message }));
+              }
+            });
+          },
+          router: (req: any) => {
+            // Dynamically route based on the X-Grafana-Url header
+            const grafanaUrl = req.headers['x-grafana-url'];
+            if (grafanaUrl && typeof grafanaUrl === 'string') {
+              return grafanaUrl;
+            }
+            // Default to the Grafana server from env
+            return GRAFANA_HOST;
+          },
         },
       },
     },

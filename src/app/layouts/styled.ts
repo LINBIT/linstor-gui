@@ -52,40 +52,36 @@ export const OutLink = styled(SVG)`
 
 export const OfficialBuild = styled.div`
   font-weight: 500;
-  text-underline-offset: 6px;
-  text-decoration: underline;
-  text-decoration-color: #f79133;
+  background-color: #ffdcbc;
   text-decoration-thickness: 2px;
   cursor: pointer;
   display: flex;
+  padding: 8px 16px;
+  border-radius: 4px;
   align-items: center;
-
-  &:hover {
-    color: #f79133;
-  }
-
-  &:hover .outlink-svg path {
-    fill: #f79133;
-  }
+  color: #000000;
+  height: 40px;
 `;
 
 export const SupportList = styled.ul`
   margin-top: 8px;
-  padding-left: 40px;
+  padding-left: 30px;
   font-weight: normal;
   list-style-type: square;
 `;
 
 export const SupportListItem = styled.li`
   margin-bottom: 8px;
-  padding-left: 12px;
+  padding-left: 8px;
   text-indent: -6px;
+  font-size: 16px;
 `;
 
 export const Warning = styled(SVG)`
-  width: 80px;
-  height: 76px;
-  margin-right: 24px;
+  width: 60px;
+  height: 56px;
+  margin-right: 18px;
+  margin-top: 10px;
 `;
 
 export const StyledModal = styled(Modal)`
@@ -99,7 +95,7 @@ export const StyledModal = styled(Modal)`
     border-radius: 0 0 16px 16px;
   }
   .ant-modal-body {
-    padding: 24px 0;
+    padding: 6px 0;
   }
 `;
 
@@ -108,17 +104,18 @@ export const ModalContent = styled.div`
 `;
 
 export const StyledContent = styled.div`
-  font-weight: 500;
-  font-size: 24px;
   padding-top: 16px;
   padding-bottom: 0;
 `;
 
 export const ForOfficialBuild = styled.div`
-  font-weight: 500;
+  font-weight: 700;
   display: flex;
-  width: 280px;
-  padding: 4px 8px;
+  max-width: 190px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 12px;
+  padding-right: 12px;
   justify-content: center;
   align-items: center;
   cursor: pointer;

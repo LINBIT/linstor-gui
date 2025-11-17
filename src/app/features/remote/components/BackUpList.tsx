@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { useState } from 'react';
-import { Button, Form, Space, Table, Input, Popconfirm, Dropdown, Tooltip } from 'antd';
+import { Form, Space, Table, Input, Popconfirm, Dropdown, Tooltip } from 'antd';
+import { Button } from '@app/components/Button';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
@@ -258,21 +259,21 @@ export const List = () => {
 
           <Form.Item>
             <Space size="small">
-              <Button type="default" onClick={handleReset}>
-                Reset
-              </Button>
               <Button
                 type="primary"
                 onClick={() => {
                   handleSearch();
                 }}
               >
-                Search
+                {t('common:search')}
+              </Button>
+              <Button type="secondary" onClick={handleReset}>
+                {t('common:reset')}
               </Button>
             </Space>
           </Form.Item>
 
-          <Form.Item>
+          <Form.Item style={{ marginLeft: 'auto', marginRight: 0 }}>
             <CreateBackupForm refetch={refetch} />
           </Form.Item>
         </Form>

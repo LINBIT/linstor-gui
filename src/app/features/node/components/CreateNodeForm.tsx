@@ -6,9 +6,11 @@
 
 import React from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Form, Input, Select } from 'antd';
+import { Form, Input, Select } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+
+import Button from '@app/components/Button';
 
 import {
   createNode,
@@ -210,7 +212,7 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
           {t('common:submit')}
         </Button>
 
-        <Button type="text" onClick={backToList}>
+        <Button type="text" onClick={backToList} style={{ marginLeft: '8px' }}>
           {t('common:cancel')}
         </Button>
       </Form.Item>

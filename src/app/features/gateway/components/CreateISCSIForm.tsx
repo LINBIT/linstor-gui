@@ -6,7 +6,8 @@
 
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Button, Form, Input, Select, Space } from 'antd';
+import { Form, Input, Select, Space } from 'antd';
+import { Button } from '@app/components/Button';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -225,7 +226,7 @@ const CreateISCSIForm = () => {
           {t('common:submit')}
         </Button>
 
-        <Button type="text" onClick={backToList}>
+        <Button type="secondary" onClick={backToList} style={{ marginLeft: '1em' }}>
           {t('common:cancel')}
         </Button>
       </Form.Item>

@@ -96,6 +96,8 @@ export const auth = createModel<RootModel>()({
           }
         }
         localStorage.setItem(USER_LOCAL_STORAGE_KEY, user.username);
+        // Update isAdmin state in setting model for navigation
+        dispatch.setting.setAdmin();
       }
       return success;
     },
@@ -127,6 +129,14 @@ export const auth = createModel<RootModel>()({
       return success;
     },
 
+    async updatePassword({ user, newPassword }) {
+      const success = await authAPI.updatePassword(user, newPassword);
+      if (success) {
+        dispatch.auth.setNeedsPasswordChange(false);
+      }
+      return success;
+    },
+
     async checkLoginStatus() {
       const username = localStorage.getItem(USER_LOCAL_STORAGE_KEY);
       if (username) {
@@ -140,13 +150,31 @@ export const auth = createModel<RootModel>()({
           // Check if admin needs to change password
           try {
             const settings = await settingAPI.getProps();
-            if (settings?.needsPasswordChange) {
+
+            // More intelligent logic for password change prompt
+            let shouldPromptPasswordChange = false;
+
+            if (settings?.needsPasswordChange !== undefined) {
+              // New behavior: use the explicit needsPasswordChange flag
+              shouldPromptPasswordChange = settings.needsPasswordChange;
+            } else {
+              // Backward compatibility: check if user is using default password
+              // and hasn't hidden the credential tip
+              shouldPromptPasswordChange = !settings?.hideDefaultCredential;
+            }
+
+            // Simplified logic: only use needsPasswordChange flag
+            // If needsPasswordChange is false, don't prompt regardless of other factors
+
+            if (shouldPromptPasswordChange) {
               dispatch.auth.setNeedsPasswordChange(true);
             }
           } catch (error) {
             console.error('Failed to check needsPasswordChange on login status check:', error);
           }
         }
+        // Update isAdmin state in setting model for navigation
+        dispatch.setting.setAdmin();
       }
     },
 

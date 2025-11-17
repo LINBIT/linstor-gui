@@ -5,8 +5,9 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import * as React from 'react';
-import { Button, Result } from 'antd';
+import { Result } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import Button from '@app/components/Button';
 
 const NotFound: React.FunctionComponent = () => {
   const navigate = useNavigate();
@@ -19,7 +20,6 @@ const NotFound: React.FunctionComponent = () => {
     <div className="flex items-center justify-center min-h-[calc(100vh-64px)]">
       <Result
         status="404"
-        title="404 Page not found"
         subTitle="We didn't find a page that matches the address you navigated to."
         extra={
           <Button type="primary" onClick={handleGoHome}>

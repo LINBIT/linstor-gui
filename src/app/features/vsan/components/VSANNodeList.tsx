@@ -5,20 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import {
-  Table,
-  Tag,
-  Switch,
-  Button,
-  Popover,
-  Space,
-  Modal,
-  InputNumber,
-  Progress,
-  Tooltip,
-  Popconfirm,
-  notification,
-} from 'antd';
+import { Table, Tag, Popover, Space, Modal, InputNumber, Progress, Tooltip, Popconfirm, notification } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { getNodesFromVSAN, setNodeStandBy, setNodeMaintenance, getCloudStackNodes } from '../api';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -32,6 +19,8 @@ import { ErrorMessage } from '../types';
 import { RootState } from '@app/store';
 import { useSelector } from 'react-redux';
 import { UIMode } from '@app/models/setting';
+import { Button } from '@app/components/Button';
+import { Switch } from '@app/components/Switch';
 
 interface DataType {
   hostname: string;

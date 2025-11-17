@@ -5,7 +5,9 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Button, Form, Space, Table, Input, Select, Popconfirm, Dropdown, Tooltip } from 'antd';
+import { Form, Space, Table, Input, Select, Popconfirm, Dropdown, Tooltip } from 'antd';
+import { Button } from '@app/components/Button';
+import { Link } from '@app/components/Link';
 import type { ColumnsType } from 'antd/es/table';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -215,19 +217,10 @@ export const List = () => {
       dataIndex: 'backup_count',
       render: (count: number, record) => {
         if (record.type === 's3_remotes') {
-          return (
-            <a
-              onClick={() => {
-                const url =
-                  mode === UIMode.HCI
-                    ? `/hci/remote/${record.remote_name}/backups`
-                    : `/remote/${record.remote_name}/backups`;
-                navigate(url);
-              }}
-            >
-              {count}
-            </a>
-          );
+          const backupUrl =
+            mode === UIMode.HCI ? `/hci/remote/${record.remote_name}/backups` : `/remote/${record.remote_name}/backups`;
+
+          return <Link to={backupUrl}>{count}</Link>;
         }
         return 'N/A';
       },
@@ -281,7 +274,7 @@ export const List = () => {
                 ],
               }}
             >
-              <Button type="text" icon={<MoreOutlined />} />
+              <MoreOutlined style={{ cursor: 'pointer', fontSize: 16 }} />
             </Dropdown>
           </Space>
         );
@@ -299,6 +292,7 @@ export const List = () => {
           initialValues={{
             show_default: true,
           }}
+          style={{ display: 'flex', alignItems: 'center' }}
         >
           <Form.Item name="name" label={t('common:name')}>
             <Input placeholder="Name" />
@@ -328,9 +322,6 @@ export const List = () => {
 
           <Form.Item>
             <Space size="small">
-              <Button type="default" onClick={handleReset}>
-                {t('common:reset')}
-              </Button>
               <Button
                 type="primary"
                 onClick={() => {
@@ -339,13 +330,14 @@ export const List = () => {
               >
                 {t('common:search')}
               </Button>
+              <Button type="secondary" onClick={handleReset}>
+                {t('common:reset')}
+              </Button>
             </Space>
           </Form.Item>
-
-          <Form.Item>
-            <CreateRemoteForm refetch={refetch} />
-          </Form.Item>
         </Form>
+
+        <CreateRemoteForm refetch={refetch} />
       </SearchForm>
 
       <br />

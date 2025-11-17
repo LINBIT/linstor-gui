@@ -15,6 +15,11 @@ vi.mock('react-i18next', () => ({
 }));
 
 vi.mock('antd', () => ({
+  Tooltip: ({ title, children }: { title: string; children: React.ReactNode }) => (
+    <div data-testid="tooltip" title={title}>
+      {children}
+    </div>
+  ),
   Avatar: ({ children, style }: { children: React.ReactNode; style: any }) => (
     <div data-testid="avatar" style={style}>
       {children}
@@ -48,6 +53,8 @@ vi.mock('antd', () => ({
 
 vi.mock('@ant-design/icons', () => ({
   DeploymentUnitOutlined: ({ style }: { style: any }) => <div data-testid="deployment-icon" style={style} />,
+  DownOutlined: ({ className }: { className?: string }) => <div data-testid="down-icon" className={className} />,
+  CloseOutlined: () => <div data-testid="close-icon" />,
 }));
 
 vi.mock('@app/features/authentication', () => ({
@@ -70,6 +77,9 @@ vi.mock('../HeaderAboutModal', () => ({ default: () => <div data-testid="about-m
 vi.mock('../ConnectStatus', () => ({ default: () => <div data-testid="connect-status">ConnectStatus</div> }));
 vi.mock('../LngSelector', () => ({ default: () => <div data-testid="lng-selector">LngSelector</div> }));
 vi.mock('../PassphrasePrompt', () => ({ default: () => <div data-testid="passphrase-prompt">PassphrasePrompt</div> }));
+vi.mock('react-icons/ci', () => ({
+  CiUser: ({ size }: { size: number }) => <div data-testid="ci-user-icon" data-size={size} />,
+}));
 
 const { getControllerVersion } = await import('@app/features/node');
 

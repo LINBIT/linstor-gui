@@ -7,8 +7,9 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Layout, message, FloatButton } from 'antd';
+import { Layout, message, FloatButton, Button } from 'antd';
 import { VerticalAlignTopOutlined } from '@ant-design/icons';
+import { IoMenuOutline } from 'react-icons/io5';
 import SVG from 'react-inlinesvg';
 import { useTranslation } from 'react-i18next';
 
@@ -85,8 +86,8 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
     dispatch.auth.checkLoginStatus();
   }, [dispatch.auth]);
 
-  const { KVS, authInfo, logoSrc, modeFromSetting, isAdmin, gatewayAvailable, VSANEvalMode } = useSelector(
-    (state: RootState) => ({
+  const { KVS, authInfo, logoSrc, modeFromSetting, isAdmin, gatewayAvailable, VSANEvalMode, grafanaConfig } =
+    useSelector((state: RootState) => ({
       KVS: state.setting.KVS,
       authInfo: state.auth,
       logoSrc: state.setting.logo,
@@ -94,8 +95,8 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
       isAdmin: state.setting.isAdmin,
       gatewayAvailable: state.setting.gatewayAvailable,
       VSANEvalMode: state.setting.evalMode,
-    }),
-  );
+      grafanaConfig: state.setting.grafanaConfig,
+    }));
 
   const vsanModeFromSetting = modeFromSetting === SettingUIMode.VSAN;
   const hciModeFromSetting = modeFromSetting === SettingUIMode.HCI;
@@ -157,23 +158,41 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
   }, [isNotOfficialBuild, isCheckingStatus]);
 
   if (authenticationEnabled && !authInfo.isLoggedIn) {
-    return <Login />;
+    // Store the current location for redirect after login
+    const redirectTo = location.pathname !== '/login' ? location.pathname + location.search : '/';
+    return <Login redirectTo={redirectTo} />;
   }
 
   return (
     <>
       <Layout style={{ minHeight: '100vh' }}>
         <Header
+          className="border-b-2 border-white"
           style={{
             position: 'sticky',
             top: 0,
             zIndex: 60,
             width: '100%',
+            height: '82px',
             display: 'flex',
             alignItems: 'center',
-            backgroundColor: '#1e2939',
+            backgroundColor: '#3F3F3F',
+            paddingLeft: '16px',
+            paddingRight: '16px',
           }}
         >
+          <Button
+            type="text"
+            icon={<IoMenuOutline />}
+            onClick={toggleNav}
+            style={{
+              fontSize: '20px',
+              width: 64,
+              height: 64,
+              color: '#FFFFFF',
+              marginRight: '16px',
+            }}
+          />
           <LogoImg logoSrc={logoSrc} />
           <HeaderTools
             authInfo={authInfo}
@@ -190,23 +209,29 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
         </Header>
         <Layout>
           <Sider
-            collapsible
             collapsed={isNavOpen}
-            onCollapse={toggleNav}
             width="240"
-            style={{ height: 'calc(100vh-64px)', overflowY: 'auto', backgroundColor: '#1e2939' }}
+            style={{
+              position: 'sticky',
+              top: '82px',
+              height: 'calc(100vh - 82px)',
+              overflowY: 'auto',
+              backgroundColor: '#EEEEEE',
+              borderTopRightRadius: '4px',
+            }}
           >
             <Navigation
               isNavOpen={isNavOpen}
               vsanModeFromSetting={vsanModeFromSetting}
               hciModeFromSetting={hciModeFromSetting}
               KVS={KVS}
+              grafanaConfig={grafanaConfig}
               gatewayAvailable={gatewayAvailable}
               authenticationEnabled={authenticationEnabled}
               isAdmin={isAdmin}
             />
           </Sider>
-          <Content className="p-[24px] m-[12px] bg-white rounded-xl">{children}</Content>
+          <Content className="p-[24px] bg-white">{children}</Content>
         </Layout>
       </Layout>
 
@@ -233,13 +258,16 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
         maskClosable={false}
         footer={null}
         centered
-        width={1000}
+        width={755}
+        height={200}
       >
         <ModalContent>
           <Warning src={warning} />
-          <StyledContent>
-            <div>{t('about:unofficial_build_attention')}</div>
-            <div>{t('about:unofficial_build_description')}</div>
+          <StyledContent className="text-[16px]">
+            <div className="text-[16px] font-semibold">
+              <div>{t('about:unofficial_build_attention')}</div>
+              <div>{t('about:unofficial_build_description')}</div>
+            </div>
 
             <SupportList>
               <SupportListItem>{t('about:unofficial_build_benefit_support')}</SupportListItem>

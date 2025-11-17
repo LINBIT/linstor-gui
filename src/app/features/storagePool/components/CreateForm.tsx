@@ -6,7 +6,8 @@
 
 import React from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Collapse, Form, Input, message, Radio, Select, Switch, Tooltip } from 'antd';
+import { Collapse, Form, Input, message, Radio, Select, Tooltip } from 'antd';
+import { Button } from '@app/components/Button';
 import { useNavigate } from 'react-router-dom';
 
 import {
@@ -19,13 +20,8 @@ import {
 } from '@app/features/storagePool';
 import { useNodes } from '@app/features/node';
 import { SizeInput } from '@app/components/SizeInput';
+import { Switch } from '@app/components/Switch';
 import { useTranslation } from 'react-i18next';
-
-// This is for concat LV Name and VG Name
-// it would be like this:
-//    LV Name                LinstorStorage
-//    VG Name                linstor_LinstorStorage
-const POOL_NAME = 'LinstorStorage';
 
 type FormType = {
   create_type: 'new' | 'existing';
@@ -57,7 +53,7 @@ const CreateForm = () => {
   const vdo_enable = Form.useWatch('vdo_enable', form);
 
   const backToStoragePoolList = () => {
-    queryClient.refetchQueries({
+    queryClient.invalidateQueries({
       queryKey: ['getStoragePool'],
     });
     navigate(-1);
@@ -127,21 +123,19 @@ const CreateForm = () => {
         vdo_logical_size_kib,
       } = values;
 
-      const advancedOptions = {
-        sed,
-        vdo_enable,
-        vdo_slab_size_kib,
-        vdo_logical_size_kib,
-      };
-
       const body: CreatePhysicalStorageRequestBody = {
-        pool_name: pool_name ? pool_name : POOL_NAME,
+        pool_name: pool_name ? pool_name : storage_pool_name,
         provider_kind,
+        raid_level: 'JBOD',
         device_paths: [device_path],
         with_storage_pool: {
           name: storage_pool_name,
+          external_locking: false,
         },
-        ...advancedOptions,
+        sed: sed ?? false,
+        vdo_enable: vdo_enable ?? false,
+        vdo_slab_size_kib: vdo_slab_size_kib ?? 0,
+        vdo_logical_size_kib: vdo_logical_size_kib ?? 0,
       };
 
       const promiseArr = [];
@@ -168,6 +162,7 @@ const CreateForm = () => {
         props: {
           'StorDriver/StorPoolName': storage_driver_name,
         },
+        external_locking: false,
       };
 
       if (Array.isArray(selectedNode)) {
@@ -381,7 +376,7 @@ const CreateForm = () => {
           {t('common:submit')}
         </Button>
 
-        <Button type="text" onClick={backToStoragePoolList}>
+        <Button type="text" onClick={backToStoragePoolList} style={{ marginLeft: '1em' }}>
           {t('common:cancel')}
         </Button>
       </Form.Item>

@@ -15,7 +15,7 @@ The GUI also provides a dashboard that displays information about the LINSTOR cl
 
 ### Installation on a LINSTOR controller node
 
-This package does not have a standalone server; it requires the LINSTOR environment and serves files through the LINSTOR server. It should be installed on the machine running the LINSTOR controller. After installation, it can be accessed via a URL like `http://192.168.123.105:3370/ui/#!/`, replacing `192.168.123.105` with the IP address of your LINSTOR controller. Please choose your own Linux distribution, for Ubuntu and Debian:
+This package does not have a standalone server; it requires the LINSTOR environment and serves files through the LINSTOR server. It should be installed on the machine running the LINSTOR controller. After installation, it can be accessed via a URL like `http://192.168.123.117:3370/ui/#!/`, replacing `192.168.123.117` with the IP address of your LINSTOR controller. Please choose your own Linux distribution, for Ubuntu and Debian:
 
 ```
 sudo add-apt-repository ppa:linbit/linbit-drbd9-stack
@@ -28,14 +28,14 @@ sudo apt install linstor-gui
 docker build -t linstor-gui .
 
 docker run \
-  -p 8000:8000 \
-  -e LB_LINSTOR_API_HOST=http://192.168.123.105:3370 \
-  -e LB_GATEWAY_API_HOST=http://192.168.123.105:8080 \
+  -p 3373:3373 \
+  -e LB_LINSTOR_API_HOST=http://192.168.123.117:3370 \
+  -e LB_GATEWAY_API_HOST=http://192.168.123.117:8080 \
   linstor-gui
 
 ```
 
-LB_LINSTOR_API_HOST is required, LB_GATEWAY_API_HOST is optional, default is `http://localhost:8080`.
+`LB_LINSTOR_API_HOST` is required, `LB_GATEWAY_API_HOST` is optional, default is `http://localhost:8080`.
 
 ### Running development mode on local machine(for developers)
 
@@ -46,7 +46,7 @@ LB_LINSTOR_API_HOST is required, LB_GATEWAY_API_HOST is optional, default is `ht
 # The hostname or IP address running the `linstor-gui` (optional)
 VITE_HOST=127.0.0.1
 # The port of the `linstor-gui` (optional)
-VITE_PORT=8080
+VITE_PORT=3373
 # The version of the `linstor-gui` (optional)
 VITE_VERSION=DEV
 # The host of the LINSTOR API
@@ -58,7 +58,7 @@ VITE_HCI_VSAN_API_HOST=https://192.168.123.214
 ```
 
 - `npm run start:dev`,
-- Open your browser and navigate to `http://localhost:8080`
+- Open your browser and navigate to `http://localhost:3373`
 
 ## Help
 

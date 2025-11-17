@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Button, Form, Input, message, Modal, Select } from 'antd';
+import { Form, Input, message, Modal, Select } from 'antd';
+import { Button } from '@app/components/Button';
 import { uniqBy } from 'lodash';
 import { useTranslation } from 'react-i18next';
 
@@ -85,37 +86,51 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
   return (
     <>
       <Button
-        type="primary"
+        type="secondary"
         onClick={() => {
           setOpen(true);
         }}
       >
-        {t('snapshot:create')}
+        + {t('common:add')}
       </Button>
       <Modal
         open={open}
         title={t('snapshot:create')}
-        okText={t('common:submit')}
-        cancelText={t('common:cancel')}
         onCancel={() => {
           form.resetFields();
           setOpen(false);
         }}
-        onOk={() => {
-          form
-            .validateFields()
-            .then((values) => {
-              form.resetFields();
-              createResourceMutation.mutate(values);
-            })
-            .catch((info) => {
-              console.log('Validate Failed:', info);
-            });
-        }}
-        okButtonProps={{
-          disabled: disabledStatus,
-          loading: createResourceMutation.isLoading,
-        }}
+        footer={
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+            <Button
+              type="secondary"
+              onClick={() => {
+                form.resetFields();
+                setOpen(false);
+              }}
+            >
+              {t('common:cancel')}
+            </Button>
+            <Button
+              type="primary"
+              onClick={() => {
+                form
+                  .validateFields()
+                  .then((values) => {
+                    form.resetFields();
+                    createResourceMutation.mutate(values);
+                  })
+                  .catch((info) => {
+                    console.log('Validate Failed:', info);
+                  });
+              }}
+              disabled={disabledStatus}
+              loading={createResourceMutation.isLoading}
+            >
+              {t('common:submit')}
+            </Button>
+          </div>
+        }
       >
         <Form<FormType>
           labelCol={{ span: 8 }}

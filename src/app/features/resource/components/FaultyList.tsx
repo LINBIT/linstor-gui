@@ -4,32 +4,20 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { Button, Table } from 'antd';
+import { Table } from 'antd';
 import type { TableProps } from 'antd';
-import { useNavigate } from 'react-router-dom';
 import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import styled from '@emotion/styled';
 
 import { formatTime } from '@app/utils/time';
 import { generateUUID } from '@app/utils/stringUtils';
 import { ResourceDataType } from '../types';
 import { getResourceState, Resource } from '@app/utils/resource';
 import { useFaultyResources } from '../hooks/useFaultyResources';
-
-const Content = styled.div`
-  margin-top: 20px;
-`;
-
-const EmptyContent = styled.div`
-  margin-top: 20px;
-  color: #999;
-`;
+import { Link } from '@app/components/Link';
 
 export const FaultyList = () => {
   const { t } = useTranslation(['common', 'resource']);
-
-  const navigate = useNavigate();
 
   const { data: resources, isLoading } = useFaultyResources();
 
@@ -62,16 +50,7 @@ export const FaultyList = () => {
       key: 'name',
       dataIndex: 'name',
       render: (item) => {
-        return (
-          <Button
-            type="link"
-            onClick={() => {
-              navigate(`/storage-configuration/resource-overview?resource=${item}`);
-            }}
-          >
-            {item}
-          </Button>
-        );
+        return <Link to={`/storage-configuration/resource-overview?resource=${item}`}>{item}</Link>;
       },
     },
     {
@@ -79,16 +58,7 @@ export const FaultyList = () => {
       key: 'node_name',
       dataIndex: 'node_name',
       render: (node_name) => {
-        return (
-          <Button
-            type="link"
-            onClick={() => {
-              navigate(`/inventory/nodes/${node_name}`);
-            }}
-          >
-            {node_name}
-          </Button>
-        );
+        return <Link to={`/inventory/nodes/${node_name}`}>{node_name}</Link>;
       },
     },
     {
@@ -97,13 +67,6 @@ export const FaultyList = () => {
       dataIndex: 'create_timestamp',
       render: (create_timestamp) => {
         return <span>{formatTime(create_timestamp)}</span>;
-      },
-    },
-    {
-      title: t('common:port'),
-      key: 'port',
-      render: (item) => {
-        return <span>{item?.layer_object?.drbd?.drbd_resource_definition?.port}</span>;
       },
     },
     {
@@ -145,8 +108,8 @@ export const FaultyList = () => {
   ];
 
   return (
-    <Content>
-      <h3 className="font-semibold text-[16px]">{t('common:faulty_resource')}</h3>
+    <div className="border-2 border-gray-200 rounded px-[34px] py-[30px] mt-[20px]">
+      <h3 className="m-0 mb-4 text-[26px] font-semibold">{t('common:faulty_resource')}</h3>
       {resources?.length ? (
         <Table<ResourceDataType>
           columns={columns}
@@ -156,8 +119,8 @@ export const FaultyList = () => {
           rowKey={(item) => item?.uuid || generateUUID()}
         />
       ) : (
-        <EmptyContent>{t('common:all_resources_are_healthy')}</EmptyContent>
+        <div className="mt-[20px] text-[#999]">{t('common:all_resources_are_healthy')}</div>
       )}
-    </Content>
+    </div>
   );
 };

@@ -246,10 +246,10 @@ describe('StoragePoolInfo', () => {
       const seriesNames = seriesData.map((s: SeriesItem) => s.name);
 
       // Should contain used and free series for each pool
-      expect(seriesNames).toContain('pool1 Used');
-      expect(seriesNames).toContain('pool1 Free');
-      expect(seriesNames).toContain('pool2 Used');
-      expect(seriesNames).toContain('pool2 Free');
+      expect(seriesNames).toContain('pool1 - <b>Used<b>');
+      expect(seriesNames).toContain('pool1 - <b>Free</b>');
+      expect(seriesNames).toContain('pool2 - <b>Used<b>');
+      expect(seriesNames).toContain('pool2 - <b>Free</b>');
     });
   });
 
@@ -391,7 +391,7 @@ describe('StoragePoolInfo', () => {
       const seriesData: SeriesItem[] = JSON.parse(chartElement.getAttribute('data-series') || '[]');
 
       // Find pool1 used series
-      const pool1UsedSeries = seriesData.find((s: SeriesItem) => s.name === 'pool1 Used');
+      const pool1UsedSeries = seriesData.find((s: SeriesItem) => s.name === 'pool1 - <b>Used<b>');
       expect(pool1UsedSeries).toBeTruthy();
 
       // For node1: used = total - free = 1000000000 - 400000000 = 600000000
@@ -409,8 +409,8 @@ describe('StoragePoolInfo', () => {
       const chartElement = screen.getByTestId('mock-chart');
       const seriesData: SeriesItem[] = JSON.parse(chartElement.getAttribute('data-series') || '[]');
 
-      const pool1UsedSeries = seriesData.find((s: SeriesItem) => s.name === 'pool1 Used');
-      const pool2UsedSeries = seriesData.find((s: SeriesItem) => s.name === 'pool2 Used');
+      const pool1UsedSeries = seriesData.find((s: SeriesItem) => s.name === 'pool1 - <b>Used<b>');
+      const pool2UsedSeries = seriesData.find((s: SeriesItem) => s.name === 'pool2 - <b>Used<b>');
 
       // Should have different colors
       expect(pool1UsedSeries?.color).not.toBe(pool2UsedSeries?.color);

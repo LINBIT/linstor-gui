@@ -66,7 +66,7 @@ describe('Resource Component', () => {
       render(<Resource data={mockData} />);
 
       const chartElement = screen.getByTestId('mock-chart');
-      expect(chartElement).toHaveAttribute('data-height', '500');
+      expect(chartElement).toHaveAttribute('data-height', '300');
     });
   });
 
@@ -135,7 +135,7 @@ describe('Resource Component', () => {
       render(<Resource data={mockData} />);
 
       const colorsElement = screen.getByTestId('chart-colors');
-      expect(colorsElement).toHaveTextContent('["#499BBB","#8FF9FF"]');
+      expect(colorsElement).toHaveTextContent('["#F79133","#499BBB"]');
     });
 
     it('should pass correct options to Chart component', () => {
@@ -147,12 +147,26 @@ describe('Resource Component', () => {
             labels: ['Active', 'Inactive'],
             legend: {
               position: 'bottom',
+              horizontalAlign: 'center',
             },
-            colors: ['#499BBB', '#8FF9FF'],
+            colors: ['#F79133', '#499BBB'],
+            chart: {
+              width: '100%',
+            },
+            plotOptions: {
+              pie: {
+                size: 180,
+                offsetY: 20,
+              },
+            },
+            dataLabels: {
+              enabled: true,
+              formatter: expect.any(Function),
+            },
           }),
           series: [10, 5],
           type: 'pie',
-          height: 500,
+          height: 300,
         }),
       );
     });
@@ -273,7 +287,7 @@ describe('Resource Component', () => {
           options: expect.any(Object),
           series: expect.any(Array),
           type: 'pie',
-          height: 500,
+          height: 300,
         }),
       );
     });
@@ -292,7 +306,7 @@ describe('Resource Component', () => {
       expect(chartCall.options.legend).toHaveProperty('position', 'bottom');
 
       // Verify colors configuration
-      expect(chartCall.options.colors).toEqual(['#499BBB', '#8FF9FF']);
+      expect(chartCall.options.colors).toEqual(['#F79133', '#499BBB']);
     });
   });
 

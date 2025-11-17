@@ -6,7 +6,8 @@
 
 import React from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Button, Checkbox, Form, Input, Radio, Select, Switch } from 'antd';
+import { Checkbox, Form, Input, Radio, Select, Switch } from 'antd';
+import { Button } from '@app/components/Button';
 import { useNavigate } from 'react-router-dom';
 
 import { useResourceGroups } from '@app/features/resourceGroup';
@@ -266,7 +267,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
           {t('common:submit')}
         </Button>
 
-        <Button type="text" onClick={backToList}>
+        <Button type="secondary" onClick={backToList} style={{ marginLeft: '1em' }}>
           {t('common:cancel')}
         </Button>
       </Form.Item>

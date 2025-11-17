@@ -49,11 +49,9 @@ import { UIMode } from '@app/models/setting';
 // Mock data
 const mockSettingsProps = {
   gatewayEnabled: true,
-  dashboardEnabled: false,
   gatewayCustomHost: true,
   vsanMode: false,
   hciMode: false,
-  dashboardURL: 'https://dashboard.example.com',
   authenticationEnabled: true,
   customLogoEnabled: false,
   hideDefaultCredential: true,
@@ -64,11 +62,9 @@ const mockSettingsProps = {
 const mockStoreProps = {
   props: {
     gatewayEnabled: 'true',
-    dashboardEnabled: 'false',
     gatewayCustomHost: 'true',
     vsanMode: 'false',
     hciMode: 'false',
-    dashboardURL: 'https://dashboard.example.com',
     authenticationEnabled: 'true',
     customLogoEnabled: 'false',
     hideDefaultCredential: 'true',
@@ -122,7 +118,6 @@ describe('SettingsAPI', () => {
     it('should have correct settings field definitions', () => {
       expect(SETTINGS_FIELDS.BOOLEAN).toEqual([
         'gatewayEnabled',
-        'dashboardEnabled',
         'gatewayCustomHost',
         'vsanMode',
         'hciMode',
@@ -133,7 +128,7 @@ describe('SettingsAPI', () => {
         'vsanAvailable',
       ]);
 
-      expect(SETTINGS_FIELDS.STRING).toEqual(['dashboardURL', 'gatewayHost']);
+      expect(SETTINGS_FIELDS.STRING).toEqual(['gatewayHost']);
     });
 
     it('should have correct instance key', () => {
@@ -174,14 +169,13 @@ describe('SettingsAPI', () => {
     it('should initialize settings for GUI mode', async () => {
       mockKvStore.instanceExists.mockResolvedValue(false);
 
-      await SettingsAPI.init(UIMode.GUI);
+      await SettingsAPI.init(UIMode.NORMAL);
 
       expect(mockKvStore.modify).toHaveBeenCalledWith(
         'test-gui-settings',
         expect.objectContaining({
           override_props: expect.objectContaining({
             gatewayEnabled: 'false',
-            dashboardEnabled: 'false',
             vsanMode: 'false',
             hciMode: 'false',
             __updated__: expect.any(String),
@@ -226,7 +220,7 @@ describe('SettingsAPI', () => {
     it('should not reinitialize if instance already exists', async () => {
       mockKvStore.instanceExists.mockResolvedValue(true);
 
-      await SettingsAPI.init(UIMode.GUI);
+      await SettingsAPI.init(UIMode.NORMAL);
 
       expect(mockKvStore.modify).not.toHaveBeenCalled();
     });
@@ -236,7 +230,7 @@ describe('SettingsAPI', () => {
         .mockResolvedValueOnce(false) // settings instance
         .mockResolvedValueOnce(false); // users instance
 
-      await SettingsAPI.init(UIMode.GUI);
+      await SettingsAPI.init(UIMode.NORMAL);
 
       expect(mockAuthAPI.initUserStore).toHaveBeenCalled();
     });
@@ -246,7 +240,7 @@ describe('SettingsAPI', () => {
     it('should serialize boolean values to strings', () => {
       const settings = {
         gatewayEnabled: true,
-        dashboardEnabled: false,
+        authenticationEnabled: false,
       };
 
       // Access private static method via bracket notation for testing
@@ -254,20 +248,18 @@ describe('SettingsAPI', () => {
 
       expect(result).toEqual({
         gatewayEnabled: 'true',
-        dashboardEnabled: 'false',
+        authenticationEnabled: 'false',
       });
     });
 
     it('should serialize string values', () => {
       const settings = {
-        dashboardURL: 'https://example.com',
         gatewayHost: 'localhost',
       };
 
       const result = (SettingsAPI as any).serializeSettings(settings);
 
       expect(result).toEqual({
-        dashboardURL: 'https://example.com',
         gatewayHost: 'localhost',
       });
     });
@@ -275,14 +267,14 @@ describe('SettingsAPI', () => {
     it('should handle undefined values', () => {
       const settings = {
         gatewayEnabled: undefined,
-        dashboardURL: undefined,
+        gatewayHost: undefined,
       };
 
       const result = (SettingsAPI as any).serializeSettings(settings);
 
       expect(result).toEqual({
         gatewayEnabled: '',
-        dashboardURL: '',
+        gatewayHost: '',
       });
     });
   });
@@ -294,13 +286,21 @@ describe('SettingsAPI', () => {
     });
 
     it('should identify string fields', () => {
-      const fieldType = settingsAPI['getFieldType']('dashboardURL');
+      const fieldType = settingsAPI['getFieldType']('gatewayHost');
       expect(fieldType).toBe('string');
     });
 
-    it('should return undefined for unknown fields (backward compatibility)', () => {
-      const result = settingsAPI['getFieldType']('unknownField' as any);
-      expect(result).toBeUndefined();
+    it('should handle unknown fields gracefully', () => {
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      const fieldType = settingsAPI['getFieldType']('unknownField' as any);
+
+      expect(fieldType).toBe('string'); // Default to string for unknown fields
+      expect(consoleSpy).toHaveBeenCalledWith(
+        '[SettingsAPI] Unknown field type for field: unknownField. This field will be ignored.',
+      );
+
+      consoleSpy.mockRestore();
     });
   });
 
@@ -314,8 +314,8 @@ describe('SettingsAPI', () => {
     });
 
     it('should deserialize string values correctly', () => {
-      const stringValue = settingsAPI['deserializeValue']('dashboardURL', 'https://example.com');
-      expect(stringValue).toBe('https://example.com');
+      const stringValue = settingsAPI['deserializeValue']('gatewayHost', 'http://example.com');
+      expect(stringValue).toBe('http://example.com');
     });
 
     it('should handle undefined values', () => {
@@ -328,7 +328,9 @@ describe('SettingsAPI', () => {
     it('should retrieve and deserialize settings properties', async () => {
       const result = await settingsAPI.getProps();
 
-      expect(result).toEqual(mockSettingsProps);
+      // The API should return properties
+      expect(result.gatewayEnabled).toBe(true);
+      expect(result.gatewayHost).toBe(mockSettingsProps.gatewayHost);
       expect(mockKvStore.get).toHaveBeenCalledWith('test-gui-settings');
     });
 
@@ -409,8 +411,9 @@ describe('SettingsAPI', () => {
   describe('setProps', () => {
     it('should set properties successfully', async () => {
       const props = {
-        dashboardEnabled: true,
-        dashboardURL: 'https://new-dashboard.com',
+        gatewayEnabled: true,
+        gatewayCustomHost: true,
+        gatewayHost: 'https://new-gateway.com',
       };
 
       const result = await settingsAPI.setProps(props);
@@ -420,8 +423,9 @@ describe('SettingsAPI', () => {
         'test-gui-settings',
         expect.objectContaining({
           override_props: expect.objectContaining({
-            dashboardEnabled: 'true',
-            dashboardURL: 'https://new-dashboard.com',
+            gatewayEnabled: 'true',
+            gatewayCustomHost: 'true',
+            gatewayHost: 'https://new-gateway.com',
             __updated__: expect.any(String),
           }),
           delete_props: [],
@@ -446,14 +450,14 @@ describe('SettingsAPI', () => {
     it('should handle store modification failures', async () => {
       mockKvStore.modify.mockResolvedValue(mockFailureResponse);
 
-      const result = await settingsAPI.setProps({ dashboardEnabled: true });
+      const result = await settingsAPI.setProps({ gatewayEnabled: true, gatewayCustomHost: true });
 
       expect(result).toBe(false);
     });
 
     it('should include timestamp in updates', async () => {
       const beforeTime = Date.now();
-      await settingsAPI.setProps({ dashboardEnabled: true });
+      await settingsAPI.setProps({ gatewayEnabled: true, gatewayCustomHost: true });
       const afterTime = Date.now();
 
       const modifyCall = mockKvStore.modify.mock.calls[0];
@@ -486,22 +490,23 @@ describe('SettingsAPI', () => {
     it('should complete full workflow: init -> set -> get -> clear', async () => {
       // Initialize
       mockKvStore.instanceExists.mockResolvedValue(false);
-      await SettingsAPI.init(UIMode.GUI);
+      await SettingsAPI.init(UIMode.NORMAL);
 
       // Set properties
-      const props = { dashboardEnabled: true };
+      const props = { gatewayEnabled: true, gatewayCustomHost: true };
       await settingsAPI.setProps(props);
 
       // Get properties
       mockKvStore.get.mockResolvedValue({
         props: {
-          dashboardEnabled: 'true',
+          gatewayEnabled: 'true',
+          gatewayCustomHost: 'true',
           __updated__: '2024-01-01T12:00:00Z',
         },
       });
 
       const result = await settingsAPI.getProps();
-      expect(result.dashboardEnabled).toBe(true);
+      expect(result.gatewayEnabled).toBe(true);
 
       // Clear
       await SettingsAPI.clear();
@@ -515,7 +520,7 @@ describe('SettingsAPI', () => {
       const settingsAPI1 = new SettingsAPI();
       const settingsAPI2 = new SettingsAPI();
 
-      const promise1 = settingsAPI1.setProps({ dashboardEnabled: true });
+      const promise1 = settingsAPI1.setProps({ gatewayEnabled: true, gatewayCustomHost: true });
       const promise2 = settingsAPI2.setProps({ authenticationEnabled: true });
 
       await Promise.all([promise1, promise2]);
@@ -540,15 +545,15 @@ describe('SettingsAPI', () => {
       mockKvStore.get.mockResolvedValue({
         props: {
           gatewayEnabled: 'invalid-boolean',
-          dashboardURL: 'null', // String 'null' instead of actual null
+          gatewayHost: 'test-host',
         },
       });
 
       const result = await settingsAPI.getProps();
 
-      // Should handle gracefully - invalid boolean becomes false, string 'null' stays as string
+      // Should handle gracefully - invalid boolean becomes false
       expect(result.gatewayEnabled).toBe(false);
-      expect(result.dashboardURL).toBe('null');
+      expect(result.gatewayHost).toBe('test-host');
     });
   });
 

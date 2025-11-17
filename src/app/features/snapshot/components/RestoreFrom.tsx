@@ -6,7 +6,8 @@
 
 // RestoreFrom component: select target resource to restore snapshot to
 import React, { useState } from 'react';
-import { Button, Form, Select, message, Space } from 'antd';
+import { Form, Select, message, Space } from 'antd';
+import { Button } from '@app/components/Button';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { uniqBy } from 'lodash';
@@ -120,7 +121,11 @@ const RestoreFrom: React.FC<RestoreFromProps> = ({ sourceResource, sourceSnapsho
 
       <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
         <Space>
-          {onCancel && <Button onClick={onCancel}>{t('common:cancel')}</Button>}
+          {onCancel && (
+            <Button type="secondary" onClick={onCancel}>
+              {t('common:cancel')}
+            </Button>
+          )}
           <Button
             type="primary"
             onClick={() => restoreMutation.mutate()}

@@ -6,11 +6,13 @@
 
 import React, { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Switch, Form, Modal, Select, message } from 'antd';
+import { Switch, Form, Modal, Select, message } from 'antd';
+import { Button } from '@app/components/Button';
 
 import { createBackup } from '../api';
 import { RemoteBackupCreateRequestBody } from '../types';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { getResources } from '@app/features/resource';
 import { uniqBy } from 'lodash';
 
@@ -30,6 +32,7 @@ const CreateBackupForm = ({ refetch }: CreateBackupFormProps) => {
   const [messageApi, contextHolder] = message.useMessage();
 
   const { remote_name } = useParams<{ remote_name: string }>();
+  const { t } = useTranslation(['common']);
 
   const resourceList = useQuery({
     queryKey: ['getResources'],
@@ -65,19 +68,22 @@ const CreateBackupForm = ({ refetch }: CreateBackupFormProps) => {
   return (
     <>
       {contextHolder}
-      <Button type="primary" onClick={() => setModelOpen(true)}>
-        Add
+      <Button type="secondary" onClick={() => setModelOpen(true)}>
+        + {t('common:add')}
       </Button>
       <Modal
         title="Create"
         open={modelOpen}
-        onOk={() => form.submit()}
         onCancel={() => setModelOpen(false)}
-        okText="Confirm"
         width={800}
-        okButtonProps={{
-          loading: createBackupMutation.isLoading,
-        }}
+        footer={
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+            <Button onClick={() => setModelOpen(false)}>{t('common:cancel')}</Button>
+            <Button type="primary" loading={createBackupMutation.isLoading} onClick={() => form.submit()}>
+              {t('common:submit')}
+            </Button>
+          </div>
+        }
         destroyOnClose
         maskClosable={false}
       >

@@ -5,11 +5,12 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Alert, Button, Form, Input } from 'antd';
+import { Alert, Form, Input } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { Dispatch, RootState } from '@app/store';
-import { useTranslation } from 'react-i18next';
 import { UIMode } from '@app/models/setting';
+import { Button } from '@app/components/Button';
 
 type FormType = {
   username: string;
@@ -17,10 +18,14 @@ type FormType = {
   password_validate: string;
 };
 
-const AuthForm: React.FC = () => {
-  const { t } = useTranslation(['common']);
+interface AuthFormProps {
+  redirectTo?: string;
+}
+
+const AuthForm: React.FC<AuthFormProps> = ({ redirectTo }) => {
   const [isError, setIsError] = useState(false);
   const dispatch = useDispatch<Dispatch>();
+  const navigate = useNavigate();
   const { hciModeFromSetting, vsanModeFromSetting } = useSelector((state: RootState) => ({
     vsanModeFromSetting: state.setting.mode === UIMode.VSAN,
     hciModeFromSetting: state.setting.mode === UIMode.HCI,
@@ -31,12 +36,15 @@ const AuthForm: React.FC = () => {
     if (res) {
       // The login effect in auth model will handle needsPasswordChange based on hideDefaultCredential
 
-      if (vsanModeFromSetting) {
-        window.location.href = '/vsan/dashboard';
+      // Use redirectTo if provided, otherwise use mode-based default routing
+      if (redirectTo && redirectTo !== '/') {
+        navigate(redirectTo);
+      } else if (vsanModeFromSetting) {
+        navigate('/vsan/dashboard');
       } else if (hciModeFromSetting) {
-        window.location.href = '/hci/dashboard';
+        navigate('/hci/dashboard');
       } else {
-        window.location.href = '/';
+        navigate('/');
       }
     } else {
       setIsError(true);
@@ -46,13 +54,12 @@ const AuthForm: React.FC = () => {
   return (
     <Form
       name="basic"
-      labelCol={{ span: 8 }}
-      wrapperCol={{ span: 16 }}
-      style={{ maxWidth: 600 }}
+      style={{ width: '368px' }}
       initialValues={{ login: true }}
       onFinish={onFinish}
       autoComplete="off"
       layout="vertical"
+      requiredMark={false}
     >
       {isError && (
         <Alert
@@ -63,29 +70,34 @@ const AuthForm: React.FC = () => {
           style={{
             marginBottom: 16,
             marginTop: 16,
-            width: '80%',
+            width: '100%',
           }}
         />
       )}
       <Form.Item
-        label={t('common:username')}
+        label="Username"
         name="username"
         rules={[{ required: true, message: 'Please input your username!' }]}
+        className="mb-[27px]"
       >
-        <Input />
+        <Input style={{ height: 40 }} />
       </Form.Item>
 
       <Form.Item
-        label={t('common:password')}
+        label="Password"
         name="password"
-        rules={[{ required: true, message: 'Please input your password!' }]}
+        rules={[
+          { required: true, message: 'Please input your password!' },
+          { min: 5, message: 'Password must be at least 5 characters long!' },
+        ]}
+        className="mb-[27px]"
       >
-        <Input.Password />
+        <Input.Password style={{ height: 40 }} />
       </Form.Item>
 
-      <Form.Item wrapperCol={{ span: 16 }}>
-        <Button type="primary" htmlType="submit">
-          {t('common:login')}
+      <Form.Item className="mb-0">
+        <Button htmlType="submit" type="primary">
+          Log in
         </Button>
       </Form.Item>
     </Form>

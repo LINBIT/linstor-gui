@@ -6,7 +6,8 @@
 
 import React from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Form, Input, Radio, Select, Switch } from 'antd';
+import { Form, Input, Radio, Select, Switch } from 'antd';
+import { Button } from '@app/components/Button';
 import { useNavigate, useParams } from 'react-router-dom';
 import { uniqBy } from 'lodash';
 
@@ -296,7 +297,7 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
           {t('common:submit')}
         </Button>
 
-        <Button type="text" onClick={backToList}>
+        <Button type="secondary" onClick={backToList} style={{ marginLeft: '1em' }}>
           {t('common:cancel')}
         </Button>
       </Form.Item>

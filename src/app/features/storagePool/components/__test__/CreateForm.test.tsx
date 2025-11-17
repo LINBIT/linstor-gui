@@ -77,8 +77,6 @@ const mockPhysicalDevices = {
   data: [{ device: '/dev/sda' }, { device: '/dev/sdb' }, { device: '/dev/sdc' }],
 };
 
-const POOL_NAME = 'LinstorStorage';
-
 describe('CreateForm Component Logic', () => {
   let mockGetPhysicalStoragePoolByNode: any;
   let mockCreatePhysicalStorage: any;
@@ -112,7 +110,7 @@ describe('CreateForm Component Logic', () => {
 
     mockUseNodes.mockReturnValue(mockNodes);
     mockUseQueryClient.mockReturnValue({
-      refetchQueries: vi.fn(),
+      invalidateQueries: vi.fn(),
     });
 
     // Mock form watch values
@@ -148,12 +146,16 @@ describe('CreateForm Component Logic', () => {
     it('should call createPhysicalStorage with correct parameters', async () => {
       const node = 'node-1';
       const data = {
-        pool_name: POOL_NAME,
+        pool_name: 'test-pool',
         provider_kind: 'LVM' as const,
+        raid_level: 'JBOD' as const,
         device_paths: ['/dev/sda'],
         with_storage_pool: {
           name: 'test-pool',
+          external_locking: false,
         },
+        sed: false,
+        vdo_enable: false,
       };
 
       await mockCreatePhysicalStorage(node, data);
@@ -168,6 +170,7 @@ describe('CreateForm Component Logic', () => {
         props: {
           'StorDriver/StorPoolName': 'vg-name',
         },
+        external_locking: false,
       };
 
       await mockCreateStoragePool(node, data);
@@ -232,14 +235,16 @@ describe('CreateForm Component Logic', () => {
       const expectedBody = {
         pool_name: 'custom-pool',
         provider_kind: 'LVM',
+        raid_level: 'JBOD',
         device_paths: ['/dev/sda'],
         with_storage_pool: {
           name: 'test-pool',
+          external_locking: false,
         },
         sed: true,
         vdo_enable: false,
-        vdo_slab_size_kib: undefined,
-        vdo_logical_size_kib: undefined,
+        vdo_slab_size_kib: 0,
+        vdo_logical_size_kib: 0,
       };
 
       expect(expectedBody.pool_name).toBe(formValues.pool_name);
@@ -247,7 +252,7 @@ describe('CreateForm Component Logic', () => {
       expect(expectedBody.device_paths).toEqual([formValues.device_path]);
     });
 
-    it('should use default pool name when custom name not provided', () => {
+    it('should use storage_pool_name as default pool name when custom name not provided', () => {
       const formValues = {
         storage_pool_name: 'test-pool',
         pool_name: undefined,
@@ -255,8 +260,8 @@ describe('CreateForm Component Logic', () => {
         device_path: '/dev/sda',
       };
 
-      const poolName = formValues.pool_name ? formValues.pool_name : POOL_NAME;
-      expect(poolName).toBe(POOL_NAME);
+      const poolName = formValues.pool_name ? formValues.pool_name : formValues.storage_pool_name;
+      expect(poolName).toBe('test-pool');
     });
 
     it('should handle VDO configuration correctly', () => {
@@ -295,6 +300,7 @@ describe('CreateForm Component Logic', () => {
         props: {
           'StorDriver/StorPoolName': 'vg-existing',
         },
+        external_locking: false,
       };
 
       expect(expectedBody.storage_pool_name).toBe(formValues.storage_pool_name);
@@ -307,10 +313,18 @@ describe('CreateForm Component Logic', () => {
     it('should handle single node creation', () => {
       const node = 'node-1';
       const body = {
-        pool_name: POOL_NAME,
+        pool_name: 'test-pool',
         provider_kind: 'LVM' as const,
+        raid_level: 'JBOD' as const,
         device_paths: ['/dev/sda'],
-        with_storage_pool: { name: 'test-pool' },
+        with_storage_pool: {
+          name: 'test-pool',
+          external_locking: false,
+        },
+        sed: false,
+        vdo_enable: false,
+        vdo_slab_size_kib: 0,
+        vdo_logical_size_kib: 0,
       };
 
       if (Array.isArray(node)) {
@@ -342,6 +356,7 @@ describe('CreateForm Component Logic', () => {
         storage_pool_name: 'test-pool',
         provider_kind: 'LVM' as const,
         props: { 'StorDriver/StorPoolName': 'vg-name' },
+        external_locking: false,
       };
 
       const mutations: any[] = [];

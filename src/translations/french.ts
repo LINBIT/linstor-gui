@@ -530,11 +530,11 @@ const fr = {
     gateway: 'Passerelle',
     linstor_gateway: 'Passerelle LINSTOR',
     linstor_gateway_description:
-      "Gère les cibles iSCSI et les exportations NFS haute disponibilité via LINSTOR. L'installation de linstor-gateway est un prérequis pour activer cette fonctionnalité. Après avoir activé cette fonctionnalité, l'entrée Passerelle s'affichera dans le menu de gauche.",
+      "Gère les cibles iSCSI et les exportations NFS haute disponibilité via LINSTOR. L'installation de LINSTOR-Gateway est un prérequis pour activer cette fonctionnalité. Après avoir activé cette fonctionnalité, l'entrée Passerelle s'affichera dans le menu de gauche.",
     passphrase: 'Phrase de passe',
     gateway_mode: 'Mode passerelle',
     gateway_mode_description:
-      "L'installation de linstor-gateway est un prérequis pour activer cette fonctionnalité. Assurez-vous que le point de terminaison est correctement configuré pour permettre la communication entre la passerelle LINSTOR et le serveur LINSTOR.",
+      "L'installation de LINSTOR-Gateway est un prérequis pour activer cette fonctionnalité. Assurez-vous que le point de terminaison est correctement configuré pour permettre la communication entre la passerelle LINSTOR et le serveur LINSTOR.",
     custom_host: 'Hôte personnalisé',
     custom_host_description:
       "Lorsque l'hôte personnalisé est activé, vous devez entrer les points de terminaison de l'API de la passerelle LINSTOR dans la section 'API personnalisée' ci-dessous. La valeur par défaut est l'IP du serveur LINSTOR + 8080, comme http://192.168.1.1:8080/. Si un port personnalisé ou une IP différente est utilisée, ajustez le point de terminaison en conséquence.",

@@ -4,11 +4,9 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { AppRouteConfig } from './routes';
-
 import List from '@app/pages/Snapshot';
 
-const snapshot: AppRouteConfig[] = [
+const snapshot = [
   {
     component: List,
     exact: true,

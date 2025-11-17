@@ -5,7 +5,9 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useRef, useState } from 'react';
-import { Button, Form, Space, Table, Tag, Popconfirm, Input, Dropdown, Tooltip } from 'antd';
+import { Form, Space, Table, Tag, Popconfirm, Input, Dropdown, Tooltip } from 'antd';
+import { Button } from '@app/components/Button';
+import { Link } from '@app/components/Link';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -199,17 +201,7 @@ export const List = () => {
 
             return (
               <div key={index}>
-                {displayKey}:{' '}
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    navigate(url);
-                  }}
-                  className="text-blue-600 hover:text-blue-800 underline"
-                >
-                  {value.join(', ')}
-                </a>
+                {displayKey}: <Link to={url}>{value.join(', ')}</Link>
               </div>
             );
           }
@@ -264,8 +256,8 @@ export const List = () => {
         if (propEntries.length === 0) return null;
 
         const propTexts = propEntries.map(([key, value]) => {
-          // Truncate property name if longer than 15 characters
-          const displayKey = key.length > 15 ? `${key.substring(0, 15)}...` : key;
+          // Truncate property name if longer than 25 characters
+          const displayKey = key.length > 25 ? `${key.substring(0, 25)}...` : key;
 
           if (Array.isArray(value)) {
             return `${displayKey}: ${value.join(', ')}`;
@@ -358,7 +350,7 @@ export const List = () => {
               ],
             }}
           >
-            <Button type="text" icon={<MoreOutlined />} />
+            <MoreOutlined style={{ cursor: 'pointer', fontSize: 16 }} />
           </Dropdown>
         </Space>
       ),
@@ -382,9 +374,6 @@ export const List = () => {
 
           <Form.Item>
             <Space size="small">
-              <Button type="default" onClick={handleReset}>
-                {t('common:reset')}
-              </Button>
               <Button
                 type="primary"
                 onClick={() => {
@@ -392,6 +381,9 @@ export const List = () => {
                 }}
               >
                 {t('common:search')}
+              </Button>
+              <Button type="secondary" onClick={handleReset}>
+                {t('common:reset')}
               </Button>
               <Popconfirm
                 key="delete"
@@ -409,18 +401,16 @@ export const List = () => {
           </Form.Item>
         </Form>
 
-        <Button
+        <Link
           type="primary"
-          onClick={() =>
-            navigate(
-              mode === UIMode.HCI
-                ? '/hci/storage-configuration/resource-groups/create'
-                : '/storage-configuration/resource-groups/create',
-            )
+          to={
+            mode === UIMode.HCI
+              ? '/hci/storage-configuration/resource-groups/create'
+              : '/storage-configuration/resource-groups/create'
           }
         >
-          {t('common:add')}
-        </Button>
+          + {t('common:add')}
+        </Link>
       </SearchForm>
 
       <br />

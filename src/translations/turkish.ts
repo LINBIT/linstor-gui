@@ -527,11 +527,11 @@ const tr = {
     gateway: 'Ağ Geçidi',
     linstor_gateway: 'LINSTOR Ağ Geçidi',
     linstor_gateway_description:
-      'LINSTOR aracılığıyla Yüksek Kullanılabilirlik iSCSI hedeflerini ve NFS dışa aktarımlarını yönetir. Bu özelliği etkinleştirmek için linstor-gateway kurulumu ön koşuldur. Bu özelliği etkinleştirdikten sonra, sol menüde Ağ Geçidi girişi görüntülenecektir.',
+      'LINSTOR aracılığıyla Yüksek Kullanılabilirlik iSCSI hedeflerini ve NFS dışa aktarımlarını yönetir. Bu özelliği etkinleştirmek için LINSTOR-Gateway kurulumu ön koşuldur. Bu özelliği etkinleştirdikten sonra, sol menüde Ağ Geçidi girişi görüntülenecektir.',
     passphrase: 'Parola',
     gateway_mode: 'Ağ Geçidi Modu',
     gateway_mode_description:
-      'Bu özelliği etkinleştirmek için linstor-gateway kurulumu ön koşuldur. LINSTOR Ağ Geçidi ile LINSTOR Sunucusu arasında iletişime izin vermek için uç noktanın doğru şekilde yapılandırıldığından emin olun.',
+      'Bu özelliği etkinleştirmek için LINSTOR-Gateway kurulumu ön koşuldur. LINSTOR Ağ Geçidi ile LINSTOR Sunucusu arasında iletişime izin vermek için uç noktanın doğru şekilde yapılandırıldığından emin olun.',
     custom_host: 'Özel Ana Bilgisayar',
     custom_host_description:
       "Özel ana bilgisayar etkinleştirildiğinde, aşağıdaki 'Özel API' bölümünde LINSTOR Ağ Geçidi API uç noktalarını girmeniz gerekir. Varsayılan değer LINSTOR sunucu IP'si + 8080'dir, örneğin http://192.168.1.1:8080/. Özel bir port veya farklı bir IP kullanılıyorsa, uç noktayı buna göre ayarlayın.",

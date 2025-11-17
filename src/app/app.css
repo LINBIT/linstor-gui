@@ -5,167 +5,26 @@
  */
 
 @import url('antd/dist/reset.css');
-
 @import 'tailwindcss';
-
-html,
-body,
-#root {
-  --pf-global--BackgroundColor--dark-100: #1e2939;
-  --pf-global--primary-color--100: #f79133;
-  --pf-global--primary-color--200: #f7a75c;
-  --pf-c-divider--m-vertical--after--Width: 0;
-
-  height: 100%;
-}
-
-.pf-c-page {
-  background-color: #1e2939;
-}
-
-.pf-c-card {
-  border-radius: 10px;
-}
-
-.pf-c-page__sidebar-body {
-  padding-top: 0;
-}
-
-.pf-c-nav__link:hover {
-  background-color: #323f58;
-  color: white;
-  border-top-left-radius: 16px;
-  border-bottom-left-radius: 16px;
-}
-
-.pf-c-nav__link.pf-m-current,
-.pf-c-nav__link.pf-m-current:hover {
-  background-color: white;
-  color: #1e2939;
-}
-
-.pf-c-nav__link.pf-m-current {
-  background-color: white;
-  color: #1e2939;
-}
-
-.pf-c-page__sidebar {
-  padding-left: 30px;
-  box-shadow: none;
-}
-
-.pf-c-page__sidebar-body {
-  padding-top: 30px;
-}
-
-.pf-c-page__sidebar.pf-m-expanded {
-  box-shadow: none;
-}
-
-.pf-c-page__main {
-  background-color: #1e2939;
-  padding-right: 18px;
-  padding-bottom: 18px;
-}
-
-.pf-c-page__main-section {
-  background-color: white;
-  border-radius: 16px;
-}
-
-.pf-c-nav__item.pf-m-current:not(.pf-m-expanded) .pf-c-nav__link {
-  border-top-left-radius: 16px;
-  border-bottom-left-radius: 16px;
-  color: white;
-  background-color: #323f58;
-}
-
-.pf-c-nav__link:focus {
-  color: white;
-  background-color: #1e2939;
-}
-.pf-c-nav__link:focus::before {
-  border-bottom-width: 0;
-}
-.pf-c-nav__link:focus::after {
-  border-left-width: 0;
-}
-
-.pf-c-nav__item.pf-m-expandable::before,
-.pf-c-nav__link::before {
-  border-bottom-width: 0;
-}
-
-.pf-c-nav__link.pf-m-current {
-  border-top-left-radius: 16px;
-  border-bottom-left-radius: 16px;
-}
-
-.pf-c-nav__link:hover::after,
-.pf-c-nav__link.pf-m-current::after,
-.pf-c-nav__link.pf-m-current:hover::after,
-.pf-c-nav__item.pf-m-current:not(.pf-m-expanded) .pf-c-nav__link::after {
-  border-left-width: 0;
-}
-
-.pf-c-progress__bar {
-  border-radius: 5px;
-  --pf-c-progress__bar--Height: 20px;
-}
-
-.pf-c-progress__indicator {
-  --pf-c-progress__indicator--BackgroundColor: #f79133;
-  --pf-c-progress__indicator--Height: 20px;
-  --pf-c-progress--m-lg__bar--Height: 20px;
-
-  border-radius: 5px;
-}
-
-.pf-c-progress__bar::before {
-  --pf-c-progress__bar--before--BackgroundColor: #eaeaea;
-  --pf-c-progress__bar--before--Opacity: 1;
-  border-radius: 5px;
-}
-
-.pf-c-divider.pf-m-vertical::after {
-  --pf-c-divider--m-vertical--after--Width: 0;
-}
-
-.pf-c-button {
-  --pf-c-button--BorderRadius: 5px;
-}
-
-.pf-c-button.pf-m-primary {
-  --pf-c-button--m-primary--BackgroundColor: #f79133;
-  --pf-c-button--m-primary--Color: white;
-  border: 1px solid #f79133;
-}
-
-.pf-c-button.pf-m-primary:hover {
-  --pf-c-button--m-primary--hover--Color: #f79133;
-  --pf-c-button--m-primary--hover--BackgroundColor: white;
-  border: 1px solid #f79133;
-}
-
-.pf-c-button:disabled,
-.pf-c-button.pf-m-disabled,
-.pf-c-button.pf-m-aria-disabled {
-  border: 1px solid transparent;
-}
-
-.pf-c-button.pf-m-link {
-  --pf-c-button--m-link--BackgroundColor: white;
-  --pf-c-button--m-link--Color: #1e2939;
-}
-
-.linbit_modal {
-  border-radius: 20px;
-}
-
-.pf-c-button.pf-m-link.pf-m-inline {
-  padding: 10px;
-}
 
 iframe {
   min-height: 400px;
+}
+
+/* Ant Design Menu selected item styles */
+.ant-menu-item-selected,
+.ant-menu-item-selected:hover {
+  background-color: white !important;
+  color: #000000 !important;
+}
+
+.ant-menu-item-selected .ant-menu-item-icon,
+.ant-menu-item-selected:hover .ant-menu-item-icon {
+  color: #000000 !important;
+}
+
+.ant-menu-submenu-selected .ant-menu-submenu-title,
+.ant-menu-submenu-selected:hover .ant-menu-submenu-title {
+  background-color: white !important;
+  color: #000000 !important;
 }

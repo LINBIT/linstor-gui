@@ -14,7 +14,6 @@ import { UIMode } from '@app/models/setting'; // import UIMode enum
 export const SETTINGS_FIELDS = {
   BOOLEAN: [
     'gatewayEnabled',
-    'dashboardEnabled',
     'gatewayCustomHost',
     'vsanMode',
     'hciMode',
@@ -25,18 +24,23 @@ export const SETTINGS_FIELDS = {
     'vsanAvailable',
   ] as const,
 
-  STRING: ['dashboardURL', 'gatewayHost'] as const,
+  STRING: ['gatewayHost'] as const,
+
+  NUMBER: [] as const,
 } as const;
 
 // Type inference from field definitions
 type BooleanField = (typeof SETTINGS_FIELDS.BOOLEAN)[number];
 type StringField = (typeof SETTINGS_FIELDS.STRING)[number];
+type NumberField = (typeof SETTINGS_FIELDS.NUMBER)[number];
 
 // Define the FieldType using the field definitions
 export type SettingsProps = {
   [K in BooleanField]: boolean;
 } & {
   [K in StringField]: string;
+} & {
+  [K in NumberField]: number;
 };
 
 // Validation rules type and definitions
@@ -76,11 +80,9 @@ export class SettingsAPI {
   public static async init(mode: UIMode): Promise<void> {
     const defaultSettings: SettingsProps = {
       gatewayEnabled: false,
-      dashboardEnabled: false,
       gatewayCustomHost: false,
       vsanMode: mode === UIMode.VSAN,
       hciMode: mode === UIMode.HCI,
-      dashboardURL: '',
       authenticationEnabled: false,
       customLogoEnabled: false,
       hideDefaultCredential: false,
@@ -115,11 +117,14 @@ export class SettingsAPI {
     );
   }
 
-  private getFieldType(field: string): 'boolean' | 'string' | undefined {
+  private getFieldType(field: keyof SettingsProps): 'boolean' | 'string' | 'number' {
     if (SETTINGS_FIELDS.BOOLEAN.includes(field as BooleanField)) return 'boolean';
     if (SETTINGS_FIELDS.STRING.includes(field as StringField)) return 'string';
-    // Return undefined for unknown fields (backward compatibility)
-    return undefined;
+    if (SETTINGS_FIELDS.NUMBER.includes(field as NumberField)) return 'number';
+
+    // Handle unknown fields gracefully
+    console.warn(`[SettingsAPI] Unknown field type for field: ${field}. This field will be ignored.`);
+    return 'string'; // Default to string type for unknown fields
   }
 
   private deserializeValue<T extends keyof SettingsProps>(
@@ -129,9 +134,13 @@ export class SettingsAPI {
     if (value === undefined) return undefined;
 
     const fieldType = this.getFieldType(field);
-    if (!fieldType) return undefined; // Unknown field, skip it
-
-    return fieldType === 'boolean' ? ((value === 'true') as SettingsProps[T]) : (value as SettingsProps[T]);
+    if (fieldType === 'boolean') {
+      return (value === 'true') as SettingsProps[T];
+    } else if (fieldType === 'number') {
+      return (parseInt(value, 10) || 0) as unknown as SettingsProps[T];
+    } else {
+      return value as SettingsProps[T];
+    }
   }
 
   public async getProps(): Promise<SettingsProps> {
@@ -153,9 +162,14 @@ export class SettingsAPI {
       }
 
       const field = key as keyof SettingsProps;
-      const deserializedValue = this.deserializeValue(field, value);
-      if (deserializedValue !== undefined) {
-        (result[field] as any) = deserializedValue;
+      try {
+        const deserializedValue = this.deserializeValue(field, value);
+        if (deserializedValue !== undefined) {
+          (result[field] as any) = deserializedValue;
+        }
+      } catch (error) {
+        // Skip unknown fields for backward compatibility
+        console.warn(`Skipping unknown field: ${key}`);
       }
     });
 

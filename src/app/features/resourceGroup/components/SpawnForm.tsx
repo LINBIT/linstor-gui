@@ -6,7 +6,8 @@
 
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Button, Checkbox, Form, Input, Modal } from 'antd';
+import { Checkbox, Form, Input, Modal } from 'antd';
+import { Button } from '@app/components/Button';
 
 import { SizeInput } from '@app/components/SizeInput';
 import { SpawnRequest } from '../types';
@@ -59,13 +60,18 @@ const SpawnForm = ({ resource_group, isInDropdown = false }: SpawnFormProps) => 
       <Modal
         title="Spawn"
         open={showSpawnForm}
-        onOk={() => onFinish(form.getFieldsValue())}
         onCancel={() => setShowSpawnForm(false)}
-        okText="Spawn"
+        footer={
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+            <Button type="secondary" onClick={() => setShowSpawnForm(false)}>
+              {t('common:cancel')}
+            </Button>
+            <Button type="primary" onClick={() => onFinish(form.getFieldsValue())} loading={spawnMutation.isLoading}>
+              {t('common:spawn')}
+            </Button>
+          </div>
+        }
         width={800}
-        okButtonProps={{
-          loading: spawnMutation.isLoading,
-        }}
       >
         <Form<FormType>
           labelCol={{ span: 8 }}

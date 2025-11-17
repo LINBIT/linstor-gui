@@ -14,6 +14,7 @@ import AppLayout from '@app/layouts/AppLayout';
 import AppRoutes from '@app/routes/routes';
 import { resolveAndStoreLinstorHost } from '@app/utils/resolveLinstorHost';
 import { useSpaceReportStatus } from '@app/hooks/useSpaceReportStatus';
+import GrafanaPreconnect from '@app/components/GrafanaPreconnect';
 
 import { store } from './store';
 import { NavProvider } from './NavContext';
@@ -38,11 +39,12 @@ const App: React.FunctionComponent = () => {
 
   return (
     <Provider store={store}>
+      <GrafanaPreconnect />
       <Router>
         <ConfigProvider
           theme={{
             token: {
-              colorPrimary: '#f79133',
+              colorPrimary: '#FFCC9C ',
             },
           }}
           locale={locale}

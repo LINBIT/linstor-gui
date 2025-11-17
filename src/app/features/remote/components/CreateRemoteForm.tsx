@@ -6,7 +6,8 @@
 
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Button, Switch, Form, Input, Modal, Select, message } from 'antd';
+import { Switch, Form, Input, Modal, Select, message } from 'antd';
+import { Button } from '@app/components/Button';
 import { useTranslation } from 'react-i18next';
 
 import { createLINSTORRemote, createS3Remote } from '../api';
@@ -73,20 +74,26 @@ const CreateRemoteForm = ({ refetch }: CreateRemoteFormProps) => {
   return (
     <>
       {contextHolder}
-      <Button type="primary" onClick={() => setModelOpen(true)}>
-        {t('common:create')}
+      <Button type="secondary" onClick={() => setModelOpen(true)}>
+        + {t('common:add')}
       </Button>
       <Modal
         title={t('common:create')}
         open={modelOpen}
-        onOk={() => onFinish(form.getFieldsValue())}
         onCancel={() => setModelOpen(false)}
-        okText={t('common:submit')}
-        cancelText={t('common:cancel')}
         width={800}
-        okButtonProps={{
-          loading: createS3RemoteMutation.isLoading,
-        }}
+        footer={
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+            <Button onClick={() => setModelOpen(false)}>{t('common:cancel')}</Button>
+            <Button
+              type="primary"
+              loading={createS3RemoteMutation.isLoading || createLINSTORRemoteMutation.isLoading}
+              onClick={() => onFinish(form.getFieldsValue())}
+            >
+              {t('common:submit')}
+            </Button>
+          </div>
+        }
         destroyOnClose
         maskClosable={false}
       >

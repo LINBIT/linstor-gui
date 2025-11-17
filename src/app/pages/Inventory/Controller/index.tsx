@@ -4,11 +4,12 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { Button, Divider, Input, List, Popconfirm, Select, Space, Switch } from 'antd';
-import React, { useState } from 'react';
+import { Button as AntButton, Input, Popconfirm, Select, Table } from 'antd';
+import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
-import PageBasic from '@app/components/PageBasic';
+import Button from '@app/components/Button';
+import { Switch } from '@app/components/Switch';
 import PropertyForm from '@app/components/PropertyForm';
 import { getControllerProperties, updateController } from '@app/features/node';
 import { handlePropsToFormOption } from '@app/utils/property';
@@ -50,7 +51,7 @@ export const Controller = () => {
     if (item.key.startsWith('Aux/') || (!info && !isBoolean)) {
       inputItem = (
         <Input
-          style={{ width: '200px' }}
+          style={{ width: '100%', maxWidth: '200px' }}
           defaultValue={item.value}
           onChange={(e) => {
             mutation.mutate({
@@ -73,6 +74,7 @@ export const Controller = () => {
     } else if (info?.type === 'single_select') {
       inputItem = (
         <Select
+          style={{ width: '100%', maxWidth: '200px' }}
           value={item.value}
           onChange={(e) => {
             mutation.mutate({
@@ -87,7 +89,7 @@ export const Controller = () => {
     }
 
     return (
-      <div>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
         {inputItem}
         {deleteButton && info && (
           <Popconfirm
@@ -102,7 +104,7 @@ export const Controller = () => {
             okText="Yes"
             cancelText="No"
           >
-            <Button danger shape="circle" icon={<MinusOutlined />} size="small" style={{ marginLeft: 6 }} />
+            <AntButton danger shape="circle" icon={<MinusOutlined />} size="small" style={{ marginLeft: 6 }} />
           </Popconfirm>
         )}
       </div>
@@ -110,37 +112,58 @@ export const Controller = () => {
   };
 
   return (
-    <PageBasic title={t('common:controller')}>
-      <Space>
-        {t('common:edit')}: <Switch onChange={() => setEditMode((editMode) => !editMode)} />
-        <Divider type="vertical" />
-        <PropertyForm
-          initialVal={properties?.data}
-          type="controller"
-          handleSubmit={(data) => {
-            mutation.mutate(data);
-          }}
-        >
-          <Button>{t('common:add_property')}</Button>
-        </PropertyForm>
-      </Space>
+    <div>
+      <div className="flex items-center mb-6">
+        <div style={{ width: '40%' }}>
+          <h4 className="font-medium text-[22px]">{t('common:controller')}</h4>
+        </div>
 
-      <List
-        style={{ marginTop: '1rem' }}
+        <div style={{ width: '60%' }} className="flex items-center justify-between">
+          <div className="flex items-center">
+            <span className="mr-2 font-medium">{t('common:edit_mode')} </span>
+            <Switch onChange={() => setEditMode((editMode) => !editMode)} />
+          </div>
+
+          <PropertyForm
+            initialVal={properties?.data}
+            type="controller"
+            handleSubmit={(data) => {
+              mutation.mutate(data);
+            }}
+          >
+            <Button type="secondary">+ {t('common:add_property')}</Button>
+          </PropertyForm>
+        </div>
+      </div>
+
+      <Table
+        style={{ marginTop: '1rem', tableLayout: 'fixed' }}
         className="mt-4"
         size="small"
-        header={<h4>{t('common:controller_properties')}</h4>}
-        bordered
         dataSource={propertiesArray}
-        renderItem={(item) => {
-          return (
-            <List.Item>
-              <span>{item.key} </span>
-              {editMode ? renderItem(item) : <span>{item.value}</span>}
-            </List.Item>
-          );
-        }}
+        pagination={false}
+        rowClassName={(_, index) => (index % 2 === 1 ? 'bg-gray-100' : '')}
+        columns={[
+          {
+            title: t('common:controller_properties'),
+            dataIndex: 'key',
+            key: 'key',
+            width: '40%',
+            render: (text) => <span>{text}</span>,
+          },
+          {
+            title: 'Value',
+            dataIndex: 'value',
+            key: 'value',
+            width: '60%',
+            render: (value, record) => (
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                {editMode ? renderItem(record) : <span>{value}</span>}
+              </div>
+            ),
+          },
+        ]}
       />
-    </PageBasic>
+    </div>
   );
 };

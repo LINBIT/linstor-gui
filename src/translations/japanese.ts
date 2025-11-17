@@ -529,11 +529,11 @@ const ja = {
     gateway: 'ゲートウェイ',
     linstor_gateway: 'LINSTORゲートウェイ',
     linstor_gateway_description:
-      'LINSTORを介して高可用性iSCSIターゲットとNFSエクスポートを管理します。この機能を有効にするには、linstor-gatewayのインストールが前提条件です。この機能を有効にすると、左側メニューにゲートウェイエントリが表示されます。',
+      'LINSTORを介して高可用性iSCSIターゲットとNFSエクスポートを管理します。この機能を有効にするには、LINSTOR-Gatewayのインストールが前提条件です。この機能を有効にすると、左側メニューにゲートウェイエントリが表示されます。',
     passphrase: 'パスフレーズ',
     gateway_mode: 'ゲートウェイモード',
     gateway_mode_description:
-      'この機能を有効にするには、linstor-gatewayのインストールが前提条件です。LINSTORゲートウェイとLINSTORサーバー間の通信を可能にするため、エンドポイントが正しく設定されていることを確認してください。',
+      'この機能を有効にするには、LINSTOR-Gatewayのインストールが前提条件です。LINSTORゲートウェイとLINSTORサーバー間の通信を可能にするため、エンドポイントが正しく設定されていることを確認してください。',
     custom_host: 'カスタムホスト',
     custom_host_description:
       'カスタムホストが有効な場合、下の「カスタムAPI」セクションでLINSTORゲートウェイAPIエンドポイントを入力する必要があります。デフォルト値はLINSTORサーバーIP + 8080（例：http://192.168.1.1:8080/）です。カスタムポートまたは異なるIPが使用される場合は、それに応じてエンドポイントを調整してください。',

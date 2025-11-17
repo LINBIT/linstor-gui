@@ -4,8 +4,6 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { AppRouteConfig } from './routes';
-
 import ISCSIList from '@app/pages/Gateway/iscsi';
 import ISCSICreate from '@app/pages/Gateway/iscsi/Create';
 import NFSList from '@app/pages/Gateway/nfs';
@@ -13,7 +11,7 @@ import NFSCreate from '@app/pages/Gateway/nfs/Create';
 import NvmeList from '@app/pages/Gateway/nvme';
 import NvmeCreate from '@app/pages/Gateway/nvme/Create';
 
-const gateway: AppRouteConfig[] = [
+const gateway = [
   {
     label: 'gateway',
     routes: [

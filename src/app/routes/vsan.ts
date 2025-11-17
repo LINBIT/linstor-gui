@@ -9,9 +9,8 @@ import { NVMeoF } from '@app/pages/VSAN/NVMeoF';
 import { PhysicalStorage } from '@app/pages/VSAN/PhysicalStorage';
 import { ResourceGroup } from '@app/pages/VSAN/ResourceGroup';
 import { Dashboard as VSANDashboard } from '@app/pages/VSAN/Dashboard';
-import { IAppRoute } from './routes';
 
-const vsan: IAppRoute[] = [
+const vsan = [
   {
     component: VSANDashboard,
     path: '/vsan/dashboard',

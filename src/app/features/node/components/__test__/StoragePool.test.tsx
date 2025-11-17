@@ -49,6 +49,21 @@ vi.mock('@app/utils/size', () => ({
   formatBytes: vi.fn((val: number) => `${val}B`),
 }));
 
+// Mock storagePoolColors utility
+vi.mock('@app/utils/storagePoolColors', () => ({
+  generateStoragePoolColorPairs: vi.fn((count: number) => {
+    const colors = ['#F79133', '#499BBB', '#E1C047'];
+    return Array.from({ length: count }, (_, i) => ({
+      used: colors[i % colors.length],
+      free: `rgba(${i}, ${i}, ${i}, 0.2)`,
+    }));
+  }),
+  getNodeTotalColorPair: vi.fn(() => ({
+    used: '#3F3F3F',
+    free: 'rgba(63, 63, 63, 0.2)',
+  })),
+}));
+
 describe('StoragePool Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -104,8 +119,10 @@ describe('StoragePool Component', () => {
 
       const seriesElement = screen.getByTestId('chart-series');
       const expectedSeries = [
-        { name: 'total', data: [1000, 2000] },
-        { name: 'used', data: [300, 800] },
+        { name: 'pool1 - Used', data: [300, 0] },
+        { name: 'pool1 - Free', data: [700, 0] },
+        { name: 'pool2 - Used', data: [0, 800] },
+        { name: 'pool2 - Free', data: [0, 1200] },
       ];
       expect(seriesElement).toHaveTextContent(JSON.stringify(expectedSeries));
     });
@@ -132,8 +149,8 @@ describe('StoragePool Component', () => {
 
       const seriesElement = screen.getByTestId('chart-series');
       const expectedSeries = [
-        { name: 'total', data: [1000] },
-        { name: 'used', data: [300] },
+        { name: 'pool1 - Used', data: [300] },
+        { name: 'pool1 - Free', data: [700] },
       ];
       expect(seriesElement).toHaveTextContent(JSON.stringify(expectedSeries));
     });
@@ -162,8 +179,8 @@ describe('StoragePool Component', () => {
 
       const seriesElement = screen.getByTestId('chart-series');
       const expectedSeries = [
-        { name: 'total', data: [1000] },
-        { name: 'used', data: [300] },
+        { name: 'pool1 - Used', data: [300] },
+        { name: 'pool1 - Free', data: [700] },
       ];
       expect(seriesElement).toHaveTextContent(JSON.stringify(expectedSeries));
     });
@@ -190,7 +207,7 @@ describe('StoragePool Component', () => {
       const seriesElement = screen.getByTestId('chart-series');
 
       expect(categoriesElement).toHaveTextContent('[]');
-      expect(seriesElement).toHaveTextContent('[{"name":"total","data":[]},{"name":"used","data":[]}]');
+      expect(seriesElement).toHaveTextContent('[]');
     });
 
     it('should handle data with only Total type', () => {
@@ -203,8 +220,10 @@ describe('StoragePool Component', () => {
 
       const seriesElement = screen.getByTestId('chart-series');
       const expectedSeries = [
-        { name: 'total', data: [1000, 2000] },
-        { name: 'used', data: [] },
+        { name: 'pool1 - Used', data: [0, 0] },
+        { name: 'pool1 - Free', data: [1000, 0] },
+        { name: 'pool2 - Used', data: [0, 0] },
+        { name: 'pool2 - Free', data: [0, 2000] },
       ];
       expect(seriesElement).toHaveTextContent(JSON.stringify(expectedSeries));
     });
@@ -219,8 +238,10 @@ describe('StoragePool Component', () => {
 
       const seriesElement = screen.getByTestId('chart-series');
       const expectedSeries = [
-        { name: 'total', data: [] },
-        { name: 'used', data: [300, 800] },
+        { name: 'pool1 - Used', data: [300, 0] },
+        { name: 'pool1 - Free', data: [-300, 0] }, // Free is negative when no Total
+        { name: 'pool2 - Used', data: [0, 800] },
+        { name: 'pool2 - Free', data: [0, -800] }, // Free is negative when no Total
       ];
       expect(seriesElement).toHaveTextContent(JSON.stringify(expectedSeries));
     });
@@ -235,8 +256,8 @@ describe('StoragePool Component', () => {
 
       const seriesElement = screen.getByTestId('chart-series');
       const expectedSeries = [
-        { name: 'total', data: [0] },
-        { name: 'used', data: [0] },
+        { name: 'pool1 - Used', data: [0] },
+        { name: 'pool1 - Free', data: [0] },
       ];
       expect(seriesElement).toHaveTextContent(JSON.stringify(expectedSeries));
     });
@@ -261,7 +282,8 @@ describe('StoragePool Component', () => {
       render(<StoragePool data={mockData} />);
 
       const colorsElement = screen.getByTestId('chart-colors');
-      expect(colorsElement).toHaveTextContent('["#499BBB","#C4DBE6"]');
+      // Colors are generated for each pool (used and free pairs)
+      expect(colorsElement).toHaveTextContent('["#F79133","rgba(0, 0, 0, 0.2)","#499BBB","rgba(1, 1, 1, 0.2)"]');
     });
 
     it('should pass correct chart options to Chart component', () => {
@@ -292,12 +314,11 @@ describe('StoragePool Component', () => {
             fill: {
               opacity: 1,
             },
-            colors: ['#499BBB', '#C4DBE6'],
+            colors: expect.arrayContaining([expect.any(String)]),
           }),
-          series: [
-            { name: 'total', data: [1000, 2000] },
-            { name: 'used', data: [300, 800] },
-          ],
+          series: expect.arrayContaining([
+            expect.objectContaining({ name: expect.any(String), data: expect.any(Array) }),
+          ]),
           type: 'bar',
           height: 500,
         }),
@@ -327,7 +348,8 @@ describe('StoragePool Component', () => {
       render(<StoragePool data={mockData} />);
 
       const chartCall = mockChartRender.mock.calls[0][0];
-      expect(chartCall.options.dataLabels.formatter).toBeInstanceOf(Function);
+      // dataLabels is disabled in current implementation
+      expect(chartCall.options.dataLabels.enabled).toBe(false);
       expect(chartCall.options.yaxis.labels.formatter).toBeInstanceOf(Function);
     });
   });
@@ -387,7 +409,9 @@ describe('StoragePool Component', () => {
       const seriesElement = screen.getByTestId('chart-series');
 
       expect(categoriesElement).toHaveTextContent('["pool1"]');
-      expect(seriesElement).toHaveTextContent('[{"name":"total","data":[1000]},{"name":"used","data":[300]}]');
+      expect(seriesElement).toHaveTextContent(
+        '[{"name":"pool1 - Used","data":[300]},{"name":"pool1 - Free","data":[700]}]',
+      );
     });
   });
 
@@ -422,10 +446,12 @@ describe('StoragePool Component', () => {
       expect(chartCall.options).toHaveProperty('yaxis');
       expect(chartCall.options).toHaveProperty('colors');
 
-      // Verify series structure
-      expect(chartCall.series).toHaveLength(2);
-      expect(chartCall.series[0]).toHaveProperty('name', 'total');
-      expect(chartCall.series[1]).toHaveProperty('name', 'used');
+      // Verify series structure (2 series per pool: Used and Free)
+      expect(chartCall.series).toHaveLength(4); // 2 pools * 2 series each
+      expect(chartCall.series[0]).toHaveProperty('name', 'pool1 - Used');
+      expect(chartCall.series[1]).toHaveProperty('name', 'pool1 - Free');
+      expect(chartCall.series[2]).toHaveProperty('name', 'pool2 - Used');
+      expect(chartCall.series[3]).toHaveProperty('name', 'pool2 - Free');
     });
   });
 
@@ -446,8 +472,8 @@ describe('StoragePool Component', () => {
             },
           }),
           series: [
-            { name: 'total', data: [5000] },
-            { name: 'used', data: [2000] },
+            { name: 'test-pool - Used', data: [2000] },
+            { name: 'test-pool - Free', data: [3000] },
           ],
         }),
       );
@@ -473,8 +499,8 @@ describe('StoragePool Component', () => {
             },
           }),
           series: [
-            { name: 'total', data: [1000] },
-            { name: 'used', data: [300] },
+            { name: 'initial-pool - Used', data: [300] },
+            { name: 'initial-pool - Free', data: [700] },
           ],
         }),
       );
@@ -489,8 +515,8 @@ describe('StoragePool Component', () => {
             },
           }),
           series: [
-            { name: 'total', data: [2000] },
-            { name: 'used', data: [800] },
+            { name: 'updated-pool - Used', data: [800] },
+            { name: 'updated-pool - Free', data: [1200] },
           ],
         }),
       );

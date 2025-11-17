@@ -9,7 +9,8 @@ import styled from '@emotion/styled';
 export const MainContent = styled.div`
   flex: 4;
   padding: 24px;
-  overflow: auto;
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
   border: 1px solid #eee;
   border-left: none;
   border-top-right-radius: 16px;
@@ -26,4 +27,5 @@ export const StyledSection = styled.div`
   display: flex;
   border-radius: 16px;
   background-color: #fff;
+  height: calc(100vh - 200px);
 `;

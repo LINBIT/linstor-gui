@@ -23,6 +23,7 @@ import {
 import { fullySuccess } from '@app/features/requests';
 import { useStoragePools } from '@app/features/storagePool';
 import { useResources } from '@app/features/snapshot';
+import GrafanaCharts from '@app/components/GrafanaCharts';
 
 import NetInterfaceList from './components/NetInterfaceList';
 import { LabelText, TagContainer } from './detail.styled';
@@ -208,18 +209,6 @@ const NodeDetail: React.FC = () => {
 
   return (
     <PageBasic title={t('title')} showBack>
-      {/* TODO: add grafana dashboard here */}
-
-      {/* <br />
-
-      <Card title="Dashboard" size="small">
-        {showDashboard ? (
-          <div dangerouslySetInnerHTML={createIFrame()}></div>
-        ) : (
-          <EmptyDashboard onClick={showModal}>+</EmptyDashboard>
-        )}
-      </Card> */}
-
       <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
         <Card size="small">
           <Space direction="vertical" size="small" style={{ display: 'flex' }}>
@@ -295,6 +284,9 @@ const NodeDetail: React.FC = () => {
             {resourceData.length > 0 && <Resource data={resourceData} />}
           </Card>
         </div>
+
+        {/* Grafana Charts */}
+        <GrafanaCharts hostname={node} />
       </Space>
     </PageBasic>
   );

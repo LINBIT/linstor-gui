@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Button, Form, Table, Select, Popconfirm, Space, Dropdown, Tooltip, Modal } from 'antd';
+import { Form, Table, Select, Popconfirm, Space, Dropdown, Tooltip, Modal } from 'antd';
+import { Button } from '@app/components/Button';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -300,47 +301,51 @@ export const List = () => {
                 {
                   key: 'rollback',
                   label: (
-                    <Button
-                      type="text"
-                      disabled={latestSnapshotMap[record.resource_name ?? ''] !== record.uuid}
+                    <span
+                      style={{
+                        cursor:
+                          latestSnapshotMap[record.resource_name ?? ''] !== record.uuid ? 'not-allowed' : 'pointer',
+                        color: latestSnapshotMap[record.resource_name ?? ''] !== record.uuid ? '#999' : 'inherit',
+                      }}
                       onClick={() => {
+                        if (latestSnapshotMap[record.resource_name ?? ''] !== record.uuid) return;
                         handleOpenRollbackModal(record.resource_name ?? '', record.name ?? '');
                       }}
                     >
                       {t('snapshot:rollback')}
-                    </Button>
+                    </span>
                   ),
                 },
                 {
                   key: 'restore',
                   label: (
-                    <Button
-                      type="text"
+                    <span
+                      style={{ cursor: 'pointer' }}
                       onClick={() => {
                         handleOpenRestoreModal(record.resource_name ?? '', record.name ?? '');
                       }}
                     >
                       {t('snapshot:restore', 'Restore')}
-                    </Button>
+                    </span>
                   ),
                 },
                 {
                   key: 'delete',
                   label: (
-                    <Button
-                      type="text"
+                    <span
+                      style={{ cursor: 'pointer' }}
                       onClick={() => {
                         deleteMutation.mutate({ resource: record.resource_name ?? '', snapshot: record.name ?? '' });
                       }}
                     >
                       {t('common:delete')}
-                    </Button>
+                    </span>
                   ),
                 },
               ],
             }}
           >
-            <Button type="text" icon={<MoreOutlined />} />
+            <MoreOutlined style={{ cursor: 'pointer', fontSize: 16 }} />
           </Dropdown>
         </Space>
       ),
@@ -385,9 +390,6 @@ export const List = () => {
 
           <Form.Item>
             <Space size="small">
-              <Button type="default" onClick={handleReset}>
-                {t('common:reset')}
-              </Button>
               <Button
                 type="primary"
                 onClick={() => {
@@ -395,6 +397,9 @@ export const List = () => {
                 }}
               >
                 {t('common:search')}
+              </Button>
+              <Button type="secondary" onClick={handleReset}>
+                {t('common:reset')}
               </Button>
 
               <Popconfirm

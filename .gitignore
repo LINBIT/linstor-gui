@@ -9,6 +9,7 @@ storybook-static
 .env
 .vscode/
 deploy-linstor-gui.sh
+deploy-linstor-gui.ps1
 *.tar.gz
 *.rpm
 sbom/

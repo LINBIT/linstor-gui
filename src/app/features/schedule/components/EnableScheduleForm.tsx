@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Modal, Form, Button, message, Select } from 'antd';
+import { Modal, Form, message, Select } from 'antd';
+import { Button } from '@app/components/Button';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { BackupSchedule, enableSchedule, getScheduleList } from '@app/features/schedule';
@@ -106,8 +107,8 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
 
   return (
     <>
-      <Button type="primary" onClick={() => setVisible(true)}>
-        {t('schedule:enable')}
+      <Button type="secondary" onClick={() => setVisible(true)}>
+        + {t('schedule:enable')}
       </Button>
 
       <Modal

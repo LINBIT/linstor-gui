@@ -7,7 +7,8 @@
 import React from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { Button, Form, Input, Select } from 'antd';
+import { Form, Input, Select } from 'antd';
+import { Button } from '@app/components/Button';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
@@ -320,7 +321,7 @@ const CreateNFSForm = () => {
           {t('common:submit')}
         </Button>
 
-        <Button type="text" onClick={backToList}>
+        <Button type="secondary" onClick={backToList} style={{ marginLeft: '1em' }}>
           {t('common:cancel')}
         </Button>
       </Form.Item>

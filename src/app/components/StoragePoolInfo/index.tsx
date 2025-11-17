@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useMemo } from 'react';
-import { Card, Spin } from 'antd';
+import { Spin } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import Chart from 'react-apexcharts';
 import { useTranslation } from 'react-i18next';
@@ -14,6 +14,7 @@ import { getStoragePool } from '@app/features/storagePool';
 import { formatBytes } from '@app/utils/size';
 import styled from '@emotion/styled';
 import { useWindowSize } from '@app/hooks';
+import { generateStoragePoolColorPairs, getNodeTotalColorPair } from '@app/utils/storagePoolColors';
 
 type SeriesItem = {
   name: string;
@@ -55,29 +56,8 @@ export const StoragePoolInfo: React.FC = () => {
     // Union of all unique storage pool names across all nodes
     const allPools = union(...allNodes.map((node) => groupedByNode[node].map((sp) => sp.storage_pool_name)));
 
-    const generateColorPairs = (count: number) => {
-      const basePairs = [
-        { used: '#01579B', free: '#B3E5FC' },
-        { used: '#B71C1C', free: '#FFCDD2' },
-        { used: '#1B5E20', free: '#C8E6C9' },
-        { used: '#4A148C', free: '#E1BEE7' },
-        { used: '#E65100', free: '#FFE0B2' },
-        { used: '#880E4F', free: '#F8BBD0' },
-        { used: '#5D4037', free: '#D7CCC8' },
-        { used: '#827717', free: '#F0F4C3' },
-        { used: '#311B92', free: '#D1C4E9' },
-        { used: '#BF360C', free: '#FFCCBC' },
-        { used: '#33691E', free: '#DCEDC8' },
-      ];
-
-      const result = [];
-      for (let i = 0; i < count; i++) {
-        result.push(basePairs[i % basePairs.length]);
-      }
-      return result;
-    };
-
-    const colorPairs = generateColorPairs(allPools.length);
+    const colorPairs = generateStoragePoolColorPairs(allPools.length);
+    const nodeColorPair = getNodeTotalColorPair();
 
     const nodeTotals: Record<string, number> = {};
     const nodeUsed: Record<string, number> = {};
@@ -103,7 +83,7 @@ export const StoragePoolInfo: React.FC = () => {
       });
 
       spSeries.push({
-        name: `${pool} Used`, // Show Used above
+        name: `${pool} - <b>Used<b>`, // Show Used above
         group: pool,
         data: totalsForPool.map((total, idx) => total - freeForPool[idx]), // Used = Total - Free
         color: colors.used,
@@ -111,7 +91,7 @@ export const StoragePoolInfo: React.FC = () => {
 
       // Used data should come first (on top), followed by free data
       spSeries.push({
-        name: `${pool} Free`, // Show Free below
+        name: `${pool} - <b>Free</b>`, // Show Free below
         group: pool,
         data: freeForPool,
         color: colors.free,
@@ -119,17 +99,17 @@ export const StoragePoolInfo: React.FC = () => {
     });
 
     const nodeTotalSeries = {
-      name: 'Node Free', // Change the name to indicate free space
+      name: 'Node - <b>Free</b>', // Change the name to indicate free space
       group: 'NodeAll',
       data: allNodes.map((n) => nodeTotals[n] - nodeUsed[n]), // Free = Total - Used
-      color: '#D5E6C4', // Darker color for free (green)
+      color: nodeColorPair.free,
     };
 
     const nodeUsedSeries = {
-      name: 'Node Used', // Used data should be on top
+      name: 'Node - <b>Used</b>', // Used data should be on top
       group: 'NodeAll',
       data: allNodes.map((n) => nodeUsed[n]),
-      color: '#82BB49', // Lighter color for used (light green)
+      color: nodeColorPair.used,
     };
 
     return {
@@ -185,7 +165,8 @@ export const StoragePoolInfo: React.FC = () => {
       : {};
 
   return (
-    <Card title={t('common:storage_pool_overview')}>
+    <div className="border-2 border-gray-200 rounded px-[34px] py-[30px]">
+      <h3 className="m-0 mb-4 text-[26px] font-semibold">{t('common:storage_pool_overview')}</h3>
       <Spin spinning={isLoading}>
         <ChartContainer>
           <Chart
@@ -197,6 +178,6 @@ export const StoragePoolInfo: React.FC = () => {
           />
         </ChartContainer>
       </Spin>
-    </Card>
+    </div>
   );
 };

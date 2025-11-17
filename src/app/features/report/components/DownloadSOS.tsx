@@ -7,7 +7,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
-import { Button } from 'antd';
+import { Button } from '@app/components/Button';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 

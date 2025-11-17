@@ -24,13 +24,13 @@ import { BsNvme } from 'react-icons/bs';
 import SVG from 'react-inlinesvg';
 
 import NFS from '@app/assets/nfs.svg';
+import { GrafanaConfig } from '@app/models/setting';
 
 import { SideMenu } from '../styled';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
 interface KVSSettings {
-  dashboardEnabled?: boolean;
   gatewayEnabled?: boolean;
 }
 
@@ -55,6 +55,7 @@ interface NavigationProps {
   vsanModeFromSetting?: boolean;
   hciModeFromSetting?: boolean;
   KVS?: KVSSettings;
+  grafanaConfig?: GrafanaConfig | null;
   gatewayAvailable?: boolean;
   authenticationEnabled?: boolean;
   isAdmin?: boolean;
@@ -65,6 +66,7 @@ const Navigation: React.FC<NavigationProps> = ({
   vsanModeFromSetting,
   hciModeFromSetting,
   KVS,
+  grafanaConfig,
   gatewayAvailable,
   authenticationEnabled,
   isAdmin,
@@ -72,6 +74,7 @@ const Navigation: React.FC<NavigationProps> = ({
   const location = useLocation();
   const { t } = useTranslation(['menu']);
   const [selectedMenu, setSelectedMenu] = React.useState('/dashboard');
+  const [openKeys, setOpenKeys] = React.useState<string[]>([]);
 
   const items: MenuItem[] = React.useMemo(() => {
     if (vsanModeFromSetting) {
@@ -89,7 +92,11 @@ const Navigation: React.FC<NavigationProps> = ({
         ),
         getItem(<Link to="/vsan/iscsi">iSCSI</Link>, '/vsan/iscsi', <BsHddRack />),
         getItem(<Link to="/vsan/nvmeof">NVMe-oF</Link>, '/vsan/nvmeof', <BsNvme />),
-        getItem(<Link to="/vsan/nfs">NFS</Link>, '/vsan/nfs', <SVG src={NFS} width="16" height="16" color="white" />),
+        getItem(
+          <Link to="/vsan/nfs">NFS</Link>,
+          '/vsan/nfs',
+          <SVG src={NFS} width="16" height="16" style={{ color: 'black' }} />,
+        ),
         getItem(<Link to="/vsan/error-reports">Error Reports</Link>, '/vsan/error-reports', <WarningOutlined />),
         getItem(<Link to="/vsan/users">Users</Link>, '/vsan/users', <UserOutlined />),
         getItem(<Link to="/vsan/about">About</Link>, '/vsan/about', <InfoCircleOutlined />),
@@ -148,7 +155,7 @@ const Navigation: React.FC<NavigationProps> = ({
 
       const itemsRes = [
         ...hciItems,
-        ...(KVS?.dashboardEnabled ? grafanaItem : []),
+        ...(grafanaConfig?.baseUrl ? grafanaItem : []),
         ...(KVS?.gatewayEnabled && gatewayAvailable ? gatewayItems : []),
         ...(!authenticationEnabled || isAdmin ? settingsAndUsers : []),
       ];
@@ -208,7 +215,7 @@ const Navigation: React.FC<NavigationProps> = ({
 
       const itemsRes = [
         ...normalItems,
-        ...(KVS?.dashboardEnabled ? grafanaItem : []),
+        ...(grafanaConfig?.baseUrl ? grafanaItem : []),
         ...(KVS?.gatewayEnabled && gatewayAvailable ? gatewayItems : []),
         ...(!authenticationEnabled || isAdmin ? settingsAndUsers : []),
       ];
@@ -216,7 +223,7 @@ const Navigation: React.FC<NavigationProps> = ({
       return itemsRes;
     }
   }, [
-    KVS?.dashboardEnabled,
+    grafanaConfig,
     KVS?.gatewayEnabled,
     authenticationEnabled,
     gatewayAvailable,
@@ -225,40 +232,53 @@ const Navigation: React.FC<NavigationProps> = ({
     vsanModeFromSetting,
     hciModeFromSetting,
   ]);
+  // Initialize openKeys on mount and when path changes
   React.useEffect(() => {
-    const currentMenu = items.find((e) => {
-      if (e?.key === location.pathname) {
-        return true;
+    const findParentKey = (pathname: string): string | null => {
+      for (const item of items) {
+        if (item && 'children' in item && Array.isArray(item.children)) {
+          const hasChild = item.children.some((child) => child && 'key' in child && child.key === pathname);
+          if (hasChild && item.key) {
+            return item.key as string;
+          }
+        }
       }
-      // Check if current path matches any children
-      if (e && 'children' in e && Array.isArray(e.children)) {
-        return e.children.some((child) => child && 'key' in child && child.key === location.pathname);
-      }
-      return false;
-    });
+      return null;
+    };
 
-    if (currentMenu && 'children' in currentMenu && Array.isArray(currentMenu.children)) {
-      const matchedChild = currentMenu.children.find(
-        (child) => child && 'key' in child && child.key === location.pathname,
-      );
-      if (matchedChild && 'key' in matchedChild) {
-        setSelectedMenu(matchedChild.key as string);
+    const parentKey = findParentKey(location.pathname);
+    if (parentKey) {
+      // Only set openKeys if sidebar is expanded (isNavOpen is false means expanded)
+      if (!isNavOpen) {
+        setOpenKeys([parentKey]);
       }
-    } else if (currentMenu && 'key' in currentMenu) {
-      setSelectedMenu(currentMenu.key as string);
+      setSelectedMenu(location.pathname);
+    } else {
+      // If no parent, it might be a top-level item
+      const topLevelItem = items.find((item) => item?.key === location.pathname);
+      if (topLevelItem) {
+        setSelectedMenu(location.pathname);
+        setOpenKeys([]);
+      }
     }
-  }, [location, items]);
+  }, [location.pathname, items, isNavOpen]);
+
+  const handleOpenChange = (keys: string[]) => {
+    setOpenKeys(keys);
+  };
 
   return (
     <SideMenu>
       <Menu
         defaultSelectedKeys={[selectedMenu]}
         mode="inline"
-        theme="dark"
+        theme="light"
         inlineCollapsed={isNavOpen}
         items={items}
         style={{ backgroundColor: 'transparent' }}
         selectedKeys={[selectedMenu]}
+        openKeys={openKeys}
+        onOpenChange={handleOpenChange}
       />
     </SideMenu>
   );

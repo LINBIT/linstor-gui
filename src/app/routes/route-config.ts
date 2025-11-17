@@ -26,6 +26,7 @@ import BackupList from '@app/pages/Backup/Remote/BackupList';
 import ErrorReportList from '@app/pages/ErrorReport/index';
 import ErrorReportDetail from '@app/pages/ErrorReport/Detail';
 import { GrafanaDashboard } from '@app/pages/Grafana';
+import GrafanaStats from '@app/pages/GrafanaStats';
 import { Controller } from '@app/pages/Inventory/Controller';
 import { UserManagement } from '@app/features/authentication';
 import GeneralSettings from '@app/pages/Settings';
@@ -67,6 +68,20 @@ export const routes: AppRouteConfig[] = [
     path: '/grafana',
     title: 'LINSTOR | Grafana Dashboard',
     label: 'grafana',
+  },
+  {
+    component: GrafanaStats,
+    exact: true,
+    path: '/stats/:nodeName/:resourceName',
+    title: 'LINSTOR | Node Stats',
+    hide: true,
+  },
+  {
+    component: GrafanaStats,
+    exact: true,
+    path: '/stats/:nodeName',
+    title: 'LINSTOR | Node Stats',
+    hide: true,
   },
   {
     label: 'inventory',
@@ -242,6 +257,6 @@ export const routes: AppRouteConfig[] = [
 
 export const flattenedRoutes: IAppRoute[] = routes
   .reduce((flattened, route) => [...flattened, ...(route.routes ? route.routes : [route])], [] as IAppRoute[])
-  .filter((e) => !e.hide);
+  .filter((e) => !e.hide || e.path.startsWith('/stats/'));
 
 export const adminRoutes = ['/settings', '/users'];

@@ -5,11 +5,15 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Form, Space, Table, Tag, Select, Popconfirm, Input, Dropdown, Switch, Tooltip } from 'antd';
+import { Form, Space, Table, Tag, Select, Popconfirm, Input, Dropdown, Tooltip } from 'antd';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { CheckCircleFilled, CloseCircleFilled, MoreOutlined } from '@ant-design/icons';
+
+import Button from '@app/components/Button';
+import { Link } from '@app/components/Link';
+import { Switch } from '@app/components/Switch';
 
 import { useNodes } from '@app/features/node';
 import { formatBytes } from '@app/utils/size';
@@ -217,16 +221,9 @@ export const List = () => {
         return (a?.node_name ?? '').localeCompare(b?.node_name ?? '');
       },
       render: (node_name) => {
-        return (
-          <Button
-            type="link"
-            onClick={() => {
-              navigate(mode === UIMode.HCI ? `/hci/inventory/nodes/${node_name}` : `/inventory/nodes/${node_name}`);
-            }}
-          >
-            {node_name}
-          </Button>
-        );
+        const nodeUrl = mode === UIMode.HCI ? `/hci/inventory/nodes/${node_name}` : `/inventory/nodes/${node_name}`;
+
+        return <Link to={nodeUrl}>{node_name}</Link>;
       },
       showSorterTooltip: false,
     },
@@ -341,7 +338,9 @@ export const List = () => {
               ],
             }}
           >
-            <Button type="text" icon={<MoreOutlined />} />
+            <span className="cursor-pointer text-gray-600 hover:text-gray-800">
+              <MoreOutlined />
+            </span>
           </Dropdown>
         </Space>
       ),
@@ -381,9 +380,6 @@ export const List = () => {
 
           <Form.Item>
             <Space size="small">
-              <Button type="default" onClick={handleReset}>
-                {t('common:reset')}
-              </Button>
               <Button
                 type="primary"
                 onClick={() => {
@@ -391,6 +387,10 @@ export const List = () => {
                 }}
               >
                 {t('common:search')}
+              </Button>
+
+              <Button type="secondary" onClick={handleReset}>
+                {t('common:reset')}
               </Button>
 
               <Popconfirm
@@ -402,7 +402,7 @@ export const List = () => {
                 onConfirm={handleDeleteBulk}
                 disabled={!hasSelected}
               >
-                <Button danger disabled={!hasSelected}>
+                <Button danger disabled={!hasSelected} className="!font-semibold">
                   {t('common:delete')}
                 </Button>
               </Popconfirm>
@@ -410,14 +410,12 @@ export const List = () => {
           </Form.Item>
         </Form>
 
-        <Button
+        <Link
           type="primary"
-          onClick={() =>
-            navigate(mode === UIMode.HCI ? '/hci/inventory/storage-pools/create' : '/inventory/storage-pools/create')
-          }
+          to={mode === UIMode.HCI ? '/hci/inventory/storage-pools/create' : '/inventory/storage-pools/create'}
         >
-          {t('common:add')}
-        </Button>
+          + {t('common:add')}
+        </Link>
       </SearchForm>
 
       <br />

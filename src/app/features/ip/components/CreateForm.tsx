@@ -6,7 +6,10 @@
 
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Button, Checkbox, Form, Input, Modal, Radio } from 'antd';
+import { Form, Input, Modal } from 'antd';
+import { Button } from '@app/components/Button';
+import { Checkbox } from '@app/components/Checkbox';
+import { Radio } from '@app/components/Radio';
 
 import { CreateNetWorkInterfaceRequestBody, createNetWorkInterface } from '@app/features/ip';
 import { fullySuccess } from '@app/features/requests';
@@ -61,23 +64,39 @@ const CreateForm = ({ editing, node, refetch }: FormProps) => {
       <Modal
         open={open}
         title={t('create_network_interface')}
-        okText={t('common:confirm')}
-        cancelText={t('common:cancel')}
         onCancel={() => {
           form.resetFields();
           setOpen(false);
         }}
-        onOk={() => {
-          form
-            .validateFields()
-            .then((values) => {
+        footer={[
+          <Button
+            key="cancel"
+            onClick={() => {
               form.resetFields();
-              onFinish(values);
-            })
-            .catch((info) => {
-              console.log('Validate Failed:', info);
-            });
-        }}
+              setOpen(false);
+            }}
+          >
+            {t('common:cancel')}
+          </Button>,
+          <Button
+            key="confirm"
+            type="primary"
+            loading={createNetWorkInterfaceMutation.isLoading}
+            onClick={() => {
+              form
+                .validateFields()
+                .then((values) => {
+                  form.resetFields();
+                  onFinish(values);
+                })
+                .catch((info) => {
+                  console.log('Validate Failed:', info);
+                });
+            }}
+          >
+            {t('common:confirm')}
+          </Button>,
+        ]}
       >
         <Form<FormType>
           labelCol={{ span: 8 }}

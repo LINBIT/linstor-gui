@@ -10,8 +10,11 @@ import { FormItem } from '@app/interfaces/dynamicFormType';
 import { uniqId } from '@app/utils/stringUtils';
 import SingleSelectDescription from './PropertySelector';
 import { Properties } from '@app/features/property';
-import { Button, Checkbox, Form, Input, InputNumber, Modal, Radio, Select, Slider } from 'antd';
+import { Form, Input, InputNumber, Modal, Select, Slider } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
+import Button from '@app/components/Button';
+import { Checkbox } from '@app/components/Checkbox';
+import { Radio } from '@app/components/Radio';
 
 interface PropertyFormProps {
   type:
@@ -293,16 +296,23 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
           destroyOnClose
           open={modalVisible}
           onCancel={handleModalClose}
-          okText="Submit"
-          cancelText="Cancel"
+          footer={
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+              <Button type="secondary" onClick={handleModalClose}>
+                Cancel
+              </Button>
+              <Button type="primary" onClick={() => form.submit()}>
+                Submit
+              </Button>
+            </div>
+          }
           className="property__modal"
           width={800}
           styles={{
-            body: { maxHeight: '70vh', overflow: 'auto' },
+            body: { maxHeight: '70vh', overflow: 'auto', padding: '24px' },
           }}
-          onOk={() => form.submit()}
         >
-          <div style={{ minHeight: 400, paddingBottom: '1em' }}>
+          <div style={{ minHeight: 400 }}>
             <SingleSelectDescription
               options={formItemList
                 .filter((e) => e.hide)

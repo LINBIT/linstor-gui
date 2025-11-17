@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Button, Form, Space, Table, Input, Select, Popconfirm, message, Dropdown, Tooltip } from 'antd';
+import { Form, Space, Table, Input, Select, Popconfirm, message, Dropdown, Tooltip } from 'antd';
+import { Button } from '@app/components/Button';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -138,7 +139,7 @@ export const List = () => {
                 ],
               }}
             >
-              <Button type="text" icon={<MoreOutlined />} />
+              <MoreOutlined style={{ cursor: 'pointer', fontSize: 16 }} />
             </Dropdown>
           </Space>
         );
@@ -149,12 +150,12 @@ export const List = () => {
   return (
     <>
       <SearchForm>
-        <Form form={form} layout="inline">
+        <Form form={form} layout="inline" style={{ display: 'flex', alignItems: 'center' }}>
           <Form.Item name="name" label={t('common:name')}>
             <Input placeholder="Name" onChange={(e) => setSearchName(e.target.value)} allowClear />
           </Form.Item>
 
-          <Form.Item>
+          <Form.Item style={{ marginLeft: 'auto', marginRight: 0 }}>
             <ScheduleModal refetch={refetch} />
           </Form.Item>
         </Form>

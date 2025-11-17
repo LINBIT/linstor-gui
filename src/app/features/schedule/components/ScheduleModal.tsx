@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Modal, Form, Input, Select, InputNumber, Button, message } from 'antd';
+import { Modal, Form, Input, Select, InputNumber, message } from 'antd';
+import { Button } from '@app/components/Button';
 import { useMutation } from '@tanstack/react-query';
 import { createSchedule, modifySchedule } from '../api';
 import CronInput from './CronInput';
@@ -108,8 +109,8 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
       {isInDropdown ? (
         <span onClick={showModal}>{schedule ? t('common:edit') : t('common:create')}</span>
       ) : (
-        <Button onClick={showModal} type="primary">
-          {schedule ? t('common:edit') : t('common:create')}
+        <Button onClick={showModal} type="secondary">
+          {schedule ? t('common:edit') : `+ ${t('common:add')}`}
         </Button>
       )}
 

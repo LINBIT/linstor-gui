@@ -8,6 +8,7 @@ import React from 'react';
 import Chart from 'react-apexcharts';
 import { forEach, groupBy } from 'lodash';
 import { formatBytes } from '@app/utils/size';
+import { generateStoragePoolColorPairs, getNodeTotalColorPair } from '@app/utils/storagePoolColors';
 
 type DataItem = {
   type: string;
@@ -50,16 +51,64 @@ export const StoragePool = ({ data }: StoragePoolProp) => {
     });
   });
 
-  const series = [
-    {
-      name: 'total',
-      data: filteredData?.filter((e) => e.type === 'Total')?.map((d) => d.value),
-    },
-    {
-      name: 'used',
-      data: filteredData?.filter((e) => e.type === 'Used')?.map((d) => d.value),
-    },
-  ];
+  // Get unique storage pool names in order
+  const orderedPools = Array.from(new Set(filteredData.map((d) => d.storagePool)));
+
+  // Separate actual pools from 'Total on' entries
+  const actualPoolsInOrder = orderedPools.filter((name) => !name.includes('Total on'));
+
+  // Generate colors for actual storage pools
+  const colorPairs = generateStoragePoolColorPairs(actualPoolsInOrder.length);
+  const nodeTotalColorPair = getNodeTotalColorPair();
+
+  // Build series for each storage pool
+  const series: any[] = [];
+  const colorsArray: string[] = [];
+
+  // Create a series for each storage pool
+  orderedPools.forEach((poolName, index) => {
+    const poolItem = filteredData.find((d) => d.storagePool === poolName && d.type === 'Used');
+    const totalItem = filteredData.find((d) => d.storagePool === poolName && d.type === 'Total');
+    const used = poolItem?.value || 0;
+    const total = totalItem?.value || 0;
+    const free = total - used;
+
+    // Determine which color pair to use
+    let colorPair;
+    if (poolName.includes('Total on')) {
+      // Use node total color for 'Total on' entries
+      colorPair = nodeTotalColorPair;
+    } else {
+      // Use regular storage pool colors
+      const poolIndex = actualPoolsInOrder.indexOf(poolName);
+      colorPair = colorPairs[poolIndex];
+    }
+
+    // Add used data series for this pool
+    let usedLabel, freeLabel;
+    if (poolName.includes('Total on')) {
+      // Extract node name from "Total on nodename"
+      const nodeName = poolName.replace('Total on ', '');
+      usedLabel = `Total Used on ${nodeName}`;
+      freeLabel = `Total Free on ${nodeName}`;
+    } else {
+      usedLabel = `${poolName} - Used`;
+      freeLabel = `${poolName} - Free`;
+    }
+
+    series.push({
+      name: usedLabel,
+      data: orderedPools.map((_, i) => (i === index ? used : 0)),
+    });
+    colorsArray.push(colorPair.used);
+
+    // Add free data series for this pool
+    series.push({
+      name: freeLabel,
+      data: orderedPools.map((_, i) => (i === index ? free : 0)),
+    });
+    colorsArray.push(colorPair.free);
+  });
 
   const options = {
     xaxis: {
@@ -98,9 +147,7 @@ export const StoragePool = ({ data }: StoragePoolProp) => {
       opacity: 1,
     },
     dataLabels: {
-      formatter: (val: number) => {
-        return formatBytes(val);
-      },
+      enabled: false,
     },
     yaxis: {
       labels: {
@@ -109,7 +156,7 @@ export const StoragePool = ({ data }: StoragePoolProp) => {
         },
       },
     },
-    colors: ['#499BBB', '#C4DBE6'],
+    colors: colorsArray,
   };
 
   return <Chart options={options} series={series} type="bar" height={500} />;
