@@ -40,6 +40,27 @@ const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
 
   console.log('GrafanaCharts render:', { grafanaConfig, hostname });
 
+  // Helper function to generate Grafana solo panel URL
+  const generateGrafanaSoloUrl = (panelId: number, includeHostname = false) => {
+    if (!grafanaConfig?.baseUrl || !grafanaConfig?.dashboardUid) return '';
+
+    const params = new URLSearchParams({
+      panelId: String(panelId),
+      viewPanel: `panel-${panelId}`,
+      from: 'now-1h',
+      to: 'now',
+      theme: 'light',
+      refresh: '10s',
+      timezone: 'browser',
+    });
+
+    if (includeHostname) {
+      params.append('var-node', hostname);
+    }
+
+    return `${grafanaConfig.baseUrl}/d-solo/${grafanaConfig.dashboardUid}/_?${params.toString()}`;
+  };
+
   // Generate iframe URLs for preloading only if Grafana is enabled
   const iframeUrls = useMemo(() => {
     if (!grafanaConfig?.enable || !grafanaConfig?.baseUrl || !grafanaConfig?.dashboardUid) return [];
@@ -51,12 +72,9 @@ const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
       grafanaConfig.panelIds.disk,
       grafanaConfig.panelIds.diskIops,
       grafanaConfig.panelIds.ioUsage,
-    ].filter(Boolean);
+    ].filter(Boolean) as number[];
 
-    return panels.map(
-      (panelId) =>
-        `${grafanaConfig.baseUrl}/d-solo/${grafanaConfig.dashboardUid}/_?panelId=${panelId}&from=now-1h&to=now&theme=light&refresh=10s&timezone=browser&var-job=node_exporter&var-diskdevices=%5Ba-z%5D%2B%7Cnvme%5B0-9%5D%2Bn%5B0-9%5D%2B%7Cmmcblk%5B0-9%5D%2B`,
-    );
+    return panels.map((panelId) => generateGrafanaSoloUrl(panelId));
   }, [grafanaConfig?.enable, grafanaConfig?.baseUrl, grafanaConfig?.dashboardUid, grafanaConfig?.panelIds]);
 
   // Preload iframe URLs only if Grafana is enabled
@@ -70,7 +88,7 @@ const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
 
   // Log sample embed URL for debugging
   const samplePanelId = grafanaConfig.panelIds.cpu || 77;
-  const embedUrl = `${grafanaConfig.baseUrl}/d-solo/${grafanaConfig.dashboardUid}/_?var-node=${hostname}&panelId=${samplePanelId}&from=now-1h&to=now&theme=light&refresh=10s&timezone=browser&var-job=node_exporter&var-diskdevices=%5Ba-z%5D%2B%7Cnvme%5B0-9%5D%2Bn%5B0-9%5D%2B%7Cmmcblk%5B0-9%5D%2B`;
+  const embedUrl = generateGrafanaSoloUrl(samplePanelId, true);
   console.log('Sample embed URL:', embedUrl);
 
   const panels: ChartPanel[] = [
@@ -101,7 +119,7 @@ const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
             <ChartCard title={panel.title} size="small">
               <ChartIframe
                 title={panel.title}
-                src={`${grafanaConfig.baseUrl}/d-solo/${grafanaConfig.dashboardUid}/_?panelId=${panel.id}&from=now-1h&to=now&theme=light&refresh=10s&timezone=browser&var-job=node_exporter&var-diskdevices=%5Ba-z%5D%2B%7Cnvme%5B0-9%5D%2Bn%5B0-9%5D%2B%7Cmmcblk%5B0-9%5D%2B`}
+                src={generateGrafanaSoloUrl(panel.id!)}
                 loading="eager"
                 onLoad={() => console.log(`Panel ${panel.title} loaded`)}
                 onError={() => console.error(`Panel ${panel.title} failed to load`)}

@@ -124,8 +124,19 @@ const GrafanaStats: React.FC = () => {
 
       if (!baseUrl || !dashboardUid) return '';
 
-      // Use d-solo format for solo panel view (no top controls)
-      return `${baseUrl}/d-solo/${dashboardUid}/_?panelId=${panelId}&from=${timeRange}&to=now&theme=light&refresh=30s&timezone=browser&var-job=node_exporter&var-nodename=${nodeName}`;
+      // Build URL parameters using URLSearchParams for better maintainability
+      const params = new URLSearchParams({
+        panelId: String(panelId),
+        viewPanel: `panel-${panelId}`,
+        from: timeRange,
+        to: 'now',
+        theme: 'light',
+        refresh: '10s',
+        timezone: 'browser',
+        'var-nodename': nodeName,
+      });
+
+      return `${baseUrl}/d-solo/${dashboardUid}/_?${params.toString()}`;
     },
     [nodeName, grafanaConfig?.enable, grafanaConfig?.baseUrl, grafanaConfig?.dashboardUid, timeRange],
   );
@@ -149,18 +160,20 @@ const GrafanaStats: React.FC = () => {
 
       if (!drbdUid) return '';
 
-      // Use d-solo format for solo panel view (no top controls)
-      // Use $__all for instance to show all instances, but filter by specific resource
-      let soloUrl = `${baseUrl}/d-solo/${drbdUid}/${slug}?orgId=1&panelId=panel-${panelId}&from=${timeRange}&to=now&timezone=browser&theme=light&refresh=30s&var-instance=$__all`;
+      // Build URL parameters using URLSearchParams for better maintainability
+      const params = new URLSearchParams({
+        panelId: String(panelId),
+        viewPanel: `panel-${panelId}`,
+        from: timeRange,
+        to: 'now',
+        timezone: 'browser',
+        theme: 'light',
+        refresh: '10s',
+        'var-instance': '$__all',
+        'var-resource': resourceName || '$__all',
+      });
 
-      // Add specific resource filter if resourceName is provided, otherwise show all
-      if (resourceName) {
-        soloUrl += `&var-resource=${resourceName}`;
-      } else {
-        soloUrl += `&var-resource=$__all`;
-      }
-
-      return soloUrl;
+      return `${baseUrl}/d-solo/${drbdUid}/${slug}?${params.toString()}`;
     },
     [
       nodeName,
