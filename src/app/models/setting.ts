@@ -197,28 +197,35 @@ export const setting = createModel<RootModel>()({
     async initSettingStore(mode: UIMode) {
       const res = await SettingsAPI.instanceExists();
 
-      const userStore = await kvStore.instanceExists(KV_NAMESPACES.LEGACY_USERS);
-
       if (res) {
         // update mode flags mutually exclusively
         if (mode === UIMode.VSAN) {
           await settingAPI.setProps({ vsanMode: true, hciMode: false, vsanAvailable: true });
         } else if (mode === UIMode.HCI) {
-          await settingAPI.setProps({ vsanMode: false, hciMode: true });
+          await settingAPI.setProps({ vsanMode: false, hciMode: true, vsanAvailable: false });
         } else {
-          await settingAPI.setProps({ vsanMode: false, hciMode: false });
+          await settingAPI.setProps({ vsanMode: false, hciMode: false, vsanAvailable: false });
         }
         await dispatch.setting.getSettings();
       } else {
         // initialize backend with vsan flag, and explicitly set both mode props
         await SettingsAPI.init(mode);
-        await settingAPI.setProps({ vsanMode: mode === UIMode.VSAN, hciMode: mode === UIMode.HCI });
+        await settingAPI.setProps({
+          vsanMode: mode === UIMode.VSAN,
+          hciMode: mode === UIMode.HCI,
+          vsanAvailable: mode === UIMode.VSAN,
+        });
 
         await dispatch.setting.getSettings();
       }
 
-      if (!userStore) {
-        authAPI.initUserStore();
+      // Only check and initialize user store if authentication is enabled
+      const settings = await settingAPI.getProps();
+      if (settings.authenticationEnabled) {
+        const userStoreExists = await kvStore.instanceExists(authAPI.usersInstance);
+        if (!userStoreExists) {
+          await authAPI.initUserStore();
+        }
       }
 
       dispatch.setting.setInitialized(res);

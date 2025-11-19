@@ -225,14 +225,15 @@ describe('SettingsAPI', () => {
       expect(mockKvStore.modify).not.toHaveBeenCalled();
     });
 
-    it('should initialize user store if not exists', async () => {
+    it('should not initialize user store when authenticationEnabled is false', async () => {
       mockKvStore.instanceExists
         .mockResolvedValueOnce(false) // settings instance
         .mockResolvedValueOnce(false); // users instance
 
       await SettingsAPI.init(UIMode.NORMAL);
 
-      expect(mockAuthAPI.initUserStore).toHaveBeenCalled();
+      // After the fix, initUserStore should NOT be called when authenticationEnabled is false (default)
+      expect(mockAuthAPI.initUserStore).not.toHaveBeenCalled();
     });
   });
 

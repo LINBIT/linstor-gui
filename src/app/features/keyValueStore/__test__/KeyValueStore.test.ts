@@ -143,7 +143,9 @@ describe('KeyValueStore', () => {
       await kvStore.create('existingInstance', mockStore);
 
       expect(kvStore.modify).toHaveBeenCalled();
-      expect(api.createOrModifyKVInstance).toHaveBeenCalled();
+      // After the fix, createOrModifyKVInstance should NOT be called when instance exists
+      // because create() returns early after calling modify()
+      expect(api.createOrModifyKVInstance).not.toHaveBeenCalled();
     });
 
     it('should throw error when API call fails', async () => {

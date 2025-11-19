@@ -102,8 +102,12 @@ export class SettingsAPI {
       });
     }
 
-    if (!(await kvStore.instanceExists(authAPI.usersInstance))) {
-      authAPI.initUserStore();
+    // Only initialize user store if authentication is enabled
+    // Since default authenticationEnabled is false, this won't run on fresh install
+    if (defaultSettings.authenticationEnabled) {
+      if (!(await kvStore.instanceExists(authAPI.usersInstance))) {
+        await authAPI.initUserStore();
+      }
     }
   }
 
@@ -205,6 +209,15 @@ export class SettingsAPI {
 
   public static async resetAdminPasswordOnly(newPassword: string = DEFAULT_ADMIN_USER_PASS): Promise<boolean> {
     try {
+      // Check if authentication is enabled before resetting password
+      const settingsAPI = new SettingsAPI();
+      const settings = await settingsAPI.getProps();
+
+      if (!settings.authenticationEnabled) {
+        console.log('Authentication is not enabled, skipping admin password reset');
+        return false;
+      }
+
       if (!(await kvStore.instanceExists(authAPI.usersInstance))) {
         await authAPI.initUserStore();
         return true;

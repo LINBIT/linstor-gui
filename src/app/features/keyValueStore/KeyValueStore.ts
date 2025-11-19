@@ -54,13 +54,15 @@ export class KeyValueStore {
   public async create(instance: string, store?: KeyValueStoreModify): Promise<void> {
     // check if instance exists
     if (await this.instanceExists(instance)) {
-      this.modify(instance, {
+      console.log(`Instance ${instance} already exists, modifying instead of creating`);
+      await this.modify(instance, {
         ...store,
         override_props: {
           ...store?.override_props,
           __updated__: new Date().toISOString(),
         },
       });
+      return;
     }
 
     const response = await createOrModifyKVInstance(instance, {

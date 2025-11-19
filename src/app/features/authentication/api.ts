@@ -26,37 +26,38 @@ export class UserAuthAPI {
   }
 
   private async migrateUsersNamespace(): Promise<void> {
-    try {
-      // Only check for migration if new namespace doesn't exist
-      const newNamespaceExists = await this.store.instanceExists(KV_NAMESPACES.USERS);
+    // Only check for migration if new namespace doesn't exist
+    const newNamespaceExists = await this.store.instanceExists(KV_NAMESPACES.USERS);
 
-      // If new namespace already exists, no need to migrate
-      if (newNamespaceExists) {
-        return;
-      }
+    // If new namespace already exists, no need to migrate
+    if (newNamespaceExists) {
+      console.log(`New namespace ${KV_NAMESPACES.USERS} already exists, skipping migration`);
+      return;
+    }
 
-      // Check if old namespace exists and needs migration
-      const oldNamespaceExists = await this.store.instanceExists(KV_NAMESPACES.LEGACY_USERS);
+    // Check if old namespace exists and needs migration
+    const oldNamespaceExists = await this.store.instanceExists(KV_NAMESPACES.LEGACY_USERS);
 
-      if (oldNamespaceExists) {
-        // Get all data from old namespace
-        const oldData = await this.store.get(KV_NAMESPACES.LEGACY_USERS);
+    if (oldNamespaceExists) {
+      console.log(`Migrating from ${KV_NAMESPACES.LEGACY_USERS} to ${KV_NAMESPACES.USERS}...`);
 
-        // Create new namespace with migrated data
-        await this.store.create(KV_NAMESPACES.USERS, {
-          override_props: {
-            ...oldData.props,
-            __updated__: new Date().toISOString(),
-            __migrated_from__: KV_NAMESPACES.LEGACY_USERS,
-          },
-        });
+      // Get all data from old namespace
+      const oldData = await this.store.get(KV_NAMESPACES.LEGACY_USERS);
 
-        // Delete old namespace after successful migration
-        await this.store.delete(KV_NAMESPACES.LEGACY_USERS);
-        console.log(`Successfully migrated ${KV_NAMESPACES.LEGACY_USERS} namespace to ${KV_NAMESPACES.USERS}`);
-      }
-    } catch (error) {
-      console.error('Failed to migrate users namespace:', error);
+      // Create new namespace with migrated data
+      await this.store.create(KV_NAMESPACES.USERS, {
+        override_props: {
+          ...oldData.props,
+          __updated__: new Date().toISOString(),
+          __migrated_from__: KV_NAMESPACES.LEGACY_USERS,
+        },
+      });
+
+      // Delete old namespace after successful migration
+      await this.store.delete(KV_NAMESPACES.LEGACY_USERS);
+      console.log(`Successfully migrated ${KV_NAMESPACES.LEGACY_USERS} namespace to ${KV_NAMESPACES.USERS}`);
+    } else {
+      console.log(`No legacy namespace ${KV_NAMESPACES.LEGACY_USERS} found, skipping migration`);
     }
   }
 
@@ -262,11 +263,17 @@ export class UserAuthAPI {
     try {
       // Try to migrate from legacy namespace if needed
       await this.migrateUsersNamespace();
+    } catch (error) {
+      console.error('Migration failed, will attempt to initialize normally:', error);
+      // Continue with initialization even if migration fails
+    }
 
+    try {
       // Check if user store already exists
       const exists = await this.store.instanceExists(this.usersInstance);
 
       if (!exists) {
+        console.log(`Creating new user store: ${this.usersInstance}`);
         // Only create if it doesn't exist
         await this.store.create(this.usersInstance, {
           override_props: {
@@ -276,9 +283,13 @@ export class UserAuthAPI {
 
         // Register default admin user only when creating new store
         await this.register({ username: DEFAULT_ADMIN_USER_NAME, password: DEFAULT_ADMIN_USER_PASS });
+        console.log('Default admin user registered successfully');
+      } else {
+        console.log(`User store ${this.usersInstance} already exists`);
       }
     } catch (error) {
       console.error('Failed to initialize user store:', error);
+      throw error; // Re-throw to let caller handle the error
     }
   }
 

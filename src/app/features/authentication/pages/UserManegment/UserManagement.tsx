@@ -50,7 +50,11 @@ export const UserManagement = () => {
       }
 
       await settingAPI.setProps(props);
-      return authAPI.initUserStore();
+
+      // Only initialize user store when enabling authentication
+      if (enable) {
+        return await authAPI.initUserStore();
+      }
     },
     onError: (error) => {
       console.log(error);
