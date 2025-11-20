@@ -1,5 +1,19 @@
 # Changelog
 
+# 2.0.0 - 2025-11-20
+
+### Added
+
+- New modern UI design
+- Prometheus / Grafana integration with embedded charts and dashboards
+
+### Fixed
+
+- User store migration logic from "users" to "__gui__users" namespace
+- `vsanAvailable` flag reset when switching modes
+- Storage pool name conflict prevention
+- Various UI styling issues
+
 # 1.9.10 - 2025-10-01
 
 ### Added
