@@ -45,7 +45,7 @@ jobs:
           tar -czvf linstor-gui-${{ env.latest_tag }}.tar.gz linstor-gui-${{ env.latest_tag }}
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: linstor-gui-${{ env.latest_tag }}.tar.gz
           path: linstor-gui-${{ env.latest_tag }}.tar.gz
