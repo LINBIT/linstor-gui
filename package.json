@@ -1,6 +1,6 @@
 {
   "name": "linstor-gui",
-  "version": "1.9.10",
+  "version": "2.0.0",
   "description": "Administration GUI for LINSTOR clusters.",
   "repository": "https://github.com/LINBIT/linstor-gui",
   "homepage": "https://linbit.com/linbit-gui/",
