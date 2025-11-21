@@ -10,7 +10,7 @@ License: GPL-3.0-or-later
 URL: https://github.com/LINBIT/linstor-gui
 Source0: %{name}-%{tarball_version}.tar.gz
 
-Requires: linstor-controller >= 1.13.1
+Requires: linstor-controller >= 1.30.0
 BuildArch: noarch
 
 %description

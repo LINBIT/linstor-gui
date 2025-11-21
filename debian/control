@@ -8,7 +8,7 @@ Standards-Version: 3.9.6
 
 Package: linstor-gui
 Architecture: all
-Depends: linstor-controller (>= 1.13.1),
+Depends: linstor-controller (>= 1.30.0),
 Description: Administration GUI for LINSTOR clusters.
  This software provides a web GUI for LINSTOR cluster and storage
  administration.
