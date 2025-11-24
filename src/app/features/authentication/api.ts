@@ -247,6 +247,17 @@ export class UserAuthAPI {
     return users;
   }
 
+  // Check if admin user exists
+  public async hasAdminUser(): Promise<boolean> {
+    try {
+      const adminPassword = await this.store.getProperty(this.usersInstance, DEFAULT_ADMIN_USER_NAME);
+      return !!adminPassword;
+    } catch (error) {
+      console.error('Failed to check for admin user:', error);
+      return false;
+    }
+  }
+
   public logout() {
     localStorage.removeItem(USER_LOCAL_STORAGE_KEY);
   }
@@ -286,6 +297,17 @@ export class UserAuthAPI {
         console.log('Default admin user registered successfully');
       } else {
         console.log(`User store ${this.usersInstance} already exists`);
+
+        // Check if admin user exists
+        const hasAdmin = await this.hasAdminUser();
+        if (!hasAdmin) {
+          console.log('Admin user not found, creating default admin user');
+          // Register default admin user if admin doesn't exist
+          await this.register({ username: DEFAULT_ADMIN_USER_NAME, password: DEFAULT_ADMIN_USER_PASS });
+          console.log('Default admin user registered successfully');
+        } else {
+          console.log('Admin user already exists');
+        }
       }
     } catch (error) {
       console.error('Failed to initialize user store:', error);

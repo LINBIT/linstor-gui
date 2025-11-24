@@ -7,7 +7,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { UserAuthAPI } from '../api';
 import { kvStore } from '@app/features/keyValueStore';
-import { USER_LOCAL_STORAGE_KEY } from '@app/const/settings';
+import { USER_LOCAL_STORAGE_KEY, DEFAULT_ADMIN_USER_NAME, DEFAULT_ADMIN_USER_PASS } from '@app/const/settings';
 import { KV_NAMESPACES } from '@app/const/kvstore';
 import CryptoJS from 'crypto-js';
 
@@ -279,7 +279,8 @@ describe('UserAuthAPI', () => {
   });
 
   describe('initUserStore', () => {
-    it('should create user store and register admin user', async () => {
+    it('should create user store and register admin user when store does not exist', async () => {
+      mockKvStore.instanceExists.mockResolvedValue(false);
       const mockCreate = mockKvStore.create.mockResolvedValue();
       const registerSpy = vi.spyOn(userAuthAPI, 'register').mockResolvedValue(true);
 
@@ -289,6 +290,59 @@ describe('UserAuthAPI', () => {
         override_props: {
           __updated__: expect.any(String),
         },
+      });
+      expect(registerSpy).toHaveBeenCalledWith({
+        username: DEFAULT_ADMIN_USER_NAME,
+        password: DEFAULT_ADMIN_USER_PASS,
+      });
+    });
+
+    it('should create admin user when store exists but admin is missing', async () => {
+      // Store exists
+      mockKvStore.instanceExists.mockResolvedValue(true);
+      // Admin user doesn't exist
+      mockKvStore.getProperty.mockResolvedValueOnce(null);
+      const registerSpy = vi.spyOn(userAuthAPI, 'register').mockResolvedValue(true);
+
+      await userAuthAPI.initUserStore();
+
+      expect(registerSpy).toHaveBeenCalledWith({
+        username: DEFAULT_ADMIN_USER_NAME,
+        password: DEFAULT_ADMIN_USER_PASS,
+      });
+    });
+
+    it('should NOT create admin user when store exists and admin exists', async () => {
+      // Store exists
+      mockKvStore.instanceExists.mockResolvedValue(true);
+      // Admin user exists (has encrypted password)
+      mockKvStore.getProperty.mockResolvedValueOnce('encrypted_password');
+      const registerSpy = vi.spyOn(userAuthAPI, 'register').mockResolvedValue(true);
+
+      await userAuthAPI.initUserStore();
+
+      expect(registerSpy).not.toHaveBeenCalled();
+    });
+
+    it('should preserve other users when recreating admin', async () => {
+      // Store exists
+      mockKvStore.instanceExists.mockResolvedValue(true);
+      // Admin doesn't exist
+      mockKvStore.getProperty
+        .mockResolvedValueOnce(null) // admin check returns null
+        .mockResolvedValueOnce(null) // register checks if admin exists
+        .mockResolvedValue(); // setProperty succeeds
+
+      mockKvStore.setProperty.mockResolvedValue();
+      const registerSpy = vi.spyOn(userAuthAPI, 'register').mockResolvedValue(true);
+
+      await userAuthAPI.initUserStore();
+
+      // Should only register admin, not affect other users
+      expect(registerSpy).toHaveBeenCalledTimes(1);
+      expect(registerSpy).toHaveBeenCalledWith({
+        username: DEFAULT_ADMIN_USER_NAME,
+        password: DEFAULT_ADMIN_USER_PASS,
       });
     });
   });
@@ -313,6 +367,37 @@ describe('UserAuthAPI', () => {
       // Login should work with the original password
       const loginResult = await userAuthAPI.login(user);
       expect(loginResult).toBe(true);
+    });
+  });
+
+  describe('hasAdminUser', () => {
+    it('should return true when admin exists', async () => {
+      mockKvStore.getProperty.mockResolvedValue('encrypted_password');
+
+      const result = await userAuthAPI.hasAdminUser();
+
+      expect(result).toBe(true);
+      expect(mockKvStore.getProperty).toHaveBeenCalledWith(KV_NAMESPACES.USERS, DEFAULT_ADMIN_USER_NAME);
+    });
+
+    it('should return false when admin does not exist', async () => {
+      mockKvStore.getProperty.mockResolvedValue(null);
+
+      const result = await userAuthAPI.hasAdminUser();
+
+      expect(result).toBe(false);
+    });
+
+    it('should return false and log error when check fails', async () => {
+      mockKvStore.getProperty.mockRejectedValue(new Error('Store error'));
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      const result = await userAuthAPI.hasAdminUser();
+
+      expect(result).toBe(false);
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to check for admin user:', expect.any(Error));
+
+      consoleErrorSpy.mockRestore();
     });
   });
 
