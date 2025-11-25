@@ -461,11 +461,10 @@ export const OverviewList = () => {
 
           const isAllOK = stateOfResources?.every((e: any) => e === 'OK');
 
-          return (
-            <Tag color={isAllOK ? 'green' : 'red'}>
-              {isAllOK ? 'OK' : stateOfResources?.filter((e: any) => e !== 'OK').join(',')}
-            </Tag>
-          );
+          // Filter out 'OK' and remove duplicates before joining
+          const uniqueNonOKStates = Array.from(new Set(stateOfResources?.filter((e: any) => e !== 'OK')));
+
+          return <Tag color={isAllOK ? 'green' : 'red'}>{isAllOK ? 'OK' : uniqueNonOKStates.join(',')}</Tag>;
         },
       },
       {
