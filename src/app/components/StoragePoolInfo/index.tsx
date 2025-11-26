@@ -23,8 +23,8 @@ type SeriesItem = {
   color: string;
 };
 
-const ChartContainer = styled.div`
-  overflow-x: auto;
+const ChartContainer = styled.div<{ enableScroll?: boolean }>`
+  overflow-x: ${(props) => (props.enableScroll ? 'auto' : 'visible')};
 `;
 
 export const StoragePoolInfo: React.FC = () => {
@@ -168,7 +168,7 @@ export const StoragePoolInfo: React.FC = () => {
     <div className="border-2 border-gray-200 rounded px-[34px] py-[30px]">
       <h3 className="m-0 mb-4 text-[26px] font-semibold">{t('common:storage_pool_overview')}</h3>
       <Spin spinning={isLoading}>
-        <ChartContainer>
+        <ChartContainer enableScroll={nodeCount >= 5}>
           <Chart
             options={options}
             series={chartData.series}
