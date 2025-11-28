@@ -6,12 +6,13 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { Card, Spin, Alert, Typography, Select, Space } from 'antd';
+import { Card, Spin, Alert, Typography } from 'antd';
 import { useSelector } from 'react-redux';
 import styled from '@emotion/styled';
-import { ArrowLeftOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import Button from '@app/components/Button';
+import TimeRangeSelector from '@app/components/TimeRangeSelector';
 
 import { RootState } from '@app/store';
 import PageBasic from '@app/components/PageBasic';
@@ -61,43 +62,6 @@ const LoadingContainer = styled.div`
   height: 400px;
   gap: 16px;
 `;
-
-const TimeRangeSelector = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  margin-bottom: 16px;
-  padding: 12px;
-  background: #fafafa;
-  border-radius: 8px;
-  border: 1px solid #f0f0f0;
-
-  .time-range-label {
-    font-weight: 500;
-    margin-right: 12px;
-    color: #666;
-  }
-
-  .ant-select {
-    min-width: 160px;
-  }
-`;
-
-// Time range options similar to Grafana's default (expanded based on screenshot)
-const TIME_RANGE_OPTIONS = [
-  { label: 'Last 5 minutes', value: 'now-5m' },
-  { label: 'Last 15 minutes', value: 'now-15m' },
-  { label: 'Last 30 minutes', value: 'now-30m' },
-  { label: 'Last 1 hour', value: 'now-1h' },
-  { label: 'Last 3 hours', value: 'now-3h' },
-  { label: 'Last 6 hours', value: 'now-6h' },
-  { label: 'Last 12 hours', value: 'now-12h' },
-  { label: 'Last 24 hours', value: 'now-24h' },
-  { label: 'Last 2 days', value: 'now-2d' },
-  { label: 'Last 7 days', value: 'now-7d' },
-  { label: 'Last 30 days', value: 'now-30d' },
-  { label: 'Last 90 days', value: 'now-90d' },
-];
 
 const GrafanaStats: React.FC = () => {
   const { t } = useTranslation(['common', 'settings']);
@@ -301,18 +265,7 @@ const GrafanaStats: React.FC = () => {
         }
       >
         {/* Time Range Selector */}
-        <TimeRangeSelector>
-          <ClockCircleOutlined style={{ marginRight: 8, color: '#666' }} />
-          <span className="time-range-label">Time Range:</span>
-          <Select
-            value={timeRange}
-            onChange={handleTimeRangeChange}
-            options={TIME_RANGE_OPTIONS}
-            placeholder="Select time range"
-            allowClear
-            onClear={() => setTimeRange('now-1h')}
-          />
-        </TimeRangeSelector>
+        <TimeRangeSelector value={timeRange} onChange={handleTimeRangeChange} />
 
         <ChartsGrid>
           {/* First row: CPU and Memory panels - always show when Grafana is enabled */}

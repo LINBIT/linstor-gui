@@ -4,12 +4,13 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Card, Row, Col, Empty } from 'antd';
 import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';
 import styled from '@emotion/styled';
 import { usePreloadIframes } from '@app/hooks';
+import TimeRangeSelector from '@app/components/TimeRangeSelector';
 
 const ChartIframe = styled.iframe`
   width: 100%;
@@ -37,6 +38,7 @@ interface ChartPanel {
 
 const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
   const grafanaConfig = useSelector((state: RootState) => state.setting?.grafanaConfig);
+  const [timeRange, setTimeRange] = useState('now-1h');
 
   console.log('GrafanaCharts render:', { grafanaConfig, hostname });
 
@@ -47,7 +49,7 @@ const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
     const params = new URLSearchParams({
       panelId: String(panelId),
       viewPanel: `panel-${panelId}`,
-      from: 'now-1h',
+      from: timeRange,
       to: 'now',
       theme: 'light',
       refresh: '10s',
@@ -75,7 +77,7 @@ const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
     ].filter(Boolean) as number[];
 
     return panels.map((panelId) => generateGrafanaSoloUrl(panelId));
-  }, [grafanaConfig?.enable, grafanaConfig?.baseUrl, grafanaConfig?.dashboardUid, grafanaConfig?.panelIds]);
+  }, [grafanaConfig?.enable, grafanaConfig?.baseUrl, grafanaConfig?.dashboardUid, grafanaConfig?.panelIds, timeRange]);
 
   // Preload iframe URLs only if Grafana is enabled
   usePreloadIframes(iframeUrls, { prefetch: false });
@@ -113,6 +115,7 @@ const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
 
   return (
     <Card title="Performance Metrics" style={{ marginBottom: 16 }}>
+      <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
       <Row gutter={[16, 16]}>
         {validPanels.map((panel) => (
           <Col xs={24} sm={24} md={12} key={panel.key}>
