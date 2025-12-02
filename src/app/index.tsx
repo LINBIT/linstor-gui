@@ -44,7 +44,7 @@ const App: React.FunctionComponent = () => {
         <ConfigProvider
           theme={{
             token: {
-              colorPrimary: '#FFCC9C ',
+              colorPrimary: '#F79133 ',
             },
           }}
           locale={locale}
