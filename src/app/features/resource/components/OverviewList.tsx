@@ -50,7 +50,7 @@ import { PropertyFormRef } from '@app/components/PropertyForm';
 import { RootState } from '@app/store';
 import { UIMode } from '@app/models/setting';
 
-const TAG_COLORS = ['cyan', 'blue', 'geekblue', 'purple'];
+const TAG_COLORS = ['#FFCC9C', '#C6F6F9', '#E1C047', '#C0854E'];
 
 export const OverviewList = () => {
   const [resourceDefinitionList, setResourceDefinitionList] = useState<any>();
@@ -444,7 +444,7 @@ export const OverviewList = () => {
                 ) => {
                   return (
                     <Tag key={index} color={TAG_COLORS[index]} bordered={false}>
-                      {layer.type}
+                      <span className="text-black">{layer.type}</span>
                     </Tag>
                   );
                 },
