@@ -336,6 +336,12 @@ const Dashboard: React.FC = () => {
       <HeaderSection>
         <Title level={3}>{t('settings:grafana')}</Title>
         <Text type="secondary">{t('settings:grafana_description')}</Text>
+        <div style={{ marginTop: '1em' }}>
+          <Text type="secondary">{t('settings:grafana_prerequisites_note')}</Text>
+          <pre style={{ marginTop: '0.5em', padding: '0.5em', backgroundColor: '#f5f5f5', borderRadius: '4px' }}>
+            {t('settings:grafana_prerequisites_config')}
+          </pre>
+        </div>
       </HeaderSection>
 
       <EnableSection>

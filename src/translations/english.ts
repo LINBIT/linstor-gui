@@ -547,6 +547,13 @@ const en = {
     grafana_dashboard: 'Grafana Dashboard',
     grafana_description:
       'Here you can configure the Grafana Dashboard. Once set up, an entry will be displayed in the left-side menu.',
+    grafana_prerequisites_note:
+      'To enable Grafana dashboard functionality, you need to install and run drbd-reactor, Prometheus, and Grafana. Additionally, import the following Grafana dashboards: Node Exporter Full (https://grafana.com/grafana/dashboards/1860-node-exporter-full/) and DRBD (https://grafana.com/grafana/dashboards/14339-drbd/). Also, modify your Grafana configuration as follows:',
+    grafana_prerequisites_config: `[security]
+allow_embedding = true
+[auth.anonymous]
+enabled = true
+org_role = Viewer`,
     grafana_url: 'Grafana URL',
     available: 'Available',
     not_available: 'Not Available',

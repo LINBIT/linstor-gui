@@ -482,6 +482,13 @@ const zh = {
     grafana_description:
       // 'Here you can configure the Grafana Dashboard. Once set up, an entry will be displayed in the left-side menu.',
       '在这里，您可以配置 Grafana 仪表板。设置完成后，左侧菜单中将显示一个选项。',
+    grafana_prerequisites_note:
+      '需要安装并运行drbd-reactor， prometheus 和 grafana，以及 https://grafana.com/grafana/dashboards/1860-node-exporter-full/ https://grafana.com/grafana/dashboards/14339-drbd/。同时修改Grafana配置如下：',
+    grafana_prerequisites_config: `[security]
+allow_embedding = true
+[auth.anonymous]
+enabled = true
+org_role = Viewer`,
     grafana_url: 'Grafana URL',
     available: '可用',
     not_available: '不可用',
