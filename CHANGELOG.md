@@ -1,5 +1,24 @@
 # Changelog
 
+# 2.1.0 - 2025-12-09
+
+### Added
+
+- Time range selector on node detail page
+- Description for Grafana dashboard
+- 404 page
+
+### Fixed
+
+- Reset admin password by LINSTOR client
+- Removed redundant states on resource overview page
+- Dashboard chart scrollbar
+
+### Changed
+
+- Theme color
+- Tag colors on resource overview page
+
 # 2.0.0 - 2025-11-20
 
 ### Added
@@ -9,7 +28,7 @@
 
 ### Fixed
 
-- User store migration logic from "users" to "__gui__users" namespace
+- User store migration logic from "users" to "**gui**users" namespace
 - `vsanAvailable` flag reset when switching modes
 - Storage pool name conflict prevention
 - Various UI styling issues
