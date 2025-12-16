@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
@@ -51,6 +51,7 @@ vi.mock('@app/utils/time', () => ({
 // Mock resource utilities
 vi.mock('@app/utils/resource', () => ({
   getResourceState: vi.fn((resource) => `state-${resource.name}`),
+  getFaultyVolumeNumbers: vi.fn(() => []),
 }));
 
 // Mock the faulty resources hook

@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { formatTime } from '@app/utils/time';
 import { generateUUID } from '@app/utils/stringUtils';
 import { ResourceDataType } from '../types';
-import { getResourceState, Resource } from '@app/utils/resource';
+import { getResourceState, Resource, getFaultyVolumeNumbers } from '@app/utils/resource';
 import { useFaultyResources } from '../hooks/useFaultyResources';
 import { Link } from '@app/components/Link';
 
@@ -59,6 +59,14 @@ export const FaultyList = () => {
       dataIndex: 'node_name',
       render: (node_name) => {
         return <Link to={`/inventory/nodes/${node_name}`}>{node_name}</Link>;
+      },
+    },
+    {
+      title: t('common:volume_number_short'),
+      key: 'volume_number',
+      render: (_, item) => {
+        const faultyVolumes = getFaultyVolumeNumbers(item as Resource);
+        return <span>{faultyVolumes.length > 0 ? faultyVolumes.join(', ') : '-'}</span>;
       },
     },
     {

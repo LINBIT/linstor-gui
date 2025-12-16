@@ -6,6 +6,7 @@
 
 import * as React from 'react';
 import { Dropdown, Tooltip } from 'antd';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { DeploymentUnitOutlined, DownOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
@@ -207,9 +208,9 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
           <div className="flex items-center">
             {hasFaultyResources && (
               <Tooltip title={t('settings:has_faulty_resources', 'Has faulty resources')}>
-                <div>
+                <Link to="/" style={{ display: 'flex', alignItems: 'center' }}>
                   <FaultyResourceIcon />
-                </div>
+                </Link>
               </Tooltip>
             )}
           </div>

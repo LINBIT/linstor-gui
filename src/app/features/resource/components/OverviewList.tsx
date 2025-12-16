@@ -50,6 +50,7 @@ import { filterResourceList } from './filterResourceList';
 import { PropertyFormRef } from '@app/components/PropertyForm';
 import { RootState } from '@app/store';
 import { UIMode } from '@app/models/setting';
+import { getResourceState } from '@app/utils/resource';
 
 const TAG_COLORS = ['#FFCC9C', '#C6F6F9', '#E1C047', '#C0854E'];
 
@@ -339,60 +340,6 @@ export const OverviewList = () => {
     if (total === 0) return '0.00';
     const percentage = (allocated / total) * 100;
     return Math.min(percentage, 100).toFixed(2);
-  };
-
-  const getVolumeCellState = (
-    vlm_state: { disk_state: string },
-    rsc_flags: string | string[],
-    vlm_flags: string | string[],
-  ) => {
-    const state_prefix = vlm_flags.indexOf('RESIZE') > -1 ? 'Resizing, ' : '';
-    let state = state_prefix + 'Unknown';
-    if (vlm_state && vlm_state.disk_state) {
-      const disk_state = vlm_state.disk_state;
-      if (disk_state == 'DUnknown') {
-        state = state_prefix + 'Unknown';
-      } else if (disk_state == 'Diskless') {
-        if (!rsc_flags.includes('DISKLESS')) {
-          state = state_prefix + disk_state;
-        } else if (rsc_flags.includes('TIE_BREAKER')) {
-          state = 'TieBreaker';
-        } else {
-          state = state_prefix + disk_state;
-        }
-      } else {
-        state = state_prefix + disk_state;
-      }
-    }
-    return state;
-  };
-
-  const handleResourceStateDisplay = (resourceItem: ResourceDataType) => {
-    let stateStr = 'Unknown';
-    const flags = resourceItem.flags || [];
-    const rsc_state_obj = resourceItem.state || {};
-    const volumes = resourceItem.volumes || [];
-
-    if (flags.includes('DELETE')) {
-      stateStr = 'DELETING';
-    } else if (flags.includes('INACTIVE')) {
-      stateStr = 'INACTIVE';
-    } else if (rsc_state_obj) {
-      if (typeof rsc_state_obj.in_use !== 'undefined') {
-        for (let i = 0; i < volumes.length; ++i) {
-          const volume = volumes[i];
-          const vlm_state = volume.state || {};
-          const vlm_flags = volume.flags || [];
-          stateStr = getVolumeCellState(vlm_state as any, flags, vlm_flags);
-
-          if (flags.includes('EVACUATE')) {
-            stateStr += ', Evacuating';
-          }
-        }
-      }
-    }
-
-    return stateStr;
   };
 
   const CSProps = Array.from(
@@ -702,7 +649,7 @@ export const OverviewList = () => {
             dataIndex: 'state',
             render: (state, record) => {
               const isPrimaryNode = record?.node_name?.toLowerCase() === record?.primary_node?.toLowerCase();
-              const stateStr = handleResourceStateDisplay(record.resource);
+              const stateStr = getResourceState(record.resource, record.volume_number);
               return (
                 <>
                   <Tag color="geekblue">{stateStr}</Tag>

@@ -14,6 +14,7 @@ interface Connection {
 }
 
 interface Volume {
+  volume_number?: number;
   flags?: string[];
   state?: {
     disk_state?: string;
@@ -262,27 +263,131 @@ describe('resource utils', () => {
       expect(state).toBe('Unknown');
     });
 
-    it('should check first valid volume state', () => {
+    it('should return the state of the first non-Unknown volume if no targetVolumeNumber is provided (legacy behavior)', () => {
       const resource: Resource = {
         name: 'test-resource',
         node_name: 'test-node',
         flags: [],
         volumes: [
           {
-            // This volume has no valid state (non-DRBD)
-            layer_data_list: [{ type: 'STORAGE' }],
+            volume_number: 0,
+            layer_data_list: [{ type: 'DRBD' }],
+            state: { disk_state: 'UpToDate' },
           },
           {
-            // This volume has a valid state
-            data_v1: {
-              layer_data_list: [{ type: 'DRBD' }],
-              state: { disk_state: 'Failed' },
-            },
+            volume_number: 1,
+            layer_data_list: [{ type: 'DRBD' }],
+            state: { disk_state: 'Inconsistent' },
           },
         ],
       };
       const state = getResourceState(resource);
-      expect(state).toBe('Created'); // First volume returns 'Created'
+      // New behavior: prioritize bad states
+      expect(state).toBe('Inconsistent');
+    });
+
+    it('should return the specific volume state when targetVolumeNumber is provided', () => {
+      const resource: Resource = {
+        name: 'test-resource',
+        node_name: 'test-node',
+        flags: [],
+        volumes: [
+          {
+            volume_number: 0,
+            layer_data_list: [{ type: 'DRBD' }],
+            state: { disk_state: 'UpToDate' },
+          },
+          {
+            volume_number: 1,
+            layer_data_list: [{ type: 'DRBD' }],
+            state: { disk_state: 'Inconsistent' },
+          },
+        ],
+      };
+      const state0 = getResourceState(resource, 0);
+      expect(state0).toBe('UpToDate');
+      const state1 = getResourceState(resource, 1);
+      expect(state1).toBe('Inconsistent');
+    });
+
+    it('should include Evacuating when EVACUATE flag is present', () => {
+      const resource: Resource = {
+        name: 'test-resource',
+        node_name: 'test-node',
+        flags: ['EVACUATE'],
+        volumes: [
+          {
+            volume_number: 0,
+            layer_data_list: [{ type: 'DRBD' }],
+            state: { disk_state: 'UpToDate' },
+          },
+        ],
+      };
+      const state = getResourceState(resource);
+      expect(state).toBe('UpToDate, Evacuating');
+    });
+
+    it('should return comma-separated unique states for multiple volumes without targetVolumeNumber', () => {
+      // If all good, show all good.
+      const resource: Resource = {
+        name: 'test-resource',
+        node_name: 'test-node',
+        flags: [],
+        volumes: [
+          {
+            volume_number: 0,
+            layer_data_list: [{ type: 'DRBD' }],
+            state: { disk_state: 'UpToDate' },
+          },
+          {
+            volume_number: 1,
+            layer_data_list: [{ type: 'DRBD' }],
+            state: { disk_state: 'Created' },
+          },
+        ],
+      };
+      const state = getResourceState(resource);
+      expect(state).toBe('UpToDate, Created');
+    });
+
+    it('should prioritize bad states in summary (ignore healthy ones if bad ones exist)', () => {
+      const resource: Resource = {
+        name: 'test-resource',
+        node_name: 'test-node',
+        flags: [],
+        volumes: [
+          {
+            volume_number: 0,
+            layer_data_list: [{ type: 'DRBD' }],
+            state: { disk_state: 'UpToDate' }, // Good
+          },
+          {
+            volume_number: 1,
+            layer_data_list: [{ type: 'DRBD' }],
+            state: { disk_state: 'Inconsistent' }, // Bad
+          },
+        ],
+      };
+      const state = getResourceState(resource);
+      expect(state).toBe('Inconsistent');
+    });
+
+    it('should handle volumes with Resizing flag in combination with EVACUATE', () => {
+      const resource: Resource = {
+        name: 'test-resource',
+        node_name: 'test-node',
+        flags: ['EVACUATE'],
+        volumes: [
+          {
+            volume_number: 0,
+            flags: ['RESIZE'],
+            layer_data_list: [{ type: 'DRBD' }],
+            state: { disk_state: 'UpToDate' },
+          },
+        ],
+      };
+      const state = getResourceState(resource, 0);
+      expect(state).toBe('Resizing, UpToDate, Evacuating');
     });
   });
 

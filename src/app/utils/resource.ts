@@ -4,6 +4,7 @@ interface Connection {
 }
 
 interface Volume {
+  volume_number?: number;
   flags?: string[];
   state?: {
     disk_state?: string;
@@ -101,7 +102,7 @@ export function isFaultyResource(resource: Resource): boolean {
   return false;
 }
 
-export function getResourceState(resource: Resource): string {
+export function getResourceState(resource: Resource, targetVolumeNumber?: number): string {
   // Check deletion flags
   if (resource?.flags?.includes('DELETE') || resource?.flags?.includes('DRBD_DELETE')) {
     return 'DELETING';
@@ -114,11 +115,37 @@ export function getResourceState(resource: Resource): string {
 
   // Get state from volumes
   if (resource?.volumes && resource.volumes.length > 0) {
+    const states: string[] = [];
+    const badStates: string[] = [];
+
     for (const volume of resource.volumes) {
-      const [state] = getVolumeState(volume, resource?.flags ?? []);
-      if (state !== 'Unknown') {
-        return state;
+      if (typeof targetVolumeNumber !== 'undefined' && volume.volume_number !== targetVolumeNumber) {
+        continue;
       }
+
+      const volumeStateResult = getVolumeState(volume, resource?.flags ?? []);
+      let state = volumeStateResult[0];
+      const isBad = volumeStateResult[1];
+      if (resource?.flags?.includes('EVACUATE')) {
+        state += ', Evacuating';
+      }
+
+      if (state !== 'Unknown') {
+        if (typeof targetVolumeNumber !== 'undefined') {
+          return state;
+        }
+        states.push(state);
+        if (isBad) {
+          badStates.push(state);
+        }
+      }
+    }
+
+    if (states.length > 0) {
+      if (badStates.length > 0) {
+        return Array.from(new Set(badStates)).join(', ');
+      }
+      return Array.from(new Set(states)).join(', ');
     }
   }
 
@@ -197,4 +224,17 @@ export function getVolumeState(volume: Volume, resourceFlags: string[]): [string
 
 export function getFaultyResources(resources: Resource[]): Resource[] {
   return resources.filter(isFaultyResource);
+}
+
+export function getFaultyVolumeNumbers(resource: Resource): number[] {
+  const faultyVolumeNumbers: number[] = [];
+  if (resource?.volumes) {
+    for (const volume of resource.volumes) {
+      const [_, isBad] = getVolumeState(volume, resource?.flags ?? []);
+      if (isBad && typeof volume.volume_number === 'number') {
+        faultyVolumeNumbers.push(volume.volume_number);
+      }
+    }
+  }
+  return faultyVolumeNumbers;
 }
