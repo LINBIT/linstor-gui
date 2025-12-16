@@ -27,6 +27,7 @@ import {
   UpdateResourceDefinitionRequestBody,
   updateVolumeDefinition,
   VolumeDefinitionModify,
+  ResizeVolumeModal,
 } from '@app/features/resourceDefinition';
 import { CreateForm } from '@app/features/volumeDefinition';
 import { useWidth } from '@app/hooks';
@@ -69,6 +70,7 @@ export const OverviewList = () => {
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [resizeModalOpen, setResizeModalOpen] = useState(false);
   const [migrateModalOpen, setMigrateModalOpen] = useState(false);
   const [currentResource, setCurrentResource] = useState<string>();
   const [snapshotName, setSnapshotName] = useState<string>('');
@@ -457,6 +459,14 @@ export const OverviewList = () => {
         title: t('common:state'),
         key: 'state',
         render: (_, rd) => {
+          const isResizing = rd.volumeDefinitions?.some((vd: any) =>
+            vd.flags?.some((flag: string) => flag.includes('RESIZE')),
+          );
+
+          if (isResizing) {
+            return <Tag color="orange">RESIZING</Tag>;
+          }
+
           const stateOfResources = rd.volumes?.map((e: any) => handleConnectStatusDisplay(e.resource));
 
           const isAllOK = stateOfResources?.every((e: any) => e === 'OK');
@@ -505,6 +515,19 @@ export const OverviewList = () => {
                   {
                     key: 'clone',
                     label: <CloneForm resource={record.name} isUsingZFS={isUsingZFS} />,
+                  },
+                  {
+                    key: 'resize',
+                    label: (
+                      <span
+                        onClick={() => {
+                          setCurrent(record);
+                          setResizeModalOpen(true);
+                        }}
+                      >
+                        {t('common:resize')}
+                      </span>
+                    ),
                   },
                   {
                     key: 'resource_definition',
@@ -953,6 +976,12 @@ export const OverviewList = () => {
         initialVal={initialProps}
         type="resource"
         handleSubmit={(data) => updateResourceMutation.mutate(data)}
+      />
+
+      <ResizeVolumeModal
+        open={resizeModalOpen}
+        onClose={() => setResizeModalOpen(false)}
+        resourceName={current?.name ?? ''}
       />
 
       <Modal

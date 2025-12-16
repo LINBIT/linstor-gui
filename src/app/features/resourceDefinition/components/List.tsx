@@ -21,6 +21,7 @@ import {
 import { ResourceDefinition, ResourceDefinitionListQuery, UpdateResourceDefinitionRequestBody } from '../types';
 import { SearchForm } from './styled';
 import { SpawnForm } from './SpawnForm';
+import { ResizeVolumeModal } from './ResizeVolumeModal';
 import { uniqId } from '@app/utils/stringUtils';
 import { omit } from '@app/utils/object';
 import { useTranslation } from 'react-i18next';
@@ -29,6 +30,7 @@ export const List = () => {
   const [current, setCurrent] = useState<ResourceDefinition>();
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [propertyModalOpen, setPropertyModalOpen] = useState(false);
+  const [resizeModalOpen, setResizeModalOpen] = useState(false);
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -213,6 +215,14 @@ export const List = () => {
                   },
                 },
                 {
+                  key: 'resize',
+                  label: t('common:resize'),
+                  onClick: () => {
+                    setCurrent(record);
+                    setResizeModalOpen(true);
+                  },
+                },
+                {
                   key: 'property',
                   label: t('common:property'),
                   onClick: () => {
@@ -317,6 +327,11 @@ export const List = () => {
         type="resource-definition"
         handleSubmit={(data) => updateMutation.mutate(data)}
         handleClose={() => setPropertyModalOpen(!propertyModalOpen)}
+      />
+      <ResizeVolumeModal
+        open={resizeModalOpen}
+        onClose={() => setResizeModalOpen(false)}
+        resourceName={current?.name ?? ''}
       />
     </>
   );
