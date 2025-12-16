@@ -332,6 +332,9 @@ export const List = () => {
         open={resizeModalOpen}
         onClose={() => setResizeModalOpen(false)}
         resourceName={current?.name ?? ''}
+        onSuccess={() => {
+          refetch();
+        }}
       />
     </>
   );

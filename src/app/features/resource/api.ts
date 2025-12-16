@@ -144,12 +144,46 @@ const toggleResource = (resource: string, node: string, action: 'to_diskless' | 
   });
 };
 
+const createResourceOnNode = (resource: string, node: string, drbdDiskless: boolean = false, storagePool?: string) => {
+  const resourceData: ResourceCreateRequestBody = {
+    resource: {
+      name: resource,
+      node_name: node,
+    },
+  };
+
+  if (drbdDiskless) {
+    resourceData.resource.flags = ['DRBD_DISKLESS'];
+  } else if (storagePool) {
+    resourceData.resource.props = {
+      StorPoolName: storagePool,
+    };
+  }
+
+  return resourceCreateOnNode(resource, node, resourceData);
+};
+
+const makeResourceAvailable = (resource: string, node: string, diskful: boolean) => {
+  return post('/v1/resource-definitions/{resource}/resources/{node}/make-available', {
+    params: {
+      path: {
+        resource,
+        node,
+      },
+    },
+    body: {
+      diskful,
+    },
+  });
+};
+
 export {
   createResourceDefinition,
   createVolumeDefinition,
   autoPlace,
   resourceModify,
   resourceCreateOnNode,
+  createResourceOnNode,
   resourceMigration,
   getResources,
   getResourceCount,
@@ -157,4 +191,5 @@ export {
   getResourcesByResourceName,
   adjustResourceGroup,
   toggleResource,
+  makeResourceAvailable,
 };

@@ -43,6 +43,7 @@ import {
 } from '../api';
 import { GetResourcesResponseBody, ResourceDataType, ResourceModifyRequestBody } from '../types';
 import { CloneForm } from './Clone';
+import { AddToNodeModal } from './AddToNodeModal';
 import { ResourceMigrateForm } from './ResourceMigrateForm';
 import { SearchForm } from './styled';
 import './OverviewList.css';
@@ -73,7 +74,9 @@ export const OverviewList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [resizeModalOpen, setResizeModalOpen] = useState(false);
   const [migrateModalOpen, setMigrateModalOpen] = useState(false);
+  const [addToNodeModalOpen, setAddToNodeModalOpen] = useState(false);
   const [currentResource, setCurrentResource] = useState<string>();
+  const [usedNodes, setUsedNodes] = useState<string[]>([]);
   const [snapshotName, setSnapshotName] = useState<string>('');
   const [migrationInfo, setMigrationInfo] = useState<{
     resource: string;
@@ -441,6 +444,21 @@ export const OverviewList = () => {
             <Dropdown
               menu={{
                 items: [
+                  {
+                    key: 'add_to_node',
+                    label: (
+                      <span
+                        onClick={() => {
+                          setCurrentResource(record.name);
+                          const nodes = record.volumes?.map((v: any) => v.node_name) || [];
+                          setUsedNodes(Array.from(new Set(nodes)));
+                          setAddToNodeModalOpen(true);
+                        }}
+                      >
+                        {t('resource:add_to_node')}
+                      </span>
+                    ),
+                  },
                   {
                     key: 'adjust',
                     label: (
@@ -925,10 +943,23 @@ export const OverviewList = () => {
         handleSubmit={(data) => updateResourceMutation.mutate(data)}
       />
 
+      <AddToNodeModal
+        open={addToNodeModalOpen}
+        onClose={() => setAddToNodeModalOpen(false)}
+        resourceName={currentResource ?? ''}
+        usedNodes={usedNodes}
+        onSuccess={() => {
+          refetch();
+        }}
+      />
+
       <ResizeVolumeModal
         open={resizeModalOpen}
         onClose={() => setResizeModalOpen(false)}
         resourceName={current?.name ?? ''}
+        onSuccess={() => {
+          refetch();
+        }}
       />
 
       <Modal

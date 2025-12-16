@@ -309,6 +309,9 @@ const en = {
     add_disk: 'Add Disk',
     remove_disk: 'Remove Disk',
     search_placeholder: 'Search by resource name or aux property value',
+    add_to_node: 'Add to Node',
+    diskful: 'Diskful',
+    drbd_diskless: 'DRBD Diskless',
   },
   volume: {
     list: 'Volume List',
