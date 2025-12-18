@@ -9,11 +9,12 @@ import { Form, Space, Table, Tag, Select, Popconfirm, Input, Dropdown, Tooltip }
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { CheckCircleFilled, CloseCircleFilled, MoreOutlined } from '@ant-design/icons';
+import { MoreOutlined } from '@ant-design/icons';
 
 import Button from '@app/components/Button';
 import { Link } from '@app/components/Link';
 import { Switch } from '@app/components/Switch';
+import { SupportStatus } from '@app/components/SupportStatus';
 
 import { useNodes } from '@app/features/node';
 import { formatBytes } from '@app/utils/size';
@@ -273,15 +274,7 @@ export const List = () => {
       dataIndex: 'supports_snapshots',
       key: 'supports_snapshots',
       render: (supports_snapshots) => {
-        return (
-          <span>
-            {supports_snapshots ? (
-              <CheckCircleFilled style={{ color: 'green', fontSize: '24px' }} />
-            ) : (
-              <CloseCircleFilled style={{ color: 'grey', fontSize: '24px' }} />
-            )}
-          </span>
-        );
+        return <SupportStatus supported={supports_snapshots} />;
       },
       align: 'center',
     },

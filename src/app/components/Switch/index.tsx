@@ -13,8 +13,9 @@ const StyledSwitch = styled(AntSwitch)`
     background-color: #ffcc9c !important;
     border-color: #ffcc9c !important;
 
-    .ant-switch-inner {
-      color: #111111 !important;
+    .ant-switch-inner,
+    .ant-switch-inner * {
+      color: #000000 !important;
       font-weight: 600 !important;
       font-size: 12px !important;
       line-height: 20px !important;

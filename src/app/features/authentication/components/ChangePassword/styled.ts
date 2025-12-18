@@ -30,6 +30,7 @@ export const BGImg = styled.img`
   flex-shrink: 0;
   border-top-left-radius: 8px;
   border-bottom-left-radius: 8px;
+  opacity: 0.2;
 
   @media (max-width: 768px) {
     display: none;

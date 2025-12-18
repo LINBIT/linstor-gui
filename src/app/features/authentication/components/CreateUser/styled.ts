@@ -30,6 +30,7 @@ export const BGImg = styled.img`
   height: 100%;
   object-fit: cover;
   flex-shrink: 0;
+  opacity: 0.2;
 
   @media (max-width: 1024px) {
     width: 40%;

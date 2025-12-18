@@ -50,10 +50,8 @@ const HeaderAboutModal: React.FC<HeaderAboutModalProps> = ({ linstorVersion }) =
       <div className="flex items-center relative z-50">
         {isModalOpen && (
           <div className="fixed inset-0 flex items-center justify-center text-black">
-            <div
-              className="relative max-w-[1000px] max-h-[620px] w-full h-full flex rounded-2xl shadow-2xl overflow-hidden"
-              style={{ backgroundImage: `url(${bgImg})`, backgroundSize: 'cover' }}
-            >
+            <div className="relative max-w-[1000px] max-h-[620px] w-full h-full flex rounded-2xl shadow-2xl overflow-hidden bg-white">
+              <img src={bgImg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-20" />
               <div
                 className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full z-10 cursor-pointer"
                 onClick={handleModalToggle}
@@ -61,7 +59,7 @@ const HeaderAboutModal: React.FC<HeaderAboutModalProps> = ({ linstorVersion }) =
                 <CloseOutlined />
               </div>
 
-              <div className="w-3/5 pt-[71px] pl-[68px] rounded-2xl">
+              <div className="w-3/5 pt-[71px] pl-[68px] rounded-2xl relative z-10">
                 <img src={brandImg} alt="LINBIT logo" className="w-40 block" />
                 <div className="pl-[48px]">
                   <div className="text-[52px] mt-8 mb-6">LINBIT-SDS</div>

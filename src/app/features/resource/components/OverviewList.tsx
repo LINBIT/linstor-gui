@@ -53,7 +53,22 @@ import { RootState } from '@app/store';
 import { UIMode } from '@app/models/setting';
 import { getResourceState } from '@app/utils/resource';
 
-const TAG_COLORS = ['#FFCC9C', '#C6F6F9', '#E1C047', '#C0854E'];
+const TAG_COLORS = [
+  '#FFCC9C',
+  '#EEEEEE',
+  '#E1C047',
+  '#C0854E',
+  '#F79133',
+  '#499BBB',
+  '#E1C047',
+  '#65BDED',
+  '#C0854E',
+  '#84E4E9',
+  '#FF6D6D',
+  '#5FD4A9',
+  '#C38EC8',
+  '#BBD45F',
+];
 
 export const OverviewList = () => {
   const [resourceDefinitionList, setResourceDefinitionList] = useState<any>();

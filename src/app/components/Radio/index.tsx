@@ -9,6 +9,18 @@ import { Radio as AntRadio, RadioProps as AntRadioProps, RadioGroupProps as AntR
 import styled from '@emotion/styled';
 
 const StyledRadio = styled(AntRadio)`
+  && {
+    color: #000000 !important;
+  }
+
+  &.ant-radio-wrapper {
+    color: #000000 !important;
+  }
+
+  .ant-radio-inner {
+    border-color: #ffcc9c !important;
+  }
+
   .ant-radio-checked .ant-radio-inner {
     border-color: #ffcc9c !important;
     background-color: #ffffff !important;
@@ -52,6 +64,14 @@ const StyledRadio = styled(AntRadio)`
 `;
 
 const StyledRadioGroup = styled(AntRadio.Group)`
+  && .ant-radio-wrapper {
+    color: #000000 !important;
+  }
+
+  .ant-radio-wrapper span {
+    color: #000000 !important;
+  }
+
   .ant-radio-checked .ant-radio-inner {
     border-color: #ffcc9c !important;
     background-color: #ffffff !important;
@@ -93,6 +113,14 @@ const StyledRadioGroup = styled(AntRadio.Group)`
     }
   }
 
+  && .ant-radio-button-wrapper {
+    color: #000000 !important;
+  }
+
+  .ant-radio-button-wrapper span {
+    color: #000000 !important;
+  }
+
   .ant-radio-button-wrapper-checked {
     background-color: #ffcc9c !important;
     border-color: #ffcc9c !important;
@@ -110,7 +138,15 @@ const StyledRadioGroup = styled(AntRadio.Group)`
     }
   }
 
+  .ant-radio-button-wrapper-checked span {
+    color: #111111 !important;
+  }
+
   .ant-radio-button-wrapper:hover {
+    color: #ffcc9c !important;
+  }
+
+  .ant-radio-button-wrapper:hover span {
     color: #ffcc9c !important;
   }
 

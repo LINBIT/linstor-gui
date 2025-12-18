@@ -34,7 +34,7 @@ export const Login = ({ redirectTo }: LoginProps) => {
     <main className="flex h-screen w-full flex-col md:flex-row">
       {/* Desktop left panel - hidden on mobile */}
       <div className="hidden md:block md:w-[487px] relative overflow-hidden bg-[#eee]">
-        <img src={loginBg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-50" />
+        <img src={loginBg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-20" />
       </div>
 
       {/* Login form container */}

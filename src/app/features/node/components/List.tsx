@@ -9,12 +9,13 @@ import { Button as AntButton, Form, Space, Table, Tag, Popconfirm, Input, Dropdo
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { CheckCircleFilled, CloseCircleFilled, MoreOutlined } from '@ant-design/icons';
+import { MoreOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
 import PropertyForm, { PropertyFormRef } from '@app/components/PropertyForm';
 import Button from '@app/components/Button';
 import { Link } from '@app/components/Link';
+import { SupportStatus } from '@app/components/SupportStatus';
 import { getNodes, getNodeCount, deleteNode, updateNode, lostNode } from '../api';
 import { SearchForm } from './styled';
 import { uniqId } from '@app/utils/stringUtils';
@@ -215,11 +216,7 @@ export const List = () => {
         const connected = item.connection_status === 'CONNECTED' || item.connection_status === 'ONLINE';
         return (
           <>
-            {connected ? (
-              <CheckCircleFilled style={{ color: 'green', fontSize: '16px' }} />
-            ) : (
-              <CloseCircleFilled style={{ color: 'grey', fontSize: '16px' }} />
-            )}
+            <SupportStatus supported={connected} />
 
             <span style={{ marginLeft: 4 }}>{item.connection_status}</span>
           </>

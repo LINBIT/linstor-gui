@@ -21,6 +21,7 @@ export const BG = styled.img`
   object-fit: cover;
   flex: 1;
   height: calc(100vh - 200px);
+  opacity: 0.2;
 `;
 
 export const StyledSection = styled.div`
