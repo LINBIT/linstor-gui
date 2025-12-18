@@ -35,6 +35,10 @@ export const AddToNodeModal: React.FC<AddToNodeModalProps> = ({
   const selectedNode = Form.useWatch('node', form);
   const isDrbdDiskless = Form.useWatch('drbd_diskless', form);
 
+  React.useEffect(() => {
+    form.setFieldsValue({ storage_pool: undefined });
+  }, [selectedNode]);
+
   const { data: storagePoolsData } = useStoragePools(selectedNode ? { nodes: [selectedNode] } : undefined);
 
   const nodeList = nodesData?.data?.filter((node: any) => !usedNodes.includes(node.name)) ?? [];
@@ -100,9 +104,17 @@ export const AddToNodeModal: React.FC<AddToNodeModalProps> = ({
           <Form.Item
             name="storage_pool"
             label={t('common:storage_pool')}
-            rules={!isDrbdDiskless ? [{ required: false, message: 'Please select a storage pool' }] : []}
+            rules={
+              selectedNode && !isDrbdDiskless ? [{ required: false, message: t('resource:storage_pool_required') }] : []
+            }
           >
-            <Select placeholder={t('common:storage_pool')} allowClear showSearch optionFilterProp="children">
+            <Select
+              placeholder={t('common:storage_pool')}
+              allowClear
+              showSearch
+              optionFilterProp="children"
+              disabled={!selectedNode}
+            >
               {storagePoolList?.map((sp: any) => (
                 <Select.Option key={sp.value} value={sp.value}>
                   {sp.label}

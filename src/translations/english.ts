@@ -312,6 +312,7 @@ const en = {
     add_to_node: 'Add to Node',
     diskful: 'Diskful',
     drbd_diskless: 'DRBD Diskless',
+    storage_pool_required: 'Please select a storage pool',
   },
   volume: {
     list: 'Volume List',
