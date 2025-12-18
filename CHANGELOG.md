@@ -1,5 +1,20 @@
 # Changelog
 
+# 2.2.0 - 2025-12-18
+
+### Added
+
+- Add resource to node
+- Resize volume
+
+### Changed
+
+- Colors and styles on some pages
+
+### Fixed
+
+- Volume state error for multiple volumes and faulty resource list
+
 # 2.1.0 - 2025-12-09
 
 ### Added
