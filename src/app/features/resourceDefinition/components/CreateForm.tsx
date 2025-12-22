@@ -122,14 +122,12 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
       return;
     }
 
-    // const volumeDefinitionData = {
-    //   volume_definition: {
-    //     size_kib: values.size,
-    //     props: {
-    //       StorPoolName: values.resource_group_name,
-    //     },
-    //   },
-    // };
+    const volumeDefinitionData = {
+      volume_definition: {
+        size_kib: values.size,
+        props: {},
+      },
+    };
 
     const deployData = {
       diskless_on_remaining: values.diskless,
@@ -139,37 +137,56 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
     const rdRes = await createResourceDefinitionMutation.mutateAsync(resourceDefinitionData);
 
     if (fullySuccess(rdRes.data)) {
-      if (values.deploy) {
-        const autoPlaceRes = await autoPlaceMutation.mutateAsync({
-          ...deployData,
+      // Only create volume definition if we have a size
+      if (values.size) {
+        const vdRes = await createVolumeDefinitionMutation.mutateAsync({
+          ...volumeDefinitionData,
           resource: values.name,
         });
-        if (fullySuccess(autoPlaceRes.data)) {
+
+        if (fullySuccess(vdRes.data)) {
+          if (values.deploy) {
+            try {
+              const autoPlaceRes = await autoPlaceMutation.mutateAsync({
+                ...deployData,
+                resource: values.name,
+              });
+              if (fullySuccess(autoPlaceRes.data)) {
+                backToList();
+              } else {
+                console.log('Auto-place failed:', autoPlaceRes.data);
+                backToList();
+              }
+            } catch (error) {
+              console.log('Error during auto-place:', error);
+              // Still navigate back even if auto-place fails
+              backToList();
+            }
+          } else {
+            backToList();
+          }
+        }
+      } else if (values.deploy) {
+        // If no size but deploy is true, try auto-place anyway
+        try {
+          const autoPlaceRes = await autoPlaceMutation.mutateAsync({
+            ...deployData,
+            resource: values.name,
+          });
+          if (fullySuccess(autoPlaceRes.data)) {
+            backToList();
+          } else {
+            console.log('Auto-place failed:', autoPlaceRes.data);
+            backToList();
+          }
+        } catch (error) {
+          console.log('Error during auto-place:', error);
           backToList();
         }
       } else {
         backToList();
       }
     }
-    // const vdRes = await createVolumeDefinitionMutation.mutateAsync({
-    //   ...volumeDefinitionData,
-    //   resource: values.name,
-    // });
-
-    //   if (fullySuccess(vdRes.data)) {
-    //     if (values.deploy) {
-    //       const autoPlaceRes = await autoPlaceMutation.mutateAsync({
-    //         ...deployData,
-    //         resource: values.name,
-    //       });
-    //       if (fullySuccess(autoPlaceRes.data)) {
-    //         backToList();
-    //       }
-    //     } else {
-    //       backToList();
-    //     }
-    //   }
-    // }
   };
 
   const isLoading =
@@ -247,7 +264,17 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
       {deploy && (
         <>
           {!isEdit && (
-            <Form.Item name="size" label={t('common:size')} required>
+            <Form.Item
+              name="size"
+              label={t('common:size')}
+              required
+              rules={[
+                {
+                  required: true,
+                  message: 'Size is required when spawn-on-create is enabled!',
+                },
+              ]}
+            >
               <SizeInput />
             </Form.Item>
           )}

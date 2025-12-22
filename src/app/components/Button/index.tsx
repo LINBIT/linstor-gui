@@ -10,7 +10,9 @@ import styled from '@emotion/styled';
 import SVG from 'react-inlinesvg';
 import DeleteIcon from '@app/assets/icons/delete.svg';
 
-const StyledButton = styled(AntButton)<{
+const StyledButton = styled(AntButton, {
+  shouldForwardProp: (prop) => !['buttontype', 'isdanger'].includes(prop),
+})<{
   buttontype?: 'primary' | 'secondary' | 'default' | 'text' | 'link' | 'dashed';
   isdanger?: boolean;
 }>`

@@ -6,7 +6,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Checkbox, Col, Divider, Form, Input, message, Popover, Radio, Row, Select, Switch, Spin } from 'antd';
+import { Checkbox, Col, Divider, Form, Input, message, Popover, Row, Select, Switch, Spin } from 'antd';
 import { Button } from '@app/components/Button';
 import type { FormInstance } from 'antd/es/form';
 import { useNavigate } from 'react-router-dom';
@@ -14,8 +14,19 @@ import { uniqBy } from 'lodash';
 
 import { useStoragePools } from '@app/features/storagePool';
 import { fullySuccess } from '@app/features/requests';
-import { createResourceGroup, addVolumeToResourceGroup, updateResourceGroup, getResourceGroups } from '../api';
-import { ResourceGroupCreateRequestBody, AddVolumeRequestBody, ResourceGroupModifyRequestBody } from '../types';
+import {
+  createResourceGroup,
+  addVolumeToResourceGroup,
+  updateResourceGroup,
+  getResourceGroups,
+  spawnResourceGroup,
+} from '../api';
+import {
+  ResourceGroupCreateRequestBody,
+  AddVolumeRequestBody,
+  ResourceGroupModifyRequestBody,
+  SpawnRequest,
+} from '../types';
 import { DownOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { SizeInput } from '@app/components/SizeInput';
 import { LabelContainer, TooltipContainer, TooltipLabelContainer } from './styled';
@@ -37,6 +48,8 @@ type FormType = {
   storage_pool_list: string[];
   layer_stack: string[];
   provider_list: string[];
+  resource_definition_name?: string;
+  definition_only?: boolean;
 };
 
 /**
@@ -139,6 +152,13 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
     },
   });
 
+  const spawnResourceGroupMutation = useMutation({
+    mutationFn: (data: SpawnRequest & { resource_group: string }) => {
+      const { resource_group, ...spawnData } = data;
+      return spawnResourceGroup(resource_group, spawnData);
+    },
+  });
+
   const onFinish = async (values: FormType) => {
     const rg = {
       name: values.name,
@@ -191,6 +211,24 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
       });
 
       if (fullySuccess(addVolumeRes.data) && fullySuccess(modifyResourceGroupRes.data)) {
+        // If spawn-on-create is enabled, spawn resources
+        if (values.deploy && values.resource_definition_name && values.size) {
+          const spawnData = {
+            resource_group: values.name,
+            resource_definition_name: values.resource_definition_name,
+            resource_definition_external_name: undefined,
+            volume_sizes: [values.size],
+            partial: false,
+            definitions_only: values.definition_only || false,
+          };
+
+          try {
+            await spawnResourceGroupMutation.mutateAsync(spawnData);
+          } catch (error) {
+            console.log('Error spawning resources:', error);
+          }
+        }
+
         backToList();
       }
     }
@@ -199,7 +237,8 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
   const isSubmitting =
     updateResourceGroupMutation.isLoading ||
     addVolumeToResourceGroupMutation.isLoading ||
-    createResourceGroupMutation.isLoading;
+    createResourceGroupMutation.isLoading ||
+    spawnResourceGroupMutation.isLoading;
 
   const drbdLayer = layer_stack?.includes('drbd');
 
@@ -217,6 +256,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
       initialValues={{
         deploy: false,
         place_count: 2,
+        definition_only: false,
         ...initialVal,
       }}
       onFinish={onFinish}
