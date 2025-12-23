@@ -476,7 +476,7 @@ const zh = {
       '启用此功能前，需要安装 LINSTOR-Gateway。确保正确配置端点以允许 LINSTOR Gateway 和 LINSTOR 服务器之间的通信。',
     custom_host: '自定义主机',
     custom_host_description:
-      '启用自定义主机后，您需要在下面的“自定义 API”部分输入 LINSTOR Gateway API 端点。默认值是 LINSTOR 服务器 IP + 8080，如 http://192.168.1.1:8080/。如果使用自定义端口或不同的 IP，请相应调整端点。',
+      '启用自定义主机后，您需要在下面的"自定义 API"部分输入 LINSTOR Gateway API 端点。默认值是 LINSTOR 服务器 IP + 8337，如 http://192.168.1.1:8337/。如果使用自定义端口或不同的 IP，请相应调整端点。',
     custom_api: '自定义 API',
     grafana: 'Grafana',
     grafana_description:
@@ -560,10 +560,11 @@ org_role = Viewer`,
     custom: '自定义',
     default: '默认',
     gateway_config_title: 'Gateway 配置',
-    gateway_config_description: '配置 LINSTOR Gateway 设置以通过网关 API 管理存储资源。',
+    gateway_config_description:
+      '配置 LINSTOR Gateway 设置以通过网关 API 管理存储资源。请确保在终端中运行 "linstor-gateway check-health" 并解决所有问题。',
     gateway_url_required: '请输入网关 URL',
     gateway_connect_error: '无法连接到 LINSTOR Gateway',
-    gateway_url_placeholder: 'http://192.168.1.1:8080/',
+    gateway_url_placeholder: 'http://192.168.1.1:8337/',
     test_connection: '测试连接',
     create_edit_label: '创建/编辑',
     linstor_passphrase: 'LINSTOR 密码',

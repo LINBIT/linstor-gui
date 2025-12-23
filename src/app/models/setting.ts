@@ -16,7 +16,7 @@ import { KV_NAMESPACES } from '@app/const/kvstore';
 import { UserAuthAPI } from '@app/features/authentication/api';
 import { GRAFANA_KEY_VALUE_STORE_KEY, USER_LOCAL_STORAGE_KEY, DEFAULT_ADMIN_USER_NAME } from '@app/const/settings';
 
-const defaultGatewayHost = window.location.protocol + '//' + window.location.hostname + ':8080/';
+const defaultGatewayHost = window.location.protocol + '//' + window.location.hostname + ':8337/';
 
 export interface GrafanaConfig {
   enable: boolean;

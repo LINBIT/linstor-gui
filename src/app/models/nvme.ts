@@ -74,7 +74,7 @@ export const nvme = createModel<RootModel>()({
         }
       } catch (error) {
         console.log(error, 'error');
-        notify(String(error.message), {
+        notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
       }
@@ -100,13 +100,15 @@ export const nvme = createModel<RootModel>()({
           notify('Deleted Successfully', {
             type: 'success',
           });
-          dispatch.nvme.getList();
         }
       } catch (error) {
         console.log(error, 'error');
-        notify(String(error.message), {
+        notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
+      } finally {
+        // Always refresh the list, even if there was an error
+        dispatch.nvme.getList();
       }
     },
     // start Nvme
@@ -130,13 +132,15 @@ export const nvme = createModel<RootModel>()({
           notify('Started Successfully', {
             type: 'success',
           });
-          dispatch.nvme.getList();
         }
       } catch (error) {
         console.log(error, 'error');
-        notify(String(error.message), {
+        notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
+      } finally {
+        // Always refresh the list, even if there was an error
+        dispatch.nvme.getList();
       }
     },
     // stop Nvme
@@ -160,13 +164,15 @@ export const nvme = createModel<RootModel>()({
           notify('Stopped Successfully', {
             type: 'success',
           });
-          dispatch.nvme.getList();
         }
       } catch (error) {
         console.log(error, 'error');
-        notify(String(error.message), {
+        notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
+      } finally {
+        // Always refresh the list, even if there was an error
+        dispatch.nvme.getList();
       }
     },
     // Add LUN
@@ -181,13 +187,15 @@ export const nvme = createModel<RootModel>()({
           notify('Added Successfully', {
             type: 'success',
           });
-          dispatch.nvme.getList();
         }
       } catch (error) {
         console.log(error, 'error');
-        notify(String(error.message), {
+        notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
+      } finally {
+        // Always refresh the list, even if there was an error
+        dispatch.nvme.getList();
       }
     },
     // Delete LUN
@@ -199,13 +207,15 @@ export const nvme = createModel<RootModel>()({
           notify('Deleted Successfully', {
             type: 'success',
           });
-          dispatch.nvme.getList();
         }
       } catch (error) {
         console.log(error, 'error');
-        notify(String(error.message), {
+        notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
+      } finally {
+        // Always refresh the list, even if there was an error
+        dispatch.nvme.getList();
       }
     },
   }),

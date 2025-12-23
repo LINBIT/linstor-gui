@@ -4,10 +4,13 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { Button, Popconfirm, Space, Table, Tag } from 'antd';
+import { Popconfirm, Space, Table, Tag } from 'antd';
 import type { TableProps } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
+import { Button } from '@app/components/Button';
+import { Link } from '@app/components/Link';
+import { formatBytes } from '@app/utils/size';
 
 import { NFSResource } from '../types';
 import { ExportBasePath } from '../const';
@@ -17,6 +20,7 @@ type NFSListProps = {
   handleDelete: (iqn: string) => void;
   handleStart: (iqn: string) => void;
   handleStop: (iqn: string) => void;
+  loading?: boolean;
 };
 
 type NFSOperationStatus = {
@@ -25,7 +29,7 @@ type NFSOperationStatus = {
   stopping?: boolean;
 };
 
-export const NFSList = ({ list, handleDelete, handleStop, handleStart }: NFSListProps) => {
+export const NFSList = ({ list, handleDelete, handleStop, handleStart, loading = false }: NFSListProps) => {
   const { t } = useTranslation(['common', 'nfs']);
   const columns: TableProps<NFSResource & NFSOperationStatus>['columns'] = [
     {
@@ -37,7 +41,9 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart }: NFSList
       title: t('common:node'),
       key: 'node',
       render: (_, item) => {
-        return <span>{item?.status?.primary}</span>;
+        const nodeName = item?.status?.primary;
+        if (!nodeName) return <span>-</span>;
+        return <Link to={`/inventory/nodes/${nodeName}`}>{nodeName}</Link>;
       },
     },
     {
@@ -53,8 +59,18 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart }: NFSList
       },
     },
     {
+      title: t('common:size'),
+      dataIndex: 'size',
+      key: 'size',
+      render: (_, item) => {
+        const totalSize = item.volumes?.reduce((sum, vol) => sum + (vol.size_kib || 0), 0) || 0;
+        return <span>{totalSize > 0 ? formatBytes(totalSize) : '-'}</span>;
+      },
+    },
+    {
       title: t('nfs:service_state'),
       dataIndex: 'service_state',
+      align: 'center',
       render: (_, item) => {
         const isStarted = item?.status?.service === 'Started';
         return <Tag color={isStarted ? SUCCESS_COLOR : ERROR_COLOR}>{item?.status?.service}</Tag>;
@@ -76,7 +92,7 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart }: NFSList
         const isStarted = record?.status?.service === 'Started';
 
         return (
-          <Space size="middle">
+          <Space size="small">
             <Popconfirm
               title={`Are you sure to ${isStarted ? 'stop' : 'start'} this target?`}
               onConfirm={() => {
@@ -91,7 +107,7 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart }: NFSList
               okText="Yes"
               cancelText="No"
             >
-              <Button danger loading={record.starting || record.stopping}>
+              <Button type="secondary" size="small" loading={record.starting || record.stopping}>
                 {record.starting && t('common:starting')}
                 {record.stopping && t('common:stopping')}
                 {!record.starting && !record.stopping && isStarted && t('common:stop')}
@@ -108,7 +124,7 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart }: NFSList
               okText="Yes"
               cancelText="No"
             >
-              <Button type="primary" danger loading={record.deleting}>
+              <Button danger size="small" loading={record.deleting}>
                 {record.deleting ? t('common:deleting') : t('common:delete')}
               </Button>
             </Popconfirm>
@@ -119,15 +135,18 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart }: NFSList
   ];
 
   const exportPath = (e: NFSResource): string => {
-    if (!e.volumes) {
+    if (!e.volumes || !e.volumes[1]) {
       return `${ExportBasePath}/${e?.name}`;
     }
-    return `${ExportBasePath}/${e?.name}${e?.volumes?.[1]?.export_path}`;
+    // Use export_path from volume 1 (the actual data volume, not metadata)
+    const volume1 = e.volumes.find((v) => v.number === 1) || e.volumes[1];
+    const exportPathSuffix = (volume1 as any)?.export_path || '';
+    return `${ExportBasePath}/${e?.name}${exportPathSuffix}`;
   };
 
   return (
     <div>
-      <Table bordered={false} columns={columns} dataSource={list ?? []} />
+      <Table bordered={false} columns={columns} dataSource={list ?? []} loading={loading} scroll={{ x: 960 }} />
     </div>
   );
 };

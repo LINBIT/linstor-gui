@@ -20,6 +20,22 @@ const StyledButton = styled(AntButton, {
   font-weight: 600 !important;
   border-radius: 4px !important;
 
+  /* Global disabled state */
+  &:disabled,
+  &.ant-btn-loading {
+    background-color: #f5f5f5 !important;
+    border-color: #d9d9d9 !important;
+    color: #bfbfbf !important;
+    cursor: not-allowed !important;
+    opacity: 0.6 !important;
+
+    &:hover {
+      background-color: #f5f5f5 !important;
+      border-color: #d9d9d9 !important;
+      color: #bfbfbf !important;
+    }
+  }
+
   ${(props) =>
     props.buttontype === 'primary' &&
     !props.isdanger &&
@@ -27,7 +43,7 @@ const StyledButton = styled(AntButton, {
     background-color: #FFCC9C !important;
     border-color: #FFCC9C !important;
 
-    &:hover {
+    &:hover:not(:disabled):not(.ant-btn-loading) {
       background-color: #FFDCBC !important;
       border-color: #FFDCBC !important;
     }
@@ -39,7 +55,7 @@ const StyledButton = styled(AntButton, {
     `
     border: 1.5px solid #FFCC9C !important;
 
-    &:hover {
+    &:hover:not(:disabled):not(.ant-btn-loading) {
       background-color: #FFDCBC !important;
       border-color: #FFDCBC !important;
     }
@@ -54,25 +70,17 @@ const StyledButton = styled(AntButton, {
     color: #DA1E28 !important;
 
     /* Hover state - solid red background */
-    &:hover:not(:disabled) {
+    &:hover:not(:disabled):not(.ant-btn-loading) {
       background-color: #DA1E28 !important;
       border-color: #DA1E28 !important;
       color: #FFFFFF !important;
     }
 
     /* Active/Clicked state - solid red background */
-    &:active:not(:disabled) {
+    &:active:not(:disabled):not(.ant-btn-loading) {
       background-color: #DA1E28 !important;
       border-color: #DA1E28 !important;
       color: #FFFFFF !important;
-    }
-
-    /* Disabled state - gray border */
-    &:disabled {
-      background-color: #FFFFFF !important;
-      border-color: #AAAAAA !important;
-      color: #AAAAAA !important;
-      cursor: not-allowed;
     }
   `}
 

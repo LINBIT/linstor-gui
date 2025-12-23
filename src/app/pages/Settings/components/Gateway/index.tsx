@@ -70,7 +70,7 @@ const ButtonContainer = styled.div`
 
 // For setting Gateway related stuff
 const Gateway: React.FC = () => {
-  const OriginHost = window.location.protocol + '//' + window.location.hostname + ':8080/';
+  const OriginHost = window.location.protocol + '//' + window.location.hostname + ':8337/';
 
   const dispatch = useDispatch<Dispatch>();
   const [form] = Form.useForm<FormType>();
@@ -201,7 +201,7 @@ const Gateway: React.FC = () => {
                   }
                 >
                   <Input
-                    placeholder={t('settings:gateway_url_placeholder', { defaultValue: 'http://192.168.1.1:8080/' })}
+                    placeholder={t('settings:gateway_url_placeholder', { defaultValue: 'http://192.168.1.1:8337/' })}
                     disabled={!customHost}
                     size="large"
                     addonAfter={

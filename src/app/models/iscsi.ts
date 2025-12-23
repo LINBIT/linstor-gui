@@ -100,13 +100,15 @@ export const iscsi = createModel<RootModel>()({
           notify('Deleted Successfully', {
             type: 'success',
           });
-          dispatch.iscsi.getList();
         }
       } catch (error) {
         console.log(error, 'error');
         notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
+      } finally {
+        // Always refresh the list, even if there was an error
+        dispatch.iscsi.getList();
       }
     },
     // start ISCSI
@@ -130,13 +132,15 @@ export const iscsi = createModel<RootModel>()({
           notify('Started Successfully', {
             type: 'success',
           });
-          dispatch.iscsi.getList();
         }
       } catch (error) {
         console.log(error, 'error');
         notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
+      } finally {
+        // Always refresh the list, even if there was an error
+        dispatch.iscsi.getList();
       }
     },
     // stop ISCSI
@@ -160,13 +164,15 @@ export const iscsi = createModel<RootModel>()({
           notify('Stopped Successfully', {
             type: 'success',
           });
-          dispatch.iscsi.getList();
         }
       } catch (error) {
         console.log(error, 'error');
         notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
+      } finally {
+        // Always refresh the list, even if there was an error
+        dispatch.iscsi.getList();
       }
     },
     // Add LUN
@@ -181,13 +187,15 @@ export const iscsi = createModel<RootModel>()({
           notify('Added Successfully', {
             type: 'success',
           });
-          dispatch.iscsi.getList();
         }
       } catch (error) {
         console.log(error, 'error');
         notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
+      } finally {
+        // Always refresh the list, even if there was an error
+        dispatch.iscsi.getList();
       }
     },
     // Delete LUN
@@ -199,13 +207,15 @@ export const iscsi = createModel<RootModel>()({
           notify('Deleted Successfully', {
             type: 'success',
           });
-          dispatch.iscsi.getList();
         }
       } catch (error) {
         console.log(error, 'error');
         notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
+      } finally {
+        // Always refresh the list, even if there was an error
+        dispatch.iscsi.getList();
       }
     },
   }),

@@ -67,7 +67,7 @@ export const nfs = createModel<RootModel>()({
         }
       } catch (error) {
         console.log(error, 'error');
-        notify(String(error.message), {
+        notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
       }
@@ -93,13 +93,15 @@ export const nfs = createModel<RootModel>()({
           notify('Deleted Successfully', {
             type: 'success',
           });
-          dispatch.nfs.getList();
         }
       } catch (error) {
         console.log(error, 'error');
-        notify(String(error.message), {
+        notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
+      } finally {
+        // Always refresh the list, even if there was an error
+        dispatch.nfs.getList();
       }
     },
     // start NFS
@@ -123,13 +125,15 @@ export const nfs = createModel<RootModel>()({
           notify('Started Successfully', {
             type: 'success',
           });
-          dispatch.nfs.getList();
         }
       } catch (error) {
         console.log(error, 'error');
-        notify(String(error.message), {
+        notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
+      } finally {
+        // Always refresh the list, even if there was an error
+        dispatch.nfs.getList();
       }
     },
     // stop NFS
@@ -153,13 +157,15 @@ export const nfs = createModel<RootModel>()({
           notify('Stopped Successfully', {
             type: 'success',
           });
-          dispatch.nfs.getList();
         }
       } catch (error) {
         console.log(error, 'error');
-        notify(String(error.message), {
+        notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
+      } finally {
+        // Always refresh the list, even if there was an error
+        dispatch.nfs.getList();
       }
     },
   }),
