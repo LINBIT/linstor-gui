@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { Popconfirm, Space, Table, Tag } from 'antd';
+import { Alert, Popconfirm, Space, Table, Tag } from 'antd';
 import type { TableProps } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
@@ -146,6 +146,12 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart, loading =
 
   return (
     <div>
+      <Alert
+        message="NOTE: Only one NFS resource can exist in a cluster. To create multiple exports, create a single resource with multiple volumes."
+        type="warning"
+        showIcon
+        style={{ marginBottom: 24 }}
+      />
       <Table bordered={false} columns={columns} dataSource={list ?? []} loading={loading} scroll={{ x: 960 }} />
     </div>
   );

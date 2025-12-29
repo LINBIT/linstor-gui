@@ -7,7 +7,7 @@
 import React from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { Form, Input, Select, Checkbox, Alert } from 'antd';
+import { Form, Input, Select, Checkbox } from 'antd';
 import { Button } from '@app/components/Button';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
@@ -131,12 +131,6 @@ const CreateNFSForm = () => {
         resource_group: 'DfltRscGrp',
       }}
     >
-      <Alert
-        message="NOTE: Only one NFS resource can exist in a cluster. To create multiple exports, create a single resource with multiple volumes."
-        type="warning"
-        showIcon
-        style={{ marginBottom: 24 }}
-      />
       <Form.Item
         label={t('common:name')}
         name="name"
