@@ -683,9 +683,10 @@ export const OverviewList = () => {
             render: (state, record) => {
               const isPrimaryNode = record?.node_name?.toLowerCase() === record?.primary_node?.toLowerCase();
               const stateStr = getResourceState(record.resource, record.volume_number);
+              const isInconsistent = stateStr?.includes('Inconsistent');
               return (
                 <>
-                  <Tag color="geekblue">{stateStr}</Tag>
+                  <Tag color={isInconsistent ? 'red' : 'geekblue'}>{stateStr}</Tag>
                   {isPrimaryNode && <Tag color="cyan">{t('common:primary')}</Tag>}
                 </>
               );
