@@ -7,6 +7,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getResources } from '../api';
 import { getFaultyResources } from '@app/utils/resource';
+import { REFETCH_INTERVAL } from '@app/const/time';
 
 export const useFaultyResources = () => {
   return useQuery({
@@ -16,5 +17,7 @@ export const useFaultyResources = () => {
       const faulty = getFaultyResources(all?.data ?? ([] as any));
       return faulty;
     },
+    refetchOnWindowFocus: true,
+    refetchInterval: REFETCH_INTERVAL,
   });
 };
