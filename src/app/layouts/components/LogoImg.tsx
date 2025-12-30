@@ -17,10 +17,10 @@ const renderLogo = (logoSrc?: string) => {
     return null;
   }
   if (isUrl(logoSrc) && !isSvg(logoSrc)) {
-    return <img src={logoSrc} alt="logo" width={40} height={40} />;
+    return <img src={logoSrc} alt="logo" width={70} height={70} />;
   }
   if (isSvg(logoSrc)) {
-    return <SVG src={logoSrc || ''} width="40" height="40" />;
+    return <SVG src={logoSrc || ''} width="70" height="70" />;
   }
   return null;
 };
@@ -43,10 +43,15 @@ export const LogoImg: React.FC<LogoImgProps> = ({ logoSrc }) => {
   };
 
   return (
-    <div className="cursor-pointer flex">
+    <div className="cursor-pointer flex items-center">
       <img src={logo} className="w-40" onClick={handleClick} alt="LINBIT logo" />
-      {'  '}
-      <div className="customerlogo">{renderLogo(logoSrc)}</div>
+      {logoSrc && (
+        <>
+          {' '}
+          <div className="text-white mx-2 text-2xl">{'|'}</div>
+          <div className="">{renderLogo(logoSrc)}</div>
+        </>
+      )}
     </div>
   );
 };

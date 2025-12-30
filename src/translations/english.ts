@@ -535,7 +535,7 @@ const en = {
     general: 'General',
     custom_logo: 'Custom Logo',
     custom_logo_description:
-      'You can select either a local SVG file or a remote URL. The URL can point to any image type.',
+      'You can select either a local SVG file or a remote URL. The URL can point to any image type. Please use a light-colored logo. A 70x70 pixel space will be reserved for the logo.',
     logo: 'Logo',
     url: 'URL',
     gateway: 'Gateway',
