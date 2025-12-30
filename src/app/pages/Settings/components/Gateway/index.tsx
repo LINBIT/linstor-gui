@@ -169,9 +169,7 @@ const Gateway: React.FC = () => {
                   label={
                     <Space>
                       {t('settings:url')}
-                      {customHost && (
-                        <Spin spinning={checkingStatus} indicator={<LoadingOutlined style={{ fontSize: 14 }} spin />} />
-                      )}
+                      <Spin spinning={checkingStatus} indicator={<LoadingOutlined style={{ fontSize: 14 }} spin />} />
                     </Space>
                   }
                   name="host"
@@ -205,7 +203,7 @@ const Gateway: React.FC = () => {
                     disabled={!customHost}
                     size="large"
                     addonAfter={
-                      customHost && !checkingStatus ? (
+                      !checkingStatus ? (
                         <StatusBadge isAvailable={gatewayAvailable}>
                           {gatewayAvailable ? (
                             <>
@@ -224,7 +222,7 @@ const Gateway: React.FC = () => {
                   />
                 </Form.Item>
 
-                {isChecked && customHost && (
+                {isChecked && (
                   <Form.Item style={{ marginBottom: '2em', marginTop: '1em' }}>
                     <div style={{ width: '20%' }}>
                       <Button
