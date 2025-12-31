@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { createVolumeDefinition, getResourceDefinition, getVolumeDefinitionListByResource } from '../api';
 import { CreateVolumeDefinitionRequestBody } from '../types';
 import { SizeInput } from '@app/components/SizeInput';
+import { Button as CustomButton } from '@app/components/Button';
 
 type FormType = {
   resource: string;
@@ -80,14 +81,18 @@ const CreateForm = ({ refetch, simple }: CreateFormProps) => {
       <Modal
         title={t('volume_definition:create')}
         open={showCreateForm}
-        onOk={() => onFinish(form.getFieldsValue())}
         onCancel={() => setShowCreateForm(false)}
-        okText={t('common:spawn')}
-        cancelText={t('common:cancel')}
         width={800}
-        okButtonProps={{
-          loading: createVD.isLoading,
-        }}
+        footer={
+          <>
+            <CustomButton type="secondary" onClick={() => setShowCreateForm(false)}>
+              {t('common:cancel')}
+            </CustomButton>
+            <CustomButton type="primary" onClick={() => onFinish(form.getFieldsValue())} loading={createVD.isLoading}>
+              {t('common:spawn')}
+            </CustomButton>
+          </>
+        }
       >
         <Form<FormType>
           labelCol={{ span: 8 }}
