@@ -10,6 +10,7 @@ import { Checkbox, Form, Input, Modal } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 import { cloneResourceDefinition, ResourceDefinitionCloneRequest } from '@app/features/resourceDefinition';
+import { Button } from '@app/components/Button';
 
 type FormType = {
   name: string;
@@ -53,13 +54,18 @@ const CloneForm = ({ resource, isUsingZFS }: SpawnFormProps) => {
       <Modal
         title={t('common:clone')}
         open={showForm}
-        onOk={() => onFinish(form.getFieldsValue())}
         onCancel={() => setShowForm(false)}
-        okText={t('common:clone')}
         width={800}
-        okButtonProps={{
-          loading: cloneResourceMutation.isLoading,
-        }}
+        footer={
+          <>
+            <Button type="secondary" onClick={() => setShowForm(false)}>
+              {t('common:cancel')}
+            </Button>
+            <Button type="primary" loading={cloneResourceMutation.isLoading} onClick={() => form.submit()}>
+              {t('common:clone')}
+            </Button>
+          </>
+        }
       >
         <Form<FormType>
           labelCol={{ span: 8 }}
