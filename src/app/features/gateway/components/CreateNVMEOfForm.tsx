@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Form, Input, Select, Space } from 'antd';
+import { Form, Input, Select, Space, Checkbox, Alert } from 'antd';
 import { Button } from '@app/components/Button';
 import { useNavigate } from 'react-router-dom';
 
@@ -24,6 +24,7 @@ type FormType = {
   export_path: string;
   file_system: string;
   size: number;
+  gross_size?: boolean;
   allowed_ips: string[];
   nqn: string;
 };
@@ -32,7 +33,7 @@ const CreateNVMEOfForm = () => {
   const { t } = useTranslation(['common', 'nvme']);
   const navigate = useNavigate();
   const [form] = Form.useForm<FormType>();
-  const { data: resourceGroupsFromLinstor } = useResourceGroups({ excludeDefault: true });
+  const { data: resourceGroupsFromLinstor } = useResourceGroups({ excludeDefault: false });
 
   const [time, setTime] = useState('');
   const [domain, setDomain] = useState('');
@@ -75,9 +76,9 @@ const CreateNVMEOfForm = () => {
     const currentExport = {
       nqn,
       service_ip: values.service_ip,
-      resource_group: values.resource_group,
+      resource_group: values.resource_group || 'DfltRscGrp',
       volumes,
-      gross_size: false,
+      gross_size: values.gross_size || false,
     };
 
     createMutation.mutate(currentExport);
@@ -85,17 +86,25 @@ const CreateNVMEOfForm = () => {
 
   return (
     <Form<FormType>
-      labelCol={{ span: 6 }}
-      wrapperCol={{ span: 18 }}
+      labelCol={{ span: 7 }}
+      wrapperCol={{ span: 17 }}
       style={{ maxWidth: 800 }}
       size="large"
       layout="horizontal"
       form={form}
       onFinish={onFinish}
       initialValues={{
-        use_all: true,
+        type: 'Satellite',
+        resource_group: 'DfltRscGrp',
+        gross_size: false,
       }}
     >
+      <Alert
+        message="Creates a highly available NVMe-oF target based on LINSTOR and drbd-reactor."
+        type="info"
+        showIcon
+        style={{ marginBottom: 24 }}
+      />
       <Form.Item
         label={t('nvme:nqn')}
         name="nqn"
@@ -120,8 +129,7 @@ const CreateNVMEOfForm = () => {
       <Form.Item
         label={t('nvme:resource_group')}
         name="resource_group"
-        required
-        rules={[{ required: true, message: 'Please select resource group!' }]}
+        tooltip="LINSTOR resource group to use (default: DfltRscGrp)"
       >
         <Select
           allowClear
@@ -159,7 +167,16 @@ const CreateNVMEOfForm = () => {
         <SizeInput />
       </Form.Item>
 
-      <Form.Item wrapperCol={{ offset: 6, span: 18 }}>
+      <Form.Item
+        label="Gross Size"
+        name="gross_size"
+        valuePropName="checked"
+        tooltip="Make all size options specify gross size, i.e. the actual space used on disk"
+      >
+        <Checkbox />
+      </Form.Item>
+
+      <Form.Item wrapperCol={{ offset: 7, span: 17 }}>
         <Button type="primary" htmlType="submit" loading={createMutation.isLoading}>
           {t('common:submit')}
         </Button>

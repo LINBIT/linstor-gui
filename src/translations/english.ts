@@ -366,6 +366,7 @@ const en = {
     create: 'NVMe-oF Create',
     resource_group: 'Resource Group',
     service_ip: 'Service IP',
+    service_ips: 'Service IPs',
     on_node: 'On Node',
     linstor_state: 'LINSTOR State',
     service_state: 'Service State',
