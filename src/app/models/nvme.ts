@@ -176,9 +176,9 @@ export const nvme = createModel<RootModel>()({
       }
     },
     // Add LUN
-    async addLUN(payload: { iqn: string; LUN: number; size_kib: number }) {
+    async addLUN(payload: { nqn: string; LUN: number; size_kib: number }) {
       try {
-        const res = await service.put(`/api/v2/nvme-of/${payload.iqn}/${payload.LUN}`, {
+        const res = await service.put(`/api/v2/nvme-of/${payload.nqn}/${payload.LUN}`, {
           size_kib: payload.size_kib,
           number: payload.LUN,
         });

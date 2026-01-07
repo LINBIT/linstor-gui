@@ -42,16 +42,16 @@ const List = () => {
   };
 
   const handleStop = (nqn: string) => {
-    dispatch.nvme.startNvme(nqn);
+    dispatch.nvme.stopNvme(nqn);
   };
 
-  const handleDeleteVolume = (iqn: string, lun: number) => {
-    dispatch.nvme.deleteLUN([iqn, lun]);
+  const handleDeleteVolume = (nqn: string, lun: number) => {
+    dispatch.nvme.deleteLUN([nqn, lun]);
   };
 
-  const handleAddVolume = (iqn: string, LUN: number, size_kib: number) => {
+  const handleAddVolume = (nqn: string, LUN: number, size_kib: number) => {
     dispatch.nvme.addLUN({
-      iqn,
+      nqn,
       LUN,
       size_kib,
     });

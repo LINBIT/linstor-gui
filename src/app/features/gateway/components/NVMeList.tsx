@@ -310,22 +310,19 @@ export const NVMeList = ({
             !!(record.volumes && record.volumes.filter((v) => v?.number !== undefined && v.number > 0).length > 0),
         }}
       />
-      <Modal
-        title={t('nvme:add_volume')}
-        open={lunModal}
-        onOk={handleOk}
-        onCancel={() => setLunModal(false)}
-        okText={t('common:confirm')}
-        cancelText={t('common:cancel')}
-        width={600}
-        okButtonProps={{
-          loading: addingVolume,
-        }}
-      >
+      <Modal title={t('nvme:add_volume')} open={lunModal} onCancel={() => setLunModal(false)} width={600} footer={null}>
         <Form<FormType> size="large" form={form}>
           <Form.Item label={t('common:size')} name="size" required>
             <SizeInput defaultUnit="GiB" />
           </Form.Item>
+          <div style={{ textAlign: 'right', marginTop: 16 }}>
+            <Space>
+              <Button onClick={() => setLunModal(false)}>{t('common:cancel')}</Button>
+              <Button type="primary" onClick={handleOk} loading={addingVolume}>
+                {t('common:confirm')}
+              </Button>
+            </Space>
+          </div>
         </Form>
       </Modal>
     </div>
