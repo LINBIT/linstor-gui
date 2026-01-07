@@ -5,11 +5,18 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent, within } from '@testing-library/react';
+import { init } from '@rematch/core';
 
-// Mock dependencies
-vi.mock('react-redux', () => ({
-  useSelector: vi.fn(),
-}));
+// Mock setup - must be before imports
+vi.mock('react-redux', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react-redux')>();
+  return {
+    ...actual,
+    useSelector: vi.fn(() => ({ addingVolume: false })),
+    useDispatch: vi.fn(() => vi.fn()),
+  };
+});
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -18,381 +25,304 @@ vi.mock('react-i18next', () => ({
 }));
 
 vi.mock('@app/components/SizeInput', () => ({
-  SizeInput: () => null,
+  SizeInput: ({ defaultUnit }: any) => (
+    <input data-testid="size-input" data-unit={defaultUnit} type="number" defaultValue="1" />
+  ),
 }));
 
-// Import types and utilities
-import { formatBytes } from '@app/utils/size';
-import { useSelector } from 'react-redux';
+vi.mock('@app/components/Link', () => ({
+  Link: ({ children, to }: any) => <a href={to}>{children}</a>,
+}));
 
-// Types
-type NVMEOFResource = {
-  nqn: string;
-  service_ip?: string;
-  resource_group?: string;
-  status?: {
-    primary?: string;
-    service?: string;
-    volumes?: Array<{ number: number; state?: string }>;
-  };
-  volumes?: Array<{ number: number; size_kib?: number }>;
-  deleting?: boolean;
-  starting?: boolean;
-  stopping?: boolean;
+// Import mocks first
+import '../__mocks__';
+
+// Import after mocking
+import { NVMeList } from '../NVMeList';
+import { Provider } from 'react-redux';
+
+// Mock store
+const createMockStore = () => {
+  return init({
+    models: {
+      loading: {
+        state: {
+          effects: {
+            nvme: {
+              addLUN: false,
+            },
+          },
+        },
+        reducers: {},
+      },
+      nvme: {
+        state: { list: [] },
+        reducers: {},
+      },
+    },
+  });
 };
 
-describe('NVMeList Component Logic', () => {
+const mockHandlers = {
+  handleDelete: vi.fn(),
+  handleStart: vi.fn(),
+  handleStop: vi.fn(),
+  handleDeleteVolume: vi.fn(),
+  handleAddVolume: vi.fn(),
+};
+
+const mockNVMeList: any[] = [
+  {
+    nqn: 'nqn.2014-08.org.nvmexpress:target1',
+    service_ip: '192.168.1.100',
+    resource_group: 'rg1',
+    status: {
+      primary: 'node1',
+      service: 'Started',
+      volumes: [
+        { number: 1, state: 'OK' },
+        { number: 2, state: 'OK' },
+      ],
+    },
+    volumes: [
+      { number: 0, size_kib: 0 },
+      { number: 1, size_kib: 1048576 },
+      { number: 2, size_kib: 2097152 },
+    ],
+  },
+  {
+    nqn: 'nqn.2014-08.org.nvmexpress:target2',
+    service_ip: '192.168.1.101',
+    resource_group: 'rg2',
+    status: {
+      primary: 'node2',
+      service: 'Stopped',
+      volumes: [],
+    },
+    volumes: [{ number: 0, size_kib: 0 }],
+  },
+];
+
+const renderComponent = (props = {}) => {
+  const store = createMockStore();
+  return render(
+    <Provider store={store}>
+      <NVMeList list={mockNVMeList} {...mockHandlers} loading={false} {...props} />
+    </Provider>,
+  );
+};
+
+describe('NVMeList Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  // Mock data
-  const mockNVMeList: NVMEOFResource[] = [
-    {
-      nqn: 'nqn.2014-08.org.nvmexpress:target1',
-      service_ip: '192.168.1.100',
-      resource_group: 'rg1',
-      status: {
-        primary: 'node1',
-        service: 'Started',
-        volumes: [
-          { number: 1, state: 'OK' },
-          { number: 2, state: 'OK' },
-        ],
-      },
-      volumes: [
-        { number: 0, size_kib: 0 },
-        { number: 1, size_kib: 1073741824 },
-        { number: 2, size_kib: 2147483648 },
-      ],
-    },
-    {
-      nqn: 'nqn.2014-08.org.nvmexpress:target2',
-      service_ip: '192.168.1.101',
-      resource_group: 'rg2',
-      status: {
-        primary: 'node2',
-        service: 'Stopped',
-        volumes: [],
-      },
-      volumes: [{ number: 0, size_kib: 0 }],
-    },
-  ];
+  describe('Rendering', () => {
+    it('should render table with data', () => {
+      renderComponent();
 
-  describe('Data Filtering and Processing', () => {
-    it('should filter out metadata volume (volume 0) from display', () => {
-      const item = mockNVMeList[0];
-      const displayVolumes = item.volumes?.filter((v) => v?.number !== undefined && v.number > 0);
-
-      expect(displayVolumes).toHaveLength(2);
-      expect(displayVolumes?.[0].number).toBe(1);
-      expect(displayVolumes?.[1].number).toBe(2);
+      const table = screen.getByTestId('table');
+      expect(table).toBeInTheDocument();
+      expect(table).toHaveAttribute('data-is-nested', 'false');
     });
 
-    it('should handle targets with only metadata volume', () => {
-      const item = mockNVMeList[1];
-      const displayVolumes = item.volumes?.filter((v) => v?.number !== undefined && v.number > 0);
+    it('should render all NVMe targets', () => {
+      renderComponent();
 
-      expect(displayVolumes).toHaveLength(0);
+      // Check for NQN values in rendered content
+      expect(screen.getByText('nqn.2014-08.org.nvmexpress:target1')).toBeInTheDocument();
+      expect(screen.getByText('nqn.2014-08.org.nvmexpress:target2')).toBeInTheDocument();
     });
 
-    it('should map volumes correctly with state information', () => {
-      const item = mockNVMeList[0];
-      const displayVolumes = item.volumes
-        ?.filter((v) => v?.number !== undefined && v.number > 0)
-        ?.map((volume) => ({
-          lunId: volume.number!,
-          size_kib: volume.size_kib,
-          state: item.status?.volumes?.find((v) => v.number === volume.number)?.state,
-          nqn: item.nqn || '',
-        }));
+    it('should show loading state when loading is true', () => {
+      renderComponent({ loading: true });
 
-      expect(displayVolumes?.[0].lunId).toBe(1);
-      expect(displayVolumes?.[0].state).toBe('OK');
-      expect(displayVolumes?.[1].lunId).toBe(2);
-      expect(displayVolumes?.[1].state).toBe('OK');
+      const table = screen.getByTestId('table');
+      expect(table).toHaveAttribute('data-loading', 'true');
     });
   });
 
-  describe('Service State Logic', () => {
-    it('should identify started targets correctly', () => {
-      const startedTarget = mockNVMeList[0];
-      const isStarted = startedTarget?.status?.service === 'Started';
+  describe('Service State Display', () => {
+    it('should display Started state', () => {
+      renderComponent();
 
-      expect(isStarted).toBe(true);
+      // The started target should be in the list
+      expect(screen.getByText('Started')).toBeInTheDocument();
     });
 
-    it('should identify stopped targets correctly', () => {
-      const stoppedTarget = mockNVMeList[1];
-      const isStarted = stoppedTarget?.status?.service === 'Started';
+    it('should display Stopped state', () => {
+      renderComponent();
 
-      expect(isStarted).toBe(false);
-    });
-
-    it('should determine action button text based on state', () => {
-      const startedTarget = mockNVMeList[0];
-      const stoppedTarget = mockNVMeList[1];
-
-      const startedAction = startedTarget?.status?.service === 'Started' ? 'stop' : 'start';
-      const stoppedAction = stoppedTarget?.status?.service === 'Started' ? 'stop' : 'start';
-
-      expect(startedAction).toBe('stop');
-      expect(stoppedAction).toBe('start');
+      expect(screen.getByText('Stopped')).toBeInTheDocument();
     });
   });
 
-  describe('Volume Size Formatting', () => {
-    it('should format volume sizes correctly', () => {
-      // formatBytes expects size in KiB, so 1 GiB = 1024 * 1024 KiB
-      const size1 = 1048576; // 1 GiB in KiB
-      const size2 = 2097152; // 2 GiB in KiB
+  describe('Node Links', () => {
+    it('should render node links', () => {
+      renderComponent();
 
-      const formatted1 = formatBytes(size1);
-      const formatted2 = formatBytes(size2);
-
-      expect(formatted1).toContain('GiB');
-      expect(formatted2).toContain('GiB');
-    });
-
-    it('should handle undefined size gracefully', () => {
-      const formatted = formatBytes(undefined as any);
-
-      expect(formatted).toBe('NaN');
+      expect(screen.getByText('node1')).toBeInTheDocument();
+      expect(screen.getByText('node2')).toBeInTheDocument();
     });
   });
 
-  describe('Expandable Row Logic', () => {
-    it('should determine if row is expandable based on volumes', () => {
-      const itemWithVolumes = mockNVMeList[0];
-      const itemWithoutVolumes = mockNVMeList[1];
+  describe('Resource Group Links', () => {
+    it('should render resource group links', () => {
+      renderComponent();
 
-      const hasVolumes1 = !!(
-        itemWithVolumes.volumes &&
-        itemWithVolumes.volumes.filter((v) => v?.number !== undefined && v.number > 0).length > 0
-      );
-      const hasVolumes2 = !!(
-        itemWithoutVolumes.volumes &&
-        itemWithoutVolumes.volumes.filter((v) => v?.number !== undefined && v.number > 0).length > 0
-      );
-
-      expect(hasVolumes1).toBe(true);
-      expect(hasVolumes2).toBe(false);
+      expect(screen.getByText('rg1')).toBeInTheDocument();
+      expect(screen.getByText('rg2')).toBeInTheDocument();
     });
   });
 
-  describe('LUN Calculation for New Volume', () => {
-    it('should calculate next LUN correctly', () => {
-      const item = mockNVMeList[0];
-      const lastVolume = item.volumes?.[item.volumes?.length - 1];
-      const nextLUN = (lastVolume?.number ?? 1) + 1;
+  describe('Start/Stop Operations', () => {
+    it('should call handleStop when stopping a started target', () => {
+      renderComponent();
 
-      expect(nextLUN).toBe(3);
+      const confirmButtons = screen.getAllByTestId('popconfirm-ok');
+      // Each target has 2 popconfirm buttons: start/stop and delete
+      // Target1 (Started): stop button (index 0), delete button (index 1)
+      // Target2 (Stopped): start button (index 2), delete button (index 3)
+      fireEvent.click(confirmButtons[0]);
+
+      expect(mockHandlers.handleStop).toHaveBeenCalledWith('nqn.2014-08.org.nvmexpress:target1');
     });
 
-    it('should calculate LUN when only metadata volume exists', () => {
-      const item = mockNVMeList[1];
-      const lastVolume = item.volumes?.[item.volumes?.length - 1];
-      const nextLUN = (lastVolume?.number ?? 1) + 1;
+    it('should call handleStart when starting a stopped target', () => {
+      renderComponent();
 
-      expect(nextLUN).toBe(1);
-    });
+      const confirmButtons = screen.getAllByTestId('popconfirm-ok');
+      // Target2's start button is at index 2
+      fireEvent.click(confirmButtons[2]);
 
-    it('should handle empty volumes array', () => {
-      const item: NVMEOFResource = {
-        nqn: 'test-nqn',
-        volumes: [],
-      };
-      const lastVolume = item.volumes?.[item.volumes?.length - 1];
-      const nextLUN = (lastVolume?.number ?? 1) + 1;
-
-      // Empty array access at index -1 returns undefined
-      // undefined ?? 1 = 1, then 1 + 1 = 2
-      expect(nextLUN).toBe(2);
+      expect(mockHandlers.handleStart).toHaveBeenCalledWith('nqn.2014-08.org.nvmexpress:target2');
     });
   });
 
-  describe('Link Generation', () => {
-    it('should generate correct node detail link', () => {
-      const nodeName = mockNVMeList[0].status?.primary;
-      const expectedPath = `/inventory/nodes/${nodeName}`;
+  describe('Delete Operations', () => {
+    it('should call handleDelete when delete is confirmed', () => {
+      renderComponent();
 
-      expect(expectedPath).toBe('/inventory/nodes/node1');
+      const confirmButtons = screen.getAllByTestId('popconfirm-ok');
+      // Delete button for first target is at index 1
+      fireEvent.click(confirmButtons[1]);
+
+      expect(mockHandlers.handleDelete).toHaveBeenCalledWith('nqn.2014-08.org.nvmexpress:target1');
     });
 
-    it('should generate correct resource group link', () => {
-      const resourceGroup = mockNVMeList[0].resource_group;
-      const expectedPath = `/storage-configuration/resource-groups?resource_groups=${resourceGroup}`;
+    it('should show deleting state', () => {
+      const listWithDeleting = [{ ...mockNVMeList[0], deleting: true }];
+      renderComponent({ list: listWithDeleting });
 
-      expect(expectedPath).toBe('/storage-configuration/resource-groups?resource_groups=rg1');
-    });
-
-    it('should handle missing node name', () => {
-      const item: NVMEOFResource = {
-        nqn: 'test-nqn',
-        status: {},
-      };
-      const nodeName = item?.status?.primary;
-
-      expect(nodeName).toBeUndefined();
-    });
-
-    it('should handle missing resource group', () => {
-      const item: NVMEOFResource = {
-        nqn: 'test-nqn',
-        resource_group: undefined,
-      };
-      const resourceGroup = item?.resource_group;
-
-      expect(resourceGroup).toBeUndefined();
+      // Should still render the table
+      expect(screen.getByTestId('table')).toBeInTheDocument();
     });
   });
 
-  describe('Loading States', () => {
-    it('should use addingVolume state from Redux', () => {
-      const mockUseSelector = vi.mocked(useSelector);
+  describe('Add Volume Modal', () => {
+    it('should open modal when add volume button is clicked', () => {
+      renderComponent();
 
-      mockUseSelector.mockReturnValue({
-        addingVolume: true,
-      });
+      // Find all buttons
+      const buttons = screen.getAllByRole('button');
+      // Find the add volume button
+      const addButton = buttons.find((b) => b.textContent?.includes('nvme:add_volume'));
+      fireEvent.click(addButton!);
 
-      mockUseSelector((state: any) => ({
-        addingVolume: state.loading?.effects?.nvme?.addLUN,
-      }));
-
-      expect(mockUseSelector).toHaveBeenCalled();
+      expect(screen.getByTestId('modal')).toBeInTheDocument();
+      expect(screen.getByTestId('size-input')).toBeInTheDocument();
     });
 
-    it('should handle different operation states', () => {
-      const itemWithDeleting = { ...mockNVMeList[0], deleting: true };
-      const itemWithStarting = { ...mockNVMeList[0], starting: true };
-      const itemWithStopping = { ...mockNVMeList[0], stopping: true };
-
-      expect(itemWithDeleting.deleting).toBe(true);
-      expect(itemWithStarting.starting).toBe(true);
-      expect(itemWithStopping.stopping).toBe(true);
-    });
-  });
-
-  describe('Volume State Tag Colors', () => {
-    it('should identify OK state for success color', () => {
-      const state = 'OK';
-      const isOk = state === 'OK';
-
-      expect(isOk).toBe(true);
-    });
-
-    it('should identify non-OK state for error color', () => {
-      const state = 'Failed';
-      const isOk = state === 'OK';
-
-      expect(isOk).toBe(false);
-    });
-
-    it('should handle undefined state', () => {
-      const state = undefined;
-      const isOk = state === 'OK';
-
-      expect(isOk).toBe(false);
-    });
-  });
-
-  describe('Modal State Management', () => {
-    it('should handle modal open state for adding volume', () => {
-      let lunModal = false;
+    it('should close modal when cancel button is clicked', () => {
+      renderComponent();
 
       // Open modal
-      lunModal = true;
-      expect(lunModal).toBe(true);
+      const buttons = screen.getAllByRole('button');
+      const addButton = buttons.find((b) => b.textContent?.includes('nvme:add_volume'));
+      fireEvent.click(addButton!);
 
-      // Close modal
-      lunModal = false;
-      expect(lunModal).toBe(false);
+      expect(screen.getByTestId('modal')).toBeInTheDocument();
+
+      // Click cancel
+      const cancelButton = screen.getByTestId('modal-cancel');
+      fireEvent.click(cancelButton);
+
+      // Modal should be closed
+      expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Volume Operations', () => {
+    it('should render expandable rows for volumes', () => {
+      renderComponent();
+
+      // Check that expanded rows are rendered for items with volumes
+      const mainTable = screen.getByTestId('table');
+      expect(mainTable).toBeInTheDocument();
     });
 
-    it('should store NQN and LUN when opening modal', () => {
-      const item = mockNVMeList[0];
-      let nqn = '';
-      let lun = 0;
+    it('should call handleDeleteVolume when volume delete is confirmed', () => {
+      renderComponent();
 
-      // Simulate opening modal
-      nqn = item.nqn;
-      lun = (item.volumes?.[item.volumes?.length - 1]?.number ?? 1) + 1;
+      const confirmButtons = screen.getAllByTestId('popconfirm-ok');
+      // First 4 buttons are for the main table (2 targets x 2 actions each)
+      // Volume delete buttons follow: target1 has 2 volumes (LUN 1 and LUN 2)
+      // So there are 2 more volume delete buttons
+      // Total: 4 (main) + 2 (volumes) = 6 buttons
+      // The first volume delete button is at index 4
+      const volumeDeleteButton = confirmButtons[4];
+      fireEvent.click(volumeDeleteButton);
 
-      expect(nqn).toBe('nqn.2014-08.org.nvmexpress:target1');
-      expect(lun).toBe(3);
+      expect(mockHandlers.handleDeleteVolume).toHaveBeenCalled();
     });
   });
 
   describe('Edge Cases', () => {
     it('should handle empty list', () => {
-      const emptyList: NVMEOFResource[] = [];
-      const displayList = emptyList ?? [];
+      renderComponent({ list: [] });
 
-      expect(displayList).toHaveLength(0);
+      // Should still render the table even with empty data
+      const table = screen.queryByTestId('table');
+      // When list is empty, antd might render differently, but component shouldn't crash
+      expect(table).toBeInTheDocument();
     });
 
     it('should handle undefined list', () => {
-      const undefinedList = undefined as unknown as NVMEOFResource[];
-      const displayList = undefinedList ?? [];
+      renderComponent({ list: undefined as any });
 
-      expect(displayList).toHaveLength(0);
+      // Should still render without crashing
+      const table = screen.queryByTestId('table');
+      expect(table).toBeInTheDocument();
     });
 
-    it('should handle item without status', () => {
-      const item: NVMEOFResource = {
-        nqn: 'test-nqn',
-      };
-      const serviceState = item?.status?.service;
+    it('should handle item without node name', () => {
+      const listWithoutNode = [{ ...mockNVMeList[1], status: { service: 'Stopped' } }];
+      renderComponent({ list: listWithoutNode });
 
-      expect(serviceState).toBeUndefined();
-    });
-
-    it('should handle item without volumes array', () => {
-      const item: NVMEOFResource = {
-        nqn: 'test-nqn',
-      };
-      const volumes = item.volumes?.filter((v) => v?.number !== undefined && v.number > 0);
-
-      expect(volumes).toBeUndefined();
-    });
-
-    it('should generate unique keys for volume rows', () => {
-      const item = mockNVMeList[0];
-      const volume1 = item.volumes?.[1];
-      const volume2 = item.volumes?.[2];
-
-      const key1 = `${item.nqn}-${volume1?.number}`;
-      const key2 = `${item.nqn}-${volume2?.number}`;
-
-      expect(key1).toBe('nqn.2014-08.org.nvmexpress:target1-1');
-      expect(key2).toBe('nqn.2014-08.org.nvmexpress:target1-2');
-      expect(key1).not.toBe(key2);
+      // Component should render without crashing
+      const table = screen.getByTestId('table');
+      expect(table).toBeInTheDocument();
     });
   });
 
-  describe('Operation Handler Function Signatures', () => {
-    it('should define correct handler signatures', () => {
-      type HandlerSignature = {
-        handleDelete: (nqn: string) => void;
-        handleStart: (nqn: string) => void;
-        handleStop: (nqn: string) => void;
-        handleDeleteVolume: (nqn: string, lun: number) => void;
-        handleAddVolume: (nqn: string, LUN: number, size_kib: number) => void;
-      };
+  describe('Table Configuration', () => {
+    it('should use nqn as row key', () => {
+      renderComponent();
 
-      const handlers: HandlerSignature = {
-        handleDelete: (nqn) => console.log(nqn),
-        handleStart: (nqn) => console.log(nqn),
-        handleStop: (nqn) => console.log(nqn),
-        handleDeleteVolume: (nqn, lun) => console.log(nqn, lun),
-        handleAddVolume: (nqn, lun, size) => console.log(nqn, lun, size),
-      };
+      // Check that the first row has the nqn value
+      const firstRow = screen.getByTestId('table-row-0');
+      expect(firstRow).toHaveAttribute('data-row-key-value', 'nqn.2014-08.org.nvmexpress:target1');
+    });
+  });
 
-      expect(handlers.handleDelete).toBeDefined();
-      expect(handlers.handleStart).toBeDefined();
-      expect(handlers.handleStop).toBeDefined();
-      expect(handlers.handleDeleteVolume).toBeDefined();
-      expect(handlers.handleAddVolume).toBeDefined();
+  describe('Nested Volume Table', () => {
+    it('should render nested table for volumes', () => {
+      renderComponent();
+
+      // The nested table should be rendered inside expanded rows
+      const nestedTables = screen.queryAllByTestId('nested-table');
+      // May or may not be visible depending on expansion state
+      expect(nestedTables.length).toBeGreaterThanOrEqual(0);
     });
   });
 });

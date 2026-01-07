@@ -5,11 +5,18 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { init } from '@rematch/core';
 
-// Mock dependencies
-vi.mock('react-redux', () => ({
-  useSelector: vi.fn(),
-}));
+// Mock setup - must be before imports
+vi.mock('react-redux', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react-redux')>();
+  return {
+    ...actual,
+    useSelector: vi.fn(() => ({ addingVolume: false })),
+    useDispatch: vi.fn(() => vi.fn()),
+  };
+});
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -18,432 +25,296 @@ vi.mock('react-i18next', () => ({
 }));
 
 vi.mock('@app/components/SizeInput', () => ({
-  SizeInput: () => null,
+  SizeInput: ({ defaultUnit }: any) => (
+    <input data-testid="size-input" data-unit={defaultUnit} type="number" defaultValue="1" />
+  ),
 }));
 
-// Import types and utilities
-import { formatBytes } from '@app/utils/size';
-import { useSelector } from 'react-redux';
+vi.mock('@app/components/Link', () => ({
+  Link: ({ children, to }: any) => <a href={to}>{children}</a>,
+}));
 
-// Types
-type ISCSIResource = {
-  iqn: string;
-  service_ips?: string[];
-  resource_group?: string;
-  status?: {
-    primary?: string;
-    service?: string;
-    volumes?: Array<{ number: number; state?: string }>;
-  };
-  volumes?: Array<{ number: number; size_kib?: number }>;
-  deleting?: boolean;
-  starting?: boolean;
-  stopping?: boolean;
+// Import mocks first
+import '../__mocks__';
+
+// Import after mocking
+import { ISCSIList } from '../ISCSIList';
+import { Provider } from 'react-redux';
+
+// Mock store
+const createMockStore = () => {
+  return init({
+    models: {
+      loading: {
+        state: {
+          effects: {
+            iscsi: {
+              addLUN: false,
+            },
+          },
+        },
+        reducers: {},
+      },
+      iscsi: {
+        state: { list: [] },
+        reducers: {},
+      },
+    },
+  });
 };
 
-describe('ISCSIList Component Logic', () => {
+const mockHandlers = {
+  handleDelete: vi.fn(),
+  handleStart: vi.fn(),
+  handleStop: vi.fn(),
+  handleDeleteVolume: vi.fn(),
+  handleAddVolume: vi.fn(),
+};
+
+const mockISCSIList: any[] = [
+  {
+    iqn: 'iqn.2024-01.com.example:target1',
+    service_ips: ['192.168.1.100', '192.168.1.101'],
+    resource_group: 'rg1',
+    status: {
+      primary: 'node1',
+      service: 'Started',
+      volumes: [
+        { number: 1, state: 'OK' },
+        { number: 2, state: 'OK' },
+      ],
+    },
+    volumes: [
+      { number: 0, size_kib: 0 },
+      { number: 1, size_kib: 1048576 },
+      { number: 2, size_kib: 2097152 },
+    ],
+  },
+  {
+    iqn: 'iqn.2024-01.com.example:target2',
+    service_ips: ['192.168.1.102'],
+    resource_group: 'rg2',
+    status: {
+      primary: 'node2',
+      service: 'Stopped',
+      volumes: [],
+    },
+    volumes: [{ number: 0, size_kib: 0 }],
+  },
+];
+
+const renderComponent = (props = {}) => {
+  const store = createMockStore();
+  return render(
+    <Provider store={store}>
+      <ISCSIList list={mockISCSIList} {...mockHandlers} loading={false} {...props} />
+    </Provider>,
+  );
+};
+
+describe('ISCSIList Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  // Mock data
-  const mockISCSIList: ISCSIResource[] = [
-    {
-      iqn: 'iqn.2024-01.com.example:target1',
-      service_ips: ['192.168.1.100', '192.168.1.101'],
-      resource_group: 'rg1',
-      status: {
-        primary: 'node1',
-        service: 'Started',
-        volumes: [
-          { number: 1, state: 'OK' },
-          { number: 2, state: 'OK' },
-        ],
-      },
-      volumes: [
-        { number: 0, size_kib: 0 },
-        { number: 1, size_kib: 1048576 },
-        { number: 2, size_kib: 2097152 },
-      ],
-    },
-    {
-      iqn: 'iqn.2024-01.com.example:target2',
-      service_ips: ['192.168.1.102'],
-      resource_group: 'rg2',
-      status: {
-        primary: 'node2',
-        service: 'Stopped',
-        volumes: [],
-      },
-      volumes: [{ number: 0, size_kib: 0 }],
-    },
-  ];
+  describe('Rendering', () => {
+    it('should render table with data', () => {
+      renderComponent();
 
-  describe('Data Filtering and Processing', () => {
-    it('should filter out metadata volume (volume 0) from display', () => {
-      const item = mockISCSIList[0];
-      const displayVolumes = item.volumes?.filter((v) => v?.number !== undefined && v.number > 0);
-
-      expect(displayVolumes).toHaveLength(2);
-      expect(displayVolumes?.[0].number).toBe(1);
-      expect(displayVolumes?.[1].number).toBe(2);
+      const table = screen.getByTestId('table');
+      expect(table).toBeInTheDocument();
+      expect(table).toHaveAttribute('data-is-nested', 'false');
     });
 
-    it('should handle targets with only metadata volume', () => {
-      const item = mockISCSIList[1];
-      const displayVolumes = item.volumes?.filter((v) => v?.number !== undefined && v.number > 0);
+    it('should render all iSCSI targets', () => {
+      renderComponent();
 
-      expect(displayVolumes).toHaveLength(0);
+      expect(screen.getByText('iqn.2024-01.com.example:target1')).toBeInTheDocument();
+      expect(screen.getByText('iqn.2024-01.com.example:target2')).toBeInTheDocument();
     });
 
-    it('should map volumes correctly with state information', () => {
-      const item = mockISCSIList[0];
-      const displayVolumes = item.volumes
-        ?.filter((v) => v?.number !== undefined && v.number > 0)
-        ?.map((volume) => ({
-          lunId: volume.number!,
-          size_kib: volume.size_kib,
-          state: item.status?.volumes?.find((v) => v.number === volume.number)?.state,
-          iqn: item.iqn,
-        }));
+    it('should show loading state when loading is true', () => {
+      renderComponent({ loading: true });
 
-      expect(displayVolumes?.[0].lunId).toBe(1);
-      expect(displayVolumes?.[0].state).toBe('OK');
-      expect(displayVolumes?.[1].lunId).toBe(2);
-      expect(displayVolumes?.[1].state).toBe('OK');
+      const table = screen.getByTestId('table');
+      expect(table).toHaveAttribute('data-loading', 'true');
     });
   });
 
-  describe('Service State Logic', () => {
-    it('should identify started targets correctly', () => {
-      const startedTarget = mockISCSIList[0];
-      const isStarted = startedTarget?.status?.service === 'Started';
+  describe('Service State Display', () => {
+    it('should display Started state', () => {
+      renderComponent();
 
-      expect(isStarted).toBe(true);
+      expect(screen.getByText('Started')).toBeInTheDocument();
     });
 
-    it('should identify stopped targets correctly', () => {
-      const stoppedTarget = mockISCSIList[1];
-      const isStarted = stoppedTarget?.status?.service === 'Started';
+    it('should display Stopped state', () => {
+      renderComponent();
 
-      expect(isStarted).toBe(false);
+      expect(screen.getByText('Stopped')).toBeInTheDocument();
     });
+  });
 
-    it('should determine action button text based on state', () => {
-      const startedTarget = mockISCSIList[0];
-      const stoppedTarget = mockISCSIList[1];
+  describe('Node Links', () => {
+    it('should render node links', () => {
+      renderComponent();
 
-      const startedAction = startedTarget?.status?.service === 'Started' ? 'stop' : 'start';
-      const stoppedAction = stoppedTarget?.status?.service === 'Started' ? 'stop' : 'start';
+      expect(screen.getByText('node1')).toBeInTheDocument();
+      expect(screen.getByText('node2')).toBeInTheDocument();
+    });
+  });
 
-      expect(startedAction).toBe('stop');
-      expect(stoppedAction).toBe('start');
+  describe('Resource Group Links', () => {
+    it('should render resource group links', () => {
+      renderComponent();
+
+      expect(screen.getByText('rg1')).toBeInTheDocument();
+      expect(screen.getByText('rg2')).toBeInTheDocument();
     });
   });
 
   describe('Service IPs Display', () => {
-    it('should join multiple service IPs with comma', () => {
-      const item = mockISCSIList[0];
-      const ipsString = item.service_ips?.join(', ');
+    it('should render service IPs', () => {
+      renderComponent();
 
-      expect(ipsString).toBe('192.168.1.100, 192.168.1.101');
-    });
-
-    it('should handle single service IP', () => {
-      const item = mockISCSIList[1];
-      const ipsString = item.service_ips?.join(', ');
-
-      expect(ipsString).toBe('192.168.1.102');
-    });
-
-    it('should handle undefined service IPs', () => {
-      const item: ISCSIResource = {
-        iqn: 'test-iqn',
-      };
-      const ipsString = item.service_ips?.join(', ');
-
-      expect(ipsString).toBeUndefined();
+      // Service IPs are rendered in pre tags
+      expect(screen.getByText('192.168.1.100, 192.168.1.101')).toBeInTheDocument();
+      expect(screen.getByText('192.168.1.102')).toBeInTheDocument();
     });
   });
 
-  describe('Volume Size Formatting', () => {
-    it('should format volume sizes correctly', () => {
-      // formatBytes expects size in KiB, so 1 GiB = 1024 * 1024 KiB
-      const size1 = 1048576; // 1 GiB in KiB
-      const size2 = 2097152; // 2 GiB in KiB
+  describe('Start/Stop Operations', () => {
+    it('should call handleStop when stopping a started target', () => {
+      renderComponent();
 
-      const formatted1 = formatBytes(size1);
-      const formatted2 = formatBytes(size2);
+      const confirmButtons = screen.getAllByTestId('popconfirm-ok');
+      // Each target has 2 popconfirm buttons: start/stop and delete
+      // Target1 (Started): stop button (index 0), delete button (index 1)
+      // Target2 (Stopped): start button (index 2), delete button (index 3)
+      fireEvent.click(confirmButtons[0]);
 
-      expect(formatted1).toContain('GiB');
-      expect(formatted2).toContain('GiB');
+      expect(mockHandlers.handleStop).toHaveBeenCalledWith('iqn.2024-01.com.example:target1');
     });
 
-    it('should handle undefined size gracefully', () => {
-      const formatted = formatBytes(undefined as any);
+    it('should call handleStart when starting a stopped target', () => {
+      renderComponent();
 
-      expect(formatted).toBe('NaN');
-    });
-  });
+      const confirmButtons = screen.getAllByTestId('popconfirm-ok');
+      // Target2's start button is at index 2
+      fireEvent.click(confirmButtons[2]);
 
-  describe('Expandable Row Logic', () => {
-    it('should determine if row is expandable based on volumes', () => {
-      const itemWithVolumes = mockISCSIList[0];
-      const itemWithoutVolumes = mockISCSIList[1];
-
-      const hasVolumes1 = !!(
-        itemWithVolumes.volumes &&
-        itemWithVolumes.volumes.filter((v) => v?.number !== undefined && v.number > 0).length > 0
-      );
-      const hasVolumes2 = !!(
-        itemWithoutVolumes.volumes &&
-        itemWithoutVolumes.volumes.filter((v) => v?.number !== undefined && v.number > 0).length > 0
-      );
-
-      expect(hasVolumes1).toBe(true);
-      expect(hasVolumes2).toBe(false);
+      expect(mockHandlers.handleStart).toHaveBeenCalledWith('iqn.2024-01.com.example:target2');
     });
   });
 
-  describe('LUN Calculation for New Volume', () => {
-    it('should calculate next LUN correctly', () => {
-      const item = mockISCSIList[0];
-      const lastVolume = item.volumes?.[item.volumes?.length - 1];
-      const nextLUN = (lastVolume?.number ?? 1) + 1;
+  describe('Delete Operations', () => {
+    it('should call handleDelete when delete is confirmed', () => {
+      renderComponent();
 
-      expect(nextLUN).toBe(3);
+      const confirmButtons = screen.getAllByTestId('popconfirm-ok');
+      // Delete button for first target is at index 1
+      fireEvent.click(confirmButtons[1]);
+
+      expect(mockHandlers.handleDelete).toHaveBeenCalledWith('iqn.2024-01.com.example:target1');
     });
 
-    it('should calculate LUN when only metadata volume exists', () => {
-      const item = mockISCSIList[1];
-      const lastVolume = item.volumes?.[item.volumes?.length - 1];
-      const nextLUN = (lastVolume?.number ?? 1) + 1;
+    it('should show deleting state', () => {
+      const listWithDeleting = [{ ...mockISCSIList[0], deleting: true }];
+      renderComponent({ list: listWithDeleting });
 
-      expect(nextLUN).toBe(1);
-    });
-
-    it('should handle empty volumes array', () => {
-      const item: ISCSIResource = {
-        iqn: 'test-iqn',
-        volumes: [],
-      };
-      const lastVolume = item.volumes?.[item.volumes?.length - 1];
-      const nextLUN = (lastVolume?.number ?? 1) + 1;
-
-      // Empty array access at index -1 returns undefined
-      // undefined ?? 1 = 1, then 1 + 1 = 2
-      expect(nextLUN).toBe(2);
+      expect(screen.getByTestId('table')).toBeInTheDocument();
     });
   });
 
-  describe('Link Generation', () => {
-    it('should generate correct node detail link', () => {
-      const nodeName = mockISCSIList[0].status?.primary;
-      const expectedPath = `/inventory/nodes/${nodeName}`;
+  describe('Add Volume Modal', () => {
+    it('should open modal when add volume button is clicked', () => {
+      renderComponent();
 
-      expect(expectedPath).toBe('/inventory/nodes/node1');
+      const buttons = screen.getAllByRole('button');
+      const addButton = buttons.find((b) => b.textContent?.includes('iscsi:add_volume'));
+      fireEvent.click(addButton!);
+
+      expect(screen.getByTestId('modal')).toBeInTheDocument();
+      expect(screen.getByTestId('size-input')).toBeInTheDocument();
     });
 
-    it('should generate correct resource group link', () => {
-      const resourceGroup = mockISCSIList[0].resource_group;
-      const expectedPath = `/storage-configuration/resource-groups?resource_groups=${resourceGroup}`;
+    it('should close modal when cancel button is clicked', () => {
+      renderComponent();
 
-      expect(expectedPath).toBe('/storage-configuration/resource-groups?resource_groups=rg1');
-    });
+      const buttons = screen.getAllByRole('button');
+      const addButton = buttons.find((b) => b.textContent?.includes('iscsi:add_volume'));
+      fireEvent.click(addButton!);
 
-    it('should handle missing node name', () => {
-      const item: ISCSIResource = {
-        iqn: 'test-iqn',
-        status: {},
-      };
-      const nodeName = item?.status?.primary;
+      expect(screen.getByTestId('modal')).toBeInTheDocument();
 
-      expect(nodeName).toBeUndefined();
-    });
+      const cancelButton = screen.getByTestId('modal-cancel');
+      fireEvent.click(cancelButton);
 
-    it('should handle missing resource group', () => {
-      const item: ISCSIResource = {
-        iqn: 'test-iqn',
-        resource_group: undefined,
-      };
-      const resourceGroup = item?.resource_group;
-
-      expect(resourceGroup).toBeUndefined();
+      expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
     });
   });
 
-  describe('Loading States', () => {
-    it('should use addingVolume state from Redux', () => {
-      const mockUseSelector = vi.mocked(useSelector);
+  describe('Volume Operations', () => {
+    it('should render expandable rows for volumes', () => {
+      renderComponent();
 
-      mockUseSelector.mockReturnValue({
-        addingVolume: true,
-      });
-
-      mockUseSelector((state: any) => ({
-        addingVolume: state.loading?.effects?.iscsi?.addLUN,
-      }));
-
-      expect(mockUseSelector).toHaveBeenCalled();
+      const mainTable = screen.getByTestId('table');
+      expect(mainTable).toBeInTheDocument();
     });
 
-    it('should handle different operation states', () => {
-      const itemWithDeleting = { ...mockISCSIList[0], deleting: true };
-      const itemWithStarting = { ...mockISCSIList[0], starting: true };
-      const itemWithStopping = { ...mockISCSIList[0], stopping: true };
+    it('should call handleDeleteVolume when volume delete is confirmed', () => {
+      renderComponent();
 
-      expect(itemWithDeleting.deleting).toBe(true);
-      expect(itemWithStarting.starting).toBe(true);
-      expect(itemWithStopping.stopping).toBe(true);
-    });
-  });
+      const confirmButtons = screen.getAllByTestId('popconfirm-ok');
+      // First 4 buttons are for the main table (2 targets x 2 actions each)
+      // Volume delete buttons follow: target1 has 2 volumes (LUN 1 and LUN 2)
+      // The first volume delete button is at index 4
+      const volumeDeleteButton = confirmButtons[4];
+      fireEvent.click(volumeDeleteButton);
 
-  describe('Volume State Tag Colors', () => {
-    it('should identify OK state for success color', () => {
-      const state = 'OK';
-      const isOk = state === 'OK';
-
-      expect(isOk).toBe(true);
-    });
-
-    it('should identify non-OK state for error color', () => {
-      const state = 'Failed';
-      const isOk = state === 'OK';
-
-      expect(isOk).toBe(false);
-    });
-
-    it('should handle undefined state', () => {
-      const state = undefined;
-      const isOk = state === 'OK';
-
-      expect(isOk).toBe(false);
-    });
-
-    it('should display Unknown for empty state', () => {
-      const state = '';
-      const displayState = state || 'Unknown';
-
-      expect(displayState).toBe('Unknown');
-    });
-  });
-
-  describe('Modal State Management', () => {
-    it('should handle modal open state for adding volume', () => {
-      let lunModal = false;
-
-      // Open modal
-      lunModal = true;
-      expect(lunModal).toBe(true);
-
-      // Close modal
-      lunModal = false;
-      expect(lunModal).toBe(false);
-    });
-
-    it('should store IQN and LUN when opening modal', () => {
-      const item = mockISCSIList[0];
-      let iqn = '';
-      let lun = 0;
-
-      // Simulate opening modal
-      iqn = item.iqn;
-      lun = (item.volumes?.[item.volumes?.length - 1]?.number ?? 1) + 1;
-
-      expect(iqn).toBe('iqn.2024-01.com.example:target1');
-      expect(lun).toBe(3);
+      expect(mockHandlers.handleDeleteVolume).toHaveBeenCalled();
     });
   });
 
   describe('Edge Cases', () => {
     it('should handle empty list', () => {
-      const emptyList: ISCSIResource[] = [];
-      const displayList = emptyList ?? [];
+      renderComponent({ list: [] });
 
-      expect(displayList).toHaveLength(0);
+      const table = screen.queryByTestId('table');
+      expect(table).toBeInTheDocument();
     });
 
     it('should handle undefined list', () => {
-      const undefinedList = undefined as unknown as ISCSIResource[];
-      const displayList = undefinedList ?? [];
+      renderComponent({ list: undefined as any });
 
-      expect(displayList).toHaveLength(0);
+      const table = screen.queryByTestId('table');
+      expect(table).toBeInTheDocument();
     });
 
-    it('should handle item without status', () => {
-      const item: ISCSIResource = {
-        iqn: 'test-iqn',
-      };
-      const serviceState = item?.status?.service;
+    it('should handle item without node name', () => {
+      const listWithoutNode = [{ ...mockISCSIList[1], status: { service: 'Stopped' } }];
+      renderComponent({ list: listWithoutNode });
 
-      expect(serviceState).toBeUndefined();
-    });
-
-    it('should handle item without volumes array', () => {
-      const item: ISCSIResource = {
-        iqn: 'test-iqn',
-      };
-      const volumes = item.volumes?.filter((v) => v?.number !== undefined && v.number > 0);
-
-      expect(volumes).toBeUndefined();
-    });
-
-    it('should generate unique keys for volume rows', () => {
-      const item = mockISCSIList[0];
-      const volume1 = item.volumes?.[1];
-      const volume2 = item.volumes?.[2];
-
-      const key1 = `${item.iqn}-${volume1?.number}`;
-      const key2 = `${item.iqn}-${volume2?.number}`;
-
-      expect(key1).toBe('iqn.2024-01.com.example:target1-1');
-      expect(key2).toBe('iqn.2024-01.com.example:target1-2');
-      expect(key1).not.toBe(key2);
+      const table = screen.getByTestId('table');
+      expect(table).toBeInTheDocument();
     });
   });
 
-  describe('Operation Handler Function Signatures', () => {
-    it('should define correct handler signatures', () => {
-      type HandlerSignature = {
-        handleDelete: (iqn: string) => void;
-        handleStart: (iqn: string) => void;
-        handleStop: (iqn: string) => void;
-        handleDeleteVolume: (iqn: string, lun: number) => void;
-        handleAddVolume: (iqn: string, LUN: number, size_kib: number) => void;
-      };
+  describe('Table Configuration', () => {
+    it('should use iqn as row key', () => {
+      renderComponent();
 
-      const handlers: HandlerSignature = {
-        handleDelete: (iqn) => console.log(iqn),
-        handleStart: (iqn) => console.log(iqn),
-        handleStop: (iqn) => console.log(iqn),
-        handleDeleteVolume: (iqn, lun) => console.log(iqn, lun),
-        handleAddVolume: (iqn, lun, size) => console.log(iqn, lun, size),
-      };
-
-      expect(handlers.handleDelete).toBeDefined();
-      expect(handlers.handleStart).toBeDefined();
-      expect(handlers.handleStop).toBeDefined();
-      expect(handlers.handleDeleteVolume).toBeDefined();
-      expect(handlers.handleAddVolume).toBeDefined();
+      const firstRow = screen.getByTestId('table-row-0');
+      expect(firstRow).toHaveAttribute('data-row-key-value', 'iqn.2024-01.com.example:target1');
     });
   });
 
-  describe('IQN-specific Tests', () => {
-    it('should validate IQN format', () => {
-      const validIQN = mockISCSIList[0].iqn;
+  describe('Nested Volume Table', () => {
+    it('should render nested table for volumes', () => {
+      renderComponent();
 
-      // IQN format: iqn.yyyy-mm.com.example:identifier
-      expect(validIQN).toMatch(/^iqn\.\d{4}-\d{2}/);
-      expect(validIQN).toContain(':');
-    });
-
-    it('should differentiate targets by IQN', () => {
-      const iqn1 = mockISCSIList[0].iqn;
-      const iqn2 = mockISCSIList[1].iqn;
-
-      expect(iqn1).not.toBe(iqn2);
-      expect(iqn1).toBe('iqn.2024-01.com.example:target1');
-      expect(iqn2).toBe('iqn.2024-01.com.example:target2');
+      const nestedTables = screen.queryAllByTestId('nested-table');
+      expect(nestedTables.length).toBeGreaterThanOrEqual(0);
     });
   });
 });

@@ -65,6 +65,14 @@ vi.mock('@app/features/node', () => ({
   getControllerVersion: vi.fn(),
 }));
 
+vi.mock('@app/features/resource/hooks/useFaultyResources', () => ({
+  useFaultyResources: vi.fn(() => ({ data: [] })),
+}));
+
+vi.mock('@app/features/resource/api', () => ({
+  getResources: vi.fn(() => Promise.resolve({ data: [] })),
+}));
+
 // Mock assets
 vi.mock('@app/assets/logout.svg', () => ({ default: 'logout.svg' }));
 vi.mock('@app/assets/user.svg', () => ({ default: 'user.svg' }));

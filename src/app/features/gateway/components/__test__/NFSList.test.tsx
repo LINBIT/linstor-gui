@@ -5,347 +5,286 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
 
-// Mock dependencies
+// Mock setup - must be before imports
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => key,
   }),
+  initReactI18next: {
+    type: '3rdParty',
+    init: () => {},
+  },
+  I18nextProvider: ({ children }: any) => <>{children}</>,
 }));
 
-vi.mock('@app/components/SizeInput', () => ({
-  SizeInput: () => null,
+vi.mock('@tanstack/react-query', () => ({
+  useMutation: vi.fn(() => ({
+    mutate: vi.fn(),
+    isLoading: false,
+  })),
+  useQuery: vi.fn(() => ({
+    data: [],
+    isLoading: false,
+  })),
+  QueryClient: class {
+    constructor() {}
+    getQueryData() {}
+    setQueryData() {}
+    invalidateQueries() {}
+  },
+  QueryClientProvider: ({ children }: any) => <>{children}</>,
 }));
 
-// Import types and utilities
-import { formatBytes } from '@app/utils/size';
+vi.mock('react-router-dom', () => ({
+  useNavigate: vi.fn(() => vi.fn()),
+  useLocation: vi.fn(() => ({ pathname: '/' })),
+  Link: ({ children, to }: any) => <a href={to}>{children}</a>,
+  HashRouter: ({ children }: any) => <>{children}</>,
+  Routes: ({ children }: any) => <>{children}</>,
+  Route: ({ children }: any) => <>{children}</>,
+}));
 
-// Types
-type NFSResource = {
-  name: string;
-  service_ip?: string;
-  resource_group?: string;
-  path?: string;
-  status?: {
-    primary?: string;
-    service?: string;
-    state?: string;
-    volumes?: Array<{ number: number; state?: string }>;
-  };
-  volumes?: Array<{ number: number; size_kib?: number; export_path?: string }>;
-  deleting?: boolean;
-  starting?: boolean;
-  stopping?: boolean;
+vi.mock('@app/components/Link', () => ({
+  Link: ({ children, to }: any) => <a href={to}>{children}</a>,
+}));
+
+// Import mocks first
+import '../__mocks__';
+
+// Import after mocking
+import { NFSList } from '../NFSList';
+
+const mockHandlers = {
+  handleDelete: vi.fn(),
+  handleStart: vi.fn(),
+  handleStop: vi.fn(),
 };
 
-const ExportBasePath = '/nfs/export';
+const mockNFSList: any[] = [
+  {
+    name: 'nfs-export-1',
+    service_ip: '192.168.1.100',
+    path: '/export',
+    resource_group: 'rg1',
+    status: {
+      primary: 'node1',
+      service: 'Started',
+      state: 'OK',
+      volumes: [
+        { number: 0, state: 'OK' },
+        { number: 1, state: 'OK' },
+      ],
+    },
+    volumes: [
+      { number: 0, size_kib: 0 },
+      { number: 1, size_kib: 1048576, export_path: '/data' },
+      { number: 2, size_kib: 2097152, export_path: '/backup' },
+    ],
+  },
+  {
+    name: 'nfs-export-2',
+    service_ip: '192.168.1.101',
+    path: '/export2',
+    resource_group: 'rg2',
+    status: {
+      primary: 'node2',
+      service: 'Stopped',
+      state: 'OK',
+      volumes: [],
+    },
+    volumes: [{ number: 0, size_kib: 0 }],
+  },
+];
 
-describe('NFSList Component Logic', () => {
+const renderComponent = (props = {}) => {
+  return render(<NFSList list={mockNFSList} {...mockHandlers} loading={false} {...props} />);
+};
+
+describe('NFSList Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  // Mock data
-  const mockNFSList: NFSResource[] = [
-    {
-      name: 'nfs-export-1',
-      service_ip: '192.168.1.100',
-      resource_group: 'rg1',
-      status: {
-        primary: 'node1',
-        service: 'Started',
-        state: 'OK',
-        volumes: [
-          { number: 0, state: 'OK' },
-          { number: 1, state: 'OK' },
-        ],
-      },
-      volumes: [
-        { number: 0, size_kib: 0 },
-        { number: 1, size_kib: 1048576 },
-      ],
-    },
-    {
-      name: 'nfs-export-2',
-      service_ip: '192.168.1.101',
-      resource_group: 'rg2',
-      status: {
-        primary: 'node2',
-        service: 'Stopped',
-        state: 'Inconsistent',
-      },
-      volumes: [
-        { number: 0, size_kib: 0 },
-        { number: 1, size_kib: 2097152 },
-      ],
-    },
-  ];
+  describe('Rendering', () => {
+    it('should render table with data', () => {
+      renderComponent();
 
-  describe('Export Path Calculation', () => {
-    it('should generate default export path when no volumes', () => {
-      const item: NFSResource = {
-        name: 'nfs-export-1',
-      };
-
-      const exportPath = `${ExportBasePath}/${item?.name}`;
-
-      expect(exportPath).toBe('/nfs/export/nfs-export-1');
+      const table = screen.getByTestId('table');
+      expect(table).toBeInTheDocument();
     });
 
-    it('should generate default export path when volume 1 does not exist', () => {
-      const item: NFSResource = {
-        name: 'nfs-export-1',
-        volumes: [{ number: 0, size_kib: 0 }],
-      };
+    it('should render all NFS exports', () => {
+      renderComponent();
 
-      const exportPath = `${ExportBasePath}/${item?.name}`;
-
-      expect(exportPath).toBe('/nfs/export/nfs-export-1');
+      expect(screen.getByText('nfs-export-1')).toBeInTheDocument();
+      expect(screen.getByText('nfs-export-2')).toBeInTheDocument();
     });
 
-    it('should generate export path with suffix from volume 1', () => {
-      const item: NFSResource = {
-        name: 'nfs-export-1',
-        volumes: [
-          { number: 0, size_kib: 0 },
-          { number: 1, size_kib: 1048576, export_path: '/data' },
-        ],
-      };
+    it('should show loading state when loading is true', () => {
+      renderComponent({ loading: true });
 
-      const volume1 = item.volumes?.find((v) => v.number === 1);
-      const exportPathSuffix = volume1 && (volume1 as any)?.export_path;
-      const exportPath = `${ExportBasePath}/${item?.name}${exportPathSuffix || ''}`;
-
-      expect(exportPath).toBe('/nfs/export/nfs-export-1/data');
+      const table = screen.getByTestId('table');
+      expect(table).toHaveAttribute('data-loading', 'true');
     });
 
-    it('should find volume 1 by number when volumes are unsorted', () => {
-      const item: NFSResource = {
-        name: 'nfs-export-1',
-        volumes: [
-          { number: 2, size_kib: 2097152 },
-          { number: 0, size_kib: 0 },
-          { number: 1, size_kib: 1048576, export_path: '/primary' },
-        ],
-      };
+    it('should render Alert message', () => {
+      renderComponent();
 
-      const volume1 = item.volumes?.find((v) => v.number === 1);
-      const exportPathSuffix = volume1 && (volume1 as any)?.export_path;
-      const exportPath = `${ExportBasePath}/${item?.name}${exportPathSuffix || ''}`;
-
-      expect(exportPath).toBe('/nfs/export/nfs-export-1/primary');
+      const alert = screen.getByTestId('alert');
+      expect(alert).toBeInTheDocument();
+      expect(alert).toHaveAttribute('data-type', 'warning');
     });
   });
 
-  describe('Service State Logic', () => {
-    it('should identify started NFS exports correctly', () => {
-      const startedNFS = mockNFSList[0];
-      const isStarted = startedNFS?.status?.service === 'Started';
+  describe('Service State Display', () => {
+    it('should display Started state', () => {
+      renderComponent();
 
-      expect(isStarted).toBe(true);
+      expect(screen.getByText('Started')).toBeInTheDocument();
     });
 
-    it('should identify stopped NFS exports correctly', () => {
-      const stoppedNFS = mockNFSList[1];
-      const isStarted = stoppedNFS?.status?.service === 'Started';
+    it('should display Stopped state', () => {
+      renderComponent();
 
-      expect(isStarted).toBe(false);
+      expect(screen.getByText('Stopped')).toBeInTheDocument();
     });
 
-    it('should determine action button text based on service state', () => {
-      const startedNFS = mockNFSList[0];
-      const stoppedNFS = mockNFSList[1];
+    it('should display LINSTOR state', () => {
+      renderComponent();
 
-      const startedAction = startedNFS?.status?.service === 'Started' ? 'stop' : 'start';
-      const stoppedAction = stoppedNFS?.status?.service === 'Started' ? 'stop' : 'start';
-
-      expect(startedAction).toBe('stop');
-      expect(stoppedAction).toBe('start');
+      const okTags = screen.getAllByText('OK');
+      expect(okTags.length).toBeGreaterThan(0);
     });
   });
 
-  describe('LINSTOR State Logic', () => {
-    it('should identify OK state for success color', () => {
-      const okNFS = mockNFSList[0];
-      const isOk = okNFS?.status?.state === 'OK';
+  describe('Node Links', () => {
+    it('should render node links', () => {
+      renderComponent();
 
-      expect(isOk).toBe(true);
-    });
-
-    it('should identify non-OK state for error color', () => {
-      const badNFS = mockNFSList[1];
-      const isOk = badNFS?.status?.state === 'OK';
-
-      expect(isOk).toBe(false);
+      expect(screen.getByText('node1')).toBeInTheDocument();
+      expect(screen.getByText('node2')).toBeInTheDocument();
     });
   });
 
-  describe('Total Size Calculation', () => {
-    it('should calculate total size from all volumes', () => {
-      const item = mockNFSList[0];
-      const totalSize = item.volumes?.reduce((sum, vol) => sum + (vol.size_kib || 0), 0) || 0;
+  describe('Service IP Display', () => {
+    it('should render service IPs', () => {
+      renderComponent();
 
-      expect(totalSize).toBe(1048576); // Only volume 1 has size, volume 0 is metadata
-    });
-
-    it('should handle zero size volumes', () => {
-      const item: NFSResource = {
-        name: 'test-nfs',
-        volumes: [
-          { number: 0, size_kib: 0 },
-          { number: 1, size_kib: 0 },
-        ],
-      };
-
-      const totalSize = item.volumes?.reduce((sum, vol) => sum + (vol.size_kib || 0), 0) || 0;
-
-      expect(totalSize).toBe(0);
-    });
-
-    it('should handle undefined volumes', () => {
-      const item: NFSResource = {
-        name: 'test-nfs',
-        volumes: undefined,
-      };
-
-      const totalSize = item.volumes?.reduce((sum, vol) => sum + (vol.size_kib || 0), 0) || 0;
-
-      expect(totalSize).toBe(0);
-    });
-
-    it('should format size correctly for display', () => {
-      const totalSize = 1048576; // 1 GiB in KiB
-      const displaySize = totalSize > 0 ? formatBytes(totalSize) : '-';
-
-      expect(displaySize).toContain('GiB');
-    });
-
-    it('should show dash for zero total size', () => {
-      const totalSize = 0;
-      const displaySize = totalSize > 0 ? formatBytes(totalSize) : '-';
-
-      expect(displaySize).toBe('-');
+      expect(screen.getByText('192.168.1.100')).toBeInTheDocument();
+      expect(screen.getByText('192.168.1.101')).toBeInTheDocument();
     });
   });
 
-  describe('Node Link Generation', () => {
-    it('should generate correct node detail link', () => {
-      const nodeName = mockNFSList[0].status?.primary;
-      const expectedPath = `/inventory/nodes/${nodeName}`;
+  describe('Export Path Display', () => {
+    it('should render export path', () => {
+      renderComponent();
 
-      expect(expectedPath).toBe('/inventory/nodes/node1');
-    });
-
-    it('should handle missing node name', () => {
-      const item: NFSResource = {
-        name: 'test-nfs',
-        status: {},
-      };
-      const nodeName = item?.status?.primary;
-
-      expect(nodeName).toBeUndefined();
+      // Export path includes the base path and the export_path from volume
+      expect(screen.getByText('/srv/gateway-exports/nfs-export-1/data')).toBeInTheDocument();
     });
   });
 
-  describe('Loading States', () => {
-    it('should handle different operation states', () => {
-      const itemWithDeleting = { ...mockNFSList[0], deleting: true };
-      const itemWithStarting = { ...mockNFSList[0], starting: true };
-      const itemWithStopping = { ...mockNFSList[0], stopping: true };
+  describe('Size Display', () => {
+    it('should calculate and display total size', () => {
+      renderComponent();
 
-      expect(itemWithDeleting.deleting).toBe(true);
-      expect(itemWithStarting.starting).toBe(true);
-      expect(itemWithStopping.stopping).toBe(true);
+      // Size is calculated from volumes (excluding volume 0 metadata)
+      // Volume 1: 1048576 KiB = 1 GiB
+      // Volume 2: 2097152 KiB = 2 GiB
+      // Total: 3 GiB
+      expect(screen.getByText('3.00 GiB')).toBeInTheDocument();
+    });
+  });
+
+  describe('Start/Stop Operations', () => {
+    it('should call handleStop when stopping a started export', () => {
+      renderComponent();
+
+      const confirmButtons = screen.getAllByTestId('popconfirm-ok');
+      // Each export has 2 popconfirm buttons: start/stop and delete
+      // Export1 (Started): stop button (index 0), delete button (index 1)
+      // Export2 (Stopped): start button (index 2), delete button (index 3)
+      fireEvent.click(confirmButtons[0]);
+
+      expect(mockHandlers.handleStop).toHaveBeenCalledWith('nfs-export-1');
+    });
+
+    it('should call handleStart when starting a stopped export', () => {
+      renderComponent();
+
+      const confirmButtons = screen.getAllByTestId('popconfirm-ok');
+      // Export2's start button is at index 2
+      fireEvent.click(confirmButtons[2]);
+
+      expect(mockHandlers.handleStart).toHaveBeenCalledWith('nfs-export-2');
+    });
+  });
+
+  describe('Delete Operations', () => {
+    it('should call handleDelete when delete is confirmed', () => {
+      renderComponent();
+
+      const confirmButtons = screen.getAllByTestId('popconfirm-ok');
+      // Delete button for first export is at index 1
+      fireEvent.click(confirmButtons[1]);
+
+      expect(mockHandlers.handleDelete).toHaveBeenCalledWith('nfs-export-1');
+    });
+
+    it('should show deleting state', () => {
+      const listWithDeleting = [{ ...mockNFSList[0], deleting: true }];
+      renderComponent({ list: listWithDeleting });
+
+      expect(screen.getByTestId('table')).toBeInTheDocument();
     });
   });
 
   describe('Edge Cases', () => {
     it('should handle empty list', () => {
-      const emptyList: NFSResource[] = [];
-      const displayList = emptyList ?? [];
+      renderComponent({ list: [] });
 
-      expect(displayList).toHaveLength(0);
+      const table = screen.queryByTestId('table');
+      expect(table).toBeInTheDocument();
     });
 
     it('should handle undefined list', () => {
-      const undefinedList = undefined as unknown as NFSResource[];
-      const displayList = undefinedList ?? [];
+      renderComponent({ list: undefined as any });
 
-      expect(displayList).toHaveLength(0);
+      const table = screen.queryByTestId('table');
+      expect(table).toBeInTheDocument();
     });
 
-    it('should handle item without status', () => {
-      const item: NFSResource = {
-        name: 'test-nfs',
-      };
-      const serviceState = item?.status?.service;
-      const linstorState = item?.status?.state;
+    it('should handle item without node name', () => {
+      const listWithoutNode = [{ ...mockNFSList[1], status: { service: 'Stopped' } }];
+      renderComponent({ list: listWithoutNode });
 
-      expect(serviceState).toBeUndefined();
-      expect(linstorState).toBeUndefined();
+      const table = screen.getByTestId('table');
+      expect(table).toBeInTheDocument();
     });
 
-    it('should handle item without volumes', () => {
-      const item: NFSResource = {
-        name: 'test-nfs',
-        volumes: undefined,
-      };
-      const totalSize = item.volumes?.reduce((sum, vol) => sum + (vol.size_kib || 0), 0) || 0;
+    it('should handle item with no volumes', () => {
+      const listNoVolumes = [{ name: 'no-volumes', service_ip: '10.0.0.1', status: {}, volumes: [] }];
+      renderComponent({ list: listNoVolumes });
 
-      expect(totalSize).toBe(0);
+      const table = screen.getByTestId('table');
+      expect(table).toBeInTheDocument();
     });
   });
 
-  describe('Operation Handler Function Signatures', () => {
-    it('should define correct handler signatures using name parameter', () => {
-      type HandlerSignature = {
-        handleDelete: (name: string) => void;
-        handleStart: (name: string) => void;
-        handleStop: (name: string) => void;
-      };
+  describe('Export Path Calculation', () => {
+    it('should use default export path when no volumes', () => {
+      const listNoVolumes = [{ name: 'test-export', service_ip: '10.0.0.1', status: {}, volumes: [] }];
+      renderComponent({ list: listNoVolumes });
 
-      const handlers: HandlerSignature = {
-        handleDelete: (name) => console.log(name),
-        handleStart: (name) => console.log(name),
-        handleStop: (name) => console.log(name),
-      };
-
-      expect(handlers.handleDelete).toBeDefined();
-      expect(handlers.handleStart).toBeDefined();
-      expect(handlers.handleStop).toBeDefined();
-    });
-  });
-
-  describe('NFS-Specific Behavior', () => {
-    it('should use name property for identification (not iqn/nqn)', () => {
-      const item = mockNFSList[0];
-
-      expect(item.name).toBe('nfs-export-1');
-      expect(item).not.toHaveProperty('iqn');
-      expect(item).not.toHaveProperty('nqn');
+      expect(screen.getByText('/srv/gateway-exports/test-export')).toBeInTheDocument();
     });
 
-    it('should have dual state properties (service and linstor)', () => {
-      const item = mockNFSList[0];
+    it('should include export_path from volume when available', () => {
+      renderComponent();
 
-      expect(item.status?.service).toBe('Started');
-      expect(item.status?.state).toBe('OK');
-    });
-
-    it('should have service_ip property', () => {
-      const item = mockNFSList[0];
-
-      expect(item.service_ip).toBe('192.168.1.100');
-    });
-  });
-
-  describe('Alert Message', () => {
-    it('should warn about single NFS limitation', () => {
-      const alertMessage =
-        'NOTE: Only one NFS resource can exist in a cluster. To create multiple exports, create a single resource with multiple volumes.';
-
-      expect(alertMessage).toContain('Only one NFS resource');
-      expect(alertMessage).toContain('multiple volumes');
+      expect(screen.getByText('/srv/gateway-exports/nfs-export-1/data')).toBeInTheDocument();
     });
   });
 });

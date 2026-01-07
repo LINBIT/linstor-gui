@@ -34,7 +34,16 @@ interface MockButtonProps {
 
 // Mock Antd components
 vi.mock('antd', () => ({
-  Select: ({ options, onChange, value, placeholder, allowClear, showSearch, optionRender }: MockSelectProps) => (
+  Select: ({
+    options,
+    onChange,
+    value,
+    placeholder,
+    allowClear,
+    showSearch,
+    optionRender,
+    ...props
+  }: MockSelectProps) => (
     <div data-testid="select-component">
       <select
         data-testid="select"
@@ -42,6 +51,7 @@ vi.mock('antd', () => ({
         onChange={(e) => onChange && onChange(e.target.value)}
         data-show-search={showSearch ? 'true' : 'false'}
         data-option-render={optionRender ? 'custom' : 'default'}
+        {...props}
       >
         <option value="" disabled>
           {placeholder}
@@ -64,12 +74,14 @@ vi.mock('antd', () => ({
       {children}
     </div>
   ),
-  Button: ({ children, onClick, disabled, className, type, ...props }: MockButtonProps) => (
+  Button: ({ children, onClick, disabled, className, htmlType, loading, danger, ghost, block, ...props }: any) => (
     <button
-      data-testid={`button-${className || type || 'default'}`}
+      data-testid={`button-${className || htmlType || 'default'}`}
       onClick={onClick}
       disabled={disabled}
       className={className}
+      type={htmlType}
+      data-loading={loading}
       {...props}
     >
       {children}
