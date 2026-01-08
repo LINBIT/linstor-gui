@@ -415,6 +415,7 @@ vi.mock('@ant-design/icons', () => ({
   MinusCircleOutlined: ({ onClick }: any) => <span data-testid="minus-icon" onClick={onClick} />,
   PlusOutlined: () => <span data-testid="plus-icon">+</span>,
   VerticalAlignTopOutlined: () => <span data-testid="vertical-align-top-icon">↑</span>,
+  ReloadOutlined: () => <span data-testid="reload-icon">↻</span>,
   DeploymentUnitOutlined: () => <span data-testid="deployment-unit-icon" />,
   CloudServerOutlined: () => <span data-testid="cloud-server-icon" />,
   ContainerOutlined: () => <span data-testid="container-icon" />,

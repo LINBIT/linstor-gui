@@ -7,6 +7,8 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
+import { Space } from 'antd';
+import { ReloadOutlined } from '@ant-design/icons';
 import { Button } from '@app/components/Button';
 
 import { Dispatch, RootState } from '@app/store';
@@ -21,8 +23,9 @@ const List = () => {
 
   const navigate = useNavigate();
 
-  const { list } = useSelector((state: RootState) => ({
+  const { list, loading } = useSelector((state: RootState) => ({
     list: state.nvme.list,
+    loading: state.loading.effects.nvme.getList,
   }));
 
   useEffect(() => {
@@ -57,17 +60,20 @@ const List = () => {
     });
   };
 
+  const handleReload = () => {
+    dispatch.nvme.getList();
+  };
+
   return (
     <PageBasic title={t('nvme:list')}>
-      <Button
-        type="primary"
-        onClick={createISCSI}
-        style={{
-          marginBottom: '1rem',
-        }}
-      >
-        {t('common:create')}
-      </Button>
+      <Space style={{ marginBottom: '1rem' }}>
+        <Button type="primary" onClick={createISCSI}>
+          {t('common:create')}
+        </Button>
+        <Button icon={<ReloadOutlined />} onClick={handleReload} loading={loading}>
+          {t('common:reload')}
+        </Button>
+      </Space>
 
       <NVMeListV2
         list={list}

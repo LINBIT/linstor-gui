@@ -8,6 +8,8 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Space } from 'antd';
+import { ReloadOutlined } from '@ant-design/icons';
 
 import { Button } from '@app/components/Button';
 
@@ -22,8 +24,9 @@ const List: React.FunctionComponent = () => {
 
   const navigate = useNavigate();
 
-  const { list } = useSelector((state: RootState) => ({
+  const { list, loading } = useSelector((state: RootState) => ({
     list: state.iscsi.list,
+    loading: state.loading.effects.iscsi.getList,
   }));
 
   useEffect(() => {
@@ -58,17 +61,20 @@ const List: React.FunctionComponent = () => {
     });
   };
 
+  const handleReload = () => {
+    dispatch.iscsi.getList({});
+  };
+
   return (
     <PageBasic title={t('iscsi:list')}>
-      <Button
-        type="primary"
-        onClick={createISCSI}
-        style={{
-          marginBottom: '1rem',
-        }}
-      >
-        {t('common:create')}
-      </Button>
+      <Space style={{ marginBottom: '1rem' }}>
+        <Button type="primary" onClick={createISCSI}>
+          {t('common:create')}
+        </Button>
+        <Button icon={<ReloadOutlined />} onClick={handleReload} loading={loading}>
+          {t('common:reload')}
+        </Button>
+      </Space>
       <ISCSIListV2
         list={list as ISCSIResource[]}
         handleDelete={handleDelete}

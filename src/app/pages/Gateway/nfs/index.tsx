@@ -7,6 +7,8 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
+import { Space } from 'antd';
+import { ReloadOutlined } from '@ant-design/icons';
 import { Button } from '@app/components/Button';
 
 import { Dispatch, RootState } from '@app/store';
@@ -22,8 +24,9 @@ const List: React.FunctionComponent = () => {
 
   const navigate = useNavigate();
 
-  const { list } = useSelector((state: RootState) => ({
+  const { list, loading } = useSelector((state: RootState) => ({
     list: state.nfs.list,
+    loading: state.loading.effects.nfs.getList,
   }));
 
   useEffect(() => {
@@ -46,18 +49,20 @@ const List: React.FunctionComponent = () => {
     dispatch.nfs.stopNFS(iqn);
   };
 
+  const handleReload = () => {
+    dispatch.nfs.getList();
+  };
+
   return (
     <PageBasic title={t('nfs:list')}>
-      <Button
-        type="primary"
-        onClick={createNFS}
-        style={{
-          marginBottom: '1em',
-        }}
-        disabled={list.length >= 1}
-      >
-        {t('common:create')}
-      </Button>
+      <Space style={{ marginBottom: '1em' }}>
+        <Button type="primary" onClick={createNFS} disabled={list.length >= 1}>
+          {t('common:create')}
+        </Button>
+        <Button icon={<ReloadOutlined />} onClick={handleReload} loading={loading}>
+          {t('common:reload')}
+        </Button>
+      </Space>
       <NFSListV2
         list={list as NFSResource[]}
         handleDelete={handleDelete}
