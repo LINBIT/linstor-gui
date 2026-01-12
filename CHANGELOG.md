@@ -1,5 +1,20 @@
 # Changelog
 
+# 2.3.0 - 2025-01-12
+
+### Changed
+
+- LINSTOR-Gateway UI improvements and fixes
+  - Gateway create form updates
+  - Gateway list content updates
+
+### Fixed
+
+- iSCSI add volume failure bug
+- Check faulty resource regularly
+- Customer logo style
+- Modal styling
+
 # 2.2.0 - 2025-12-18
 
 ### Added
