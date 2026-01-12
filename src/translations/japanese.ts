@@ -347,6 +347,7 @@ const ja = {
     file_system: 'ファイルシステム',
     volumes: 'ボリューム',
     allowed_ips: '許可IP',
+    volume_number: 'ボリューム #',
   },
   nvme: {
     list: 'NVMe-oFリスト',

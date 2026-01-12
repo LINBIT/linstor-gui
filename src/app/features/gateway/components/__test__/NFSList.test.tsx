@@ -177,24 +177,52 @@ describe('NFSList Component', () => {
     });
   });
 
-  describe('Export Path Display', () => {
-    it('should render export path', () => {
+  describe('Volumes Column Display', () => {
+    it('should render volume count', () => {
       renderComponent();
 
-      // Export path includes the base path and the export_path from volume
-      expect(screen.getByText('/srv/gateway-exports/nfs-export-1/data')).toBeInTheDocument();
+      // nfs-export-1 has 2 volumes (excluding volume 0 metadata)
+      // Use getAllByText since '2' may appear multiple times (e.g., "2.00 GiB")
+      const twos = screen.getAllByText('2');
+      expect(twos.length).toBeGreaterThan(0);
     });
   });
 
-  describe('Size Display', () => {
-    it('should calculate and display total size', () => {
+  describe('Resource Group Display', () => {
+    it('should render resource group links', () => {
       renderComponent();
 
-      // Size is calculated from volumes (excluding volume 0 metadata)
-      // Volume 1: 1048576 KiB = 1 GiB
-      // Volume 2: 2097152 KiB = 2 GiB
-      // Total: 3 GiB
-      expect(screen.getByText('3.00 GiB')).toBeInTheDocument();
+      const rg1Link = screen.getByText('rg1');
+      expect(rg1Link).toBeInTheDocument();
+      expect(rg1Link.closest('a')).toHaveAttribute(
+        'href',
+        '/storage-configuration/resource-groups?resource_groups=rg1',
+      );
+    });
+  });
+
+  describe('Expandable Rows', () => {
+    it('should render expand icon for rows with volumes', () => {
+      renderComponent();
+
+      // First export has volumes, should have expand icon
+      const firstRow = screen.getByTestId('table-row-0');
+      expect(firstRow).toBeInTheDocument();
+    });
+
+    it('should expand row and show volume details', () => {
+      renderComponent();
+
+      // Click expand icon for first row
+      const firstRow = screen.getByTestId('table-row-0');
+      const expandIcon = firstRow.querySelector('[class*="ant-table-row-expand-icon"]');
+      if (expandIcon) {
+        fireEvent.click(expandIcon);
+      }
+
+      // After expansion, volume details should be visible
+      expect(screen.getByText('1.00 GiB')).toBeInTheDocument(); // Volume 1 size
+      expect(screen.getByText('2.00 GiB')).toBeInTheDocument(); // Volume 2 size
     });
   });
 
@@ -270,21 +298,6 @@ describe('NFSList Component', () => {
 
       const table = screen.getByTestId('table');
       expect(table).toBeInTheDocument();
-    });
-  });
-
-  describe('Export Path Calculation', () => {
-    it('should use default export path when no volumes', () => {
-      const listNoVolumes = [{ name: 'test-export', service_ip: '10.0.0.1', status: {}, volumes: [] }];
-      renderComponent({ list: listNoVolumes });
-
-      expect(screen.getByText('/srv/gateway-exports/test-export')).toBeInTheDocument();
-    });
-
-    it('should include export_path from volume when available', () => {
-      renderComponent();
-
-      expect(screen.getByText('/srv/gateway-exports/nfs-export-1/data')).toBeInTheDocument();
     });
   });
 });

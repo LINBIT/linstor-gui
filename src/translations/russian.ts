@@ -347,6 +347,7 @@ const ru = {
     file_system: 'Файловая система',
     volumes: 'Тома',
     allowed_ips: 'Разрешенные IP',
+    volume_number: 'Том №',
   },
   nvme: {
     list: 'Список NVMe-oF',

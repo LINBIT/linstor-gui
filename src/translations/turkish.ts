@@ -345,6 +345,7 @@ const tr = {
     file_system: 'Dosya Sistemi',
     volumes: 'Birimler',
     allowed_ips: "İzin Verilen IP'ler",
+    volume_number: 'Birim #',
   },
   nvme: {
     list: 'NVMe-oF Listesi',

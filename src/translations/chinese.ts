@@ -641,6 +641,7 @@ org_role = Viewer`,
     file_system: '文件系统',
     volumes: '卷',
     allowed_ips: '允许的 IP',
+    volume_number: '卷 #',
   },
   nvme: {
     list: 'NVMe-oF 列表',

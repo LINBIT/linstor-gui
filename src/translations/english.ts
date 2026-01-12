@@ -359,6 +359,7 @@ const en = {
     file_system: 'File System',
     volumes: 'Volumes',
     allowed_ips: 'Allowed IPs',
+    volume_number: 'Volume #',
   },
   nvme: {
     list: 'NVMe-oF List',

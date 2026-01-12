@@ -348,6 +348,7 @@ const de = {
     file_system: 'Dateisystem',
     volumes: 'Volumes',
     allowed_ips: 'Erlaubte IPs',
+    volume_number: 'Bandnr.',
   },
   nvme: {
     list: 'NVMe-oF Liste',

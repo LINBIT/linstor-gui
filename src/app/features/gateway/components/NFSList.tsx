@@ -4,8 +4,10 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
+import { useEffect, useState } from 'react';
 import { Alert, Popconfirm, Space, Table, Tag } from 'antd';
 import type { TableProps } from 'antd';
+import { DownOutlined, RightOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
 import { Button } from '@app/components/Button';
@@ -29,8 +31,31 @@ type NFSOperationStatus = {
   stopping?: boolean;
 };
 
+type VolumeData = {
+  key: string;
+  number: number;
+  size_kib?: number;
+  file_system?: string;
+  export_path?: string;
+  full_export_path: string;
+  state?: string;
+};
+
 export const NFSList = ({ list, handleDelete, handleStop, handleStart, loading = false }: NFSListProps) => {
+  const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
+  const [initialized, setInitialized] = useState(false);
   const { t } = useTranslation(['common', 'nfs']);
+
+  // Auto-expand first row when list is loaded (only once)
+  useEffect(() => {
+    if (!initialized && list && list.length > 0) {
+      const firstName = list[0].name;
+      if (firstName) {
+        setExpandedRowKeys([firstName]);
+      }
+      setInitialized(true);
+    }
+  }, [list, initialized]);
   const columns: TableProps<NFSResource & NFSOperationStatus>['columns'] = [
     {
       title: t('common:name'),
@@ -50,21 +75,32 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart, loading =
       title: t('nfs:service_ip'),
       dataIndex: 'service_ip',
       key: 'service_ip',
-    },
-    {
-      title: t('nfs:export_path'),
-      dataIndex: 'path',
       render: (_, item) => {
-        return <code>{exportPath(item)}</code>;
+        const ip = item?.service_ip;
+        if (Array.isArray(ip)) {
+          return <pre style={{ margin: 0 }}>{ip.join(', ')}</pre>;
+        }
+        return <span>{ip || '-'}</span>;
       },
     },
     {
-      title: t('common:size'),
-      dataIndex: 'size',
-      key: 'size',
+      title: t('iscsi:resource_group'),
+      dataIndex: 'resource_group',
+      key: 'resource_group',
+      render: (resource_group) => {
+        if (!resource_group) return <span>-</span>;
+        return (
+          <Link to={`/storage-configuration/resource-groups?resource_groups=${resource_group}`}>{resource_group}</Link>
+        );
+      },
+    },
+    {
+      title: t('nfs:volumes'),
+      dataIndex: 'volumes',
+      key: 'volumes',
       render: (_, item) => {
-        const totalSize = item.volumes?.reduce((sum, vol) => sum + (vol.size_kib || 0), 0) || 0;
-        return <span>{totalSize > 0 ? formatBytes(totalSize) : '-'}</span>;
+        const count = item.volumes?.filter((v) => v?.number !== undefined && v.number > 0).length || 0;
+        return <span>{count}</span>;
       },
     },
     {
@@ -134,14 +170,112 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart, loading =
     },
   ];
 
-  const exportPath = (e: NFSResource): string => {
-    if (!e.volumes || !e.volumes[1]) {
-      return `${ExportBasePath}/${e?.name}`;
+  // Volume sub-table columns
+  const volumeColumns: TableProps<VolumeData>['columns'] = [
+    {
+      title: t('nfs:volume_number'),
+      dataIndex: 'number',
+      key: 'number',
+      width: 100,
+    },
+    {
+      title: t('common:size'),
+      dataIndex: 'size_kib',
+      key: 'size_kib',
+      width: 120,
+      render: (size_kib) => (size_kib ? formatBytes(size_kib) : '-'),
+    },
+    {
+      title: t('nfs:file_system'),
+      dataIndex: 'file_system',
+      key: 'file_system',
+      width: 120,
+      render: (file_system) => file_system || '-',
+    },
+    {
+      title: t('nfs:export_path'),
+      dataIndex: 'full_export_path',
+      key: 'full_export_path',
+      width: 300,
+      render: (full_export_path) => <code>{full_export_path}</code>,
+    },
+    {
+      title: t('nfs:linstor_state'),
+      dataIndex: 'state',
+      key: 'state',
+      width: 150,
+      align: 'center',
+      render: (state) => {
+        const isOk = state === 'OK';
+        return <Tag color={isOk ? SUCCESS_COLOR : ERROR_COLOR}>{state || 'Unknown'}</Tag>;
+      },
+    },
+  ];
+
+  // Get volumes for an NFS resource (excluding volume 0 which is metadata)
+  const getVolumesForResource = (item: NFSResource): VolumeData[] => {
+    return (
+      item.volumes
+        ?.filter((v) => v?.number !== undefined && v.number > 0)
+        ?.map((volume) => {
+          const exportPathSuffix = (volume as any)?.export_path || '';
+          return {
+            key: `${item.name}-${volume.number}`,
+            number: volume.number!,
+            size_kib: volume.size_kib,
+            file_system: (volume as any)?.file_system,
+            export_path: exportPathSuffix,
+            full_export_path: `${ExportBasePath}/${item.name}${exportPathSuffix}`,
+            state: item.status?.volumes?.find((v) => v.number === volume.number)?.state,
+          };
+        }) || []
+    );
+  };
+
+  // Expanded row render function
+  const expandedRowRender = (record: NFSResource) => {
+    const volumes = getVolumesForResource(record);
+
+    return (
+      <div
+        style={{
+          background: '#fafafa',
+          padding: '16px',
+          margin: '-8px -8px -8px 24px',
+          borderRadius: '4px',
+        }}
+      >
+        <Table<VolumeData>
+          columns={volumeColumns}
+          dataSource={volumes}
+          pagination={false}
+          size="small"
+          rowKey="key"
+          style={{ background: 'white' }}
+        />
+      </div>
+    );
+  };
+
+  // Custom expand icon
+  const expandIcon = ({ expanded, onExpand, record }: any) => {
+    const hasVolumes = record.volumes && record.volumes.filter((v: any) => v?.number > 0).length > 0;
+
+    if (!hasVolumes) {
+      return <span style={{ width: 24, display: 'inline-block' }} />;
     }
-    // Use export_path from volume 1 (the actual data volume, not metadata)
-    const volume1 = e.volumes.find((v) => v.number === 1) || e.volumes[1];
-    const exportPathSuffix = (volume1 as any)?.export_path || '';
-    return `${ExportBasePath}/${e?.name}${exportPathSuffix}`;
+
+    return expanded ? (
+      <DownOutlined
+        style={{ cursor: 'pointer', marginRight: 8, color: '#1890ff' }}
+        onClick={(e) => onExpand(record, e)}
+      />
+    ) : (
+      <RightOutlined
+        style={{ cursor: 'pointer', marginRight: 8, color: '#1890ff' }}
+        onClick={(e) => onExpand(record, e)}
+      />
+    );
   };
 
   return (
@@ -152,7 +286,22 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart, loading =
         showIcon
         style={{ marginBottom: 24 }}
       />
-      <Table bordered={false} columns={columns} dataSource={list ?? []} loading={loading} scroll={{ x: 960 }} />
+      <Table<NFSResource & NFSOperationStatus>
+        bordered={false}
+        columns={columns}
+        dataSource={list ?? []}
+        loading={loading}
+        scroll={{ x: 960 }}
+        rowKey="name"
+        expandable={{
+          expandedRowRender,
+          expandedRowKeys,
+          onExpandedRowsChange: (keys) => setExpandedRowKeys(keys as string[]),
+          expandIcon,
+          rowExpandable: (record) =>
+            !!(record.volumes && record.volumes.filter((v) => v?.number !== undefined && v.number > 0).length > 0),
+        }}
+      />
     </div>
   );
 };
