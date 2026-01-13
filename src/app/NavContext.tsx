@@ -9,7 +9,7 @@ import { NavContext } from '@app/hooks/useNav';
 import React, { PropsWithChildren } from 'react';
 
 export const NavProvider: React.FC<PropsWithChildren> = ({ children }) => {
-  const [isNavOpen, setIsNavOpen] = usePersistentMenuState(true);
+  const [isNavOpen, setIsNavOpen] = usePersistentMenuState(false);
 
   const toggleNav = () => {
     setIsNavOpen((prev) => !prev);
