@@ -67,6 +67,11 @@ export const propertyConstants = {
       type: 'long',
     },
     {
+      name: 'MASK_SCHEDULE',
+      value: '0x0000000000540000L',
+      type: 'long',
+    },
+    {
       name: 'MASK_EXT_FILES',
       value: '0x0000000000500000L',
       type: 'long',
@@ -154,6 +159,16 @@ export const propertyConstants = {
     {
       name: 'MASK_SNAPSHOT',
       value: '0x00000000000C0000L',
+      type: 'long',
+    },
+    {
+      name: 'MASK_BACKUP',
+      value: '0x0000000000080000L',
+      type: 'long',
+    },
+    {
+      name: 'MASK_REMOTE',
+      value: '0x0000000000040000L',
       type: 'long',
     },
     {
@@ -377,7 +392,7 @@ export const propertyConstants = {
       type: 'BOR',
     },
     {
-      name: 'FAIL_INVLD_RSC_GRP_NAME',
+      name: 'FAIL_INVLD_REQUEST',
       value: [234, 'MASK_ERROR'],
       type: 'BOR',
     },
@@ -389,6 +404,46 @@ export const propertyConstants = {
     {
       name: 'FAIL_INVLD_EXT_FILE',
       value: [236, 'MASK_ERROR'],
+      type: 'BOR',
+    },
+    {
+      name: 'FAIL_INVLD_RSC_GRP_NAME',
+      value: [237, 'MASK_ERROR'],
+      type: 'BOR',
+    },
+    {
+      name: 'FAIL_INVLD_BACKUP_CONFIG',
+      value: [238, 'MASK_ERROR'],
+      type: 'BOR',
+    },
+    {
+      name: 'FAIL_INVLD_REMOTE_NAME',
+      value: [239, 'MASK_ERROR'],
+      type: 'BOR',
+    },
+    {
+      name: 'FAIL_INVLD_TIME_PARAM',
+      value: [240, 'MASK_ERROR'],
+      type: 'BOR',
+    },
+    {
+      name: 'FAIL_INVLD_SCHEDULE_NAME',
+      value: [241, 'MASK_ERROR'],
+      type: 'BOR',
+    },
+    {
+      name: 'FAIL_INVLD_DB_EXPORT_FILE',
+      value: [242, 'MASK_ERROR'],
+      type: 'BOR',
+    },
+    {
+      name: 'FAIL_INVLD_RSC_STATE',
+      value: [243, 'MASK_ERROR'],
+      type: 'BOR',
+    },
+    {
+      name: 'FAIL_INVLD_BLK_SIZE',
+      value: [244, 'MASK_ERROR'],
       type: 'BOR',
     },
     {
@@ -497,6 +552,21 @@ export const propertyConstants = {
     {
       name: 'FAIL_NOT_FOUND_EXT_FILE',
       value: [320, 'MASK_ERROR'],
+      type: 'BOR',
+    },
+    {
+      name: 'FAIL_NOT_FOUND_REMOTE',
+      value: [321, 'MASK_ERROR'],
+      type: 'BOR',
+    },
+    {
+      name: 'FAIL_NOT_FOUND_BACKUP',
+      value: [322, 'MASK_ERROR'],
+      type: 'BOR',
+    },
+    {
+      name: 'FAIL_NOT_FOUND_SCHEDULE',
+      value: [323, 'MASK_ERROR'],
       type: 'BOR',
     },
     {
@@ -618,6 +688,16 @@ export const propertyConstants = {
       type: 'BOR',
     },
     {
+      name: 'FAIL_ACC_DENIED_REMOTE',
+      value: [423, 'MASK_ERROR'],
+      type: 'BOR',
+    },
+    {
+      name: 'FAIL_ACC_DENIED_SCHEDULE',
+      value: [424, 'MASK_ERROR'],
+      type: 'BOR',
+    },
+    {
       blockcomment: 'Codes 500-599: data already exists failures',
     },
     {
@@ -731,11 +811,6 @@ export const propertyConstants = {
       type: 'BOR',
     },
     {
-      name: 'FAIL_EXISTS_OPENFLEX_TARGET_PER_RSC_DFN',
-      value: [524, 'MASK_ERROR'],
-      type: 'BOR',
-    },
-    {
       name: 'FAIL_EXISTS_SNAPSHOT_SHIPPING',
       value: [525, 'MASK_ERROR'],
       type: 'BOR',
@@ -743,6 +818,16 @@ export const propertyConstants = {
     {
       name: 'FAIL_EXISTS_EXOS_ENCLOSURE',
       value: [526, 'MASK_ERROR'],
+      type: 'BOR',
+    },
+    {
+      name: 'FAIL_EXISTS_REMOTE',
+      value: [527, 'MASK_ERROR'],
+      type: 'BOR',
+    },
+    {
+      name: 'FAIL_EXISTS_SCHEDULE',
+      value: [528, 'MASK_ERROR'],
       type: 'BOR',
     },
     {
@@ -794,8 +879,8 @@ export const propertyConstants = {
       type: 'BOR',
     },
     {
-      name: 'FAIL_MISSING_OPENFLEX_TARGET',
-      value: [610, 'MASK_ERROR'],
+      name: 'FAIL_MISSING_EBS_TARGET',
+      value: [611, 'MASK_ERROR'],
       type: 'BOR',
     },
     {
@@ -900,7 +985,57 @@ export const propertyConstants = {
       type: 'BOR',
     },
     {
+      name: 'FAIL_POOL_EXHAUSTED_BACKUP_SHIPPING_TCP_PORT',
+      value: [807, 'MASK_ERROR'],
+      type: 'BOR',
+    },
+    {
       blockcomment: 'Other failures',
+    },
+    {
+      name: 'FAIL_SNAPSHOT_ROLLBACK_IN_PROGRESS',
+      value: [971, 'MASK_ERROR'],
+      type: 'BOR',
+    },
+    {
+      name: 'FAIL_SP_MIXING_NOT_ALLOWED',
+      value: [972, 'MASK_ERROR'],
+      type: 'BOR',
+    },
+    {
+      name: 'FAIL_EBS_COOLDOWN',
+      value: [973, 'MASK_ERROR'],
+      type: 'BOR',
+    },
+    {
+      name: 'FAIL_NOT_ALL_UPTODATE',
+      value: [974, 'MASK_ERROR'],
+      type: 'BOR',
+    },
+    {
+      name: 'FAIL_EVACUATING',
+      value: [975, 'MASK_ERROR'],
+      type: 'BOR',
+    },
+    {
+      name: 'FAIL_BACKUP_UNKNOWN_CLUSTER',
+      value: [976, 'MASK_ERROR'],
+      type: 'BOR',
+    },
+    {
+      name: 'FAIL_DEPENDEND_BACKUP',
+      value: [977, 'MASK_ERROR'],
+      type: 'BOR',
+    },
+    {
+      name: 'FAIL_BACKUP_INCOMPATIBLE_VERSION',
+      value: [978, 'MASK_ERROR'],
+      type: 'BOR',
+    },
+    {
+      name: 'FAIL_SNAPSHOT_NOT_UPTODATE',
+      value: [979, 'MASK_ERROR'],
+      type: 'BOR',
     },
     {
       name: 'FAIL_NOT_ENOUGH_FREE_SPACE',
@@ -1096,8 +1231,38 @@ export const propertyConstants = {
       type: 'BOR',
     },
     {
+      name: 'WARN_BACKUP_DL_ONLY',
+      value: [1019, 'MASK_WARN'],
+      type: 'BOR',
+    },
+    {
+      name: 'WARN_NOT_EVACUATING',
+      value: [1020, 'MASK_WARN'],
+      type: 'BOR',
+    },
+    {
+      name: 'WARN_INVLD_CONF',
+      value: [1021, 'MASK_WARN'],
+      type: 'BOR',
+    },
+    {
+      name: 'WARN_STORPOOL_RENAME_NOT_ALLOWED',
+      value: [1022, 'MASK_WARN'],
+      type: 'BOR',
+    },
+    {
+      name: 'WARN_VLMDFN_RESIZE_SAME_SIZE',
+      value: [1023, 'MASK_WARN'],
+      type: 'BOR',
+    },
+    {
       name: 'WARN_NOT_FOUND',
       value: [3000, 'MASK_WARN'],
+      type: 'BOR',
+    },
+    {
+      name: 'WARN_DEPRECATED',
+      value: [4000, 'MASK_WARN'],
       type: 'BOR',
     },
     {
@@ -1151,6 +1316,16 @@ export const propertyConstants = {
     {
       name: 'INFO_RSC_ALREADY_EXISTS',
       value: [10008, 'MASK_INFO'],
+      type: 'BOR',
+    },
+    {
+      name: 'INFO_ABORTED_FAILED_SNAPSHOT_ROLLBACK',
+      value: [10009, 'MASK_INFO'],
+      type: 'BOR',
+    },
+    {
+      name: 'INFO_RECOVERING_FAILED_SNAPSHOT_ROLLBACK',
+      value: [10010, 'MASK_INFO'],
       type: 'BOR',
     },
     {
@@ -1238,6 +1413,16 @@ export const propertyConstants = {
       type: 'string',
     },
     {
+      name: 'API_CRT_SNAPSHOT_MULTI',
+      value: 'CrtSnapshotMulti',
+      type: 'string',
+    },
+    {
+      name: 'API_CRT_BACKUP',
+      value: 'CrtBackup',
+      type: 'string',
+    },
+    {
       name: 'API_CRT_STOR_POOL_DFN',
       value: 'CrtStorPoolDfn',
       type: 'string',
@@ -1268,13 +1453,23 @@ export const propertyConstants = {
       type: 'string',
     },
     {
+      name: 'API_CLONE_RSCDFN',
+      value: 'CloneRscDfn',
+      type: 'string',
+    },
+    {
+      name: 'API_CLONE_RSCDFN_STATUS',
+      value: 'CloneRscDfnStatus',
+      type: 'string',
+    },
+    {
       name: 'API_CRT_CRYPT_PASS',
       value: 'CrtCryptPass',
       type: 'string',
     },
     {
-      name: 'API_CRT_OF_TARGET_NODE',
-      value: 'CrtOfTargetNode',
+      name: 'API_STATUS_CRYPT_PASS',
+      value: 'StatusCryptPass',
       type: 'string',
     },
     {
@@ -1303,6 +1498,11 @@ export const propertyConstants = {
       type: 'string',
     },
     {
+      name: 'API_ADJUST_RSC_GRP',
+      value: 'AdjustRscGrp',
+      type: 'string',
+    },
+    {
       name: 'API_CREATE_DEVICE_POOL',
       value: 'CreateDevicePool',
       type: 'string',
@@ -1313,8 +1513,28 @@ export const propertyConstants = {
       type: 'string',
     },
     {
-      name: 'API_CRT_EXOS_ENCLOSURE',
-      value: 'CrtExosEnclosure',
+      name: 'API_SET_REMOTE',
+      value: 'SetRemote',
+      type: 'string',
+    },
+    {
+      name: 'API_RESTORE_BACKUP',
+      value: 'RstBackup',
+      type: 'string',
+    },
+    {
+      name: 'API_ABORT_BACKUP',
+      value: 'AbortBackup',
+      type: 'string',
+    },
+    {
+      name: 'API_SHIP_BACKUP',
+      value: 'ShipBackup',
+      type: 'string',
+    },
+    {
+      name: 'API_CRT_SCHEDULE',
+      value: 'CrtSchedule',
       type: 'string',
     },
     {
@@ -1371,6 +1591,11 @@ export const propertyConstants = {
       type: 'string',
     },
     {
+      name: 'API_MOD_VLM_DFN_PASS',
+      value: 'ModVlmDfnPassphrase',
+      type: 'string',
+    },
+    {
       name: 'API_MOD_VLM',
       value: 'ModVlm',
       type: 'string',
@@ -1411,11 +1636,6 @@ export const propertyConstants = {
       type: 'string',
     },
     {
-      name: 'API_SHIP_SNAPSHOT',
-      value: 'ShipSnapshot',
-      type: 'string',
-    },
-    {
       name: 'API_MOD_KVS',
       value: 'ModifyKvs',
       type: 'string',
@@ -1441,13 +1661,8 @@ export const propertyConstants = {
       type: 'string',
     },
     {
-      name: 'API_MOD_EXOS_DFLTS',
-      value: 'ModifyExosDefaults',
-      type: 'string',
-    },
-    {
-      name: 'API_MOD_EXOS_ENCLOSURE',
-      value: 'ModExosEnclosure',
+      name: 'API_MOD_SCHEDULE',
+      value: 'ModSchedule',
       type: 'string',
     },
     {
@@ -1524,6 +1739,11 @@ export const propertyConstants = {
       type: 'string',
     },
     {
+      name: 'API_DEL_BACKUP',
+      value: 'DelBackup',
+      type: 'string',
+    },
+    {
       name: 'API_LOST_NODE',
       value: 'LostNode',
       type: 'string',
@@ -1534,8 +1754,8 @@ export const propertyConstants = {
       type: 'string',
     },
     {
-      name: 'API_DEL_EXOS_ENCLOSURE',
-      value: 'DelExosEnclosure',
+      name: 'API_DEL_SCHEDULE',
+      value: 'DelSchedule',
       type: 'string',
     },
     {
@@ -1593,11 +1813,21 @@ export const propertyConstants = {
       type: 'string',
     },
     {
+      name: 'API_NODE_EVACUATE',
+      value: 'NodeEvacuate',
+      type: 'string',
+    },
+    {
       blockcomment: 'List object APIs',
     },
     {
       name: 'API_LST_NODE',
       value: 'LstNode',
+      type: 'string',
+    },
+    {
+      name: 'API_LST_NODE_CONN',
+      value: 'LstNodeConn',
       type: 'string',
     },
     {
@@ -1696,8 +1926,13 @@ export const propertyConstants = {
       type: 'string',
     },
     {
-      name: 'API_LST_SNAPSHOT_SHIPPINGS',
-      value: 'LstSnapShips',
+      name: 'API_LST_BACKUPS',
+      value: 'LstBackups',
+      type: 'string',
+    },
+    {
+      name: 'API_BACKUP_INFO',
+      value: 'BackupInfo',
       type: 'string',
     },
     {
@@ -1706,33 +1941,53 @@ export const propertyConstants = {
       type: 'string',
     },
     {
-      name: 'API_LST_EXOS_DFLTS',
-      value: 'LstExosDefaults',
-      type: 'string',
-    },
-    {
-      name: 'API_LST_EXOS_ENCLOSURES',
-      value: 'LstExosEnclosures',
-      type: 'string',
-    },
-    {
-      name: 'API_EXOS_ENCLOSURE_EVENTS',
-      value: 'ExosEvents',
-      type: 'string',
-    },
-    {
-      name: 'API_EXOS_EXEC',
-      value: 'ExosExec',
-      type: 'string',
-    },
-    {
-      name: 'API_EXOS_MAP',
-      value: 'ExosMap',
+      name: 'API_LST_REMOTE',
+      value: 'LstRemote',
       type: 'string',
     },
     {
       name: 'API_LST_EXT_FILES',
       value: 'LstExtFiles',
+      type: 'string',
+    },
+    {
+      name: 'API_NODE_STATS',
+      value: 'NodeStats',
+      type: 'string',
+    },
+    {
+      name: 'API_RSC_GRP_STATS',
+      value: 'RscGrpStats',
+      type: 'string',
+    },
+    {
+      name: 'API_RSC_DFN_STATS',
+      value: 'RscDfnStats',
+      type: 'string',
+    },
+    {
+      name: 'API_RSC_STATS',
+      value: 'RscStats',
+      type: 'string',
+    },
+    {
+      name: 'API_STOR_POOL_STATS',
+      value: 'StorPoolStats',
+      type: 'string',
+    },
+    {
+      name: 'API_ERR_REPORT_STATS',
+      value: 'ErrReportStats',
+      type: 'string',
+    },
+    {
+      name: 'API_LST_SCHEDULE',
+      value: 'LstSchedule',
+      type: 'string',
+    },
+    {
+      name: 'API_LST_QUEUE',
+      value: 'LstQueue',
       type: 'string',
     },
     {
@@ -1746,6 +2001,26 @@ export const propertyConstants = {
     {
       name: 'API_RSP_MAX_VLM_SIZE',
       value: 'RspMaxVlmSize',
+      type: 'string',
+    },
+    {
+      name: 'API_QRY_SIZE_INFO',
+      value: 'QrySizeInfo',
+      type: 'string',
+    },
+    {
+      name: 'API_QRY_ALL_SIZE_INFO',
+      value: 'QryAllSizeInfo',
+      type: 'string',
+    },
+    {
+      name: 'API_RSCDFN_SYNC_STATUS',
+      value: 'RscDfnSyncStatus',
+      type: 'string',
+    },
+    {
+      name: 'API_CHECK_EXT_FILE',
+      value: 'CheckExtFile',
       type: 'string',
     },
     {
@@ -1838,6 +2113,14 @@ export const propertyConstants = {
       type: 'string',
     },
     {
+      blockcomment: 'Database APIs',
+    },
+    {
+      name: 'API_DB_EXPORT',
+      value: 'DbExport',
+      type: 'string',
+    },
+    {
       blockcomment: 'DRBD property keys',
     },
     {
@@ -1856,8 +2139,23 @@ export const propertyConstants = {
       type: 'string',
     },
     {
+      name: 'KEY_QUORUM_SET_BY',
+      value: 'QuorumSetBy',
+      type: 'string',
+    },
+    {
       name: 'KEY_DRBD_AUTO_QUORUM',
       value: 'auto-quorum',
+      type: 'string',
+    },
+    {
+      name: 'KEY_DRBD_AUTO_BLOCK_SIZE',
+      value: 'auto-block-size',
+      type: 'string',
+    },
+    {
+      name: 'KEY_DRBD_FREEZE_BLOCK_SIZE',
+      value: 'freeze-block-size',
       type: 'string',
     },
     {
@@ -1881,6 +2179,11 @@ export const propertyConstants = {
       type: 'string',
     },
     {
+      name: 'KEY_DRBD_DISABLE_AUTO_RESYNC_AFTER',
+      value: 'auto-resync-after-disable',
+      type: 'string',
+    },
+    {
       name: 'KEY_DRBD_DISABLE_AUTO_VERIFY_ALGO',
       value: 'auto-verify-algo-disable',
       type: 'string',
@@ -1888,6 +2191,26 @@ export const propertyConstants = {
     {
       name: 'KEY_DRBD_AUTO_VERIFY_ALGO_ALLOWED_USER',
       value: 'auto-verify-algo-allowed-user-list',
+      type: 'string',
+    },
+    {
+      name: 'KEY_DRBD_AUTO_RS_DISCARD_GRANULARITY',
+      value: 'auto-rs-discard-granularity',
+      type: 'string',
+    },
+    {
+      name: 'KEY_FORCE_INITIAL_SYNC',
+      value: 'ForceInitialSync',
+      type: 'string',
+    },
+    {
+      name: 'KEY_DRBD_SKIP_DISK',
+      value: 'SkipDisk',
+      type: 'string',
+    },
+    {
+      name: 'KEY_DRBD_EXACT_SIZE',
+      value: 'ExactSize',
       type: 'string',
     },
     {
@@ -1911,6 +2234,14 @@ export const propertyConstants = {
     {
       name: 'KEY_CUR_STLT_CONN_NAME',
       value: 'CurStltConnName',
+      type: 'string',
+    },
+    {
+      blockcomment: 'Volume-definition property keys',
+    },
+    {
+      name: 'KEY_PASSPHRASE',
+      value: 'Passphrase',
       type: 'string',
     },
     {
@@ -1949,6 +2280,31 @@ export const propertyConstants = {
     {
       name: 'KEY_RSC_MIGRATE_FROM',
       value: 'MigrateFrom',
+      type: 'string',
+    },
+    {
+      name: 'KEY_RSC_ALLOW_MIXING_DEVICE_KIND',
+      value: 'AllowMixingStoragePoolDriver',
+      type: 'string',
+    },
+    {
+      name: 'KEY_RSC_DISKFUL_BY',
+      value: 'DiskfulBy',
+      type: 'string',
+    },
+    {
+      name: 'KEY_BALANCE_RESOURCES_ENABLED',
+      value: 'BalanceResourcesEnabled',
+      type: 'string',
+    },
+    {
+      name: 'KEY_BALANCE_RESOURCES_INTERVAL',
+      value: 'BalanceResourcesInterval',
+      type: 'string',
+    },
+    {
+      name: 'KEY_BALANCE_RESOURCES_GRACE_PERIOD',
+      value: 'BalanceResourcesGracePeriod',
       type: 'string',
     },
     {
@@ -2118,6 +2474,54 @@ export const propertyConstants = {
       type: 'string',
     },
     {
+      name: 'KEY_CACHE_FLUSH_TIMEOUT',
+      value: 'FlushTimeout',
+      type: 'string',
+    },
+    {
+      blockcomment: 'BCache property keys',
+    },
+    {
+      name: 'KEY_BCACHE_POOL_NAME',
+      value: 'PoolName',
+      type: 'string',
+    },
+    {
+      name: 'KEY_BCACHE_SIZE',
+      value: 'Size',
+      type: 'string',
+    },
+    {
+      name: 'KEY_BCACHE_BLOCKSIZE',
+      value: 'Blocksize',
+      type: 'string',
+    },
+    {
+      name: 'KEY_BCACHE_BUCKETSIZE',
+      value: 'Bucketsize',
+      type: 'string',
+    },
+    {
+      name: 'KEY_BCACHE_DATA_OFFSET',
+      value: 'DataOffset',
+      type: 'string',
+    },
+    {
+      name: 'KEY_BCACHE_WRITEBACK',
+      value: 'Writeback',
+      type: 'string',
+    },
+    {
+      name: 'KEY_BCACHE_DISCARD',
+      value: 'Discard',
+      type: 'string',
+    },
+    {
+      name: 'KEY_BCACHE_CACHE_REPLACEMENT_POLICY',
+      value: 'CacheReplacementPolicy',
+      type: 'string',
+    },
+    {
       blockcomment: 'Autoplace property keys',
     },
     {
@@ -2156,6 +2560,11 @@ export const propertyConstants = {
       type: 'string',
     },
     {
+      name: 'KEY_AUTOPLACE_ALLOW_TARGET',
+      value: 'AutoplaceTarget',
+      type: 'string',
+    },
+    {
       blockcomment: 'Auto-Evict property keys',
     },
     {
@@ -2180,11 +2589,6 @@ export const propertyConstants = {
     },
     {
       blockcomment: 'Snapshot shipping property keys',
-    },
-    {
-      name: 'KEY_SNAPSHOT_SHIPPING_PREFIX',
-      value: 'SnapshotShippingPrefix',
-      type: 'string',
     },
     {
       name: 'KEY_TARGET_NODE',
@@ -2219,6 +2623,120 @@ export const propertyConstants = {
     {
       name: 'KEY_TCP_PORT_RANGE',
       value: 'TcpPortRange',
+      type: 'string',
+    },
+    {
+      blockcomment: 'Backup shipping property keys',
+    },
+    {
+      name: 'KEY_BACKUP_TIMEOUT',
+      value: 'BackupTimeout',
+      type: 'string',
+    },
+    {
+      name: 'KEY_BACKUP_S3_SUFFIX',
+      value: 'S3KeySuffix',
+      type: 'string',
+    },
+    {
+      name: 'KEY_REMOTE',
+      value: 'Remote',
+      type: 'string',
+    },
+    {
+      name: 'KEY_MAX_CONCURRENT_BACKUPS_PER_NODE',
+      value: 'MaxConcurrentBackupsPerNode',
+      type: 'string',
+    },
+    {
+      name: 'VAL_NODE_UNDECIDED',
+      value: '<undecided>',
+      type: 'string',
+    },
+    {
+      name: 'KEY_ALLOW_FORCE_RESTORE',
+      value: 'AllowForceRestore',
+      type: 'string',
+    },
+    {
+      name: 'KEY_RECV_TIMEOUT_IN_MS',
+      value: 'L2LReceiveStartedTimeout',
+      type: 'string',
+    },
+    {
+      name: 'KEY_BACKUP_L2L_SKIP_WAIT_FOR_START',
+      value: 'L2LSkipWaitForStart',
+      type: 'string',
+    },
+    {
+      name: 'KEY_COPY_ALL_SNAPS',
+      value: 'CopyAllSnaps',
+      type: 'string',
+    },
+    {
+      name: 'KEY_COPY_ALL_SNAPS_ON_EVAC',
+      value: 'CopyAllSnapsOnEvacuate',
+      type: 'string',
+    },
+    {
+      blockcomment: 'Clone property keys',
+    },
+    {
+      name: 'KEY_USE_ZFS_CLONE',
+      value: 'UseZFSClone',
+      type: 'string',
+    },
+    {
+      blockcomment: 'NetCom namespaces',
+    },
+    {
+      name: 'KEY_NETCOM_ENABLED',
+      value: 'Enabled',
+      type: 'string',
+    },
+    {
+      name: 'KEY_NETCOM_BIND_ADDRESS',
+      value: 'BindAddress',
+      type: 'string',
+    },
+    {
+      name: 'KEY_NETCOM_KEY_PASSWD',
+      value: 'KeyPasswd',
+      type: 'string',
+    },
+    {
+      name: 'KEY_NETCOM_KEY_STORE',
+      value: 'KeyStore',
+      type: 'string',
+    },
+    {
+      name: 'KEY_NETCOM_KEY_STORE_PASSWD',
+      value: 'KeyStorePasswd',
+      type: 'string',
+    },
+    {
+      name: 'KEY_NETCOM_PORT',
+      value: 'Port',
+      type: 'string',
+    },
+    {
+      name: 'KEY_NETCOM_SSL_PROTOCOL',
+      value: 'SslProtocol',
+      type: 'string',
+    },
+    {
+      name: 'KEY_NETCOM_TRUST_STORE',
+      value: 'TrustStore',
+      type: 'string',
+    },
+    {
+      name: 'KEY_NETCOM_TRUST_STORE_PASSWD',
+      value: 'TrustStorePasswd',
+      type: 'string',
+    },
+    {
+      name: 'KEY_NETCOM_TYPE',
+      value: 'Type',
       type: 'string',
     },
     {
@@ -2275,6 +2793,11 @@ export const propertyConstants = {
       type: 'string',
     },
     {
+      name: 'NAMESPC_LINSTOR_DRBD',
+      value: 'Linstor/Drbd',
+      type: 'string',
+    },
+    {
       name: 'NAMESPC_DRBD_OPTIONS',
       value: 'DrbdOptions',
       type: 'string',
@@ -2317,6 +2840,11 @@ export const propertyConstants = {
     {
       name: 'NAMESPC_CONNECTION_PATHS',
       value: 'Paths',
+      type: 'string',
+    },
+    {
+      name: 'NAMESPC_INTERNAL_DRBD',
+      value: 'Internal/Drbd',
       type: 'string',
     },
     {
@@ -2365,6 +2893,11 @@ export const propertyConstants = {
       type: 'string',
     },
     {
+      name: 'NAMESPC_BCACHE',
+      value: 'BCache',
+      type: 'string',
+    },
+    {
       name: 'NAMESPC_AUTOPLACER',
       value: 'Autoplacer',
       type: 'string',
@@ -2390,8 +2923,43 @@ export const propertyConstants = {
       type: 'string',
     },
     {
-      name: 'NAMESPC_EXOS',
-      value: 'StorDriver/Exos',
+      name: 'NAMESPC_BACKUP_SHIPPING',
+      value: 'BackupShipping',
+      type: 'string',
+    },
+    {
+      name: 'NAMESPC_CLUSTER',
+      value: 'Cluster',
+      type: 'string',
+    },
+    {
+      name: 'NAMESPC_CLUSTER_REMOTE',
+      value: 'Cluster/Remote',
+      type: 'string',
+    },
+    {
+      name: 'NAMESPC_SED',
+      value: 'SED',
+      type: 'string',
+    },
+    {
+      name: 'NAMESPC_EBS',
+      value: 'EBS',
+      type: 'string',
+    },
+    {
+      name: 'NAMESPC_TAGS',
+      value: 'Tags',
+      type: 'string',
+    },
+    {
+      name: 'NAMESPC_ENCRYPTION',
+      value: 'Encryption',
+      type: 'string',
+    },
+    {
+      name: 'NAMESPC_ZFS',
+      value: 'Zfs',
       type: 'string',
     },
     {
@@ -2428,8 +2996,18 @@ export const propertyConstants = {
       type: 'string',
     },
     {
+      name: 'KEY_STOR_POOL_LVCREATE_SNAPSHOT_OPTIONS',
+      value: 'LvcreateSnapshotOptions',
+      type: 'string',
+    },
+    {
       name: 'KEY_STOR_POOL_THIN_POOL',
       value: 'ThinPool',
+      type: 'string',
+    },
+    {
+      name: 'KEY_STOR_POOL_LVM_SIZES_CACHE_TIME',
+      value: 'SizesCacheTime',
       type: 'string',
     },
     {
@@ -2445,6 +3023,11 @@ export const propertyConstants = {
     {
       name: 'KEY_STOR_POOL_ZFS_CREATE_OPTIONS',
       value: 'ZfscreateOptions',
+      type: 'string',
+    },
+    {
+      name: 'KEY_STOR_POOL_ZFS_SNAPSHOT_OPTIONS',
+      value: 'ZfsSnapshotOptions',
       type: 'string',
     },
     {
@@ -2468,8 +3051,18 @@ export const propertyConstants = {
       type: 'string',
     },
     {
-      name: 'KEY_STOR_POOL_DFN_MAX_OVERSUBSCRIPTION_RATIO',
+      name: 'KEY_STOR_POOL_MAX_OVERSUBSCRIPTION_RATIO',
       value: 'MaxOversubscriptionRatio',
+      type: 'string',
+    },
+    {
+      name: 'KEY_STOR_POOL_MAX_FREE_CAPACITY_OVERSUBSCRIPTION_RATIO',
+      value: 'MaxFreeCapacityOversubscriptionRatio',
+      type: 'string',
+    },
+    {
+      name: 'KEY_STOR_POOL_MAX_TOTAL_CAPACITY_OVERSUBSCRIPTION_RATIO',
+      value: 'MaxTotalCapacityOversubscriptionRatio',
       type: 'string',
     },
     {
@@ -2478,113 +3071,58 @@ export const propertyConstants = {
       type: 'string',
     },
     {
-      name: 'KEY_STOR_POOL_OPENFLEX_API_HOST',
-      value: 'Openflex/ApiHost',
+      name: 'KEY_SPEC_STLT_PORT_AUTO_RANGE',
+      value: 'SpecStltPortAutoRange',
       type: 'string',
     },
     {
-      name: 'KEY_STOR_POOL_OPENFLEX_API_PORT',
-      value: 'Openflex/ApiPort',
+      name: 'KEY_STOR_POOL_REMOTE_SPDK_API_HOST',
+      value: 'RemoteSpdk/ApiHost',
       type: 'string',
     },
     {
-      name: 'KEY_STOR_POOL_OPENFLEX_STOR_DEV',
-      value: 'Openflex/StorDev',
+      name: 'KEY_STOR_POOL_REMOTE_SPDK_API_PORT',
+      value: 'RemoteSpdk/ApiPort',
       type: 'string',
     },
     {
-      name: 'KEY_STOR_POOL_OPENFLEX_STOR_DEV_HOST',
-      value: 'Openflex/StorDevHost',
+      name: 'KEY_STOR_POOL_REMOTE_SPDK_API_USER_NAME',
+      value: 'RemoteSpdk/UserName',
       type: 'string',
     },
     {
-      name: 'KEY_STOR_POOL_OPENFLEX_STOR_POOL',
-      value: 'Openflex/StorPool',
+      name: 'KEY_STOR_POOL_REMOTE_SPDK_API_USER_PW',
+      value: 'RemoteSpdk/UserPassword',
       type: 'string',
     },
     {
-      name: 'KEY_STOR_POOL_OPENFLEX_USER_NAME',
-      value: 'Openflex/UserName',
+      name: 'KEY_STOR_POOL_REMOTE_SPDK_API_USER_NAME_ENV',
+      value: 'RemoteSpdk/UserNameEnv',
       type: 'string',
     },
     {
-      name: 'KEY_STOR_POOL_OPENFLEX_USER_PW',
-      value: 'Openflex/UserPassword',
+      name: 'KEY_STOR_POOL_REMOTE_SPDK_API_USER_PW_ENV',
+      value: 'RemoteSpdk/UserPasswordEnv',
       type: 'string',
     },
     {
-      name: 'KEY_STOR_POOL_OPENFLEX_JOB_WAIT_MAX_COUNT',
-      value: 'Openflex/JobWaitMaxCount',
-      type: 'string',
-    },
-    {
-      name: 'KEY_STOR_POOL_OPENFLEX_JOB_WAIT_DELAY',
-      value: 'Openflex/JobWaitDelay',
-      type: 'string',
-    },
-    {
-      name: 'KEY_OF_TARGET_PORT_AUTO_RANGE',
-      value: 'OpenflexTargetPortAutoRange',
-      type: 'string',
-    },
-    {
-      name: 'KEY_STOR_POOL_EXOS_API_IP',
-      value: 'IP',
-      type: 'string',
-    },
-    {
-      name: 'KEY_STOR_POOL_EXOS_API_IP_ENV',
-      value: 'IPEnv',
-      type: 'string',
-    },
-    {
-      name: 'KEY_STOR_POOL_EXOS_API_PORT',
-      value: 'Port',
-      type: 'string',
-    },
-    {
-      name: 'KEY_STOR_POOL_EXOS_API_USER',
-      value: 'Username',
-      type: 'string',
-    },
-    {
-      name: 'KEY_STOR_POOL_EXOS_API_USER_ENV',
-      value: 'UsernameEnv',
-      type: 'string',
-    },
-    {
-      name: 'KEY_STOR_POOL_EXOS_API_PASSWORD',
-      value: 'Password',
-      type: 'string',
-    },
-    {
-      name: 'KEY_STOR_POOL_EXOS_API_PASSWORD_ENV',
-      value: 'PasswordEnv',
-      type: 'string',
-    },
-    {
-      name: 'KEY_STOR_POOL_EXOS_VLM_TYPE',
-      value: 'VolumeType',
-      type: 'string',
-    },
-    {
-      name: 'KEY_STOR_POOL_EXOS_CREATE_VOLUME_OPTIONS',
-      value: 'CreateVolumeOptions',
-      type: 'string',
-    },
-    {
-      name: 'KEY_STOR_POOL_EXOS_ENCLOSURE',
-      value: 'Enclosure',
-      type: 'string',
-    },
-    {
-      name: 'KEY_STOR_POOL_EXOS_POOL_SN',
-      value: 'PoolSN',
+      name: 'KEY_EBS_VOLUME_TYPE',
+      value: 'EBS/VolumeType',
       type: 'string',
     },
     {
       name: 'KEY_PREF_NIC',
       value: 'PrefNic',
+      type: 'string',
+    },
+    {
+      name: 'KEY_ZFS_ROLLBACK_STRATEGY',
+      value: 'RollbackStrategy',
+      type: 'string',
+    },
+    {
+      name: 'KEY_ZFS_DELETE_STRATEGY',
+      value: 'DeleteStrategy',
       type: 'string',
     },
     {
@@ -2625,6 +3163,62 @@ export const propertyConstants = {
       type: 'string',
     },
     {
+      name: 'VAL_STOR_POOL_SPACE_NOT_FOUND',
+      value: -1,
+      type: 'long',
+    },
+    {
+      name: 'VAL_STOR_POOL_SPACE_ENOUGH',
+      value: '9223372036854775807L',
+      type: 'long',
+    },
+    {
+      blockcomment: 'Storage pool ZFS values',
+    },
+    {
+      name: 'VAL_STOR_POOL_ZFS_ROLLBACK_STRAT_ROLLBACK',
+      value: 'Rollback',
+      type: 'string',
+    },
+    {
+      name: 'VAL_STOR_POOL_ZFS_ROLLBACK_STRAT_CLONE',
+      value: 'Clone',
+      type: 'string',
+    },
+    {
+      name: 'VAL_STOR_POOL_ZFS_ROLLBACK_STRAT_DYNAMIC',
+      value: 'Dynamic',
+      type: 'string',
+    },
+    {
+      name: 'VAL_STOR_POOL_ZFS_DELETE_STRAT_DESTROY',
+      value: 'Destroy',
+      type: 'string',
+    },
+    {
+      name: 'VAL_STOR_POOL_ZFS_DELETE_STRAT_RENAME',
+      value: 'Rename',
+      type: 'string',
+    },
+    {
+      name: 'VAL_STOR_POOL_ZFS_DELETE_STRAT_DYNAMIC',
+      value: 'Dynamic',
+      type: 'string',
+    },
+    {
+      blockcomment: 'Storage driver options',
+    },
+    {
+      name: 'KEY_STOR_DRIVER_LUKS_FORMAT_OPTIONS',
+      value: 'LuksFormatOptions',
+      type: 'string',
+    },
+    {
+      name: 'KEY_STOR_DRIVER_LUKS_OPEN_OPTIONS',
+      value: 'LuksOpenOptions',
+      type: 'string',
+    },
+    {
       blockcomment: "DRBD Proxy keys (other than 'options')",
     },
     {
@@ -2648,6 +3242,16 @@ export const propertyConstants = {
     {
       name: 'KEY_FS_MKFSPARAMETERS',
       value: 'MkfsParams',
+      type: 'string',
+    },
+    {
+      name: 'KEY_FS_USER',
+      value: 'User',
+      type: 'string',
+    },
+    {
+      name: 'KEY_FS_GROUP',
+      value: 'Group',
       type: 'string',
     },
     {
@@ -2768,13 +3372,8 @@ export const propertyConstants = {
       type: 'string',
     },
     {
-      name: 'VAL_NODE_TYPE_OPENFLEX_TARGET',
-      value: 'Openflex_Target',
-      type: 'string',
-    },
-    {
-      name: 'VAL_NODE_TYPE_EXOS_TARGET',
-      value: 'Exos_Target',
+      name: 'VAL_NODE_TYPE_REMOTE_SPDK',
+      value: 'Remote_Spdk',
       type: 'string',
     },
     {
@@ -2862,12 +3461,12 @@ export const propertyConstants = {
     },
     {
       name: 'DFLT_CTRL_PORT_SSL',
-      value: 3377,
+      value: 3371,
       type: 'int',
     },
     {
       name: 'DFLT_CTRL_PORT_PLAIN',
-      value: 3376,
+      value: 3370,
       type: 'int',
     },
     {
@@ -2904,29 +3503,6 @@ export const propertyConstants = {
       type: 'string',
     },
     {
-      blockcomment: 'Snapshot-shipping values',
-    },
-    {
-      name: 'VAL_SNAP_SHIP_NAME',
-      value: 'SnapshotShipping',
-      type: 'string',
-    },
-    {
-      name: 'SnapshotShipStatus',
-      type: 'enum',
-      enumtype: 'string',
-      values: [
-        {
-          name: 'RUNNING',
-          value: 'Running',
-        },
-        {
-          name: 'COMPLETE',
-          value: 'Complete',
-        },
-      ],
-    },
-    {
       blockcomment: 'Flag string values',
     },
     {
@@ -2940,8 +3516,18 @@ export const propertyConstants = {
       type: 'string',
     },
     {
+      name: 'FLAG_EVACUATE',
+      value: 'EVACUATE',
+      type: 'string',
+    },
+    {
       name: 'FLAG_DELETE',
       value: 'DELETE',
+      type: 'string',
+    },
+    {
+      name: 'FLAG_DRBD_DELETE',
+      value: 'DRBD_DELETE',
       type: 'string',
     },
     {
@@ -2967,6 +3553,51 @@ export const propertyConstants = {
     {
       name: 'FLAG_SUCCESSFUL',
       value: 'SUCCESSFUL',
+      type: 'string',
+    },
+    {
+      name: 'FLAG_SHIPPING',
+      value: 'SHIPPING',
+      type: 'string',
+    },
+    {
+      name: 'FLAG_SHIPPING_CLEANUP',
+      value: 'SHIPPING_CLEANUP',
+      type: 'string',
+    },
+    {
+      name: 'FLAG_SHIPPING_ABORT',
+      value: 'SHIPPING_ABORT',
+      type: 'string',
+    },
+    {
+      name: 'FLAG_SHIPPED',
+      value: 'SHIPPED',
+      type: 'string',
+    },
+    {
+      name: 'FLAG_AUTO_SNAPSHOT',
+      value: 'AUTO_SNAPSHOT',
+      type: 'string',
+    },
+    {
+      name: 'FLAG_BACKUP',
+      value: 'BACKUP',
+      type: 'string',
+    },
+    {
+      name: 'FLAG_RESTORE_BACKUP_ON_SUCCESS',
+      value: 'RESTORE_BACKUP_ON_SUCCESS',
+      type: 'string',
+    },
+    {
+      name: 'FLAG_BACKUP_TARGET',
+      value: 'BACKUP_TARGET',
+      type: 'string',
+    },
+    {
+      name: 'FLAG_BACKUP_SOURCE',
+      value: 'BACKUP_SOURCE',
       type: 'string',
     },
     {
@@ -3025,6 +3656,26 @@ export const propertyConstants = {
       type: 'string',
     },
     {
+      name: 'FLAG_EBS_INITIATOR',
+      value: 'EBS_INITIATOR',
+      type: 'string',
+    },
+    {
+      name: 'FLAG_CLONING',
+      value: 'CLONING',
+      type: 'string',
+    },
+    {
+      name: 'FLAG_FAILED',
+      value: 'FAILED',
+      type: 'string',
+    },
+    {
+      name: 'FLAG_RESTORE_TARGET',
+      value: 'RESTORE_TARGET',
+      type: 'string',
+    },
+    {
       blockcomment: 'Device layer kinds',
     },
     {
@@ -3034,35 +3685,31 @@ export const propertyConstants = {
       values: [
         {
           name: 'DRBD',
-          value: 'drbd',
+          value: 'DRBD',
         },
         {
           name: 'LUKS',
-          value: 'luks',
+          value: 'LUKS',
         },
         {
           name: 'STORAGE',
-          value: 'storage',
+          value: 'STORAGE',
         },
         {
           name: 'NVME',
-          value: 'nvme',
-        },
-        {
-          name: 'OPENFLEX',
-          value: 'openflex',
-        },
-        {
-          name: 'EXOS',
-          value: 'exos',
+          value: 'NVME',
         },
         {
           name: 'WRITECACHE',
-          value: 'writecache',
+          value: 'WRITECACHE',
         },
         {
           name: 'CACHE',
-          value: 'cache',
+          value: 'CACHE',
+        },
+        {
+          name: 'BCACHE',
+          value: 'BCACHE',
         },
       ],
     },
@@ -3117,6 +3764,36 @@ export const propertyConstants = {
         {
           name: 'NO_STLT_CONN',
           value: 10,
+        },
+        {
+          name: 'MISSING_EXT_TOOLS',
+          value: 11,
+        },
+        {
+          name: 'DUPLICATE_UNAME',
+          value: 12,
+        },
+      ],
+    },
+    {
+      blockcomment: 'Clone states',
+    },
+    {
+      name: 'CloneStatus',
+      type: 'enum',
+      enumtype: 'string',
+      values: [
+        {
+          name: 'FAILED',
+          value: 'FAILED',
+        },
+        {
+          name: 'CLONING',
+          value: 'CLONING',
+        },
+        {
+          name: 'COMPLETE',
+          value: 'COMPLETE',
         },
       ],
     },

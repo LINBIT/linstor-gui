@@ -23,19 +23,33 @@ export function handlePropsToFormOption(key: string, prop = {}): FormItem[] {
     propsArr = [...propsArr, ...drbdOptions.objects[key]];
   }
 
-  const propsArrData = Object.entries({ ...properties.properties, ...drbdOptions.properties }).filter(
-    (el) => propsArr.indexOf(el[0]) > -1,
-  );
+  // Build a map of unique form field names to property data
+  // This handles cases where multiple properties have the same key value
+  const allProps = { ...properties.properties, ...drbdOptions.properties };
+  const uniqueFieldMap = new Map<string, { propName: string; data: (typeof allProps)[string]; field: string }>();
 
-  return propsArrData.map(([key, data]) => {
-    let field: string;
-
-    if (Array.isArray(data.key)) {
-      field = data.key.map((name) => (propertyConstants.data.find((r) => r.name === name) || {}).value).join('/');
-    } else {
-      // DRDB Options
-      field = data.key;
+  for (const propName of propsArr) {
+    if (allProps[propName]) {
+      const data = allProps[propName];
+      let field: string;
+      if (Array.isArray(data.key)) {
+        field = data.key
+          .map((name: string) => (propertyConstants.data.find((r) => r.name === name) || {}).value)
+          .join('/');
+      } else {
+        field = data.key;
+      }
+      // Only add if this field hasn't been seen yet (preserve first occurrence)
+      if (!uniqueFieldMap.has(field)) {
+        uniqueFieldMap.set(field, { propName, data, field });
+      }
     }
+  }
+
+  return Array.from(uniqueFieldMap.values()).map((item) => {
+    const key = item.propName;
+    const data = item.data;
+    const field = item.field;
 
     const value = prop[field];
     const hide = typeof value === 'undefined'; // if this prop has value then display it as initial value
