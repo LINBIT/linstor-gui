@@ -223,7 +223,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
             message: 'Resource definition name is required!',
           },
           {
-            pattern: /^[A-Za-z0-9.+-]{1,127}$/,
+            pattern: /^[A-Za-z0-9.+_-]{1,127}$/,
             message: 'Resource definition name is invalid!',
           },
         ]}
