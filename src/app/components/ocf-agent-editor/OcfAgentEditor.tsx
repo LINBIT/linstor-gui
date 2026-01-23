@@ -221,7 +221,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
 
   const [saving, setSaving] = useState(false);
 
-  // 解析的 OCF agents（来自 start 数组）
+  // Parsed OCF agents (from start array)
   const [parsedAgents, setParsedAgents] = useState<OcfAgentWithMetadata[]>([]);
 
   // Original TOML content and resource name
@@ -231,10 +231,10 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
   // Form values for live preview
   const [, forceUpdate] = useState({});
 
-  // 所有可用的 resource agents（按 provider 分组）- 使用本地静态数据
+  // All available resource agents (grouped by provider) - using local static data
   const [allAgents] = useState<ResourceAgentsByProvider>(allAgentsData);
 
-  // 展开的 agent keys
+  // Expanded agent keys
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
 
   // Add agent modal state
@@ -446,7 +446,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
     }
   }, [mode, externalForm, onAgentsChange, parsedAgents]);
 
-  // 加载 TOML 并解析 OCF agents / 加载 form 数据
+  // Load TOML and parse OCF agents / Load form data
   useEffect(() => {
     if (mode === 'create') {
       loadParsedAgents();
@@ -535,7 +535,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
     }
   };
 
-  // 根据解析的 agent 查找匹配的元数据
+  // Find matching metadata based on parsed agent
   const findAgentMetadata = (agent: ParsedOcfAgent) => {
     if (!allAgents) return null;
 
@@ -545,14 +545,14 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
     return providerAgents.find((a) => a.name === agent.agent_type) || null;
   };
 
-  // 拖拽结束处理
+  // Handle drag end
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
-      // Extract array indices from IDs
-      const oldIndex = parseInt(String(active.id).replace('agent-', ''), 10);
-      const newIndex = parseInt(String(over.id).replace('agent-', ''), 10);
+      // Find indices based on instanceId in the ID string
+      const oldIndex = parsedAgents.findIndex((a) => `agent-${a.instanceId}` === active.id);
+      const newIndex = parsedAgents.findIndex((a) => `agent-${a.instanceId}` === over.id);
 
       if (oldIndex >= 0 && newIndex >= 0) {
         // Move parsedAgents array - this has the latest data from handleFormValuesChange
@@ -579,7 +579,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
     }
   };
 
-  // 切换展开状态
+  // Toggle expand state
   const toggleExpand = (key: string) => {
     const newExpanded = new Set(expandedKeys);
 
@@ -713,7 +713,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
     }
   };
 
-  // 删除 agent
+  // Delete agent
   const deleteAgent = (index: number) => {
     const newAgents = parsedAgents.filter((_, i) => i !== index);
 
@@ -732,7 +732,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
     message.success('Agent removed');
   };
 
-  // 删除参数
+  // Remove parameter
   // stableKey parameter is the instanceId
   const handleRemoveParam = (stableKey: number, paramName: string) => {
     // Find agent by instanceId
@@ -787,7 +787,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
     message.success(`Parameter ${paramName} removed`);
   };
 
-  // 打开添加参数Modal
+  // Open add parameter Modal
   // stableKey parameter is the instanceId
   const handleAddParam = (stableKey: number) => {
     setCurrentAgentIndex(stableKey);
@@ -795,7 +795,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
     setAddParamModalVisible(true);
   };
 
-  // 确认添加参数
+  // Confirm add parameter
   const confirmAddParam = () => {
     if (currentAgentIndex === null || !selectedParam) {
       message.error('Please select a parameter');
@@ -860,7 +860,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
     setCurrentAgentIndex(null);
   };
 
-  // 添加新 agent
+  // Add new agent
   const handleAddAgent = () => {
     if (!selectedProvider || !selectedAgent) {
       message.error('Please select provider and agent');
@@ -951,13 +951,8 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
     setAddModalVisible(false);
   };
 
-  // Generate IDs for DnD - use array index for DnD Kit
-  // DnD Kit needs items array to match the rendering order
-  // Memoize to prevent unnecessary re-renders during drag
-  const items = useMemo(
-    () => parsedAgents.map((_, index) => `agent-${index}`),
-    [parsedAgents.length], // Regenerate when length changes
-  );
+  // Generate IDs for DnD - use instanceId for stable keys
+  const items = useMemo(() => parsedAgents.map((agent) => `agent-${agent.instanceId}`), [parsedAgents]);
 
   if (mode === 'edit' && !profile) {
     return (
@@ -1100,16 +1095,16 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
                       {parsedAgents.map((agentWithMeta, index) => {
                         const { item } = agentWithMeta;
 
-                        // 尝试从 allAgents 中查找元数据 (只对 OCF agents)
+                        // Attempt to find metadata from allAgents (only for OCF agents)
                         const matchedMetadata =
                           item.is_ocf && item.ocf_agent ? findAgentMetadata(item.ocf_agent) : null;
 
-                        // 如果后端已经返回了元数据，使用它；否则使用匹配的
+                        // If backend already returned metadata, use it; otherwise use matched one
                         const metadata = agentWithMeta.metadata || matchedMetadata;
                         const isLoadingMetadata = item.is_ocf && !metadata && !allAgents;
 
-                        // Use simple agent-{index} ID to match items array
-                        const id = `agent-${index}`;
+                        // Use instanceId for stable ID
+                        const id = `agent-${agentWithMeta.instanceId}`;
 
                         return (
                           <SortableAgentItem
