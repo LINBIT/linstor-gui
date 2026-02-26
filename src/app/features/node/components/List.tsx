@@ -328,7 +328,7 @@ export const List = () => {
                         deleteMutation.mutate(record.name || '');
                       }}
                     >
-                      {t('common:delete')}
+                      <div className="w-full text-red-600">{t('common:delete')}</div>
                     </Popconfirm>
                   ),
                 },
@@ -345,7 +345,7 @@ export const List = () => {
                         lostMutation.mutate(record.name || '');
                       }}
                     >
-                      {t('common:lost')}
+                      <div className="w-full text-red-600">{t('common:lost')}</div>
                     </Popconfirm>
                   ),
                 },

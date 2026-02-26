@@ -50,7 +50,9 @@ const CloneForm = ({ resource, isUsingZFS }: SpawnFormProps) => {
 
   return (
     <>
-      <span onClick={() => setShowForm(true)}>{t('common:clone')}</span>
+      <div className="w-full" onClick={() => setShowForm(true)}>
+        {t('common:clone')}
+      </div>
       <Modal
         title={t('common:clone')}
         open={showForm}

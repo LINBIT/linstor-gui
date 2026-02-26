@@ -461,18 +461,13 @@ export const OverviewList = () => {
                 items: [
                   {
                     key: 'add_to_node',
-                    label: (
-                      <span
-                        onClick={() => {
-                          setCurrentResource(record.name);
-                          const nodes = record.volumes?.map((v: any) => v.node_name) || [];
-                          setUsedNodes(Array.from(new Set(nodes)));
-                          setAddToNodeModalOpen(true);
-                        }}
-                      >
-                        {t('resource:add_to_node')}
-                      </span>
-                    ),
+                    label: t('resource:add_to_node'),
+                    onClick: () => {
+                      setCurrentResource(record.name);
+                      const nodes = record.volumes?.map((v: any) => v.node_name) || [];
+                      setUsedNodes(Array.from(new Set(nodes)));
+                      setAddToNodeModalOpen(true);
+                    },
                   },
                   {
                     key: 'adjust',
@@ -488,7 +483,7 @@ export const OverviewList = () => {
                           });
                         }}
                       >
-                        <span>{t('common:adjust')}</span>
+                        <div className="w-full">{t('common:adjust')}</div>
                       </Popconfirm>
                     ),
                   },
@@ -498,44 +493,29 @@ export const OverviewList = () => {
                   },
                   {
                     key: 'resize',
-                    label: (
-                      <span
-                        onClick={() => {
-                          setCurrent(record);
-                          setResizeModalOpen(true);
-                        }}
-                      >
-                        {t('common:resize')}
-                      </span>
-                    ),
+                    label: t('common:resize'),
+                    onClick: () => {
+                      setCurrent(record);
+                      setResizeModalOpen(true);
+                    },
                   },
                   {
                     key: 'resource_definition',
-                    label: (
-                      <span
-                        onClick={() => {
-                          setCurrent(record);
-                          setInitialProps(record.props ?? {});
-                          rdPropertyFormRef.current?.openModal();
-                        }}
-                      >
-                        {t('common:resource_definition_properties')}
-                      </span>
-                    ),
+                    label: t('common:resource_definition_properties'),
+                    onClick: () => {
+                      setCurrent(record);
+                      setInitialProps(record.props ?? {});
+                      rdPropertyFormRef.current?.openModal();
+                    },
                   },
                   {
                     key: 'volume_definition',
-                    label: (
-                      <span
-                        onClick={() => {
-                          setCurrent(record);
-                          setInitialProps(record.volumeDefinitions[0].props ?? {});
-                          vdPropertyFormRef.current?.openModal();
-                        }}
-                      >
-                        {t('common:volume_definition_properties')}
-                      </span>
-                    ),
+                    label: t('common:volume_definition_properties'),
+                    onClick: () => {
+                      setCurrent(record);
+                      setInitialProps(record.volumeDefinitions[0].props ?? {});
+                      vdPropertyFormRef.current?.openModal();
+                    },
                   },
                   {
                     key: 'delete',
@@ -550,14 +530,16 @@ export const OverviewList = () => {
                           deleteMutation.mutate(record.name);
                         }}
                       >
-                        {t('common:delete')}
+                        <div className="w-full text-red-600">{t('common:delete')}</div>
                       </Popconfirm>
                     ),
                   },
                 ],
               }}
             >
-              <MoreOutlined style={{ cursor: 'pointer', fontSize: 16 }} />
+              <span className="cursor-pointer text-gray-600 hover:text-gray-800 flex items-center justify-center w-8 h-8">
+                <MoreOutlined style={{ fontSize: 18 }} />
+              </span>
             </Dropdown>
           );
         },
@@ -760,7 +742,9 @@ export const OverviewList = () => {
                                 });
                               }}
                             >
-                              <span>{isDisklessOrTieBreaker ? t('resource:add_disk') : t('resource:remove_disk')}</span>
+                              <div className="w-full">
+                                {isDisklessOrTieBreaker ? t('resource:add_disk') : t('resource:remove_disk')}
+                              </div>
                             </Popconfirm>
                           ),
                         },
@@ -812,14 +796,16 @@ export const OverviewList = () => {
                                 });
                               }}
                             >
-                              {t('common:delete')}
+                              <div className="w-full text-red-600">{t('common:delete')}</div>
                             </Popconfirm>
                           ),
                         },
                       ],
                     }}
                   >
-                    <MoreOutlined style={{ cursor: 'pointer', fontSize: 16 }} />
+                    <span className="cursor-pointer text-gray-600 hover:text-gray-800 flex items-center justify-center w-8 h-8">
+                      <MoreOutlined style={{ fontSize: 18 }} />
+                    </span>
                   </Dropdown>
                 </>
               );

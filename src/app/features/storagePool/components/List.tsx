@@ -316,7 +316,7 @@ export const List = () => {
                       cancelText="No"
                       onConfirm={() => handleDelete(record.node_name ?? '', record.storage_pool_name)}
                     >
-                      {t('common:delete')}
+                      <div className="w-full text-red-600">{t('common:delete')}</div>
                     </Popconfirm>
                   ),
                 },
@@ -331,8 +331,8 @@ export const List = () => {
               ],
             }}
           >
-            <span className="cursor-pointer text-gray-600 hover:text-gray-800">
-              <MoreOutlined />
+            <span className="cursor-pointer text-gray-600 hover:text-gray-800 flex items-center justify-center w-8 h-8">
+              <MoreOutlined style={{ fontSize: 18 }} />
             </span>
           </Dropdown>
         </Space>
