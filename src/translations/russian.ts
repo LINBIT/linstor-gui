@@ -142,6 +142,7 @@ const ru = {
   node: {
     node_list: 'Список узлов',
     node_name: 'Имя',
+    platform: 'Платформа',
     default_ip: 'IP',
     default_port: 'Порт',
     node_type: 'Тип',
@@ -154,6 +155,8 @@ const ru = {
   node_detail: {
     title: 'Детали узла',
     node_name: 'Имя узла',
+    platform: 'Платформа',
+    os_variant: 'Вариант ОС',
     node_type: 'Тип узла',
     node_status: 'Статус узла',
     resource_layers: 'Слои ресурсов',

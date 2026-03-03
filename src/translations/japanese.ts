@@ -142,6 +142,7 @@ const ja = {
   node: {
     node_list: 'ノードリスト',
     node_name: '名前',
+    platform: 'プラットフォーム',
     default_ip: 'IP',
     default_port: 'ポート',
     node_type: 'タイプ',
@@ -154,6 +155,8 @@ const ja = {
   node_detail: {
     title: 'ノード詳細',
     node_name: 'ノード名',
+    platform: 'プラットフォーム',
+    os_variant: 'OS バリアント',
     node_type: 'ノードタイプ',
     node_status: 'ノードステータス',
     resource_layers: 'リソースレイヤー',

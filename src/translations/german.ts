@@ -142,6 +142,7 @@ const de = {
   node: {
     node_list: 'Knotenliste',
     node_name: 'Name',
+    platform: 'Plattform',
     default_ip: 'IP',
     default_port: 'Port',
     node_type: 'Typ',
@@ -154,6 +155,8 @@ const de = {
   node_detail: {
     title: 'Knotendetails',
     node_name: 'Knotenname',
+    platform: 'Plattform',
+    os_variant: 'Betriebssystemvariante',
     node_type: 'Knotentyp',
     node_status: 'Knotenstatus',
     resource_layers: 'Ressourcenschichten',

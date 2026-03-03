@@ -134,6 +134,7 @@ const zh = {
   node: {
     node_list: '节点列表',
     node_name: '名称',
+    platform: '平台',
     default_ip: '默认地址',
     default_port: '默认端口',
     node_type: '类型',
@@ -150,6 +151,8 @@ const zh = {
   node_detail: {
     title: '节点详情',
     node_name: '节点名称',
+    platform: '平台',
+    os_variant: '操作系统变体',
     node_type: '节点类型',
     node_status: '节点状态',
     resource_layers: '资源层',

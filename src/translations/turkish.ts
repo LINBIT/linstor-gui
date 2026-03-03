@@ -142,6 +142,7 @@ const tr = {
   node: {
     node_list: 'Düğüm Listesi',
     node_name: 'Ad',
+    platform: 'Platform',
     default_ip: 'IP',
     default_port: 'Port',
     node_type: 'Tür',
@@ -154,6 +155,8 @@ const tr = {
   node_detail: {
     title: 'Düğüm Detayı',
     node_name: 'Düğüm Adı',
+    platform: 'Platform',
+    os_variant: 'İşletim Sistemi Varyantı',
     node_type: 'Düğüm Türü',
     node_status: 'Düğüm Durumu',
     resource_layers: 'Kaynak Katmanları',

@@ -151,6 +151,7 @@ const en = {
   node: {
     node_list: 'Node List',
     node_name: 'Name',
+    platform: 'Platform',
     default_ip: 'IP',
     default_port: 'Port',
     node_type: 'Type',
@@ -163,6 +164,8 @@ const en = {
   node_detail: {
     title: 'Node Detail',
     node_name: 'Node name',
+    platform: 'Platform',
+    os_variant: 'OS variant',
     node_type: 'Node type',
     node_status: 'Node status',
     resource_layers: 'Resource layers',

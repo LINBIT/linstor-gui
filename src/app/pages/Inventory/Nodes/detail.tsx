@@ -9,6 +9,7 @@ import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Card, Space, Tag } from 'antd';
 import { CheckCircleOutlined } from '@ant-design/icons';
+import { FaLinux, FaWindows } from 'react-icons/fa';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import PageBasic from '@app/components/PageBasic';
@@ -215,6 +216,15 @@ const NodeDetail: React.FC = () => {
             <div>
               <LabelText>{t('node_name')}:</LabelText>
               {nodeData?.name}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <LabelText style={{ width: 'auto' }}>{t('platform')}:</LabelText>
+              {nodeData?.platform === 'LINUX' && <FaLinux style={{ fontSize: '20px', marginRight: 4 }} />}
+              {nodeData?.platform === 'WINDOWS' && <FaWindows style={{ fontSize: '18px', marginRight: 4 }} />}
+              {nodeData?.platform?.toLowerCase()}
+            </div>
+            <div>
+              <LabelText>{t('os_variant')}:</LabelText> {nodeData?.os_variant}
             </div>
             <div>
               <LabelText>{t('node_type')}:</LabelText> {nodeData?.type?.toLowerCase()}

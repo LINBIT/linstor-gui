@@ -20,6 +20,7 @@ import { BRAND_COLOR } from '@app/const/color';
 import { getControllerVersion } from '@app/features/node';
 import { useFaultyResources } from '@app/features/resource/hooks/useFaultyResources';
 import { createSvgColorStyle } from '@app/utils/colorUtils';
+import { compareVersions } from '@app/utils/version';
 
 import LogSidebar from './LogSidebar';
 import HeaderAboutModal from './HeaderAboutModal';
@@ -48,24 +49,6 @@ interface HeaderToolsProps {
   onModeChange: (mode: Mode) => void;
   handleSupportClick: () => void;
 }
-
-// This function compares two version strings and returns true if version1 is greater than or equal to version2.
-const compareVersions = (version1: string | undefined, version2: string): boolean => {
-  if (!version1) return false;
-
-  const v1Parts = version1.split('.').map(Number);
-  const v2Parts = version2.split('.').map(Number);
-
-  for (let i = 0; i < Math.max(v1Parts.length, v2Parts.length); i++) {
-    const v1 = v1Parts[i] || 0;
-    const v2 = v2Parts[i] || 0;
-
-    if (v1 > v2) return true;
-    if (v1 < v2) return false;
-  }
-
-  return true; // Equal versions
-};
 
 const HeaderTools: React.FC<HeaderToolsProps> = ({
   authInfo,

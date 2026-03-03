@@ -142,6 +142,7 @@ const fr = {
   node: {
     node_list: 'Liste des nœuds',
     node_name: 'Nom',
+    platform: 'Plateforme',
     default_ip: 'IP',
     default_port: 'Port',
     node_type: 'Type',
@@ -154,6 +155,8 @@ const fr = {
   node_detail: {
     title: 'Détail du nœud',
     node_name: 'Nom du nœud',
+    platform: 'Plateforme',
+    os_variant: 'Variante OS',
     node_type: 'Type de nœud',
     node_status: 'Statut du nœud',
     resource_layers: 'Couches de ressources',

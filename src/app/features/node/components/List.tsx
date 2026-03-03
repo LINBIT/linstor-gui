@@ -16,15 +16,17 @@ import PropertyForm, { PropertyFormRef } from '@app/components/PropertyForm';
 import Button from '@app/components/Button';
 import { Link } from '@app/components/Link';
 import { SupportStatus } from '@app/components/SupportStatus';
-import { getNodes, getNodeCount, deleteNode, updateNode, lostNode } from '../api';
+import { getNodes, getNodeCount, deleteNode, updateNode, lostNode, getControllerVersion } from '../api';
 import { SearchForm } from './styled';
 import { uniqId } from '@app/utils/stringUtils';
 import { NodeDataType, NodeListQuery, UpdateNodeRequestBody } from '../types';
 import { omit } from '@app/utils/object';
 import { LiaToolsSolid } from 'react-icons/lia';
+import { FaLinux, FaWindows } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';
 import { UIMode } from '@app/models/setting';
+import { compareVersions } from '@app/utils/version';
 
 export const List = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -57,6 +59,13 @@ export const List = () => {
   const { mode } = useSelector((state: RootState) => ({
     mode: state.setting.mode,
   }));
+
+  const { data: linstorVersion, isFetched: versionFetched } = useQuery({
+    queryKey: ['linstorVersion'],
+    queryFn: () => getControllerVersion(),
+  });
+
+  const platformColumnAvailable = versionFetched && compareVersions(linstorVersion?.data?.rest_api_version, '1.28.0');
 
   const {
     data: nodes,
@@ -167,6 +176,39 @@ export const List = () => {
     setSelectedRowKeys([]);
   };
 
+  const platformColumn: TableProps<NodeDataType>['columns'][number] = {
+    title: t('node:platform'),
+    key: 'platform',
+    dataIndex: 'platform',
+    render: (platform, record) => {
+      if (platform === 'LINUX') {
+        return (
+          <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+            <Tooltip title={record.os_variant}>
+              <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                <FaLinux style={{ fontSize: '32px', marginRight: 6 }} />
+              </span>
+            </Tooltip>{' '}
+            {platform}
+          </span>
+        );
+      }
+      if (platform === 'WINDOWS') {
+        return (
+          <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+            <Tooltip title={record.os_variant}>
+              <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                <FaWindows style={{ fontSize: '28px', marginRight: 6 }} />
+              </span>
+            </Tooltip>{' '}
+            {platform}
+          </span>
+        );
+      }
+      return platform;
+    },
+  };
+
   const columns: TableProps<NodeDataType>['columns'] = [
     {
       title: t('node:node_name'),
@@ -186,6 +228,7 @@ export const List = () => {
         return <Link to={nodeUrl}>{text}</Link>;
       },
     },
+    ...(platformColumnAvailable ? [platformColumn] : []),
     {
       title: t('node:default_ip'),
       key: 'ip',

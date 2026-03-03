@@ -6159,6 +6159,8 @@ export interface components {
              * @enum {string}
              */
             type: "Controller" | "Satellite" | "Combined" | "Auxiliary";
+            platform?: string;
+            os_variant?: string;
             flags?: string[];
             props?: components["schemas"]["Properties"];
             net_interfaces?: components["schemas"]["NetInterface"][];

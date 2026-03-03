@@ -142,6 +142,7 @@ const es = {
   node: {
     node_list: 'Lista de nodos',
     node_name: 'Nombre',
+    platform: 'Plataforma',
     default_ip: 'IP',
     default_port: 'Puerto',
     node_type: 'Tipo',
@@ -154,6 +155,8 @@ const es = {
   node_detail: {
     title: 'Detalle del nodo',
     node_name: 'Nombre del nodo',
+    platform: 'Plataforma',
+    os_variant: 'Variante de SO',
     node_type: 'Tipo de nodo',
     node_status: 'Estado del nodo',
     resource_layers: 'Capas de recursos',
