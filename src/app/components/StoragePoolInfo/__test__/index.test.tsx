@@ -377,6 +377,30 @@ describe('StoragePoolInfo', () => {
       // Should use height 300 when window height <= 900
       expect(chartElement.getAttribute('data-height')).toBe('300');
     });
+
+    it('should observe container resize to keep hover regions in sync', async () => {
+      const observe = vi.fn();
+      const disconnect = vi.fn();
+      const resizeObserverMock = vi.fn(() => ({
+        observe,
+        unobserve: vi.fn(),
+        disconnect,
+      }));
+
+      global.ResizeObserver = resizeObserverMock as unknown as typeof ResizeObserver;
+      mockGetStoragePool.mockResolvedValue(mockStoragePoolData);
+
+      const { unmount } = renderWithQueryClient(<StoragePoolInfo />);
+
+      await screen.findByTestId('mock-chart');
+
+      expect(resizeObserverMock).toHaveBeenCalledTimes(1);
+      expect(observe).toHaveBeenCalledTimes(1);
+
+      unmount();
+
+      expect(disconnect).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('data calculations', () => {

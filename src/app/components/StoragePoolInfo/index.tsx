@@ -16,7 +16,6 @@ import { formatBytes } from '@app/utils/size';
 import styled from '@emotion/styled';
 import { useWindowSize } from '@app/hooks';
 import { generateStoragePoolColorPairs, getNodeTotalColorPair } from '@app/utils/storagePoolColors';
-
 type SeriesItem = {
   name: string;
   group: string;
@@ -26,8 +25,11 @@ type SeriesItem = {
 
 type NodeSummaryItem = {
   label: string;
+  group: string;
   free: number;
   used: number;
+  freeColor?: string;
+  usedColor?: string;
 };
 
 type HoveredNode = {
@@ -36,28 +38,18 @@ type HoveredNode = {
   left: number;
   width: number;
   height: number;
-  triggerTop: number;
-  triggerLeft: number;
-  triggerWidth: number;
-  triggerHeight: number;
   name: string;
-  details: NodeSummaryItem[];
 };
 
 const ChartContainer = styled.div<{ enableScroll?: boolean }>`
   position: relative;
   overflow-x: ${(props) => (props.enableScroll ? 'auto' : 'visible')};
 
-  .storage-pool-hovered-segment {
+  .storage-pool-hovered-segment,
+  .storage-pool-hovered-series-segment,
+  .storage-pool-hovered-node-segment {
     stroke: #3f3f3f !important;
     stroke-width: 2px !important;
-  }
-
-  .storage-pool-hovered-legend,
-  .storage-pool-hovered-legend .apexcharts-legend-text {
-    color: #111827 !important;
-    fill: #111827 !important;
-    font-weight: 700 !important;
   }
 
   .storage-pool-hovered-xaxis-label {
@@ -67,91 +59,150 @@ const ChartContainer = styled.div<{ enableScroll?: boolean }>`
 
   .storage-pool-node-overlay {
     position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
     border: 1px solid rgba(17, 24, 39, 0.18);
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(1px);
+    background: transparent;
     pointer-events: none;
     transition: opacity 120ms ease;
     z-index: 2;
-  }
-
-  .storage-pool-node-hover-zone {
-    position: absolute;
-    background: transparent;
-    z-index: 4;
+    overflow: hidden;
   }
 
   .storage-pool-node-tooltip {
-    position: absolute;
-    width: 280px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.94);
-    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+    width: 100%;
+    background: rgba(255, 255, 255, 0.92);
     padding: 10px 12px 12px;
+    box-shadow: none;
     pointer-events: auto;
-    z-index: 3;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
   }
 
-  .storage-pool-node-tooltip-header,
-  .storage-pool-node-tooltip-row {
+  .storage-pool-node-tooltip-content {
+    min-width: max-content;
     display: grid;
-    grid-template-columns: minmax(88px, 1.2fr) minmax(84px, 1fr) minmax(84px, 1fr);
+    grid-template-columns: 60px max-content max-content;
+    column-gap: 10px;
+    row-gap: 6px;
     align-items: center;
-    gap: 8px;
-    font-size: 12px;
+    justify-content: start;
+  }
+
+  .storage-pool-node-details-spacer {
+    width: 100%;
+    flex: 0 0 auto;
+  }
+
+  .storage-pool-node-tooltip-row {
+    display: contents;
+    font-size: 13px;
     line-height: 1.4;
+    cursor: default;
   }
 
-  .storage-pool-node-tooltip-header {
-    margin-bottom: 8px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #e5e7eb;
-    color: #6b7280;
+  .storage-pool-node-tooltip-row.is-highlighted .storage-pool-node-tooltip-label {
     font-weight: 700;
+    color: #111827;
+    background: rgba(0, 0, 0, 0.04);
   }
 
-  .storage-pool-node-tooltip-body {
-    max-height: 168px;
-    overflow-y: auto;
-    padding-right: 2px;
-  }
-
-  .storage-pool-node-tooltip-row + .storage-pool-node-tooltip-row {
-    margin-top: 6px;
+  .storage-pool-node-tooltip-row.is-highlighted .storage-pool-node-tooltip-metric {
+    color: #374151;
+    background: rgba(0, 0, 0, 0.04);
   }
 
   .storage-pool-node-tooltip-label {
-    font-weight: 600;
-    color: #111827;
+    font-weight: 400;
+    color: #5f6368;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    border-radius: 4px;
+    padding: 1px 2px;
   }
 
   .storage-pool-node-tooltip-metric {
-    color: #4b5563;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #6b7280;
     white-space: nowrap;
+    font-size: 13px;
+    border-radius: 3px;
+    padding: 1px 2px;
+    transition:
+      background 80ms ease,
+      color 80ms ease;
+    cursor: default;
+  }
+
+  .storage-pool-node-tooltip-metric.is-highlighted {
+    background: rgba(0, 0, 0, 0.06);
+    color: #111827;
+    font-weight: 600;
+  }
+
+  .storage-pool-node-tooltip-metric-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    flex: 0 0 auto;
+  }
+
+  .storage-pool-custom-legend {
+    margin-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .storage-pool-custom-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 0;
+    color: #6b7280;
+    font-size: 13px;
+    line-height: 1.4;
+    cursor: default;
+    user-select: none;
+  }
+
+  .storage-pool-custom-legend-item.is-highlighted {
+    color: #111827;
+    font-weight: 700;
+  }
+
+  .storage-pool-custom-legend-marker {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    flex: 0 0 auto;
   }
 `;
 
 const HOVERED_SEGMENT_CLASS = 'storage-pool-hovered-segment';
-const HOVERED_LEGEND_CLASS = 'storage-pool-hovered-legend';
+const HOVERED_SERIES_SEGMENT_CLASS = 'storage-pool-hovered-series-segment';
+const HOVERED_NODE_SEGMENT_CLASS = 'storage-pool-hovered-node-segment';
 const HOVERED_XAXIS_LABEL_CLASS = 'storage-pool-hovered-xaxis-label';
-const NODE_OVERLAY_HORIZONTAL_INSET = 10;
+const NODE_OVERLAY_HORIZONTAL_INSET = 52;
+const NODE_OVERLAY_MIN_WIDTH = 320;
+const NODE_OVERLAY_MAX_WIDTH = 380;
 const NODE_OVERLAY_TOP_PADDING = 8;
-const NODE_OVERLAY_BOTTOM_PADDING = 18;
-const NODE_TOOLTIP_WIDTH = 280;
 const HOVERED_NODE_CLEAR_DELAY = 120;
-const NODE_LABEL_TRIGGER_PADDING_X = 16;
-const NODE_LABEL_TRIGGER_PADDING_Y = 8;
+const NODE_DETAILS_PANEL_ROW_HEIGHT = 26;
+const NODE_DETAILS_PANEL_PADDING = 28;
+const NODE_DETAILS_PANEL_GAP = 8;
 
-const buildHoveredNodes = (
-  containerElement: HTMLDivElement | null,
-  nodeNames: string[],
-  nodeSummaries: Record<string, NodeSummaryItem[]>,
-): HoveredNode[] => {
+const formatLegendLabel = (seriesName: string): string => seriesName.replace(/<[^>]+>/g, '').trim();
+
+const buildHoveredNodes = (containerElement: HTMLDivElement | null, nodeNames: string[]): HoveredNode[] => {
   if (!containerElement || nodeNames.length === 0) {
     return [];
   }
@@ -163,9 +214,10 @@ const buildHoveredNodes = (
 
   const containerRect = containerElement.getBoundingClientRect();
   const plotRect = chartRoot.querySelector('.apexcharts-grid')?.getBoundingClientRect();
+  const canvasRect = chartRoot.getBoundingClientRect();
   const xAxisLabels = chartRoot.querySelectorAll('.apexcharts-xaxis-texts-g text');
 
-  if (!plotRect) {
+  if (!plotRect || !canvasRect) {
     return [];
   }
 
@@ -173,9 +225,31 @@ const buildHoveredNodes = (
   const plotRight = plotRect.right - containerRect.left;
   const plotTop = plotRect.top - containerRect.top;
   const plotWidth = plotRect.width;
+
+  const xAxisTextElements = chartRoot.querySelectorAll('.apexcharts-xaxis-texts-g text');
+  const xAxisTextsBottom =
+    xAxisTextElements.length > 0
+      ? Math.max(...Array.from(xAxisTextElements).map((el) => el.getBoundingClientRect().bottom - containerRect.top))
+      : canvasRect.bottom - containerRect.top;
+  const canvasBottom = xAxisTextsBottom + 20;
   const fallbackStep = plotWidth / nodeNames.length;
+  const seriesElements = chartRoot.querySelectorAll('.apexcharts-bar-series .apexcharts-series');
+  const overlayMinWidth = Math.min(
+    NODE_OVERLAY_MAX_WIDTH,
+    Math.max(NODE_OVERLAY_MIN_WIDTH, plotWidth / Math.max(nodeNames.length, 1) - 40),
+  );
 
   const centers = nodeNames.map((_, index) => {
+    const segmentRects = Array.from(seriesElements)
+      .map((seriesElement) => seriesElement.querySelectorAll('path')[index]?.getBoundingClientRect())
+      .filter((rect): rect is DOMRect => Boolean(rect) && rect.width > 0);
+
+    if (segmentRects.length > 0) {
+      const left = Math.min(...segmentRects.map((rect) => rect.left - containerRect.left));
+      const right = Math.max(...segmentRects.map((rect) => rect.right - containerRect.left));
+      return (left + right) / 2;
+    }
+
     const labelRect = xAxisLabels[index]?.getBoundingClientRect();
     if (labelRect) {
       return labelRect.left - containerRect.left + labelRect.width / 2;
@@ -188,38 +262,41 @@ const buildHoveredNodes = (
     const currentCenter = centers[index];
     const previousCenter = centers[index - 1] ?? plotLeft;
     const nextCenter = centers[index + 1] ?? plotRight;
-    const labelRect = xAxisLabels[index]?.getBoundingClientRect();
     const rawLeft = index === 0 ? plotLeft : (previousCenter + currentCenter) / 2;
     const rawRight = index === nodeNames.length - 1 ? plotRight : (currentCenter + nextCenter) / 2;
-    const left = Math.max(rawLeft + NODE_OVERLAY_HORIZONTAL_INSET, 0);
-    const width = Math.max(rawRight - rawLeft - NODE_OVERLAY_HORIZONTAL_INSET * 2, 48);
-    const height =
-      (labelRect?.bottom ? labelRect.bottom - containerRect.top : plotTop + 24) - plotTop + NODE_OVERLAY_BOTTOM_PADDING;
-    const triggerLeft = labelRect
-      ? Math.max(labelRect.left - containerRect.left - NODE_LABEL_TRIGGER_PADDING_X, left)
-      : left;
-    const triggerWidth = labelRect
-      ? Math.max(Math.min(labelRect.width + NODE_LABEL_TRIGGER_PADDING_X * 2, left + width - triggerLeft), 56)
-      : Math.min(width, 72);
-    const triggerTop = labelRect
-      ? labelRect.top - containerRect.top - NODE_LABEL_TRIGGER_PADDING_Y
-      : plotTop + height - 28;
-    const triggerHeight = labelRect ? labelRect.height + NODE_LABEL_TRIGGER_PADDING_Y * 2 : 28;
+    const preferredWidth = Math.min(
+      Math.max(rawRight - rawLeft - NODE_OVERLAY_HORIZONTAL_INSET * 2, overlayMinWidth),
+      NODE_OVERLAY_MAX_WIDTH,
+    );
+    const maxLeft = Math.max(plotRight - preferredWidth, plotLeft);
+    const left = Math.min(Math.max(currentCenter - preferredWidth / 2, plotLeft), maxLeft);
+    const width = preferredWidth;
+    const height = canvasBottom - plotTop;
 
     return {
       index,
       name: nodeName,
-      details: nodeSummaries[nodeName] || [],
       left,
       top: Math.max(plotTop - NODE_OVERLAY_TOP_PADDING, 0),
       width,
       height,
-      triggerLeft,
-      triggerTop,
-      triggerWidth,
-      triggerHeight,
     };
   });
+};
+
+const findSeriesElementByIndex = (root: ParentNode | null | undefined, seriesIndex: number): Element | null => {
+  if (!root) {
+    return null;
+  }
+
+  return (
+    Array.from(root.querySelectorAll('.apexcharts-bar-series .apexcharts-series')).find((seriesElement) => {
+      return (
+        seriesElement.getAttribute('data:realIndex') === String(seriesIndex) ||
+        seriesElement.getAttribute('data-realIndex') === String(seriesIndex)
+      );
+    }) || null
+  );
 };
 
 const setHoveredNodeSegmentsState = (
@@ -238,7 +315,7 @@ const setHoveredNodeSegmentsState = (
       return;
     }
 
-    segment.classList.toggle(HOVERED_SEGMENT_CLASS, hovered);
+    segment.classList.toggle(HOVERED_NODE_SEGMENT_CLASS, hovered);
   });
 };
 
@@ -266,15 +343,13 @@ const setHoveredSeriesState = (containerElement: HTMLDivElement | null, seriesIn
     return;
   }
 
-  const seriesElement = chartRoot.querySelector(
-    `.apexcharts-series[data\\:realIndex="${seriesIndex}"], .apexcharts-series[data-realIndex="${seriesIndex}"]`,
-  );
+  const seriesElement = findSeriesElementByIndex(chartRoot, seriesIndex);
   if (!seriesElement) {
     return;
   }
 
   seriesElement.querySelectorAll('path').forEach((segment) => {
-    segment.classList.toggle(HOVERED_SEGMENT_CLASS, hovered);
+    segment.classList.toggle(HOVERED_SERIES_SEGMENT_CLASS, hovered);
   });
 };
 
@@ -289,9 +364,7 @@ const setHoveredSegmentState = (
     return;
   }
 
-  const seriesElement = chartRoot.querySelector(
-    `.apexcharts-series[data\\:realIndex="${seriesIndex}"], .apexcharts-series[data-realIndex="${seriesIndex}"]`,
-  );
+  const seriesElement = findSeriesElementByIndex(chartRoot, seriesIndex);
   const segment = seriesElement?.querySelectorAll('path')[dataPointIndex];
 
   if (!segment) {
@@ -301,64 +374,18 @@ const setHoveredSegmentState = (
   segment.classList.toggle(HOVERED_SEGMENT_CLASS, hovered);
 };
 
-const setHoveredLegendState = (
-  chartContext: { el?: Element | null } | undefined,
-  seriesIndex: number,
-  hovered: boolean,
-) => {
-  const chartRoot = chartContext?.el;
-  if (!chartRoot) {
-    return;
-  }
-
-  const legendSeries = chartRoot.querySelectorAll('.apexcharts-legend-series')[seriesIndex];
-  if (!legendSeries) {
-    return;
-  }
-
-  legendSeries.classList.toggle(HOVERED_LEGEND_CLASS, hovered);
-};
-
-const setHoveredLegendGroupState = (
-  containerElement: HTMLDivElement | null,
-  series: SeriesItem[],
-  seriesIndex: number,
-  hovered: boolean,
-) => {
-  const chartRoot = containerElement?.querySelector('.apexcharts-canvas');
-  if (!chartRoot) {
-    return;
-  }
-
-  const targetSeries = series[seriesIndex];
-  if (!targetSeries) {
-    return;
-  }
-
-  const legendItems = chartRoot.querySelectorAll('.apexcharts-legend-series');
-  series.forEach((seriesItem, index) => {
-    if (seriesItem.group !== targetSeries.group) {
-      return;
-    }
-
-    const legendItem = legendItems[index];
-    if (!legendItem) {
-      return;
-    }
-
-    legendItem.classList.toggle(HOVERED_LEGEND_CLASS, hovered);
-  });
-};
-
 export const StoragePoolInfo: React.FC = () => {
   const { t } = useTranslation();
 
   const { height } = useWindowSize();
   const chartContainerRef = useRef<HTMLDivElement | null>(null);
   const hideHoveredNodeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hoverableNodesFrameRef = useRef<number | null>(null);
   const activeHoveredNodeIndexRef = useRef<number | null>(null);
   const [hoverableNodes, setHoverableNodes] = useState<HoveredNode[]>([]);
   const [hoveredNode, setHoveredNode] = useState<HoveredNode | null>(null);
+  const [highlightedLegendIndexes, setHighlightedLegendIndexes] = useState<number[]>([]);
+  const [highlightedSeriesIndexes, setHighlightedSeriesIndexes] = useState<number[]>([]);
 
   const clearActiveHoveredNode = () => {
     if (activeHoveredNodeIndexRef.current === null) {
@@ -397,6 +424,46 @@ export const StoragePoolInfo: React.FC = () => {
     }
 
     setHoveredNode(node);
+  };
+
+  const getLegendGroupIndexes = (seriesIndex: number): number[] => {
+    const targetSeries = chartData.series[seriesIndex];
+    if (!targetSeries) {
+      return [];
+    }
+
+    return chartData.series.flatMap((seriesItem, index) => (seriesItem.group === targetSeries.group ? [index] : []));
+  };
+
+  const handleChartContainerMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    if ((event.target as HTMLElement | null)?.closest('.storage-pool-node-tooltip')) {
+      clearHoveredNodeTimer();
+      return;
+    }
+
+    const container = chartContainerRef.current;
+    if (!container || hoverableNodes.length === 0) {
+      return;
+    }
+
+    const rect = container.getBoundingClientRect();
+    const pointerX = event.clientX - rect.left;
+    const pointerY = event.clientY - rect.top;
+    const nextHoveredNode = hoverableNodes.find((node) => {
+      return (
+        pointerX >= node.left &&
+        pointerX <= node.left + node.width &&
+        pointerY >= node.top &&
+        pointerY <= node.top + node.height
+      );
+    });
+
+    if (nextHoveredNode) {
+      activateHoveredNode(nextHoveredNode);
+      return;
+    }
+
+    scheduleHoveredNodeClear();
   };
 
   // Fetching the storage pool data from the API
@@ -481,8 +548,11 @@ export const StoragePoolInfo: React.FC = () => {
 
         nodeSummaries[node].push({
           label: pool,
+          group: pool,
           free,
           used,
+          freeColor: colorPairs[colorIndex].free,
+          usedColor: colorPairs[colorIndex].used,
         });
       });
     });
@@ -509,8 +579,11 @@ export const StoragePoolInfo: React.FC = () => {
           ...(nodeSummaries[node] || []),
           {
             label: 'Node',
+            group: 'NodeAll',
             free: nodeTotals[node] - nodeUsed[node],
             used: nodeUsed[node],
+            freeColor: nodeColorPair.free,
+            usedColor: nodeColorPair.used,
           },
         ];
         return acc;
@@ -518,24 +591,80 @@ export const StoragePoolInfo: React.FC = () => {
     };
   }, [poolsData]);
 
+  const getSeriesIndexByGroupAndSide = (group: string, side: 'free' | 'used'): number =>
+    chartData.series.findIndex((s) => s.group === group && (side === 'free') === s.name.includes('Free'));
+
+  const hoveredChartItem =
+    highlightedSeriesIndexes.length > 0
+      ? (() => {
+          const s = chartData.series[highlightedSeriesIndexes[0]];
+          if (!s) return null;
+          return { group: s.group, side: s.name.includes('Free') ? ('free' as const) : ('used' as const) };
+        })()
+      : null;
+
   useEffect(() => {
     if (isLoading || chartData.categories.length === 0) {
       setHoverableNodes([]);
       return;
     }
 
-    const updateHoverableNodes = () => {
-      setHoverableNodes(buildHoveredNodes(chartContainerRef.current, chartData.categories, chartData.nodeSummaries));
+    const scheduleHoverableNodesUpdate = () => {
+      if (hoverableNodesFrameRef.current !== null) {
+        window.cancelAnimationFrame(hoverableNodesFrameRef.current);
+      }
+
+      hoverableNodesFrameRef.current = window.requestAnimationFrame(() => {
+        hoverableNodesFrameRef.current = null;
+        setHoverableNodes(buildHoveredNodes(chartContainerRef.current, chartData.categories));
+      });
     };
 
-    const timer = window.setTimeout(updateHoverableNodes, 0);
-    window.addEventListener('resize', updateHoverableNodes);
+    const container = chartContainerRef.current;
+    const resizeObserver =
+      typeof ResizeObserver !== 'undefined' && container
+        ? new ResizeObserver(() => {
+            scheduleHoverableNodesUpdate();
+          })
+        : null;
+
+    scheduleHoverableNodesUpdate();
+    window.addEventListener('resize', scheduleHoverableNodesUpdate);
+    resizeObserver?.observe(container);
 
     return () => {
-      window.clearTimeout(timer);
-      window.removeEventListener('resize', updateHoverableNodes);
+      if (hoverableNodesFrameRef.current !== null) {
+        window.cancelAnimationFrame(hoverableNodesFrameRef.current);
+        hoverableNodesFrameRef.current = null;
+      }
+
+      window.removeEventListener('resize', scheduleHoverableNodesUpdate);
+      resizeObserver?.disconnect();
     };
-  }, [chartData.categories, chartData.nodeSummaries, height, isLoading]);
+  }, [chartData.categories, chartData.series, height, isLoading]);
+
+  useEffect(() => {
+    if (!hoveredNode) {
+      return;
+    }
+
+    const nextHoveredNode = hoverableNodes.find((node) => node.name === hoveredNode.name);
+    if (!nextHoveredNode) {
+      clearActiveHoveredNode();
+      setHoveredNode(null);
+      return;
+    }
+
+    if (
+      nextHoveredNode.left !== hoveredNode.left ||
+      nextHoveredNode.top !== hoveredNode.top ||
+      nextHoveredNode.width !== hoveredNode.width ||
+      nextHoveredNode.height !== hoveredNode.height ||
+      nextHoveredNode.index !== hoveredNode.index
+    ) {
+      setHoveredNode(nextHoveredNode);
+    }
+  }, [hoverableNodes, hoveredNode]);
 
   useEffect(() => {
     const container = chartContainerRef.current;
@@ -543,65 +672,16 @@ export const StoragePoolInfo: React.FC = () => {
       return;
     }
 
-    const handleMouseOver = (event: Event) => {
-      const target = event.target as HTMLElement | null;
-      const legendItem = target?.closest('.apexcharts-legend-series') as HTMLElement | null;
-      if (!legendItem) {
-        return;
-      }
-
-      const relatedTarget = (event as MouseEvent).relatedTarget as Node | null;
-      if (relatedTarget && legendItem.contains(relatedTarget)) {
-        return;
-      }
-
-      const legendItems = Array.from(container.querySelectorAll('.apexcharts-legend-series'));
-      const seriesIndex = legendItems.indexOf(legendItem);
-      if (seriesIndex === -1) {
-        return;
-      }
-
-      requestAnimationFrame(() => {
-        setHoveredSeriesState(container, seriesIndex, true);
-        legendItem.classList.add(HOVERED_LEGEND_CLASS);
-      });
-    };
-
-    const handleMouseOut = (event: Event) => {
-      const target = event.target as HTMLElement | null;
-      const legendItem = target?.closest('.apexcharts-legend-series') as HTMLElement | null;
-      if (!legendItem) {
-        return;
-      }
-
-      const relatedTarget = (event as MouseEvent).relatedTarget as Node | null;
-      if (relatedTarget && legendItem.contains(relatedTarget)) {
-        return;
-      }
-
-      const legendItems = Array.from(container.querySelectorAll('.apexcharts-legend-series'));
-      const seriesIndex = legendItems.indexOf(legendItem);
-      if (seriesIndex === -1) {
-        return;
-      }
-
-      requestAnimationFrame(() => {
-        setHoveredSeriesState(container, seriesIndex, false);
-        legendItem.classList.remove(HOVERED_LEGEND_CLASS);
-      });
-    };
-
-    container.addEventListener('mouseover', handleMouseOver);
-    container.addEventListener('mouseout', handleMouseOut);
-    return () => {
-      container.removeEventListener('mouseover', handleMouseOver);
-      container.removeEventListener('mouseout', handleMouseOut);
-    };
-  }, [chartData.series, height, isLoading]);
+    chartData.series.forEach((_seriesItem, index) => {
+      setHoveredSeriesState(container, index, highlightedSeriesIndexes.includes(index));
+    });
+  }, [chartData.series, highlightedSeriesIndexes]);
 
   const options: ApexOptions = {
     chart: {
       stacked: true,
+      redrawOnParentResize: true,
+      redrawOnWindowResize: true,
       toolbar: {
         show: false,
       },
@@ -609,11 +689,20 @@ export const StoragePoolInfo: React.FC = () => {
         dataPointMouseEnter: (_event, chartContext, config) => {
           clearHoveredNodeTimer();
           setHoveredSegmentState(chartContext, config.seriesIndex, config.dataPointIndex, true);
-          setHoveredLegendGroupState(chartContainerRef.current, chartData.series, config.seriesIndex, true);
+          setHighlightedSeriesIndexes([config.seriesIndex]);
+          setHighlightedLegendIndexes(getLegendGroupIndexes(config.seriesIndex));
         },
         dataPointMouseLeave: (_event, chartContext, config) => {
           setHoveredSegmentState(chartContext, config.seriesIndex, config.dataPointIndex, false);
-          setHoveredLegendGroupState(chartContainerRef.current, chartData.series, config.seriesIndex, false);
+          setHighlightedSeriesIndexes((current) =>
+            current.length === 1 && current[0] === config.seriesIndex ? [] : current,
+          );
+          setHighlightedLegendIndexes((current) => {
+            const leavingIndexes = getLegendGroupIndexes(config.seriesIndex);
+            const currentKey = current.join(',');
+            const leavingKey = leavingIndexes.join(',');
+            return currentKey === leavingKey ? [] : current;
+          });
         },
       },
     },
@@ -627,6 +716,7 @@ export const StoragePoolInfo: React.FC = () => {
       categories: chartData.categories,
     },
     legend: {
+      show: false,
       position: 'bottom' as const,
     },
     dataLabels: {
@@ -648,6 +738,10 @@ export const StoragePoolInfo: React.FC = () => {
 
   const nodeCount = chartData.categories.length;
   const chartWidth = nodeCount * 400;
+  const hoveredNodeDetails = hoveredNode ? chartData.nodeSummaries[hoveredNode.name] || [] : [];
+  const hoveredNodeSpRows = hoveredNodeDetails.filter((item) => item.label !== 'Node');
+  const hoveredNodeTotalRow = hoveredNodeDetails.find((item) => item.label === 'Node') ?? null;
+  const tooltipPanelHeight = hoveredNodeDetails.length * NODE_DETAILS_PANEL_ROW_HEIGHT + NODE_DETAILS_PANEL_PADDING;
 
   const widthForChart =
     nodeCount >= 5
@@ -660,58 +754,84 @@ export const StoragePoolInfo: React.FC = () => {
     <div className="border-2 border-gray-200 rounded px-[34px] py-[30px]">
       <h3 className="m-0 mb-4 text-[26px] font-semibold">{t('common:storage_pool_overview')}</h3>
       <Spin spinning={isLoading}>
-        <ChartContainer enableScroll={nodeCount >= 5} ref={chartContainerRef}>
+        <ChartContainer
+          enableScroll={nodeCount >= 5}
+          ref={chartContainerRef}
+          onMouseMove={handleChartContainerMouseMove}
+          onMouseLeave={scheduleHoveredNodeClear}
+        >
           {hoveredNode && (
-            <>
-              <div
-                className="storage-pool-node-overlay"
-                style={{
-                  left: hoveredNode.left,
-                  top: hoveredNode.top,
-                  width: hoveredNode.width,
-                  height: hoveredNode.height,
-                }}
-              />
+            <div
+              className="storage-pool-node-overlay"
+              style={{
+                left: hoveredNode.left,
+                top: hoveredNode.top,
+                width: hoveredNode.width,
+                height: hoveredNode.height + tooltipPanelHeight,
+              }}
+            >
               <div
                 className="storage-pool-node-tooltip"
+                key={hoveredNode.name}
                 onMouseEnter={clearHoveredNodeTimer}
-                onMouseLeave={scheduleHoveredNodeClear}
-                style={{
-                  left: Math.max(hoveredNode.left + hoveredNode.width / 2 - NODE_TOOLTIP_WIDTH / 2, 0),
-                  top: hoveredNode.top + 28,
+                onMouseLeave={() => {
+                  setHighlightedSeriesIndexes([]);
+                  setHighlightedLegendIndexes([]);
+                  scheduleHoveredNodeClear();
                 }}
               >
-                <div className="storage-pool-node-tooltip-header">
-                  <div>SP Name</div>
-                  <div>Node Free</div>
-                  <div>Node Used</div>
-                </div>
-                <div className="storage-pool-node-tooltip-body">
-                  {hoveredNode.details.map((item) => (
-                    <div className="storage-pool-node-tooltip-row" key={`${hoveredNode.name}-${item.label}`}>
-                      <div className="storage-pool-node-tooltip-label">{item.label}</div>
-                      <div className="storage-pool-node-tooltip-metric">{formatBytes(item.free)}</div>
-                      <div className="storage-pool-node-tooltip-metric">{formatBytes(item.used)}</div>
-                    </div>
-                  ))}
+                <div className="storage-pool-node-tooltip-content">
+                  {[...hoveredNodeSpRows, ...(hoveredNodeTotalRow ? [hoveredNodeTotalRow] : [])].map((item) => {
+                    const isFreeHighlighted =
+                      hoveredChartItem?.group === item.group && hoveredChartItem?.side === 'free';
+                    const isUsedHighlighted =
+                      hoveredChartItem?.group === item.group && hoveredChartItem?.side === 'used';
+                    return (
+                      <div className="storage-pool-node-tooltip-row" key={`${hoveredNode.name}-${item.label}`}>
+                        <div className="storage-pool-node-tooltip-label">{item.label}</div>
+                        <div
+                          className={`storage-pool-node-tooltip-metric${isFreeHighlighted ? ' is-highlighted' : ''}`}
+                          onMouseEnter={() => {
+                            const idx = getSeriesIndexByGroupAndSide(item.group, 'free');
+                            if (idx >= 0) {
+                              setHighlightedSeriesIndexes([idx]);
+                              setHighlightedLegendIndexes([idx]);
+                            }
+                          }}
+                        >
+                          {item.freeColor && (
+                            <span
+                              className="storage-pool-node-tooltip-metric-dot"
+                              style={{ background: item.freeColor }}
+                            />
+                          )}
+                          {`Free: ${formatBytes(item.free)}`}
+                        </div>
+                        <div
+                          className={`storage-pool-node-tooltip-metric${isUsedHighlighted ? ' is-highlighted' : ''}`}
+                          onMouseEnter={() => {
+                            const idx = getSeriesIndexByGroupAndSide(item.group, 'used');
+                            if (idx >= 0) {
+                              setHighlightedSeriesIndexes([idx]);
+                              setHighlightedLegendIndexes([idx]);
+                            }
+                          }}
+                        >
+                          {item.usedColor && (
+                            <span
+                              className="storage-pool-node-tooltip-metric-dot"
+                              style={{ background: item.usedColor }}
+                            />
+                          )}
+                          {`Used: ${formatBytes(item.used)}`}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-            </>
+            </div>
           )}
-          {hoverableNodes.map((node) => (
-            <div
-              className="storage-pool-node-hover-zone"
-              key={`hover-zone-${node.name}`}
-              onMouseEnter={() => activateHoveredNode(node)}
-              onMouseLeave={scheduleHoveredNodeClear}
-              style={{
-                left: node.triggerLeft,
-                top: node.triggerTop,
-                width: node.triggerWidth,
-                height: node.triggerHeight,
-              }}
-            />
-          ))}
           <Chart
             options={options}
             series={chartData.series}
@@ -719,6 +839,37 @@ export const StoragePoolInfo: React.FC = () => {
             height={height > 900 ? 500 : 300}
             {...widthForChart}
           />
+          {hoveredNode && (
+            <div
+              className="storage-pool-node-details-spacer"
+              style={{ height: tooltipPanelHeight + NODE_DETAILS_PANEL_GAP }}
+            />
+          )}
+          <div className="storage-pool-custom-legend">
+            {chartData.series.map((seriesItem, index) => (
+              <div
+                className={`storage-pool-custom-legend-item${
+                  highlightedLegendIndexes.includes(index) ? ' is-highlighted' : ''
+                }`}
+                key={`${seriesItem.name}-${index}`}
+                onMouseEnter={() => {
+                  setHighlightedSeriesIndexes([index]);
+                  setHighlightedLegendIndexes([index]);
+                }}
+                onMouseLeave={() => {
+                  setHighlightedSeriesIndexes((current) =>
+                    current.length === 1 && current[0] === index ? [] : current,
+                  );
+                  setHighlightedLegendIndexes((current) =>
+                    current.length === 1 && current[0] === index ? [] : current,
+                  );
+                }}
+              >
+                <span className="storage-pool-custom-legend-marker" style={{ background: seriesItem.color }} />
+                <span>{formatLegendLabel(seriesItem.name)}</span>
+              </div>
+            ))}
+          </div>
         </ChartContainer>
       </Spin>
     </div>
