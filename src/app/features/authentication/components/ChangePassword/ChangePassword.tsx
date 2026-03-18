@@ -185,8 +185,9 @@ const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordPr
       dispatch.auth.setNeedsPasswordChange(false);
 
       if (!admin) {
-        setTimeout(() => {
-          dispatch.auth.logout();
+        const username = localStorage.getItem(USER_LOCAL_STORAGE_KEY) ?? '';
+        setTimeout(async () => {
+          await dispatch.auth.login({ username, password: values.newPassword });
           window.location.reload();
         }, 1000);
       }
