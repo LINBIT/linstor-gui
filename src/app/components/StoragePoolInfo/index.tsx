@@ -41,7 +41,7 @@ type HoveredNode = {
   name: string;
 };
 
-const ChartContainer = styled.div<{ enableScroll?: boolean }>`
+const ChartContainer = styled.div<{ enableScroll?: boolean; isLegendHovering?: boolean }>`
   position: relative;
   overflow-x: ${(props) => (props.enableScroll ? 'auto' : 'visible')};
 
@@ -51,6 +51,18 @@ const ChartContainer = styled.div<{ enableScroll?: boolean }>`
     stroke: #3f3f3f !important;
     stroke-width: 2px !important;
   }
+
+  ${(props) =>
+    props.isLegendHovering &&
+    `
+    .apexcharts-bar-series .apexcharts-series path {
+      opacity: 0.2;
+      transition: opacity 150ms ease;
+    }
+    .apexcharts-bar-series .apexcharts-series path.storage-pool-hovered-series-segment {
+      opacity: 1;
+    }
+  `}
 
   .storage-pool-hovered-xaxis-label {
     fill: #111827 !important;
@@ -337,7 +349,12 @@ const setHoveredXAxisLabelState = (
   label.classList.toggle(HOVERED_XAXIS_LABEL_CLASS, hovered);
 };
 
-const setHoveredSeriesState = (containerElement: HTMLDivElement | null, seriesIndex: number, hovered: boolean) => {
+const setHoveredSeriesState = (
+  containerElement: HTMLDivElement | null,
+  seriesIndex: number,
+  hovered: boolean,
+  nodeIndex?: number | null,
+) => {
   const chartRoot = containerElement?.querySelector('.apexcharts-canvas');
   if (!chartRoot) {
     return;
@@ -348,8 +365,9 @@ const setHoveredSeriesState = (containerElement: HTMLDivElement | null, seriesIn
     return;
   }
 
-  seriesElement.querySelectorAll('path').forEach((segment) => {
-    segment.classList.toggle(HOVERED_SERIES_SEGMENT_CLASS, hovered);
+  seriesElement.querySelectorAll('path').forEach((segment, index) => {
+    const shouldHighlight = hovered && (nodeIndex === undefined || nodeIndex === null || index === nodeIndex);
+    segment.classList.toggle(HOVERED_SERIES_SEGMENT_CLASS, shouldHighlight);
   });
 };
 
@@ -386,6 +404,7 @@ export const StoragePoolInfo: React.FC = () => {
   const [hoveredNode, setHoveredNode] = useState<HoveredNode | null>(null);
   const [highlightedLegendIndexes, setHighlightedLegendIndexes] = useState<number[]>([]);
   const [highlightedSeriesIndexes, setHighlightedSeriesIndexes] = useState<number[]>([]);
+  const [isBottomLegendHover, setIsBottomLegendHover] = useState(false);
 
   const clearActiveHoveredNode = () => {
     if (activeHoveredNodeIndexRef.current === null) {
@@ -673,9 +692,10 @@ export const StoragePoolInfo: React.FC = () => {
     }
 
     chartData.series.forEach((_seriesItem, index) => {
-      setHoveredSeriesState(container, index, highlightedSeriesIndexes.includes(index));
+      const isHovered = highlightedSeriesIndexes.includes(index);
+      setHoveredSeriesState(container, index, isHovered, null);
     });
-  }, [chartData.series, highlightedSeriesIndexes]);
+  }, [chartData.series, highlightedSeriesIndexes, isBottomLegendHover]);
 
   const options: ApexOptions = {
     chart: {
@@ -689,20 +709,21 @@ export const StoragePoolInfo: React.FC = () => {
         dataPointMouseEnter: (_event, chartContext, config) => {
           clearHoveredNodeTimer();
           setHoveredSegmentState(chartContext, config.seriesIndex, config.dataPointIndex, true);
-          setHighlightedSeriesIndexes([config.seriesIndex]);
-          setHighlightedLegendIndexes(getLegendGroupIndexes(config.seriesIndex));
         },
         dataPointMouseLeave: (_event, chartContext, config) => {
           setHoveredSegmentState(chartContext, config.seriesIndex, config.dataPointIndex, false);
-          setHighlightedSeriesIndexes((current) =>
-            current.length === 1 && current[0] === config.seriesIndex ? [] : current,
-          );
-          setHighlightedLegendIndexes((current) => {
-            const leavingIndexes = getLegendGroupIndexes(config.seriesIndex);
-            const currentKey = current.join(',');
-            const leavingKey = leavingIndexes.join(',');
-            return currentKey === leavingKey ? [] : current;
-          });
+        },
+      },
+    },
+    states: {
+      hover: {
+        filter: {
+          type: 'none',
+        },
+      },
+      active: {
+        filter: {
+          type: 'none',
         },
       },
     },
@@ -756,6 +777,7 @@ export const StoragePoolInfo: React.FC = () => {
       <Spin spinning={isLoading}>
         <ChartContainer
           enableScroll={nodeCount >= 5}
+          isLegendHovering={isBottomLegendHover}
           ref={chartContainerRef}
           onMouseMove={handleChartContainerMouseMove}
           onMouseLeave={scheduleHoveredNodeClear}
@@ -853,10 +875,12 @@ export const StoragePoolInfo: React.FC = () => {
                 }`}
                 key={`${seriesItem.name}-${index}`}
                 onMouseEnter={() => {
+                  setIsBottomLegendHover(true);
                   setHighlightedSeriesIndexes([index]);
                   setHighlightedLegendIndexes([index]);
                 }}
                 onMouseLeave={() => {
+                  setIsBottomLegendHover(false);
                   setHighlightedSeriesIndexes((current) =>
                     current.length === 1 && current[0] === index ? [] : current,
                   );
