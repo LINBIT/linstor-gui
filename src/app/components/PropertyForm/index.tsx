@@ -91,7 +91,7 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
             const formValues: Record<string, unknown> = {};
             displayItems.forEach((item) => {
               if (!item.hide && item.name in currentInitial) {
-                formValues[item.name] = currentInitial[item.name];
+                formValues[item.name] = item.type === 'radio' ? item.defaultValue : currentInitial[item.name];
               } else if (!item.hide) {
                 formValues[item.name] = item.defaultValue;
               }
@@ -136,7 +136,7 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
         const formValues: Record<string, unknown> = {};
         displayItems.forEach((item) => {
           if (!item.hide && item.name in initialVal) {
-            formValues[item.name] = initialVal[item.name];
+            formValues[item.name] = item.type === 'radio' ? item.defaultValue : initialVal[item.name];
           } else if (!item.hide) {
             formValues[item.name] = item.defaultValue;
           }

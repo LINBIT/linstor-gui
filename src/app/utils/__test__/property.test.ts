@@ -50,6 +50,7 @@ vi.mock('../properties/properties', () => ({
       arrayKeyKey: ['arrayKeyProp'],
       emptyFieldKey: ['emptyFieldProp'],
       drbdKey: ['drbdProp'],
+      drbdBooleanKey: ['drbdBooleanProp'],
     },
   },
 }));
@@ -58,9 +59,11 @@ vi.mock('../properties/drbdOptions', () => ({
   drbdOptions: {
     properties: {
       drbdProp: { key: 'drbdField', type: 'string', info: 'DRBD info' },
+      drbdBooleanProp: { key: 'drbdBooleanField', type: 'boolean', info: 'DRBD Boolean info', default: true },
     },
     objects: {
       drbdKey: ['drbdProp'],
+      drbdBooleanKey: ['drbdBooleanProp'],
     },
   },
 }));
@@ -245,8 +248,8 @@ describe('handlePropsToFormOption', () => {
     expect(result[0].defaultValue).toBe(true);
   });
 
-  it('should handle boolean type correctly', () => {
-    const prop = { booleanField: 'someValue' };
+  it('should handle non-DRBD boolean type as checkbox', () => {
+    const prop = { booleanField: 'true' };
     const result = handlePropsToFormOption('booleanKey', prop);
 
     expect(result).toHaveLength(1);
@@ -255,10 +258,48 @@ describe('handlePropsToFormOption', () => {
       type: TYPE_MAP.CHECKBOX,
       label: 'booleanField',
       name: 'booleanField',
-      defaultValue: 'someValue',
+      defaultValue: true,
       tipLabel: 'Boolean info',
       hide: false,
     });
+  });
+
+  it('should normalize false non-DRBD boolean type to false', () => {
+    const prop = { booleanField: false };
+    const result = handlePropsToFormOption('booleanKey', prop);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].defaultValue).toBe(false);
+  });
+
+  it('should handle DRBD boolean type as yes/no radio', () => {
+    const prop = { drbdBooleanField: 'true' };
+    const result = handlePropsToFormOption('drbdBooleanKey', prop);
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({
+      id: 'mocked-id',
+      type: TYPE_MAP.RADIO,
+      label: 'drbdBooleanField',
+      name: 'drbdBooleanField',
+      defaultValue: 'yes',
+      tipLabel: 'DRBD Boolean info',
+      extraInfo: {
+        options: [
+          { value: 'yes', label: 'yes', isDisabled: false },
+          { value: 'no', label: 'no', isDisabled: false },
+        ],
+      },
+      hide: false,
+    });
+  });
+
+  it('should normalize false DRBD boolean type to no', () => {
+    const prop = { drbdBooleanField: false };
+    const result = handlePropsToFormOption('drbdBooleanKey', prop);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].defaultValue).toBe('no');
   });
 
   it('should handle long type correctly', () => {

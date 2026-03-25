@@ -12,6 +12,18 @@ import { propertyConstants } from '@app/utils/properties/propertyConstants';
 import { FormItem, TYPE_MAP } from '@app/interfaces/dynamicFormType';
 import { uniqId } from './stringUtils';
 
+function normalizeYesNoValue(value: unknown, fallback?: boolean): 'yes' | 'no' {
+  if (value === 'yes' || value === 'on' || value === true || value === 'true') {
+    return 'yes';
+  }
+
+  if (value === 'no' || value === 'off' || value === false || value === 'false') {
+    return 'no';
+  }
+
+  return fallback ? 'yes' : 'no';
+}
+
 export function handlePropsToFormOption(key: string, prop = {}): FormItem[] {
   if (!key || key === '') {
     return [];
@@ -26,11 +38,15 @@ export function handlePropsToFormOption(key: string, prop = {}): FormItem[] {
   // Build a map of unique form field names to property data
   // This handles cases where multiple properties have the same key value
   const allProps = { ...properties.properties, ...drbdOptions.properties };
-  const uniqueFieldMap = new Map<string, { propName: string; data: (typeof allProps)[string]; field: string }>();
+  const uniqueFieldMap = new Map<
+    string,
+    { propName: string; data: (typeof allProps)[string]; field: string; source: 'property' | 'drbd' }
+  >();
 
   for (const propName of propsArr) {
     if (allProps[propName]) {
       const data = allProps[propName];
+      const source = drbdOptions.properties[propName] ? 'drbd' : 'property';
       let field: string;
       if (Array.isArray(data.key)) {
         field = data.key
@@ -41,7 +57,7 @@ export function handlePropsToFormOption(key: string, prop = {}): FormItem[] {
       }
       // Only add if this field hasn't been seen yet (preserve first occurrence)
       if (!uniqueFieldMap.has(field)) {
-        uniqueFieldMap.set(field, { propName, data, field });
+        uniqueFieldMap.set(field, { propName, data, field, source });
       }
     }
   }
@@ -50,6 +66,7 @@ export function handlePropsToFormOption(key: string, prop = {}): FormItem[] {
     const key = item.propName;
     const data = item.data;
     const field = item.field;
+    const source = item.source;
 
     const value = prop[field];
     const hide = typeof value === 'undefined'; // if this prop has value then display it as initial value
@@ -175,15 +192,40 @@ export function handlePropsToFormOption(key: string, prop = {}): FormItem[] {
         break;
       // TODO：handle value
       case 'boolean':
-        formInfo = {
-          id: uniqId(),
-          type: TYPE_MAP.CHECKBOX,
-          label: title,
-          name: field,
-          defaultValue: value || '',
-          tipLabel: data['info'],
-          hide,
-        };
+        formInfo =
+          source === 'drbd'
+            ? {
+                id: uniqId(),
+                type: TYPE_MAP.RADIO,
+                label: title,
+                name: field,
+                defaultValue: normalizeYesNoValue(value, data['default']),
+                tipLabel: data['info'],
+                extraInfo: {
+                  options: [
+                    {
+                      value: 'yes',
+                      label: 'yes',
+                      isDisabled: false,
+                    },
+                    {
+                      value: 'no',
+                      label: 'no',
+                      isDisabled: false,
+                    },
+                  ],
+                },
+                hide,
+              }
+            : {
+                id: uniqId(),
+                type: TYPE_MAP.CHECKBOX,
+                label: title,
+                name: field,
+                defaultValue: typeof value === 'string' ? value === 'true' : Boolean(value),
+                tipLabel: data['info'],
+                hide,
+              };
         break;
       case 'long':
         formInfo = {
