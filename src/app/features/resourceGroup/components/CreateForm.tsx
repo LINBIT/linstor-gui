@@ -319,7 +319,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
             </Form.Item>
           )}
 
-          <Form.Item name={t('resource_group:diskless')} valuePropName="checked" wrapperCol={{ offset: 7, span: 17 }}>
+          <Form.Item name="diskless_on_remaining" valuePropName="checked" wrapperCol={{ offset: 7, span: 17 }}>
             <Checkbox>
               <LabelContainer>
                 <Popover
