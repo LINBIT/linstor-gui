@@ -18,12 +18,37 @@ import { RootState } from '@app/store';
 import { UIMode } from '@app/models/setting';
 
 import PropertyForm, { PropertyFormRef } from '@app/components/PropertyForm';
+import { drbdOptions } from '@app/utils/properties/drbdOptions';
 import { getResourceGroups, getResourceGroupCount, deleteResourceGroup, updateResourceGroup } from '../api';
 import { CreateResourceGroupRequestBody, ResourceGroupListQuery, UpdateResourceGroupRequestBody } from '../types';
 import { SearchForm } from './styled';
 import { SpawnForm } from './SpawnForm';
 import { uniqId } from '@app/utils/stringUtils';
 import { LiaToolsSolid } from 'react-icons/lia';
+
+const drbdOptionsByKey = Object.fromEntries(
+  Object.entries(drbdOptions.properties).map(([name, opt]) => [opt.key, { name, ...opt }]),
+);
+
+function getDrbdOptionTooltip(propKey: string): string | undefined {
+  const opt = drbdOptionsByKey[propKey];
+  if (!opt) return undefined;
+
+  const parts: string[] = [`DRBD option "${opt.name}" (${opt.drbd_res_file_section})`];
+
+  if (opt.type === 'boolean') {
+    parts.push(`Type: boolean, Default: ${opt.default !== undefined ? String(opt.default) : 'N/A'}`);
+  } else if (opt.type === 'symbol' || opt.type === 'numeric-or-symbol') {
+    parts.push(`Possible values: ${opt.values?.join(', ')}`);
+  } else if (opt.type === 'range') {
+    const range = `Range: ${opt.min} ~ ${opt.max}`;
+    const unit = opt.unit ? `, Unit: ${opt.unit}` : '';
+    const def = opt.default !== undefined ? `, Default: ${opt.default}` : '';
+    parts.push(`${range}${unit}${def}`);
+  }
+
+  return parts.join('\n');
+}
 
 export const List = () => {
   const { t } = useTranslation(['resource_group', 'common']);
@@ -145,10 +170,10 @@ export const List = () => {
 
   const columns: TableProps<CreateResourceGroupRequestBody>['columns'] = [
     {
-      title: t('resource_group:name'),
+      title: <span style={{ whiteSpace: 'nowrap' }}>{t('resource_group:name')}</span>,
       key: 'name',
       dataIndex: 'name',
-      width: 150,
+      width: 200,
       sorter: (a, b) => {
         if (a.name && b.name) {
           return a.name.localeCompare(b.name);
@@ -159,9 +184,10 @@ export const List = () => {
       showSorterTooltip: false,
     },
     {
-      title: t('resource_group:place_count'),
+      title: <span style={{ whiteSpace: 'nowrap' }}>{t('resource_group:place_count')}</span>,
       key: 'place_count',
-      width: 100,
+      width: 120,
+      align: 'center',
       render: (_, item) => {
         return item?.select_filter?.place_count;
       },
@@ -244,7 +270,6 @@ export const List = () => {
     {
       title: t('resource_group:properties'),
       key: 'properties',
-      width: 200,
       render: (_, item) => {
         const props = item?.props;
         if (!props || Object.keys(props).length === 0) return null;
@@ -255,39 +280,36 @@ export const List = () => {
 
         if (propEntries.length === 0) return null;
 
-        const propTexts = propEntries.map(([key, value]) => {
-          // Truncate property name if longer than 25 characters
-          const displayKey = key.length > 25 ? `${key.substring(0, 25)}...` : key;
-
-          if (Array.isArray(value)) {
-            return `${displayKey}: ${value.join(', ')}`;
-          } else if (typeof value === 'object') {
-            return `${displayKey}: ${JSON.stringify(value)}`;
-          } else {
-            return `${displayKey}: ${value}`;
-          }
-        });
-
-        const fullText = propEntries
-          .map(([key, value]) => {
-            if (Array.isArray(value)) {
-              return `${key}: ${value.join(', ')}`;
-            } else if (typeof value === 'object') {
-              return `${key}: ${JSON.stringify(value)}`;
-            } else {
-              return `${key}: ${value}`;
-            }
-          })
-          .join('\n');
-
         return (
-          <Tooltip title={fullText} placement="top">
-            <div>
-              {propTexts.map((text, index) => (
-                <div key={index}>{text}</div>
-              ))}
-            </div>
-          </Tooltip>
+          <div>
+            {propEntries.map(([key, value], index) => {
+              let displayValue: string;
+              if (Array.isArray(value)) {
+                displayValue = value.join(', ');
+              } else if (typeof value === 'object') {
+                displayValue = JSON.stringify(value);
+              } else {
+                displayValue = String(value);
+              }
+
+              const description = getDrbdOptionTooltip(key);
+              const tooltipContent = description
+                ? `${key}: ${displayValue}\n\n${description}`
+                : `${key}: ${displayValue}`;
+
+              return (
+                <Tooltip
+                  key={index}
+                  title={<span style={{ whiteSpace: 'pre-line' }}>{tooltipContent}</span>}
+                  placement="top"
+                >
+                  <Tag style={{ marginBottom: 2, cursor: 'default' }}>
+                    {key}: {displayValue}
+                  </Tag>
+                </Tooltip>
+              );
+            })}
+          </div>
         );
       },
     },
