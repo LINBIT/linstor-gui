@@ -1,6 +1,27 @@
 # Changelog
 
-# 2.3.0 - 2025-01-12
+# 2.4.0 - 2026-03-30
+
+### Added
+
+- Platform info for node
+
+### Changed
+
+- Expand the sidebar by default
+- Updated DRBD options and property definitions
+- Improved Resource Group properties display
+
+### Fixed
+
+- Resource definition name validation in the create form
+- Click area for actions on the resource overview and related list pages
+- Keep users logged in after a successful password change
+- Prevent blinking on Storage Pool charts
+- Correct DRBD options boolean mapping from `true/false` to `no/yes`
+- Correct `diskless_on_remaining` value handling
+
+# 2.3.0 - 2026-01-12
 
 ### Changed
 
