@@ -9,3 +9,4 @@ export const GRAFANA_KEY_VALUE_STORE_KEY = '__grafana__ui__settings';
 export const DEFAULT_ADMIN_USER_NAME = 'admin';
 export const DEFAULT_ADMIN_USER_PASS = 'admin';
 export const USER_LOCAL_STORAGE_KEY = 'linstorname';
+export const CONTROLLER_AUTH_TOKEN_STORAGE_KEY = 'LINSTOR_CONTROLLER_AUTH_TOKEN';

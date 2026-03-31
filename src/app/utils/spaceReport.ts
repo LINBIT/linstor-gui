@@ -4,17 +4,14 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
+import service from '@app/requests';
+
 const SPACE_TRACKING_UNAVAILABLE_MSG = 'The SpaceTracking service is not installed.';
 
 export const getSpaceReport = async (): Promise<string | null> => {
-  const linstorHost = localStorage.getItem('LINSTOR_HOST') || '';
   try {
-    const response = await fetch(`${linstorHost}/v1/space-report`);
-
-    if (!response.ok) {
-      return null;
-    }
-    const res = await response.json();
+    const response = await service.get('/v1/space-report');
+    const res = response.data;
 
     if (res?.reportText === SPACE_TRACKING_UNAVAILABLE_MSG) {
       return SPACE_TRACKING_UNAVAILABLE_MSG;

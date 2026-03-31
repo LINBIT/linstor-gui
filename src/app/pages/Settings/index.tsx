@@ -16,6 +16,7 @@ import { Dispatch } from '@app/store';
 import Gateway from './components/Gateway';
 import Logo from './components/Logo';
 import Dashboard from './components/Dashboard';
+import ControllerAuth from './components/ControllerAuth';
 
 const GeneralSettings = () => {
   const { t } = useTranslation(['common', 'settings']);
@@ -39,6 +40,11 @@ const GeneralSettings = () => {
       key: '3',
       label: t('settings:grafana'),
       children: <Dashboard />,
+    },
+    {
+      key: '4',
+      label: t('settings:controller_auth'),
+      children: <ControllerAuth />,
     },
   ];
 

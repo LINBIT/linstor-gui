@@ -6,6 +6,13 @@
 
 import axios from 'axios';
 import { i18n } from '../../index';
+import {
+  createControllerAuthRequiredError,
+  emitControllerAuthRequired,
+  getControllerAuthHeaderValue,
+  getControllerAuthToken,
+  isControllerRequestUrl,
+} from '@app/utils/controllerAuth';
 
 // create an axios instance
 const linstorHost = typeof window !== 'undefined' ? window.localStorage.getItem('LINSTOR_HOST') : '';
@@ -56,6 +63,35 @@ service.interceptors.request.use((req) => {
     }
   }
 
+  if (isControllerRequestUrl(req.url)) {
+    const controllerAuthHeader = getControllerAuthHeaderValue();
+    const existingAuthorization =
+      (req.headers as { Authorization?: string; authorization?: string; get?: (name: string) => string | undefined })
+        ?.Authorization ??
+      (req.headers as { Authorization?: string; authorization?: string; get?: (name: string) => string | undefined })
+        ?.authorization ??
+      (typeof (
+        req.headers as { Authorization?: string; authorization?: string; get?: (name: string) => string | undefined }
+      )?.get === 'function'
+        ? (
+            req.headers as {
+              Authorization?: string;
+              authorization?: string;
+              get?: (name: string) => string | undefined;
+            }
+          ).get?.('Authorization')
+        : undefined);
+
+    if (controllerAuthHeader && !existingAuthorization) {
+      if (req.headers && typeof (req.headers as { set?: (name: string, value: string) => void }).set === 'function') {
+        (req.headers as { set: (name: string, value: string) => void }).set('Authorization', controllerAuthHeader);
+      } else {
+        req.headers = req.headers ?? {};
+        (req.headers as { Authorization?: string }).Authorization = controllerAuthHeader;
+      }
+    }
+  }
+
   return req;
 });
 
@@ -84,6 +120,14 @@ service.interceptors.response.use(
     }
   },
   (error) => {
+    if (error?.response?.status === 401 && isControllerRequestUrl(error?.config?.url)) {
+      if (getControllerAuthToken()) {
+        emitControllerAuthRequired();
+      }
+
+      return Promise.reject(createControllerAuthRequiredError());
+    }
+
     return Promise.reject(error?.response?.data ?? error);
   },
 );

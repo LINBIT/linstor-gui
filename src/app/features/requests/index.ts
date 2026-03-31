@@ -8,15 +8,64 @@ import createClient from 'openapi-fetch';
 import { paths } from '@app/apis/schema';
 import { handleAPICallRes } from '@app/utils/toast';
 import { components } from '@app/apis/schema';
+import {
+  emitControllerAuthRequired,
+  getControllerAuthToken,
+  isControllerRequestUrl,
+  withControllerAuthHeaders,
+} from '@app/utils/controllerAuth';
 
 type APICALLRC = components['schemas']['ApiCallRc'];
 type APICALLRCLIST = components['schemas']['ApiCallRcList'];
 
+const attachControllerAuthToFetchArgs = (args: Parameters<typeof window.fetch>) => {
+  const [input, init] = args;
+  const requestUrl = input instanceof Request ? input.url : input.toString();
+
+  if (!isControllerRequestUrl(requestUrl)) {
+    return {
+      requestUrl,
+      nextArgs: args,
+    };
+  }
+
+  if (input instanceof Request) {
+    const mergedHeaders = new Headers(input.headers);
+
+    if (init?.headers) {
+      const initHeaders = new Headers(init.headers);
+      initHeaders.forEach((value, key) => {
+        mergedHeaders.set(key, value);
+      });
+    }
+
+    return {
+      requestUrl,
+      nextArgs: [new Request(input, { ...init, headers: withControllerAuthHeaders(mergedHeaders) })] as Parameters<
+        typeof window.fetch
+      >,
+    };
+  }
+
+  return {
+    requestUrl,
+    nextArgs: [input, { ...init, headers: withControllerAuthHeaders(init?.headers) }] as Parameters<
+      typeof window.fetch
+    >,
+  };
+};
+
 window.fetch = new Proxy(window.fetch, {
   apply: function (target, that, args) {
-    // args holds argument of fetch function
-    const temp = target.apply(that, args);
+    const { requestUrl, nextArgs } = attachControllerAuthToFetchArgs(args as Parameters<typeof window.fetch>);
+    const temp = target.apply(that, nextArgs);
     temp.then((res) => {
+      if (res.status === 401 && isControllerRequestUrl(requestUrl)) {
+        if (getControllerAuthToken()) {
+          emitControllerAuthRequired();
+        }
+      }
+
       if (res.ok) {
         try {
           res

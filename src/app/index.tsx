@@ -15,6 +15,7 @@ import AppRoutes from '@app/routes/routes';
 import { resolveAndStoreLinstorHost } from '@app/utils/resolveLinstorHost';
 import { useSpaceReportStatus } from '@app/hooks/useSpaceReportStatus';
 import GrafanaPreconnect from '@app/components/GrafanaPreconnect';
+import ControllerAuthGate from '@app/components/ControllerAuthGate';
 
 import { store } from './store';
 import { NavProvider } from './NavContext';
@@ -35,8 +36,6 @@ if (typeof window !== 'undefined') {
 }
 
 const App: React.FunctionComponent = () => {
-  const { isSpaceTrackingUnavailable, isCheckingStatus } = useSpaceReportStatus();
-
   return (
     <Provider store={store}>
       <GrafanaPreconnect />
@@ -50,13 +49,23 @@ const App: React.FunctionComponent = () => {
           locale={locale}
         >
           <NavProvider>
-            <AppLayout isSpaceTrackingUnavailable={isSpaceTrackingUnavailable} isCheckingStatus={isCheckingStatus}>
-              <AppRoutes />
-            </AppLayout>
+            <ControllerAuthGate>
+              <AuthenticatedApp />
+            </ControllerAuthGate>
           </NavProvider>
         </ConfigProvider>
       </Router>
     </Provider>
+  );
+};
+
+const AuthenticatedApp: React.FunctionComponent = () => {
+  const { isSpaceTrackingUnavailable, isCheckingStatus } = useSpaceReportStatus();
+
+  return (
+    <AppLayout isSpaceTrackingUnavailable={isSpaceTrackingUnavailable} isCheckingStatus={isCheckingStatus}>
+      <AppRoutes />
+    </AppLayout>
   );
 };
 

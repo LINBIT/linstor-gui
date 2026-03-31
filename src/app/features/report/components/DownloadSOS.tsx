@@ -5,11 +5,11 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@app/components/Button';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
+import service from '@app/requests';
 
 const generateFileName = () => {
   const timestamp = dayjs().format('YYYY-MM-DD_HH-mm-ss');
@@ -17,7 +17,7 @@ const generateFileName = () => {
 };
 
 const downloadFile = async () => {
-  const response = await axios.get('/v1/sos-report/download', {
+  const response = await service.get('/v1/sos-report/download', {
     responseType: 'blob',
   });
   const url = window.URL.createObjectURL(new Blob([response.data]));
