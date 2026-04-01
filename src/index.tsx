@@ -29,12 +29,23 @@ i18n
 
 export { i18n };
 
+const setupDevTools = async () => {
+  if (!import.meta.env.DEV || typeof window === 'undefined') {
+    return;
+  }
+
+  const { default: VConsole } = await import('vconsole');
+  new VConsole();
+};
+
 const queryClient = new QueryClient();
 const domNode = document.getElementById('root') || document.createElement('div');
 const root = createRoot(domNode);
 
-root.render(
-  <QueryClientProvider client={queryClient}>
-    <App />
-  </QueryClientProvider>,
-);
+void setupDevTools().finally(() => {
+  root.render(
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>,
+  );
+});
