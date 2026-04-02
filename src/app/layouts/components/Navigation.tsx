@@ -9,6 +9,7 @@ import {
   DesktopOutlined,
   FieldTimeOutlined,
   FileProtectOutlined,
+  FileOutlined,
   InfoCircleOutlined,
   NodeIndexOutlined,
   PieChartOutlined,
@@ -129,6 +130,7 @@ const Navigation: React.FC<NavigationProps> = ({
         ]),
 
         getItem(<Link to="/hci/snapshot">{t('snapshot')}</Link>, '/hci/snapshot', <FileProtectOutlined />),
+        getItem(<Link to="/hci/files">{t('files')}</Link>, '/hci/files', <FileOutlined />),
         getItem(<Link to="/hci/error-reports">{t('error_reports')}</Link>, '/hci/error-reports', <WarningOutlined />),
       ];
 
@@ -189,6 +191,7 @@ const Navigation: React.FC<NavigationProps> = ({
         ]),
 
         getItem(<Link to="/snapshot">{t('snapshot')}</Link>, '/snapshot', <FileProtectOutlined />),
+        getItem(<Link to="/files">{t('files')}</Link>, '/files', <FileOutlined />),
         getItem(<Link to="/error-reports">{t('error_reports')}</Link>, '/error-reports', <WarningOutlined />),
       ];
 

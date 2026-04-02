@@ -35,6 +35,7 @@ import ResourceDefinitionCreate from '@app/pages/SoftwareDefined/ResourceDefinit
 
 import gateway from './gateway';
 import snapshot from './snapshot';
+import files from './files';
 
 export interface IAppRoute {
   label?: string;
@@ -189,6 +190,7 @@ export const routes: AppRouteConfig[] = [
     ],
   },
   ...snapshot,
+  ...files,
   {
     label: 'Backup/DR',
     routes: [
