@@ -4,9 +4,10 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { CONTROLLER_AUTH_TOKEN_STORAGE_KEY } from '@app/const/settings';
+import { CONTROLLER_AUTH_REQUIRED_STORAGE_KEY, CONTROLLER_AUTH_TOKEN_STORAGE_KEY } from '@app/const/settings';
 
 export const CONTROLLER_AUTH_REQUIRED_EVENT = 'linstor:controller-auth-required';
+export const CONTROLLER_AUTH_STATE_CHANGED_EVENT = 'linstor:controller-auth-state-changed';
 
 type ControllerAuthRequiredError = Error & {
   isControllerAuthRequired: true;
@@ -17,6 +18,14 @@ const CONTROLLER_API_PREFIXES = ['/v1', '/v2'];
 const EXCLUDED_API_PREFIXES = ['/api/v2/', '/api/frontend/v1'];
 
 const hasWindow = () => typeof window !== 'undefined';
+
+const emitControllerAuthStateChanged = () => {
+  if (!hasWindow()) {
+    return;
+  }
+
+  window.dispatchEvent(new CustomEvent(CONTROLLER_AUTH_STATE_CHANGED_EVENT));
+};
 
 const getPathname = (url: string) => {
   try {
@@ -55,6 +64,7 @@ export const setControllerAuthToken = (token: string) => {
   }
 
   window.localStorage.setItem(CONTROLLER_AUTH_TOKEN_STORAGE_KEY, token);
+  emitControllerAuthStateChanged();
 };
 
 export const clearControllerAuthToken = () => {
@@ -63,6 +73,29 @@ export const clearControllerAuthToken = () => {
   }
 
   window.localStorage.removeItem(CONTROLLER_AUTH_TOKEN_STORAGE_KEY);
+  emitControllerAuthStateChanged();
+};
+
+export const isControllerAuthRequired = () => {
+  if (!hasWindow()) {
+    return false;
+  }
+
+  return window.localStorage.getItem(CONTROLLER_AUTH_REQUIRED_STORAGE_KEY) === 'true';
+};
+
+export const setControllerAuthRequired = (required: boolean) => {
+  if (!hasWindow()) {
+    return;
+  }
+
+  if (required) {
+    window.localStorage.setItem(CONTROLLER_AUTH_REQUIRED_STORAGE_KEY, 'true');
+  } else {
+    window.localStorage.removeItem(CONTROLLER_AUTH_REQUIRED_STORAGE_KEY);
+  }
+
+  emitControllerAuthStateChanged();
 };
 
 export const getControllerAuthHeaderValue = () => {
@@ -87,6 +120,7 @@ export const emitControllerAuthRequired = () => {
     return;
   }
 
+  setControllerAuthRequired(true);
   window.dispatchEvent(new CustomEvent(CONTROLLER_AUTH_REQUIRED_EVENT));
 };
 

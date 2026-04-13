@@ -13,7 +13,9 @@ import {
   CONTROLLER_AUTH_REQUIRED_EVENT,
   clearControllerAuthToken,
   getControllerAuthToken,
+  isControllerAuthRequired,
   isControllerAuthRequiredError,
+  setControllerAuthRequired,
   setControllerAuthToken,
 } from '@app/utils/controllerAuth';
 
@@ -33,6 +35,12 @@ const ControllerAuthGate = ({ children }: ControllerAuthGateProps) => {
     async ({ fromSubmit = false }: { fromSubmit?: boolean } = {}) => {
       const hadToken = Boolean(getControllerAuthToken());
 
+      if (!hadToken && isControllerAuthRequired()) {
+        setState('requires_token');
+        setErrorMessage(null);
+        return;
+      }
+
       setState('checking');
       if (!fromSubmit) {
         setErrorMessage(null);
@@ -40,9 +48,13 @@ const ControllerAuthGate = ({ children }: ControllerAuthGateProps) => {
 
       try {
         await service.get('/v1/controller/version');
+        if (!hadToken) {
+          setControllerAuthRequired(false);
+        }
         setState('authorized');
       } catch (error) {
         if (isControllerAuthRequiredError(error)) {
+          setControllerAuthRequired(true);
           clearControllerAuthToken();
           setState('requires_token');
           setErrorMessage(
@@ -66,6 +78,7 @@ const ControllerAuthGate = ({ children }: ControllerAuthGateProps) => {
 
   useEffect(() => {
     const handleAuthRequired = () => {
+      setControllerAuthRequired(true);
       clearControllerAuthToken();
       setState('requires_token');
       setErrorMessage('Your controller session expired. Enter a valid token to continue.');

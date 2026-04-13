@@ -9,14 +9,29 @@ import { paths } from '@app/apis/schema';
 import { handleAPICallRes } from '@app/utils/toast';
 import { components } from '@app/apis/schema';
 import {
+  createControllerAuthRequiredError,
   emitControllerAuthRequired,
   getControllerAuthToken,
+  isControllerAuthRequired,
   isControllerRequestUrl,
   withControllerAuthHeaders,
 } from '@app/utils/controllerAuth';
 
 type APICALLRC = components['schemas']['ApiCallRc'];
 type APICALLRCLIST = components['schemas']['ApiCallRcList'];
+
+const mergeHeaders = (input: RequestInfo | URL, init?: RequestInit) => {
+  const headers = new Headers(input instanceof Request ? input.headers : undefined);
+
+  if (init?.headers) {
+    const initHeaders = new Headers(init.headers);
+    initHeaders.forEach((value, key) => {
+      headers.set(key, value);
+    });
+  }
+
+  return headers;
+};
 
 const attachControllerAuthToFetchArgs = (args: Parameters<typeof window.fetch>) => {
   const [input, init] = args;
@@ -29,16 +44,13 @@ const attachControllerAuthToFetchArgs = (args: Parameters<typeof window.fetch>) 
     };
   }
 
+  const mergedHeaders = mergeHeaders(input, init);
+
+  if (isControllerAuthRequired() && !getControllerAuthToken() && !mergedHeaders.has('Authorization')) {
+    throw createControllerAuthRequiredError();
+  }
+
   if (input instanceof Request) {
-    const mergedHeaders = new Headers(input.headers);
-
-    if (init?.headers) {
-      const initHeaders = new Headers(init.headers);
-      initHeaders.forEach((value, key) => {
-        mergedHeaders.set(key, value);
-      });
-    }
-
     return {
       requestUrl,
       nextArgs: [new Request(input, { ...init, headers: withControllerAuthHeaders(mergedHeaders) })] as Parameters<
@@ -57,13 +69,25 @@ const attachControllerAuthToFetchArgs = (args: Parameters<typeof window.fetch>) 
 
 window.fetch = new Proxy(window.fetch, {
   apply: function (target, that, args) {
-    const { requestUrl, nextArgs } = attachControllerAuthToFetchArgs(args as Parameters<typeof window.fetch>);
+    let requestUrl: string;
+    let nextArgs: Parameters<typeof window.fetch>;
+
+    try {
+      ({ requestUrl, nextArgs } = attachControllerAuthToFetchArgs(args as Parameters<typeof window.fetch>));
+    } catch (error) {
+      const rawUrl = args?.[0] instanceof Request ? args[0].url : args?.[0]?.toString?.();
+
+      if (isControllerRequestUrl(rawUrl)) {
+        emitControllerAuthRequired();
+      }
+
+      return Promise.reject(error);
+    }
+
     const temp = target.apply(that, nextArgs);
     temp.then((res) => {
       if (res.status === 401 && isControllerRequestUrl(requestUrl)) {
-        if (getControllerAuthToken()) {
-          emitControllerAuthRequired();
-        }
+        emitControllerAuthRequired();
       }
 
       if (res.ok) {

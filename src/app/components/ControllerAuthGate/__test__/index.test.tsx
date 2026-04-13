@@ -13,6 +13,7 @@ import {
   CONTROLLER_AUTH_REQUIRED_EVENT,
   createControllerAuthRequiredError,
   getControllerAuthToken,
+  isControllerAuthRequired,
 } from '@app/utils/controllerAuth';
 
 const mockGet = vi.fn();
@@ -55,6 +56,8 @@ describe('ControllerAuthGate', () => {
     await waitFor(() => {
       expect(screen.getByText('Controller Token Required')).toBeInTheDocument();
     });
+
+    expect(isControllerAuthRequired()).toBe(true);
   });
 
   it('stores the submitted token and retries the probe', async () => {
@@ -81,6 +84,22 @@ describe('ControllerAuthGate', () => {
     });
 
     expect(getControllerAuthToken()).toBe('new-token');
+  });
+
+  it('shows the token prompt immediately when the browser already knows auth is required', async () => {
+    window.localStorage.setItem('LINSTOR_CONTROLLER_AUTH_REQUIRED', 'true');
+
+    render(
+      <ControllerAuthGate>
+        <div>protected content</div>
+      </ControllerAuthGate>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Controller Token Required')).toBeInTheDocument();
+    });
+
+    expect(mockGet).not.toHaveBeenCalled();
   });
 
   it('returns to the token prompt when a controller-auth-required event is emitted', async () => {

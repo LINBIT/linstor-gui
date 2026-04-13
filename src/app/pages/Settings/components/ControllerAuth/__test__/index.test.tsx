@@ -11,6 +11,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import ControllerAuth from '..';
 
 const mockGet = vi.fn();
+const mockPost = vi.fn();
 const successMessage = vi.fn();
 const errorMessage = vi.fn();
 
@@ -23,6 +24,7 @@ vi.mock('react-i18next', () => ({
 vi.mock('@app/requests', () => ({
   default: {
     get: (...args: unknown[]) => mockGet(...args),
+    post: (...args: unknown[]) => mockPost(...args),
   },
 }));
 
@@ -42,6 +44,7 @@ describe('Settings ControllerAuth tab', () => {
   beforeEach(() => {
     window.localStorage.clear();
     mockGet.mockReset();
+    mockPost.mockReset();
     successMessage.mockReset();
     errorMessage.mockReset();
   });
@@ -82,5 +85,27 @@ describe('Settings ControllerAuth tab', () => {
 
     expect(window.localStorage.getItem('LINSTOR_CONTROLLER_AUTH_TOKEN')).toBeNull();
     expect(screen.getByText('settings:controller_auth_token_missing')).toBeInTheDocument();
+  });
+
+  it('initializes token auth and stores the returned token', async () => {
+    mockPost.mockResolvedValueOnce({
+      data: [{ obj_refs: { token: 'init-token' } }],
+    });
+    mockGet.mockResolvedValueOnce({ data: { version: '1.31.0' } });
+
+    render(<ControllerAuth />);
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'settings:controller_auth_initialize' })[0]);
+
+    await waitFor(() => {
+      expect(successMessage).toHaveBeenCalled();
+    });
+
+    expect(mockPost).toHaveBeenCalledWith('/v1/controller/auth/initialize-token-auth', {
+      only_satellites: false,
+      description: 'linstor-gui',
+      no_https: true,
+    });
+    expect(window.localStorage.getItem('LINSTOR_CONTROLLER_AUTH_TOKEN')).toBe('init-token');
   });
 });

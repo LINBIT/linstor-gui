@@ -10,7 +10,7 @@ import {
   createControllerAuthRequiredError,
   emitControllerAuthRequired,
   getControllerAuthHeaderValue,
-  getControllerAuthToken,
+  isControllerAuthRequired,
   isControllerRequestUrl,
 } from '@app/utils/controllerAuth';
 
@@ -82,6 +82,11 @@ service.interceptors.request.use((req) => {
           ).get?.('Authorization')
         : undefined);
 
+    if (!controllerAuthHeader && !existingAuthorization && isControllerAuthRequired()) {
+      emitControllerAuthRequired();
+      return Promise.reject(createControllerAuthRequiredError());
+    }
+
     if (controllerAuthHeader && !existingAuthorization) {
       if (req.headers && typeof (req.headers as { set?: (name: string, value: string) => void }).set === 'function') {
         (req.headers as { set: (name: string, value: string) => void }).set('Authorization', controllerAuthHeader);
@@ -121,10 +126,7 @@ service.interceptors.response.use(
   },
   (error) => {
     if (error?.response?.status === 401 && isControllerRequestUrl(error?.config?.url)) {
-      if (getControllerAuthToken()) {
-        emitControllerAuthRequired();
-      }
-
+      emitControllerAuthRequired();
       return Promise.reject(createControllerAuthRequiredError());
     }
 

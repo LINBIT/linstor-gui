@@ -10,7 +10,9 @@ import {
   clearControllerAuthToken,
   getControllerAuthHeaderValue,
   getControllerAuthToken,
+  isControllerAuthRequired,
   isControllerRequestUrl,
+  setControllerAuthRequired,
   setControllerAuthToken,
 } from '../controllerAuth';
 
@@ -31,6 +33,18 @@ describe('controllerAuth utilities', () => {
 
     expect(getControllerAuthToken()).toBeNull();
     expect(getControllerAuthHeaderValue()).toBeUndefined();
+  });
+
+  it('stores and clears whether the controller requires token authentication', () => {
+    expect(isControllerAuthRequired()).toBe(false);
+
+    setControllerAuthRequired(true);
+
+    expect(isControllerAuthRequired()).toBe(true);
+
+    setControllerAuthRequired(false);
+
+    expect(isControllerAuthRequired()).toBe(false);
   });
 
   it('detects controller API requests and excludes gateway/frontend paths', () => {

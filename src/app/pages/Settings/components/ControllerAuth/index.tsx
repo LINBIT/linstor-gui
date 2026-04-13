@@ -12,7 +12,12 @@ import { useTranslation } from 'react-i18next';
 
 import Button from '@app/components/Button';
 import service from '@app/requests';
-import { clearControllerAuthToken, getControllerAuthToken, setControllerAuthToken } from '@app/utils/controllerAuth';
+import {
+  clearControllerAuthToken,
+  getControllerAuthToken,
+  setControllerAuthRequired,
+  setControllerAuthToken,
+} from '@app/utils/controllerAuth';
 
 const { Title, Text } = Typography;
 
@@ -58,11 +63,18 @@ type FormType = {
   token: string;
 };
 
+type ApiCallRcEntry = {
+  obj_refs?: {
+    token?: string;
+  };
+};
+
 const ControllerAuth: React.FC = () => {
   const [form] = Form.useForm<FormType>();
   const [hasStoredToken, setHasStoredToken] = useState(Boolean(getControllerAuthToken()));
   const [verifyingStoredToken, setVerifyingStoredToken] = useState(false);
   const [savingToken, setSavingToken] = useState(false);
+  const [initializingTokenAuth, setInitializingTokenAuth] = useState(false);
   const [clearingToken, setClearingToken] = useState(false);
   const [lastVerifiedVersion, setLastVerifiedVersion] = useState<string | null>(null);
 
@@ -74,6 +86,39 @@ const ControllerAuth: React.FC = () => {
     });
 
     return response.data?.version ?? response.data?.rest_api_version ?? null;
+  };
+
+  const extractTokenFromInitResponse = (data?: ApiCallRcEntry[]) => {
+    return data?.find((entry) => entry?.obj_refs?.token)?.obj_refs?.token?.trim();
+  };
+
+  const handleInitializeTokenAuth = async () => {
+    setInitializingTokenAuth(true);
+
+    try {
+      const response = await service.post('/v1/controller/auth/initialize-token-auth', {
+        only_satellites: false,
+        description: 'linstor-gui',
+        no_https: true,
+      });
+
+      const token = extractTokenFromInitResponse(response.data);
+
+      if (!token) {
+        throw new Error(t('settings:controller_auth_initialize_missing_token'));
+      }
+
+      setControllerAuthRequired(true);
+      setControllerAuthToken(token);
+      setHasStoredToken(true);
+      setLastVerifiedVersion(await verifyToken(token));
+      form.resetFields();
+      message.success(t('settings:controller_auth_initialized'));
+    } catch (error) {
+      message.error((error as Error)?.message || t('settings:controller_auth_initialize_failed'));
+    } finally {
+      setInitializingTokenAuth(false);
+    }
   };
 
   const handleVerifyStoredToken = async () => {
@@ -138,6 +183,19 @@ const ControllerAuth: React.FC = () => {
             style={{ marginBottom: '1.5em' }}
             message={t('settings:controller_auth_storage_title')}
             description={t('settings:controller_auth_storage_description')}
+          />
+
+          <Alert
+            type="warning"
+            showIcon
+            style={{ marginBottom: '1.5em' }}
+            message={t('settings:controller_auth_initialize')}
+            description={t('settings:controller_auth_initialize_help')}
+            action={
+              <Button type="primary" onClick={handleInitializeTokenAuth} loading={initializingTokenAuth}>
+                {t('settings:controller_auth_initialize')}
+              </Button>
+            }
           />
 
           <StatusRow>
