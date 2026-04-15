@@ -30,6 +30,7 @@ import GrafanaStats from '@app/pages/GrafanaStats';
 import { Controller } from '@app/pages/Inventory/Controller';
 import { UserManagement } from '@app/features/authentication';
 import GeneralSettings from '@app/pages/Settings';
+import AuthTokens from '@app/pages/AuthTokens';
 import ResourceOverview from '@app/pages/SoftwareDefined/Resources/overview';
 import ResourceDefinitionCreate from '@app/pages/SoftwareDefined/ResourceDefinitions/create';
 
@@ -255,10 +256,17 @@ export const routes: AppRouteConfig[] = [
     label: 'users',
     title: 'LINSTOR | Users',
   },
+  {
+    component: AuthTokens,
+    exact: true,
+    path: '/auth-tokens',
+    label: 'auth_tokens',
+    title: 'LINSTOR | Auth Tokens',
+  },
 ];
 
 export const flattenedRoutes: IAppRoute[] = routes
   .reduce((flattened, route) => [...flattened, ...(route.routes ? route.routes : [route])], [] as IAppRoute[])
   .filter((e) => !e.hide || e.path.startsWith('/stats/'));
 
-export const adminRoutes = ['/settings', '/users'];
+export const adminRoutes = ['/settings', '/users', '/auth-tokens'];

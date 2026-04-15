@@ -5,21 +5,15 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Alert, Card, Form, Input, Space, Typography, message } from 'antd';
+import { Alert, Card, Input, Modal, Typography, message } from 'antd';
 import styled from '@emotion/styled';
-import { CheckCircleOutlined, LockOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
 import Button from '@app/components/Button';
 import service from '@app/requests';
-import {
-  clearControllerAuthToken,
-  getControllerAuthToken,
-  setControllerAuthRequired,
-  setControllerAuthToken,
-} from '@app/utils/controllerAuth';
+import { setControllerAuthRequired, setControllerAuthToken } from '@app/utils/controllerAuth';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const Wrapper = styled.div`
   padding: 0;
@@ -31,65 +25,61 @@ const HeaderSection = styled.div`
 `;
 
 const FormContainer = styled.div`
-  .ant-form-item {
-    margin-bottom: 1.5em;
-  }
-
-  .ant-form-item-label {
-    font-weight: 500;
-  }
-
-  .ant-form-item-extra {
-    margin-top: 0.5em;
-    color: rgba(0, 0, 0, 0.45);
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 1.5em;
 `;
 
 const ButtonContainer = styled.div`
   display: flex;
   gap: 1em;
-  margin-top: 2em;
   flex-wrap: wrap;
 `;
 
-const StatusRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
-  margin-bottom: 1.5em;
-`;
-
-type FormType = {
-  token: string;
-};
-
 type ApiCallRcEntry = {
+  message?: string;
   obj_refs?: {
     token?: string;
   };
 };
 
+type InitializedTokenAuth = {
+  token?: string;
+  url: string;
+  alreadyEnabled: boolean;
+};
+
 const ControllerAuth: React.FC = () => {
-  const [form] = Form.useForm<FormType>();
-  const [hasStoredToken, setHasStoredToken] = useState(Boolean(getControllerAuthToken()));
-  const [verifyingStoredToken, setVerifyingStoredToken] = useState(false);
-  const [savingToken, setSavingToken] = useState(false);
   const [initializingTokenAuth, setInitializingTokenAuth] = useState(false);
-  const [clearingToken, setClearingToken] = useState(false);
-  const [lastVerifiedVersion, setLastVerifiedVersion] = useState<string | null>(null);
+  const [initializedTokenAuth, setInitializedTokenAuth] = useState<InitializedTokenAuth | null>(null);
+  const [tokenModalOpen, setTokenModalOpen] = useState(false);
+  const [manualToken, setManualToken] = useState('');
 
   const { t } = useTranslation(['common', 'settings']);
 
-  const verifyToken = async (token?: string) => {
-    const response = await service.get('/v1/controller/version', {
-      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-    });
+  const extractTokenFromInitResponse = (data?: ApiCallRcEntry[]) => {
+    const objRefToken = data?.find((entry) => entry?.obj_refs?.token)?.obj_refs?.token?.trim();
 
-    return response.data?.version ?? response.data?.rest_api_version ?? null;
+    if (objRefToken) {
+      return objRefToken;
+    }
+
+    return data
+      ?.map((entry) => entry.message?.match(/Init token\s+(.+)$/)?.[1]?.trim())
+      .find((token): token is string => Boolean(token));
   };
 
-  const extractTokenFromInitResponse = (data?: ApiCallRcEntry[]) => {
-    return data?.find((entry) => entry?.obj_refs?.token)?.obj_refs?.token?.trim();
+  const isAlreadyEnabledResponse = (data?: ApiCallRcEntry[]) => {
+    return Boolean(
+      data?.some((entry) => entry.message?.toLowerCase().includes('token authentication is already enabled')),
+    );
+  };
+
+  const getHttpsControllerUrl = () => {
+    const linstorHost = window.localStorage.getItem('LINSTOR_HOST');
+    const host = linstorHost ? new URL(linstorHost, window.location.origin).hostname : window.location.hostname;
+
+    return `https://${host}:3371`;
   };
 
   const handleInitializeTokenAuth = async () => {
@@ -99,20 +89,25 @@ const ControllerAuth: React.FC = () => {
       const response = await service.post('/v1/controller/auth/initialize-token-auth', {
         only_satellites: false,
         description: 'linstor-gui',
-        no_https: true,
       });
 
       const token = extractTokenFromInitResponse(response.data);
+      const alreadyEnabled = isAlreadyEnabledResponse(response.data);
 
       if (!token) {
-        throw new Error(t('settings:controller_auth_initialize_missing_token'));
+        setControllerAuthRequired(true);
+        setInitializedTokenAuth({ url: getHttpsControllerUrl(), alreadyEnabled });
+        message.warning(
+          alreadyEnabled
+            ? t('settings:controller_auth_already_enabled')
+            : t('settings:controller_auth_initialize_missing_token'),
+        );
+        return;
       }
 
       setControllerAuthRequired(true);
       setControllerAuthToken(token);
-      setHasStoredToken(true);
-      setLastVerifiedVersion(await verifyToken(token));
-      form.resetFields();
+      setInitializedTokenAuth({ token, url: getHttpsControllerUrl(), alreadyEnabled: false });
       message.success(t('settings:controller_auth_initialized'));
     } catch (error) {
       message.error((error as Error)?.message || t('settings:controller_auth_initialize_failed'));
@@ -121,58 +116,33 @@ const ControllerAuth: React.FC = () => {
     }
   };
 
-  const handleVerifyStoredToken = async () => {
-    setVerifyingStoredToken(true);
-
-    try {
-      const version = await verifyToken();
-      setLastVerifiedVersion(version);
-      message.success(t('settings:controller_auth_token_valid'));
-    } catch (error) {
-      message.error((error as Error)?.message || t('settings:controller_auth_token_invalid'));
-    } finally {
-      setVerifyingStoredToken(false);
+  const handleOpenHttpsController = () => {
+    if (!initializedTokenAuth) {
+      return;
     }
+
+    window.location.assign(initializedTokenAuth.url);
   };
 
-  const handleSaveToken = async ({ token }: FormType) => {
-    const trimmedToken = token.trim();
+  const handleSaveManualToken = () => {
+    const token = manualToken.trim();
 
-    setSavingToken(true);
-
-    try {
-      const version = await verifyToken(trimmedToken);
-      setControllerAuthToken(trimmedToken);
-      setHasStoredToken(true);
-      setLastVerifiedVersion(version);
-      form.resetFields();
-      message.success(t('settings:controller_auth_token_saved'));
-    } catch (error) {
-      message.error((error as Error)?.message || t('settings:controller_auth_token_invalid'));
-    } finally {
-      setSavingToken(false);
+    if (!token) {
+      message.error(t('settings:controller_auth_token_required'));
+      return;
     }
-  };
 
-  const handleClearToken = async () => {
-    setClearingToken(true);
-
-    try {
-      clearControllerAuthToken();
-      setHasStoredToken(false);
-      setLastVerifiedVersion(null);
-      form.resetFields();
-      message.success(t('settings:controller_auth_token_cleared'));
-    } finally {
-      setClearingToken(false);
-    }
+    setControllerAuthRequired(true);
+    setControllerAuthToken(token);
+    setManualToken('');
+    setTokenModalOpen(false);
+    message.success(t('settings:controller_auth_token_saved'));
   };
 
   return (
     <Wrapper>
       <HeaderSection>
         <Title level={3}>{t('settings:controller_auth')}</Title>
-        <Text type="secondary">{t('settings:controller_auth_description')}</Text>
       </HeaderSection>
 
       <Card>
@@ -180,7 +150,6 @@ const ControllerAuth: React.FC = () => {
           <Alert
             type="info"
             showIcon
-            style={{ marginBottom: '1.5em' }}
             message={t('settings:controller_auth_storage_title')}
             description={t('settings:controller_auth_storage_description')}
           />
@@ -188,72 +157,73 @@ const ControllerAuth: React.FC = () => {
           <Alert
             type="warning"
             showIcon
-            style={{ marginBottom: '1.5em' }}
-            message={t('settings:controller_auth_initialize')}
-            description={t('settings:controller_auth_initialize_help')}
-            action={
-              <Button type="primary" onClick={handleInitializeTokenAuth} loading={initializingTokenAuth}>
-                {t('settings:controller_auth_initialize')}
-              </Button>
-            }
+            message={t('settings:controller_auth_https_switch_title')}
+            description={t('settings:controller_auth_https_switch_description', { url: getHttpsControllerUrl() })}
           />
 
-          <StatusRow>
-            <LockOutlined />
-            <Text strong>{t('settings:controller_auth_status')}</Text>
-            <Text type={hasStoredToken ? 'success' : 'secondary'}>
-              {hasStoredToken
-                ? t('settings:controller_auth_token_present')
-                : t('settings:controller_auth_token_missing')}
-            </Text>
-          </StatusRow>
+          <ButtonContainer>
+            <Button type="primary" onClick={handleInitializeTokenAuth} loading={initializingTokenAuth} size="large">
+              {t('settings:controller_auth_initialize')}
+            </Button>
 
-          {lastVerifiedVersion ? (
-            <Alert
-              type="success"
-              showIcon
-              style={{ marginBottom: '1.5em' }}
-              icon={<CheckCircleOutlined />}
-              message={t('settings:controller_auth_last_verified')}
-              description={t('settings:controller_auth_last_verified_version', { version: lastVerifiedVersion })}
-            />
-          ) : null}
-
-          <Form form={form} layout="vertical" onFinish={handleSaveToken}>
-            <Form.Item
-              label={t('settings:controller_auth_token')}
-              name="token"
-              extra={t('settings:controller_auth_token_help')}
-              rules={[{ required: true, message: t('settings:controller_auth_token_required') }]}
-            >
-              <Input.Password placeholder={t('settings:controller_auth_token_placeholder')} size="large" />
-            </Form.Item>
-
-            <ButtonContainer>
-              <Button type="primary" htmlType="submit" loading={savingToken} size="large">
-                {t('settings:controller_auth_save')}
-              </Button>
-
-              <Button
-                onClick={handleVerifyStoredToken}
-                loading={verifyingStoredToken}
-                disabled={!hasStoredToken}
-                size="large"
-              >
-                {t('settings:controller_auth_verify_saved')}
-              </Button>
-
-              <Button onClick={handleClearToken} loading={clearingToken} disabled={!hasStoredToken} size="large">
-                {t('settings:controller_auth_clear')}
-              </Button>
-            </ButtonContainer>
-
-            <Space direction="vertical" style={{ marginTop: '1.5em' }}>
-              <Text type="secondary">{t('settings:controller_auth_note')}</Text>
-            </Space>
-          </Form>
+            <Button onClick={() => setTokenModalOpen(true)} size="large">
+              {t('settings:controller_auth_enter_token')}
+            </Button>
+          </ButtonContainer>
         </FormContainer>
       </Card>
+
+      <Modal
+        title={t('settings:controller_auth_initialized_title')}
+        open={Boolean(initializedTokenAuth)}
+        onCancel={() => setInitializedTokenAuth(null)}
+        onOk={handleOpenHttpsController}
+        okText={t('settings:controller_auth_open_https')}
+        cancelText={t('settings:controller_auth_stay_here')}
+      >
+        <Alert
+          type="warning"
+          showIcon
+          message={t('settings:controller_auth_initialized_notice')}
+          description={t('settings:controller_auth_initialized_notice_description', {
+            url: initializedTokenAuth?.url ?? '',
+          })}
+        />
+
+        {initializedTokenAuth?.token ? (
+          <Input.TextArea value={initializedTokenAuth.token} readOnly autoSize style={{ marginTop: 16 }} />
+        ) : (
+          <Alert
+            type={initializedTokenAuth?.alreadyEnabled ? 'info' : 'warning'}
+            showIcon
+            message={
+              initializedTokenAuth?.alreadyEnabled
+                ? t('settings:controller_auth_already_enabled_notice')
+                : t('settings:controller_auth_no_token_notice')
+            }
+            style={{ marginTop: 16 }}
+          />
+        )}
+      </Modal>
+
+      <Modal
+        title={t('settings:controller_auth_enter_token')}
+        open={tokenModalOpen}
+        onCancel={() => {
+          setTokenModalOpen(false);
+          setManualToken('');
+        }}
+        onOk={handleSaveManualToken}
+        okText={t('settings:controller_auth_save')}
+        cancelText={t('common:cancel')}
+      >
+        <Input.Password
+          value={manualToken}
+          onChange={(event) => setManualToken(event.target.value)}
+          placeholder={t('settings:controller_auth_token_placeholder')}
+          autoFocus
+        />
+      </Modal>
     </Wrapper>
   );
 };

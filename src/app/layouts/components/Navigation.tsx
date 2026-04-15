@@ -11,6 +11,7 @@ import {
   FileProtectOutlined,
   FileOutlined,
   InfoCircleOutlined,
+  KeyOutlined,
   NodeIndexOutlined,
   PieChartOutlined,
   SettingOutlined,
@@ -135,7 +136,9 @@ const Navigation: React.FC<NavigationProps> = ({
       ];
 
       const settingsAndUsers = [
-        getItem(<Link to="/hci/users">{t('users')}</Link>, '/hci/users', <UserOutlined />),
+        getItem(`${t('authentication')}`, '/hci/authentication', <UserOutlined />, [
+          getItem(<Link to="/hci/users">{t('users')}</Link>, '/hci/users'),
+        ]),
         getItem(<Link to="/hci/settings">{t('settings')}</Link>, '/hci/settings', <SettingOutlined />),
       ];
 
@@ -196,7 +199,10 @@ const Navigation: React.FC<NavigationProps> = ({
       ];
 
       const settingsAndUsers = [
-        getItem(<Link to="/users">{t('users')}</Link>, '/users', <UserOutlined />),
+        getItem(`${t('authentication')}`, '/authentication', <KeyOutlined />, [
+          getItem(<Link to="/users">{t('users')}</Link>, '/users'),
+          getItem(<Link to="/auth-tokens">{t('auth_tokens')}</Link>, '/auth-tokens'),
+        ]),
         getItem(<Link to="/settings">{t('settings')}</Link>, '/settings', <SettingOutlined />),
       ];
 

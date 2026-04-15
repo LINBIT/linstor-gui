@@ -47,10 +47,12 @@ export default defineConfig(({ mode, command }) => {
         '/v1': {
           target: API_HOST,
           changeOrigin: true,
+          secure: false,
         },
         '/metrics': {
           target: API_HOST,
           changeOrigin: true,
+          secure: false,
         },
         '/api/v2': {
           target: GATEWAY_API_HOST,
