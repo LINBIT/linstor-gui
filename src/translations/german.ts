@@ -138,6 +138,7 @@ const de = {
     users: 'Benutzer',
     'backup&dr': 'Backup / DR',
     schedule_list: 'Zeitplanung',
+    ha: 'HA',
   },
   node: {
     node_list: 'Knotenliste',
@@ -585,6 +586,13 @@ const de = {
     // Header tools
     unofficial_build_header_attention: 'Achtung! Sie verwenden einen nicht unterstützten Build.',
     unofficial_build_header_get_official: 'Für offizielle Builds',
+  },
+  ha: {
+    list: 'HA Ressourcen',
+    volume_count: 'Volumes',
+    config_files: 'Konfigurationsdateien',
+    drbd_info: 'DRBD Info',
+    edit_config: 'Konfiguration bearbeiten',
   },
 };
 

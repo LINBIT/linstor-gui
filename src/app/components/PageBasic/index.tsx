@@ -16,11 +16,21 @@ interface Props {
   error?: Error | undefined | boolean;
   alerts?: alertList;
   showBack?: boolean;
+  onBack?: () => void;
+  extra?: React.ReactNode;
 }
 
-const PageBasic: React.FC<PropsWithChildren<Props>> = ({ showBack, title, children }) => {
+const PageBasic: React.FC<PropsWithChildren<Props>> = ({ showBack, onBack, title, children, extra }) => {
   const navigate = useNavigate();
   const { t } = useTranslation(['common']);
+
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      navigate(-1);
+    }
+  };
 
   return (
     <main className="content">
@@ -28,7 +38,10 @@ const PageBasic: React.FC<PropsWithChildren<Props>> = ({ showBack, title, childr
       <div className="flex items-center justify-between pb-4">
         <h1 className="text-lg font-semibold">{title}</h1>
 
-        {showBack && <Button onClick={() => navigate(-1)}>&#8592;&nbsp;{t('common:back')}</Button>}
+        <div className="flex items-center gap-2">
+          {showBack && <Button onClick={handleBack}>&#8592;&nbsp;{t('common:back')}</Button>}
+          {extra}
+        </div>
       </div>
       <WidthProvider>{children}</WidthProvider>
     </main>

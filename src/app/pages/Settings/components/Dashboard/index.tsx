@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { Form, Input, InputNumber, Card, Typography, message } from 'antd';
+import { Form, Input, InputNumber, Card, Typography, message, Alert } from 'antd';
 import { Switch } from '@app/components/Switch';
 import styled from '@emotion/styled';
 import { useDispatch, useSelector } from 'react-redux';
@@ -342,6 +342,7 @@ const Dashboard: React.FC = () => {
             {t('settings:grafana_prerequisites_config')}
           </pre>
         </div>
+        <Alert style={{ marginTop: '1em' }} type="info" showIcon message={t('settings:grafana_https_notice')} />
       </HeaderSection>
 
       <EnableSection>

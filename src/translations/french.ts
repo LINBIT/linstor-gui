@@ -138,6 +138,7 @@ const fr = {
     users: 'Utilisateurs',
     'backup&dr': 'Sauvegarde / DR',
     schedule_list: 'Planification',
+    ha: 'HA',
   },
   node: {
     node_list: 'Liste des nœuds',
@@ -583,6 +584,13 @@ const fr = {
     // Header tools
     unofficial_build_header_attention: 'Attention ! Vous utilisez une version non prise en charge.',
     unofficial_build_header_get_official: 'Pour les versions officielles',
+  },
+  ha: {
+    list: 'Ressources HA',
+    volume_count: 'Volumes',
+    config_files: 'Fichiers de configuration',
+    drbd_info: 'Info DRBD',
+    edit_config: 'Modifier la configuration',
   },
 };
 

@@ -14,6 +14,7 @@ import {
   KeyOutlined,
   NodeIndexOutlined,
   PieChartOutlined,
+  SafetyOutlined,
   SettingOutlined,
   UserOutlined,
   WarningOutlined,
@@ -193,8 +194,11 @@ const Navigation: React.FC<NavigationProps> = ({
           ),
         ]),
 
+        getItem(`${t('high_availability')}`, '/high-availability', <SafetyOutlined />, [
+          getItem(<Link to="/reactor">{t('reactor')}</Link>, '/reactor'),
+          getItem(<Link to="/files">{t('files')}</Link>, '/files'),
+        ]),
         getItem(<Link to="/snapshot">{t('snapshot')}</Link>, '/snapshot', <FileProtectOutlined />),
-        getItem(<Link to="/files">{t('files')}</Link>, '/files', <FileOutlined />),
         getItem(<Link to="/error-reports">{t('error_reports')}</Link>, '/error-reports', <WarningOutlined />),
       ];
 

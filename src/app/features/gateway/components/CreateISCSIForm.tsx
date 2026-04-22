@@ -124,7 +124,7 @@ const CreateISCSIForm = () => {
       }}
     >
       <Alert
-        message="Creates a highly available iSCSI target based on LINSTOR and drbd-reactor."
+        message="Creates a highly available iSCSI target based on LINSTOR and DRBD Reactor."
         type="info"
         showIcon
         style={{ marginBottom: 24 }}

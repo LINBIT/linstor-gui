@@ -138,6 +138,7 @@ const es = {
     users: 'Usuarios',
     'backup&dr': 'Respaldo / DR',
     schedule_list: 'Programación',
+    ha: 'HA',
   },
   node: {
     node_list: 'Lista de nodos',
@@ -583,6 +584,13 @@ const es = {
     // Header tools
     unofficial_build_header_attention: '¡Atención! Está utilizando una compilación no soportada.',
     unofficial_build_header_get_official: 'Para compilaciones oficiales',
+  },
+  ha: {
+    list: 'Recursos HA',
+    volume_count: 'Volúmenes',
+    config_files: 'Archivos de configuración',
+    drbd_info: 'Info DRBD',
+    edit_config: 'Editar configuración',
   },
 };
 

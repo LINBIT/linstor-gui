@@ -86,7 +86,7 @@ describe('Settings ControllerAuth tab', () => {
     expect(mockGet).not.toHaveBeenCalled();
     expect(window.localStorage.getItem('LINSTOR_CONTROLLER_AUTH_TOKEN')).toBe('init-token');
     expect(screen.getByText('settings:controller_auth_initialized_title')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('init-token')).toBeInTheDocument();
+    expect(screen.getByRole('textbox')).toHaveValue('init-token');
     expect(screen.getAllByText(/https:\/\/192.168.123.200:3371/)).toHaveLength(2);
   });
 

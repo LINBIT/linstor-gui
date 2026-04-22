@@ -65,11 +65,11 @@ export const SVGFileUpload: React.FunctionComponent = () => {
   const renderLogo = (logoSrc: string) => {
     // if the logo is a URL and not an SVG, render the URL
     if (isUrl(logoSrc) && !isSvg(logoSrc)) {
-      return <img src={logoSrc} alt="logo" width={80} height={80} />;
+      return <img src={logoSrc} alt="logo" className="max-h-16 max-w-48 object-contain" />;
     }
     // if the logo is an SVG, render the SVG
     if (isSvg(logoSrc)) {
-      return <div>{isSvg(String(logoSrc)) ? <SVG src={logoSrc || ''} width="80" height="80" /> : null}</div>;
+      return <div>{isSvg(String(logoSrc)) ? <SVG src={logoSrc || ''} className="max-h-16 max-w-48" /> : null}</div>;
     }
     return null;
   };

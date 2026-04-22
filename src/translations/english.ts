@@ -31,6 +31,7 @@ const en = {
     deploy: 'Deploy',
     submit: 'Submit',
     cancel: 'Cancel',
+    close: 'Close',
     snapshot: 'Snapshot',
     success: 'Success',
     reset: 'Reset',
@@ -114,9 +115,15 @@ const en = {
     resize: 'Resize',
     operation_success: 'Operation Successful',
     creating: 'Creating...',
+    loading: 'Loading...',
     failed: 'Failed',
     unlock: 'Unlock',
     total_items: 'Total {{total}} items',
+    unsaved_changes: 'Unsaved Changes',
+    unsaved_changes_desc: 'You have unsaved changes. Are you sure you want to leave? Your changes will be lost.',
+    yes: 'Yes',
+    no: 'No',
+    invalid_request: 'Invalid Request',
   },
   menu: {
     dashboard: 'Dashboard',
@@ -150,6 +157,9 @@ const en = {
     schedule_list: 'Schedule',
     files: 'Files',
     auth_tokens: 'Auth Tokens',
+    ha: 'HA',
+    high_availability: 'High Availability',
+    reactor: 'DRBD Reactor',
   },
   authToken: {
     title: 'Auth Tokens',
@@ -576,12 +586,15 @@ const en = {
 
   files: {
     title: 'External Files',
+    description:
+      'External files are managed by LINSTOR and can be deployed to resource definitions. They are commonly used to distribute configuration files for high availability setups, such as DRBD Reactor promoter configurations.',
     path: 'Path',
     content: 'Content',
     add_file: 'Add File',
     create: 'Create File',
     view_content: 'View Content',
     file_content: 'File Content',
+    load_content_failed: 'Failed to load file content',
     delete_confirm: 'Are you sure to delete this file?',
     path_required: 'File path is required',
     content_required: 'File content is required',
@@ -589,15 +602,23 @@ const en = {
     content_placeholder: 'Enter file content...',
     no_content: 'No content available',
     deploy: 'Deploy',
+    undeploy: 'Undeploy',
     deploy_to_resource: 'Deploy to Resource',
     select_resource: 'Select Resource',
     select_resource_placeholder: 'Select a resource definition',
     deploy_success: 'File deployed successfully',
     deploy_failed: 'File deployment failed',
+    undeploy_success: 'File undeployed successfully',
+    undeploy_failed: 'File undeployment failed',
+    modify: 'Modify',
+    modify_file: 'Modify File',
+    modify_success: 'File modified successfully',
+    modify_failed: 'File modification failed',
     already_deployed: 'File is already deployed to this resource',
     already_deployed_to_all: 'File is already deployed to all resources',
     deployed_to: 'Deployed To',
     not_deployed: 'Not Deployed',
+    show_reactor_files: 'Show DRBD Reactor configuration files',
     file: 'File',
   },
 
@@ -606,7 +627,7 @@ const en = {
     general: 'General',
     custom_logo: 'Custom Logo',
     custom_logo_description:
-      'You can select either a local SVG file or a remote URL. The URL can point to any image type. Please use a light-colored logo. A 70x70 pixel space will be reserved for the logo.',
+      'You can select either a local SVG file or a remote URL. The URL can point to any image type. Please use a light-colored logo. A maximum space of 160x56 pixels is available for the logo.',
     logo: 'Logo',
     url: 'URL',
     gateway: 'Gateway',
@@ -626,12 +647,14 @@ const en = {
     grafana_description:
       'Here you can configure the Grafana Dashboard. Once set up, an entry will be displayed in the left-side menu.',
     grafana_prerequisites_note:
-      'To enable Grafana dashboard functionality, you need to install and run drbd-reactor, Prometheus, and Grafana. Additionally, import the following Grafana dashboards: Node Exporter Full (https://grafana.com/grafana/dashboards/1860-node-exporter-full/) and DRBD (https://grafana.com/grafana/dashboards/14339-drbd/). Also, modify your Grafana configuration as follows:',
+      'To enable Grafana dashboard functionality, you need to install and run DRBD Reactor, Prometheus, and Grafana. Additionally, import the following Grafana dashboards: Node Exporter Full (https://grafana.com/grafana/dashboards/1860-node-exporter-full/) and DRBD (https://grafana.com/grafana/dashboards/14339-drbd/). Also, modify your Grafana configuration as follows:',
     grafana_prerequisites_config: `[security]
 allow_embedding = true
 [auth.anonymous]
 enabled = true
 org_role = Viewer`,
+    grafana_https_notice:
+      'If this GUI is opened over HTTPS, the Grafana URL below must also use HTTPS. Browsers block HTTP dashboards inside an HTTPS page. Make sure Grafana is reachable from the browser and allow_embedding is enabled.',
     grafana_url: 'Grafana URL',
     available: 'Available',
     not_available: 'Not Available',
@@ -652,11 +675,12 @@ org_role = Viewer`,
     dashboards_found: 'Found {{count}} dashboard(s). Select one to automatically extract its configuration.',
     grafana_server_url: 'Grafana Server URL',
     please_enter_grafana_url: 'Please enter Grafana URL',
-    grafana_url_help: 'Enter your Grafana server URL (e.g., http://192.168.123.117:3000)',
+    grafana_url_help:
+      'Enter your Grafana server URL. Use the same protocol as this GUI. For example, if the GUI uses HTTPS, enter an HTTPS Grafana URL.',
     dashboard_url: 'Dashboard URL',
     please_enter_dashboard_url: 'Please enter dashboard URL',
     dashboard_url_help:
-      'Enter the full Grafana dashboard URL (e.g., http://192.168.123.117:3000/d/rYdddlPWk/node-exporter-full)',
+      'Enter the full Grafana dashboard URL. If this GUI uses HTTPS, this URL must also use HTTPS or the browser will block it.',
     invalid_dashboard_url: 'Invalid dashboard URL format. Please enter a valid Grafana dashboard URL.',
     panel_ids_default_values:
       'Default panel IDs are: CPU=77, Memory=78, Network=74, Disk=152, Disk IOPS=229, IO Usage=9',
@@ -810,6 +834,15 @@ org_role = Viewer`,
     // Header tools
     unofficial_build_header_attention: 'Attention! You are using an unsupported build.',
     unofficial_build_header_get_official: 'For Official Builds',
+  },
+  ha: {
+    list: 'DRBD Reactor Configurations',
+    volume_count: 'Volumes',
+    primary_node: 'Primary Node',
+    config_files: 'Configuration Files',
+    drbd_info: 'DRBD Info',
+    edit_config: 'Edit Configuration',
+    create_resource: 'Create Resource',
   },
 };
 

@@ -17,10 +17,10 @@ const renderLogo = (logoSrc?: string) => {
     return null;
   }
   if (isUrl(logoSrc) && !isSvg(logoSrc)) {
-    return <img src={logoSrc} alt="logo" width={70} height={70} />;
+    return <img src={logoSrc} alt="logo" className="max-h-14 max-w-40 object-contain" />;
   }
   if (isSvg(logoSrc)) {
-    return <SVG src={logoSrc || ''} width="70" height="70" />;
+    return <SVG src={logoSrc || ''} className="max-h-14 max-w-40" />;
   }
   return null;
 };

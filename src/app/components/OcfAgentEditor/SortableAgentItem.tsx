@@ -8,8 +8,9 @@ import {
 } from '@ant-design/icons';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Button, Card, Form, Input, InputNumber, Popconfirm, Space, Switch, Tag, Tooltip, Typography } from 'antd';
+import { Card, Form, Input, InputNumber, Popconfirm, Space, Switch, Tag, Tooltip, Typography } from 'antd';
 import type { OcfAgentWithMetadata, ParamEntry, ResourceAgent } from '@/api/ha-profiles';
+import { Button } from '@app/components/Button';
 
 const { Text } = Typography;
 
@@ -94,85 +95,27 @@ export function SortableAgentItem({
     );
   };
 
-  // Render form field based on parameter type (for OCF agents)
-  const renderFormField = (param: any) => {
-    if (!ocfAgent) return null;
+  const renderParamLabel = (param: any) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+      <span style={{ fontSize: '13px', color: '#333' }}>{param.name}</span>
+      {(param.longdesc || param.shortdesc) && (
+        <Tooltip
+          title={<div style={{ whiteSpace: 'pre-wrap', maxWidth: '400px' }}>{param.longdesc || param.shortdesc}</div>}
+        >
+          <QuestionCircleOutlined style={{ color: '#999', fontSize: '12px' }} />
+        </Tooltip>
+      )}
+    </div>
+  );
 
-    const fieldName = [`agents`, index, `params`, param.name];
-    const currentValue = getParamValue(ocfAgent.params, param.name);
-
-    const label = (
-      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-        <span style={{ fontSize: '13px', color: '#333' }}>{param.name}</span>
-        {(param.longdesc || param.shortdesc) && (
-          <Tooltip
-            title={<div style={{ whiteSpace: 'pre-wrap', maxWidth: '400px' }}>{param.longdesc || param.shortdesc}</div>}
-          >
-            <QuestionCircleOutlined style={{ color: '#999', fontSize: '12px' }} />
-          </Tooltip>
-        )}
-      </div>
-    );
-
+  const renderParamControl = (param: any) => {
     switch (param.type) {
       case 'integer':
-        return (
-          <Form.Item
-            key={param.name}
-            name={fieldName}
-            label={label}
-            initialValue={currentValue}
-            rules={[
-              {
-                required: param.required,
-                message: `${param.name} is required`,
-              },
-            ]}
-          >
-            <InputNumber style={{ width: '100%' }} />
-          </Form.Item>
-        );
-
+        return <InputNumber style={{ width: '100%' }} />;
       case 'boolean':
-        return (
-          <Form.Item
-            key={param.name}
-            name={fieldName}
-            label={label}
-            valuePropName="checked"
-            getValueFrom={(value: boolean) => (value ? 'true' : 'false')}
-            getValueProps={(value: string) => ({
-              checked: value === 'true' || value === '1' || value === 'yes' || value === true,
-            })}
-            initialValue={typeof currentValue === 'boolean' ? (currentValue ? 'true' : 'false') : currentValue}
-            rules={[
-              {
-                required: param.required,
-                message: `${param.name} is required`,
-              },
-            ]}
-          >
-            <Switch />
-          </Form.Item>
-        );
-
+        return <Switch />;
       default:
-        return (
-          <Form.Item
-            key={param.name}
-            name={fieldName}
-            label={label}
-            initialValue={currentValue}
-            rules={[
-              {
-                required: param.required,
-                message: `${param.name} is required`,
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-        );
+        return <Input />;
     }
   };
 
@@ -288,7 +231,6 @@ export function SortableAgentItem({
         >
           {/* Original string (for reference) */}
           <div style={{ marginBottom: '16px' }}>
-            <Text type="secondary">Original:</Text>
             <div
               style={{
                 marginTop: '4px',
@@ -346,21 +288,52 @@ export function SortableAgentItem({
                 const param = metadata.parameters.find((p) => p.name === paramEntry.key);
                 if (!param) return null;
 
+                const fieldName = ['agents', index, 'params', param.name];
+                const currentValue = getParamValue(ocfAgent.params, param.name);
+                const initialValue =
+                  param.type === 'boolean' && typeof currentValue === 'boolean'
+                    ? currentValue
+                      ? 'true'
+                      : 'false'
+                    : currentValue;
+
                 return (
-                  <div key={paramEntry.key} style={{ position: 'relative', paddingRight: '40px' }}>
-                    {renderFormField(param)}
-                    <Button
-                      type="text"
-                      size="small"
-                      danger
-                      icon={<MinusCircleOutlined />}
-                      onClick={() => onRemoveParam(stableKey, paramEntry.key)}
-                      style={{
-                        position: 'absolute',
-                        right: '0',
-                        top: param.type === 'boolean' ? '0' : '32px',
-                      }}
-                    />
+                  <div key={paramEntry.key} style={{ marginBottom: '12px' }}>
+                    {renderParamLabel(param)}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                      <Form.Item
+                        key={param.name}
+                        name={fieldName}
+                        initialValue={initialValue}
+                        rules={[
+                          {
+                            required: param.required,
+                            message: `${param.name} is required`,
+                          },
+                        ]}
+                        valuePropName={param.type === 'boolean' ? 'checked' : undefined}
+                        getValueFrom={
+                          param.type === 'boolean' ? (value: boolean) => (value ? 'true' : 'false') : undefined
+                        }
+                        getValueProps={
+                          param.type === 'boolean'
+                            ? (value: string) => ({
+                                checked: value === 'true' || value === '1' || value === 'yes' || value === true,
+                              })
+                            : undefined
+                        }
+                        style={{ flex: 1, marginBottom: 0 }}
+                      >
+                        {renderParamControl(param)}
+                      </Form.Item>
+                      <Button
+                        type="text"
+                        size="small"
+                        danger
+                        icon={<MinusCircleOutlined />}
+                        onClick={() => onRemoveParam(stableKey, paramEntry.key)}
+                      />
+                    </div>
                   </div>
                 );
               })}
@@ -370,21 +343,52 @@ export function SortableAgentItem({
                 const param = metadata.parameters.find((p) => p.name === paramName);
                 if (!param || hasParam(ocfAgent?.params, paramName)) return null;
 
+                const fieldName = ['agents', index, 'params', param.name];
+                const currentValue = getParamValue(ocfAgent?.params, param.name);
+                const initialValue =
+                  param.type === 'boolean' && typeof currentValue === 'boolean'
+                    ? currentValue
+                      ? 'true'
+                      : 'false'
+                    : currentValue;
+
                 return (
-                  <div key={paramName} style={{ position: 'relative', paddingRight: '40px' }}>
-                    {renderFormField(param)}
-                    <Button
-                      type="text"
-                      size="small"
-                      danger
-                      icon={<MinusCircleOutlined />}
-                      onClick={() => onRemoveParam(stableKey, paramName)}
-                      style={{
-                        position: 'absolute',
-                        right: '0',
-                        top: param.type === 'boolean' ? '0' : '32px',
-                      }}
-                    />
+                  <div key={paramName} style={{ marginBottom: '12px' }}>
+                    {renderParamLabel(param)}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                      <Form.Item
+                        key={param.name}
+                        name={fieldName}
+                        initialValue={initialValue}
+                        rules={[
+                          {
+                            required: param.required,
+                            message: `${param.name} is required`,
+                          },
+                        ]}
+                        valuePropName={param.type === 'boolean' ? 'checked' : undefined}
+                        getValueFrom={
+                          param.type === 'boolean' ? (value: boolean) => (value ? 'true' : 'false') : undefined
+                        }
+                        getValueProps={
+                          param.type === 'boolean'
+                            ? (value: string) => ({
+                                checked: value === 'true' || value === '1' || value === 'yes' || value === true,
+                              })
+                            : undefined
+                        }
+                        style={{ flex: 1, marginBottom: 0 }}
+                      >
+                        {renderParamControl(param)}
+                      </Form.Item>
+                      <Button
+                        type="text"
+                        size="small"
+                        danger
+                        icon={<MinusCircleOutlined />}
+                        onClick={() => onRemoveParam(stableKey, paramName)}
+                      />
+                    </div>
                   </div>
                 );
               })}

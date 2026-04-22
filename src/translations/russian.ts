@@ -138,6 +138,7 @@ const ru = {
     users: 'Пользователи',
     'backup&dr': 'Резервное копирование / DR',
     schedule_list: 'Расписание',
+    ha: 'HA',
   },
   node: {
     node_list: 'Список узлов',
@@ -581,6 +582,13 @@ const ru = {
     // Header tools
     unofficial_build_header_attention: 'Внимание! Вы используете неподдерживаемую сборку.',
     unofficial_build_header_get_official: 'Для официальных сборок',
+  },
+  ha: {
+    list: 'Ресурсы HA',
+    volume_count: 'Тома',
+    config_files: 'Файлы конфигурации',
+    drbd_info: 'Информация DRBD',
+    edit_config: 'Редактировать конфигурацию',
   },
 };
 

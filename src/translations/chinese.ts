@@ -29,6 +29,7 @@ const zh = {
     resource_group: '资源组',
     submit: '提交',
     cancel: '取消',
+    close: '关闭',
     reset: '重置',
     name: '名称',
     action: '操作',
@@ -98,9 +99,15 @@ const zh = {
     storage_pool_overview: '存储池概览',
     all_resources_are_healthy: '所有资源正常',
     creating: '创建中...',
+    loading: '加载中...',
     failed: '失败',
     unlock: '解锁',
     total_items: '共 {{total}} 项',
+    unsaved_changes: '未保存的更改',
+    unsaved_changes_desc: '您有未保存的更改。确定要离开吗？您的更改将丢失。',
+    yes: '是',
+    no: '否',
+    invalid_request: '无效请求',
   },
   menu: {
     dashboard: '概览',
@@ -131,6 +138,7 @@ const zh = {
     'backup&dr': '备份/灾备',
     schedule_list: '计划任务',
     files: '文件',
+    ha: '高可用',
   },
   node: {
     node_list: '节点列表',
@@ -515,12 +523,14 @@ const zh = {
       // 'Here you can configure the Grafana Dashboard. Once set up, an entry will be displayed in the left-side menu.',
       '在这里，您可以配置 Grafana 仪表板。设置完成后，左侧菜单中将显示一个选项。',
     grafana_prerequisites_note:
-      '需要安装并运行drbd-reactor， prometheus 和 grafana，以及 https://grafana.com/grafana/dashboards/1860-node-exporter-full/ https://grafana.com/grafana/dashboards/14339-drbd/。同时修改Grafana配置如下：',
+      '需要安装并运行DRBD Reactor， prometheus 和 grafana，以及 https://grafana.com/grafana/dashboards/1860-node-exporter-full/ https://grafana.com/grafana/dashboards/14339-drbd/。同时修改Grafana配置如下：',
     grafana_prerequisites_config: `[security]
 allow_embedding = true
 [auth.anonymous]
 enabled = true
 org_role = Viewer`,
+    grafana_https_notice:
+      '如果当前 GUI 是通过 HTTPS 打开的，下面填写的 Grafana URL 也必须使用 HTTPS。浏览器会阻止在 HTTPS 页面中加载 HTTP 仪表板。请同时确认浏览器可以访问 Grafana，并且已启用 allow_embedding。',
     grafana_url: 'Grafana URL',
     available: '可用',
     not_available: '不可用',
@@ -540,11 +550,12 @@ org_role = Viewer`,
     dashboards_found: '找到 {{count}} 个仪表板。选择一个以自动提取其配置。',
     grafana_server_url: 'Grafana 服务器 URL',
     please_enter_grafana_url: '请输入 Grafana URL',
-    grafana_url_help: '输入您的 Grafana 服务器 URL（例如：http://192.168.123.117:3000）',
+    grafana_url_help:
+      '输入您的 Grafana 服务器 URL。请与当前 GUI 使用相同的协议；如果 GUI 是 HTTPS，这里也必须填写 HTTPS 地址。',
     dashboard_url: '仪表板 URL',
     please_enter_dashboard_url: '请输入仪表板 URL',
     dashboard_url_help:
-      '输入完整的 Grafana 仪表板 URL（例如：http://192.168.123.117:3000/d/rYdddlPWk/node-exporter-full）',
+      '输入完整的 Grafana 仪表板 URL。如果当前 GUI 使用 HTTPS，这里也必须填写 HTTPS 地址，否则浏览器会直接拦截。',
     invalid_dashboard_url: '无效的仪表板 URL 格式。请输入有效的 Grafana 仪表板 URL。',
     panel_ids_default_values: '默认面板 ID 为：CPU=77, Memory=78, Network=74, Disk=152, Disk IOPS=229, IO Usage=9',
     api_key_optional: 'API 密钥（可选）',
@@ -709,6 +720,15 @@ org_role = Viewer`,
     // Header tools
     unofficial_build_header_attention: '注意！您正在使用不受支持的版本。',
     unofficial_build_header_get_official: '获取官方版本',
+  },
+  ha: {
+    list: '高可用资源',
+    volume_count: '卷数量',
+    primary_node: '主节点',
+    config_files: '配置文件',
+    drbd_info: 'DRBD 信息',
+    edit_config: '编辑配置',
+    create_resource: '创建资源',
   },
 };
 

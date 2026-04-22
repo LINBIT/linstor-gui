@@ -138,6 +138,7 @@ const tr = {
     users: 'Kullanıcılar',
     'backup&dr': 'Yedekleme / DR',
     schedule_list: 'Zamanlama',
+    ha: 'HA',
   },
   node: {
     node_list: 'Düğüm Listesi',
@@ -580,6 +581,13 @@ const tr = {
     // Header tools
     unofficial_build_header_attention: 'Dikkat! Desteklenmeyen bir yapılandırma kullanıyorsunuz.',
     unofficial_build_header_get_official: 'Resmi yapılandırmalar için',
+  },
+  ha: {
+    list: 'HA Kaynakları',
+    volume_count: 'Birimler',
+    config_files: 'Yapılandırma Dosyaları',
+    drbd_info: 'DRBD Bilgisi',
+    edit_config: 'Yapılandırmayı Düzenle',
   },
 };
 

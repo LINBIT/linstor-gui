@@ -100,7 +100,7 @@ const CreateNVMEOfForm = () => {
       }}
     >
       <Alert
-        message="Creates a highly available NVMe-oF target based on LINSTOR and drbd-reactor."
+        message="Creates a highly available NVMe-oF target based on LINSTOR and DRBD Reactor."
         type="info"
         showIcon
         style={{ marginBottom: 24 }}

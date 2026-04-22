@@ -17,6 +17,7 @@ import { UIMode } from '@app/models/setting';
 import { flattenedRoutes, adminRoutes, IAppRoute } from './route-config';
 import vsan from './vsan';
 import hci from './hci';
+import ConfigEditor from '@app/pages/HA/ConfigEditor';
 
 // Component to handle setting document title and rendering the component
 const RouteWithTitleUpdates = ({ component: Component, title, ...rest }: IAppRoute) => {
@@ -94,6 +95,22 @@ const AppRoutes = (): React.ReactElement => {
           element={<RouteWithTitleUpdates component={Component} path={path} title={title} isAsync={isAsync} />}
         />
       ))}
+      <Route
+        path="/reactor/create"
+        element={
+          <RouteWithTitleUpdates component={ConfigEditor} path="/reactor/create" title="LINSTOR | Reactor | Create" />
+        }
+      />
+      <Route
+        path="/reactor/edit/:resourceName"
+        element={
+          <RouteWithTitleUpdates
+            component={ConfigEditor}
+            path="/reactor/edit/:resourceName"
+            title="LINSTOR | Reactor | Edit"
+          />
+        }
+      />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

@@ -138,6 +138,7 @@ const ja = {
     users: 'ユーザー',
     'backup&dr': 'バックアップ/DR',
     schedule_list: 'スケジュール',
+    ha: 'HA',
   },
   node: {
     node_list: 'ノードリスト',
@@ -581,6 +582,13 @@ const ja = {
     // Header tools
     unofficial_build_header_attention: '注意！サポートされていないビルドを使用しています。',
     unofficial_build_header_get_official: '公式ビルドのために',
+  },
+  ha: {
+    list: 'HA リソース',
+    volume_count: 'ボリューム',
+    config_files: '設定ファイル',
+    drbd_info: 'DRBD 情報',
+    edit_config: '設定を編集',
   },
 };
 

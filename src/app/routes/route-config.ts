@@ -33,6 +33,7 @@ import GeneralSettings from '@app/pages/Settings';
 import AuthTokens from '@app/pages/AuthTokens';
 import ResourceOverview from '@app/pages/SoftwareDefined/Resources/overview';
 import ResourceDefinitionCreate from '@app/pages/SoftwareDefined/ResourceDefinitions/create';
+import HA from '@app/pages/HA';
 
 import gateway from './gateway';
 import snapshot from './snapshot';
@@ -192,6 +193,14 @@ export const routes: AppRouteConfig[] = [
   },
   ...snapshot,
   ...files,
+  {
+    component: HA,
+    exact: true,
+    isAsync: true,
+    label: 'reactor',
+    path: '/reactor',
+    title: 'LINSTOR | Reactor',
+  },
   {
     label: 'Backup/DR',
     routes: [
