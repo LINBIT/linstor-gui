@@ -14,6 +14,8 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 
 import PageBasic from '@app/components/PageBasic';
 import { Resource, StoragePool, useNodes } from '@app/features/node';
+import { getControllerVersion } from '@app/features/node/api';
+import { compareVersions } from '@app/utils/version';
 import {
   CreateForm,
   CreateNetWorkInterfaceRequestBody,
@@ -159,6 +161,13 @@ const NodeDetail: React.FC = () => {
     nodes: [node],
   });
 
+  const { data: linstorVersion, isFetched: versionFetched } = useQuery({
+    queryKey: ['linstorVersion'],
+    queryFn: () => getControllerVersion(),
+  });
+
+  const platformAvailable = versionFetched && compareVersions(linstorVersion?.data?.rest_api_version, '1.28.0');
+
   const nodeData = nodeInfo?.[0];
   const storagePoolData = handleStorageData(nodeStoragePoolInfo?.data as StoragePoolItem[], node) || [];
   const resourceData = handleResourceData(resourceInfo?.data) || [];
@@ -217,12 +226,14 @@ const NodeDetail: React.FC = () => {
               <LabelText>{t('node_name')}:</LabelText>
               {nodeData?.name}
             </div>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <LabelText style={{ width: 'auto' }}>{t('platform')}:</LabelText>
-              {nodeData?.platform === 'LINUX' && <FaLinux style={{ fontSize: '20px', marginRight: 4 }} />}
-              {nodeData?.platform === 'WINDOWS' && <FaWindows style={{ fontSize: '18px', marginRight: 4 }} />}
-              {nodeData?.platform?.toLowerCase()}
-            </div>
+            {platformAvailable && (
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <LabelText style={{ width: 'auto' }}>{t('platform')}:</LabelText>
+                {nodeData?.platform === 'LINUX' && <FaLinux style={{ fontSize: '20px', marginRight: 4 }} />}
+                {nodeData?.platform === 'WINDOWS' && <FaWindows style={{ fontSize: '18px', marginRight: 4 }} />}
+                {nodeData?.platform?.toLowerCase()}
+              </div>
+            )}
             <div>
               <LabelText>{t('os_variant')}:</LabelText> {nodeData?.os_variant}
             </div>
