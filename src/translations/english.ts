@@ -196,6 +196,7 @@ const en = {
     delete_failed: 'Failed to delete auth token.',
     cancel: 'Cancel',
     close: 'Close',
+    show_all: 'Show all tokens',
   },
   node: {
     node_list: 'Node List',

@@ -16,6 +16,7 @@ import {
   Modal,
   Popconfirm,
   Space,
+  Switch,
   Table,
   Tag,
   Typography,
@@ -77,7 +78,8 @@ const booleanText = (value: boolean) => (value ? 'Yes' : 'No');
 const AuthTokens = () => {
   const { t } = useTranslation(['authToken', 'common']);
   const [form] = Form.useForm<CreateTokenForm>();
-  const [tokens, setTokens] = useState<AuthToken[]>([]);
+  const [allTokens, setAllTokens] = useState<AuthToken[]>([]);
+  const [showAllTokens, setShowAllTokens] = useState(false);
   const [loading, setLoading] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -90,7 +92,7 @@ const AuthTokens = () => {
 
     try {
       const response = await service.get<AuthTokenListResponse>('/v1/controller/auth/token');
-      setTokens((response.data?.list ?? []).filter((token) => token.is_user_token));
+      setAllTokens(response.data?.list ?? []);
     } catch (error) {
       message.error((error as Error)?.message || t('authToken:load_failed'));
     } finally {
@@ -103,6 +105,8 @@ const AuthTokens = () => {
     // Fetch once when opening the page. Refetches after mutations call fetchTokens directly.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const tokens = showAllTokens ? allTokens : allTokens.filter((token) => token.is_user_token);
 
   const extractToken = (data?: ApiCallRcEntry[]) => {
     return data?.find((entry) => entry?.obj_refs?.token)?.obj_refs?.token?.trim() ?? null;
@@ -259,6 +263,11 @@ const AuthTokens = () => {
         </div>
 
         <Space>
+          <Space>
+            <Switch checked={showAllTokens} onChange={setShowAllTokens} />
+            <span>{t('authToken:show_all')}</span>
+          </Space>
+
           <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateOpen(true)}>
             {t('authToken:create')}
           </Button>
