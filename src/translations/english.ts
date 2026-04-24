@@ -488,6 +488,8 @@ const en = {
     title: 'Authentication & Users',
     delete_user_title: 'Delete the user',
     delete_user_description: 'Are you sure to delete this user?',
+    removal_warning:
+      "The 'Users' functionality will be removed in the future. Please use 'Auth Token' for access management and control.",
     authentication_enabled: 'Authentication is now enabled successfully',
     authentication_disabled: 'Authentication is now disabled successfully',
     authentication_update_failed: 'Failed to update the authentication status',

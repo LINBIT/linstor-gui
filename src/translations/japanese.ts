@@ -427,6 +427,7 @@ const ja = {
     title: '認証とユーザー',
     delete_user_title: 'ユーザーを削除',
     delete_user_description: 'このユーザーを削除してもよろしいですか？',
+    removal_warning: '「ユーザー」機能は将来削除されます。アクセス管理と制御には「Auth Token」を使用してください。',
     authentication_enabled: '認証が正常に有効になりました',
     authentication_disabled: '認証が正常に無効になりました',
     authentication_update_failed: '認証ステータスの更新に失敗',

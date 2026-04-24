@@ -428,6 +428,8 @@ const es = {
     title: 'Autenticación y usuarios',
     delete_user_title: 'Eliminar usuario',
     delete_user_description: '¿Está seguro de eliminar este usuario?',
+    removal_warning:
+      "La funcionalidad de 'Usuarios' se eliminará en el futuro. Utilice 'Auth Token' para la gestión y el control de acceso.",
     authentication_enabled: 'Autenticación habilitada con éxito',
     authentication_disabled: 'Autenticación deshabilitada con éxito',
     authentication_update_failed: 'Falló la actualización del estado de autenticación',

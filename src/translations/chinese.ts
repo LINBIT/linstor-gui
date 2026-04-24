@@ -339,6 +339,7 @@ const zh = {
     title: '认证与用户',
     delete_user_title: '删除用户',
     delete_user_description: '确定要删除此用户吗？',
+    removal_warning: '用户管理功能将来会被移除，请使用 Auth Token 来管理访问和控制。',
     authentication_enabled: '用户认证已成功启用',
     authentication_disabled: '用户认证已成功禁用',
     authentication_update_failed: '更新认证状态失败',

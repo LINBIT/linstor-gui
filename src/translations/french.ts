@@ -427,7 +427,9 @@ const fr = {
     // UserManagement page
     title: 'Authentification et utilisateurs',
     delete_user_title: "Supprimer l'utilisateur",
-    delete_user_description: 'Êtes-vous sûr de supprimer cet utilisateur ?',
+    delete_user_description: 'Êtes-vous sûr de vouloir supprimer cet utilisateur ?',
+    removal_warning:
+      "La fonctionnalité 'Utilisateurs' sera supprimée à l'avenir. Veuillez utiliser 'Auth Token' pour la gestion et le contrôle des accès.",
     authentication_enabled: 'Authentification activée avec succès',
     authentication_disabled: 'Authentification désactivée avec succès',
     authentication_update_failed: "Échec de la mise à jour du statut d'authentification",

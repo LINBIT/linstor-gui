@@ -8,7 +8,7 @@ import React, { useEffect, useState } from 'react';
 import PageBasic from '@app/components/PageBasic';
 import { Dispatch, RootState } from '@app/store';
 import { useDispatch, useSelector } from 'react-redux';
-import { Avatar, Button, List, Popconfirm, Divider } from 'antd';
+import { Avatar, Button, List, Popconfirm, Divider, Alert } from 'antd';
 import bg from '@app/assets/user_bg.svg';
 import { BG, MainContent, StyledSection } from './styled';
 import { QuestionCircleOutlined } from '@ant-design/icons';
@@ -94,6 +94,7 @@ export const UserManagement = () => {
       <StyledSection>
         <BG src={bg} title="bg" />
         <MainContent>
+          <Alert message={t('users:removal_warning')} type="warning" showIcon style={{ marginBottom: 20 }} />
           {isAdminOrNotEnabled && (
             <>
               <div>

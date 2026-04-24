@@ -425,6 +425,8 @@ const tr = {
     title: 'Kimlik Doğrulama ve Kullanıcılar',
     delete_user_title: 'Kullanıcıyı sil',
     delete_user_description: 'Bu kullanıcıyı silmek istediğinizden emin misiniz?',
+    removal_warning:
+      "'Kullanıcılar' özelliği gelecekte kaldırılacaktır. Erişim yönetimi ve kontrolü için lütfen 'Auth Token' kullanın.",
     authentication_enabled: 'Kimlik doğrulama başarıyla etkinleştirildi',
     authentication_disabled: 'Kimlik doğrulama başarıyla devre dışı bırakıldı',
     authentication_update_failed: 'Kimlik doğrulama durumu güncellenemedi',

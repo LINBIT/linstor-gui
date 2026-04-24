@@ -429,6 +429,8 @@ const de = {
     title: 'Authentifizierung & Benutzer',
     delete_user_title: 'Benutzer löschen',
     delete_user_description: 'Sind Sie sicher, dass Sie diesen Benutzer löschen möchten?',
+    removal_warning:
+      "Die 'Benutzer'-Funktion wird in Zukunft entfernt. Bitte verwenden Sie 'Auth Token' für die Zugriffsverwaltung und -steuerung.",
     authentication_enabled: 'Authentifizierung wurde erfolgreich aktiviert',
     authentication_disabled: 'Authentifizierung wurde erfolgreich deaktiviert',
     authentication_update_failed: 'Aktualisierung des Authentifizierungsstatus fehlgeschlagen',
