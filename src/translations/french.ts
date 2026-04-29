@@ -101,6 +101,9 @@ const fr = {
     resource_definition_properties: 'Propriétés de définition de ressource',
     volume_definition_properties: 'Propriétés de définition de volume',
     storage_pool_overview: 'Aperçu du pool de stockage',
+    showing_top_n_of_total_nodes: 'Affichage des {{n}} principaux nœuds sur {{total}} (par capacité utilisée)',
+    top_n_nodes_hint:
+      'Pour préserver les performances sur les grands clusters, ce graphique ne montre que les {{n}} nœuds avec la plus grande capacité utilisée. Voir Inventaire → Pools de stockage pour la liste complète.',
     free_capacity: 'Capacité libre',
     used_capacity: 'Capacité utilisée',
     faulty_resource: 'Ressource défectueuse',

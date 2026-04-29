@@ -101,6 +101,9 @@ const ja = {
     resource_definition_properties: 'リソース定義プロパティ',
     volume_definition_properties: 'ボリューム定義プロパティ',
     storage_pool_overview: 'ストレージプール概要',
+    showing_top_n_of_total_nodes: '使用容量の多い上位 {{n}} ノード（全 {{total}} ノード中）を表示',
+    top_n_nodes_hint:
+      '大規模クラスタでのパフォーマンスを保つため、このチャートでは使用容量の多い上位 {{n}} ノードのみを表示しています。すべてのノードはインベントリ → ストレージプールで確認できます。',
     free_capacity: '空き容量',
     used_capacity: '使用容量',
     faulty_resource: '障害リソース',

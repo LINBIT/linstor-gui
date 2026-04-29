@@ -226,8 +226,9 @@ describe('StoragePoolInfo', () => {
       const optionsData = JSON.parse(chartElement.getAttribute('data-options') || '{}');
       const seriesData = JSON.parse(chartElement.getAttribute('data-series') || '[]');
 
-      // Should have both node1 and node2 in categories (excluding node3 because it only has DISKLESS)
-      expect(optionsData.xaxis.categories).toEqual(['node1', 'node2']);
+      // Should have both node1 and node2 in categories (excluding node3 because it only has DISKLESS).
+      // Categories are sorted by used capacity desc, so node2 (used=900M) comes before node1 (used=600M).
+      expect(optionsData.xaxis.categories).toEqual(['node2', 'node1']);
 
       // Should have series for both pools (used + free) plus node totals
       expect(seriesData.length).toBeGreaterThan(4); // At least 4 series for 2 pools (2 used + 2 free) + node series
@@ -420,7 +421,8 @@ describe('StoragePoolInfo', () => {
 
       // For node1: used = total - free = 1000000000 - 400000000 = 600000000
       // For node2: used = total - free = 1500000000 - 600000000 = 900000000
-      expect(pool1UsedSeries?.data).toEqual([600000000, 900000000]);
+      // Series follows category order, which is sorted by used capacity desc: [node2, node1].
+      expect(pool1UsedSeries?.data).toEqual([900000000, 600000000]);
     });
 
     it('should assign different colors to different pools', async () => {

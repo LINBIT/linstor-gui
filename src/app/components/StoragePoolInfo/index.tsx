@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Spin } from 'antd';
+import { Spin, Tooltip } from 'antd';
+import { InfoCircleOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import Chart from 'react-apexcharts';
 import type { ApexOptions } from 'apexcharts';
@@ -198,6 +199,8 @@ const ChartContainer = styled.div<{ enableScroll?: boolean; isLegendHovering?: b
     flex: 0 0 auto;
   }
 `;
+
+const MAX_NODES_TO_RENDER = 20;
 
 const HOVERED_SEGMENT_CLASS = 'storage-pool-hovered-segment';
 const HOVERED_SERIES_SEGMENT_CLASS = 'storage-pool-hovered-series-segment';
@@ -497,6 +500,7 @@ export const StoragePoolInfo: React.FC = () => {
         series: [],
         categories: [],
         nodeSummaries: {} as Record<string, NodeSummaryItem[]>,
+        totalNodeCount: 0,
       };
     }
 
@@ -505,9 +509,22 @@ export const StoragePoolInfo: React.FC = () => {
 
     // Group pools by node name for processing
     const groupedByNode = groupBy(validPools, 'node_name');
-    const allNodes = Object.keys(groupedByNode);
+    const totalNodeCount = Object.keys(groupedByNode).length;
 
-    // Union of all unique storage pool names across all nodes
+    // Cap the rendered nodes to the ones carrying the most capacity so the chart
+    // stays responsive on large clusters. Sort by used desc, then total desc.
+    const allNodes = Object.keys(groupedByNode)
+      .map((node) => {
+        const pools = groupedByNode[node];
+        const total = pools.reduce((acc, item) => acc + (item.total_capacity || 0), 0);
+        const used = pools.reduce((acc, item) => acc + ((item.total_capacity || 0) - (item.free_capacity || 0)), 0);
+        return { node, used, total };
+      })
+      .sort((a, b) => b.used - a.used || b.total - a.total)
+      .slice(0, MAX_NODES_TO_RENDER)
+      .map((entry) => entry.node);
+
+    // Union of all unique storage pool names across the rendered nodes
     const allPools = union(...allNodes.map((node) => groupedByNode[node].map((sp) => sp.storage_pool_name)));
 
     const colorPairs = generateStoragePoolColorPairs(allPools.length);
@@ -593,6 +610,7 @@ export const StoragePoolInfo: React.FC = () => {
     return {
       series: allPools.length > 1 ? [...spSeries, nodeUsedSeries, nodeTotalSeries] : [...spSeries],
       categories: allNodes,
+      totalNodeCount,
       nodeSummaries: allNodes.reduce<Record<string, NodeSummaryItem[]>>((acc, node) => {
         acc[node] = [
           ...(nodeSummaries[node] || []),
@@ -771,9 +789,26 @@ export const StoragePoolInfo: React.FC = () => {
         }
       : {};
 
+  const isTruncated = chartData.totalNodeCount > nodeCount;
+
   return (
     <div className="border-2 border-gray-200 rounded px-[34px] py-[30px]">
-      <h3 className="m-0 mb-4 text-[26px] font-semibold">{t('common:storage_pool_overview')}</h3>
+      <div className="m-0 mb-4 flex items-baseline gap-3 flex-wrap">
+        <h3 className="m-0 text-[26px] font-semibold">{t('common:storage_pool_overview')}</h3>
+        <Tooltip
+          title={
+            isTruncated
+              ? `${t('common:showing_top_n_of_total_nodes', {
+                  n: nodeCount,
+                  total: chartData.totalNodeCount,
+                })}. ${t('common:top_n_nodes_hint', { n: MAX_NODES_TO_RENDER })}`
+              : t('common:top_n_nodes_hint', { n: MAX_NODES_TO_RENDER })
+          }
+          placement="right"
+        >
+          <InfoCircleOutlined className="text-gray-400 hover:text-gray-600 cursor-help text-base" />
+        </Tooltip>
+      </div>
       <Spin spinning={isLoading}>
         <ChartContainer
           enableScroll={nodeCount >= 5}

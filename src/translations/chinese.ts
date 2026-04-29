@@ -97,6 +97,9 @@ const zh = {
     keyword: '关键字',
     faulty_resource: '故障资源',
     storage_pool_overview: '存储池概览',
+    showing_top_n_of_total_nodes: '按已用容量展示前 {{n}} 个节点（共 {{total}} 个）',
+    top_n_nodes_hint:
+      '为保证大规模集群下的性能，此图表仅按已用容量展示前 {{n}} 个节点。完整列表请前往「资源清单 → 存储池」查看。',
     all_resources_are_healthy: '所有资源正常',
     creating: '创建中...',
     loading: '加载中...',

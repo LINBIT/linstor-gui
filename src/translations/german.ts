@@ -101,6 +101,9 @@ const de = {
     resource_definition_properties: 'Ressourcendefinitions-Eigenschaften',
     volume_definition_properties: 'Volume-Definitions-Eigenschaften',
     storage_pool_overview: 'Speicherpool-Übersicht',
+    showing_top_n_of_total_nodes: 'Top {{n}} von {{total}} Knoten nach belegter Kapazität',
+    top_n_nodes_hint:
+      'Aus Performance-Gründen zeigt dieses Diagramm bei großen Clustern nur die {{n}} Knoten mit der höchsten belegten Kapazität. Die vollständige Liste findest du unter Inventory → Storage Pools.',
     free_capacity: 'Freie Kapazität',
     used_capacity: 'Verwendete Kapazität',
     faulty_resource: 'Fehlerhafte Ressource',

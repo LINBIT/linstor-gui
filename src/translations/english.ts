@@ -107,6 +107,9 @@ const en = {
     resource_definition_properties: 'Resource Definition Properties',
     volume_definition_properties: 'Volume Definition Properties',
     storage_pool_overview: 'Storage Pool Overview',
+    showing_top_n_of_total_nodes: 'Showing top {{n}} of {{total}} nodes by used capacity',
+    top_n_nodes_hint:
+      'For performance on large clusters, this chart only shows the top {{n}} nodes by used capacity. See Inventory → Storage Pools for the full list.',
     free_capacity: 'Free Capacity',
     used_capacity: 'Used Capacity',
     faulty_resource: 'Faulty Resource',
