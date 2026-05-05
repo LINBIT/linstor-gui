@@ -31,6 +31,7 @@ import utc from 'dayjs/plugin/utc';
 
 import Button from '@app/components/Button';
 import service from '@app/requests';
+import { useLinstorVersion, MIN_API_VERSION } from '@app/hooks';
 
 dayjs.extend(utc);
 
@@ -86,6 +87,8 @@ const AuthTokens = () => {
   const [createdToken, setCreatedToken] = useState<string | null>(null);
   const [updatingTokenId, setUpdatingTokenId] = useState<number | null>(null);
   const [deletingTokenId, setDeletingTokenId] = useState<number | null>(null);
+  const { isFetched: versionFetched, hasMinVersion } = useLinstorVersion();
+  const featureSupported = versionFetched && hasMinVersion(MIN_API_VERSION.AUTH_TOKENS);
 
   const fetchTokens = async () => {
     setLoading(true);
@@ -101,10 +104,12 @@ const AuthTokens = () => {
   };
 
   useEffect(() => {
+    if (!featureSupported) return;
     void fetchTokens();
-    // Fetch once when opening the page. Refetches after mutations call fetchTokens directly.
+    // Fetch once when the API version is confirmed compatible. Refetches after
+    // mutations call fetchTokens directly.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [featureSupported]);
 
   const tokens = showAllTokens ? allTokens : allTokens.filter((token) => token.is_user_token);
 
@@ -252,6 +257,22 @@ const AuthTokens = () => {
       ),
     },
   ];
+
+  if (versionFetched && !hasMinVersion(MIN_API_VERSION.AUTH_TOKENS)) {
+    return (
+      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+        <Title level={3} style={{ marginBottom: 4 }}>
+          {t('authToken:title')}
+        </Title>
+        <Alert
+          type="warning"
+          showIcon
+          message={t('common:feature_unavailable')}
+          description={t('common:feature_requires_api_version', { version: MIN_API_VERSION.AUTH_TOKENS })}
+        />
+      </Space>
+    );
+  }
 
   return (
     <Space direction="vertical" size="large" style={{ width: '100%' }}>

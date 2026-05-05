@@ -28,6 +28,7 @@ import SVG from 'react-inlinesvg';
 
 import NFS from '@app/assets/nfs.svg';
 import { GrafanaConfig } from '@app/models/setting';
+import { useLinstorVersion, MIN_API_VERSION } from '@app/hooks';
 
 import { SideMenu } from '../styled';
 
@@ -78,6 +79,12 @@ const Navigation: React.FC<NavigationProps> = ({
   const { t } = useTranslation(['menu']);
   const [selectedMenu, setSelectedMenu] = React.useState('/dashboard');
   const [openKeys, setOpenKeys] = React.useState<string[]>([]);
+  const { isFetched: versionFetched, hasMinVersion } = useLinstorVersion();
+  // While the version is still loading we optimistically show the gated items
+  // so they don't briefly disappear on a fresh page load. Once we know the
+  // controller version, hide them if the API is too old.
+  const haAvailable = !versionFetched || hasMinVersion(MIN_API_VERSION.HA);
+  const authTokensAvailable = !versionFetched || hasMinVersion(MIN_API_VERSION.AUTH_TOKENS);
 
   const items: MenuItem[] = React.useMemo(() => {
     if (vsanModeFromSetting) {
@@ -195,7 +202,7 @@ const Navigation: React.FC<NavigationProps> = ({
         ]),
 
         getItem(`${t('high_availability')}`, '/high-availability', <SafetyOutlined />, [
-          getItem(<Link to="/reactor">{t('reactor')}</Link>, '/reactor'),
+          ...(haAvailable ? [getItem(<Link to="/reactor">{t('reactor')}</Link>, '/reactor')] : []),
           getItem(<Link to="/files">{t('files')}</Link>, '/files'),
         ]),
         getItem(<Link to="/snapshot">{t('snapshot')}</Link>, '/snapshot', <FileProtectOutlined />),
@@ -205,7 +212,7 @@ const Navigation: React.FC<NavigationProps> = ({
       const settingsAndUsers = [
         getItem(`${t('authentication')}`, '/authentication', <KeyOutlined />, [
           getItem(<Link to="/users">{t('users')}</Link>, '/users'),
-          getItem(<Link to="/auth-tokens">{t('auth_tokens')}</Link>, '/auth-tokens'),
+          ...(authTokensAvailable ? [getItem(<Link to="/auth-tokens">{t('auth_tokens')}</Link>, '/auth-tokens')] : []),
         ]),
         getItem(<Link to="/settings">{t('settings')}</Link>, '/settings', <SettingOutlined />),
       ];
@@ -244,6 +251,8 @@ const Navigation: React.FC<NavigationProps> = ({
     t,
     vsanModeFromSetting,
     hciModeFromSetting,
+    haAvailable,
+    authTokensAvailable,
   ]);
   // Initialize openKeys on mount and when path changes
   React.useEffect(() => {

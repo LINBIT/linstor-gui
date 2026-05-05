@@ -101,6 +101,8 @@ const tr = {
     resource_definition_properties: 'Kaynak Tanım Özellikleri',
     volume_definition_properties: 'Birim Tanım Özellikleri',
     storage_pool_overview: 'Depolama Havuzu Genel Bakış',
+    feature_unavailable: 'Özellik kullanılamıyor',
+    feature_requires_api_version: 'Bu özellik LINSTOR REST API {{version}} veya üstünü gerektirir.',
     showing_top_n_of_total_nodes: 'Kullanılan kapasiteye göre {{total}} düğümden ilk {{n}} tanesi gösteriliyor',
     top_n_nodes_hint:
       'Büyük kümelerde performans için bu grafik yalnızca kullanılan kapasiteye göre ilk {{n}} düğümü gösterir. Tam liste için Envanter → Depolama Havuzları sayfasına bakın.',

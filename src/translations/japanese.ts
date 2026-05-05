@@ -101,6 +101,8 @@ const ja = {
     resource_definition_properties: 'リソース定義プロパティ',
     volume_definition_properties: 'ボリューム定義プロパティ',
     storage_pool_overview: 'ストレージプール概要',
+    feature_unavailable: '機能を利用できません',
+    feature_requires_api_version: 'この機能を利用するには LINSTOR REST API {{version}} 以降が必要です。',
     showing_top_n_of_total_nodes: '使用容量の多い上位 {{n}} ノード（全 {{total}} ノード中）を表示',
     top_n_nodes_hint:
       '大規模クラスタでのパフォーマンスを保つため、このチャートでは使用容量の多い上位 {{n}} ノードのみを表示しています。すべてのノードはインベントリ → ストレージプールで確認できます。',

@@ -101,6 +101,8 @@ const de = {
     resource_definition_properties: 'Ressourcendefinitions-Eigenschaften',
     volume_definition_properties: 'Volume-Definitions-Eigenschaften',
     storage_pool_overview: 'Speicherpool-Übersicht',
+    feature_unavailable: 'Funktion nicht verfügbar',
+    feature_requires_api_version: 'Diese Funktion erfordert LINSTOR REST API {{version}} oder neuer.',
     showing_top_n_of_total_nodes: 'Top {{n}} von {{total}} Knoten nach belegter Kapazität',
     top_n_nodes_hint:
       'Aus Performance-Gründen zeigt dieses Diagramm bei großen Clustern nur die {{n}} Knoten mit der höchsten belegten Kapazität. Die vollständige Liste findest du unter Inventory → Storage Pools.',

@@ -38,6 +38,20 @@ vi.mock('@app/requests', () => ({
   },
 }));
 
+vi.mock('@app/hooks', () => ({
+  useLinstorVersion: () => ({
+    restApiVersion: '1.28.0',
+    isFetched: true,
+    isLoading: false,
+    hasMinVersion: () => true,
+  }),
+  MIN_API_VERSION: {
+    AUTH_TOKENS: '1.28.0',
+    HA: '1.28.0',
+    PLATFORM_INFO: '1.28.0',
+  },
+}));
+
 vi.mock('antd', async () => {
   const actual = await vi.importActual<typeof import('antd')>('antd');
 

@@ -107,6 +107,8 @@ const en = {
     resource_definition_properties: 'Resource Definition Properties',
     volume_definition_properties: 'Volume Definition Properties',
     storage_pool_overview: 'Storage Pool Overview',
+    feature_unavailable: 'Feature unavailable',
+    feature_requires_api_version: 'This feature requires LINSTOR REST API {{version}} or later.',
     showing_top_n_of_total_nodes: 'Showing top {{n}} of {{total}} nodes by used capacity',
     top_n_nodes_hint:
       'For performance on large clusters, this chart only shows the top {{n}} nodes by used capacity. See Inventory → Storage Pools for the full list.',

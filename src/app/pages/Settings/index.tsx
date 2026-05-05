@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 
 import PageBasic from '@app/components/PageBasic';
 import { Dispatch } from '@app/store';
+import { useLinstorVersion, MIN_API_VERSION } from '@app/hooks';
 
 import Gateway from './components/Gateway';
 import Logo from './components/Logo';
@@ -21,6 +22,10 @@ import ControllerAuth from './components/ControllerAuth';
 const GeneralSettings = () => {
   const { t } = useTranslation(['common', 'settings']);
   const dispatch = useDispatch<Dispatch>();
+  const { isFetched: versionFetched, hasMinVersion } = useLinstorVersion();
+  // Optimistically show the controller-auth tab while the version is still
+  // loading; once known, hide it on controllers older than 1.28.0.
+  const controllerAuthAvailable = !versionFetched || hasMinVersion(MIN_API_VERSION.AUTH_TOKENS);
   const onChange = (key: string) => {
     console.log(key);
   };
@@ -41,11 +46,15 @@ const GeneralSettings = () => {
       label: t('settings:grafana'),
       children: <Dashboard />,
     },
-    {
-      key: '4',
-      label: t('settings:controller_auth'),
-      children: <ControllerAuth />,
-    },
+    ...(controllerAuthAvailable
+      ? [
+          {
+            key: '4',
+            label: t('settings:controller_auth'),
+            children: <ControllerAuth />,
+          },
+        ]
+      : []),
   ];
 
   useEffect(() => {

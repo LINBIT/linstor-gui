@@ -238,6 +238,21 @@ export function handlePropsToFormOption(key: string, prop = {}): FormItem[] {
           hide,
         };
         break;
+      case 'range-float':
+        formInfo = {
+          id: uniqId(),
+          type: TYPE_MAP.INTEGER,
+          label: title,
+          name: field,
+          defaultValue: value ?? data['default'] ?? data['min_float'] ?? '',
+          tipLabel: data['info'],
+          validationInfo: {
+            min: data['min_float'],
+            max: data['max_float'],
+          },
+          hide,
+        };
+        break;
       default:
         console.log('Unknown type', data.type);
     }

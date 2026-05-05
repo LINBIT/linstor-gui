@@ -44,6 +44,56 @@ describe('ControllerAuthGate', () => {
     });
   });
 
+  it('renders children without checking properties when the controller is older than 1.28.0', async () => {
+    mockGet.mockResolvedValueOnce({ data: { rest_api_version: '1.27.0' } });
+
+    render(
+      <ControllerAuthGate>
+        <div>protected content</div>
+      </ControllerAuthGate>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('protected content')).toBeInTheDocument();
+    });
+
+    expect(mockGet).toHaveBeenCalledTimes(1);
+    expect(mockGet).toHaveBeenCalledWith('/v1/controller/version');
+  });
+
+  it('renders children when token authentication is disabled on a 1.28.0+ controller', async () => {
+    mockGet.mockResolvedValueOnce({ data: { rest_api_version: '1.28.0' } });
+    mockGet.mockResolvedValueOnce({ data: { 'Auth/TokenAuthenticationEnabled': 'false' } });
+
+    render(
+      <ControllerAuthGate>
+        <div>protected content</div>
+      </ControllerAuthGate>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('protected content')).toBeInTheDocument();
+    });
+
+    expect(mockGet).toHaveBeenCalledTimes(2);
+    expect(mockGet).toHaveBeenNthCalledWith(2, '/v1/controller/properties');
+  });
+
+  it('shows the token prompt when version is recent and token authentication is enabled', async () => {
+    mockGet.mockResolvedValueOnce({ data: { rest_api_version: '1.28.0' } });
+    mockGet.mockResolvedValueOnce({ data: { 'Auth/TokenAuthenticationEnabled': 'true' } });
+
+    render(
+      <ControllerAuthGate>
+        <div>protected content</div>
+      </ControllerAuthGate>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Controller Token Required')).toBeInTheDocument();
+    });
+  });
+
   it('shows the token prompt when the controller requires authentication', async () => {
     mockGet.mockRejectedValueOnce(createControllerAuthRequiredError());
 
@@ -86,8 +136,11 @@ describe('ControllerAuthGate', () => {
     expect(getControllerAuthToken()).toBe('new-token');
   });
 
-  it('shows the token prompt immediately when the browser already knows auth is required', async () => {
+  it('still re-checks the controller even when the browser remembers auth was required', async () => {
+    // Persisted hint from a previous session should not skip the version /
+    // property check — the controller may have changed.
     window.localStorage.setItem('LINSTOR_CONTROLLER_AUTH_REQUIRED', 'true');
+    mockGet.mockResolvedValueOnce({ data: { rest_api_version: '1.27.0' } });
 
     render(
       <ControllerAuthGate>
@@ -96,14 +149,18 @@ describe('ControllerAuthGate', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText('Controller Token Required')).toBeInTheDocument();
+      expect(screen.getByText('protected content')).toBeInTheDocument();
     });
 
-    expect(mockGet).not.toHaveBeenCalled();
+    expect(mockGet).toHaveBeenCalledWith('/v1/controller/version');
+    expect(isControllerAuthRequired()).toBe(false);
   });
 
   it('returns to the token prompt when a controller-auth-required event is emitted', async () => {
-    mockGet.mockResolvedValueOnce({ data: { version: '1.0.0' } });
+    // Initial probe: version + properties indicate token auth is enabled and
+    // we have a valid token, so the user gets through to the protected content.
+    mockGet.mockResolvedValueOnce({ data: { rest_api_version: '1.28.0' } });
+    mockGet.mockResolvedValueOnce({ data: { 'Auth/TokenAuthenticationEnabled': 'true' } });
     window.localStorage.setItem('LINSTOR_CONTROLLER_AUTH_TOKEN', 'existing-token');
 
     render(
@@ -115,6 +172,11 @@ describe('ControllerAuthGate', () => {
     await waitFor(() => {
       expect(screen.getByText('protected content')).toBeInTheDocument();
     });
+
+    // After the session expires we re-verify; the property check still
+    // reports token auth enabled, so the prompt comes back.
+    mockGet.mockResolvedValueOnce({ data: { rest_api_version: '1.28.0' } });
+    mockGet.mockResolvedValueOnce({ data: { 'Auth/TokenAuthenticationEnabled': 'true' } });
 
     await act(async () => {
       window.dispatchEvent(new CustomEvent(CONTROLLER_AUTH_REQUIRED_EVENT));

@@ -101,6 +101,8 @@ const ru = {
     resource_definition_properties: 'Свойства определения ресурса',
     volume_definition_properties: 'Свойства определения тома',
     storage_pool_overview: 'Обзор пула хранения',
+    feature_unavailable: 'Функция недоступна',
+    feature_requires_api_version: 'Для этой функции требуется LINSTOR REST API {{version}} или новее.',
     showing_top_n_of_total_nodes: 'Показаны {{n}} из {{total}} узлов с наибольшим использованием',
     top_n_nodes_hint:
       'Для производительности на больших кластерах на этом графике показаны только {{n}} узлов с наибольшим использованием емкости. Полный список см. в разделе Инвентарь → Пулы хранения.',

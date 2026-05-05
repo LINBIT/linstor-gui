@@ -101,6 +101,8 @@ const es = {
     resource_definition_properties: 'Propiedades de definición de recurso',
     volume_definition_properties: 'Propiedades de definición de volumen',
     storage_pool_overview: 'Resumen del pool de almacenamiento',
+    feature_unavailable: 'Función no disponible',
+    feature_requires_api_version: 'Esta función requiere LINSTOR REST API {{version}} o superior.',
     showing_top_n_of_total_nodes: 'Mostrando los {{n}} nodos principales de {{total}} por capacidad utilizada',
     top_n_nodes_hint:
       'Para mantener el rendimiento en clústeres grandes, este gráfico solo muestra los {{n}} nodos con mayor capacidad utilizada. Consulte Inventario → Pools de almacenamiento para la lista completa.',
