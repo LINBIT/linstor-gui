@@ -778,7 +778,8 @@ org_role = Viewer`,
     controller_auth_storage_description:
       'The initialization response returns the first token once. The GUI stores that returned token in this browser so future controller requests can include it.',
     controller_auth_initialize: 'Initialize Token Auth',
-    controller_auth_enter_token: 'Enter Token',
+    controller_auth_already_initialized: 'Token authentication already initialized',
+    controller_auth_enter_token: 'Modify Access Token',
     controller_auth_https_switch_title: 'Controller HTTPS will be enabled',
     controller_auth_https_switch_description:
       'After initialization, the controller REST endpoint switches to HTTPS by default. Continue from {{url}} if the current HTTP session stops responding.',

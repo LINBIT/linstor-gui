@@ -4,8 +4,9 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useState } from 'react';
-import { Alert, Card, Input, Modal, Typography, message } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Alert, Card, Input, Modal, Tag, Typography, message } from 'antd';
+import { CheckCircleOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
 import { useTranslation } from 'react-i18next';
 
@@ -14,6 +15,8 @@ import service from '@app/requests';
 import { setControllerAuthRequired, setControllerAuthToken } from '@app/utils/controllerAuth';
 
 const { Title } = Typography;
+
+const TOKEN_AUTH_PROPERTY = 'Auth/TokenAuthenticationEnabled';
 
 const Wrapper = styled.div`
   padding: 0;
@@ -54,8 +57,34 @@ const ControllerAuth: React.FC = () => {
   const [initializedTokenAuth, setInitializedTokenAuth] = useState<InitializedTokenAuth | null>(null);
   const [tokenModalOpen, setTokenModalOpen] = useState(false);
   const [manualToken, setManualToken] = useState('');
+  // null while we don't yet know — keeps the Initialize button visible so the
+  // page works even if the property request fails or hasn't returned yet.
+  const [tokenAuthEnabled, setTokenAuthEnabled] = useState<boolean | null>(null);
 
   const { t } = useTranslation(['common', 'settings']);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const checkTokenAuthState = async () => {
+      try {
+        const response = await service.get<Record<string, string>>('/v1/controller/properties');
+        if (cancelled) return;
+        setTokenAuthEnabled(response.data?.[TOKEN_AUTH_PROPERTY] === 'true');
+      } catch {
+        if (cancelled) return;
+        // Couldn't read properties (older controller, network error, etc.) —
+        // fall back to showing the Initialize button.
+        setTokenAuthEnabled(false);
+      }
+    };
+
+    void checkTokenAuthState();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const extractTokenFromInitResponse = (data?: ApiCallRcEntry[]) => {
     const objRefToken = data?.find((entry) => entry?.obj_refs?.token)?.obj_refs?.token?.trim();
@@ -96,6 +125,7 @@ const ControllerAuth: React.FC = () => {
 
       if (!token) {
         setControllerAuthRequired(true);
+        setTokenAuthEnabled(true);
         setInitializedTokenAuth({ url: getHttpsControllerUrl(), alreadyEnabled });
         message.warning(
           alreadyEnabled
@@ -107,6 +137,7 @@ const ControllerAuth: React.FC = () => {
 
       setControllerAuthRequired(true);
       setControllerAuthToken(token);
+      setTokenAuthEnabled(true);
       setInitializedTokenAuth({ token, url: getHttpsControllerUrl(), alreadyEnabled: false });
       message.success(t('settings:controller_auth_initialized'));
     } catch (error) {
@@ -161,10 +192,18 @@ const ControllerAuth: React.FC = () => {
             description={t('settings:controller_auth_https_switch_description', { url: getHttpsControllerUrl() })}
           />
 
+          {tokenAuthEnabled === true && (
+            <Tag color="success" icon={<CheckCircleOutlined />} style={{ alignSelf: 'flex-start' }}>
+              {t('settings:controller_auth_already_initialized')}
+            </Tag>
+          )}
+
           <ButtonContainer>
-            <Button type="primary" onClick={handleInitializeTokenAuth} loading={initializingTokenAuth} size="large">
-              {t('settings:controller_auth_initialize')}
-            </Button>
+            {tokenAuthEnabled !== true && (
+              <Button type="primary" onClick={handleInitializeTokenAuth} loading={initializingTokenAuth} size="large">
+                {t('settings:controller_auth_initialize')}
+              </Button>
+            )}
 
             <Button onClick={() => setTokenModalOpen(true)} size="large">
               {t('settings:controller_auth_enter_token')}

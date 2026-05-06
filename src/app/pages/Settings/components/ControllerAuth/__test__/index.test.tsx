@@ -66,10 +66,11 @@ describe('Settings ControllerAuth tab', () => {
   });
 
   it('initializes token auth and stores the returned token', async () => {
+    // Mount probe: token auth not yet enabled.
+    mockGet.mockResolvedValueOnce({ data: {} });
     mockPost.mockResolvedValueOnce({
       data: [{ obj_refs: { token: 'init-token' } }],
     });
-    mockGet.mockResolvedValueOnce({ data: { version: '1.31.0' } });
 
     render(<ControllerAuth />);
 
@@ -83,11 +84,25 @@ describe('Settings ControllerAuth tab', () => {
       only_satellites: false,
       description: 'linstor-gui',
     });
-    expect(mockGet).not.toHaveBeenCalled();
+    expect(mockGet).toHaveBeenCalledWith('/v1/controller/properties');
     expect(window.localStorage.getItem('LINSTOR_CONTROLLER_AUTH_TOKEN')).toBe('init-token');
     expect(screen.getByText('settings:controller_auth_initialized_title')).toBeInTheDocument();
     expect(screen.getByRole('textbox')).toHaveValue('init-token');
     expect(screen.getAllByText(/https:\/\/192.168.123.200:3371/)).toHaveLength(2);
+  });
+
+  it('hides the initialize button when token auth is already enabled on mount', async () => {
+    mockGet.mockResolvedValueOnce({ data: { 'Auth/TokenAuthenticationEnabled': 'true' } });
+
+    render(<ControllerAuth />);
+
+    await waitFor(() => {
+      expect(screen.getByText('settings:controller_auth_already_initialized')).toBeInTheDocument();
+    });
+
+    expect(screen.queryByRole('button', { name: 'settings:controller_auth_initialize' })).not.toBeInTheDocument();
+    // Manual token entry remains available.
+    expect(screen.getByRole('button', { name: 'settings:controller_auth_enter_token' })).toBeInTheDocument();
   });
 
   it('handles already enabled token auth without requiring a returned token', async () => {
