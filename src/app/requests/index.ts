@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import axios from 'axios';
-import { i18n } from '../../index';
+import { i18n } from '../../i18n';
 import {
   createControllerAuthRequiredError,
   emitControllerAuthRequired,

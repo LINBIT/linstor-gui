@@ -155,6 +155,11 @@ describe('AuthTokens page', () => {
       expect(mockPost).toHaveBeenCalledWith('/v1/controller/auth/token', { description: 'new-token' });
     });
 
-    expect(screen.getByDisplayValue('created-token')).toBeInTheDocument();
+    // antd's autoSize TextArea renders a hidden measurement mirror with the
+    // same value; filter it out and assert against the visible one.
+    const visibleTextareas = screen
+      .getAllByDisplayValue('created-token')
+      .filter((el) => el.getAttribute('aria-hidden') !== 'true');
+    expect(visibleTextareas).toHaveLength(1);
   });
 });
