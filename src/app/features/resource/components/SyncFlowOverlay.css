@@ -1,0 +1,74 @@
+.sync-flow-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 2;
+}
+
+.sync-flow-path-base {
+  fill: none;
+  stroke: rgba(24, 144, 255, 0.18);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.sync-flow-path-flow {
+  fill: none;
+  stroke: #1890ff;
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-dasharray: 6 9;
+  filter: drop-shadow(0 0 3px rgba(24, 144, 255, 0.45));
+  animation: sync-flow-dash 1.6s linear infinite;
+}
+
+.sync-flow-path-flow.sync-flow-path-flow--reverse {
+  animation-direction: reverse;
+}
+
+@keyframes sync-flow-dash {
+  to {
+    stroke-dashoffset: -30;
+  }
+}
+
+.sync-flow-label-bg {
+  fill: #ffffff;
+  stroke: rgba(24, 144, 255, 0.55);
+  stroke-width: 1;
+  rx: 4;
+  filter: drop-shadow(0 1px 2px rgba(15, 23, 42, 0.18));
+}
+
+.sync-flow-label-text {
+  font-size: 11px;
+  font-weight: 600;
+  fill: #1d4ed8;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-variant-numeric: tabular-nums;
+  dominant-baseline: middle;
+  text-anchor: middle;
+}
+
+.sync-flow-source-pulse {
+  fill: rgba(24, 144, 255, 0.85);
+  animation: sync-flow-pulse 1.6s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px rgba(24, 144, 255, 0.6));
+}
+
+@keyframes sync-flow-pulse {
+  0%,
+  100% {
+    r: 4;
+    opacity: 0.5;
+  }
+  50% {
+    r: 6;
+    opacity: 1;
+  }
+}

@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "vite",
     "start:dev": "vite",
+    "dev:mock": "VITE_LINSTOR_API_HOST=http://127.0.0.1:3478 vite",
     "prebuild": "npm run clean",
     "build": "vite build",
     "eslint": "eslint --ext .tsx,.js ./src/",

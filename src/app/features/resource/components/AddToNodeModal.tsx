@@ -54,6 +54,9 @@ export const AddToNodeModal: React.FC<AddToNodeModalProps> = ({
   const mutation = useMutation({
     mutationFn: (values: { node: string; drbd_diskless: boolean; storage_pool?: string }) =>
       createResourceOnNode(resourceName, values.node, values.drbd_diskless, values.storage_pool),
+    onMutate: () => {
+      message.info(t('common:submitted_processing'));
+    },
     onSuccess: () => {
       message.success(t('common:success'));
       onClose();

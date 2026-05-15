@@ -14,7 +14,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { uniqBy } from 'lodash';
-import { MoreOutlined, QuestionCircleOutlined, LineChartOutlined } from '@ant-design/icons';
+import { LineChartOutlined, MoreOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { LiaToolsSolid } from 'react-icons/lia';
 
 import { uniqId } from '@app/utils/stringUtils';
@@ -52,6 +52,71 @@ import { PropertyFormRef } from '@app/components/PropertyForm';
 import { RootState } from '@app/store';
 import { UIMode } from '@app/models/setting';
 import { getResourceState } from '@app/utils/resource';
+import { SyncFlowOverlay } from './SyncFlowOverlay';
+
+interface ExpandableSubTableProps {
+  volumes: any[];
+  columns: any[];
+}
+
+// Permanent left gutter that hosts the SyncFlowOverlay's arrows. Kept at a
+// fixed width regardless of sync state so the table layout never jumps.
+const SYNC_LANE_WIDTH = 96;
+
+const ExpandableSubTable: React.FC<ExpandableSubTableProps> = ({ volumes, columns }) => {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  return (
+    <div ref={containerRef} style={{ position: 'relative', paddingLeft: SYNC_LANE_WIDTH }}>
+      <Table
+        bordered
+        size="small"
+        columns={columns}
+        dataSource={volumes}
+        rowKey={(item: any) => `${item?.node_name}:${item?.volume_number ?? 0}`}
+        rowClassName={(row: any) => {
+          const isPrimaryNode = row?.node_name?.toLowerCase() === row?.primary_node?.toLowerCase();
+          return isPrimaryNode ? 'ant-table-row-primary' : '';
+        }}
+        pagination={false}
+        scroll={{ x: 'max-content' }}
+      />
+      <SyncFlowOverlay containerRef={containerRef} volumes={volumes} />
+    </div>
+  );
+};
+
+type SyncFlow = {
+  direction: 'in' | 'out';
+  percent: number | null;
+  peers: string[];
+};
+
+const getSyncFlow = (record: any): SyncFlow | null => {
+  const diskState = record?.state?.disk_state;
+  const ACTIVE_FLOW_STATES = new Set(['SyncTarget', 'SyncSource', 'Inconsistent', 'Outdated']);
+  if (!diskState || !ACTIVE_FLOW_STATES.has(diskState)) {
+    return null;
+  }
+
+  const replicationStates = record?.state?.replication_states ?? {};
+  const peerEntries = Object.entries(replicationStates) as Array<
+    [string, { replication_state?: string; done_percentage?: number } | undefined]
+  >;
+
+  const matchingPeers = peerEntries.filter(([, state]) => state?.replication_state === diskState);
+  const peers = matchingPeers.map(([peer]) => peer);
+  const percentages = matchingPeers
+    .map(([, state]) => state?.done_percentage)
+    .filter((value): value is number => typeof value === 'number');
+
+  return {
+    direction: diskState === 'SyncTarget' ? 'in' : 'out',
+    // Use the slowest in-progress peer to represent overall sync progress.
+    percent: percentages.length > 0 ? Math.min(...percentages) : null,
+    peers,
+  };
+};
 
 const TAG_COLORS = [
   '#FFCC9C',
@@ -251,9 +316,23 @@ export const OverviewList = () => {
     return updatedData;
   };
 
+  const hasSyncingVolume = useMemo(() => {
+    return Boolean(
+      resourceDefinitionList?.some((rd: any) => rd?.volumes?.some((volume: any) => getSyncFlow(volume) !== null)),
+    );
+  }, [resourceDefinitionList]);
+
   const { isLoading, refetch } = useQuery({
     queryKey: ['getResourceDefinitionList', query],
     queryFn: fetchData,
+    // Compute the next interval from the freshly-fetched data each time
+    // (rather than from React state) so polling stays in sync with reality
+    // even if a React render hasn't propagated yet.
+    refetchInterval: (latest: any) => {
+      const list = Array.isArray(latest) ? latest : resourceDefinitionList;
+      const syncing = list?.some((rd: any) => rd?.volumes?.some((volume: any) => getSyncFlow(volume) !== null));
+      return syncing ? 2000 : 10000;
+    },
   });
 
   const adjustResourceGroupMutation = useMutation({
@@ -599,229 +678,214 @@ export const OverviewList = () => {
   }, []);
 
   const expandableRender = (record: any) => {
-    return (
-      <Table
-        bordered
-        size="small"
-        columns={[
-          {
-            title: t('common:node'),
-            key: 'node_name',
-            dataIndex: 'node_name',
-            render: (node_name) => {
-              return <span>{node_name}</span>;
-            },
-          },
-          {
-            title: t('common:volume_number_short'),
-            key: 'volume_number',
-            dataIndex: 'volume_number',
-            render: (volume_number) => {
-              return <span>{volume_number}</span>;
-            },
-          },
-          {
-            title: t('common:size'),
-            key: 'size',
-            render: (_, record: any) => {
-              return (
-                <span>
-                  {formatBytes(record.allocated_size_kib ?? 0)} / {formatBytes(record?.size_kib ?? 0)} (
-                  {calculatePercentage(record.allocated_size_kib, record.size_kib)}%)
-                </span>
-              );
-            },
-          },
-          {
-            title: t('common:storage_pool'),
-            key: 'storage_pool',
-            dataIndex: 'storage_pool_name',
-            render: (storage_pool_name) => {
-              const url =
-                mode === UIMode.HCI
-                  ? `/hci/inventory/storage-pools?storage_pools=${storage_pool_name}`
-                  : `/inventory/storage-pools?storage_pools=${storage_pool_name}`;
+    const subTableColumns = [
+      {
+        title: t('common:node'),
+        key: 'node_name',
+        dataIndex: 'node_name',
+        render: (node_name) => {
+          return <span>{node_name}</span>;
+        },
+      },
+      {
+        title: t('common:volume_number_short'),
+        key: 'volume_number',
+        dataIndex: 'volume_number',
+        render: (volume_number) => {
+          return <span>{volume_number}</span>;
+        },
+      },
+      {
+        title: t('common:size'),
+        key: 'size',
+        render: (_, record: any) => {
+          return (
+            <span>
+              {formatBytes(record.allocated_size_kib ?? 0)} / {formatBytes(record?.size_kib ?? 0)} (
+              {calculatePercentage(record.allocated_size_kib, record.size_kib)}%)
+            </span>
+          );
+        },
+      },
+      {
+        title: t('common:storage_pool'),
+        key: 'storage_pool',
+        dataIndex: 'storage_pool_name',
+        render: (storage_pool_name) => {
+          const url =
+            mode === UIMode.HCI
+              ? `/hci/inventory/storage-pools?storage_pools=${storage_pool_name}`
+              : `/inventory/storage-pools?storage_pools=${storage_pool_name}`;
 
-              return <Link to={url}>{storage_pool_name}</Link>;
-            },
-          },
-          {
-            title: t('volume:device_name'),
-            key: 'device_path',
-            dataIndex: 'device_path',
-          },
-          {
-            title: t('resource:connection_status'),
-            key: 'connection_status',
-            render: (record) => {
-              const connectionStatus = handleConnectStatusDisplay(record?.resource);
-              return <Tag color={connectionStatus === 'OK' ? 'green' : 'red'}>{connectionStatus}</Tag>;
-            },
-          },
-          {
-            title: t('common:state'),
-            key: 'state',
-            dataIndex: 'state',
-            render: (state, record) => {
-              const isPrimaryNode = record?.node_name?.toLowerCase() === record?.primary_node?.toLowerCase();
-              const stateStr = getResourceState(record.resource, record.volume_number);
-              const isInconsistent = stateStr?.includes('Inconsistent');
-              return (
-                <>
-                  <Tag color={isInconsistent ? 'red' : 'geekblue'}>{stateStr}</Tag>
-                  {isPrimaryNode && <Tag color="cyan">{t('common:primary')}</Tag>}
-                </>
-              );
-            },
-          },
-          {
-            title: 'Stats',
-            key: 'stats',
-            width: 10,
-            align: 'center',
-            render: (_, record) => {
-              const statsIcon = (
-                <LineChartOutlined
-                  onClick={() => handleStatsClick(record.node_name, record.resource_name)}
-                  style={{
-                    color: grafanaConfig?.enable ? '#1890ff' : '#d9d9d9',
-                    cursor: grafanaConfig?.enable ? 'pointer' : 'not-allowed',
-                  }}
-                  disabled={!grafanaConfig?.enable}
-                />
-              );
-
-              if (!grafanaConfig?.enable) {
-                return (
-                  <Tooltip
-                    title="Please enable and configure Grafana Dashboard in Settings to view stats"
-                    placement="top"
-                  >
-                    {statsIcon}
-                  </Tooltip>
-                );
-              }
-
-              return statsIcon;
-            },
-          },
-          {
-            title: () => (
-              <Tooltip title={t('common:action')}>
-                <span className="flex justify-center">
-                  <LiaToolsSolid className="w-4 h-4" />
-                </span>
-              </Tooltip>
-            ),
-            key: 'action',
-            width: 10,
-            fixed: 'right',
-            align: 'center',
-            render: (_, record) => {
-              const isDisklessOrTieBreaker =
-                record.flags && (record.flags.includes('DRBD_DISKLESS') || record.flags.includes('TIE_BREAKER'));
-
-              return (
-                <>
-                  <Dropdown
-                    menu={{
-                      items: [
-                        {
-                          key: 'toggle',
-                          label: (
-                            <Popconfirm
-                              title="Toggle the resource"
-                              description="Are you sure to toggle this resource?"
-                              okText="Yes"
-                              cancelText="No"
-                              onConfirm={() => {
-                                toggleResourceMutation.mutate({
-                                  resource: record.resource_name,
-                                  node: record.node_name,
-                                  action: isDisklessOrTieBreaker ? 'to_diskful' : 'to_diskless',
-                                });
-                              }}
-                            >
-                              <div className="w-full">
-                                {isDisklessOrTieBreaker ? t('resource:add_disk') : t('resource:remove_disk')}
-                              </div>
-                            </Popconfirm>
-                          ),
-                        },
-                        {
-                          key: 'property',
-                          label: t('common:property'),
-                          onClick: () => {
-                            setCurrent({
-                              ...record?.resource.props,
-                              resource_name: record.resource_name,
-                              node_name: record.node_name,
-                            });
-
-                            const currentData = record?.resource.props;
-                            setInitialProps({
-                              ...currentData,
-                              name: record?.resource_name,
-                            });
-                            resourcePropertyFormRef.current?.openModal();
-                          },
-                        },
-                        {
-                          key: 'snapshot',
-                          label: t('common:snapshot'),
-                          onClick: () => {
-                            handleSnapshot(record.resource_name ?? '');
-                          },
-                        },
-                        {
-                          key: 'migrate',
-                          label: t('common:migrate'),
-                          onClick: () => {
-                            handleOpenMigrate(record.resource_name ?? '', record.node_name ?? '');
-                          },
-                        },
-                        {
-                          key: 'delete',
-                          label: (
-                            <Popconfirm
-                              key="delete"
-                              title="Delete the resource"
-                              description="Are you sure to delete this resource?"
-                              okText="Yes"
-                              cancelText="No"
-                              onConfirm={() => {
-                                deleteResourceMutation.mutate({
-                                  resource: record.resource_name ?? '',
-                                  node: record.node_name ?? '',
-                                });
-                              }}
-                            >
-                              <div className="w-full text-red-600">{t('common:delete')}</div>
-                            </Popconfirm>
-                          ),
-                        },
-                      ],
-                    }}
-                  >
-                    <span className="cursor-pointer text-gray-600 hover:text-gray-800 flex items-center justify-center w-8 h-8">
-                      <MoreOutlined style={{ fontSize: 18 }} />
-                    </span>
-                  </Dropdown>
-                </>
-              );
-            },
-          },
-        ]}
-        dataSource={record.volumes}
-        rowKey={(item) => item?.uuid ?? uniqId()}
-        rowClassName={(record) => {
+          return <Link to={url}>{storage_pool_name}</Link>;
+        },
+      },
+      {
+        title: t('volume:device_name'),
+        key: 'device_path',
+        dataIndex: 'device_path',
+      },
+      {
+        title: t('resource:connection_status'),
+        key: 'connection_status',
+        render: (record) => {
+          const connectionStatus = handleConnectStatusDisplay(record?.resource);
+          return <Tag color={connectionStatus === 'OK' ? 'green' : 'red'}>{connectionStatus}</Tag>;
+        },
+      },
+      {
+        title: t('common:state'),
+        key: 'state',
+        dataIndex: 'state',
+        render: (state, record) => {
           const isPrimaryNode = record?.node_name?.toLowerCase() === record?.primary_node?.toLowerCase();
-          return isPrimaryNode ? 'ant-table-row-primary' : '';
-        }}
-        pagination={false}
-        scroll={{ x: 'max-content' }}
-      />
-    );
+          const stateStr = getResourceState(record.resource, record.volume_number);
+          const isInconsistent = stateStr?.includes('Inconsistent');
+          return (
+            <>
+              <Tag color={isInconsistent ? 'red' : 'geekblue'}>{stateStr}</Tag>
+              {isPrimaryNode && <Tag color="cyan">{t('common:primary')}</Tag>}
+            </>
+          );
+        },
+      },
+      {
+        title: 'Stats',
+        key: 'stats',
+        width: 10,
+        align: 'center',
+        render: (_, record) => {
+          const statsIcon = (
+            <LineChartOutlined
+              onClick={() => handleStatsClick(record.node_name, record.resource_name)}
+              style={{
+                color: grafanaConfig?.enable ? '#1890ff' : '#d9d9d9',
+                cursor: grafanaConfig?.enable ? 'pointer' : 'not-allowed',
+              }}
+              disabled={!grafanaConfig?.enable}
+            />
+          );
+
+          if (!grafanaConfig?.enable) {
+            return (
+              <Tooltip title="Please enable and configure Grafana Dashboard in Settings to view stats" placement="top">
+                {statsIcon}
+              </Tooltip>
+            );
+          }
+
+          return statsIcon;
+        },
+      },
+      {
+        title: () => (
+          <Tooltip title={t('common:action')}>
+            <span className="flex justify-center">
+              <LiaToolsSolid className="w-4 h-4" />
+            </span>
+          </Tooltip>
+        ),
+        key: 'action',
+        width: 10,
+        fixed: 'right',
+        align: 'center',
+        render: (_, record) => {
+          const isDisklessOrTieBreaker =
+            record.flags && (record.flags.includes('DRBD_DISKLESS') || record.flags.includes('TIE_BREAKER'));
+
+          return (
+            <>
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: 'toggle',
+                      label: (
+                        <Popconfirm
+                          title="Toggle the resource"
+                          description="Are you sure to toggle this resource?"
+                          okText="Yes"
+                          cancelText="No"
+                          onConfirm={() => {
+                            toggleResourceMutation.mutate({
+                              resource: record.resource_name,
+                              node: record.node_name,
+                              action: isDisklessOrTieBreaker ? 'to_diskful' : 'to_diskless',
+                            });
+                          }}
+                        >
+                          <div className="w-full">
+                            {isDisklessOrTieBreaker ? t('resource:add_disk') : t('resource:remove_disk')}
+                          </div>
+                        </Popconfirm>
+                      ),
+                    },
+                    {
+                      key: 'property',
+                      label: t('common:property'),
+                      onClick: () => {
+                        setCurrent({
+                          ...record?.resource.props,
+                          resource_name: record.resource_name,
+                          node_name: record.node_name,
+                        });
+
+                        const currentData = record?.resource.props;
+                        setInitialProps({
+                          ...currentData,
+                          name: record?.resource_name,
+                        });
+                        resourcePropertyFormRef.current?.openModal();
+                      },
+                    },
+                    {
+                      key: 'snapshot',
+                      label: t('common:snapshot'),
+                      onClick: () => {
+                        handleSnapshot(record.resource_name ?? '');
+                      },
+                    },
+                    {
+                      key: 'migrate',
+                      label: t('common:migrate'),
+                      onClick: () => {
+                        handleOpenMigrate(record.resource_name ?? '', record.node_name ?? '');
+                      },
+                    },
+                    {
+                      key: 'delete',
+                      label: (
+                        <Popconfirm
+                          key="delete"
+                          title="Delete the resource"
+                          description="Are you sure to delete this resource?"
+                          okText="Yes"
+                          cancelText="No"
+                          onConfirm={() => {
+                            deleteResourceMutation.mutate({
+                              resource: record.resource_name ?? '',
+                              node: record.node_name ?? '',
+                            });
+                          }}
+                        >
+                          <div className="w-full text-red-600">{t('common:delete')}</div>
+                        </Popconfirm>
+                      ),
+                    },
+                  ],
+                }}
+              >
+                <span className="cursor-pointer text-gray-600 hover:text-gray-800 flex items-center justify-center w-8 h-8">
+                  <MoreOutlined style={{ fontSize: 18 }} />
+                </span>
+              </Dropdown>
+            </>
+          );
+        },
+      },
+    ];
+
+    return <ExpandableSubTable volumes={record.volumes ?? []} columns={subTableColumns} />;
   };
 
   return (

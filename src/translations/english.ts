@@ -34,6 +34,7 @@ const en = {
     close: 'Close',
     snapshot: 'Snapshot',
     success: 'Success',
+    submitted_processing: 'Submitted. Processing…',
     reset: 'Reset',
     name: 'Name',
     action: 'Action',

@@ -28,6 +28,7 @@ const zh = {
     disk_creation_records: '硬盘创建记录',
     resource_group: '资源组',
     submit: '提交',
+    submitted_processing: '已提交，正在处理中…',
     cancel: '取消',
     close: '关闭',
     reset: '重置',
