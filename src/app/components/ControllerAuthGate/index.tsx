@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Card, Form, Input, Spin, Typography } from 'antd';
 
 import { Button } from '@app/components/Button';
@@ -34,82 +34,108 @@ const ControllerAuthGate = ({ children }: ControllerAuthGateProps) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  // Mirror the latest state into a ref so event handlers can branch on it
+  // synchronously (event listeners close over the state value at registration
+  // time, but we need the current value to break the auth-required loop).
+  const stateRef = useRef<AuthState>(state);
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+
+  // Guard against re-entrant verifyAccess calls. Without this, the response
+  // interceptor's `emitControllerAuthRequired()` on a 401 triggers
+  // handleAuthRequired → verifyAccess → another 401 → another emit → infinite
+  // loop, clearing any freshly-submitted token along the way.
+  const verifyingRef = useRef(false);
+
   const verifyAccess = useCallback(
     async ({
       fromSubmit = false,
       promptMessageOverride,
     }: { fromSubmit?: boolean; promptMessageOverride?: string } = {}) => {
-      const hadToken = Boolean(getControllerAuthToken());
+      // Don't pile up concurrent verifies: a 401 triggers the response
+      // interceptor which dispatches CONTROLLER_AUTH_REQUIRED_EVENT; that
+      // listener would otherwise call verifyAccess again mid-flight.
+      if (verifyingRef.current) return;
+      verifyingRef.current = true;
 
-      setState('checking');
-      if (!fromSubmit) {
-        setErrorMessage(null);
-      }
-
-      // Allow the version probe through even if a previous session left the
-      // "auth required" flag set — we want the version + property checks to
-      // decide whether the prompt is actually needed.
-      setControllerAuthRequired(false);
-
-      const promptForToken = (defaultMessage: string | null) => {
-        setControllerAuthRequired(true);
-        clearControllerAuthToken();
-        setState('requires_token');
-        setErrorMessage(promptMessageOverride ?? defaultMessage);
-      };
-
-      const invalidTokenMessage =
-        fromSubmit || hadToken ? 'The controller token is invalid or expired. Enter a valid token to continue.' : null;
-
-      // Step 1: probe the controller version. The version endpoint normally
-      // does not require auth — a 401 here means the controller demands a
-      // token for everything.
-      let restApiVersion: string | undefined;
       try {
-        const versionRes = await service.get('/v1/controller/version');
-        restApiVersion = versionRes.data?.rest_api_version;
-      } catch (error) {
-        if (isControllerAuthRequiredError(error)) {
-          promptForToken(invalidTokenMessage);
-          return;
+        const hadToken = Boolean(getControllerAuthToken());
+
+        setState('checking');
+        if (!fromSubmit) {
+          setErrorMessage(null);
         }
-        // Preserve the existing fallback for non-auth failures.
-        setState('authorized');
-        return;
-      }
 
-      // Step 2: token authentication is only meaningful on REST API >= 1.28.0.
-      if (!compareVersions(restApiVersion, MIN_API_VERSION.AUTH_TOKENS)) {
-        setState('authorized');
-        return;
-      }
+        // Allow the version probe through even if a previous session left the
+        // "auth required" flag set — we want the version + property checks to
+        // decide whether the prompt is actually needed.
+        setControllerAuthRequired(false);
 
-      // Step 3: only require a token when the controller has actually opted
-      // into it via Auth/TokenAuthenticationEnabled.
-      try {
-        const propsRes = await service.get('/v1/controller/properties');
-        const tokenAuthEnabled = propsRes.data?.[TOKEN_AUTH_PROPERTY] === 'true';
+        const promptForToken = (defaultMessage: string | null) => {
+          setControllerAuthRequired(true);
+          clearControllerAuthToken();
+          setState('requires_token');
+          setErrorMessage(promptMessageOverride ?? defaultMessage);
+        };
 
-        if (!tokenAuthEnabled) {
+        const invalidTokenMessage =
+          fromSubmit || hadToken
+            ? 'The controller token is invalid or expired. Enter a valid token to continue.'
+            : null;
+
+        // Step 1: probe the controller version. The version endpoint normally
+        // does not require auth — a 401 here means the controller demands a
+        // token for everything.
+        let restApiVersion: string | undefined;
+        try {
+          const versionRes = await service.get('/v1/controller/version');
+          restApiVersion = versionRes.data?.rest_api_version;
+        } catch (error) {
+          if (isControllerAuthRequiredError(error)) {
+            promptForToken(invalidTokenMessage);
+            return;
+          }
+          // Preserve the existing fallback for non-auth failures.
           setState('authorized');
           return;
         }
 
-        if (!hadToken) {
-          promptForToken(null);
+        // Step 2: token authentication is only meaningful on REST API >= 1.28.0.
+        if (!compareVersions(restApiVersion, MIN_API_VERSION.AUTH_TOKENS)) {
+          setState('authorized');
           return;
         }
 
-        setControllerAuthRequired(true);
-        setState('authorized');
-      } catch (error) {
-        if (isControllerAuthRequiredError(error)) {
-          promptForToken(invalidTokenMessage);
-          return;
+        // Step 3: only require a token when the controller has actually opted
+        // into it via Auth/TokenAuthenticationEnabled.
+        try {
+          const propsRes = await service.get('/v1/controller/properties');
+          const tokenAuthEnabled = propsRes.data?.[TOKEN_AUTH_PROPERTY] === 'true';
+
+          if (!tokenAuthEnabled) {
+            setState('authorized');
+            return;
+          }
+
+          if (!hadToken) {
+            promptForToken(null);
+            return;
+          }
+
+          setControllerAuthRequired(true);
+          setState('authorized');
+        } catch (error) {
+          if (isControllerAuthRequiredError(error)) {
+            promptForToken(invalidTokenMessage);
+            return;
+          }
+          // Couldn't read properties for non-auth reasons (older controller,
+          // network glitch, etc.). Fall back to the existing behavior.
+          setState('authorized');
         }
-        // Couldn't read properties for non-auth reasons (older controller,
-        // network glitch, etc.). Fall back to the existing behavior.
-        setState('authorized');
+      } finally {
+        verifyingRef.current = false;
       }
     },
     [setState],
@@ -121,9 +147,12 @@ const ControllerAuthGate = ({ children }: ControllerAuthGateProps) => {
 
   useEffect(() => {
     const handleAuthRequired = () => {
+      // Only react to mid-session 401s — i.e. when we were already in
+      // `authorized`. Otherwise the response interceptor's 401 from the
+      // initial version probe would loop back into another verifyAccess,
+      // clearing any token the user just submitted along the way.
+      if (stateRef.current !== 'authorized') return;
       clearControllerAuthToken();
-      // Re-verify so we only show the prompt when the controller actually has
-      // token authentication enabled (version >= 1.28.0 + Auth/TokenAuthenticationEnabled).
       void verifyAccess({
         promptMessageOverride: 'Your controller session expired. Enter a valid token to continue.',
       });

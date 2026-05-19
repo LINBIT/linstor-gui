@@ -189,4 +189,44 @@ describe('ControllerAuthGate', () => {
     expect(screen.getByText('Your controller session expired. Enter a valid token to continue.')).toBeInTheDocument();
     expect(getControllerAuthToken()).toBeNull();
   });
+
+  it('does not wipe a freshly submitted token if an auth-required event fires mid-probe', async () => {
+    // Initial probe fails: GUI is in the requires_token state.
+    mockGet.mockRejectedValueOnce(createControllerAuthRequiredError());
+
+    render(
+      <ControllerAuthGate>
+        <div>protected content</div>
+      </ControllerAuthGate>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Controller Token Required')).toBeInTheDocument();
+    });
+
+    // User submits a token. The submit-triggered verifyAccess will probe
+    // version + properties successfully — but BEFORE those promises resolve,
+    // a stray auth-required event fires (the response interceptor would do
+    // this on any concurrent 401). The handler should ignore it because the
+    // gate is currently 'checking', not 'authorized'. Otherwise it would
+    // clear the token mid-flight and produce an infinite loop.
+    mockGet.mockResolvedValueOnce({ data: { rest_api_version: '1.28.0' } });
+    mockGet.mockResolvedValueOnce({ data: { 'Auth/TokenAuthenticationEnabled': 'true' } });
+
+    fireEvent.change(screen.getByPlaceholderText('Paste Bearer token'), {
+      target: { value: 'good-token' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+    // Fire the spurious event before the verify chain settles.
+    await act(async () => {
+      window.dispatchEvent(new CustomEvent(CONTROLLER_AUTH_REQUIRED_EVENT));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('protected content')).toBeInTheDocument();
+    });
+
+    expect(getControllerAuthToken()).toBe('good-token');
+  });
 });
