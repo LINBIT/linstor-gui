@@ -263,35 +263,88 @@ export const OverviewList = () => {
     navigate(`/stats/${nodeName}/${encodeURIComponent(resourceName)}`);
   };
 
-  const fetchData = async () => {
+  const fetchResourceDefinitions = async () => {
     const data = await getResourceDefinition({
       ...query,
       with_volume_definitions: true,
     } as any);
 
-    if (!data?.data) {
-      return;
+    return data?.data ?? [];
+  };
+
+  const fetchResourcesView = async () => {
+    const t0 = performance.now();
+    const data = (await getResources()).data ?? [];
+    // Temporary diagnostic to verify sync-progress polling cadence.
+    // Logs each /v1/view/resources poll: timing + first non-null done_percentage seen.
+    if (typeof console !== 'undefined') {
+      const sample: Array<string> = [];
+      for (const r of data as any[]) {
+        for (const v of r?.volumes ?? []) {
+          const rs = v?.state?.replication_states;
+          if (!rs) continue;
+          for (const [peer, info] of Object.entries(rs)) {
+            const pct = (info as any)?.done_percentage;
+            if (typeof pct === 'number') {
+              sample.push(`${r.node_name}->${peer}=${pct.toFixed(2)}`);
+            }
+          }
+        }
+      }
+      console.log(
+        `[sync-poll] t=${new Date().toISOString()} elapsed=${(performance.now() - t0).toFixed(0)}ms ${sample.join(' ')}`,
+      );
     }
+    return data;
+  };
 
-    const resources = (await getResources()).data;
+  const {
+    data: resourceDefinitions,
+    isLoading: rdLoading,
+    refetch: refetchResourceDefinitions,
+  } = useQuery({
+    queryKey: ['getResourceDefinitionList', query],
+    queryFn: fetchResourceDefinitions,
+    // Definitions/props/layers rarely change during a sync. Polling slow keeps
+    // the controller load down even on large clusters.
+    refetchInterval: 10000,
+  });
 
-    const updatedData = await Promise.all(
-      data.data.map((resource) => {
-        const { name, volume_definitions: volumeDefinitions } = resource;
+  // Live state (disk_state, replication_states, done_percentage, in_use) is
+  // fetched separately so it can poll fast during a sync without re-pulling
+  // the heavier resource-definition payload. Constant 1s cadence so we don't
+  // need to "detect" sync before going fast — the /v1/view/resources call is
+  // a single lightweight endpoint.
+  const {
+    data: resourcesView,
+    isLoading: rvLoading,
+    refetch: refetchResourcesView,
+  } = useQuery({
+    queryKey: ['getResourcesView'],
+    queryFn: fetchResourcesView,
+    refetchInterval: 1000,
+    refetchIntervalInBackground: false,
+  });
 
-        const resourceWithVolumes = {
-          ...resource,
-          volumes: [],
-          volumeDefinitions: volumeDefinitions || [],
-        } as any;
+  // Merge structural data (definitions) with live state (resources view).
+  const mergedResourceDefinitionList = useMemo(() => {
+    if (!resourceDefinitions) return undefined;
+    return resourceDefinitions.map((resource: any) => {
+      const { name, volume_definitions: volumeDefinitions } = resource;
 
-        // Merge volumes with the outer layer
-        resourceWithVolumes.volumes = resources
-          ?.filter((e) => e.name === name)
+      const resourceWithVolumes = {
+        ...resource,
+        volumes: [] as any[],
+        volumeDefinitions: volumeDefinitions || [],
+      };
+
+      resourceWithVolumes.volumes =
+        resourcesView
+          ?.filter((e: any) => e.name === name)
           ?.flatMap(
-            (e) =>
-              e.volumes?.map((v) => {
-                const matchingVolume = volumeDefinitions?.find((vd) => vd.volume_number === v.volume_number);
+            (e: any) =>
+              e.volumes?.map((v: any) => {
+                const matchingVolume = volumeDefinitions?.find((vd: any) => vd.volume_number === v.volume_number);
                 return {
                   ...v,
                   size_kib: matchingVolume?.size_kib || 0,
@@ -305,16 +358,15 @@ export const OverviewList = () => {
                   resourceDefinition: resource,
                 };
               }) || [],
-          );
+          ) ?? [];
 
-        return resourceWithVolumes;
-      }),
-    );
+      return resourceWithVolumes;
+    });
+  }, [resourceDefinitions, resourcesView]);
 
-    setResourceDefinitionList(updatedData);
-
-    return updatedData;
-  };
+  useEffect(() => {
+    setResourceDefinitionList(mergedResourceDefinitionList);
+  }, [mergedResourceDefinitionList]);
 
   const hasSyncingVolume = useMemo(() => {
     return Boolean(
@@ -322,18 +374,11 @@ export const OverviewList = () => {
     );
   }, [resourceDefinitionList]);
 
-  const { isLoading, refetch } = useQuery({
-    queryKey: ['getResourceDefinitionList', query],
-    queryFn: fetchData,
-    // Compute the next interval from the freshly-fetched data each time
-    // (rather than from React state) so polling stays in sync with reality
-    // even if a React render hasn't propagated yet.
-    refetchInterval: (latest: any) => {
-      const list = Array.isArray(latest) ? latest : resourceDefinitionList;
-      const syncing = list?.some((rd: any) => rd?.volumes?.some((volume: any) => getSyncFlow(volume) !== null));
-      return syncing ? 2000 : 10000;
-    },
-  });
+  const isLoading = rdLoading || rvLoading;
+  const refetch = useCallback(() => {
+    void refetchResourceDefinitions();
+    void refetchResourcesView();
+  }, [refetchResourceDefinitions, refetchResourcesView]);
 
   const adjustResourceGroupMutation = useMutation({
     mutationKey: ['adjustResourceGroupMutation'],
