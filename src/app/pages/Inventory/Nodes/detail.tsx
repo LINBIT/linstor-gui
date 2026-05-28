@@ -16,6 +16,7 @@ import PageBasic from '@app/components/PageBasic';
 import { Resource, StoragePool, useNodes } from '@app/features/node';
 import { getControllerVersion } from '@app/features/node/api';
 import { compareVersions } from '@app/utils/version';
+import { normalizeStoragePoolSpace } from '@app/utils/storagePoolSpace';
 import {
   CreateForm,
   CreateNetWorkInterfaceRequestBody,
@@ -74,7 +75,7 @@ const handleStorageData = (storagePool: StoragePoolItem[] | undefined, node: str
     return {
       storagePool: item.storage_pool_name,
       type: 'Used',
-      value: item.total_capacity - item.free_capacity,
+      value: normalizeStoragePoolSpace(item.total_capacity, item.free_capacity).used,
     };
   });
 
@@ -82,25 +83,19 @@ const handleStorageData = (storagePool: StoragePoolItem[] | undefined, node: str
     return {
       storagePool: item.storage_pool_name,
       type: 'Total',
-      value: item.total_capacity,
+      value: normalizeStoragePoolSpace(item.total_capacity, item.free_capacity).total,
     };
   });
 
-  const nodeFreeCapacity: number = validData.reduce((acc, curr) => {
-    if (curr.free_capacity) {
-      return acc + curr.free_capacity;
-    } else {
-      return acc;
-    }
-  }, 0);
+  const nodeFreeCapacity: number = validData.reduce(
+    (acc, curr) => acc + normalizeStoragePoolSpace(curr.total_capacity, curr.free_capacity).free,
+    0,
+  );
 
-  const nodeTotalCapacity: number = validData.reduce((acc, curr) => {
-    if (curr.total_capacity) {
-      return acc + curr.total_capacity;
-    } else {
-      return acc;
-    }
-  }, 0);
+  const nodeTotalCapacity: number = validData.reduce(
+    (acc, curr) => acc + normalizeStoragePoolSpace(curr.total_capacity, curr.free_capacity).total,
+    0,
+  );
 
   const storagePoolOnNodeTotalData: StoragePoolData = {
     storagePool: `Total on ${node}`,

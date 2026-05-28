@@ -17,6 +17,7 @@ import { formatBytes } from '@app/utils/size';
 import styled from '@emotion/styled';
 import { useWindowSize } from '@app/hooks';
 import { generateStoragePoolColorPairs, getNodeTotalColorPair } from '@app/utils/storagePoolColors';
+import { normalizeStoragePoolSpace } from '@app/utils/storagePoolSpace';
 type SeriesItem = {
   name: string;
   group: string;
@@ -516,8 +517,14 @@ export const StoragePoolInfo: React.FC = () => {
     const allNodes = Object.keys(groupedByNode)
       .map((node) => {
         const pools = groupedByNode[node];
-        const total = pools.reduce((acc, item) => acc + (item.total_capacity || 0), 0);
-        const used = pools.reduce((acc, item) => acc + ((item.total_capacity || 0) - (item.free_capacity || 0)), 0);
+        const total = pools.reduce(
+          (acc, item) => acc + normalizeStoragePoolSpace(item.total_capacity, item.free_capacity).total,
+          0,
+        );
+        const used = pools.reduce(
+          (acc, item) => acc + normalizeStoragePoolSpace(item.total_capacity, item.free_capacity).used,
+          0,
+        );
         return { node, used, total };
       })
       .sort((a, b) => b.used - a.used || b.total - a.total)
@@ -535,8 +542,14 @@ export const StoragePoolInfo: React.FC = () => {
     const nodeSummaries: Record<string, NodeSummaryItem[]> = {};
     allNodes.forEach((node) => {
       const nodeSp = groupedByNode[node];
-      nodeTotals[node] = nodeSp.reduce((acc, item) => acc + (item.total_capacity || 0), 0);
-      nodeUsed[node] = nodeSp.reduce((acc, item) => acc + ((item.total_capacity || 0) - (item.free_capacity || 0)), 0);
+      nodeTotals[node] = nodeSp.reduce(
+        (acc, item) => acc + normalizeStoragePoolSpace(item.total_capacity, item.free_capacity).total,
+        0,
+      );
+      nodeUsed[node] = nodeSp.reduce(
+        (acc, item) => acc + normalizeStoragePoolSpace(item.total_capacity, item.free_capacity).used,
+        0,
+      );
     });
 
     const spSeries: SeriesItem[] = [];
@@ -548,8 +561,7 @@ export const StoragePoolInfo: React.FC = () => {
       const freeForPool: number[] = [];
       allNodes.forEach((node) => {
         const found = groupedByNode[node].find((i) => i.storage_pool_name === pool);
-        const total = found?.total_capacity ?? 0;
-        const free = found?.free_capacity ?? 0;
+        const { total, free } = normalizeStoragePoolSpace(found?.total_capacity, found?.free_capacity);
         totalsForPool.push(total);
         freeForPool.push(free);
       });
