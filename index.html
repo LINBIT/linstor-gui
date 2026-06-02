@@ -15,11 +15,46 @@ Author: Liang Li <liang.li@linbit.com>
   <meta id="appName" name="application-name" content="LINSTOR">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <style>
+    #app-loading {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      background: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #666;
+      z-index: 9999;
+    }
+    #app-loading .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #f0f0f0;
+      border-top-color: #f97316;
+      border-radius: 50%;
+      animation: app-loading-spin 0.8s linear infinite;
+    }
+    #app-loading .label {
+      font-size: 14px;
+      letter-spacing: 0.04em;
+    }
+    @keyframes app-loading-spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 
 <body>
   <noscript>Enabling JavaScript is required to run this app.</noscript>
-  <div id="root"></div>
+  <div id="root">
+    <div id="app-loading" aria-label="Loading LINSTOR">
+      <div class="spinner"></div>
+      <div class="label">Loading LINSTOR…</div>
+    </div>
+  </div>
 
   <script type="module" src="/src/index.tsx"></script>
 </body>
