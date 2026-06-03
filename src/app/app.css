@@ -7,6 +7,10 @@
 @import url('antd/dist/reset.css');
 @import 'tailwindcss';
 
+#app-loading {
+  display: none;
+}
+
 iframe {
   min-height: 400px;
 }
