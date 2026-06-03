@@ -203,6 +203,10 @@ const en = {
     cancel: 'Cancel',
     close: 'Close',
     show_all: 'Show all tokens',
+    auth_disabled_title: 'Token Authentication is Disabled',
+    auth_disabled_description:
+      'Token authentication must be enabled on the controller before you can manage auth tokens. Open Settings and initialize it under the Controller Auth tab.',
+    go_to_settings: 'Go to Settings',
   },
   node: {
     node_list: 'Node List',

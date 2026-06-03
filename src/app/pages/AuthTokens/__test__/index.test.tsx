@@ -7,8 +7,16 @@
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 
 import AuthTokens from '..';
+
+const renderPage = () =>
+  render(
+    <MemoryRouter>
+      <AuthTokens />
+    </MemoryRouter>,
+  );
 
 const mockGet = vi.fn();
 const mockPost = vi.fn();
@@ -76,6 +84,9 @@ describe('AuthTokens page', () => {
 
   it('loads and displays auth token metadata', async () => {
     mockGet.mockResolvedValueOnce({
+      data: { 'Auth/TokenAuthenticationEnabled': 'true' },
+    });
+    mockGet.mockResolvedValueOnce({
       data: {
         count: 2,
         list: [
@@ -110,7 +121,7 @@ describe('AuthTokens page', () => {
       },
     });
 
-    render(<AuthTokens />);
+    renderPage();
 
     await waitFor(() => {
       expect(mockGet).toHaveBeenCalledWith('/v1/controller/auth/token');
@@ -125,27 +136,44 @@ describe('AuthTokens page', () => {
   });
 
   it('shows an error when loading auth tokens fails', async () => {
+    mockGet.mockResolvedValueOnce({
+      data: { 'Auth/TokenAuthenticationEnabled': 'true' },
+    });
     mockGet.mockRejectedValueOnce(new Error('boom'));
 
-    render(<AuthTokens />);
+    renderPage();
 
     await waitFor(() => {
       expect(errorMessage).toHaveBeenCalledWith('boom');
     });
   });
 
+  it('shows the disabled-state warning when controller token auth is off', async () => {
+    mockGet.mockResolvedValueOnce({
+      data: { 'Auth/TokenAuthenticationEnabled': 'false' },
+    });
+
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('authToken:auth_disabled_title')).toBeInTheDocument();
+    });
+    expect(screen.getByRole('button', { name: 'authToken:go_to_settings' })).toBeInTheDocument();
+    expect(mockGet).not.toHaveBeenCalledWith('/v1/controller/auth/token');
+  });
+
   it('creates a token and displays the returned token once', async () => {
-    mockGet.mockResolvedValue({
-      data: {
-        count: 0,
-        list: [],
-      },
+    mockGet.mockImplementation((url: string) => {
+      if (url === '/v1/controller/properties') {
+        return Promise.resolve({ data: { 'Auth/TokenAuthenticationEnabled': 'true' } });
+      }
+      return Promise.resolve({ data: { count: 0, list: [] } });
     });
     mockPost.mockResolvedValueOnce({
       data: [{ obj_refs: { token: 'created-token' } }],
     });
 
-    render(<AuthTokens />);
+    renderPage();
 
     fireEvent.click(screen.getByRole('button', { name: /authToken:create/ }));
     fireEvent.change(screen.getByLabelText('authToken:description'), { target: { value: 'new-token' } });

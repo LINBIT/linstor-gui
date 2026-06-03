@@ -25,6 +25,7 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import { MoreOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import dayjs from 'dayjs';
 import type { Dayjs } from 'dayjs';
 import utc from 'dayjs/plugin/utc';
@@ -32,6 +33,8 @@ import utc from 'dayjs/plugin/utc';
 import Button from '@app/components/Button';
 import service from '@app/requests';
 import { useLinstorVersion, MIN_API_VERSION } from '@app/hooks';
+
+const TOKEN_AUTH_PROPERTY = 'Auth/TokenAuthenticationEnabled';
 
 dayjs.extend(utc);
 
@@ -89,6 +92,30 @@ const AuthTokens = () => {
   const [deletingTokenId, setDeletingTokenId] = useState<number | null>(null);
   const { isFetched: versionFetched, hasMinVersion } = useLinstorVersion();
   const featureSupported = versionFetched && hasMinVersion(MIN_API_VERSION.AUTH_TOKENS);
+  const [tokenAuthEnabled, setTokenAuthEnabled] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!featureSupported) return;
+
+    let cancelled = false;
+
+    const checkTokenAuthState = async () => {
+      try {
+        const response = await service.get<Record<string, string>>('/v1/controller/properties');
+        if (cancelled) return;
+        setTokenAuthEnabled(response.data?.[TOKEN_AUTH_PROPERTY] === 'true');
+      } catch {
+        if (cancelled) return;
+        setTokenAuthEnabled(false);
+      }
+    };
+
+    void checkTokenAuthState();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [featureSupported]);
 
   const fetchTokens = async () => {
     setLoading(true);
@@ -104,12 +131,12 @@ const AuthTokens = () => {
   };
 
   useEffect(() => {
-    if (!featureSupported) return;
+    if (!featureSupported || tokenAuthEnabled !== true) return;
     void fetchTokens();
-    // Fetch once when the API version is confirmed compatible. Refetches after
-    // mutations call fetchTokens directly.
+    // Fetch once when the API version is confirmed compatible and token auth
+    // is enabled. Refetches after mutations call fetchTokens directly.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [featureSupported]);
+  }, [featureSupported, tokenAuthEnabled]);
 
   const tokens = showAllTokens ? allTokens : allTokens.filter((token) => token.is_user_token);
 
@@ -269,6 +296,27 @@ const AuthTokens = () => {
           showIcon
           message={t('common:feature_unavailable')}
           description={t('common:feature_requires_api_version', { version: MIN_API_VERSION.AUTH_TOKENS })}
+        />
+      </Space>
+    );
+  }
+
+  if (featureSupported && tokenAuthEnabled === false) {
+    return (
+      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+        <Title level={3} style={{ marginBottom: 4 }}>
+          {t('authToken:title')}
+        </Title>
+        <Alert
+          type="warning"
+          showIcon
+          message={t('authToken:auth_disabled_title')}
+          description={t('authToken:auth_disabled_description')}
+          action={
+            <Link to="/settings">
+              <Button type="primary">{t('authToken:go_to_settings')}</Button>
+            </Link>
+          }
         />
       </Space>
     );
