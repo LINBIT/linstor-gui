@@ -77,10 +77,9 @@ const formatDate = (value?: string | null) => {
   return parsed.isValid() ? parsed.format('YYYY-MM-DD HH:mm:ss') : value;
 };
 
-const booleanText = (value: boolean) => (value ? 'Yes' : 'No');
-
 const AuthTokens = () => {
   const { t } = useTranslation(['authToken', 'common']);
+  const booleanText = (value: boolean) => (value ? t('common:yes') : t('common:no'));
   const [form] = Form.useForm<CreateTokenForm>();
   const [allTokens, setAllTokens] = useState<AuthToken[]>([]);
   const [showAllTokens, setShowAllTokens] = useState(false);
@@ -222,8 +221,8 @@ const AuthTokens = () => {
       dataIndex: 'is_active',
       render: (value: boolean) => <Tag color={value ? 'green' : 'red'}>{booleanText(value)}</Tag>,
       filters: [
-        { text: 'Yes', value: true },
-        { text: 'No', value: false },
+        { text: t('common:yes'), value: true },
+        { text: t('common:no'), value: false },
       ],
       onFilter: (value, record) => record.is_active === value,
     },

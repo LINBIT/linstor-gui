@@ -16,6 +16,7 @@ const en = {
     property: 'Properties',
     add: 'Add',
     create: 'Create',
+    reload: 'Reload',
     created: 'Created Time',
     view: 'View',
     edit: 'Edit',
@@ -411,6 +412,8 @@ const en = {
   },
   nfs: {
     list: 'NFS List',
+    only_one_resource_note:
+      'NOTE: Only one NFS resource can exist in a cluster. To create multiple exports, create a single resource with multiple volumes.',
     create: 'NFS Create',
     name: 'Name',
     size: 'Size',
@@ -616,6 +619,7 @@ const en = {
     no_content: 'No content available',
     deploy: 'Deploy',
     undeploy: 'Undeploy',
+    undeploy_confirm: 'Are you sure to undeploy this file from its resource?',
     deploy_to_resource: 'Deploy to Resource',
     select_resource: 'Select Resource',
     select_resource_placeholder: 'Select a resource definition',

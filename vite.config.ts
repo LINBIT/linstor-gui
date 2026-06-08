@@ -43,6 +43,11 @@ export default defineConfig(({ mode, command }) => {
     server: {
       host: HOST,
       port: PORT,
+      // Don't let transient tool output (e.g. Playwright MCP snapshots/console logs
+      // written into .playwright-mcp/) trigger HMR full-reload loops.
+      watch: {
+        ignored: ['**/.playwright-mcp/**'],
+      },
       proxy: {
         '/v1': {
           target: API_HOST,

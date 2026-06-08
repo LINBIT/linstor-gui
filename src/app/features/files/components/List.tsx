@@ -271,8 +271,17 @@ export const List = () => {
                     ? [
                         {
                           key: 'undeploy',
-                          label: t('undeploy'),
-                          onClick: () => handleUndeploy(record),
+                          label: (
+                            <Popconfirm
+                              key="undeploy"
+                              title={t('undeploy_confirm')}
+                              okText={t('common:yes')}
+                              cancelText={t('common:no')}
+                              onConfirm={() => handleUndeploy(record)}
+                            >
+                              <div className="w-full">{t('undeploy')}</div>
+                            </Popconfirm>
+                          ),
                         },
                       ]
                     : [

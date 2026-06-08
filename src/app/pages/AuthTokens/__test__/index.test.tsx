@@ -132,7 +132,7 @@ describe('AuthTokens page', () => {
     expect(screen.queryByText('satellite:gui01')).not.toBeInTheDocument();
     expect(screen.getByText('2026-04-13 00:50:23')).toBeInTheDocument();
     expect(screen.getByText('2026-04-14 07:35:44')).toBeInTheDocument();
-    expect(screen.getAllByText('Yes')).toHaveLength(4);
+    expect(screen.getAllByText('common:yes')).toHaveLength(4);
   });
 
   it('shows an error when loading auth tokens fails', async () => {

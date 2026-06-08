@@ -17,3 +17,4 @@ junit.xml
 .prompts/
 .claude/
 CLAUDE.md
+.playwright-mcp/

@@ -280,12 +280,7 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart, loading =
 
   return (
     <div>
-      <Alert
-        message="NOTE: Only one NFS resource can exist in a cluster. To create multiple exports, create a single resource with multiple volumes."
-        type="warning"
-        showIcon
-        style={{ marginBottom: 24 }}
-      />
+      <Alert message={t('nfs:only_one_resource_note')} type="warning" showIcon style={{ marginBottom: 24 }} />
       <Table<NFSResource & NFSOperationStatus>
         bordered={false}
         columns={columns}
