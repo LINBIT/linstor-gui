@@ -28,12 +28,23 @@ import {
 } from './useHA';
 import { Link } from '@app/components/Link';
 import { Button } from '@app/components/Button';
+import styled from '@emotion/styled';
 import { LiaToolsSolid } from 'react-icons/lia';
 import { useNodes } from '@app/features/node/hooks/useNode';
 import { getEvictOutcome } from './evict';
 import type { DrbdReactorStatus } from './api';
 
 const { Text } = Typography;
+
+// The active/primary node and the "Running" status share the LINBIT brand color
+// (same as the "+ Add" button). The shared Link forces blue (#499BBB !important),
+// so we override it to white with higher specificity (&&) for the highlighted tag.
+const ACTIVE_TAG_STYLE = { backgroundColor: '#FFCC9C', borderColor: '#FFCC9C', color: '#FFFFFF' };
+const ActiveNodeLink = styled(Link)`
+  && {
+    color: #ffffff !important;
+  }
+`;
 
 interface HARecord {
   name: string;
@@ -249,9 +260,19 @@ const ResourceNodes: React.FC<ResourceNodesProps> = ({ resourceName, reactorStat
             )
           : null;
 
+        // Highlight the active/primary node with the LINBIT brand color (same as
+        // the "+ Add" button) instead of the default green success tag.
         const tag = (
-          <Tag color={isPrimary ? 'success' : 'default'} key={resourceObj.node_name}>
-            <Link to={`/inventory/nodes/${resourceObj.node_name}`}>{resourceObj.node_name}</Link>
+          <Tag
+            color={isPrimary ? undefined : 'default'}
+            key={resourceObj.node_name}
+            style={isPrimary ? ACTIVE_TAG_STYLE : undefined}
+          >
+            {isPrimary ? (
+              <ActiveNodeLink to={`/inventory/nodes/${resourceObj.node_name}`}>{resourceObj.node_name}</ActiveNodeLink>
+            ) : (
+              <Link to={`/inventory/nodes/${resourceObj.node_name}`}>{resourceObj.node_name}</Link>
+            )}
           </Tag>
         );
 
@@ -675,7 +696,11 @@ export const List = () => {
             )
           : null;
 
-        const tag = <Tag color={active ? 'success' : 'default'}>{active ? 'Running' : 'Stopped'}</Tag>;
+        const tag = (
+          <Tag color={active ? undefined : 'default'} style={active ? ACTIVE_TAG_STYLE : undefined}>
+            {active ? 'Running' : 'Stopped'}
+          </Tag>
+        );
 
         return tooltipContent ? (
           <Tooltip
