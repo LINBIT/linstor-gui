@@ -38,11 +38,11 @@ const { Text } = Typography;
 
 // The active/primary node and the "Running" status share the LINBIT brand color
 // (same as the "+ Add" button). The shared Link forces blue (#499BBB !important),
-// so we override it to white with higher specificity (&&) for the highlighted tag.
-const ACTIVE_TAG_STYLE = { backgroundColor: '#FFCC9C', borderColor: '#FFCC9C', color: '#FFFFFF' };
+// so we override it to black with higher specificity (&&) for the highlighted tag.
+const ACTIVE_TAG_STYLE = { backgroundColor: '#FFCC9C', borderColor: '#FFCC9C', color: '#000' };
 const ActiveNodeLink = styled(Link)`
   && {
-    color: #ffffff !important;
+    color: #000 !important;
   }
 `;
 
