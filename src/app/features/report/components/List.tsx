@@ -12,7 +12,8 @@ import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { deleteReport, deleteReportBulk, getErrorReports } from '../api';
 import { ErrorReport, ErrorReportDeleteRangeRequest, GetErrorReportRequestQuery } from '../types';
-import { formatTime, getTime } from '@app/utils/time';
+import { formatTime } from '@app/utils/time';
+import dayjs from 'dayjs';
 import { useNodes } from '@app/features/node';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -54,7 +55,33 @@ export const List = () => {
     hciModeFromSetting: state.setting.mode === UIMode.HCI,
   }));
 
-  const [query, setQuery] = useState({});
+  // `node` is filtered by the backend; the time range is filtered client-side on
+  // `error_time` because the LINSTOR backend's since/to filter does not align with
+  // the error_time the list displays and sorts by (it returns empty for valid ranges).
+  const [query, setQuery] = useState<GetErrorReportRequestQuery>(() => {
+    const params = new URLSearchParams(location.search);
+    const node = params.get('node') ?? undefined;
+
+    if (node) {
+      form.setFieldValue('node', node);
+      return { node };
+    }
+
+    return {};
+  });
+
+  const [timeRange, setTimeRange] = useState<{ since?: number; to?: number }>(() => {
+    const params = new URLSearchParams(location.search);
+    const since = params.get('since');
+    const to = params.get('to');
+
+    if (since && to) {
+      form.setFieldValue('range', [dayjs(Number(since)), dayjs(Number(to))]);
+      return { since: Number(since), to: Number(to) };
+    }
+
+    return {};
+  });
 
   const module = Form.useWatch('module', form);
 
@@ -77,25 +104,19 @@ export const List = () => {
   });
 
   useEffect(() => {
-    let displayData = data?.data
-      ?.map((item) => ({
-        ...item,
-        id: getId(item),
-      }))
-      .reverse();
+    let displayData = data?.data?.map((item) => ({ ...item, id: getId(item) })).reverse() ?? [];
 
     if (module) {
-      displayData = data?.data
-        ?.map((item) => ({
-          ...item,
-          id: getId(item),
-        }))
-        .reverse()
-        .filter((e) => e.module === module);
+      displayData = displayData.filter((e) => e.module === module);
     }
 
-    setDisplayData(displayData || []);
-  }, [module, data?.data]);
+    const { since, to } = timeRange;
+    if (since != null && to != null) {
+      displayData = displayData.filter((e) => e.error_time >= since && e.error_time <= to);
+    }
+
+    setDisplayData(displayData);
+  }, [module, data?.data, timeRange]);
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
     setSelectedRowKeys(newSelectedRowKeys);
@@ -111,38 +132,42 @@ export const List = () => {
   const handleSearch = () => {
     const values = form.getFieldsValue();
     const newQuery: GetErrorReportRequestQuery = {};
+    const newTimeRange: { since?: number; to?: number } = {};
 
     if (values.node) {
       newQuery.node = values.node;
     }
 
     if (values.range) {
-      newQuery.since = getTime(values.range[0]);
-      newQuery.to = getTime(values.range[1]);
+      // The picker is date-only, so cover the full span: start of the first day to
+      // end of the last day. This makes selecting a single day match that whole day.
+      newTimeRange.since = dayjs(values.range[0]).startOf('day').valueOf();
+      newTimeRange.to = dayjs(values.range[1]).endOf('day').valueOf();
     }
 
-    const query = new URLSearchParams();
+    const params = new URLSearchParams();
 
     if (newQuery.node) {
-      query.set('node', newQuery.node);
+      params.set('node', newQuery.node);
     }
-    if (newQuery.since) {
-      query.set('since', newQuery.since.toString());
+    if (newTimeRange.since) {
+      params.set('since', newTimeRange.since.toString());
     }
-    if (newQuery.to) {
-      query.set('to', newQuery.to.toString());
+    if (newTimeRange.to) {
+      params.set('to', newTimeRange.to.toString());
     }
 
-    const new_url = `${location.pathname}?${query.toString()}`;
-
-    navigate(new_url);
+    navigate(`${location.pathname}?${params.toString()}`);
 
     setQuery(newQuery);
+    setTimeRange(newTimeRange);
   };
 
   const handleReset = () => {
     form.resetFields();
     setQuery({});
+    setTimeRange({});
+    navigate(location.pathname);
   };
 
   const handleDelete = (id: string) => {
