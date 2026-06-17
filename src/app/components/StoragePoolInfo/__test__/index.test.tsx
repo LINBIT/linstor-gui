@@ -382,11 +382,16 @@ describe('StoragePoolInfo', () => {
     it('should observe container resize to keep hover regions in sync', async () => {
       const observe = vi.fn();
       const disconnect = vi.fn();
-      const resizeObserverMock = vi.fn(() => ({
-        observe,
-        unobserve: vi.fn(),
-        disconnect,
-      }));
+      // vitest 4 makes vi.fn() with an arrow-function implementation
+      // non-constructable; the component does `new ResizeObserver(...)`, so the
+      // mock implementation must be a regular (constructable) function.
+      const resizeObserverMock = vi.fn(function () {
+        return {
+          observe,
+          unobserve: vi.fn(),
+          disconnect,
+        };
+      });
 
       global.ResizeObserver = resizeObserverMock as unknown as typeof ResizeObserver;
       mockGetStoragePool.mockResolvedValue(mockStoragePoolData);

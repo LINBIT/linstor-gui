@@ -132,32 +132,35 @@ export default defineConfig(({ mode, command }) => {
       assetsDir: '.',
       rollupOptions: {
         output: {
-          manualChunks: {
-            // React core
-            react: ['react', 'react-dom'],
-
-            // Routing
-            router: ['react-router-dom'],
-
-            // Internationalization
-            i18n: ['react-i18next', 'i18next'],
-
-            // State management
-            query: ['@tanstack/react-query'],
-            redux: ['@rematch/core', '@rematch/loading', 'react-redux'],
-
-            // UI libraries
-            antd: ['antd', '@ant-design/icons'],
-            emotion: ['@emotion/react', '@emotion/styled'],
-
-            // Chart libraries
-            charts: ['apexcharts', 'react-apexcharts'],
-
-            // Utility libraries
-            utils: ['lodash', 'dayjs', 'axios', 'crypto-js', 'camelcase'],
-
-            // OpenAPI related
-            openapi: ['openapi-fetch'],
+          // vite 8's bundler only accepts the function form of manualChunks
+          // (the object form was removed). Each entry maps a chunk name to the
+          // node_modules packages that belong in it.
+          manualChunks: (id) => {
+            if (!id.includes('node_modules')) return undefined;
+            const groups: Record<string, string[]> = {
+              // React core
+              react: ['react', 'react-dom'],
+              // Routing
+              router: ['react-router-dom'],
+              // Internationalization
+              i18n: ['react-i18next', 'i18next'],
+              // State management
+              query: ['@tanstack/react-query'],
+              redux: ['@rematch/core', '@rematch/loading', 'react-redux'],
+              // UI libraries
+              antd: ['antd', '@ant-design/icons'],
+              emotion: ['@emotion/react', '@emotion/styled'],
+              // Chart libraries
+              charts: ['apexcharts', 'react-apexcharts'],
+              // Utility libraries
+              utils: ['lodash', 'dayjs', 'axios', 'crypto-js', 'camelcase'],
+              // OpenAPI related
+              openapi: ['openapi-fetch'],
+            };
+            for (const [name, pkgs] of Object.entries(groups)) {
+              if (pkgs.some((pkg) => id.includes(`node_modules/${pkg}/`))) return name;
+            }
+            return undefined;
           },
         },
       },

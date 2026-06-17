@@ -53,6 +53,11 @@ describe('UserAuthAPI', () => {
   beforeEach(() => {
     userAuthAPI = new UserAuthAPI();
     vi.clearAllMocks();
+    // vi.clearAllMocks() only clears call history, not the queued
+    // mockResolvedValueOnce() values. Fully reset the kvStore mocks so an
+    // unconsumed `once` value from a previous test can't leak in (the kvStore
+    // mocks have no default implementation, so reset is safe).
+    Object.values(mockKvStore).forEach((fn) => fn.mockReset());
     localStorageMock.clear();
   });
 
