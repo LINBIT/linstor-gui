@@ -281,7 +281,7 @@ export const List = () => {
         if (propEntries.length === 0) return null;
 
         return (
-          <div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
             {propEntries.map(([key, value], index) => {
               let displayValue: string;
               if (Array.isArray(value)) {
@@ -303,7 +303,7 @@ export const List = () => {
                   title={<span style={{ whiteSpace: 'pre-line' }}>{tooltipContent}</span>}
                   placement="top"
                 >
-                  <Tag style={{ marginBottom: 2, cursor: 'default' }}>
+                  <Tag style={{ margin: 0, cursor: 'default' }}>
                     {key}: {displayValue}
                   </Tag>
                 </Tooltip>
