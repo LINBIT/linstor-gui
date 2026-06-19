@@ -99,7 +99,7 @@ describe('AddColumnModal', () => {
       render(<AddColumnModal {...defaultProps} />);
 
       // Test that the component renders and functions are called correctly
-      const okButton = screen.getByRole('button', { name: /ok/i });
+      const okButton = screen.getByRole('button', { name: /confirm/i });
       expect(okButton).toBeInTheDocument();
 
       // Mock form submission directly

@@ -6,8 +6,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Checkbox, Form, Input, Modal, Select, Space, notification } from 'antd';
+import { Checkbox, Form, Input, Modal, Select, Space, notification } from 'antd';
 
+import { Button } from '@app/components/Button';
 import { useNodeNetWorkInterface } from '../hooks';
 import { SizeInput } from '@app/components/SizeInput';
 import { createNVMEExport, getResourceGroups } from '../api';
@@ -157,13 +158,18 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
       <Modal
         title="Create"
         open={createFormModal}
-        onOk={handleOk}
         onCancel={handleCancel}
-        okText="Create"
         width={800}
-        okButtonProps={{
-          loading: createMutation.isLoading,
-        }}
+        footer={
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+            <Button type="secondary" onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button type="primary" onClick={handleOk} loading={createMutation.isLoading}>
+              Create
+            </Button>
+          </div>
+        }
       >
         <Content>
           <Form<FormType>

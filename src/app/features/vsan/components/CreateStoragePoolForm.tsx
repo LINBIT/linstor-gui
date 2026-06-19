@@ -6,8 +6,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Checkbox, Form, Input, Modal, Select, Tooltip, notification } from 'antd';
+import { Checkbox, Form, Input, Modal, Select, Tooltip, notification } from 'antd';
 
+import { Button } from '@app/components/Button';
 import { formatBytes } from '@app/utils/size';
 
 import { createPool, getNodesFromVSAN, getPhysicalStorage, getStoragePool } from '../api';
@@ -355,13 +356,18 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
       <Modal
         title="Create"
         open={createFormModal}
-        onOk={handleOk}
         onCancel={handleCancel}
-        okText={add_to_existing ? 'Add' : 'Create'}
         width={800}
-        okButtonProps={{
-          loading: createMutation.isLoading,
-        }}
+        footer={
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+            <Button type="secondary" onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button type="primary" onClick={handleOk} loading={createMutation.isLoading}>
+              {add_to_existing ? 'Add' : 'Create'}
+            </Button>
+          </div>
+        }
       >
         <Table columns={columns} dataSource={data} pagination={false} />
         <br />

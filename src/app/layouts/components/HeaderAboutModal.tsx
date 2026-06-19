@@ -4,6 +4,7 @@ import { CloseOutlined } from '@ant-design/icons';
 import { Modal, Input, Tooltip } from 'antd';
 import { useSelector } from 'react-redux';
 
+import { Button } from '@app/components/Button';
 import brandImg from '@app/assets/brand-light.svg';
 import bgImg from '@app/assets/about-bg.svg';
 import { LINSTORVersionInfo } from './types';
@@ -21,7 +22,7 @@ const HeaderAboutModal: React.FC<HeaderAboutModalProps> = ({ linstorVersion }) =
   const [host, setHost] = useState(() => {
     return window.localStorage.getItem('HCI_VSAN_HOST') || '';
   });
-  const { t } = useTranslation('about');
+  const { t } = useTranslation(['about', 'common']);
 
   const { mode } = useSelector((state: RootState) => ({
     mode: state.setting.mode,
@@ -98,7 +99,21 @@ const HeaderAboutModal: React.FC<HeaderAboutModalProps> = ({ linstorVersion }) =
               </div>
             </div>
             {/* VSAN Host Modal */}
-            <Modal title="HCI Host" open={hostModal} onOk={handleSetHost} onCancel={() => setHostModal(false)}>
+            <Modal
+              title="HCI Host"
+              open={hostModal}
+              onCancel={() => setHostModal(false)}
+              footer={
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                  <Button type="secondary" onClick={() => setHostModal(false)}>
+                    {t('common:cancel')}
+                  </Button>
+                  <Button type="primary" onClick={handleSetHost}>
+                    {t('common:confirm')}
+                  </Button>
+                </div>
+              }
+            >
               <span>HCI Host(for debug only)</span>:
               <br />
               <Input

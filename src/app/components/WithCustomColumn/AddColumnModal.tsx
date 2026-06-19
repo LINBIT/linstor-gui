@@ -8,6 +8,8 @@ import React from 'react';
 import { Modal, Input, Form, Select } from 'antd';
 import { useTranslation } from 'react-i18next';
 
+import { Button } from '@app/components/Button';
+
 interface AddColumnModalProps {
   isVisible: boolean;
   onConfirm: (values: { dataIndex: string; title: string }) => void;
@@ -32,7 +34,21 @@ const AddColumnModal: React.FC<AddColumnModalProps> = ({ isVisible, onConfirm, o
   };
 
   return (
-    <Modal title={t('common:add_column')} open={isVisible} onOk={handleOk} onCancel={onCancel}>
+    <Modal
+      title={t('common:add_column')}
+      open={isVisible}
+      onCancel={onCancel}
+      footer={
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <Button type="secondary" onClick={onCancel}>
+            {t('common:cancel')}
+          </Button>
+          <Button type="primary" onClick={handleOk}>
+            {t('common:confirm')}
+          </Button>
+        </div>
+      }
+    >
       <Form form={form} layout="vertical">
         <Form.Item
           label={t('common:column_data_index')}

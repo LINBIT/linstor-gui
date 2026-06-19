@@ -5,10 +5,11 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Modal, Button, Typography, Space } from 'antd';
+import { Modal, Typography, Space } from 'antd';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { Button } from '@app/components/Button';
 
 import { rollbackSnapshot } from '../api';
 
@@ -72,7 +73,7 @@ export const RollbackSnapshotForm: React.FC<RollbackSnapshotFormProps> = ({
       open={visible}
       onCancel={onClose}
       footer={[
-        <Button key="cancel" onClick={onClose}>
+        <Button key="cancel" type="secondary" onClick={onClose}>
           {t('common:cancel')}
         </Button>,
         <Button key="rollback" type="primary" danger loading={isProcessing} onClick={handleRollback}>

@@ -6,8 +6,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Checkbox, Form, Input, Modal, Select, Space, notification } from 'antd';
+import { Button as AntButton, Checkbox, Form, Input, Modal, Select, Space, notification } from 'antd';
 
+import { Button } from '@app/components/Button';
 import { useNodeNetWorkInterface } from '../hooks';
 import { SizeInput } from '@app/components/SizeInput';
 import { createNFSExport, getResourceGroups } from '../api';
@@ -171,16 +172,21 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
       <Modal
         title="Create"
         open={createFormModal}
-        onOk={handleOk}
         onCancel={handleCancel}
-        okText="Create"
         width={800}
-        okButtonProps={{
-          loading: createMutation.isLoading,
-        }}
         styles={{
           body: { maxHeight: '70vh', overflowY: 'auto' },
         }}
+        footer={
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+            <Button type="secondary" onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button type="primary" onClick={handleOk} loading={createMutation.isLoading}>
+              Create
+            </Button>
+          </div>
+        }
       >
         <Content>
           <Form<FormType>
@@ -321,7 +327,7 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
                       </Form.Item>
 
                       {fields.length > 0 ? (
-                        <Button
+                        <AntButton
                           danger
                           style={{
                             marginLeft: 10,
@@ -330,14 +336,14 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
                           onClick={() => remove(field.name)}
                         >
                           Delete
-                        </Button>
+                        </AntButton>
                       ) : null}
                     </Form.Item>
                   ))}
                   <Form.Item>
-                    <Button type="dashed" onClick={() => add()} style={{ width: '60%' }}>
+                    <AntButton type="dashed" onClick={() => add()} style={{ width: '60%' }}>
                       Volumes <PlusOutlined />
-                    </Button>
+                    </AntButton>
                     <Form.ErrorList errors={errors} />
                   </Form.Item>
                 </>
@@ -378,9 +384,9 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
                     </Form.Item>
                   ))}
                   <Form.Item>
-                    <Button type="dashed" onClick={() => add()} style={{ width: '60%' }}>
+                    <AntButton type="dashed" onClick={() => add()} style={{ width: '60%' }}>
                       Allowed IPs <PlusOutlined />
-                    </Button>
+                    </AntButton>
                     <Form.ErrorList errors={errors} />
                   </Form.Item>
                 </>

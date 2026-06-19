@@ -5,8 +5,9 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState, useCallback } from 'react';
-import { Input, Button, message, Modal, Tooltip } from 'antd';
+import { Input, Button as AntButton, message, Modal, Tooltip } from 'antd';
 import styled from '@emotion/styled';
+import { Button } from '@app/components/Button';
 import { useMutation } from '@tanstack/react-query';
 import { enterPassPhrase } from '@app/features/settings/passphrase';
 import { FaUnlockAlt } from 'react-icons/fa';
@@ -79,7 +80,7 @@ export const EnterPassphrase: React.FC = () => {
     <>
       {contextHolder}
       <Tooltip title="Unlock LINSTOR">
-        <Button shape="circle" icon={<FaUnlockAlt />} onClick={showModal} />
+        <AntButton shape="circle" icon={<FaUnlockAlt />} onClick={showModal} />
       </Tooltip>
 
       <Modal title="LINSTOR passphrase" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} footer={null}>

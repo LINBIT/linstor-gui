@@ -118,12 +118,19 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
       <Modal
         title={schedule ? 'Edit Schedule' : 'Create Schedule'}
         open={isModalVisible}
-        onOk={handleOk}
         onCancel={handleCancel}
-        okText="Submit"
-        cancelText="Cancel"
         width={800}
         destroyOnClose
+        footer={
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+            <Button type="secondary" onClick={handleCancel}>
+              {t('common:cancel')}
+            </Button>
+            <Button type="primary" onClick={handleOk} loading={createMutation.isLoading || modifyMutation.isLoading}>
+              {t('common:submit')}
+            </Button>
+          </div>
+        }
       >
         <Form
           form={form}

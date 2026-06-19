@@ -6,7 +6,8 @@
 
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Button, Checkbox, Form, Input, Modal } from 'antd';
+import { Checkbox, Form, Input, Modal } from 'antd';
+import { Button } from '@app/components/Button';
 
 import { autoPlace } from '../api';
 import { AutoPlaceRequestBody } from '../types';
@@ -50,13 +51,22 @@ const SpawnForm = ({ resource }: SpawnFormProps) => {
       <Modal
         title={t('common:spawn')}
         open={showSpawnForm}
-        onOk={() => onFinish(form.getFieldsValue())}
         onCancel={() => setShowSpawnForm(false)}
-        okText="Spawn"
+        footer={
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+            <Button type="secondary" onClick={() => setShowSpawnForm(false)}>
+              {t('common:cancel')}
+            </Button>
+            <Button
+              type="primary"
+              onClick={() => onFinish(form.getFieldsValue())}
+              loading={autoPlaceMutation.isLoading}
+            >
+              {t('common:spawn')}
+            </Button>
+          </div>
+        }
         width={800}
-        okButtonProps={{
-          loading: autoPlaceMutation.isLoading,
-        }}
       >
         <Form<FormType>
           labelCol={{ span: 8 }}

@@ -6,8 +6,9 @@
 
 import React, { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Form, Input, Modal, Select, notification } from 'antd';
+import { Form, Input, Modal, Select, notification } from 'antd';
 
+import { Button } from '@app/components/Button';
 import { createResourceGroup, getStoragePool } from '../api';
 import { DEFAULT_SP } from '@app/const/type';
 import { ErrorMessage } from '@app/features/vsan';
@@ -87,13 +88,18 @@ export const CreateResourceGroup = ({ refetch }: CreateResourceGroupProps) => {
       <Modal
         title="Create"
         open={createFormModal}
-        onOk={handleOk}
         onCancel={handleCancel}
-        okText="Create"
         width={800}
-        okButtonProps={{
-          loading: createMutation.isLoading,
-        }}
+        footer={
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+            <Button type="secondary" onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button type="primary" onClick={handleOk} loading={createMutation.isLoading}>
+              Create
+            </Button>
+          </div>
+        }
       >
         <Form<FormType>
           labelCol={{ span: 6 }}

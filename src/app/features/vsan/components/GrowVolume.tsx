@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { SizeInput } from '@app/components/SizeInput';
-import { Button, Checkbox, Form, Modal, Space, notification } from 'antd';
+import { Checkbox, Form, Modal, Space, notification } from 'antd';
+import { Button } from '@app/components/Button';
 import React, { useEffect, useState } from 'react';
 import { clusterPrivateVolumeSizeKib } from '../const';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -89,13 +90,18 @@ export const GrowVolume = ({ resource, resource_group, current_kib, refetch }: G
       <Modal
         title="Grow volume"
         open={modalOpen}
-        onOk={handleOk}
         onCancel={handleCancel}
-        okText="Grow"
         width={600}
-        okButtonProps={{
-          loading: resizeMutation.isLoading,
-        }}
+        footer={
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+            <Button type="secondary" onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button type="primary" onClick={handleOk} loading={resizeMutation.isLoading}>
+              Grow
+            </Button>
+          </div>
+        }
       >
         <Form<FormType>
           size="large"
