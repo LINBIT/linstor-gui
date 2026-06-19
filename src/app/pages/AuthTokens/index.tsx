@@ -363,9 +363,17 @@ const AuthTokens = () => {
         title={t('authToken:create')}
         open={createOpen}
         onCancel={() => setCreateOpen(false)}
-        onOk={() => form.submit()}
-        confirmLoading={creating}
         destroyOnHidden
+        footer={
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+            <Button type="secondary" onClick={() => setCreateOpen(false)}>
+              {t('common:cancel')}
+            </Button>
+            <Button type="primary" onClick={() => form.submit()} loading={creating}>
+              {t('common:create')}
+            </Button>
+          </div>
+        }
       >
         <Form form={form} layout="vertical" onFinish={handleCreateToken}>
           <Form.Item
@@ -390,9 +398,13 @@ const AuthTokens = () => {
         title={t('authToken:created_token_title')}
         open={Boolean(createdToken)}
         onCancel={() => setCreatedToken(null)}
-        onOk={() => setCreatedToken(null)}
-        okText={t('authToken:close')}
-        cancelButtonProps={{ style: { display: 'none' } }}
+        footer={
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+            <Button type="primary" onClick={() => setCreatedToken(null)}>
+              {t('common:close')}
+            </Button>
+          </div>
+        }
       >
         <Alert type="warning" showIcon message={t('authToken:created_token_notice')} />
         <Input.TextArea value={createdToken ?? ''} readOnly autoSize style={{ marginTop: 16 }} />
