@@ -253,9 +253,24 @@ const AuthTokens = () => {
             items: [
               {
                 key: 'toggle-active',
-                label: token.is_active ? t('authToken:disable') : t('authToken:enable'),
                 disabled: updatingTokenId === token.id || deletingTokenId === token.id,
-                onClick: () => handleSetActive(token, !token.is_active),
+                ...(token.is_active
+                  ? {
+                      label: (
+                        <Popconfirm
+                          title={t('authToken:disable_confirm')}
+                          okText={t('authToken:disable')}
+                          cancelText={t('authToken:cancel')}
+                          onConfirm={() => handleSetActive(token, false)}
+                        >
+                          <div className="w-full">{t('authToken:disable')}</div>
+                        </Popconfirm>
+                      ),
+                    }
+                  : {
+                      label: t('authToken:enable'),
+                      onClick: () => handleSetActive(token, true),
+                    }),
               },
               {
                 key: 'delete',

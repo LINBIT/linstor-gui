@@ -285,6 +285,7 @@ const en = {
     created_token_notice: 'Copy this token now. The controller will not return the token value again.',
     enable: 'Enable',
     disable: 'Disable',
+    disable_confirm: 'Disable this auth token?',
     enable_success: 'Auth token enabled.',
     disable_success: 'Auth token disabled.',
     update_failed: 'Failed to update auth token.',
