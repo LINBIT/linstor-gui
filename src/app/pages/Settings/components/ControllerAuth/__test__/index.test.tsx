@@ -57,7 +57,8 @@ describe('Settings ControllerAuth tab', () => {
     render(<ControllerAuth />);
 
     expect(screen.getByRole('button', { name: 'settings:controller_auth_initialize' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'settings:controller_auth_enter_token' })).toBeInTheDocument();
+    // Modify Access Token only shows once token auth is initialized.
+    expect(screen.queryByRole('button', { name: 'settings:controller_auth_enter_token' })).not.toBeInTheDocument();
     expect(screen.queryByText('settings:controller_auth_description')).not.toBeInTheDocument();
     expect(screen.getByText('settings:controller_auth_https_switch_title')).toBeInTheDocument();
     expect(screen.getByText(/https:\/\/192.168.123.200:3371/)).toBeInTheDocument();
@@ -88,7 +89,9 @@ describe('Settings ControllerAuth tab', () => {
     expect(window.localStorage.getItem('LINSTOR_CONTROLLER_AUTH_TOKEN')).toBe('init-token');
     expect(screen.getByText('settings:controller_auth_initialized_title')).toBeInTheDocument();
     expect(screen.getByRole('textbox')).toHaveValue('init-token');
-    expect(screen.getAllByText(/https:\/\/192.168.123.200:3371/)).toHaveLength(2);
+    // After initialization the pre-init HTTPS banner is hidden, so the URL only
+    // appears once (in the modal) instead of being duplicated.
+    expect(screen.getAllByText(/https:\/\/192.168.123.200:3371/)).toHaveLength(1);
   });
 
   it('hides the initialize button when token auth is already enabled on mount', async () => {
@@ -103,6 +106,39 @@ describe('Settings ControllerAuth tab', () => {
     expect(screen.queryByRole('button', { name: 'settings:controller_auth_initialize' })).not.toBeInTheDocument();
     // Manual token entry remains available.
     expect(screen.getByRole('button', { name: 'settings:controller_auth_enter_token' })).toBeInTheDocument();
+  });
+
+  it('disables token auth via the controller property and clears local auth state', async () => {
+    window.localStorage.setItem('LINSTOR_CONTROLLER_AUTH_TOKEN', 'existing-token');
+    window.localStorage.setItem('LINSTOR_CONTROLLER_AUTH_REQUIRED', 'true');
+    // Mount probe: token auth is enabled.
+    mockGet.mockResolvedValueOnce({ data: { 'Auth/TokenAuthenticationEnabled': 'true' } });
+    mockPost.mockResolvedValueOnce({ data: [] });
+
+    render(<ControllerAuth />);
+
+    // The disable action only appears once we know auth is enabled.
+    const trigger = await screen.findByRole('button', { name: 'settings:controller_auth_disable' });
+    fireEvent.click(trigger);
+
+    // Popconfirm opens a second button with the same label; confirm on it.
+    await waitFor(() => {
+      expect(screen.getAllByRole('button', { name: 'settings:controller_auth_disable' }).length).toBeGreaterThan(1);
+    });
+    const buttons = screen.getAllByRole('button', { name: 'settings:controller_auth_disable' });
+    fireEvent.click(buttons[buttons.length - 1]);
+
+    await waitFor(() => {
+      expect(successMessage).toHaveBeenCalledWith('settings:controller_auth_disabled');
+    });
+
+    expect(mockPost).toHaveBeenCalledWith('/v1/controller/properties', {
+      delete_props: ['Auth/TokenAuthenticationEnabled'],
+    });
+    expect(window.localStorage.getItem('LINSTOR_CONTROLLER_AUTH_TOKEN')).toBeNull();
+    expect(window.localStorage.getItem('LINSTOR_CONTROLLER_AUTH_REQUIRED')).toBeNull();
+    // Disabling flips the UI back to offering initialization.
+    expect(screen.getByRole('button', { name: 'settings:controller_auth_initialize' })).toBeInTheDocument();
   });
 
   it('handles already enabled token auth without requiring a returned token', async () => {
@@ -127,9 +163,11 @@ describe('Settings ControllerAuth tab', () => {
   });
 
   it('stores a manually entered controller token', async () => {
+    // Modify Access Token only appears once token auth is enabled.
+    mockGet.mockResolvedValueOnce({ data: { 'Auth/TokenAuthenticationEnabled': 'true' } });
     render(<ControllerAuth />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'settings:controller_auth_enter_token' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'settings:controller_auth_enter_token' }));
     fireEvent.change(screen.getByPlaceholderText('settings:controller_auth_token_placeholder'), {
       target: { value: 'manual-token' },
     });
@@ -144,9 +182,10 @@ describe('Settings ControllerAuth tab', () => {
   });
 
   it('rejects an empty manually entered controller token', async () => {
+    mockGet.mockResolvedValueOnce({ data: { 'Auth/TokenAuthenticationEnabled': 'true' } });
     render(<ControllerAuth />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'settings:controller_auth_enter_token' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'settings:controller_auth_enter_token' }));
     fireEvent.click(screen.getByRole('button', { name: 'settings:controller_auth_save' }));
 
     await waitFor(() => {

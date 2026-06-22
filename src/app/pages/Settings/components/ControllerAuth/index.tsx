@@ -11,8 +11,9 @@ import styled from '@emotion/styled';
 import { useTranslation } from 'react-i18next';
 
 import Button from '@app/components/Button';
+import { Popconfirm } from '@app/components/Popconfirm';
 import service from '@app/requests';
-import { setControllerAuthRequired, setControllerAuthToken } from '@app/utils/controllerAuth';
+import { clearControllerAuthToken, setControllerAuthRequired, setControllerAuthToken } from '@app/utils/controllerAuth';
 
 const { Title } = Typography;
 
@@ -54,6 +55,7 @@ type InitializedTokenAuth = {
 
 const ControllerAuth: React.FC = () => {
   const [initializingTokenAuth, setInitializingTokenAuth] = useState(false);
+  const [disablingTokenAuth, setDisablingTokenAuth] = useState(false);
   const [initializedTokenAuth, setInitializedTokenAuth] = useState<InitializedTokenAuth | null>(null);
   const [tokenModalOpen, setTokenModalOpen] = useState(false);
   const [manualToken, setManualToken] = useState('');
@@ -147,6 +149,29 @@ const ControllerAuth: React.FC = () => {
     }
   };
 
+  const handleDisableTokenAuth = async () => {
+    setDisablingTokenAuth(true);
+
+    try {
+      // Disabling token auth = DELETING the Auth/TokenAuthenticationEnabled
+      // property. The controller only honors deletion live (matching linstor's
+      // own disable-token-auth, which deletes the property); merely setting it to
+      // "false" does NOT lift enforcement on the running controller.
+      await service.post('/v1/controller/properties', {
+        delete_props: [TOKEN_AUTH_PROPERTY],
+      });
+
+      setControllerAuthRequired(false);
+      clearControllerAuthToken();
+      setTokenAuthEnabled(false);
+      message.success(t('settings:controller_auth_disabled'));
+    } catch (error) {
+      message.error((error as Error)?.message || t('settings:controller_auth_disable_failed'));
+    } finally {
+      setDisablingTokenAuth(false);
+    }
+  };
+
   const handleOpenHttpsController = () => {
     if (!initializedTokenAuth) {
       return;
@@ -185,12 +210,14 @@ const ControllerAuth: React.FC = () => {
             description={t('settings:controller_auth_storage_description')}
           />
 
-          <Alert
-            type="warning"
-            showIcon
-            message={t('settings:controller_auth_https_switch_title')}
-            description={t('settings:controller_auth_https_switch_description', { url: getHttpsControllerUrl() })}
-          />
+          {tokenAuthEnabled !== true && (
+            <Alert
+              type="warning"
+              showIcon
+              message={t('settings:controller_auth_https_switch_title')}
+              description={t('settings:controller_auth_https_switch_description', { url: getHttpsControllerUrl() })}
+            />
+          )}
 
           {tokenAuthEnabled === true && (
             <Tag color="success" icon={<CheckCircleOutlined />} style={{ alignSelf: 'flex-start' }}>
@@ -205,9 +232,25 @@ const ControllerAuth: React.FC = () => {
               </Button>
             )}
 
-            <Button onClick={() => setTokenModalOpen(true)} size="large">
-              {t('settings:controller_auth_enter_token')}
-            </Button>
+            {tokenAuthEnabled === true && (
+              <Button onClick={() => setTokenModalOpen(true)} size="large">
+                {t('settings:controller_auth_enter_token')}
+              </Button>
+            )}
+
+            {tokenAuthEnabled === true && (
+              <Popconfirm
+                title={t('settings:controller_auth_disable_confirm_title')}
+                description={t('settings:controller_auth_disable_confirm_description')}
+                okText={t('settings:controller_auth_disable')}
+                cancelText={t('common:cancel')}
+                onConfirm={handleDisableTokenAuth}
+              >
+                <Button danger size="large" loading={disablingTokenAuth}>
+                  {t('settings:controller_auth_disable')}
+                </Button>
+              </Popconfirm>
+            )}
           </ButtonContainer>
         </FormContainer>
       </Card>
@@ -216,9 +259,16 @@ const ControllerAuth: React.FC = () => {
         title={t('settings:controller_auth_initialized_title')}
         open={Boolean(initializedTokenAuth)}
         onCancel={() => setInitializedTokenAuth(null)}
-        onOk={handleOpenHttpsController}
-        okText={t('settings:controller_auth_open_https')}
-        cancelText={t('settings:controller_auth_stay_here')}
+        footer={
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+            <Button type="secondary" onClick={() => setInitializedTokenAuth(null)}>
+              {t('settings:controller_auth_stay_here')}
+            </Button>
+            <Button type="primary" onClick={handleOpenHttpsController}>
+              {t('settings:controller_auth_open_https')}
+            </Button>
+          </div>
+        }
       >
         <Alert
           type="warning"
@@ -252,9 +302,22 @@ const ControllerAuth: React.FC = () => {
           setTokenModalOpen(false);
           setManualToken('');
         }}
-        onOk={handleSaveManualToken}
-        okText={t('settings:controller_auth_save')}
-        cancelText={t('common:cancel')}
+        footer={
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+            <Button
+              type="secondary"
+              onClick={() => {
+                setTokenModalOpen(false);
+                setManualToken('');
+              }}
+            >
+              {t('common:cancel')}
+            </Button>
+            <Button type="primary" onClick={handleSaveManualToken}>
+              {t('settings:controller_auth_save')}
+            </Button>
+          </div>
+        }
       >
         <Input.Password
           value={manualToken}
