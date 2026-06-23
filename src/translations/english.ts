@@ -505,7 +505,14 @@ const en = {
   nfs: {
     list: 'NFS List',
     only_one_resource_note:
-      'NOTE: Only one NFS resource can exist in a cluster. To create multiple exports, create a single resource with multiple volumes.',
+      'NOTE: With the Kernel NFS implementation, only one NFS resource can exist in a cluster (create one resource with multiple volumes). Use NFS-Ganesha to run multiple independent NFS resources.',
+    implementation: 'NFS Server',
+    implementation_kernel: 'Kernel',
+    implementation_ganesha: 'NFS-Ganesha',
+    implementation_help:
+      'Kernel NFS (default) allows only one NFS resource per cluster. NFS-Ganesha supports multiple independent NFS resources, but requires nfs-ganesha and the ganesha-nfs resource agent installed on all nodes.',
+    create_disabled_kernel:
+      'A Kernel NFS resource already exists. Kernel NFS allows only one resource per cluster — delete it, or use NFS-Ganesha for multiple resources.',
     create: 'NFS Create',
     name: 'Name',
     size: 'Size',

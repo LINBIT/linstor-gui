@@ -80,6 +80,7 @@ vi.mock('@app/features/keyValueStore/api', () => ({
 vi.mock('@app/features/gateway/api', () => ({
   getGatewayStatus: vi.fn(() => Promise.resolve({ data: {} })),
   createNFSExport: vi.fn(() => Promise.resolve({})),
+  getNFSList: vi.fn(() => Promise.resolve({ data: [] })),
 }));
 
 vi.mock('@app/components/SizeInput', () => ({

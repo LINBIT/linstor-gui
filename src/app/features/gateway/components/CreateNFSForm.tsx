@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Form, Input, Select, Checkbox } from 'antd';
 import { Button } from '@app/components/Button';
@@ -15,11 +15,13 @@ import { useTranslation } from 'react-i18next';
 import { useResourceGroups } from '@app/features/resourceGroup';
 import { SizeInput } from '@app/components/SizeInput';
 import { notify } from '@app/utils/toast';
-import { createNFSExport } from '../api';
+import { createNFSExport, getNFSList } from '../api';
+import { NFSImplementation, NFSResource } from '../types';
 
 type FormType = {
   name: string;
   resource_group: string;
+  implementation: NFSImplementation;
   service_ip: string;
   export_path: string;
   file_system: string;
@@ -38,6 +40,19 @@ const CreateNFSForm = () => {
   const [form] = Form.useForm<FormType>();
   const { data: resourceGroupsFromLinstor } = useResourceGroups({ excludeDefault: false });
   const { t } = useTranslation(['nfs', 'common']);
+
+  // Kernel NFS is a cluster-wide singleton, so if a kernel resource already
+  // exists the Kernel option is disabled and new exports must use Ganesha.
+  const { data: nfsListResp } = useQuery({ queryKey: ['getNFSList'], queryFn: getNFSList });
+  const kernelExists = ((nfsListResp?.data ?? []) as NFSResource[]).some(
+    (item) => (item.implementation ?? 'kernel') === 'kernel',
+  );
+
+  React.useEffect(() => {
+    if (kernelExists && form.getFieldValue('implementation') === 'kernel') {
+      form.setFieldValue('implementation', 'ganesha');
+    }
+  }, [kernelExists, form]);
 
   const backToList = () => {
     navigate('/gateway/NFS');
@@ -87,6 +102,7 @@ const CreateNFSForm = () => {
       name: values.name,
       service_ip: values.service_ip,
       resource_group: values.resource_group,
+      implementation: values.implementation || 'kernel',
       volumes,
       allowed_ips: values.allowed_ips && values.allowed_ips.length > 0 ? values.allowed_ips : ['0.0.0.0/0'],
       gross_size: values.gross_size || false,
@@ -129,6 +145,7 @@ const CreateNFSForm = () => {
         file_system: 'ext4',
         gross_size: false,
         resource_group: 'DfltRscGrp',
+        implementation: 'kernel',
       }}
     >
       <Form.Item
@@ -156,6 +173,20 @@ const CreateNFSForm = () => {
             label: `${e.name}`,
             value: e.name,
           }))}
+        />
+      </Form.Item>
+
+      <Form.Item
+        label={t('nfs:implementation')}
+        name="implementation"
+        tooltip={t('nfs:implementation_help')}
+        extra={kernelExists ? t('nfs:create_disabled_kernel') : undefined}
+      >
+        <Select
+          options={[
+            { label: t('nfs:implementation_kernel'), value: 'kernel', disabled: kernelExists },
+            { label: t('nfs:implementation_ganesha'), value: 'ganesha' },
+          ]}
         />
       </Form.Item>
 

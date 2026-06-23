@@ -56,7 +56,10 @@ const List: React.FunctionComponent = () => {
   return (
     <PageBasic title={t('nfs:list')}>
       <Space style={{ marginBottom: '1em' }}>
-        <Button type="primary" onClick={createNFS} disabled={list.length >= 1}>
+        {/* Always enabled: Ganesha resources are independent, so more can always
+            be created. The kernel singleton limit is enforced in the create form
+            (the Kernel option is disabled when a kernel resource already exists). */}
+        <Button type="primary" onClick={createNFS}>
           {t('common:create')}
         </Button>
         <Button icon={<ReloadOutlined />} onClick={handleReload} loading={loading}>

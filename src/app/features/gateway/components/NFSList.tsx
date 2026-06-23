@@ -95,6 +95,20 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart, loading =
       },
     },
     {
+      title: t('nfs:implementation'),
+      dataIndex: 'implementation',
+      key: 'implementation',
+      align: 'center',
+      render: (_, item) => {
+        const isGanesha = item.implementation === 'ganesha';
+        return (
+          <Tag color={isGanesha ? 'geekblue' : 'default'}>
+            {isGanesha ? t('nfs:implementation_ganesha') : t('nfs:implementation_kernel')}
+          </Tag>
+        );
+      },
+    },
+    {
       title: t('nfs:volumes'),
       dataIndex: 'volumes',
       key: 'volumes',
