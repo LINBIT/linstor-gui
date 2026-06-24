@@ -48,8 +48,7 @@ const ChartContainer = styled.div<{ enableScroll?: boolean; isLegendHovering?: b
   overflow-x: ${(props) => (props.enableScroll ? 'auto' : 'visible')};
 
   .storage-pool-hovered-segment,
-  .storage-pool-hovered-series-segment,
-  .storage-pool-hovered-node-segment {
+  .storage-pool-hovered-series-segment {
     stroke: #3f3f3f !important;
     stroke-width: 2px !important;
   }
@@ -71,6 +70,15 @@ const ChartContainer = styled.div<{ enableScroll?: boolean; isLegendHovering?: b
     font-weight: 700 !important;
   }
 
+  @keyframes storagePoolNodeOverlayFadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
   .storage-pool-node-overlay {
     position: absolute;
     display: flex;
@@ -80,7 +88,10 @@ const ChartContainer = styled.div<{ enableScroll?: boolean; isLegendHovering?: b
     border-radius: 8px;
     background: transparent;
     pointer-events: none;
-    transition: opacity 120ms ease;
+    transition:
+      opacity 120ms ease,
+      height 160ms ease;
+    animation: storagePoolNodeOverlayFadeIn 160ms ease;
     z-index: 2;
     overflow: hidden;
   }
@@ -721,11 +732,15 @@ export const StoragePoolInfo: React.FC = () => {
       return;
     }
 
+    // Highlighting from a node's tooltip should only light up that node's own
+    // segment; the bottom legend still highlights the series across all nodes.
+    const nodeIndex = !isBottomLegendHover && hoveredNode ? hoveredNode.index : null;
+
     chartData.series.forEach((_seriesItem, index) => {
       const isHovered = highlightedSeriesIndexes.includes(index);
-      setHoveredSeriesState(container, index, isHovered, null);
+      setHoveredSeriesState(container, index, isHovered, nodeIndex);
     });
-  }, [chartData.series, highlightedSeriesIndexes, isBottomLegendHover]);
+  }, [chartData.series, highlightedSeriesIndexes, isBottomLegendHover, hoveredNode]);
 
   const options: ApexOptions = {
     chart: {
@@ -800,6 +815,11 @@ export const StoragePoolInfo: React.FC = () => {
           width: chartWidth,
         }
       : {};
+
+  // Fixed chart height: the node tooltip spacer grows the surrounding container,
+  // and ApexCharts' redrawOnParentResize would otherwise redraw (jitter) the chart.
+  // Wrapping the chart in a fixed-height parent keeps its observed parent stable.
+  const chartHeight = height > 900 ? 500 : 300;
 
   const isTruncated = chartData.totalNodeCount > nodeCount;
 
@@ -901,13 +921,9 @@ export const StoragePoolInfo: React.FC = () => {
               </div>
             </div>
           )}
-          <Chart
-            options={options}
-            series={chartData.series}
-            type="bar"
-            height={height > 900 ? 500 : 300}
-            {...widthForChart}
-          />
+          <div style={{ height: chartHeight, ...widthForChart }}>
+            <Chart options={options} series={chartData.series} type="bar" height={chartHeight} {...widthForChart} />
+          </div>
           {hoveredNode && (
             <div
               className="storage-pool-node-details-spacer"
