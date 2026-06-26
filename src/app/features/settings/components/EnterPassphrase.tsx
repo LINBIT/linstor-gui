@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState, useCallback } from 'react';
-import { Input, Button as AntButton, message, Modal, Tooltip } from 'antd';
+import { Button as AntButton, message, Modal, Tooltip } from 'antd';
+import { Input } from '@app/components/Input';
 import styled from '@emotion/styled';
 import { Button } from '@app/components/Button';
 import { useMutation } from '@tanstack/react-query';

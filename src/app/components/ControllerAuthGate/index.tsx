@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, Card, Form, Input, Spin, Typography } from 'antd';
+import { Alert, Card, Form, Spin, Typography } from 'antd';
+import { Input } from '@app/components/Input';
 
 import { Button } from '@app/components/Button';
 import service from '@app/requests';

@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Select, Tooltip } from 'antd';
+import { Tooltip } from 'antd';
+import { Select } from '@app/components/Select';
 
 import './index.css';
 import Button from '@app/components/Button';

@@ -6,7 +6,9 @@
 
 import React from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Checkbox, Form, Input, Radio, Select } from 'antd';
+import { Button, Checkbox, Form, Radio } from 'antd';
+import { Input } from '@app/components/Input';
+import { Select } from '@app/components/Select';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { CreateNetWorkInterfaceRequestBody, updateNetWorkInterface, createNetWorkInterface } from '@app/features/ip';

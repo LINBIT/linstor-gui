@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import { Form, Input, Card, Space } from 'antd';
+import { Form, Card, Space } from 'antd';
+import { Input } from '@app/components/Input';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button } from '@app/components/Button';
 

@@ -6,7 +6,8 @@
 
 import React, { useEffect } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
-import { Form, Upload, Input, message } from 'antd';
+import { Form, Upload, message } from 'antd';
+import { Input } from '@app/components/Input';
 import { Switch } from '@app/components/Switch';
 import SVG from 'react-inlinesvg';
 import isSvg from 'is-svg';

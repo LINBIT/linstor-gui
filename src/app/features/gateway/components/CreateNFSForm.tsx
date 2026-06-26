@@ -7,7 +7,9 @@
 import React from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { Form, Input, Select, Checkbox } from 'antd';
+import { Form, Checkbox } from 'antd';
+import { Input } from '@app/components/Input';
+import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';

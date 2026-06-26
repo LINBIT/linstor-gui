@@ -7,7 +7,8 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMutation } from '@tanstack/react-query';
-import { Input, Modal } from 'antd';
+import { Modal } from 'antd';
+import { Input } from '@app/components/Input';
 
 import PageBasic from '@app/components/PageBasic';
 import { ResourceMigrateForm, resourceMigration } from '@app/features/resource';

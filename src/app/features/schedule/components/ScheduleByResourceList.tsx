@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Form, Table, Input, Popconfirm, message, Space, Checkbox, Dropdown, Tooltip, Tag } from 'antd';
+import { Form, Table, Popconfirm, message, Space, Checkbox, Dropdown, Tooltip, Tag } from 'antd';
+import { Input } from '@app/components/Input';
 import { Button } from '@app/components/Button';
 import type { TableProps } from 'antd';
 import { useQuery, useMutation } from '@tanstack/react-query';

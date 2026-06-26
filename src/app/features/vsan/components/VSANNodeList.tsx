@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Table, Tag, Popover, Space, Modal, InputNumber, Progress, Tooltip, Popconfirm, notification } from 'antd';
+import { Table, Tag, Popover, Space, Modal, Progress, Tooltip, Popconfirm, notification } from 'antd';
+import { InputNumber } from '@app/components/InputNumber';
 import type { ColumnsType } from 'antd/es/table';
 import { getNodesFromVSAN, setNodeStandBy, setNodeMaintenance, getCloudStackNodes } from '../api';
 import { useMutation, useQuery } from '@tanstack/react-query';

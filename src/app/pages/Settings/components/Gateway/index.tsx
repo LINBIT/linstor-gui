@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect } from 'react';
-import { Input, Form, Card, Alert, Typography, Space, Spin } from 'antd';
+import { Form, Card, Alert, Typography, Space, Spin } from 'antd';
+import { Input } from '@app/components/Input';
 import { Switch } from '@app/components/Switch';
 import styled from '@emotion/styled';
 import { useDispatch, useSelector } from 'react-redux';

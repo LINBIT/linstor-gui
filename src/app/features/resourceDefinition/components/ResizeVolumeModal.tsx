@@ -6,7 +6,9 @@
 
 import React, { useEffect } from 'react';
 import { Button } from '@app/components/Button';
-import { Form, Input, Modal, Select, Space, Spin, Checkbox, message } from 'antd';
+import { Form, Modal, Space, Spin, Checkbox, message } from 'antd';
+import { Input } from '@app/components/Input';
+import { Select } from '@app/components/Select';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getVolumeDefinitionListByResource, updateVolumeDefinition } from '../api';
 import { sizeOptions, convertRoundUp } from '@app/utils/size';

@@ -7,7 +7,8 @@
 import React, { useState } from 'react';
 import PageBasic from '@app/components/PageBasic';
 import { StyledUL } from './styled';
-import { Input, Modal } from 'antd';
+import { Modal } from 'antd';
+import { Input } from '@app/components/Input';
 
 export const About = () => {
   const [hostModal, setHostModal] = useState(false);

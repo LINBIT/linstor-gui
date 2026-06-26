@@ -8,7 +8,9 @@ import {
 } from '@ant-design/icons';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Card, Form, Input, InputNumber, Popconfirm, Space, Switch, Tag, Tooltip, Typography } from 'antd';
+import { Card, Form, Popconfirm, Space, Switch, Tag, Tooltip, Typography } from 'antd';
+import { Input } from '@app/components/Input';
+import { InputNumber } from '@app/components/InputNumber';
 import type { OcfAgentWithMetadata, ParamEntry, ResourceAgent } from '@/api/ha-profiles';
 import { Button } from '@app/components/Button';
 

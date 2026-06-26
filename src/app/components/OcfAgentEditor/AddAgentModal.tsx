@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { Modal, Input, Table } from 'antd';
+import { Modal, Table } from 'antd';
+import { Input } from '@app/components/Input';
 import { Button } from '@app/components/Button';
 import { SearchOutlined } from '@ant-design/icons';
 

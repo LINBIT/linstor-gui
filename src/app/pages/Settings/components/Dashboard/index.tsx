@@ -5,7 +5,9 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { Form, Input, InputNumber, Card, Typography, message, Alert } from 'antd';
+import { Form, Card, Typography, message, Alert } from 'antd';
+import { Input } from '@app/components/Input';
+import { InputNumber } from '@app/components/InputNumber';
 import { Switch } from '@app/components/Switch';
 import styled from '@emotion/styled';
 import { useDispatch, useSelector } from 'react-redux';

@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useRef, useState } from 'react';
-import { Button as AntButton, Form, Space, Table, Tag, Popconfirm, Input, Dropdown, Tooltip } from 'antd';
+import { Button as AntButton, Form, Space, Table, Tag, Popconfirm, Dropdown, Tooltip } from 'antd';
+import { Input } from '@app/components/Input';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';

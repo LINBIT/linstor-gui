@@ -6,7 +6,8 @@
 
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Form, Input, Modal } from 'antd';
+import { Form, Modal } from 'antd';
+import { Input } from '@app/components/Input';
 import { Button } from '@app/components/Button';
 import { Checkbox } from '@app/components/Checkbox';
 import { Radio } from '@app/components/Radio';

@@ -6,7 +6,8 @@
 
 import React, { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Form, Modal, Select } from 'antd';
+import { Button, Form, Modal } from 'antd';
+import { Select } from '@app/components/Select';
 import { useTranslation } from 'react-i18next';
 
 import { createVolumeDefinition, getResourceDefinition, getVolumeDefinitionListByResource } from '../api';

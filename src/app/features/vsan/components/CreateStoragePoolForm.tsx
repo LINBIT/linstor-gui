@@ -6,7 +6,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Checkbox, Form, Input, Modal, Select, Tooltip, notification } from 'antd';
+import { Checkbox, Form, Modal, Tooltip, notification } from 'antd';
+import { Input } from '@app/components/Input';
+import { Select } from '@app/components/Select';
 
 import { Button } from '@app/components/Button';
 import { formatBytes } from '@app/utils/size';

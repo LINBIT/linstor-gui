@@ -5,7 +5,9 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Form, Input, message, Modal, Select } from 'antd';
+import { Form, message, Modal } from 'antd';
+import { Input } from '@app/components/Input';
+import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
 import { uniqBy } from 'lodash';
 import { useTranslation } from 'react-i18next';

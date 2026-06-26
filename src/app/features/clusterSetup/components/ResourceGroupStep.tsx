@@ -5,7 +5,10 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
-import { Alert, Button as AntButton, Form, Input, InputNumber, Select, Space, Typography } from 'antd';
+import { Alert, Button as AntButton, Form, Space, Typography } from 'antd';
+import { Input } from '@app/components/Input';
+import { InputNumber } from '@app/components/InputNumber';
+import { Select } from '@app/components/Select';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 

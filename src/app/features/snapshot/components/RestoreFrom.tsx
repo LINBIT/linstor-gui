@@ -6,7 +6,8 @@
 
 // RestoreFrom component: select target resource to restore snapshot to
 import React, { useState } from 'react';
-import { Form, Select, message, Space } from 'antd';
+import { Form, message, Space } from 'antd';
+import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';

@@ -5,20 +5,9 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState, useMemo } from 'react';
-import {
-  Button as AntButton,
-  Space,
-  Table,
-  Tag,
-  Popconfirm,
-  Dropdown,
-  Modal,
-  Spin,
-  Select,
-  Switch,
-  Input,
-  message,
-} from 'antd';
+import { Button as AntButton, Space, Table, Tag, Popconfirm, Dropdown, Modal, Spin, Switch, message } from 'antd';
+import { Select } from '@app/components/Select';
+import { Input } from '@app/components/Input';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { EyeOutlined, MoreOutlined } from '@ant-design/icons';

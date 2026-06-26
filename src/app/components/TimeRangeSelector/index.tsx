@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
-import { Select } from 'antd';
+import { Select } from '@app/components/Select';
 import styled from '@emotion/styled';
 import { ClockCircleOutlined } from '@ant-design/icons';
 

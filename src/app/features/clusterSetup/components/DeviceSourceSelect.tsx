@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
-import { AutoComplete, Select } from 'antd';
+import { AutoComplete } from 'antd';
+import { Select } from '@app/components/Select';
 import { useQuery } from '@tanstack/react-query';
 
 import { getPhysicalStoragePoolByNode } from '@app/features/storagePool';

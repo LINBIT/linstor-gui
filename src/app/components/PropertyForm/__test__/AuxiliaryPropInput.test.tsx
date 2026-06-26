@@ -31,14 +31,22 @@ interface MockTextProps {
 
 // Mock Antd components
 vi.mock('antd', () => ({
-  Input: ({ value, onChange, placeholder, ...props }: MockInputProps) => (
-    <input
-      data-testid="input"
-      value={value || ''}
-      onChange={(e) => onChange && onChange({ target: { value: e.target.value } })}
-      placeholder={placeholder}
-      {...props}
-    />
+  Input: Object.assign(
+    ({ value, onChange, placeholder, ...props }: MockInputProps) => (
+      <input
+        data-testid="input"
+        value={value || ''}
+        onChange={(e) => onChange && onChange({ target: { value: e.target.value } })}
+        placeholder={placeholder}
+        {...props}
+      />
+    ),
+    {
+      TextArea: (props: MockInputProps) => <textarea data-testid="input-textarea" {...props} />,
+      Password: (props: MockInputProps) => <input data-testid="input-password" type="password" {...props} />,
+      Search: (props: MockInputProps) => <input data-testid="input-search" {...props} />,
+      Group: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+    },
   ),
   Button: ({ children, onClick, danger, icon, shape, ...props }: MockButtonProps) => (
     <button

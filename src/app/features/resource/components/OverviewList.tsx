@@ -5,7 +5,9 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Form, Space, Table, Input, Flex, Tag, Dropdown, Popconfirm, Select, Modal, Tooltip } from 'antd';
+import { Form, Space, Table, Flex, Tag, Dropdown, Popconfirm, Modal, Tooltip } from 'antd';
+import { Input } from '@app/components/Input';
+import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
 import { Link } from '@app/components/Link';
 import type { TableProps } from 'antd';

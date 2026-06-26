@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CloseOutlined } from '@ant-design/icons';
-import { Modal, Input, Tooltip } from 'antd';
+import { Modal, Tooltip } from 'antd';
+import { Input } from '@app/components/Input';
 import { useSelector } from 'react-redux';
 
 import { Button } from '@app/components/Button';

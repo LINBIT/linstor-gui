@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
-import { Form, Input } from 'antd';
+import { Form } from 'antd';
+import { Input } from '@app/components/Input';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import TextArea from 'antd/es/input/TextArea';

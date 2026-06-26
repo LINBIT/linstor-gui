@@ -6,7 +6,8 @@
 
 import React, { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Switch, Form, Modal, Select, message } from 'antd';
+import { Switch, Form, Modal, message } from 'antd';
+import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
 
 import { createBackup } from '../api';

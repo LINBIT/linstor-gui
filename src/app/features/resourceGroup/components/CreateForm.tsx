@@ -6,7 +6,9 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Checkbox, Col, Divider, Form, Input, message, Popover, Row, Select, Switch, Spin } from 'antd';
+import { Checkbox, Col, Divider, Form, message, Popover, Row, Switch, Spin } from 'antd';
+import { Input } from '@app/components/Input';
+import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
 import type { FormInstance } from 'antd/es/form';
 import { useNavigate } from 'react-router-dom';

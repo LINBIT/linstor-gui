@@ -6,7 +6,9 @@
 
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Switch, Form, Input, Modal, Select, message } from 'antd';
+import { Switch, Form, Modal, message } from 'antd';
+import { Input } from '@app/components/Input';
+import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
 import { useTranslation } from 'react-i18next';
 

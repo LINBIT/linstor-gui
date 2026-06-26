@@ -5,7 +5,9 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect } from 'react';
-import { Form, Input, Modal, Select } from 'antd';
+import { Form, Modal } from 'antd';
+import { Input } from '@app/components/Input';
+import { Select } from '@app/components/Select';
 import { useTranslation } from 'react-i18next';
 import { useNodes } from '@app/features/node';
 

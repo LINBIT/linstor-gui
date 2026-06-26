@@ -5,7 +5,9 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Form, Space, Table, Input, Select, Popconfirm, Dropdown, Tooltip } from 'antd';
+import { Form, Space, Table, Popconfirm, Dropdown, Tooltip } from 'antd';
+import { Input } from '@app/components/Input';
+import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
 import { Link } from '@app/components/Link';
 import type { ColumnsType } from 'antd/es/table';

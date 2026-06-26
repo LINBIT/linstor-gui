@@ -5,7 +5,10 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Modal, Form, Input, Select, InputNumber, message } from 'antd';
+import { Modal, Form, message } from 'antd';
+import { Input } from '@app/components/Input';
+import { Select } from '@app/components/Select';
+import { InputNumber } from '@app/components/InputNumber';
 import { Button } from '@app/components/Button';
 import { useMutation } from '@tanstack/react-query';
 import { createSchedule, modifySchedule } from '../api';

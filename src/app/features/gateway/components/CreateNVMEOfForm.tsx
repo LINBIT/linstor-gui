@@ -6,7 +6,9 @@
 
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Form, Input, Select, Space, Checkbox, Alert } from 'antd';
+import { Form, Space, Checkbox, Alert } from 'antd';
+import { Input } from '@app/components/Input';
+import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
 import { useNavigate } from 'react-router-dom';
 

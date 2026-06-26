@@ -6,7 +6,8 @@
 
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Checkbox, Form, Input, Modal } from 'antd';
+import { Checkbox, Form, Modal } from 'antd';
+import { Input } from '@app/components/Input';
 import { useTranslation } from 'react-i18next';
 
 import { cloneResourceDefinition, ResourceDefinitionCloneRequest } from '@app/features/resourceDefinition';

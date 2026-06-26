@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState, useEffect } from 'react';
-import { Input, Button, Typography } from 'antd';
+import { Button, Typography } from 'antd';
+import { Input } from '@app/components/Input';
 import { DeleteOutlined } from '@ant-design/icons';
 
 const { Text } = Typography;

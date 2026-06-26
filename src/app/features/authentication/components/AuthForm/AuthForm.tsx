@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Alert, Form, Input } from 'antd';
+import { Alert, Form } from 'antd';
+import { Input } from '@app/components/Input';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Dispatch, RootState } from '@app/store';

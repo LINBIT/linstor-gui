@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { useState } from 'react';
-import { Form, Space, Table, Input, Popconfirm, Dropdown, Tooltip } from 'antd';
+import { Form, Space, Table, Popconfirm, Dropdown, Tooltip } from 'antd';
+import { Input } from '@app/components/Input';
 import { Button } from '@app/components/Button';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';

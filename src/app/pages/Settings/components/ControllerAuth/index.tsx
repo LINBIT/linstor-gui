@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect, useState } from 'react';
-import { Alert, Card, Input, Modal, Tag, Typography, message } from 'antd';
+import { Alert, Card, Modal, Tag, Typography, message } from 'antd';
+import { Input } from '@app/components/Input';
 import { CheckCircleOutlined } from '@ant-design/icons';
 import styled from '@emotion/styled';
 import { useTranslation } from 'react-i18next';

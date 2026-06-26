@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Form, Input, message, Modal, Space } from 'antd';
+import { Form, message, Modal, Space } from 'antd';
+import { Input } from '@app/components/Input';
 import { Button } from '@app/components/Button';
 
 import changePassword from '@app/assets/changepassword.svg';

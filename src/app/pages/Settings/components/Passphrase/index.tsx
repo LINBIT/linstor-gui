@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
-import { Input, message, Form, FormProps, Radio } from 'antd';
+import { message, Form, FormProps, Radio } from 'antd';
+import { Input } from '@app/components/Input';
 import styled from '@emotion/styled';
 import { Button } from '@app/components/Button';
 import { useMutation } from '@tanstack/react-query';

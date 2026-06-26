@@ -9,11 +9,8 @@ import {
   Alert,
   Button as AntButton,
   Form,
-  Input,
-  InputNumber,
   Modal,
   Radio,
-  Select,
   Space,
   Spin,
   Steps,
@@ -22,6 +19,9 @@ import {
   Typography,
   message,
 } from 'antd';
+import { Input } from '@app/components/Input';
+import { InputNumber } from '@app/components/InputNumber';
+import { Select } from '@app/components/Select';
 import { DeviceSourceSelect, type DeviceSourceMode } from './DeviceSourceSelect';
 import { CheckCircleTwoTone, CloseCircleTwoTone, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';

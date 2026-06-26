@@ -12,7 +12,6 @@ import {
   DatePicker,
   Dropdown,
   Form,
-  Input,
   Modal,
   Popconfirm,
   Space,
@@ -22,6 +21,7 @@ import {
   Typography,
   message,
 } from 'antd';
+import { Input } from '@app/components/Input';
 import type { ColumnsType } from 'antd/es/table';
 import { MoreOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';

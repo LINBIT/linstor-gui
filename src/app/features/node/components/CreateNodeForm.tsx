@@ -6,7 +6,9 @@
 
 import React from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Form, Input, Select } from 'antd';
+import { Form } from 'antd';
+import { Input } from '@app/components/Input';
+import { Select } from '@app/components/Select';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 

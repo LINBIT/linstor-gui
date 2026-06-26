@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Modal, Form, message, Select } from 'antd';
+import { Modal, Form, message } from 'antd';
+import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';

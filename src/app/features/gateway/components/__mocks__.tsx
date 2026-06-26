@@ -271,6 +271,13 @@ vi.mock('antd', () => ({
           {...props}
         />
       ),
+      TextArea: ({ onChange, placeholder, value, ...props }: any) => (
+        <textarea data-testid="input-textarea" placeholder={placeholder} value={value} onChange={onChange} {...props} />
+      ),
+      Search: ({ onChange, placeholder, value, ...props }: any) => (
+        <input data-testid="input-search" placeholder={placeholder} value={value} onChange={onChange} {...props} />
+      ),
+      Group: ({ children, ...props }: any) => <div {...props}>{children}</div>,
     },
   ),
   Select: ({ options, onChange, value, ...props }: any) => (

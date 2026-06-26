@@ -4,7 +4,9 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { Button as AntButton, Input, Popconfirm, Select, Table } from 'antd';
+import { Button as AntButton, Popconfirm, Table } from 'antd';
+import { Input } from '@app/components/Input';
+import { Select } from '@app/components/Select';
 import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 

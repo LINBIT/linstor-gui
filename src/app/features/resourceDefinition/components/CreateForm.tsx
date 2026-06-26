@@ -6,7 +6,9 @@
 
 import React from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Checkbox, Form, Input, Radio, Select, Switch } from 'antd';
+import { Checkbox, Form, Radio, Switch } from 'antd';
+import { Input } from '@app/components/Input';
+import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
 import { useNavigate } from 'react-router-dom';
 

@@ -6,7 +6,9 @@
 
 import React, { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Form, Input, Modal, Select, notification } from 'antd';
+import { Form, Modal, notification } from 'antd';
+import { Input } from '@app/components/Input';
+import { Select } from '@app/components/Select';
 
 import { Button } from '@app/components/Button';
 import { createResourceGroup, getStoragePool } from '../api';

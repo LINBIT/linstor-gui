@@ -1,5 +1,6 @@
 import React from 'react';
-import { Modal, Form, Select, Checkbox, message } from 'antd';
+import { Modal, Form, Checkbox, message } from 'antd';
+import { Select } from '@app/components/Select';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { getNodes } from '@app/features/node/api';
 import { createResourceOnNode } from '../api';

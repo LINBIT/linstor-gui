@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import * as React from 'react';
-import { Form, Input, Modal, Tooltip, Spin } from 'antd';
+import { Form, Modal, Tooltip, Spin } from 'antd';
+import { Input } from '@app/components/Input';
 import { Button } from '@app/components/Button';
 import { IoIosWarning } from 'react-icons/io';
 import { LockIcon, UnlockedIcon } from '@app/components/SVGIcon';

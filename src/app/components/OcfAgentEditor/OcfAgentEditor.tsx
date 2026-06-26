@@ -17,7 +17,9 @@ import {
 } from '@dnd-kit/core';
 
 import type { FormInstance } from 'antd';
-import { Card, Col, Empty, Form, message, Row, Space, Typography, Tabs, Input, Select, Modal } from 'antd';
+import { Card, Col, Empty, Form, message, Row, Space, Typography, Tabs, Modal } from 'antd';
+import { Input } from '@app/components/Input';
+import { Select } from '@app/components/Select';
 import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState, forwardRef } from 'react';
 import {
   arrayMove,

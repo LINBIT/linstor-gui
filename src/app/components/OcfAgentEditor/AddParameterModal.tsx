@@ -1,4 +1,5 @@
-import { Form, Modal, Select, Tag, Typography } from 'antd';
+import { Form, Modal, Tag, Typography } from 'antd';
+import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
 
 const { Text } = Typography;

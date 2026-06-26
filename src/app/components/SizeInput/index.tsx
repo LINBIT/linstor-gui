@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Input, Select } from 'antd';
+import { Input } from '@app/components/Input';
+import { Select } from '@app/components/Select';
 import { convertRoundUp, sizeOptions } from '@app/utils/size';
 
 type SizeInputProps = {

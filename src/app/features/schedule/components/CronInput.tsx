@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState, useEffect } from 'react';
-import { Modal, Button as AntButton, Input, Space, Alert } from 'antd';
+import { Modal, Button as AntButton, Space, Alert } from 'antd';
+import { Input } from '@app/components/Input';
 import cronParser from 'cron-parser';
 import { Cron, CronError } from 'react-js-cron';
 import { Button } from '@app/components/Button';
