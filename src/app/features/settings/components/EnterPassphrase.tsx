@@ -58,7 +58,6 @@ export const EnterPassphrase: React.FC = () => {
       });
       return;
     } else {
-      console.log('Save', passphrase);
       enterPassphrase.mutate(passphrase);
     }
   }, [passphrase, messageApi, enterPassphrase]);

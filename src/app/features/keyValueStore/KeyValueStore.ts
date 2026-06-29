@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { KeyValueStoreInstance, KeyValueStoreList, KeyValueStoreModify } from './types';
+import { logger } from '@app/utils/logger';
 import { getKVStore, getKVInstance, createOrModifyKVInstance, deleteKVInstance } from './api';
 import { APICALLRCLIST } from '../requests';
 
@@ -54,7 +55,7 @@ export class KeyValueStore {
   public async create(instance: string, store?: KeyValueStoreModify): Promise<void> {
     // check if instance exists
     if (await this.instanceExists(instance)) {
-      console.log(`Instance ${instance} already exists, modifying instead of creating`);
+      logger.debug(`Instance ${instance} already exists, modifying instead of creating`);
       await this.modify(instance, {
         ...store,
         override_props: {

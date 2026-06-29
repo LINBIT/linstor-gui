@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { logger } from '@app/utils/logger';
 import { Form, Space, Table, Flex, Tag, Dropdown, Popconfirm, Modal, Tooltip } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
@@ -293,7 +294,7 @@ export const OverviewList = () => {
           }
         }
       }
-      console.log(
+      logger.debug(
         `[sync-poll] t=${new Date().toISOString()} elapsed=${(performance.now() - t0).toFixed(0)}ms ${sample.join(' ')}`,
       );
     }

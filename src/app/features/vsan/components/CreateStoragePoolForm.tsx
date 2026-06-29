@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect, useState } from 'react';
+import { logger } from '@app/utils/logger';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Checkbox, Form, Modal, Tooltip, notification } from 'antd';
 import { Input } from '@app/components/Input';
@@ -287,8 +288,8 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
   const onFinish = async () => {
     try {
       const values = await form?.validateFields();
-      console.log(physicalStoragePoolRequest, 'physicalStoragePoolRequest');
-      console.log(values);
+      logger.debug(physicalStoragePoolRequest, 'physicalStoragePoolRequest');
+      logger.debug(values);
 
       setPhysicalStoragePoolRequest({
         ...physicalStoragePoolRequest,
@@ -311,7 +312,7 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
 
       createMutation.mutate(currentPool);
     } catch (error) {
-      console.log('Failed:', error);
+      logger.debug('Failed:', error);
     }
   };
 

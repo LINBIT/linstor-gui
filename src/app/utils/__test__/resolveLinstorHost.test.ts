@@ -26,7 +26,7 @@ const mockLocalStorage = {
   }),
 };
 
-// Mock console.log
+// Mock console.warn (logger.warn routes here)
 const mockConsoleLog = vi.fn();
 
 describe('resolveAndStoreLinstorHost', () => {
@@ -47,7 +47,7 @@ describe('resolveAndStoreLinstorHost', () => {
       value: mockLocalStorage,
       writable: true,
     });
-    Object.defineProperty(console, 'log', {
+    Object.defineProperty(console, 'warn', {
       value: mockConsoleLog,
       writable: true,
     });

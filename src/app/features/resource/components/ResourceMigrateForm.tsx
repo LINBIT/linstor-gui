@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect } from 'react';
+import { logger } from '@app/utils/logger';
 import { Form, Modal } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
@@ -58,7 +59,7 @@ export const ResourceMigrateForm: React.FC<CollectionCreateFormProps> = ({
             onCreate(values);
           })
           .catch((info) => {
-            console.log('Validate Failed:', info);
+            logger.debug('Validate Failed:', info);
           });
       }}
     >

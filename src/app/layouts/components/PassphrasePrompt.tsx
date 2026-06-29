@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import * as React from 'react';
+import { logger } from '@app/utils/logger';
 import { Form, Modal, Tooltip, Spin } from 'antd';
 import { Input } from '@app/components/Input';
 import { Button } from '@app/components/Button';
@@ -52,7 +53,7 @@ const PassphrasePrompt: React.FC = () => {
       form.resetFields();
     },
     onError: (error) => {
-      console.error('Failed to set passphrase:', error);
+      logger.error('Failed to set passphrase:', error);
     },
   });
 
@@ -68,7 +69,7 @@ const PassphrasePrompt: React.FC = () => {
       }, 1000);
     },
     onError: (error) => {
-      console.error('Failed to unlock passphrase:', error);
+      logger.error('Failed to unlock passphrase:', error);
     },
   });
 

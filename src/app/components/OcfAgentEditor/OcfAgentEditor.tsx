@@ -1,3 +1,4 @@
+import { logger } from '@app/utils/logger';
 import {
   EyeInvisibleOutlined,
   EyeOutlined,
@@ -510,7 +511,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
         form.setFieldsValue(initialValues);
         return { agentsWithIds, initialReactor, initialMetadata };
       } catch (e) {
-        console.error('Failed to parse TOML content:', e);
+        logger.error('Failed to parse TOML content:', e);
         message.error('Failed to parse configuration content');
         return null;
       }
@@ -736,7 +737,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
       try {
         await form.validateFields();
       } catch (validationError) {
-        console.warn('Form validation failed:', validationError);
+        logger.warn('Form validation failed:', validationError);
         message.error('Please fix validation errors');
         setSaving(false);
         return;
@@ -789,7 +790,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
 
       onSave?.(toml, resourceName, filePath);
     } catch (err) {
-      console.error('Save failed:', err);
+      logger.error('Save failed:', err);
       message.error(`Failed to save: ${(err as { message: string }).message}`);
     } finally {
       setSaving(false);

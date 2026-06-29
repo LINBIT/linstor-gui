@@ -1,3 +1,5 @@
+import { logger } from '@app/utils/logger';
+
 /**
  * Parse and store the host parameter from URL.
  * @param hostParam The host string from query.
@@ -15,7 +17,7 @@ export function resolveAndStoreLinstorHost(
       host = decodeURIComponent(host);
     } catch {
       // ignore decode error
-      console.log('Failed to decode host parameter, using raw value:', host);
+      logger.warn('Failed to decode host parameter, using raw value:', host);
     }
     let resolvedHost = new URL(host, baseOrigin).toString();
     // Remove trailing slash if exists

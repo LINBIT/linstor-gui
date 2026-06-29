@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { NFS } from '@app/interfaces/nfs';
+import { logger } from '@app/utils/logger';
 import service from '@app/requests';
 import { createModel } from '@rematch/core';
 import { RootModel } from '.';
@@ -66,7 +67,7 @@ export const nfs = createModel<RootModel>()({
           return true;
         }
       } catch (error) {
-        console.log(error, 'error');
+        logger.debug(error, 'error');
         notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
@@ -95,7 +96,7 @@ export const nfs = createModel<RootModel>()({
           });
         }
       } catch (error) {
-        console.log(error, 'error');
+        logger.debug(error, 'error');
         notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
@@ -127,7 +128,7 @@ export const nfs = createModel<RootModel>()({
           });
         }
       } catch (error) {
-        console.log(error, 'error');
+        logger.debug(error, 'error');
         notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
@@ -159,7 +160,7 @@ export const nfs = createModel<RootModel>()({
           });
         }
       } catch (error) {
-        console.log(error, 'error');
+        logger.debug(error, 'error');
         notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });

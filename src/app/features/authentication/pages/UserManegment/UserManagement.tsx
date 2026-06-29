@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect, useState } from 'react';
+import { logger } from '@app/utils/logger';
 import PageBasic from '@app/components/PageBasic';
 import { Dispatch, RootState } from '@app/store';
 import { useDispatch, useSelector } from 'react-redux';
@@ -57,7 +58,7 @@ export const UserManagement = () => {
       }
     },
     onError: (error) => {
-      console.log(error);
+      logger.debug(error);
       notify(t('users:authentication_update_failed'), { type: 'error' });
     },
     onSuccess: (data, newProps) => {

@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import axios from 'axios';
+import { logger } from '@app/utils/logger';
 
 interface GrafanaApiConfig {
   baseUrl: string;
@@ -36,7 +37,7 @@ export const getDatasources = async (config: GrafanaApiConfig) => {
     // Filter for Prometheus datasources
     return response.data.filter((ds: any) => ds.type === 'prometheus');
   } catch (error) {
-    console.error('Error fetching datasources:', error);
+    logger.error('Error fetching datasources:', error);
     // Return empty array if datasources API fails (might need auth)
     return [];
   }
@@ -52,7 +53,7 @@ export const searchDashboards = async (config: GrafanaApiConfig, query?: string)
     const response = await client.get('/api/search', { params });
     return response.data;
   } catch (error) {
-    console.error('Error searching dashboards:', error);
+    logger.error('Error searching dashboards:', error);
     throw error;
   }
 };
@@ -64,7 +65,7 @@ export const getDashboardByUid = async (config: GrafanaApiConfig, uid: string) =
     const response = await client.get(`/api/dashboards/uid/${uid}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching dashboard:', error);
+    logger.error('Error fetching dashboard:', error);
     throw error;
   }
 };
@@ -107,10 +108,10 @@ export const extractPanelInfo = (dashboard: any) => {
   };
 
   // First, log all available panels for debugging
-  console.log('Available panels in dashboard:');
+  logger.debug('Available panels in dashboard:');
   panels.forEach((panel: any) => {
     if (panel.title && panel.id) {
-      console.log(`  - "${panel.title}" (ID: ${panel.id})`);
+      logger.debug(`  - "${panel.title}" (ID: ${panel.id})`);
     }
   });
 
@@ -126,13 +127,13 @@ export const extractPanelInfo = (dashboard: any) => {
       for (const possibleTitle of possibleTitles) {
         // First try exact match
         if (title === possibleTitle) {
-          console.log(`✓ Exact match: "${panel.title}" to ${category} (ID: ${panel.id})`);
+          logger.debug(`✓ Exact match: "${panel.title}" to ${category} (ID: ${panel.id})`);
           panelMap[category] = panel.id;
           break;
         }
         // Then try case-insensitive match
         if (title.toLowerCase() === possibleTitle.toLowerCase()) {
-          console.log(`✓ Case-insensitive match: "${panel.title}" to ${category} (ID: ${panel.id})`);
+          logger.debug(`✓ Case-insensitive match: "${panel.title}" to ${category} (ID: ${panel.id})`);
           panelMap[category] = panel.id;
           break;
         }
@@ -151,7 +152,7 @@ export const extractPanelInfo = (dashboard: any) => {
           (p.title.toLowerCase().includes('disk') && p.title.toLowerCase().includes('ops'))),
     );
     if (diskIopsPanel) {
-      console.log(`✓ Fuzzy match: "${diskIopsPanel.title}" to diskIops (ID: ${diskIopsPanel.id})`);
+      logger.debug(`✓ Fuzzy match: "${diskIopsPanel.title}" to diskIops (ID: ${diskIopsPanel.id})`);
       panelMap.diskIops = diskIopsPanel.id;
     }
   }
@@ -166,7 +167,7 @@ export const extractPanelInfo = (dashboard: any) => {
           (p.title.toLowerCase().includes('read') && p.title.toLowerCase().includes('write'))),
     );
     if (ioUsagePanel) {
-      console.log(`✓ Fuzzy match: "${ioUsagePanel.title}" to ioUsage (ID: ${ioUsagePanel.id})`);
+      logger.debug(`✓ Fuzzy match: "${ioUsagePanel.title}" to ioUsage (ID: ${ioUsagePanel.id})`);
       panelMap.ioUsage = ioUsagePanel.id;
     }
   }
@@ -174,23 +175,23 @@ export const extractPanelInfo = (dashboard: any) => {
   // Log which panels were not found and show possible candidates
   Object.entries(titleMappings).forEach(([category, titles]) => {
     if (!panelMap[category]) {
-      console.warn(`⚠ Could not find panel for ${category}. Looking for titles: ${titles.join(', ')}`);
+      logger.warn(`⚠ Could not find panel for ${category}. Looking for titles: ${titles.join(', ')}`);
 
       // Show all panels with their titles so we can see what's actually there
-      console.log(`  Searching among ${panels.length} panels for ${category}...`);
+      logger.debug(`  Searching among ${panels.length} panels for ${category}...`);
     }
   });
 
-  console.log('Final panel mapping:', panelMap);
-  console.log(`Found ${Object.keys(panelMap).length} of 6 panels`);
+  logger.debug('Final panel mapping:', panelMap);
+  logger.debug(`Found ${Object.keys(panelMap).length} of 6 panels`);
 
   // Show ALL panel titles and IDs for debugging
-  console.log('ALL panels in dashboard:');
+  logger.debug('ALL panels in dashboard:');
   panels.forEach((p: any) => {
     if (p.title && p.id) {
       const matched = Object.entries(panelMap).find(([_, id]) => id === p.id);
       const status = matched ? `✓ (mapped to ${matched[0]})` : '✗ (not mapped)';
-      console.log(`  ${status} ID: ${p.id}, Title: "${p.title}"`);
+      logger.debug(`  ${status} ID: ${p.id}, Title: "${p.title}"`);
     }
   });
 
@@ -205,7 +206,7 @@ export const extractDatasource = (dashboard: any): string | null => {
       if (variable.type === 'datasource' && variable.query === 'prometheus') {
         // Check current value first, but ignore 'default' as it's a placeholder
         if (variable.current?.value && variable.current.value !== '$__all' && variable.current.value !== 'default') {
-          console.log('Found datasource from template variable:', variable.current.value);
+          logger.debug('Found datasource from template variable:', variable.current.value);
           return variable.current.value;
         }
         // Check default or first option, skipping 'default'
@@ -214,13 +215,13 @@ export const extractDatasource = (dashboard: any): string | null => {
             (opt: any) => opt.value && opt.value !== '$__all' && opt.value !== 'default',
           );
           if (validOption) {
-            console.log('Found datasource from template options:', validOption.value);
+            logger.debug('Found datasource from template options:', validOption.value);
             return validOption.value;
           }
         }
         // If only 'default' was found, we'll return null to let the UI handle it
         if (variable.current?.value === 'default') {
-          console.log('Dashboard uses "default" datasource, will need to select actual datasource');
+          logger.debug('Dashboard uses "default" datasource, will need to select actual datasource');
           return null;
         }
       }
@@ -234,10 +235,10 @@ export const extractDatasource = (dashboard: any): string | null => {
     if (panel.datasource?.uid) {
       // Skip variable references like ${ds_prometheus}
       if (panel.datasource.uid.startsWith('${') || panel.datasource.uid.startsWith('$')) {
-        console.log('Found datasource variable reference, skipping:', panel.datasource.uid);
+        logger.debug('Found datasource variable reference, skipping:', panel.datasource.uid);
         continue;
       }
-      console.log('Found datasource from panel:', panel.datasource.uid);
+      logger.debug('Found datasource from panel:', panel.datasource.uid);
       return panel.datasource.uid;
     }
     // Check targets for datasource
@@ -246,16 +247,16 @@ export const extractDatasource = (dashboard: any): string | null => {
       if (target.datasource?.uid) {
         // Skip variable references
         if (target.datasource.uid.startsWith('${') || target.datasource.uid.startsWith('$')) {
-          console.log('Found datasource variable reference in target, skipping:', target.datasource.uid);
+          logger.debug('Found datasource variable reference in target, skipping:', target.datasource.uid);
           continue;
         }
-        console.log('Found datasource from panel target:', target.datasource.uid);
+        logger.debug('Found datasource from panel target:', target.datasource.uid);
         return target.datasource.uid;
       }
     }
   }
 
-  console.log('No datasource found in dashboard');
+  logger.debug('No datasource found in dashboard');
   return null;
 };
 
@@ -267,7 +268,7 @@ export const testConnection = async (url: string, apiKey?: string): Promise<bool
     return true;
   } catch (error) {
     // If CORS blocks it, we can still proceed with manual config
-    console.warn('Grafana API test failed (likely CORS), proceeding with manual configuration');
+    logger.warn('Grafana API test failed (likely CORS), proceeding with manual configuration');
     return false; // Return false but allow manual configuration
   }
 };

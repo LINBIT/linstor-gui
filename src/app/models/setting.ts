@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import service from '@app/requests';
+import { logger } from '@app/utils/logger';
 import { notify } from '@app/utils/toast';
 import { createModel } from '@rematch/core';
 import isSvg from 'is-svg';
@@ -164,14 +165,14 @@ export const setting = createModel<RootModel>()({
     async getMyLinbitStatus() {
       try {
         const res = await service.get('/api/frontend/v1/mylinbit/status');
-        console.log(res.data, 'mylinbit status');
+        logger.debug(res.data, 'mylinbit status');
         const data = res.data;
         dispatch.setting.setVSANEvalStatus({
           evalMode: data.evalMode,
           isEvalContract: data.isEvalContract,
         });
       } catch (error) {
-        console.log(error);
+        logger.debug(error);
       }
     },
     async getGatewayStatus(host?: string) {
@@ -271,7 +272,7 @@ export const setting = createModel<RootModel>()({
 
           const logoStr = logoProps?.props?.['logoStr'] ?? '';
           const logoUrl = logoProps?.props?.['logoUrl'] ?? '';
-          console.log(logoStr, logoUrl);
+          logger.debug(logoStr, logoUrl);
 
           if (logoUrl !== '') {
             dispatch.setting.updateLogo(logoUrl);
@@ -308,7 +309,7 @@ export const setting = createModel<RootModel>()({
                 if (!dashboardUrl && grafanaConfig.dashboardUid) {
                   dashboardUrl = generateGrafanaDashboardUrl(grafanaConfig.dashboardUid as string);
                   urlsToUpdate.dashboardUrl = dashboardUrl;
-                  console.log('Auto-generated missing dashboardUrl:', dashboardUrl);
+                  logger.debug('Auto-generated missing dashboardUrl:', dashboardUrl);
                 }
 
                 // Check and generate drbdUrl if missing and DRBD is enabled
@@ -316,7 +317,7 @@ export const setting = createModel<RootModel>()({
                 if (isDrbdEnabled && !drbdUrl && grafanaConfig.drbdUid) {
                   drbdUrl = generateDrbdDashboardUrl(grafanaConfig.drbdUid as string);
                   urlsToUpdate.drbdUrl = drbdUrl;
-                  console.log('Auto-generated missing drbdUrl:', drbdUrl);
+                  logger.debug('Auto-generated missing drbdUrl:', drbdUrl);
                 }
 
                 // Save auto-generated URLs back to KVS
@@ -325,9 +326,9 @@ export const setting = createModel<RootModel>()({
                     await service.put(`/v1/key-value-store/${GRAFANA_KEY_VALUE_STORE_KEY}`, {
                       override_props: urlsToUpdate,
                     });
-                    console.log('Saved auto-generated URLs to KVS:', urlsToUpdate);
+                    logger.debug('Saved auto-generated URLs to KVS:', urlsToUpdate);
                   } catch (saveError) {
-                    console.error('Failed to save auto-generated URLs:', saveError);
+                    logger.error('Failed to save auto-generated URLs:', saveError);
                     // Continue with the generated URLs even if save fails
                   }
                 }
@@ -339,7 +340,7 @@ export const setting = createModel<RootModel>()({
                     const url = new URL(dashboardUrl);
                     baseUrl = `${url.protocol}//${url.host}`;
                   } catch (e) {
-                    console.error('Failed to parse dashboardUrl:', e);
+                    logger.error('Failed to parse dashboardUrl:', e);
                   }
                 }
 
@@ -373,26 +374,26 @@ export const setting = createModel<RootModel>()({
             dispatch.setting.setGrafanaConfig(null);
           }
         } catch (error) {
-          console.error('Failed to load Grafana configuration:', error);
+          logger.error('Failed to load Grafana configuration:', error);
         }
       } catch (error) {
-        console.log(error);
+        logger.debug(error);
       }
 
       dispatch.setting.setAdmin();
     },
     async saveKey(payload: Record<string, number | string | boolean>, _state) {
-      console.log('Saving to KV store:', SETTING_KEY, payload);
+      logger.debug('Saving to KV store:', SETTING_KEY, payload);
       try {
         const response = await service.put(`/v1/key-value-store/${SETTING_KEY}`, {
           override_props: {
             ...payload,
           },
         });
-        console.log('KV store save response:', response);
+        logger.debug('KV store save response:', response);
         return response;
       } catch (error) {
-        console.error('Failed to save to KV store:', error);
+        logger.error('Failed to save to KV store:', error);
         throw error;
       }
     },
@@ -510,7 +511,7 @@ export const setting = createModel<RootModel>()({
               const url = new URL(config.dashboardUrl);
               baseUrl = `${url.protocol}//${url.host}`;
             } catch (e) {
-              console.error('Failed to parse dashboardUrl:', e);
+              logger.error('Failed to parse dashboardUrl:', e);
             }
           }
 
@@ -542,7 +543,7 @@ export const setting = createModel<RootModel>()({
 
         return true;
       } catch (error) {
-        console.error('Failed to save Grafana config:', error);
+        logger.error('Failed to save Grafana config:', error);
         notify('Failed to save configuration', {
           type: 'error',
         });

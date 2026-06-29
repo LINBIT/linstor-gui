@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect } from 'react';
+import { logger } from '@app/utils/logger';
 import { Tabs } from 'antd';
 import type { TabsProps } from 'antd';
 import { useDispatch } from 'react-redux';
@@ -27,7 +28,7 @@ const GeneralSettings = () => {
   // loading; once known, hide it on controllers older than 1.28.0.
   const controllerAuthAvailable = !versionFetched || hasMinVersion(MIN_API_VERSION.AUTH_TOKENS);
   const onChange = (key: string) => {
-    console.log(key);
+    logger.debug(key);
   };
 
   const items: TabsProps['items'] = [

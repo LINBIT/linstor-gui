@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useMemo, useState } from 'react';
+import { logger } from '@app/utils/logger';
 import { Card, Row, Col, Empty } from 'antd';
 import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';
@@ -40,7 +41,7 @@ const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
   const grafanaConfig = useSelector((state: RootState) => state.setting?.grafanaConfig);
   const [timeRange, setTimeRange] = useState('now-1h');
 
-  console.log('GrafanaCharts render:', { grafanaConfig, hostname });
+  logger.debug('GrafanaCharts render:', { grafanaConfig, hostname });
 
   // Helper function to generate Grafana solo panel URL
   const generateGrafanaSoloUrl = (panelId: number, includeHostname = false) => {
@@ -84,14 +85,14 @@ const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
 
   // Don't show if no grafanaConfig is available
   if (!grafanaConfig?.baseUrl || !grafanaConfig?.dashboardUid) {
-    console.log('GrafanaCharts not showing: no grafanaConfig or dashboardUid');
+    logger.debug('GrafanaCharts not showing: no grafanaConfig or dashboardUid');
     return null;
   }
 
   // Log sample embed URL for debugging
   const samplePanelId = grafanaConfig.panelIds.cpu || 77;
   const embedUrl = generateGrafanaSoloUrl(samplePanelId, true);
-  console.log('Sample embed URL:', embedUrl);
+  logger.debug('Sample embed URL:', embedUrl);
 
   const panels: ChartPanel[] = [
     { id: grafanaConfig.panelIds.cpu, title: 'CPU Usage', key: 'cpu' },
@@ -124,8 +125,8 @@ const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
                 title={panel.title}
                 src={generateGrafanaSoloUrl(panel.id!)}
                 loading="eager"
-                onLoad={() => console.log(`Panel ${panel.title} loaded`)}
-                onError={() => console.error(`Panel ${panel.title} failed to load`)}
+                onLoad={() => logger.debug(`Panel ${panel.title} loaded`)}
+                onError={() => logger.error(`Panel ${panel.title} failed to load`)}
               />
             </ChartCard>
           </Col>

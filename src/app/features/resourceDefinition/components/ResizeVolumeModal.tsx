@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect } from 'react';
+import { logger } from '@app/utils/logger';
 import { Button } from '@app/components/Button';
 import { Form, Modal, Space, Spin, Checkbox, message } from 'antd';
 import { Input } from '@app/components/Input';
@@ -75,7 +76,7 @@ export const ResizeVolumeModal: React.FC<ResizeVolumeModalProps> = ({ open, onCl
         const unitVal = values[`vol_${vol.volume_number}_unit`];
         const newSizeKib = convertRoundUp(unitVal, Number(sizeVal));
 
-        console.log(
+        logger.debug(
           `Checking vol ${vol.volume_number}: New=${newSizeKib} (from ${sizeVal} ${unitVal}), Old=${vol.size_kib}, Gross=${isGross}`,
         );
 
@@ -96,7 +97,7 @@ export const ResizeVolumeModal: React.FC<ResizeVolumeModalProps> = ({ open, onCl
       onSuccess?.();
     } catch (error) {
       // Form validation error or API error
-      console.error(error);
+      logger.error(error);
     }
   };
 

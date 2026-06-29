@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { get, put, post, del } from '../requests';
+import { logger } from '@app/utils/logger';
 
 const getHAResourceDefinitions = () => {
   return get('/v1/resource-definitions', {
@@ -129,7 +130,7 @@ const getDrbdReactorStatus = async (nodes: string[]): Promise<Record<string, Drb
       try {
         statusMap[result.node] = JSON.parse(result.stdout_utf8) as DrbdReactorStatus;
       } catch (e) {
-        console.error(`Failed to parse status for node ${result.node}:`, e);
+        logger.error(`Failed to parse status for node ${result.node}:`, e);
       }
     }
   }

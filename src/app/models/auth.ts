@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { createModel } from '@rematch/core';
+import { logger } from '@app/utils/logger';
 import { RootModel } from '.';
 import { authAPI } from '@app/features/authentication';
 import { USER_LOCAL_STORAGE_KEY, DEFAULT_ADMIN_USER_NAME, DEFAULT_ADMIN_USER_PASS } from '@app/const/settings';
@@ -92,7 +93,7 @@ export const auth = createModel<RootModel>()({
               dispatch.auth.setNeedsPasswordChange(true);
             }
           } catch (error) {
-            console.error('Failed to get settings for password change check:', error);
+            logger.error('Failed to get settings for password change check:', error);
           }
         }
         localStorage.setItem(USER_LOCAL_STORAGE_KEY, user.username);
@@ -170,7 +171,7 @@ export const auth = createModel<RootModel>()({
               dispatch.auth.setNeedsPasswordChange(true);
             }
           } catch (error) {
-            console.error('Failed to check needsPasswordChange on login status check:', error);
+            logger.error('Failed to check needsPasswordChange on login status check:', error);
           }
         }
         // Update isAdmin state in setting model for navigation

@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
+import { logger } from '@app/utils/logger';
 import { Form, message, Modal, Space } from 'antd';
 import { Input } from '@app/components/Input';
 import { Button } from '@app/components/Button';
@@ -135,13 +136,10 @@ const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordPr
   const { t } = useTranslation('users');
 
   const onCreate = async (values) => {
-    console.log('ChangePassword form values:', values);
-    console.log('Is admin mode:', admin);
-    console.log('User:', localStorage.getItem(USER_LOCAL_STORAGE_KEY));
+    logger.debug('ChangePassword submitted, admin mode:', admin);
 
     let res = null;
     if (admin) {
-      console.log('Calling resetPassword with newPassword:', values.newPassword);
       res = await dispatch.auth.resetPassword({
         user: user || DEFAULT_ADMIN_USER_NAME,
         newPassword: values.newPassword,
@@ -150,19 +148,12 @@ const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordPr
       // Check if this is a forced password change (first login scenario)
       if (defaultOpen) {
         // For forced password change after first login, skip old password verification
-        console.log('Calling updatePassword (forced change) with newPassword:', values.newPassword);
         res = await dispatch.auth.updatePassword({
           user: localStorage.getItem(USER_LOCAL_STORAGE_KEY),
           newPassword: values.newPassword,
         });
       } else {
         // For regular password changes, verify old password
-        console.log(
-          'Calling changePassword with oldPassword:',
-          values.currentPassword,
-          'newPassword:',
-          values.newPassword,
-        );
         res = await dispatch.auth.changePassword({
           user: localStorage.getItem(USER_LOCAL_STORAGE_KEY),
           newPassword: values.newPassword,

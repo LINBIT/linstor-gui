@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
+import { logger } from '@app/utils/logger';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Form, Checkbox } from 'antd';
@@ -71,7 +72,7 @@ const CreateNFSForm = () => {
       }, 300);
     },
     onError: (err: { code: string; message: string }) => {
-      console.log(err);
+      logger.debug(err);
       let message = 'Create NFS Export failed';
       if (err.message) {
         message = err.message;

@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect, useState } from 'react';
+import { logger } from '@app/utils/logger';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Checkbox, Form, Modal, Space, notification } from 'antd';
 import { Input } from '@app/components/Input';
@@ -146,7 +147,7 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
 
       createMutation.mutate(currentExport);
     } catch (error) {
-      console.log('Failed:', error);
+      logger.debug('Failed:', error);
     }
   };
 

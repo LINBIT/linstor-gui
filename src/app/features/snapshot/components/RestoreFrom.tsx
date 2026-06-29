@@ -6,6 +6,7 @@
 
 // RestoreFrom component: select target resource to restore snapshot to
 import React, { useState } from 'react';
+import { logger } from '@app/utils/logger';
 import { Form, message, Space } from 'antd';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
@@ -48,7 +49,7 @@ const RestoreFrom: React.FC<RestoreFromProps> = ({ sourceResource, sourceSnapsho
 
       if (!existingResource) {
         // Create new resource definition if it doesn't exist
-        console.log('Creating new resource definition:', targetResource);
+        logger.debug('Creating new resource definition:', targetResource);
         message.loading(t('snapshot:creating_resource', 'Creating resource definition...'), 0);
 
         try {

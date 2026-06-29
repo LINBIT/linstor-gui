@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
+import { logger } from '@app/utils/logger';
 import { useMutation } from '@tanstack/react-query';
 import { Checkbox, Form, Radio, Switch } from 'antd';
 import { Input } from '@app/components/Input';
@@ -118,7 +119,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
           backToList();
         }
       } catch (error) {
-        console.log(error);
+        logger.debug(error);
       }
 
       return;
@@ -156,11 +157,11 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
               if (fullySuccess(autoPlaceRes.data)) {
                 backToList();
               } else {
-                console.log('Auto-place failed:', autoPlaceRes.data);
+                logger.debug('Auto-place failed:', autoPlaceRes.data);
                 backToList();
               }
             } catch (error) {
-              console.log('Error during auto-place:', error);
+              logger.debug('Error during auto-place:', error);
               // Still navigate back even if auto-place fails
               backToList();
             }
@@ -178,11 +179,11 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
           if (fullySuccess(autoPlaceRes.data)) {
             backToList();
           } else {
-            console.log('Auto-place failed:', autoPlaceRes.data);
+            logger.debug('Auto-place failed:', autoPlaceRes.data);
             backToList();
           }
         } catch (error) {
-          console.log('Error during auto-place:', error);
+          logger.debug('Error during auto-place:', error);
           backToList();
         }
       } else {

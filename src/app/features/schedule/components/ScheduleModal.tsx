@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
+import { logger } from '@app/utils/logger';
 import { Modal, Form, message } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
@@ -47,7 +48,7 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
       handleCancel();
     },
     onError: (error) => {
-      console.error('Error creating schedule:', error);
+      logger.error('Error creating schedule:', error);
       message.error('Failed to create schedule.');
     },
   });
@@ -67,7 +68,7 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
         handleCancel();
       },
       onError: (error) => {
-        console.error('Error modifying schedule:', error);
+        logger.error('Error modifying schedule:', error);
         message.error('Failed to modify schedule.');
       },
     },
@@ -102,7 +103,7 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
         }
       })
       .catch((info) => {
-        console.log('Validation Failed:', info);
+        logger.debug('Validation Failed:', info);
       });
   };
 

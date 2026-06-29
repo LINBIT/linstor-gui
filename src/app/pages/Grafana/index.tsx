@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { RootState } from '@app/store';
+import { logger } from '@app/utils/logger';
 import styled from '@emotion/styled';
 import { useSelector } from 'react-redux';
 
@@ -23,11 +24,11 @@ const IFramePage = styled.iframe`
 export const GrafanaDashboard = () => {
   const grafanaConfig = useSelector((state: RootState) => state.setting?.grafanaConfig);
 
-  console.log('GrafanaDashboard render:', { grafanaConfig });
+  logger.debug('GrafanaDashboard render:', { grafanaConfig });
 
   // Don't show if no grafanaConfig is available or no overview URL
   if (!grafanaConfig?.dashboardUrlTemplate) {
-    console.log('GrafanaDashboard not showing: no dashboardUrlTemplate');
+    logger.debug('GrafanaDashboard not showing: no dashboardUrlTemplate');
     return null;
   }
 

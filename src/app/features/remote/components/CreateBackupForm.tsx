@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
+import { logger } from '@app/utils/logger';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Switch, Form, Modal, message } from 'antd';
 import { Select } from '@app/components/Select';
@@ -58,7 +59,7 @@ const CreateBackupForm = ({ refetch }: CreateBackupFormProps) => {
         messageApi.error(res.error.map((e: any) => e.message).join(', '));
       }
     } catch (error) {
-      console.error('create backup error', error);
+      logger.error('create backup error', error);
       messageApi.error('Create backup error');
     }
 

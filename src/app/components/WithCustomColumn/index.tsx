@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
+import { logger } from '@app/utils/logger';
 import { Button, Tooltip } from 'antd';
 import AddColumnModal from './AddColumnModal';
 import { uniqBy } from 'lodash';
@@ -72,7 +73,7 @@ const withCustomColumns = <P extends object>(
           });
         } catch (error) {
           // If localStorage data is corrupted, fall back to initial columns
-          console.warn('Failed to parse saved columns from localStorage:', error);
+          logger.warn('Failed to parse saved columns from localStorage:', error);
           return initialColumns;
         }
       }

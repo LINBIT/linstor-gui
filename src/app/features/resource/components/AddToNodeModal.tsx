@@ -1,4 +1,5 @@
 import React from 'react';
+import { logger } from '@app/utils/logger';
 import { Modal, Form, Checkbox, message } from 'antd';
 import { Select } from '@app/components/Select';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -71,7 +72,7 @@ export const AddToNodeModal: React.FC<AddToNodeModalProps> = ({
       const values = await form.validateFields();
       mutation.mutate(values);
     } catch (error) {
-      console.error('Validation failed:', error);
+      logger.error('Validation failed:', error);
     }
   };
 

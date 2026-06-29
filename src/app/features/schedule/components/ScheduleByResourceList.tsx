@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { logger } from '@app/utils/logger';
 import { Form, Table, Popconfirm, message, Space, Checkbox, Dropdown, Tooltip, Tag } from 'antd';
 import { Input } from '@app/components/Input';
 import { Button } from '@app/components/Button';
@@ -61,7 +62,7 @@ export const ScheduleByResourceList = () => {
         message.success(t('schedule:schedule_disabled_success'));
         refetch();
       } catch (error) {
-        console.error('Disable schedule error:', error);
+        logger.error('Disable schedule error:', error);
         message.error(t('schedule:schedule_disable_failed'));
       }
     },
@@ -78,7 +79,7 @@ export const ScheduleByResourceList = () => {
         message.success(t('schedule:schedule_enabled_success'));
         refetch();
       } catch (error) {
-        console.error('Enable schedule error:', error);
+        logger.error('Enable schedule error:', error);
         message.error(t('schedule:schedule_enable_failed'));
       }
     },
@@ -93,7 +94,7 @@ export const ScheduleByResourceList = () => {
         message.success(t('schedule:schedule_deleted_success'));
         refetch();
       } catch (error) {
-        console.error('Delete schedule error:', error);
+        logger.error('Delete schedule error:', error);
         message.error(t('schedule:schedule_delete_failed'));
       }
     },
@@ -109,7 +110,7 @@ export const ScheduleByResourceList = () => {
         const res = await getScheduleByResourceName(rscName);
         return res?.data?.data;
       } catch (error) {
-        console.error('Failed to fetch resource details:', error);
+        logger.error('Failed to fetch resource details:', error);
         message.error(t('schedule:resource_details_load_failed'));
         return null;
       }

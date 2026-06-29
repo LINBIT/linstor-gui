@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { KV_NAMESPACES } from '@app/const/kvstore';
+import { logger } from '@app/utils/logger';
 import { DEFAULT_ADMIN_USER_NAME, DEFAULT_ADMIN_USER_PASS } from '@app/const/settings';
 import { authAPI } from '../authentication';
 import { KeyValueStoreType, kvStore } from '../keyValueStore';
@@ -127,7 +128,7 @@ export class SettingsAPI {
     if (SETTINGS_FIELDS.NUMBER.includes(field as NumberField)) return 'number';
 
     // Handle unknown fields gracefully
-    console.warn(`[SettingsAPI] Unknown field type for field: ${field}. This field will be ignored.`);
+    logger.warn(`[SettingsAPI] Unknown field type for field: ${field}. This field will be ignored.`);
     return 'string'; // Default to string type for unknown fields
   }
 
@@ -161,7 +162,7 @@ export class SettingsAPI {
       // Skip unknown fields for backward compatibility
       const fieldType = this.getFieldType(key);
       if (!fieldType) {
-        console.debug(`Skipping unknown settings field: ${key}`);
+        logger.debug(`Skipping unknown settings field: ${key}`);
         return;
       }
 
@@ -173,7 +174,7 @@ export class SettingsAPI {
         }
       } catch (error) {
         // Skip unknown fields for backward compatibility
-        console.warn(`Skipping unknown field: ${key}`);
+        logger.warn(`Skipping unknown field: ${key}`);
       }
     });
 
@@ -214,7 +215,7 @@ export class SettingsAPI {
       const settings = await settingsAPI.getProps();
 
       if (!settings.authenticationEnabled) {
-        console.log('Authentication is not enabled, skipping admin password reset');
+        logger.debug('Authentication is not enabled, skipping admin password reset');
         return false;
       }
 
@@ -224,7 +225,7 @@ export class SettingsAPI {
       }
       return await authAPI.resetPassword(DEFAULT_ADMIN_USER_NAME, newPassword);
     } catch (error) {
-      console.error('Failed to reset admin password:', error);
+      logger.error('Failed to reset admin password:', error);
       return false;
     }
   }
@@ -233,7 +234,7 @@ export class SettingsAPI {
     try {
       return await authAPI.resetAuthenticationSystem(preserveUsers);
     } catch (error) {
-      console.error('Failed to reset authentication:', error);
+      logger.error('Failed to reset authentication:', error);
       return false;
     }
   }

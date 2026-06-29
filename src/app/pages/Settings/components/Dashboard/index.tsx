@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import { logger } from '@app/utils/logger';
 import { Form, Card, Typography, message, Alert } from 'antd';
 import { Input } from '@app/components/Input';
 import { InputNumber } from '@app/components/InputNumber';
@@ -171,7 +172,7 @@ const Dashboard: React.FC = () => {
         drbdWriteRatePanelId: grafanaConfig.drbdWriteRatePanelId || DEFAULT_DRBD_PANELS.drbdWriteRatePanelId,
         drbdReadRatePanelId: grafanaConfig.drbdReadRatePanelId || DEFAULT_DRBD_PANELS.drbdReadRatePanelId,
       };
-      console.log('Loaded grafanaSettings from grafanaConfig:', settings);
+      logger.debug('Loaded grafanaSettings from grafanaConfig:', settings);
     }
 
     return settings;
@@ -184,7 +185,7 @@ const Dashboard: React.FC = () => {
       const match = url.match(/\/d\/([^/?]+)/);
       return match ? match[1] : null;
     } catch (e) {
-      console.error('Failed to extract dashboard UID:', e);
+      logger.error('Failed to extract dashboard UID:', e);
       return null;
     }
   };
@@ -193,14 +194,14 @@ const Dashboard: React.FC = () => {
   const extractDrbdDashboardUid = (url: string): string | null => {
     try {
       // Match format: http://192.168.123.117:3000/d/f_tZtVlMz/drbd?...
-      console.log('Extracting DRBD UID from URL:', url);
+      logger.debug('Extracting DRBD UID from URL:', url);
       const match = url.match(/\/d\/([^/?]+)/);
-      console.log('DRBD UID match result:', match);
+      logger.debug('DRBD UID match result:', match);
       const uid = match ? match[1] : null;
-      console.log('Extracted DRBD UID:', uid);
+      logger.debug('Extracted DRBD UID:', uid);
       return uid;
     } catch (e) {
-      console.error('Failed to extract DRBD dashboard UID:', e);
+      logger.error('Failed to extract DRBD dashboard UID:', e);
       return null;
     }
   };
@@ -328,7 +329,7 @@ const Dashboard: React.FC = () => {
       // Save configuration to dedicated namespace
       await dispatch.setting.saveGrafanaConfig(baseConfig);
     } catch (error) {
-      console.error('Failed to save:', error);
+      logger.error('Failed to save:', error);
       // Error notification is already handled by the Redux action
     }
   }, [isEnabled, isDrbdEnabled, form, drbdForm, dispatch.setting, t]);

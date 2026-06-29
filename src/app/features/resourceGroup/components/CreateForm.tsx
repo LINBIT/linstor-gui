@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { useState, useEffect, useMemo } from 'react';
+import { logger } from '@app/utils/logger';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Checkbox, Col, Divider, Form, message, Popover, Row, Switch, Spin } from 'antd';
 import { Input } from '@app/components/Input';
@@ -196,7 +197,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
           backToList();
         }
       } catch (error) {
-        console.log(error);
+        logger.debug(error);
       }
 
       return;
@@ -227,7 +228,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
           try {
             await spawnResourceGroupMutation.mutateAsync(spawnData);
           } catch (error) {
-            console.log('Error spawning resources:', error);
+            logger.debug('Error spawning resources:', error);
           }
         }
 

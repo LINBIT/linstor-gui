@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { useEffect } from 'react';
+import { logger } from '@app/utils/logger';
 
 /**
  * Hook to preload iframe sources
@@ -41,7 +42,7 @@ export const usePreloadIframes = (urls: string[], options?: { prefetch?: boolean
           links.push(prefetchLink);
         }
       } catch (error) {
-        console.warn('Failed to preload iframe URL:', url, error);
+        logger.warn('Failed to preload iframe URL:', url, error);
       }
     });
 
@@ -83,6 +84,6 @@ export const preconnectToGrafana = (grafanaUrl: string) => {
     dnsLink.href = origin;
     document.head.appendChild(dnsLink);
   } catch (error) {
-    console.warn('Failed to preconnect to Grafana:', error);
+    logger.warn('Failed to preconnect to Grafana:', error);
   }
 };

@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
+import { logger } from '@app/utils/logger';
 import { useMutation } from '@tanstack/react-query';
 import { Switch, Form, Modal, message } from 'antd';
 import { Input } from '@app/components/Input';
@@ -65,7 +66,7 @@ const CreateRemoteForm = ({ refetch }: CreateRemoteFormProps) => {
         }
       }
     } catch (error) {
-      console.error('create remote error', error);
+      logger.error('create remote error', error);
       messageApi.error('Create remote error');
     }
 

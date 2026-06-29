@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
+import { logger } from '@app/utils/logger';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Form, Modal, notification } from 'antd';
 import { Input } from '@app/components/Input';
@@ -76,7 +77,7 @@ export const CreateResourceGroup = ({ refetch }: CreateResourceGroupProps) => {
         poolName: values.poolName,
       });
     } catch (error) {
-      console.log('Failed:', error);
+      logger.debug('Failed:', error);
     }
   };
 

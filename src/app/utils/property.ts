@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import camelCase from 'camelcase';
+import { logger } from '@app/utils/logger';
 
 import { properties } from '@app/utils/properties/properties';
 import { drbdOptions } from '@app/utils/properties/drbdOptions';
@@ -254,7 +255,7 @@ export function handlePropsToFormOption(key: string, prop = {}): FormItem[] {
         };
         break;
       default:
-        console.log('Unknown type', data.type);
+        logger.warn('Unknown type', data.type);
     }
 
     return formInfo;

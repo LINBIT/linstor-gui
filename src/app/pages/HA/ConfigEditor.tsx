@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState, useEffect, useRef } from 'react';
+import { logger } from '@app/utils/logger';
 import { useTranslation } from 'react-i18next';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { Typography, Spin, Card, Modal } from 'antd';
@@ -62,7 +63,7 @@ const ConfigEditor = () => {
           const decoded = atob(content);
           setTomlContent(decoded);
         } catch (e) {
-          console.error('Failed to decode file content:', e);
+          logger.error('Failed to decode file content:', e);
           setTomlContent(content);
         }
       } else {
@@ -102,7 +103,7 @@ const ConfigEditor = () => {
 
         handleCancel();
       } catch (e) {
-        console.error('Failed to save/deploy:', e);
+        logger.error('Failed to save/deploy:', e);
       }
     }
   };

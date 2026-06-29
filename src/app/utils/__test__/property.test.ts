@@ -81,8 +81,8 @@ vi.mock('../stringUtils', () => ({
   uniqId: () => 'mocked-id',
 }));
 
-// Mock console.log to test unknown type case
-const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+// Mock console.warn to test unknown type case (logger.warn routes here)
+const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
 describe('handlePropsToFormOption', () => {
   beforeEach(() => {

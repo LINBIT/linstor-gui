@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
+import { logger } from '@app/utils/logger';
 import { Form, message, Modal } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
@@ -123,7 +124,7 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
                     createResourceMutation.mutate(values);
                   })
                   .catch((info) => {
-                    console.log('Validate Failed:', info);
+                    logger.debug('Validate Failed:', info);
                   });
               }}
               disabled={disabledStatus}

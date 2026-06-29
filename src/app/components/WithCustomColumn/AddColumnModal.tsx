@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
+import { logger } from '@app/utils/logger';
 import { Modal, Form } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
@@ -31,7 +32,7 @@ const AddColumnModal: React.FC<AddColumnModalProps> = ({ isVisible, onConfirm, o
         form.resetFields();
       })
       .catch((info) => {
-        console.log('Validation Failed:', info);
+        logger.debug('Validation Failed:', info);
       });
   };
 

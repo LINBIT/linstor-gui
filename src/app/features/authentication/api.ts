@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { USER_LOCAL_STORAGE_KEY, DEFAULT_ADMIN_USER_NAME, DEFAULT_ADMIN_USER_PASS } from '@app/const/settings';
+import { logger } from '@app/utils/logger';
 import { KV_NAMESPACES } from '@app/const/kvstore';
 import { KeyValueStoreType, kvStore } from '@app/features/keyValueStore';
 import CryptoJS from 'crypto-js';
@@ -31,7 +32,7 @@ export class UserAuthAPI {
 
     // If new namespace already exists, no need to migrate
     if (newNamespaceExists) {
-      console.log(`New namespace ${KV_NAMESPACES.USERS} already exists, skipping migration`);
+      logger.debug(`New namespace ${KV_NAMESPACES.USERS} already exists, skipping migration`);
       return;
     }
 
@@ -39,7 +40,7 @@ export class UserAuthAPI {
     const oldNamespaceExists = await this.store.instanceExists(KV_NAMESPACES.LEGACY_USERS);
 
     if (oldNamespaceExists) {
-      console.log(`Migrating from ${KV_NAMESPACES.LEGACY_USERS} to ${KV_NAMESPACES.USERS}...`);
+      logger.debug(`Migrating from ${KV_NAMESPACES.LEGACY_USERS} to ${KV_NAMESPACES.USERS}...`);
 
       // Get all data from old namespace
       const oldData = await this.store.get(KV_NAMESPACES.LEGACY_USERS);
@@ -55,9 +56,9 @@ export class UserAuthAPI {
 
       // Delete old namespace after successful migration
       await this.store.delete(KV_NAMESPACES.LEGACY_USERS);
-      console.log(`Successfully migrated ${KV_NAMESPACES.LEGACY_USERS} namespace to ${KV_NAMESPACES.USERS}`);
+      logger.debug(`Successfully migrated ${KV_NAMESPACES.LEGACY_USERS} namespace to ${KV_NAMESPACES.USERS}`);
     } else {
-      console.log(`No legacy namespace ${KV_NAMESPACES.LEGACY_USERS} found, skipping migration`);
+      logger.debug(`No legacy namespace ${KV_NAMESPACES.LEGACY_USERS} found, skipping migration`);
     }
   }
 
@@ -84,7 +85,7 @@ export class UserAuthAPI {
       return success;
     } catch (error) {
       // Handle decryption errors (e.g., malformed data)
-      console.error('Failed to decrypt password:', error);
+      logger.error('Failed to decrypt password:', error);
       return false;
     }
   }
@@ -101,34 +102,25 @@ export class UserAuthAPI {
       // Verify the old password
       const encryptedOldPassword = await this.store.getProperty(this.usersInstance, username);
       if (!encryptedOldPassword) {
-        console.error('Change password failed: User not found:', username);
+        logger.error('Change password failed: User not found:', username);
         return false;
       }
 
-      console.log('Encrypted password from store:', encryptedOldPassword);
       const decryptedOldPassword = await this.decrypt(encryptedOldPassword);
-      console.log('Decrypted old password:', decryptedOldPassword);
-      console.log('Provided old password:', oldPassword);
 
       if (decryptedOldPassword !== oldPassword) {
-        console.error('Change password failed: Old password mismatch');
-        console.error('Expected:', decryptedOldPassword);
-        console.error('Provided:', oldPassword);
-        // For debugging only - remove in production
-        if (username === 'admin') {
-          console.warn('HINT: Your current admin password might be different than expected. Check the console logs.');
-        }
+        logger.warn('Change password failed: old password mismatch');
         return false;
       }
 
       // Encrypt and store the new password
       const encryptedNewPassword = await this.encrypt(newPassword);
-      console.log('New password encrypted successfully');
+      logger.debug('New password encrypted successfully');
       await this.store.setProperty(this.usersInstance, username, encryptedNewPassword);
-      console.log('Password changed successfully for user:', username);
+      logger.debug('Password changed successfully for user:', username);
       return true;
     } catch (error) {
-      console.error('Error during password change:', error);
+      logger.error('Error during password change:', error);
       return false;
     }
   }
@@ -136,16 +128,16 @@ export class UserAuthAPI {
   // Update password without verification (for logged-in users changing their own password)
   public async updatePassword(username: string, newPassword: string): Promise<boolean> {
     try {
-      console.log('Updating password for user:', username);
+      logger.debug('Updating password for user:', username);
 
       // Encrypt and store the new password directly
       const encryptedNewPassword = await this.encrypt(newPassword);
-      console.log('New password encrypted successfully');
+      logger.debug('New password encrypted successfully');
       await this.store.setProperty(this.usersInstance, username, encryptedNewPassword);
-      console.log('Password updated successfully for user:', username);
+      logger.debug('Password updated successfully for user:', username);
       return true;
     } catch (error) {
-      console.error('Error during password update:', error);
+      logger.error('Error during password update:', error);
       return false;
     }
   }
@@ -195,32 +187,23 @@ export class UserAuthAPI {
 
   private async decrypt(encryptedPassword: string): Promise<string> {
     try {
-      console.log('Attempting to decrypt:', encryptedPassword);
-      console.log('Using key:', this.key);
-
       const decrypted = CryptoJS.AES.decrypt(encryptedPassword, this.key);
       const result = decrypted.toString(CryptoJS.enc.Utf8);
 
-      console.log('Decryption result:', result);
-      console.log('Decryption result length:', result.length);
-
       // Check if decryption resulted in empty string (possible wrong key or format)
       if (!result) {
-        console.warn('Decryption resulted in empty string - possible key or format mismatch');
+        logger.warn('Decryption resulted in empty string - possible key or format mismatch');
 
         // Try alternative decryption methods for backward compatibility
         try {
-          console.log('Trying alternative decryption method...');
-
           // Try treating the input as different format
           const alternativeDecrypted = CryptoJS.AES.decrypt(encryptedPassword, this.key).toString(CryptoJS.enc.Utf8);
-          console.log('Alternative decryption result:', alternativeDecrypted);
 
           if (alternativeDecrypted) {
             return alternativeDecrypted;
           }
         } catch (altError) {
-          console.error('Alternative decryption also failed:', altError);
+          logger.error('Alternative decryption also failed:', altError);
         }
       }
 
@@ -236,7 +219,7 @@ export class UserAuthAPI {
       // const decryptedStr = decrypt.toString(CryptoJS.enc.Utf8);
       // return decryptedStr.toString();
     } catch (error) {
-      console.error('Decryption failed:', error);
+      logger.error('Decryption failed:', error);
       throw error;
     }
   }
@@ -253,7 +236,7 @@ export class UserAuthAPI {
       const adminPassword = await this.store.getProperty(this.usersInstance, DEFAULT_ADMIN_USER_NAME);
       return !!adminPassword;
     } catch (error) {
-      console.error('Failed to check for admin user:', error);
+      logger.error('Failed to check for admin user:', error);
       return false;
     }
   }
@@ -275,7 +258,7 @@ export class UserAuthAPI {
       // Try to migrate from legacy namespace if needed
       await this.migrateUsersNamespace();
     } catch (error) {
-      console.error('Migration failed, will attempt to initialize normally:', error);
+      logger.error('Migration failed, will attempt to initialize normally:', error);
       // Continue with initialization even if migration fails
     }
 
@@ -284,7 +267,7 @@ export class UserAuthAPI {
       const exists = await this.store.instanceExists(this.usersInstance);
 
       if (!exists) {
-        console.log(`Creating new user store: ${this.usersInstance}`);
+        logger.debug(`Creating new user store: ${this.usersInstance}`);
         // Only create if it doesn't exist
         await this.store.create(this.usersInstance, {
           override_props: {
@@ -294,23 +277,23 @@ export class UserAuthAPI {
 
         // Register default admin user only when creating new store
         await this.register({ username: DEFAULT_ADMIN_USER_NAME, password: DEFAULT_ADMIN_USER_PASS });
-        console.log('Default admin user registered successfully');
+        logger.debug('Default admin user registered successfully');
       } else {
-        console.log(`User store ${this.usersInstance} already exists`);
+        logger.debug(`User store ${this.usersInstance} already exists`);
 
         // Check if admin user exists
         const hasAdmin = await this.hasAdminUser();
         if (!hasAdmin) {
-          console.log('Admin user not found, creating default admin user');
+          logger.debug('Admin user not found, creating default admin user');
           // Register default admin user if admin doesn't exist
           await this.register({ username: DEFAULT_ADMIN_USER_NAME, password: DEFAULT_ADMIN_USER_PASS });
-          console.log('Default admin user registered successfully');
+          logger.debug('Default admin user registered successfully');
         } else {
-          console.log('Admin user already exists');
+          logger.debug('Admin user already exists');
         }
       }
     } catch (error) {
-      console.error('Failed to initialize user store:', error);
+      logger.error('Failed to initialize user store:', error);
       throw error; // Re-throw to let caller handle the error
     }
   }
@@ -343,7 +326,7 @@ export class UserAuthAPI {
       }
       return true;
     } catch (error) {
-      console.error('Failed to reset authentication system:', error);
+      logger.error('Failed to reset authentication system:', error);
       return false;
     }
   }

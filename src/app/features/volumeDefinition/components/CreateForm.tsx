@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
+import { logger } from '@app/utils/logger';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Form, Modal } from 'antd';
 import { Select } from '@app/components/Select';
@@ -37,7 +38,7 @@ const CreateForm = ({ refetch, simple }: CreateFormProps) => {
       data?.data?.forEach(async (item) => {
         if (item?.name) {
           const vd = await getVolumeDefinitionListByResource(item?.name);
-          console.log(vd, 'vd');
+          logger.debug(vd, 'vd');
         }
       });
     },

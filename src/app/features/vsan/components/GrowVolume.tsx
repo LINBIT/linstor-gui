@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { SizeInput } from '@app/components/SizeInput';
+import { logger } from '@app/utils/logger';
 import { Checkbox, Form, Modal, Space, notification } from 'antd';
 import { Button } from '@app/components/Button';
 import React, { useEffect, useState } from 'react';
@@ -73,7 +74,7 @@ export const GrowVolume = ({ resource, resource_group, current_kib, refetch }: G
         size: values.size,
       });
     } catch (error) {
-      console.log(error);
+      logger.debug(error);
     }
   };
   const handleCancel = () => {

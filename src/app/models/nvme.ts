@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { NVME } from '@app/interfaces/nvme';
+import { logger } from '@app/utils/logger';
 import service from '@app/requests';
 import { createModel } from '@rematch/core';
 import { RootModel } from '.';
@@ -73,7 +74,7 @@ export const nvme = createModel<RootModel>()({
           return true;
         }
       } catch (error) {
-        console.log(error, 'error');
+        logger.debug(error, 'error');
         notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
@@ -102,7 +103,7 @@ export const nvme = createModel<RootModel>()({
           });
         }
       } catch (error) {
-        console.log(error, 'error');
+        logger.debug(error, 'error');
         notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
@@ -134,7 +135,7 @@ export const nvme = createModel<RootModel>()({
           });
         }
       } catch (error) {
-        console.log(error, 'error');
+        logger.debug(error, 'error');
         notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
@@ -166,7 +167,7 @@ export const nvme = createModel<RootModel>()({
           });
         }
       } catch (error) {
-        console.log(error, 'error');
+        logger.debug(error, 'error');
         notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
@@ -189,7 +190,7 @@ export const nvme = createModel<RootModel>()({
           });
         }
       } catch (error) {
-        console.log(error, 'error');
+        logger.debug(error, 'error');
         notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });
@@ -209,7 +210,7 @@ export const nvme = createModel<RootModel>()({
           });
         }
       } catch (error) {
-        console.log(error, 'error');
+        logger.debug(error, 'error');
         notify(String((error as Error)?.message || 'An error occurred'), {
           type: 'error',
         });

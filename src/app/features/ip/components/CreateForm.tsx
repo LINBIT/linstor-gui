@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
+import { logger } from '@app/utils/logger';
 import { useMutation } from '@tanstack/react-query';
 import { Form, Modal } from 'antd';
 import { Input } from '@app/components/Input';
@@ -91,7 +92,7 @@ const CreateForm = ({ editing, node, refetch }: FormProps) => {
                   onFinish(values);
                 })
                 .catch((info) => {
-                  console.log('Validate Failed:', info);
+                  logger.debug('Validate Failed:', info);
                 });
             }}
           >

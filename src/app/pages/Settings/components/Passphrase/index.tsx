@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
+import { logger } from '@app/utils/logger';
 import { message, Form, FormProps, Radio } from 'antd';
 import { Input } from '@app/components/Input';
 import styled from '@emotion/styled';
@@ -38,7 +39,7 @@ const Passphrase: React.FC = () => {
   const mode = Form.useWatch('mode', form);
 
   const onFinish = (values: FieldType) => {
-    console.log('Success:', values);
+    logger.debug('Success:', values);
     if (values.mode === 'edit') {
       editPassphraseMutation.mutate({ passphrase: values.password, old: values.old });
     } else {
@@ -54,7 +55,7 @@ const Passphrase: React.FC = () => {
   };
 
   const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
-    console.log('Failed:', errorInfo);
+    logger.debug('Failed:', errorInfo);
   };
 
   const createPassphraseMutation = useMutation({

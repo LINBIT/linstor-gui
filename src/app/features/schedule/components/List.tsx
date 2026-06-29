@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
+import { logger } from '@app/utils/logger';
 import { Form, Space, Table, Popconfirm, message, Dropdown, Tooltip } from 'antd';
 import { Input } from '@app/components/Input';
 import type { TableProps } from 'antd';
@@ -43,7 +44,7 @@ export const List = () => {
         refetch();
       } catch (error) {
         message.error('Delete failed: ' + error);
-        console.log(error);
+        logger.debug(error);
       }
     },
   });

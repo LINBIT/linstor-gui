@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
+import { logger } from '@app/utils/logger';
 import { Table, Tag, Popover, Space, Modal, Progress, Tooltip, Popconfirm, notification } from 'antd';
 import { InputNumber } from '@app/components/InputNumber';
 import type { ColumnsType } from 'antd/es/table';
@@ -95,7 +96,7 @@ export const VSANNodeList = () => {
   const [currentNode, setCurrentNode] = useState('');
 
   const upgradeNode = (nodeName: string) => {
-    console.log('Upgrade node: ' + nodeName);
+    logger.debug('Upgrade node: ' + nodeName);
     setUpdatingInfo((prev) => {
       return {
         ...prev,
@@ -122,7 +123,7 @@ export const VSANNodeList = () => {
     const socket = new WebSocket(updatedUrl);
 
     socket.addEventListener('message', (event) => {
-      console.log('Message from server ', event.data);
+      logger.debug('Message from server ', event.data);
       const progress = JSON.parse(event.data);
 
       setUpdatingInfo((prev) => {
@@ -179,7 +180,7 @@ export const VSANNodeList = () => {
     });
 
     socket.addEventListener('close', () => {
-      console.log('Update finished for node: ' + nodeName);
+      logger.debug('Update finished for node: ' + nodeName);
       setUpdatingInfo((prev) => {
         return {
           ...prev,
@@ -246,7 +247,7 @@ export const VSANNodeList = () => {
         checked: false,
       });
     } catch (error) {
-      console.error('Error while setting standby', error);
+      logger.error('Error while setting standby', error);
     }
   };
 
