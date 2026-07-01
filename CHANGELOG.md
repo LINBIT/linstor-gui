@@ -1,5 +1,36 @@
 # Changelog
 
+# 2.5.0 - 2026-07-01
+
+### Added
+
+- Auth token management page (create, list, and revoke controller authentication tokens)
+- High Availability (HA) management page for drbd-reactor resources
+- Initialize-cluster wizard to set up a new LINSTOR cluster from the GUI
+- Option to disable controller token authentication from the settings page
+- NFS-Ganesha backend support in Gateway (choose kernel or Ganesha per export)
+- External file management (create, edit, delete files)
+
+### Changed
+
+- Apply the LINBIT brand color across the UI
+- Standardize buttons and modal actions with the shared Button component
+- Gate the auth tokens, HA, and controller auth features on LINSTOR REST API >= 1.28.0
+- Mark the legacy Users page as deprecated
+- Complete the Simplified Chinese (zh-CN) translations
+- Upgrade dependencies and resolve all npm audit vulnerabilities
+
+### Fixed
+
+- Error report time range filter now works
+- Storage pool charts: scope the dashboard highlight to the hovered node and clamp free capacity so thin-pool sentinels no longer break the graphs
+- Show realtime sync progress on the resource overview page
+- Fix the controller auth 401 loop that wiped tokens
+
+### Security
+
+- Stop logging plaintext credentials (passphrase, passwords, and the AES key) to the browser console
+
 # 2.4.0 - 2026-03-30
 
 ### Added
