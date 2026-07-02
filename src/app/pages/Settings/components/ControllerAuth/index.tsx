@@ -111,7 +111,7 @@ const ControllerAuth: React.FC = () => {
     const linstorHost = window.localStorage.getItem('LINSTOR_HOST');
     const host = linstorHost ? new URL(linstorHost, window.location.origin).hostname : window.location.hostname;
 
-    return `https://${host}:3371`;
+    return `https://${host}:3371/ui/#/`;
   };
 
   const handleInitializeTokenAuth = async () => {
@@ -178,7 +178,15 @@ const ControllerAuth: React.FC = () => {
       return;
     }
 
-    window.location.assign(initializedTokenAuth.url);
+    // Enabling token auth also switches the endpoint to HTTPS (port 3371), a
+    // DIFFERENT origin from the current HTTP page. localStorage is origin-scoped,
+    // so the freshly-issued token stored here is invisible over there. Hand it
+    // off through the URL hash fragment (never sent to the server, kept out of
+    // the Referer header); the target origin reads + stores + strips it on load.
+    const { url, token } = initializedTokenAuth;
+    const target = token ? `${url}?ctoken=${encodeURIComponent(token)}` : url;
+
+    window.location.assign(target);
   };
 
   const handleSaveManualToken = () => {
