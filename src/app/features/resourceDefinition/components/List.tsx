@@ -7,6 +7,7 @@
 import React, { useState } from 'react';
 import { Button as AntButton, Form, Space, Table, Tag, Popconfirm, Dropdown } from 'antd';
 import { Input } from '@app/components/Input';
+import { RegexFilterHint } from '@app/components/RegexFilterHint';
 import type { TableProps } from 'antd';
 import { Button } from '@app/components/Button';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -263,7 +264,7 @@ export const List = () => {
           }}
         >
           <Form.Item name="name" label={t('resource_definition:name')}>
-            <Input placeholder="Resource Definition Name" />
+            <Input placeholder="Resource Definition Name" suffix={<RegexFilterHint />} />
           </Form.Item>
 
           <Form.Item>

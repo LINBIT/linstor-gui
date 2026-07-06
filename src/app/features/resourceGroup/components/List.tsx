@@ -7,6 +7,7 @@
 import React, { useRef, useState } from 'react';
 import { Form, Space, Table, Tag, Popconfirm, Dropdown, Tooltip } from 'antd';
 import { Input } from '@app/components/Input';
+import { RegexFilterHint } from '@app/components/RegexFilterHint';
 import { Button } from '@app/components/Button';
 import { Link } from '@app/components/Link';
 import type { TableProps } from 'antd';
@@ -392,7 +393,7 @@ export const List = () => {
           }}
         >
           <Form.Item name="name" label={t('resource_group:name')}>
-            <Input placeholder="Name" />
+            <Input placeholder="Name" suffix={<RegexFilterHint />} />
           </Form.Item>
 
           <Form.Item>

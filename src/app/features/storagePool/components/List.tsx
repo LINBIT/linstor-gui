@@ -8,6 +8,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Form, Space, Table, Tag, Popconfirm, Dropdown, Tooltip } from 'antd';
 import { Select } from '@app/components/Select';
 import { Input } from '@app/components/Input';
+import { RegexFilterHint } from '@app/components/RegexFilterHint';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -366,7 +367,7 @@ export const List = () => {
           </Form.Item>
 
           <Form.Item name="storage_pools" label={t('common:storage_pool')}>
-            <Input placeholder="Storage Pool Name" />
+            <Input placeholder="Storage Pool Name" suffix={<RegexFilterHint />} />
           </Form.Item>
 
           <Form.Item label={t('storage_pool:show_default')} name="show_default" valuePropName="checked">

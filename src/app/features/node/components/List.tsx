@@ -13,6 +13,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { MoreOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
+import { RegexFilterHint } from '@app/components/RegexFilterHint';
 import PropertyForm, { PropertyFormRef } from '@app/components/PropertyForm';
 import Button from '@app/components/Button';
 import { Link } from '@app/components/Link';
@@ -372,7 +373,7 @@ export const List = () => {
           }}
         >
           <Form.Item name="name" label={t('common:name')}>
-            <Input placeholder={t('common:name')} />
+            <Input placeholder={t('common:name')} suffix={<RegexFilterHint />} />
           </Form.Item>
 
           <Form.Item>

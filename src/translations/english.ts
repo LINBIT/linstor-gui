@@ -13,6 +13,7 @@ const en = {
     previous: 'Previous',
     skip: 'Skip',
     search: 'Search',
+    regex_filter_hint: 'Supports regular expressions, matched case-insensitively (e.g. "dev.*").',
     property: 'Properties',
     add: 'Add',
     create: 'Create',
