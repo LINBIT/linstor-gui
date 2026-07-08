@@ -5,3 +5,4 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 export * from './useNodeNetWorkInterface';
+export * from './useGatewayVersion';

@@ -31,4 +31,18 @@ const getResourceGroups = () => {
   return service.get('/api/frontend/v1/linstor/resource-groups');
 };
 
-export { getNetWorkInterfaces, createNFSExport, createISCSIExport, createNVMEExport, getResourceGroups, getNFSList };
+// linstor-gateway health-check endpoint. Since 2.3.0 the response also carries
+// the gateway version, used to gate version-dependent features (e.g. NFS-Ganesha).
+const getGatewayStatus = () => {
+  return service.get<undefined, { status: string; version?: string }>('/api/v2/status');
+};
+
+export {
+  getNetWorkInterfaces,
+  createNFSExport,
+  createISCSIExport,
+  createNVMEExport,
+  getResourceGroups,
+  getNFSList,
+  getGatewayStatus,
+};

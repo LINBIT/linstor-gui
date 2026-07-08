@@ -132,6 +132,20 @@ FormComp.Item = FormItem;
   <div data-testid="form-error-list">{errors?.length > 0 && <span>Errors: {errors.join(', ')}</span>}</div>
 );
 
+// The list components now use the project Popconfirm (@app/components/Popconfirm),
+// which wraps antd Popover. Mock it to the same shape the antd Popconfirm mock
+// used (a confirm button that fires onConfirm) so the delete-flow tests still work.
+vi.mock('@app/components/Popconfirm', () => ({
+  Popconfirm: ({ children, onConfirm }: any) => (
+    <div data-testid="popconfirm">
+      {children}
+      <button data-testid="popconfirm-ok" onClick={onConfirm}>
+        Confirm
+      </button>
+    </div>
+  ),
+}));
+
 vi.mock('antd', () => ({
   message: {
     config: vi.fn(),

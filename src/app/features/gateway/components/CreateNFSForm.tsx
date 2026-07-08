@@ -8,7 +8,8 @@ import React from 'react';
 import { logger } from '@app/utils/logger';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { Form, Checkbox } from 'antd';
+import { Form } from 'antd';
+import { Checkbox } from '@app/components/Checkbox';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
@@ -19,6 +20,7 @@ import { useResourceGroups } from '@app/features/resourceGroup';
 import { SizeInput } from '@app/components/SizeInput';
 import { notify } from '@app/utils/toast';
 import { createNFSExport, getNFSList } from '../api';
+import { useGatewayVersion, MIN_GATEWAY_VERSION } from '../hooks';
 import { NFSImplementation, NFSResource } from '../types';
 
 type FormType = {
@@ -51,11 +53,21 @@ const CreateNFSForm = () => {
     (item) => (item.implementation ?? 'kernel') === 'kernel',
   );
 
+  // NFS-Ganesha is only offered when the running linstor-gateway is >= 2.3.0
+  // (detected via the version reported in /api/v2/status).
+  const { hasMinVersion } = useGatewayVersion();
+  const ganeshaSupported = hasMinVersion(MIN_GATEWAY_VERSION.NFS_GANESHA);
+
   React.useEffect(() => {
-    if (kernelExists && form.getFieldValue('implementation') === 'kernel') {
+    const current = form.getFieldValue('implementation');
+    // Gateway too old for Ganesha: force kernel.
+    if (!ganeshaSupported && current === 'ganesha') {
+      form.setFieldValue('implementation', 'kernel');
+    } else if (ganeshaSupported && kernelExists && current === 'kernel') {
+      // Kernel singleton already taken: prefer Ganesha.
       form.setFieldValue('implementation', 'ganesha');
     }
-  }, [kernelExists, form]);
+  }, [ganeshaSupported, kernelExists, form]);
 
   const backToList = () => {
     navigate('/gateway/NFS');
@@ -183,12 +195,18 @@ const CreateNFSForm = () => {
         label={t('nfs:implementation')}
         name="implementation"
         tooltip={t('nfs:implementation_help')}
-        extra={kernelExists ? t('nfs:create_disabled_kernel') : undefined}
+        extra={
+          !ganeshaSupported
+            ? t('nfs:ganesha_requires_gateway', { version: MIN_GATEWAY_VERSION.NFS_GANESHA })
+            : kernelExists
+              ? t('nfs:create_disabled_kernel')
+              : undefined
+        }
       >
         <Select
           options={[
             { label: t('nfs:implementation_kernel'), value: 'kernel', disabled: kernelExists },
-            { label: t('nfs:implementation_ganesha'), value: 'ganesha' },
+            { label: t('nfs:implementation_ganesha'), value: 'ganesha', disabled: !ganeshaSupported },
           ]}
         />
       </Form.Item>

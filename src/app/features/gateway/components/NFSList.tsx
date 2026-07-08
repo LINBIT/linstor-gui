@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { useEffect, useState } from 'react';
-import { Alert, Popconfirm, Space, Table, Tag } from 'antd';
+import { Alert, Space, Table, Tag } from 'antd';
+import { Popconfirm } from '@app/components/Popconfirm';
 import type { TableProps } from 'antd';
 import { DownOutlined, RightOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';

@@ -535,6 +535,7 @@ const en = {
       'Kernel NFS (default) allows only one NFS resource per cluster. NFS-Ganesha supports multiple independent NFS resources, but requires nfs-ganesha and the ganesha-nfs resource agent installed on all nodes.',
     create_disabled_kernel:
       'A Kernel NFS resource already exists. Kernel NFS allows only one resource per cluster — delete it, or use NFS-Ganesha for multiple resources.',
+    ganesha_requires_gateway: 'NFS-Ganesha requires linstor-gateway {{version}} or later.',
     create: 'NFS Create',
     name: 'Name',
     size: 'Size',

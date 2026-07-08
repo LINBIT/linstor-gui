@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { useState, useMemo } from 'react';
-import { Form, Modal, Popconfirm, Space, Table, Tag } from 'antd';
+import { Form, Modal, Space, Table, Tag } from 'antd';
+import { Popconfirm } from '@app/components/Popconfirm';
 import type { TableProps } from 'antd';
 import { DownOutlined, RightOutlined } from '@ant-design/icons';
 import { ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
