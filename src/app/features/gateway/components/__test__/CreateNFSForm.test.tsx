@@ -155,7 +155,7 @@ describe('CreateNFSForm Component', () => {
       render(<CreateNFSForm />);
 
       const inputs = screen.getAllByTestId('input');
-      expect(inputs.some((i) => i.getAttribute('placeholder') === 'Please input name: my_export')).toBe(true);
+      expect(inputs.some((i) => i.getAttribute('placeholder') === 'my_export')).toBe(true);
     });
 
     it('should render size input', () => {
@@ -168,7 +168,7 @@ describe('CreateNFSForm Component', () => {
       render(<CreateNFSForm />);
 
       const inputs = screen.getAllByTestId('input');
-      expect(inputs.some((i) => i.getAttribute('placeholder') === 'Please input export path: /')).toBe(true);
+      expect(inputs.some((i) => i.getAttribute('placeholder') === '/data')).toBe(true);
     });
 
     it('should render file system select', () => {
@@ -237,7 +237,7 @@ describe('CreateNFSForm Component', () => {
       render(<CreateNFSForm />);
 
       const inputs = screen.getAllByTestId('input');
-      const nameInput = inputs.find((i) => i.getAttribute('placeholder') === 'Please input name: my_export');
+      const nameInput = inputs.find((i) => i.getAttribute('placeholder') === 'my_export');
       const serviceIpInput = inputs.find((i) => i.getAttribute('placeholder') === '192.168.1.1/24');
       const sizeInput = screen.getByTestId('size-input');
 
@@ -267,7 +267,7 @@ describe('CreateNFSForm Component', () => {
       render(<CreateNFSForm />);
 
       const inputs = screen.getAllByTestId('input');
-      const nameInput = inputs.find((i) => i.getAttribute('placeholder') === 'Please input name: my_export');
+      const nameInput = inputs.find((i) => i.getAttribute('placeholder') === 'my_export');
       const serviceIpInput = inputs.find((i) => i.getAttribute('placeholder') === '192.168.1.1/24');
       const sizeInput = screen.getByTestId('size-input');
 
@@ -296,7 +296,7 @@ describe('CreateNFSForm Component', () => {
       render(<CreateNFSForm />);
 
       const inputs = screen.getAllByTestId('input');
-      const nameInput = inputs.find((i) => i.getAttribute('placeholder') === 'Please input name: my_export');
+      const nameInput = inputs.find((i) => i.getAttribute('placeholder') === 'my_export');
       const serviceIpInput = inputs.find((i) => i.getAttribute('placeholder') === '192.168.1.1/24');
       const sizeInput = screen.getByTestId('size-input');
 
@@ -328,9 +328,9 @@ describe('CreateNFSForm Component', () => {
       render(<CreateNFSForm />);
 
       const inputs = screen.getAllByTestId('input');
-      const nameInput = inputs.find((i) => i.getAttribute('placeholder') === 'Please input name: my_export');
+      const nameInput = inputs.find((i) => i.getAttribute('placeholder') === 'my_export');
       const serviceIpInput = inputs.find((i) => i.getAttribute('placeholder') === '192.168.1.1/24');
-      const exportPathInput = inputs.find((i) => i.getAttribute('placeholder') === 'Please input export path: /');
+      const exportPathInput = inputs.find((i) => i.getAttribute('placeholder') === '/data');
       const sizeInput = screen.getByTestId('size-input');
 
       fireEvent.change(nameInput!, { target: { value: 'my-export' } });
@@ -371,7 +371,7 @@ describe('CreateNFSForm Component', () => {
       render(<CreateNFSForm />);
 
       const inputs = screen.getAllByTestId('input');
-      const nameInput = inputs.find((i) => i.getAttribute('placeholder') === 'Please input name: my_export');
+      const nameInput = inputs.find((i) => i.getAttribute('placeholder') === 'my_export');
       const serviceIpInput = inputs.find((i) => i.getAttribute('placeholder') === '192.168.1.1/24');
       const sizeInput = screen.getByTestId('size-input');
 
@@ -433,7 +433,7 @@ describe('CreateNFSForm Component', () => {
       render(<CreateNFSForm />);
 
       const inputs = screen.getAllByTestId('input');
-      const nameInput = inputs.find((i) => i.getAttribute('placeholder') === 'Please input name: my_export');
+      const nameInput = inputs.find((i) => i.getAttribute('placeholder') === 'my_export');
       const serviceIpInput = inputs.find((i) => i.getAttribute('placeholder') === '192.168.1.1/24');
       const sizeInput = screen.getByTestId('size-input');
 

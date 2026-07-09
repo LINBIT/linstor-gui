@@ -162,7 +162,7 @@ const CreateNFSForm = () => {
           },
         ]}
       >
-        <Input placeholder="Please input name: my_export" />
+        <Input placeholder="my_export" />
       </Form.Item>
       <Form.Item
         label={t('common:resource_group')}
@@ -215,7 +215,7 @@ const CreateNFSForm = () => {
       </Form.Item>
 
       <Form.Item name="size_kib" label={t('common:size')} required>
-        <SizeInput />
+        <SizeInput placeholder="10G" />
       </Form.Item>
 
       <Form.Item
@@ -223,7 +223,7 @@ const CreateNFSForm = () => {
         label={t('nfs:export_path')}
         tooltip="Export path relative to /srv/gateway-exports, default is /"
       >
-        <Input placeholder="Please input export path: /" />
+        <Input placeholder="/data" />
       </Form.Item>
 
       <Form.Item label={t('nfs:file_system')} name="file_system" tooltip="File system type to use (default: ext4)">
@@ -265,7 +265,7 @@ const CreateNFSForm = () => {
                   name={[index, 'size_kib']}
                   rules={[{ required: true, message: 'Size is required!' }]}
                 >
-                  <SizeInput />
+                  <SizeInput placeholder="10G" />
                 </Form.Item>
 
                 <Form.Item
@@ -273,7 +273,7 @@ const CreateNFSForm = () => {
                   name={[index, 'export_path']}
                   rules={[{ required: true, message: 'Export path is required!' }]}
                 >
-                  <Input placeholder="Please input export path: /" />
+                  <Input placeholder="/data" />
                 </Form.Item>
 
                 {fields.length > 0 ? (

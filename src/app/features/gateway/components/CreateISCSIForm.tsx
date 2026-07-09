@@ -231,7 +231,7 @@ const CreateISCSIForm = () => {
       </Form.List>
 
       <Form.Item name="size" label={t('common:size')} required>
-        <SizeInput />
+        <SizeInput placeholder="10G" />
       </Form.Item>
 
       <Form.Item
