@@ -74,7 +74,7 @@ const CreateForm = ({ refetch, simple }: CreateFormProps) => {
     <>
       {simple ? (
         <div className="w-full" onClick={() => setShowCreateForm(true)}>
-          {t('common:volume_definition')}
+          {`${t('common:create')} ${t('common:volume_definition')}`}
         </div>
       ) : (
         <Button type="primary" onClick={() => setShowCreateForm(true)}>

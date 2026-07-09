@@ -26,6 +26,19 @@ const getResourceGroupCount = () => {
   return get('/v1/stats/resource-groups');
 };
 
+// Volume groups of a resource group. When spawning, one volume size maps to
+// each volume group (in volume-number order); fewer sizes than volume groups
+// requires the `partial` flag.
+const getResourceGroupVolumeGroups = (resource_group: string) => {
+  return get('/v1/resource-groups/{resource_group}/volume-groups', {
+    params: {
+      path: {
+        resource_group,
+      },
+    },
+  });
+};
+
 const createResourceGroup = (body: ResourceGroupCreateRequestBody) => {
   return post('/v1/resource-groups', {
     body,
@@ -79,6 +92,7 @@ export {
   updateResourceGroup,
   addVolumeToResourceGroup,
   getResourceGroupCount,
+  getResourceGroupVolumeGroups,
   deleteResourceGroup,
   spawnResourceGroup,
 };

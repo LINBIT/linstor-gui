@@ -4,14 +4,14 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Form, Space, Table, Tag, Popconfirm, Dropdown, Tooltip } from 'antd';
 import { Input } from '@app/components/Input';
 import { RegexFilterHint } from '@app/components/RegexFilterHint';
 import { Button } from '@app/components/Button';
 import { Link } from '@app/components/Link';
 import type { TableProps } from 'antd';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQueries, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { MoreOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
@@ -21,10 +21,17 @@ import { UIMode } from '@app/models/setting';
 
 import PropertyForm, { PropertyFormRef } from '@app/components/PropertyForm';
 import { drbdOptions } from '@app/utils/properties/drbdOptions';
-import { getResourceGroups, getResourceGroupCount, deleteResourceGroup, updateResourceGroup } from '../api';
+import {
+  getResourceGroups,
+  getResourceGroupCount,
+  getResourceGroupVolumeGroups,
+  deleteResourceGroup,
+  updateResourceGroup,
+} from '../api';
 import { CreateResourceGroupRequestBody, ResourceGroupListQuery, UpdateResourceGroupRequestBody } from '../types';
 import { SearchForm } from './styled';
 import { SpawnForm } from './SpawnForm';
+import { AddVolumeGroupForm } from './AddVolumeGroupForm';
 import { uniqId } from '@app/utils/stringUtils';
 import { LiaToolsSolid } from 'react-icons/lia';
 
@@ -91,6 +98,29 @@ export const List = () => {
     queryKey: ['getResourceGroups', query],
     queryFn: () => getResourceGroups(query),
   });
+
+  // Volume numbers (VlmNrs) aren't part of the resource-group list response, so
+  // fetch each group's volume groups and map them by resource-group name.
+  const resourceGroupNames = (resourceGroups?.data ?? []).map((rg) => rg.name).filter((n): n is string => !!n);
+  const volumeGroupQueries = useQueries({
+    queries: resourceGroupNames.map((name) => ({
+      queryKey: ['getResourceGroupVolumeGroups', name],
+      queryFn: () => getResourceGroupVolumeGroups(name),
+      staleTime: 60_000,
+    })),
+  });
+  const volumeNumbersByGroup = useMemo(() => {
+    const map: Record<string, number[]> = {};
+    resourceGroupNames.forEach((name, i) => {
+      const vgs = (volumeGroupQueries[i]?.data?.data ?? []) as { volume_number?: number }[];
+      map[name] = vgs
+        .map((v) => v.volume_number)
+        .filter((n): n is number => typeof n === 'number')
+        .sort((a, b) => a - b);
+    });
+    return map;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resourceGroupNames.join(','), volumeGroupQueries.map((q) => q.dataUpdatedAt).join(',')]);
 
   const { data: stats, isLoading: isStatsLoading } = useQuery({
     queryKey: ['getResourceGroupCount'],
@@ -270,6 +300,14 @@ export const List = () => {
       },
     },
     {
+      title: t('resource_group:volume_numbers', 'Volume Numbers'),
+      key: 'volume_numbers',
+      render: (_, item) => {
+        const nums = volumeNumbersByGroup[item.name || ''] ?? [];
+        return <span>{nums.length ? nums.join(', ') : '-'}</span>;
+      },
+    },
+    {
       title: t('resource_group:properties'),
       key: 'properties',
       render: (_, item) => {
@@ -335,6 +373,10 @@ export const List = () => {
                 {
                   key: 'spawn',
                   label: <SpawnForm resource_group={record.name} isInDropdown={true} />,
+                },
+                {
+                  key: 'add-volume-group',
+                  label: <AddVolumeGroupForm resource_group={record.name || ''} isInDropdown refetch={refetch} />,
                 },
                 {
                   key: 'edit',

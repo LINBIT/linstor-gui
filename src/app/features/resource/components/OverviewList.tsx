@@ -17,7 +17,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { uniqBy } from 'lodash';
-import { LineChartOutlined, MoreOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { DownOutlined, LineChartOutlined, MoreOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { LiaToolsSolid } from 'react-icons/lia';
 
 import { uniqId } from '@app/utils/stringUtils';
@@ -33,6 +33,7 @@ import {
   ResizeVolumeModal,
 } from '@app/features/resourceDefinition';
 import { CreateForm } from '@app/features/volumeDefinition';
+import { SpawnForm } from '@app/features/resourceGroup/components/SpawnForm';
 import { useWidth } from '@app/hooks';
 import PropertyForm from '@app/components/PropertyForm';
 
@@ -983,41 +984,50 @@ export const OverviewList = () => {
           </Form.Item>
         </Form>
 
-        <Dropdown
-          menu={{
-            items: [
-              {
-                key: '1',
-                label: t('common:resource_definition'),
-                onClick: () => {
-                  navigate(
-                    mode === UIMode.HCI
-                      ? `/hci/storage-configuration/resource-definitions/create`
-                      : `/storage-configuration/resource-definitions/create`,
-                  );
+        <Space>
+          {/* Quick path: spawn a fully-deployed resource from a resource group. */}
+          <SpawnForm />
+
+          {/* Advanced path: create the Resource Definition / Volume Definition /
+              Resource by hand. */}
+          <Dropdown
+            menu={{
+              items: [
+                {
+                  key: '1',
+                  label: `${t('common:create')} ${t('common:resource_definition')}`,
+                  onClick: () => {
+                    navigate(
+                      mode === UIMode.HCI
+                        ? `/hci/storage-configuration/resource-definitions/create`
+                        : `/storage-configuration/resource-definitions/create`,
+                    );
+                  },
                 },
-              },
-              {
-                key: '2',
-                label: <CreateForm refetch={refetch} simple />,
-              },
-              {
-                key: '3',
-                label: t('common:resource'),
-                onClick: () => {
-                  navigate(
-                    mode === UIMode.HCI
-                      ? `/hci/storage-configuration/resources/create`
-                      : `/storage-configuration/resources/create`,
-                  );
+                {
+                  key: '2',
+                  label: <CreateForm refetch={refetch} simple />,
                 },
-              },
-            ],
-          }}
-          placement="bottomRight"
-        >
-          <Button type="secondary">+ {t('common:add')}</Button>
-        </Dropdown>
+                {
+                  key: '3',
+                  label: `${t('common:create')} ${t('common:resource')}`,
+                  onClick: () => {
+                    navigate(
+                      mode === UIMode.HCI
+                        ? `/hci/storage-configuration/resources/create`
+                        : `/storage-configuration/resources/create`,
+                    );
+                  },
+                },
+              ],
+            }}
+            placement="bottomRight"
+          >
+            <Button type="secondary">
+              {t('common:advanced')} <DownOutlined />
+            </Button>
+          </Dropdown>
+        </Space>
       </SearchForm>
 
       <br />
