@@ -37,6 +37,7 @@ vi.mock('@app/utils/size', () => ({
 const mockUseWindowSize = vi.fn();
 vi.mock('@app/hooks', () => ({
   useWindowSize: () => mockUseWindowSize(),
+  useThemeMode: () => ({ mode: 'light', setMode: vi.fn() }),
 }));
 
 // Mock Chart component from react-apexcharts

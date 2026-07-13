@@ -188,7 +188,7 @@ const ControllerAuthGate = ({ children }: ControllerAuthGateProps) => {
   }
 
   return (
-    <main className="min-h-screen bg-[#f7f7f7] flex items-center justify-center px-4">
+    <main className="min-h-screen bg-[var(--bg-surface)] flex items-center justify-center px-4">
       <Card className="w-full max-w-[520px] shadow-sm">
         {state === 'checking' ? (
           <div className="py-12 flex flex-col items-center gap-4">

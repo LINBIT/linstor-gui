@@ -10,14 +10,15 @@ import type { TextAreaProps } from 'antd/es/input';
 import type { SearchProps } from 'antd/es/input/Search';
 import type { PasswordProps } from 'antd/es/input/Password';
 import styled from '@emotion/styled';
+import { tokens } from '@app/const/color';
 
-const BRAND = '#ffcc9c';
-const FOCUS_SHADOW = '0 0 0 2px rgba(255, 204, 156, 0.2)';
+const BRAND = tokens.color.brand.primary;
+const FOCUS_SHADOW = `0 0 0 2px ${tokens.focusRing}`;
 
 /**
  * Shared brand focus/hover styling. Covers both the plain `.ant-input`
  * element and the `.ant-input-affix-wrapper` used by Password/Search so that
- * the brand color (#FFCC9C) replaces Ant Design's default blue focus ring.
+ * the brand color (brand primary) replaces Ant Design's default blue focus ring.
  */
 const brandInputCss = `
   &:hover,
@@ -63,7 +64,7 @@ export type InputProps = AntInputProps;
 
 /**
  * Custom Input component.
- * Drop-in replacement for antd's Input with the brand color scheme (#FFCC9C)
+ * Drop-in replacement for antd's Input with the brand color scheme (brand primary)
  * applied to hover/focus states. Exposes the same sub-components
  * (TextArea, Password, Search, Group) and forwards refs for Form usage.
  */

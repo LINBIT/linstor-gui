@@ -104,7 +104,7 @@ const PassphrasePrompt: React.FC = () => {
       return (
         <Tooltip title={t('settings:linstor_passphrase_loading', 'Loading passphrase status')}>
           <div>
-            <Spin indicator={<LoadingOutlined style={{ fontSize: 24, color: 'white' }} spin />} />
+            <Spin indicator={<LoadingOutlined style={{ fontSize: 24, color: 'var(--icon-default)' }} spin />} />
           </div>
         </Tooltip>
       );
@@ -115,7 +115,7 @@ const PassphrasePrompt: React.FC = () => {
         return (
           <Tooltip title={t('settings:passphrase_not_set', 'Passphrase not set')}>
             <div>
-              <IoIosWarning className="text-white cursor-pointer" size={24} onClick={handleClick} />
+              <IoIosWarning className="text-[var(--icon-default)] cursor-pointer" size={24} onClick={handleClick} />
             </div>
           </Tooltip>
         );
@@ -123,7 +123,7 @@ const PassphrasePrompt: React.FC = () => {
         return (
           <Tooltip title={t('settings:linstor_locked', 'LINSTOR is locked')}>
             <div className="inline-block cursor-pointer" onClick={handleClick}>
-              <LockIcon className="text-[#FFF]" />
+              <LockIcon className="text-[var(--icon-default)]" />
             </div>
           </Tooltip>
         );
@@ -131,7 +131,7 @@ const PassphrasePrompt: React.FC = () => {
         return (
           <Tooltip title={t('settings:linstor_unlocked', 'LINSTOR is unlocked')}>
             <div className="inline-block">
-              <UnlockedIcon className="text-[#FFF]" />
+              <UnlockedIcon className="text-[var(--icon-default)]" />
             </div>
           </Tooltip>
         );

@@ -250,7 +250,7 @@ export const ISCSIList = ({
     return (
       <div
         style={{
-          background: '#fafafa',
+          background: 'var(--bg-surface)',
           padding: '16px',
           margin: '-8px -8px -8px 24px',
           borderRadius: '4px',
@@ -262,7 +262,7 @@ export const ISCSIList = ({
           pagination={false}
           size="small"
           rowKey="key"
-          style={{ background: 'white' }}
+          style={{ background: 'var(--bg-page)' }}
         />
       </div>
     );

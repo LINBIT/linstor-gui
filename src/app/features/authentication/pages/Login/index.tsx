@@ -38,7 +38,7 @@ export const Login = ({ redirectTo }: LoginProps) => {
       </div>
 
       {/* Login form container */}
-      <div className="flex-1 flex bg-white justify-center items-center p-4 md:pl-[118px] md:pt-[220px] md:justify-start md:items-start">
+      <div className="flex-1 flex bg-[var(--bg-page)] justify-center items-center p-4 md:pl-[118px] md:pt-[220px] md:justify-start md:items-start">
         <div className="w-full max-w-md">
           {/* Logo */}
           <div className="flex justify-center md:justify-start mb-8 md:mb-5">

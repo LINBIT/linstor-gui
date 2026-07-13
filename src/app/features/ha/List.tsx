@@ -325,7 +325,7 @@ const FileContentModal: React.FC<FileContentModalProps> = ({ filePath, visible, 
       ) : decodedContent ? (
         <pre
           style={{
-            background: '#f5f5f5',
+            background: 'var(--bg-surface)',
             padding: 12,
             borderRadius: 4,
             margin: 0,

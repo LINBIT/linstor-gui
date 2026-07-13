@@ -6,7 +6,7 @@
 .connect__status {
   display: flex;
   align-items: center;
-  color: #d3d2d2;
+  color: var(--icon-subtle);
 }
 
 .connected__img {

@@ -539,7 +539,7 @@ export const OverviewList = () => {
                 ) => {
                   return (
                     <Tag key={index} color={TAG_COLORS[index]} bordered={false}>
-                      <span className="text-black">{layer.type}</span>
+                      <span className="text-[var(--text-primary)]">{layer.type}</span>
                     </Tag>
                   );
                 },

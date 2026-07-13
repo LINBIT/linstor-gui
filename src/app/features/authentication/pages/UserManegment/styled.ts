@@ -27,6 +27,6 @@ export const BG = styled.img`
 export const StyledSection = styled.div`
   display: flex;
   border-radius: 16px;
-  background-color: #fff;
+  background-color: var(--bg-page);
   height: calc(100vh - 200px);
 `;

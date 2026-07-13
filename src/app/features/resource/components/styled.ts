@@ -6,10 +6,7 @@
 
 import styled from '@emotion/styled';
 
-export const SearchForm = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
+export { SearchForm } from '@app/components/SearchForm';
 
 export const TooltipContainer = styled.div`
   width: 400px;

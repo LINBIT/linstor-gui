@@ -15,5 +15,7 @@ export const NavProvider: React.FC<PropsWithChildren> = ({ children }) => {
     setIsNavOpen((prev) => !prev);
   };
 
-  return <NavContext.Provider value={{ isNavOpen, toggleNav }}>{children}</NavContext.Provider>;
+  return (
+    <NavContext.Provider value={{ isNavOpen, toggleNav, setNavOpen: setIsNavOpen }}>{children}</NavContext.Provider>
+  );
 };

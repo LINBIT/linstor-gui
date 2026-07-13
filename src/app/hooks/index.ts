@@ -11,6 +11,7 @@ export { default as useIsAdmin } from './useIsAdmin';
 export { useWindowSize } from './useWindowSize';
 export { useDocumentTitle } from './useDocumentTitle';
 export { useNav } from './useNav';
+export { useThemeMode, ThemeModeProvider } from './useThemeMode';
 export { useWidth } from './useWidth';
 export { usePreloadIframes, preconnectToGrafana } from './usePreloadIframes';
 export { useLinstorVersion, MIN_API_VERSION } from './useLinstorVersion';

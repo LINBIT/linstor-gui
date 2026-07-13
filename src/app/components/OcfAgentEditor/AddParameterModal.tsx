@@ -132,7 +132,7 @@ export function AddParameterModal({
               <div
                 style={{
                   padding: '12px',
-                  background: '#f8fafc',
+                  background: 'var(--bg-surface)',
                   borderRadius: '4px',
                   fontSize: '13px',
                 }}

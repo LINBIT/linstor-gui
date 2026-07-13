@@ -107,7 +107,7 @@ const ExpandableSection = styled.div`
   .expandable-content {
     margin-top: 1em;
     padding: 1em;
-    background: #fafafa;
+    background: var(--bg-surface);
     border-radius: 8px;
   }
 `;
@@ -341,7 +341,9 @@ const Dashboard: React.FC = () => {
         <Text type="secondary">{t('settings:grafana_description')}</Text>
         <div style={{ marginTop: '1em' }}>
           <Text type="secondary">{t('settings:grafana_prerequisites_note')}</Text>
-          <pre style={{ marginTop: '0.5em', padding: '0.5em', backgroundColor: '#f5f5f5', borderRadius: '4px' }}>
+          <pre
+            style={{ marginTop: '0.5em', padding: '0.5em', backgroundColor: 'var(--bg-surface)', borderRadius: '4px' }}
+          >
             {t('settings:grafana_prerequisites_config')}
           </pre>
         </div>

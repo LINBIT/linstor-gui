@@ -7,28 +7,135 @@
 @import url('antd/dist/reset.css');
 @import 'tailwindcss';
 
+/* Design font (DESIGN.md): Roboto, self-hosted via @fontsource — the system
+ * fallback (SF Pro) renders visibly heavier than Figma's Roboto. */
+@import '@fontsource/roboto/400.css';
+@import '@fontsource/roboto/500.css';
+@import '@fontsource/roboto/700.css';
+
 #app-loading {
   display: none;
+}
+
+/* Base text/background follow the theme tokens (antd reset pins them to
+ * light values); Roboto per DESIGN.md. */
+body {
+  background: var(--bg-page);
+  color: var(--text-primary);
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
+}
+
+/* Mobile: wide tables scroll inside their container instead of blowing the
+ * whole page out horizontally (most list tables set no `scroll` prop). */
+.ant-table-content {
+  overflow-x: auto;
+}
+
+/* Keep the shell itself from ever growing wider than the viewport. */
+.ant-layout {
+  min-width: 0;
 }
 
 iframe {
   min-height: 400px;
 }
 
-/* Ant Design Menu selected item styles */
+/* Ant Design Menu — sidebar nav items, themed via the design tokens
+ * (handoff §4: default bg/surface, hover bg/nav-item/hover, active
+ * bg/nav-item/selected). */
 .ant-menu-item-selected,
 .ant-menu-item-selected:hover {
-  background-color: white !important;
-  color: #000000 !important;
+  background-color: var(--bg-nav-item-selected) !important;
+  color: var(--text-nav) !important;
 }
 
 .ant-menu-item-selected .ant-menu-item-icon,
 .ant-menu-item-selected:hover .ant-menu-item-icon {
-  color: #000000 !important;
+  color: var(--text-nav) !important;
 }
 
 .ant-menu-submenu-selected .ant-menu-submenu-title,
 .ant-menu-submenu-selected:hover .ant-menu-submenu-title {
-  background-color: white !important;
-  color: #000000 !important;
+  background-color: var(--bg-nav-item-selected) !important;
+  color: var(--text-nav) !important;
+}
+
+.ant-menu-light .ant-menu-item:not(.ant-menu-item-selected):hover,
+.ant-menu-light .ant-menu-submenu:not(.ant-menu-submenu-selected) > .ant-menu-submenu-title:hover {
+  background-color: var(--bg-nav-item-hover) !important;
+  color: var(--text-nav) !important;
+}
+
+/* Sidebar nav list (handoff §6): 16px top/side padding, 16px gap between
+ * top-level items. */
+.ant-layout-sider:not(.ant-layout-sider-collapsed) .ant-menu-root {
+  padding: 16px 16px 8px;
+}
+
+.ant-layout-sider .ant-menu-root > .ant-menu-item,
+.ant-layout-sider .ant-menu-root > .ant-menu-submenu {
+  margin-bottom: 16px;
+}
+
+.ant-layout-sider:not(.ant-layout-sider-collapsed) .ant-menu-root > .ant-menu-item,
+.ant-layout-sider:not(.ant-layout-sider-collapsed) .ant-menu-root .ant-menu-submenu-title {
+  margin-inline: 0;
+  width: 100%;
+}
+
+/* Sidebar nav item metrics (handoff §4): 41px row, 4px radius, 16px label,
+ * 18px icon with 8px icon–label gap, chevron rotates in 150ms. Weight 400 —
+ * Figma's Roboto Medium reads heavier than the prototype when rendered by
+ * the system font; selected gets 500 below. */
+.ant-layout-sider .ant-menu-item,
+.ant-layout-sider .ant-menu-submenu-title {
+  height: 41px;
+  line-height: 41px;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--text-nav);
+}
+
+.ant-layout-sider .ant-menu-item .ant-menu-item-icon,
+.ant-layout-sider .ant-menu-submenu-title .ant-menu-item-icon {
+  font-size: 18px;
+}
+
+.ant-layout-sider .ant-menu-item .ant-menu-title-content,
+.ant-layout-sider .ant-menu-submenu-title .ant-menu-title-content {
+  margin-inline-start: 8px;
+}
+
+/* Nav labels are <Link>s — follow the item's token color, not antd's
+ * light-theme link color (which goes invisible in dark mode). */
+.ant-layout-sider .ant-menu-item a,
+.ant-layout-sider .ant-menu-item a:hover {
+  color: inherit;
+}
+
+.ant-layout-sider .ant-menu-item-selected {
+  font-weight: 500;
+}
+
+.ant-layout-sider .ant-menu-submenu-arrow {
+  color: var(--icon-nav-arrow);
+  transition: transform 150ms ease;
+}
+
+/* Theme-aware brand mark in the top bar: dark lettering on the white header,
+ * white lettering when data-theme="dark". */
+:root:not([data-theme='dark']) .logo-on-dark {
+  display: none;
+}
+
+:root[data-theme='dark'] .logo-on-light {
+  display: none;
 }

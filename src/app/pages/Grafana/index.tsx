@@ -12,7 +12,7 @@ import { useSelector } from 'react-redux';
 const PageContainer = styled.div`
   width: 100%;
   height: calc(100vh - 64px);
-  background-color: white;
+  background-color: var(--bg-page);
 `;
 
 const IFramePage = styled.iframe`

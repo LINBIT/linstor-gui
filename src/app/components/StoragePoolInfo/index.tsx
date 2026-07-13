@@ -15,7 +15,7 @@ import { groupBy, union } from 'lodash';
 import { getStoragePool } from '@app/features/storagePool';
 import { formatBytes } from '@app/utils/size';
 import styled from '@emotion/styled';
-import { useWindowSize } from '@app/hooks';
+import { useWindowSize, useThemeMode } from '@app/hooks';
 import { generateStoragePoolColorPairs, getNodeTotalColorPair } from '@app/utils/storagePoolColors';
 import { normalizeStoragePoolSpace } from '@app/utils/storagePoolSpace';
 type SeriesItem = {
@@ -49,7 +49,7 @@ const ChartContainer = styled.div<{ enableScroll?: boolean; isLegendHovering?: b
 
   .storage-pool-hovered-segment,
   .storage-pool-hovered-series-segment {
-    stroke: #3f3f3f !important;
+    stroke: var(--icon-subtle) !important;
     stroke-width: 2px !important;
   }
 
@@ -66,7 +66,7 @@ const ChartContainer = styled.div<{ enableScroll?: boolean; isLegendHovering?: b
   `}
 
   .storage-pool-hovered-xaxis-label {
-    fill: #111827 !important;
+    fill: var(--text-primary) !important;
     font-weight: 700 !important;
   }
 
@@ -87,6 +87,10 @@ const ChartContainer = styled.div<{ enableScroll?: boolean; isLegendHovering?: b
     border: 1px solid rgba(17, 24, 39, 0.18);
     border-radius: 8px;
     background: transparent;
+
+    [data-theme='dark'] & {
+      border-color: rgba(240, 240, 240, 0.25);
+    }
     pointer-events: none;
     transition:
       opacity 120ms ease,
@@ -99,6 +103,10 @@ const ChartContainer = styled.div<{ enableScroll?: boolean; isLegendHovering?: b
   .storage-pool-node-tooltip {
     width: 100%;
     background: rgba(255, 255, 255, 0.92);
+
+    [data-theme='dark'] & {
+      background: rgba(26, 26, 26, 0.92);
+    }
     padding: 10px 12px 12px;
     box-shadow: none;
     pointer-events: auto;
@@ -131,18 +139,23 @@ const ChartContainer = styled.div<{ enableScroll?: boolean; isLegendHovering?: b
 
   .storage-pool-node-tooltip-row.is-highlighted .storage-pool-node-tooltip-label {
     font-weight: 700;
-    color: #111827;
+    color: var(--text-primary);
     background: rgba(0, 0, 0, 0.04);
   }
 
   .storage-pool-node-tooltip-row.is-highlighted .storage-pool-node-tooltip-metric {
-    color: #374151;
+    color: var(--text-secondary);
     background: rgba(0, 0, 0, 0.04);
+  }
+
+  [data-theme='dark'] & .storage-pool-node-tooltip-row.is-highlighted .storage-pool-node-tooltip-label,
+  [data-theme='dark'] & .storage-pool-node-tooltip-row.is-highlighted .storage-pool-node-tooltip-metric {
+    background: rgba(255, 255, 255, 0.08);
   }
 
   .storage-pool-node-tooltip-label {
     font-weight: 400;
-    color: #5f6368;
+    color: var(--text-muted);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -154,7 +167,7 @@ const ChartContainer = styled.div<{ enableScroll?: boolean; isLegendHovering?: b
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    color: #6b7280;
+    color: var(--text-muted);
     white-space: nowrap;
     font-size: 13px;
     border-radius: 3px;
@@ -167,8 +180,12 @@ const ChartContainer = styled.div<{ enableScroll?: boolean; isLegendHovering?: b
 
   .storage-pool-node-tooltip-metric.is-highlighted {
     background: rgba(0, 0, 0, 0.06);
-    color: #111827;
+    color: var(--text-primary);
     font-weight: 600;
+  }
+
+  [data-theme='dark'] & .storage-pool-node-tooltip-metric.is-highlighted {
+    background: rgba(255, 255, 255, 0.1);
   }
 
   .storage-pool-node-tooltip-metric-dot {
@@ -192,7 +209,7 @@ const ChartContainer = styled.div<{ enableScroll?: boolean; isLegendHovering?: b
     align-items: center;
     gap: 8px;
     padding: 2px 0;
-    color: #6b7280;
+    color: var(--text-muted);
     font-size: 13px;
     line-height: 1.4;
     cursor: default;
@@ -200,7 +217,7 @@ const ChartContainer = styled.div<{ enableScroll?: boolean; isLegendHovering?: b
   }
 
   .storage-pool-custom-legend-item.is-highlighted {
-    color: #111827;
+    color: var(--text-primary);
     font-weight: 700;
   }
 
@@ -410,6 +427,7 @@ const setHoveredSegmentState = (
 export const StoragePoolInfo: React.FC = () => {
   const { t } = useTranslation();
 
+  const { mode } = useThemeMode();
   const { height } = useWindowSize();
   const chartContainerRef = useRef<HTMLDivElement | null>(null);
   const hideHoveredNodeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -744,6 +762,8 @@ export const StoragePoolInfo: React.FC = () => {
 
   const options: ApexOptions = {
     chart: {
+      // Axis/label text follows the theme (apex can't read CSS vars)
+      foreColor: mode === 'dark' ? '#e0e0e0' : '#373d3f',
       stacked: true,
       redrawOnParentResize: true,
       redrawOnWindowResize: true,
@@ -798,7 +818,14 @@ export const StoragePoolInfo: React.FC = () => {
     },
     stroke: {
       width: 1,
-      colors: ['#fff'],
+      // Segment separator matches the page background in each mode
+      colors: [mode === 'dark' ? '#111111' : '#fff'],
+    },
+    grid: {
+      borderColor: mode === 'dark' ? '#2e2e2e' : '#e0e0e0',
+    },
+    tooltip: {
+      theme: mode,
     },
   };
 
@@ -824,7 +851,7 @@ export const StoragePoolInfo: React.FC = () => {
   const isTruncated = chartData.totalNodeCount > nodeCount;
 
   return (
-    <div className="border-2 border-gray-200 rounded px-[34px] py-[30px]">
+    <div className="border-2 border-[color:var(--border-subtle)] rounded px-[34px] py-[30px]">
       <div className="m-0 mb-4 flex items-baseline gap-3 flex-wrap">
         <h3 className="m-0 text-[26px] font-semibold">{t('common:storage_pool_overview')}</h3>
         <Tooltip

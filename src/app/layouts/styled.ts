@@ -30,7 +30,7 @@ export const NoSupport = styled.div`
   font-size: 18px;
   margin-right: 60px;
   font-weight: 600;
-  color: white;
+  color: var(--text-primary);
 `;
 
 export const WarningLogo = styled.img`
@@ -39,7 +39,7 @@ export const WarningLogo = styled.img`
 `;
 
 export const Attention = styled.div`
-  color: #fff;
+  color: var(--text-primary);
   margin-left: 16px;
   margin-right: 16px;
 `;

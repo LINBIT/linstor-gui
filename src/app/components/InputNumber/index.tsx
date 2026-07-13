@@ -6,9 +6,10 @@
 
 import { InputNumber as AntInputNumber, InputNumberProps as AntInputNumberProps } from 'antd';
 import styled from '@emotion/styled';
+import { tokens } from '@app/const/color';
 
-const BRAND = '#ffcc9c';
-const FOCUS_SHADOW = '0 0 0 2px rgba(255, 204, 156, 0.2)';
+const BRAND = tokens.color.brand.primary;
+const FOCUS_SHADOW = `0 0 0 2px ${tokens.focusRing}`;
 
 const StyledInputNumber = styled(AntInputNumber)`
   &.ant-input-number:hover,
@@ -34,7 +35,7 @@ export type InputNumberProps = AntInputNumberProps;
 /**
  * Custom InputNumber component.
  * Drop-in replacement for antd's InputNumber with the brand color scheme
- * (#FFCC9C) applied to hover/focus states and the stepper handles.
+ * (brand primary) applied to hover/focus states and the stepper handles.
  */
 export const InputNumber = StyledInputNumber as typeof AntInputNumber;
 

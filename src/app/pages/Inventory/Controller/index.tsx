@@ -144,7 +144,7 @@ export const Controller = () => {
         size="small"
         dataSource={propertiesArray}
         pagination={false}
-        rowClassName={(_, index) => (index % 2 === 1 ? 'bg-gray-100' : '')}
+        rowClassName={(_, index) => (index % 2 === 1 ? 'bg-[var(--bg-surface)]' : '')}
         columns={[
           {
             title: t('common:controller_properties'),

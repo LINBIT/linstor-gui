@@ -116,7 +116,7 @@ export const FaultyList = () => {
   ];
 
   return (
-    <div className="border-2 border-gray-200 rounded px-[34px] py-[30px] mt-[20px]">
+    <div className="border-2 border-[color:var(--border-subtle)] rounded px-[34px] py-[30px] mt-[20px]">
       <h3 className="m-0 mb-4 text-[26px] font-semibold">{t('common:faulty_resource')}</h3>
       {resources?.length ? (
         <Table<ResourceDataType>

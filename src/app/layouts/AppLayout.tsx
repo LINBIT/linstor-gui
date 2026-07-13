@@ -7,7 +7,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Layout, message, FloatButton, Button } from 'antd';
+import { Layout, message, FloatButton, Button, Grid } from 'antd';
 import { VerticalAlignTopOutlined } from '@ant-design/icons';
 import { IoMenuOutline } from 'react-icons/io5';
 import SVG from 'react-inlinesvg';
@@ -21,6 +21,7 @@ import { UIMode as SettingUIMode } from '@app/models/setting'; // import Setting
 import { useNav } from '@app/hooks';
 import Navigation from './components/Navigation';
 import HeaderTools from './components/HeaderTools';
+import ThemeToggle from './components/ThemeToggle';
 import { LogoImg } from './components/LogoImg';
 import warning from '@app/assets/warning-icon.svg';
 import arrowRight from '@app/assets/arrow_right.svg';
@@ -36,6 +37,11 @@ import {
 import './AppLayout.css';
 
 const { Header, Content, Sider } = Layout;
+
+// Shell metrics tuned against the Figma prototype (the handoff's ≈82px/≈337px
+// were measured at a different zoom and render visibly oversized at 1:1).
+const HEADER_HEIGHT = 72;
+const SIDEBAR_WIDTH = 276;
 
 interface IAppLayout {
   children: React.ReactNode;
@@ -57,7 +63,9 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showBackTop, setShowBackTop] = useState(false);
 
-  const { isNavOpen, toggleNav } = useNav();
+  const { isNavOpen, toggleNav, setNavOpen } = useNav();
+  // Below md the collapsed sidebar hides entirely (0px) instead of icons-only
+  const screens = Grid.useBreakpoint();
 
   const handleOk = () => {
     setIsModalOpen(false);
@@ -167,16 +175,22 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
     <>
       <Layout style={{ minHeight: '100vh' }}>
         <Header
-          className="border-b-2 border-white"
           style={{
             position: 'sticky',
             top: 0,
             zIndex: 60,
             width: '100%',
-            height: '82px',
+            height: HEADER_HEIGHT,
             display: 'flex',
             alignItems: 'center',
-            backgroundColor: '#3F3F3F',
+            // Light-gray top bar matching the sidebar (per the Figma prototype;
+            // NOTE: the tokens JSON says bg/nav=#111 for the top bar, but the
+            // light-mode prototype clearly renders it as bg/surface — follow
+            // the visual until design confirms).
+            backgroundColor: 'var(--bg-surface)',
+            borderBottom: '1px solid var(--border-subtle)',
+            // Inherited by the currentColor header icons (log, dots, user, …)
+            color: 'var(--icon-default)',
             paddingLeft: '16px',
             paddingRight: '16px',
           }}
@@ -187,10 +201,10 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
             onClick={toggleNav}
             style={{
               fontSize: '20px',
-              width: 64,
-              height: 64,
-              color: '#FFFFFF',
-              marginRight: '16px',
+              width: screens.md ? 64 : 40,
+              height: screens.md ? 64 : 40,
+              color: 'var(--icon-default)',
+              marginRight: screens.md ? '16px' : '8px',
             }}
           />
           <LogoImg logoSrc={logoSrc} />
@@ -210,28 +224,40 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
         <Layout>
           <Sider
             collapsed={isNavOpen}
-            width="240"
+            width={SIDEBAR_WIDTH}
+            breakpoint="lg"
+            // Auto-collapse below ~992px, re-expand above (isNavOpen === collapsed)
+            onBreakpoint={setNavOpen}
+            collapsedWidth={screens.md === false ? 0 : 80}
             style={{
               position: 'sticky',
-              top: '82px',
-              height: 'calc(100vh - 82px)',
+              top: HEADER_HEIGHT,
+              height: `calc(100vh - ${HEADER_HEIGHT}px)`,
               overflowY: 'auto',
-              backgroundColor: '#EEEEEE',
+              backgroundColor: 'var(--bg-surface)',
               borderTopRightRadius: '4px',
             }}
           >
-            <Navigation
-              isNavOpen={isNavOpen}
-              vsanModeFromSetting={vsanModeFromSetting}
-              hciModeFromSetting={hciModeFromSetting}
-              KVS={KVS}
-              grafanaConfig={grafanaConfig}
-              gatewayAvailable={gatewayAvailable}
-              authenticationEnabled={authenticationEnabled}
-              isAdmin={isAdmin}
-            />
+            <div className="flex min-h-full flex-col">
+              <div className="flex-1">
+                <Navigation
+                  isNavOpen={isNavOpen}
+                  vsanModeFromSetting={vsanModeFromSetting}
+                  hciModeFromSetting={hciModeFromSetting}
+                  KVS={KVS}
+                  grafanaConfig={grafanaConfig}
+                  gatewayAvailable={gatewayAvailable}
+                  authenticationEnabled={authenticationEnabled}
+                  isAdmin={isAdmin}
+                />
+              </div>
+              {/* Theme toggle pinned near the bottom of the sidebar (handoff §6) */}
+              <div className="p-4">
+                <ThemeToggle collapsed={isNavOpen} />
+              </div>
+            </div>
           </Sider>
-          <Content className="p-[24px] bg-white">{children}</Content>
+          <Content className="p-4 md:p-[24px] bg-[var(--bg-page)]">{children}</Content>
         </Layout>
       </Layout>
 

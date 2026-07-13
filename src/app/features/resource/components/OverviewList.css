@@ -5,3 +5,12 @@
 .ant-table-row-primary:hover > td {
   background-color: #c6ff94 !important;
 }
+
+/* Dark-mode variants of the primary-node highlight (same hue, dark values) */
+[data-theme='dark'] .ant-table-row-primary {
+  background-color: #1d3312;
+}
+
+[data-theme='dark'] .ant-table-row-primary:hover > td {
+  background-color: #2a4d1a !important;
+}

@@ -5,7 +5,7 @@
  */
 
 .ant-dropdown-link {
-  color: white;
+  color: var(--text-primary);
   cursor: pointer;
   display: inline-flex;
   align-items: center;

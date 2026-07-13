@@ -7,147 +7,148 @@
 import React from 'react';
 import { Radio as AntRadio, RadioProps as AntRadioProps, RadioGroupProps as AntRadioGroupProps } from 'antd';
 import styled from '@emotion/styled';
+import { tokens } from '@app/const/color';
 
 const StyledRadio = styled(AntRadio)`
   && {
-    color: #000000 !important;
+    color: var(--text-nav) !important;
   }
 
   &.ant-radio-wrapper {
-    color: #000000 !important;
+    color: var(--text-nav) !important;
   }
 
   .ant-radio-inner {
-    border-color: #ffcc9c !important;
+    border-color: ${tokens.color.brand.primary} !important;
   }
 
   .ant-radio-checked .ant-radio-inner {
-    border-color: #ffcc9c !important;
-    background-color: #ffffff !important;
+    border-color: ${tokens.color.brand.primary} !important;
+    background-color: var(--bg-page) !important;
   }
 
   .ant-radio-checked .ant-radio-inner::after {
-    background-color: #ffcc9c !important;
+    background-color: ${tokens.color.brand.primary} !important;
   }
 
   .ant-radio:hover .ant-radio-inner {
-    border-color: #ffcc9c !important;
+    border-color: ${tokens.color.brand.primary} !important;
   }
 
   .ant-radio-input:focus + .ant-radio-inner {
-    border-color: #ffcc9c !important;
+    border-color: ${tokens.color.brand.primary} !important;
     box-shadow: 0 0 0 3px rgba(255, 204, 156, 0.1) !important;
   }
 
   &.ant-radio-wrapper:hover .ant-radio,
   &.ant-radio-wrapper:hover .ant-radio-inner {
-    border-color: #ffcc9c !important;
+    border-color: ${tokens.color.brand.primary} !important;
   }
 
   &.ant-radio-wrapper-checked {
     .ant-radio-checked .ant-radio-inner {
-      border-color: #ffcc9c !important;
+      border-color: ${tokens.color.brand.primary} !important;
     }
 
     .ant-radio-checked .ant-radio-inner::after {
-      background-color: #ffcc9c !important;
+      background-color: ${tokens.color.brand.primary} !important;
     }
 
     &:hover .ant-radio-checked .ant-radio-inner {
-      border-color: #ffdcbc !important;
+      border-color: ${tokens.color.brand.primaryHover} !important;
     }
 
     &:hover .ant-radio-checked .ant-radio-inner::after {
-      background-color: #ffdcbc !important;
+      background-color: ${tokens.color.brand.primaryHover} !important;
     }
   }
 `;
 
 const StyledRadioGroup = styled(AntRadio.Group)`
   && .ant-radio-wrapper {
-    color: #000000 !important;
+    color: var(--text-nav) !important;
   }
 
   .ant-radio-wrapper span {
-    color: #000000 !important;
+    color: var(--text-nav) !important;
   }
 
   .ant-radio-checked .ant-radio-inner {
-    border-color: #ffcc9c !important;
-    background-color: #ffffff !important;
+    border-color: ${tokens.color.brand.primary} !important;
+    background-color: var(--bg-page) !important;
   }
 
   .ant-radio-checked .ant-radio-inner::after {
-    background-color: #ffcc9c !important;
+    background-color: ${tokens.color.brand.primary} !important;
   }
 
   .ant-radio:hover .ant-radio-inner {
-    border-color: #ffcc9c !important;
+    border-color: ${tokens.color.brand.primary} !important;
   }
 
   .ant-radio-input:focus + .ant-radio-inner {
-    border-color: #ffcc9c !important;
+    border-color: ${tokens.color.brand.primary} !important;
     box-shadow: 0 0 0 3px rgba(255, 204, 156, 0.1) !important;
   }
 
   .ant-radio-wrapper:hover .ant-radio,
   .ant-radio-wrapper:hover .ant-radio-inner {
-    border-color: #ffcc9c !important;
+    border-color: ${tokens.color.brand.primary} !important;
   }
 
   .ant-radio-wrapper-checked {
     .ant-radio-checked .ant-radio-inner {
-      border-color: #ffcc9c !important;
+      border-color: ${tokens.color.brand.primary} !important;
     }
 
     .ant-radio-checked .ant-radio-inner::after {
-      background-color: #ffcc9c !important;
+      background-color: ${tokens.color.brand.primary} !important;
     }
 
     &:hover .ant-radio-checked .ant-radio-inner {
-      border-color: #ffdcbc !important;
+      border-color: ${tokens.color.brand.primaryHover} !important;
     }
 
     &:hover .ant-radio-checked .ant-radio-inner::after {
-      background-color: #ffdcbc !important;
+      background-color: ${tokens.color.brand.primaryHover} !important;
     }
   }
 
   && .ant-radio-button-wrapper {
-    color: #000000 !important;
+    color: var(--text-nav) !important;
   }
 
   .ant-radio-button-wrapper span {
-    color: #000000 !important;
+    color: var(--text-nav) !important;
   }
 
   .ant-radio-button-wrapper-checked {
-    background-color: #ffcc9c !important;
-    border-color: #ffcc9c !important;
-    color: #111111 !important;
+    background-color: ${tokens.color.brand.primary} !important;
+    border-color: ${tokens.color.brand.primary} !important;
+    color: ${tokens.color.brand.onPrimary} !important;
     font-weight: 600 !important;
 
     &:hover {
-      background-color: #ffdcbc !important;
-      border-color: #ffdcbc !important;
-      color: #111111 !important;
+      background-color: ${tokens.color.brand.primaryHover} !important;
+      border-color: ${tokens.color.brand.primaryHover} !important;
+      color: ${tokens.color.brand.onPrimary} !important;
     }
 
     &::before {
-      background-color: #ffcc9c !important;
+      background-color: ${tokens.color.brand.primary} !important;
     }
   }
 
   .ant-radio-button-wrapper-checked span {
-    color: #111111 !important;
+    color: ${tokens.color.brand.onPrimary} !important;
   }
 
   .ant-radio-button-wrapper:hover {
-    color: #ffcc9c !important;
+    color: ${tokens.color.brand.primary} !important;
   }
 
   .ant-radio-button-wrapper:hover span {
-    color: #ffcc9c !important;
+    color: ${tokens.color.brand.primary} !important;
   }
 
   .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):focus-within {
@@ -203,7 +204,7 @@ export interface RadioGroupProps extends AntRadioGroupProps {
 
 /**
  * Custom Radio component
- * Features custom color scheme with #FFCC9C as the primary color
+ * Features custom color scheme with ${tokens.color.brand.primary} as the primary color
  * Based on Ant Design Radio with custom styling
  */
 export const Radio: React.FC<RadioProps> & {

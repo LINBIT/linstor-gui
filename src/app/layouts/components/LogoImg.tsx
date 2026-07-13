@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import SVG from 'react-inlinesvg';
 import { isUrl } from '@app/utils/stringUtils';
 import isSvg from 'is-svg';
-import logo from '@app/assets/brand-dark.svg';
+import logoOnDark from '@app/assets/brand-dark.svg';
+import logoOnLight from '@app/assets/brand-light.svg';
 import { UIMode } from '@app/models/setting';
 import { RootState } from '@app/store';
 import { useSelector } from 'react-redux';
@@ -44,11 +45,15 @@ export const LogoImg: React.FC<LogoImgProps> = ({ logoSrc }) => {
 
   return (
     <div className="cursor-pointer flex items-center">
-      <img src={logo} className="w-40" onClick={handleClick} alt="LINBIT logo" />
+      {/* Theme-aware brand mark: dark lettering on the light header, white on dark (app.css swaps visibility). */}
+      <img src={logoOnLight} className="w-28 md:w-40 logo-on-light" onClick={handleClick} alt="LINBIT logo" />
+      <img src={logoOnDark} className="w-28 md:w-40 logo-on-dark" onClick={handleClick} alt="LINBIT logo" />
       {logoSrc && (
         <>
           {' '}
-          <div className="text-white mx-2 text-2xl">{'|'}</div>
+          <div className="mx-2 text-2xl" style={{ color: 'var(--text-primary)' }}>
+            {'|'}
+          </div>
           <div className="">{renderLogo(logoSrc)}</div>
         </>
       )}

@@ -12,6 +12,8 @@ import locale from 'antd/locale/en_US';
 
 import AppLayout from '@app/layouts/AppLayout';
 import AppRoutes from '@app/routes/routes';
+import { getAntdTheme } from '@app/const/antdTheme';
+import { applyThemeTokens, initThemeMode } from '@app/const/themeTokens';
 import { resolveAndStoreLinstorHost } from '@app/utils/resolveLinstorHost';
 import { setControllerAuthRequired, setControllerAuthToken } from '@app/utils/controllerAuth';
 import { useSpaceReportStatus } from '@app/hooks/useSpaceReportStatus';
@@ -20,8 +22,15 @@ import ControllerAuthGate from '@app/components/ControllerAuthGate';
 
 import { store } from './store';
 import { NavProvider } from './NavContext';
+import { ThemeModeProvider, useThemeMode } from '@app/hooks';
 
 import '@app/app.css';
+
+// Emit the design tokens as CSS custom properties before anything renders
+// (light on :root, dark on :root[data-theme="dark"]) and restore the
+// persisted theme choice.
+applyThemeTokens();
+initThemeMode();
 
 if (typeof window !== 'undefined') {
   const url = new URL(window.location.href);
@@ -57,25 +66,29 @@ if (typeof window !== 'undefined') {
   }
 }
 
+// Separate component so the antd theme re-derives when the mode flips.
+const ThemedApp: React.FunctionComponent = () => {
+  const { mode } = useThemeMode();
+
+  return (
+    <ConfigProvider theme={getAntdTheme(mode)} locale={locale}>
+      <NavProvider>
+        <ControllerAuthGate>
+          <AuthenticatedApp />
+        </ControllerAuthGate>
+      </NavProvider>
+    </ConfigProvider>
+  );
+};
+
 const App: React.FunctionComponent = () => {
   return (
     <Provider store={store}>
       <GrafanaPreconnect />
       <Router>
-        <ConfigProvider
-          theme={{
-            token: {
-              colorPrimary: '#FFCC9C',
-            },
-          }}
-          locale={locale}
-        >
-          <NavProvider>
-            <ControllerAuthGate>
-              <AuthenticatedApp />
-            </ControllerAuthGate>
-          </NavProvider>
-        </ConfigProvider>
+        <ThemeModeProvider>
+          <ThemedApp />
+        </ThemeModeProvider>
       </Router>
     </Provider>
   );

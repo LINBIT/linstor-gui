@@ -19,7 +19,6 @@ import { DEFAULT_ADMIN_USER_NAME } from '@app/const/settings';
 import { BRAND_COLOR } from '@app/const/color';
 import { getControllerVersion } from '@app/features/node';
 import { useFaultyResources } from '@app/features/resource/hooks/useFaultyResources';
-import { createSvgColorStyle } from '@app/utils/colorUtils';
 import { compareVersions } from '@app/utils/version';
 
 import LogSidebar from './LogSidebar';
@@ -90,10 +89,11 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
             className="flex items-center"
           >
             <UserIcon
-              style={createSvgColorStyle('brandOrange', {
+              style={{
+                color: BRAND_COLOR,
                 marginLeft: 2,
                 marginRight: '1rem',
-              })}
+              }}
               width={16}
               height={16}
             />
@@ -153,7 +153,7 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
     <div className="flex w-full items-center justify-end">
       <div>
         {isNotOfficialBuild && (
-          <div className="hidden xl:flex flex-col xl:flex-row text-white items-center font-semibold gap-2 xl:gap-0">
+          <div className="hidden xl:flex flex-col xl:flex-row text-[var(--text-primary)] items-center font-semibold gap-2 xl:gap-0">
             <div className="flex items-center">
               <WarningLogo src={warning} />
               <Attention>{t('about:unofficial_build_header_attention')}</Attention>
@@ -186,8 +186,8 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
         )}
       </div>
 
-      <div className="flex items-center ml-4 sm:ml-0 lg:ml-20">
-        <div className="flex items-center" style={{ gap: '24px' }}>
+      <div className="flex items-center ml-2 sm:ml-0 lg:ml-20 min-w-0">
+        <div className="flex items-center gap-2 sm:gap-4 md:gap-6">
           <div className="flex items-center">
             {hasFaultyResources && (
               <Tooltip title={t('settings:has_faulty_resources', 'Has faulty resources')}>
@@ -204,13 +204,13 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
           <div>{!vsanModeFromSetting && <LogSidebar />}</div>
         </div>
 
-        <div className="flex items-center" style={{ gap: '24px', marginLeft: '84px' }}>
+        <div className="flex items-center gap-2 sm:gap-4 md:gap-6 ml-3 sm:ml-8 md:ml-[84px]">
           {!vsanModeFromSetting && <LngSelector />}
           {!normalWithoutAuth && !hciModeFromSetting && (
             <Dropdown menu={menu} placement="bottomLeft" trigger={['hover']}>
-              <div className="flex items-center cursor-pointer text-white">
-                <UserIcon className="text-white w-6 h-6" />
-                <DownOutlined className="ml-1 text-white" />
+              <div className="flex items-center cursor-pointer text-[var(--icon-default)]">
+                <UserIcon className="text-[var(--icon-default)] w-6 h-6" />
+                <DownOutlined className="ml-1 text-[var(--icon-default)]" />
               </div>
             </Dropdown>
           )}

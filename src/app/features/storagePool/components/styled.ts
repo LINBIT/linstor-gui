@@ -6,10 +6,10 @@
 
 import styled from '@emotion/styled';
 
-export const SearchForm = styled.div`
-  display: flex;
-  justify-content: space-between;
+import { SearchForm as BaseSearchForm } from '@app/components/SearchForm';
+import { tokens } from '@app/const/color';
 
+export const SearchForm = styled(BaseSearchForm)`
   .ant-form-item {
     margin-right: 24px;
 
@@ -23,25 +23,25 @@ export const SearchForm = styled.div`
   }
 
   .primary-button {
-    background-color: #ffcc9c !important;
-    border-color: #ffcc9c !important;
-    color: #111111 !important;
+    background-color: ${tokens.color.brand.primary} !important;
+    border-color: ${tokens.color.brand.primary} !important;
+    color: ${tokens.color.brand.onPrimary} !important;
     font-weight: 600 !important;
 
     &:hover {
-      background-color: #ffdcbc !important;
-      border-color: #ffdcbc !important;
+      background-color: ${tokens.color.brand.primaryHover} !important;
+      border-color: ${tokens.color.brand.primaryHover} !important;
     }
   }
 
   .secondary-button {
-    border: 1.5px solid #ffcc9c !important;
-    color: #111111 !important;
+    border: 1.5px solid ${tokens.color.brand.primary} !important;
+    color: ${tokens.color.brand.onPrimary} !important;
     font-weight: 600 !important;
 
     &:hover {
-      background-color: #ffdcbc !important;
-      border-color: #ffdcbc !important;
+      background-color: ${tokens.color.brand.primaryHover} !important;
+      border-color: ${tokens.color.brand.primaryHover} !important;
     }
   }
 `;

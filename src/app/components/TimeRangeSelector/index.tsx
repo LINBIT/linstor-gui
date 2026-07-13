@@ -15,7 +15,7 @@ const Container = styled.div`
   justify-content: flex-end;
   margin-bottom: 16px;
   padding: 12px;
-  background: #fafafa;
+  background: var(--bg-surface);
   border-radius: 8px;
   border: 1px solid #f0f0f0;
 

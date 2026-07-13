@@ -17,7 +17,7 @@ const ChartIframe = styled.iframe`
   width: 100%;
   height: 250px;
   border: none;
-  background: #fff;
+  background: var(--bg-page);
 `;
 
 const ChartCard = styled(Card)`

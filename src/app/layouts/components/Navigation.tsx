@@ -105,7 +105,7 @@ const Navigation: React.FC<NavigationProps> = ({
         getItem(
           <Link to="/vsan/nfs">NFS</Link>,
           '/vsan/nfs',
-          <SVG src={NFS} width="16" height="16" style={{ color: 'black' }} />,
+          <SVG src={NFS} width="16" height="16" style={{ color: 'var(--icon-default)' }} />,
         ),
         getItem(<Link to="/vsan/error-reports">Error Reports</Link>, '/vsan/error-reports', <WarningOutlined />),
         getItem(<Link to="/vsan/users">Users</Link>, '/vsan/users', <UserOutlined />),

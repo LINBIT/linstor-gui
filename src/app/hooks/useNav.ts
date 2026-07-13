@@ -9,6 +9,8 @@ import { createContext, useContext } from 'react';
 export interface NavContextProps {
   isNavOpen: boolean;
   toggleNav: () => void;
+  /** Set the collapsed state explicitly (used by the responsive breakpoint). */
+  setNavOpen: (collapsed: boolean) => void;
 }
 
 export const NavContext = createContext<NavContextProps | undefined>(undefined);

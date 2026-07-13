@@ -396,7 +396,15 @@ export const List = () => {
       >
         <Spin spinning={contentLoading}>
           {fileContent?.data?.content ? (
-            <pre style={{ background: '#f5f5f5', padding: 16, borderRadius: 4, overflow: 'auto', maxHeight: 400 }}>
+            <pre
+              style={{
+                background: 'var(--bg-surface)',
+                padding: 16,
+                borderRadius: 4,
+                overflow: 'auto',
+                maxHeight: 400,
+              }}
+            >
               {decodeContent(fileContent.data.content)}
             </pre>
           ) : (

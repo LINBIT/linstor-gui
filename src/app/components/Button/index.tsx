@@ -7,6 +7,7 @@
 import React from 'react';
 import { Button as AntButton, ButtonProps as AntButtonProps } from 'antd';
 import styled from '@emotion/styled';
+import { tokens } from '@app/const/color';
 import SVG from 'react-inlinesvg';
 import DeleteIcon from '@app/assets/icons/delete.svg';
 
@@ -16,23 +17,39 @@ const StyledButton = styled(AntButton, {
   buttontype?: 'primary' | 'secondary' | 'default' | 'text' | 'link' | 'dashed';
   isdanger?: boolean;
 }>`
-  color: #111111 !important;
+  /* Transparent variants (secondary/text/link/default) follow the theme;
+   * primary overrides below — its brand fill stays light in both modes, so
+   * its label stays dark (text/on-brand). */
+  color: var(--text-nav) !important;
   font-weight: 600 !important;
   border-radius: 4px !important;
 
   /* Global disabled state */
   &:disabled,
   &.ant-btn-loading {
-    background-color: #f5f5f5 !important;
-    border-color: #d9d9d9 !important;
-    color: #bfbfbf !important;
+    background-color: ${tokens.color.neutral.disabledBg} !important;
+    border-color: ${tokens.color.neutral.borderDefault} !important;
+    color: ${tokens.color.neutral.disabledText} !important;
     cursor: not-allowed !important;
     opacity: 0.6 !important;
 
     &:hover {
-      background-color: #f5f5f5 !important;
-      border-color: #d9d9d9 !important;
-      color: #bfbfbf !important;
+      background-color: ${tokens.color.neutral.disabledBg} !important;
+      border-color: ${tokens.color.neutral.borderDefault} !important;
+      color: ${tokens.color.neutral.disabledText} !important;
+    }
+  }
+
+  [data-theme='dark'] &:disabled,
+  [data-theme='dark'] &.ant-btn-loading {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    border-color: #434343 !important;
+    color: rgba(255, 255, 255, 0.3) !important;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.08) !important;
+      border-color: #434343 !important;
+      color: rgba(255, 255, 255, 0.3) !important;
     }
   }
 
@@ -40,12 +57,13 @@ const StyledButton = styled(AntButton, {
     props.buttontype === 'primary' &&
     !props.isdanger &&
     `
-    background-color: #FFCC9C !important;
-    border-color: #FFCC9C !important;
+    color: var(--text-on-brand) !important;
+    background-color: ${tokens.color.brand.primary} !important;
+    border-color: ${tokens.color.brand.primary} !important;
 
     &:hover:not(:disabled):not(.ant-btn-loading) {
-      background-color: #FFDCBC !important;
-      border-color: #FFDCBC !important;
+      background-color: ${tokens.color.brand.primaryHover} !important;
+      border-color: ${tokens.color.brand.primaryHover} !important;
     }
   `}
 
@@ -53,33 +71,35 @@ const StyledButton = styled(AntButton, {
     props.buttontype === 'secondary' &&
     !props.isdanger &&
     `
-    border: 1.5px solid #FFCC9C !important;
+    /* Hover fill is bg/button/secondary-hover — the old #FFDCBC in light,
+     * a deep brown in dark (handoff §5). */
+    border: 1.5px solid ${tokens.color.brand.primary} !important;
 
     &:hover:not(:disabled):not(.ant-btn-loading) {
-      background-color: #FFDCBC !important;
-      border-color: #FFDCBC !important;
+      background-color: var(--bg-button-secondary-hover) !important;
+      border-color: var(--bg-button-secondary-hover) !important;
     }
   `}
 
   ${(props) =>
     props.isdanger &&
     `
-    /* Default state - red border and icon */
-    background-color: #FFFFFF !important;
-    border: 1.5px solid #DA1E28 !important;
-    color: #DA1E28 !important;
+    /* Default state - red border and icon (bg follows the theme) */
+    background-color: var(--bg-page) !important;
+    border: 1.5px solid var(--border-button-active) !important;
+    color: var(--border-button-active) !important;
 
     /* Hover state - solid red background */
     &:hover:not(:disabled):not(.ant-btn-loading) {
-      background-color: #DA1E28 !important;
-      border-color: #DA1E28 !important;
+      background-color: ${tokens.color.danger.base} !important;
+      border-color: ${tokens.color.danger.base} !important;
       color: #FFFFFF !important;
     }
 
     /* Active/Clicked state - solid red background */
     &:active:not(:disabled):not(.ant-btn-loading) {
-      background-color: #DA1E28 !important;
-      border-color: #DA1E28 !important;
+      background-color: ${tokens.color.danger.base} !important;
+      border-color: ${tokens.color.danger.base} !important;
       color: #FFFFFF !important;
     }
   `}

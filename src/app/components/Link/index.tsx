@@ -7,6 +7,7 @@
 import React from 'react';
 import { Link as RouterLink, LinkProps as RouterLinkProps } from 'react-router-dom';
 import styled from '@emotion/styled';
+import { tokens } from '@app/const/color';
 
 const StyledLink = styled(RouterLink, {
   shouldForwardProp: (prop) => !prop.startsWith('$'),
@@ -32,19 +33,19 @@ const StyledLink = styled(RouterLink, {
   ${(props) => {
     if (props.$linkType === 'primary') {
       return `
-        background-color: #FFCC9C !important;
-        border-color: #FFCC9C !important;
-        color: #111111 !important;
-        border: 1px solid #d9d9d9;
+        background-color: ${tokens.color.brand.primary} !important;
+        border-color: ${tokens.color.brand.primary} !important;
+        color: ${tokens.color.brand.onPrimary} !important;
+        border: 1px solid ${tokens.color.neutral.borderDefault};
 
         &:hover:not(:disabled) {
-          background-color: #FFDCBC !important;
-          border-color: #FFDCBC !important;
+          background-color: ${tokens.color.brand.primaryHover} !important;
+          border-color: ${tokens.color.brand.primaryHover} !important;
         }
 
         &:active:not(:disabled) {
-          background-color: #FFCC9C !important;
-          border-color: #FFCC9C !important;
+          background-color: ${tokens.color.brand.primary} !important;
+          border-color: ${tokens.color.brand.primary} !important;
         }
       `;
     }
@@ -52,17 +53,17 @@ const StyledLink = styled(RouterLink, {
     if (props.$linkType === 'secondary') {
       return `
         background-color: transparent !important;
-        border: 1.5px solid #FFCC9C !important;
-        color: #111111 !important;
+        border: 1.5px solid ${tokens.color.brand.primary} !important;
+        color: ${tokens.color.brand.onPrimary} !important;
 
         &:hover:not(:disabled) {
-          background-color: #FFDCBC !important;
-          border-color: #FFDCBC !important;
+          background-color: ${tokens.color.brand.primaryHover} !important;
+          border-color: ${tokens.color.brand.primaryHover} !important;
         }
 
         &:active:not(:disabled) {
-          background-color: #FFDCBC !important;
-          border-color: #FFDCBC !important;
+          background-color: ${tokens.color.brand.primaryHover} !important;
+          border-color: ${tokens.color.brand.primaryHover} !important;
         }
       `;
     }
@@ -70,16 +71,16 @@ const StyledLink = styled(RouterLink, {
     if (props.$linkType === 'default') {
       return `
         background-color: transparent !important;
-        border: 1px solid #d9d9d9 !important;
-        color: #111111 !important;
+        border: 1px solid ${tokens.color.neutral.borderDefault} !important;
+        color: ${tokens.color.brand.onPrimary} !important;
 
         &:hover:not(:disabled) {
-          background-color: #f5f5f5 !important;
-          border-color: #d9d9d9 !important;
+          background-color: ${tokens.color.neutral.disabledBg} !important;
+          border-color: ${tokens.color.neutral.borderDefault} !important;
         }
 
         &:active:not(:disabled) {
-          background-color: #e6f7ff !important;
+          background-color: var(--bg-chip-info) !important;
           border-color: #4096ff !important;
         }
       `;
@@ -87,25 +88,26 @@ const StyledLink = styled(RouterLink, {
 
     // Default link style
     return `
-      color: #499BBB !important;
+      color: ${tokens.color.link.default} !important;
       font-weight: 500;
       padding: 0;
       background: transparent !important;
       border: none !important;
 
       &:hover:not(:disabled) {
-        color: #2c7fb8 !important;
+        color: ${tokens.color.link.hover} !important;
         text-decoration: underline;
       }
 
       &:active:not(:disabled) {
-        color: #1e5a8a !important;
+        color: ${tokens.color.link.active} !important;
       }
     `;
   }}
 
   &:focus {
-    outline: 2px solid ${(props) => (props.$linkType === 'link' ? '#499BBB' : '#FFCC9C')};
+    outline: 2px solid
+      ${(props) => (props.$linkType === 'link' ? tokens.color.link.default : tokens.color.brand.primary)};
     outline-offset: 2px;
     border-radius: ${(props) => (props.$linkType === 'link' ? '2px' : '4px')};
   }

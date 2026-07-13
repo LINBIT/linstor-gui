@@ -7,11 +7,12 @@
 import React from 'react';
 import { Switch as AntSwitch, SwitchProps as AntSwitchProps } from 'antd';
 import styled from '@emotion/styled';
+import { tokens } from '@app/const/color';
 
 const StyledSwitch = styled(AntSwitch)`
   &.ant-switch-checked {
-    background-color: #ffcc9c !important;
-    border-color: #ffcc9c !important;
+    background-color: ${tokens.color.brand.primary} !important;
+    border-color: ${tokens.color.brand.primary} !important;
 
     .ant-switch-inner,
     .ant-switch-inner * {
@@ -22,13 +23,13 @@ const StyledSwitch = styled(AntSwitch)`
     }
 
     &:hover:not(.ant-switch-disabled) {
-      background-color: #ffdcbc !important;
-      border-color: #ffdcbc !important;
+      background-color: ${tokens.color.brand.primaryHover} !important;
+      border-color: ${tokens.color.brand.primaryHover} !important;
     }
   }
 
   &:hover:not(.ant-switch-disabled):not(.ant-switch-checked) {
-    border-color: #ffcc9c !important;
+    border-color: ${tokens.color.brand.primary} !important;
   }
 `;
 
@@ -64,7 +65,7 @@ export interface SwitchProps extends Omit<AntSwitchProps, 'checkedChildren' | 'u
 
 /**
  * Custom Switch component
- * Features custom color scheme with #FFCC9C as the primary color
+ * Features custom color scheme with ${tokens.color.brand.primary} as the primary color
  * Based on Ant Design Switch with custom styling
  */
 export const Switch: React.FC<SwitchProps> = ({

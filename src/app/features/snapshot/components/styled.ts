@@ -6,9 +6,8 @@
 
 import styled from '@emotion/styled';
 
-export const SearchForm = styled.div`
-  display: flex;
-  justify-content: space-between;
+import { SearchForm as BaseSearchForm } from '@app/components/SearchForm';
+
+export const SearchForm = styled(BaseSearchForm)`
   margin-bottom: 16px;
-  gap: 16px;
 `;
