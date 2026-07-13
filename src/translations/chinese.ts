@@ -256,6 +256,17 @@ const zh = {
     further_tasks: '进一步任务',
     further_tasks_intro: '集群跑起来后,你可能希望把 controller 本身也做成高可用,这样单节点宕机不会带垮 LINSTOR。',
     ha_guide_label: '搭建 LINSTOR 控制器高可用',
+    ha_script_intro:
+      '复制下面的 Python 脚本,在当前运行 linstor-controller 的节点上执行。脚本会把 controller 数据库迁移到多副本 DRBD 资源上,并把 controller 的启停交给 DRBD Reactor 管理;执行完成后会打印出每个备用节点需要执行的命令。',
+    ha_script_req_root: '在当前活动 controller 节点上以 root 身份运行。',
+    ha_script_req_packages: '该节点需要 linstor CLI、drbd-utils 和 drbd-reactor。',
+    ha_script_req_standby: '备用节点需要安装 linstor-controller 和 drbd-reactor。',
+    ha_script_copy: '复制脚本',
+    ha_script_download: '下载',
+    ha_script_copied: '脚本已复制到剪贴板',
+    ha_script_copy_failed: '复制失败——请手动选中脚本文本复制',
+    ha_script_outro:
+      '脚本在做任何变更前会先确认,如果集群看起来已配置过 HA 会直接中止。完成后请把客户端和集成(Proxmox、CSI 等)指向所有 controller 的 IP——完整说明见 LINSTOR 用户手册。',
     create_cluster: '创建集群',
     creating_cluster: '正在创建集群…',
     pool_skipped_node_failed: '已跳过 — 节点未创建成功',

@@ -4,145 +4,100 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React from 'react';
-import { Collapse, Typography } from 'antd';
+import React, { useMemo } from 'react';
+import { Collapse, Typography, message } from 'antd';
+import { CopyOutlined, DownloadOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
-// Reference: LINSTOR user guide §3.1 "Creating a highly available LINSTOR cluster".
-// Content is intentionally English (technical CLI snippets); only the section
-// labels go through i18n.
+import Button from '@app/components/Button';
+
+import { buildHaSetupScript } from '../haSetupScript';
+
+// Reference: LINSTOR user guide §3.1 "Creating a highly available LINSTOR
+// cluster". Instead of a long manual CLI walkthrough, the wizard now emits a
+// ready-to-run Python script parameterized with the pool/nodes it just
+// created. The script itself is intentionally English; labels go through i18n.
 
 const codeStyle: React.CSSProperties = {
-  background: 'rgba(0, 0, 0, 0.04)',
-  padding: '10px 12px',
+  background: 'var(--bg-surface)',
+  border: '1px solid var(--border-subtle)',
+  padding: '12px 14px',
   borderRadius: 6,
   fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
   fontSize: 12,
   lineHeight: 1.5,
-  overflowX: 'auto',
-  margin: '8px 0',
+  overflow: 'auto',
+  maxHeight: 420,
+  margin: '8px 0 0',
   whiteSpace: 'pre',
 };
 
-const CodeBlock: React.FC<{ children: string }> = ({ children }) => <pre style={codeStyle}>{children}</pre>;
+interface HASetupGuideProps {
+  /** Storage pool the wizard just created — used for the controller-DB resource. */
+  storagePool?: string;
+  /** All node names of the new cluster. */
+  nodeNames?: string[];
+}
 
-const SubHeader: React.FC<React.PropsWithChildren> = ({ children }) => (
-  <Typography.Title level={5} style={{ marginTop: 16, marginBottom: 8 }}>
-    {children}
-  </Typography.Title>
-);
+const SCRIPT_FILENAME = 'linstor-controller-ha-setup.py';
 
-const HAGuideBody: React.FC = () => (
-  <div>
-    <Typography.Paragraph>
-      A default LINSTOR cluster runs a single active controller. Making it highly available means giving the controller
-      database replicated storage, installing additional standby controller nodes, and letting{' '}
-      <Typography.Text code>DRBD Reactor</Typography.Text> mount the shared storage and start the controller on the
-      currently-active node.
-    </Typography.Paragraph>
-    <Typography.Paragraph type="secondary">
-      The LINSTOR GUI does not yet automate this setup. Follow the CLI steps below from one of your nodes — they mirror
-      the official LINSTOR user guide §3.1.
-    </Typography.Paragraph>
+const HAGuideBody: React.FC<HASetupGuideProps> = ({ storagePool, nodeNames }) => {
+  const { t } = useTranslation(['clusterSetup']);
+  const script = useMemo(() => buildHaSetupScript({ storagePool, nodeNames }), [storagePool, nodeNames]);
 
-    <SubHeader>1. Configure HA database storage</SubHeader>
-    <Typography.Paragraph>
-      Create a resource group for the controller database. Replace <Typography.Text code>my-thin-pool</Typography.Text>{' '}
-      with an existing storage pool name.
-    </Typography.Paragraph>
-    <CodeBlock>{`linstor resource-group create \\
-  --storage-pool my-thin-pool \\
-  --place-count 3 \\
-  --diskless-on-remaining true \\
-  linstor-db-grp`}</CodeBlock>
+  const copyScript = async () => {
+    try {
+      await navigator.clipboard.writeText(script);
+      message.success(t('clusterSetup:ha_script_copied'));
+    } catch {
+      message.error(t('clusterSetup:ha_script_copy_failed'));
+    }
+  };
 
-    <Typography.Paragraph>Apply the DRBD options the controller DB requires:</Typography.Paragraph>
-    <CodeBlock>{`linstor resource-group drbd-options \\
-  --auto-promote=no \\
-  --quorum=majority \\
-  --on-suspended-primary-outdated=force-secondary \\
-  --on-no-quorum=io-error \\
-  --on-no-data-accessible=io-error \\
-  linstor-db-grp`}</CodeBlock>
+  const downloadScript = () => {
+    const blob = new Blob([script], { type: 'text/x-python' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = SCRIPT_FILENAME;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
-    <Typography.Paragraph>Create a volume group and spawn a 200 MiB DB resource:</Typography.Paragraph>
-    <CodeBlock>{`linstor volume-group create linstor-db-grp
-linstor resource-group spawn-resources linstor-db-grp linstor_db 200M`}</CodeBlock>
+  return (
+    <div>
+      <Typography.Paragraph>{t('clusterSetup:ha_script_intro')}</Typography.Paragraph>
+      <ul style={{ paddingLeft: 20, marginBottom: 12 }}>
+        <li>
+          <Typography.Text>{t('clusterSetup:ha_script_req_root')}</Typography.Text>
+        </li>
+        <li>
+          <Typography.Text>{t('clusterSetup:ha_script_req_packages')}</Typography.Text>
+        </li>
+        <li>
+          <Typography.Text>{t('clusterSetup:ha_script_req_standby')}</Typography.Text>
+        </li>
+      </ul>
 
-    <SubHeader>2. Move the LINSTOR DB onto the HA storage</SubHeader>
-    <Typography.Paragraph>
-      Stop and disable the current controller — Reactor will manage it from now on:
-    </Typography.Paragraph>
-    <CodeBlock>{`systemctl disable --now linstor-controller`}</CodeBlock>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <Button type="primary" icon={<CopyOutlined />} onClick={copyScript}>
+          {t('clusterSetup:ha_script_copy')}
+        </Button>
+        <Button type="secondary" icon={<DownloadOutlined />} onClick={downloadScript}>
+          {t('clusterSetup:ha_script_download')}
+        </Button>
+      </div>
 
-    <Typography.Paragraph>
-      Create the mount unit and move the existing DB onto the new DRBD volume:
-    </Typography.Paragraph>
-    <CodeBlock>{`cat <<'EOF' > /etc/systemd/system/var-lib-linstor.mount
-[Unit]
-Description=Filesystem for the LINSTOR controller
+      <pre style={codeStyle}>{script}</pre>
 
-[Mount]
-What=/dev/drbd/by-res/linstor_db/0
-Where=/var/lib/linstor
-EOF
+      <Typography.Paragraph type="secondary" style={{ marginTop: 12, marginBottom: 0 }}>
+        {t('clusterSetup:ha_script_outro')}
+      </Typography.Paragraph>
+    </div>
+  );
+};
 
-mv /var/lib/linstor{,.orig}
-mkdir /var/lib/linstor
-chattr +i /var/lib/linstor              # only on LINSTOR >= 1.14.0
-drbdadm primary linstor_db
-mkfs.ext4 -b 4096 /dev/drbd/by-res/linstor_db/0
-systemctl start var-lib-linstor.mount
-cp -r /var/lib/linstor.orig/* /var/lib/linstor
-systemctl start linstor-controller`}</CodeBlock>
-
-    <Typography.Paragraph>
-      Copy <Typography.Text code>/etc/systemd/system/var-lib-linstor.mount</Typography.Text> to every node that could
-      become a controller. <Typography.Text strong>Do not</Typography.Text>{' '}
-      <Typography.Text code>systemctl enable</Typography.Text> it — Reactor controls it.
-    </Typography.Paragraph>
-
-    <SubHeader>3. Install standby controllers</SubHeader>
-    <Typography.Paragraph>
-      Install the controller package on every node that has access to the{' '}
-      <Typography.Text code>linstor_db</Typography.Text> resource. Verify the service is disabled everywhere:
-    </Typography.Paragraph>
-    <CodeBlock>{`systemctl disable linstor-controller          # every potential controller
-systemctl stop linstor-controller             # every node except the active one
-chattr +i /var/lib/linstor                    # only on LINSTOR >= 1.14.0`}</CodeBlock>
-
-    <SubHeader>4. Hand off to DRBD Reactor</SubHeader>
-    <Typography.Paragraph>
-      Install <Typography.Text code>drbd-reactor</Typography.Text> on every potential controller and configure{' '}
-      <Typography.Text code>/etc/drbd-reactor.d/linstor_db.toml</Typography.Text>:
-    </Typography.Paragraph>
-    <CodeBlock>{`[[promoter]]
-[promoter.resources.linstor_db]
-start = ["var-lib-linstor.mount", "linstor-controller.service"]`}</CodeBlock>
-
-    <Typography.Paragraph>Restart, enable and check Reactor:</Typography.Paragraph>
-    <CodeBlock>{`systemctl restart drbd-reactor
-systemctl enable drbd-reactor
-systemctl status drbd-reactor
-drbd-reactorctl status linstor_db`}</CodeBlock>
-
-    <Typography.Paragraph>
-      Finally, tell the satellite to preserve the DB resource across restarts. Edit the unit with{' '}
-      <Typography.Text code>systemctl edit linstor-satellite</Typography.Text> and add:
-    </Typography.Paragraph>
-    <CodeBlock>{`[Service]
-Environment=LS_KEEP_RES=linstor_db`}</CodeBlock>
-    <Typography.Paragraph>Restart the satellite on every node:</Typography.Paragraph>
-    <CodeBlock>{`systemctl restart linstor-satellite`}</CodeBlock>
-
-    <Typography.Paragraph type="secondary" style={{ marginTop: 12 }}>
-      Configure your LINSTOR client and integrations (Proxmox, CSI, …) for multiple controllers — see the LINSTOR user
-      guide for the full reference.
-    </Typography.Paragraph>
-  </div>
-);
-
-export const HASetupGuide: React.FC = () => {
+export const HASetupGuide: React.FC<HASetupGuideProps> = ({ storagePool, nodeNames }) => {
   const { t } = useTranslation(['clusterSetup']);
 
   return (
@@ -159,7 +114,7 @@ export const HASetupGuide: React.FC = () => {
           {
             key: 'ha',
             label: t('clusterSetup:ha_guide_label'),
-            children: <HAGuideBody />,
+            children: <HAGuideBody storagePool={storagePool} nodeNames={nodeNames} />,
           },
         ]}
       />

@@ -260,6 +260,17 @@ const en = {
     further_tasks_intro:
       'Once the cluster is up, you may want to make the controller itself highly available so a single node going down does not take LINSTOR with it.',
     ha_guide_label: 'Set up a highly available LINSTOR controller',
+    ha_script_intro:
+      'Copy the Python script below and run it on the node that is currently running linstor-controller. It moves the controller database onto a replicated DRBD resource and hands the controller over to DRBD Reactor — when it finishes, it prints the commands to run on each standby node.',
+    ha_script_req_root: 'Run as root on the active controller node.',
+    ha_script_req_packages: 'Requires the linstor CLI, drbd-utils and drbd-reactor on that node.',
+    ha_script_req_standby: 'Standby nodes need linstor-controller and drbd-reactor installed.',
+    ha_script_copy: 'Copy script',
+    ha_script_download: 'Download',
+    ha_script_copied: 'Script copied to clipboard',
+    ha_script_copy_failed: 'Copy failed — select the script text and copy it manually',
+    ha_script_outro:
+      'The script asks for confirmation before changing anything and aborts if the cluster already looks HA-configured. Afterwards, point clients and integrations (Proxmox, CSI, …) at all controller IPs — see the LINSTOR user guide for the full reference.',
     create_cluster: 'Create cluster',
     creating_cluster: 'Creating cluster…',
     pool_skipped_node_failed: 'skipped — node was not created',

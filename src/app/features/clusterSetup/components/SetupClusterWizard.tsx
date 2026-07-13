@@ -620,7 +620,7 @@ export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = ({ open, on
             </div>
           )}
 
-          <HASetupGuide />
+          <HASetupGuide storagePool={poolPlan[0]?.name} nodeNames={plannedNodeNames} />
         </div>
       )}
     </Modal>
