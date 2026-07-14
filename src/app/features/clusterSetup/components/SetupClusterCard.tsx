@@ -24,7 +24,10 @@ export const SetupClusterCard: React.FC<SetupClusterCardProps> = ({ onStart, onD
       style={{
         borderColor: '#F79133',
         borderWidth: 2,
-        background: 'linear-gradient(135deg, #fff8f1 0%, #ffffff 100%)',
+        // Subtle brand tint fading to the page background — theme-aware
+        // (the old hardcoded #fff8f1→#fff washed the text out in dark mode).
+        background:
+          'linear-gradient(135deg, color-mix(in srgb, var(--bg-chip-brand) 35%, var(--bg-page)) 0%, var(--bg-page) 100%)',
       }}
       styles={{ body: { padding: 24 } }}
     >
