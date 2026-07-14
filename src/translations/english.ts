@@ -498,7 +498,7 @@ const en = {
     add_disk: 'Add Disk',
     remove_disk: 'Remove Disk',
     search_placeholder: 'Search by resource name or aux property value',
-    add_to_node: 'Add to Node',
+    add_to_node: 'Add Resource to Node',
     diskful: 'Diskful',
     drbd_diskless: 'DRBD Diskless',
     storage_pool_required: 'Please select a storage pool',

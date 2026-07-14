@@ -438,6 +438,7 @@ const zh = {
     list: '资源列表',
     create: '创建资源',
     overview: '资源概览',
+    add_to_node: '添加资源到节点',
     edit: '编辑资源',
     create_snapshot: '创建快照',
     migrate: '迁移资源',
