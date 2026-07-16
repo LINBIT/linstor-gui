@@ -9,6 +9,7 @@ import Chart from 'react-apexcharts';
 import { forEach, groupBy } from 'lodash';
 import { formatBytes } from '@app/utils/size';
 import { generateStoragePoolColorPairs, getNodeTotalColorPair } from '@app/utils/storagePoolColors';
+import { useThemeMode } from '@app/hooks';
 
 type DataItem = {
   type: string;
@@ -21,6 +22,7 @@ type StoragePoolProp = {
 };
 
 export const StoragePool = ({ data }: StoragePoolProp) => {
+  const { mode } = useThemeMode();
   const storagePoolNames = Array.from(new Set(data.map((d) => d.storagePool)));
   const actualStoragePools = storagePoolNames.filter((name) => !name.includes('Total on'));
   const storagePoolCount = actualStoragePools.length;
@@ -116,6 +118,8 @@ export const StoragePool = ({ data }: StoragePoolProp) => {
     },
     chart: {
       type: 'bar' as const,
+      // Axis/legend text follows the theme (apex can't read CSS vars)
+      foreColor: mode === 'dark' ? '#e0e0e0' : '#373d3f',
       stacked: true,
       toolbar: {
         show: false,

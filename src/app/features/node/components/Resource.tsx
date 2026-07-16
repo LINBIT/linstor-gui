@@ -7,6 +7,8 @@
 import React from 'react';
 import Chart from 'react-apexcharts';
 
+import { useThemeMode } from '@app/hooks';
+
 type DataItem = {
   type: string;
   value: number;
@@ -17,6 +19,7 @@ type ResourceProp = {
 };
 
 export const Resource = ({ data }: ResourceProp) => {
+  const { mode } = useThemeMode();
   const options = {
     labels: data.map((d) => d.type),
     legend: {
@@ -26,6 +29,8 @@ export const Resource = ({ data }: ResourceProp) => {
     colors: ['#F79133', '#499BBB'],
     chart: {
       width: '100%',
+      // Legend/label text follows the theme (apex can't read CSS vars)
+      foreColor: mode === 'dark' ? '#e0e0e0' : '#373d3f',
     },
     plotOptions: {
       pie: {

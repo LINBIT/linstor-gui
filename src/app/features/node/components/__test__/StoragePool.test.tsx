@@ -297,6 +297,7 @@ describe('StoragePool Component', () => {
             },
             chart: {
               type: 'bar',
+              foreColor: '#373d3f',
               stacked: true,
               toolbar: {
                 show: false,

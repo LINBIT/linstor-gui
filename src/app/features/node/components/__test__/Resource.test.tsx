@@ -152,6 +152,7 @@ describe('Resource Component', () => {
             colors: ['#F79133', '#499BBB'],
             chart: {
               width: '100%',
+              foreColor: '#373d3f',
             },
             plotOptions: {
               pie: {
