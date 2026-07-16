@@ -59,7 +59,7 @@ const FormContainer = styled.div`
 
   .ant-form-item-extra {
     margin-top: 0.5em;
-    color: rgba(0, 0, 0, 0.45);
+    color: var(--text-muted);
   }
 `;
 

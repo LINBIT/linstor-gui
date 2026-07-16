@@ -73,7 +73,7 @@ const FormSection = styled.div`
 
   .ant-form-item-extra {
     margin-top: 0.5em;
-    color: rgba(0, 0, 0, 0.45);
+    color: var(--text-muted);
   }
 `;
 
@@ -97,7 +97,7 @@ const ExpandableSection = styled.div`
   .expandable-icon {
     margin-right: 0.5em;
     transition: transform 0.2s ease;
-    color: rgba(0, 0, 0, 0.65);
+    color: var(--icon-subtle);
 
     &.expanded {
       transform: rotate(90deg);
