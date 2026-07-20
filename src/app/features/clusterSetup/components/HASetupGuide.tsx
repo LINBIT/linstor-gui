@@ -36,14 +36,13 @@ interface HASetupGuideProps {
   /** Storage pool the wizard just created — used for the controller-DB resource. */
   storagePool?: string;
   /** All node names of the new cluster. */
-  nodeNames?: string[];
 }
 
 const SCRIPT_FILENAME = 'linstor-controller-ha-setup.py';
 
-const HAGuideBody: React.FC<HASetupGuideProps> = ({ storagePool, nodeNames }) => {
+const HAGuideBody: React.FC<HASetupGuideProps> = ({ storagePool }) => {
   const { t } = useTranslation(['clusterSetup']);
-  const script = useMemo(() => buildHaSetupScript({ storagePool, nodeNames }), [storagePool, nodeNames]);
+  const script = useMemo(() => buildHaSetupScript({ storagePool }), [storagePool]);
 
   const copyScript = async () => {
     try {
@@ -97,7 +96,7 @@ const HAGuideBody: React.FC<HASetupGuideProps> = ({ storagePool, nodeNames }) =>
   );
 };
 
-export const HASetupGuide: React.FC<HASetupGuideProps> = ({ storagePool, nodeNames }) => {
+export const HASetupGuide: React.FC<HASetupGuideProps> = ({ storagePool }) => {
   const { t } = useTranslation(['clusterSetup']);
 
   return (
@@ -114,7 +113,7 @@ export const HASetupGuide: React.FC<HASetupGuideProps> = ({ storagePool, nodeNam
           {
             key: 'ha',
             label: t('clusterSetup:ha_guide_label'),
-            children: <HAGuideBody storagePool={storagePool} nodeNames={nodeNames} />,
+            children: <HAGuideBody storagePool={storagePool} />,
           },
         ]}
       />

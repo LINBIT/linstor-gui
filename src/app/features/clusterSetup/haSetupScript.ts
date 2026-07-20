@@ -7,25 +7,20 @@
 /**
  * Generates the "make the LINSTOR controller highly available" Python script
  * shown on the last step of the cluster-setup wizard. The script mirrors the
- * LINSTOR user guide §3.1 and is parameterized with what the wizard already
- * knows (storage-pool name, node names) so the user can paste it into a root
- * shell on the active controller node and run it as-is.
+ * LINSTOR user guide §3.1 and is deliberately self-contained: everything it
+ * needs (node names, replica count, controller IPs — and, on single-pool
+ * clusters, even the storage pool) is discovered from the live cluster at
+ * runtime. The wizard only prefills the STORAGE_POOL constant as a
+ * convenience; an empty value means auto-detect.
  */
 
 export interface HaSetupScriptOptions {
-  /** Storage pool backing the controller-DB resource. */
+  /** Storage pool backing the controller-DB resource (prefill only; the script auto-detects on single-pool clusters). */
   storagePool?: string;
-  /** All cluster node names; the script excludes the local hostname itself. */
-  nodeNames?: string[];
 }
 
-const DEFAULT_POOL = 'my-thin-pool';
-
-export const buildHaSetupScript = ({ storagePool, nodeNames }: HaSetupScriptOptions = {}): string => {
-  const pool = storagePool?.trim() || DEFAULT_POOL;
-  const nodes = (nodeNames ?? []).map((n) => n.trim()).filter(Boolean);
-  const placeCount = nodes.length >= 3 ? 3 : nodes.length === 2 ? 2 : 3;
-  const nodesLiteral = JSON.stringify(nodes);
+export const buildHaSetupScript = ({ storagePool }: HaSetupScriptOptions = {}): string => {
+  const pool = storagePool?.trim() || '';
 
   return `#!/usr/bin/env python3
 """Make the LINSTOR controller highly available (DRBD Reactor promoter).
@@ -54,19 +49,21 @@ import subprocess
 import sys
 import time
 
-# ---- parameters (from the LINSTOR GUI cluster-setup wizard) ----------------
+# ---- parameters --------------------------------------------------------
+# Node names, replica count and controller IPs are discovered from the
+# live cluster at runtime. STORAGE_POOL may be left empty: on a cluster
+# with a single storage pool it is auto-detected; with several pools, set
+# it here.
 RESOURCE = "linstor_db"
 RESOURCE_GROUP = "linstor-db-grp"
 STORAGE_POOL = ${JSON.stringify(pool)}
-PLACE_COUNT = ${placeCount}
 DB_SIZE = "200M"
-# Every node that could become a controller; this host is excluded at runtime.
-CLUSTER_NODES = ${nodesLiteral}
 
 MOUNT_UNIT_PATH = "/etc/systemd/system/var-lib-linstor.mount"
 REACTOR_CONF_PATH = "/etc/drbd-reactor.d/linstor_db.toml"
 SATELLITE_DROPIN_DIR = "/etc/systemd/system/linstor-satellite.service.d"
 SATELLITE_DROPIN_PATH = SATELLITE_DROPIN_DIR + "/ha.conf"
+CLIENT_CONF_PATH = "/etc/linstor/linstor-client.conf"
 
 MOUNT_UNIT = """[Unit]
 Description=Filesystem for the LINSTOR controller
@@ -84,6 +81,35 @@ start = ["var-lib-linstor.mount", "linstor-controller.service"]
 SATELLITE_DROPIN = """[Service]
 Environment=LS_KEEP_RES=linstor_db
 """
+
+# drbd-reactor "Automatic Reload" units (from the package example dir): reload
+# the daemon whenever a config snippet under /etc/drbd-reactor.d changes, so
+# activating the promoter never depends on a fragile restart.
+RELOAD_PATH_UNIT = """[Unit]
+Description=Reload drbd-reactor on plugin changes
+
+[Path]
+PathChanged=/etc/drbd-reactor.d
+TriggerLimitIntervalSec=0
+
+[Install]
+WantedBy=multi-user.target
+"""
+
+RELOAD_SERVICE_UNIT = """[Unit]
+Description=Reload drbd-reactor on plugin changes
+After=drbd-reactor.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemctl reload drbd-reactor.service
+
+[Install]
+WantedBy=multi-user.target
+"""
+
+REACTOR_EXAMPLE_DIR = "/usr/share/doc/drbd-reactor/examples"
 
 
 def run(cmd, check=True, capture=False):
@@ -120,7 +146,9 @@ def preflight():
         die("run this script as root")
     for tool in ("linstor", "drbdadm", "drbd-reactor", "mkfs.ext4"):
         if shutil.which(tool) is None:
-            die(tool + " not found in PATH — install it first")
+            die(tool + " not found in PATH — install it first from your "
+                "LINBIT repository (or ppa:linbit/linbit-drbd9-stack on "
+                "Ubuntu); this script deliberately does not install packages")
     state = subprocess.run(["systemctl", "is-active", "--quiet",
                             "linstor-controller"]).returncode
     if state != 0:
@@ -135,6 +163,52 @@ def preflight():
             "looks already (partially) HA-configured; resolve manually")
     if os.path.exists(MOUNT_UNIT_PATH):
         die(MOUNT_UNIT_PATH + " already exists — resolve manually")
+    # The controller node must itself be a registered cluster node (running
+    # linstor-satellite) — otherwise the DB resource can never be brought up
+    # locally and the migration would strand halfway.
+    me = socket.gethostname().split(".")[0]
+    if me not in cluster_node_names():
+        die("this node ('" + me + "') is not registered in the LINSTOR "
+            "cluster — install/start linstor-satellite here and register "
+            "it (nodes: " + (", ".join(cluster_node_names()) or "none")
+            + ")")
+
+
+def resolve_storage_pool():
+    data = json.loads(out(["linstor", "--machine-readable",
+                           "storage-pool", "list"]))
+    pools = sorted({sp.get("storage_pool_name", "")
+                    for sp in (data[0] if data else [])
+                    if sp.get("storage_pool_name")
+                    and sp.get("provider_kind") != "DISKLESS"})
+    if STORAGE_POOL:
+        if STORAGE_POOL not in pools:
+            die("storage pool '" + STORAGE_POOL + "' not found on this "
+                "cluster — available: " + (", ".join(pools) or "none"))
+        return STORAGE_POOL
+    if len(pools) == 1:
+        return pools[0]
+    die("cannot auto-detect the storage pool (found: "
+        + (", ".join(pools) or "none")
+        + ") — set STORAGE_POOL at the top of this script")
+
+
+def cluster_node_names():
+    nodes = json.loads(out(["linstor", "--machine-readable", "node", "list"]))
+    return [n.get("name", "") for n in (nodes[0] if nodes else [])
+            if n.get("name")]
+
+
+def db_place_count():
+    """3 replicas when the cluster has them; 2 on a two-node cluster."""
+    count = len(cluster_node_names())
+    if count < 2:
+        die("controller HA needs at least 2 nodes; this cluster has "
+            + str(count))
+    if count == 2:
+        print("WARNING: 2-node cluster — no real quorum; consider adding "
+              "a third (diskless) node")
+    return 3 if count >= 3 else 2
 
 
 def rg_exists():
@@ -144,13 +218,13 @@ def rg_exists():
     return RESOURCE_GROUP in names
 
 
-def create_db_resource():
+def create_db_resource(pool):
     if rg_exists():
         print("resource group " + RESOURCE_GROUP + " already exists, reusing")
     else:
         run(["linstor", "resource-group", "create",
-             "--storage-pool", STORAGE_POOL,
-             "--place-count", str(PLACE_COUNT),
+             "--storage-pool", pool,
+             "--place-count", str(db_place_count()),
              "--diskless-on-remaining", "true",
              RESOURCE_GROUP])
         run(["linstor", "volume-group", "create", RESOURCE_GROUP])
@@ -182,37 +256,84 @@ def move_db():
         die("/var/lib/linstor.orig already exists — resolve manually")
     os.rename("/var/lib/linstor", "/var/lib/linstor.orig")
     os.mkdir("/var/lib/linstor")
-    # LINSTOR >= 1.14.0: keep the mountpoint immutable while unmounted.
-    run(["chattr", "+i", "/var/lib/linstor"], check=False)
     run(["drbdadm", "primary", RESOURCE])
     run(["mkfs.ext4", "-b", "4096", "/dev/drbd/by-res/linstor_db/0"])
     run(["systemctl", "start", "var-lib-linstor.mount"])
     run(["cp", "-a", "/var/lib/linstor.orig/.", "/var/lib/linstor/"])
 
 
-def hand_off_to_reactor():
-    write_file(REACTOR_CONF_PATH, REACTOR_CONF)
-    write_file(SATELLITE_DROPIN_PATH, SATELLITE_DROPIN)
+def client_conf_text():
+    """linstor-client config listing every controller candidate, so the
+    linstor CLI keeps working on all nodes after a failover."""
+    nodes = json.loads(out(["linstor", "--machine-readable", "node", "list"]))
+    ips = []
+    for n in (nodes[0] if nodes else []):
+        for ni in n.get("net_interfaces", []):
+            if ni.get("address"):
+                ips.append(ni["address"])
+                break
+    if not ips:
+        ips = ["localhost"]
+    return "[global]\\ncontrollers=" + ",".join(ips) + "\\n"
+
+
+def install_reactor_reload():
+    """Install + enable the drbd-reactor auto-reload path unit (drbd-reactor
+    docs: "Automatic Reload") so the daemon reloads whenever a snippet under
+    /etc/drbd-reactor.d changes. Copies the packaged example units when
+    present, otherwise writes them inline."""
+    for unit, content in (("drbd-reactor-reload.path", RELOAD_PATH_UNIT),
+                          ("drbd-reactor-reload.service", RELOAD_SERVICE_UNIT)):
+        example = os.path.join(REACTOR_EXAMPLE_DIR, unit)
+        dst = "/etc/systemd/system/" + unit
+        if os.path.exists(example):
+            shutil.copy(example, dst)
+        else:
+            write_file(dst, content)
     run(["systemctl", "daemon-reload"])
-    run(["systemctl", "enable", "drbd-reactor"])
-    run(["systemctl", "restart", "drbd-reactor"])
-    run(["systemctl", "restart", "linstor-satellite"])
-    # Reactor promotes linstor_db here (we are primary) and starts the
-    # controller; give it a moment before verifying.
-    for _ in range(30):
-        if subprocess.run(["systemctl", "is-active", "--quiet",
-                           "linstor-controller"]).returncode == 0:
-            break
+    run(["systemctl", "enable", "--now", "drbd-reactor-reload.path"])
+
+
+def controller_active():
+    return subprocess.run(["systemctl", "is-active", "--quiet",
+                           "linstor-controller"]).returncode == 0
+
+
+def wait_controller(timeout_steps=30):
+    for _ in range(timeout_steps):
+        if controller_active():
+            return True
         time.sleep(2)
-    else:
-        die("linstor-controller did not come back under drbd-reactor — "
-            "check 'drbd-reactorctl status " + RESOURCE + "'")
+    return False
+
+
+def hand_off_to_reactor():
+    write_file(SATELLITE_DROPIN_PATH, SATELLITE_DROPIN)
+    write_file(CLIENT_CONF_PATH, client_conf_text())
+    run(["systemctl", "daemon-reload"])
+    run(["systemctl", "enable", "--now", "drbd-reactor"])
+    install_reactor_reload()
+    run(["systemctl", "restart", "linstor-satellite"])
+    # Write the promoter snippet last: the reload path unit watches
+    # /etc/drbd-reactor.d and reloads drbd-reactor when it appears, activating
+    # the promoter without a restart. Reload again explicitly (harmless if the
+    # path unit already did) so we do not depend on path-unit timing.
+    write_file(REACTOR_CONF_PATH, REACTOR_CONF)
+    run(["systemctl", "reload", "drbd-reactor"], check=False)
+    if not wait_controller():
+        # last resort if the reload did not take
+        run(["systemctl", "stop", "drbd-reactor"])
+        run(["systemctl", "start", "drbd-reactor"])
+        if not wait_controller():
+            die("linstor-controller did not come back under drbd-reactor — "
+                "check 'drbd-reactorctl status " + RESOURCE + "' and "
+                "'journalctl -u drbd-reactor'")
     run(["drbd-reactorctl", "status", RESOURCE], check=False)
 
 
 def print_standby_instructions():
     me = socket.gethostname().split(".")[0]
-    standby = [n for n in CLUSTER_NODES if n and n != me]
+    standby = [n for n in cluster_node_names() if n and n != me]
     if not standby:
         standby = ["<standby-node>"]
     print()
@@ -221,13 +342,18 @@ def print_standby_instructions():
     print("(" + ", ".join(standby) + ") to finish the HA setup:")
     print("=" * 72)
     print("""
+# --- sanity checks: required packages must be installed on this node ---
+# (install from your LINBIT repository / PPA first; nothing is auto-installed)
+command -v drbd-reactor >/dev/null || { echo 'ERROR: drbd-reactor is not installed'; exit 1; }
+systemctl cat linstor-controller.service >/dev/null 2>&1 || { echo 'ERROR: linstor-controller is not installed'; exit 1; }
+systemctl cat linstor-satellite.service >/dev/null 2>&1 || { echo 'ERROR: linstor-satellite is not installed'; exit 1; }
+
 systemctl disable --now linstor-controller
 
 cat <<'EOF' > /etc/systemd/system/var-lib-linstor.mount
 """ + MOUNT_UNIT + """EOF
 
 mkdir -p /var/lib/linstor
-chattr +i /var/lib/linstor    # LINSTOR >= 1.14.0 only
 
 mkdir -p """ + SATELLITE_DROPIN_DIR + """
 cat <<'EOF' > """ + SATELLITE_DROPIN_PATH + """
@@ -236,24 +362,41 @@ cat <<'EOF' > """ + SATELLITE_DROPIN_PATH + """
 cat <<'EOF' > """ + REACTOR_CONF_PATH + """
 """ + REACTOR_CONF + """EOF
 
+mkdir -p /etc/linstor
+cat <<'EOF' > """ + CLIENT_CONF_PATH + """
+""" + client_conf_text() + """EOF
+
+# Install the drbd-reactor auto-reload path unit (reloads the daemon when a
+# config snippet changes — avoids a fragile restart).
+if [ -f """ + REACTOR_EXAMPLE_DIR + """/drbd-reactor-reload.path ]; then
+  cp """ + REACTOR_EXAMPLE_DIR + """/drbd-reactor-reload.{path,service} /etc/systemd/system/
+else
+cat <<'EOF' > /etc/systemd/system/drbd-reactor-reload.path
+""" + RELOAD_PATH_UNIT + """EOF
+cat <<'EOF' > /etc/systemd/system/drbd-reactor-reload.service
+""" + RELOAD_SERVICE_UNIT + """EOF
+fi
+
 systemctl daemon-reload
 systemctl restart linstor-satellite
-systemctl enable --now drbd-reactor
-systemctl restart drbd-reactor
+systemctl enable --now drbd-reactor drbd-reactor-reload.path
+systemctl reload drbd-reactor
 drbd-reactorctl status """ + RESOURCE + """
 """)
-    print("Afterwards, point clients and integrations (linstor-client,")
-    print("Proxmox, CSI, ...) at the list of all controller IPs.")
+    print("Integrations (Proxmox, CSI, ...) should also be pointed at the")
+    print("list of all controller IPs. Once you have verified failover,")
+    print("/var/lib/linstor.orig on this node can be removed.")
 
 
 def main():
     preflight()
+    pool = resolve_storage_pool()
     print("This will move the LINSTOR controller database onto a DRBD")
-    print("resource ('" + RESOURCE + "', pool '" + STORAGE_POOL +
-          "', " + str(PLACE_COUNT) + " replicas) and hand the controller "
+    print("resource ('" + RESOURCE + "', pool '" + pool + "', "
+          + str(db_place_count()) + " replicas) and hand the controller "
           "over to drbd-reactor.")
     confirm("Continue?")
-    create_db_resource()
+    create_db_resource(pool)
     move_db()
     hand_off_to_reactor()
     print_standby_instructions()

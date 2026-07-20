@@ -365,6 +365,7 @@ export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = ({ open, on
       width={920}
       onCancel={handleClose}
       maskClosable={false}
+      keyboard={false}
       footer={step === 0 ? nodeFooter : step === 1 ? poolFooter : step === 2 ? rgFooter : reviewFooter}
       destroyOnHidden
     >
@@ -620,7 +621,7 @@ export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = ({ open, on
             </div>
           )}
 
-          <HASetupGuide storagePool={poolPlan[0]?.name} nodeNames={plannedNodeNames} />
+          <HASetupGuide storagePool={poolPlan[0]?.name} />
         </div>
       )}
     </Modal>

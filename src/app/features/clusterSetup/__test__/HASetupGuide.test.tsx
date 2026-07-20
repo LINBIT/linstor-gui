@@ -27,16 +27,16 @@ describe('HASetupGuide', () => {
     expect(screen.getByText(/Set up a highly available LINSTOR controller/i)).toBeInTheDocument();
   });
 
-  it('shows the generated script with the wizard parameters', () => {
-    render(<HASetupGuide storagePool="ha_sp" nodeNames={['gui01', 'gui02', 'gui03']} />);
+  it('shows the generated script with the wizard pool prefilled', () => {
+    render(<HASetupGuide storagePool="ha_sp" />);
     openGuide();
     const script = document.querySelector('pre');
     expect(script?.textContent).toContain('STORAGE_POOL = "ha_sp"');
-    expect(script?.textContent).toContain('CLUSTER_NODES = ["gui01","gui02","gui03"]');
+    expect(script?.textContent).toContain('def cluster_node_names');
   });
 
   it('copies the script to the clipboard', async () => {
-    render(<HASetupGuide storagePool="ha_sp" nodeNames={['a', 'b']} />);
+    render(<HASetupGuide storagePool="ha_sp" />);
     openGuide();
     fireEvent.click(screen.getByRole('button', { name: /Copy script/i }));
     expect(navigator.clipboard.writeText).toHaveBeenCalledTimes(1);
@@ -45,9 +45,9 @@ describe('HASetupGuide', () => {
     expect(copied).toContain('STORAGE_POOL = "ha_sp"');
   });
 
-  it('falls back to the placeholder pool without wizard input', () => {
+  it('defaults to pool auto-detection without wizard input', () => {
     render(<HASetupGuide />);
     openGuide();
-    expect(document.querySelector('pre')?.textContent).toContain('STORAGE_POOL = "my-thin-pool"');
+    expect(document.querySelector('pre')?.textContent).toContain('STORAGE_POOL = ""');
   });
 });
