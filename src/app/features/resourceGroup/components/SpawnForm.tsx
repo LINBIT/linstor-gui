@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Form, Modal } from 'antd';
 import { Input } from '@app/components/Input';
@@ -41,6 +41,21 @@ const SpawnForm = ({ resource_group, isInDropdown = false }: SpawnFormProps) => 
   const watchedResourceGroup = Form.useWatch('resource_group', form);
   const effectiveResourceGroup = resource_group ?? watchedResourceGroup;
   const partialChecked = Form.useWatch('partial', form) ?? false;
+
+  // Keep the Spawn button disabled until every field passes its rules.
+  // `validateOnly` re-checks on each change without painting errors on the
+  // still-pristine fields (antd's recommended "submittable" pattern).
+  const watchedValues = Form.useWatch([], form);
+  const [submittable, setSubmittable] = useState(false);
+  useEffect(() => {
+    if (!showSpawnForm) {
+      return;
+    }
+    form.validateFields({ validateOnly: true }).then(
+      () => setSubmittable(true),
+      () => setSubmittable(false),
+    );
+  }, [form, showSpawnForm, watchedValues]);
 
   const { data: resourceGroupList } = useQuery({
     queryKey: ['getResourceGroupsForSpawn'],
@@ -116,7 +131,12 @@ const SpawnForm = ({ resource_group, isInDropdown = false }: SpawnFormProps) => 
             <Button type="secondary" onClick={() => setShowSpawnForm(false)}>
               {t('common:cancel')}
             </Button>
-            <Button type="primary" onClick={() => onFinish(form.getFieldsValue())} loading={spawnMutation.isLoading}>
+            <Button
+              type="primary"
+              onClick={() => form.submit()}
+              disabled={!submittable}
+              loading={spawnMutation.isLoading}
+            >
               {t('common:spawn')}
             </Button>
           </div>
@@ -150,7 +170,11 @@ const SpawnForm = ({ resource_group, isInDropdown = false }: SpawnFormProps) => 
             </Form.Item>
           )}
 
-          <Form.Item name="name" label={t('common:resource_name', 'Resource Name')} required>
+          <Form.Item
+            name="name"
+            label={t('common:resource_name', 'Resource Name')}
+            rules={[{ required: true, message: t('common:resource_name_placeholder', 'Please input resource name') }]}
+          >
             <Input placeholder={t('common:resource_name_placeholder', 'Please input resource name')} />
           </Form.Item>
 
