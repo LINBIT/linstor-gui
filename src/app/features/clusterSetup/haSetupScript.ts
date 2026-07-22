@@ -50,10 +50,10 @@ import sys
 import time
 
 # ---- parameters --------------------------------------------------------
-# Node names, replica count and controller IPs are discovered from the
-# live cluster at runtime. STORAGE_POOL may be left empty: on a cluster
-# with a single storage pool it is auto-detected; with several pools, set
-# it here.
+# Everything is discovered from the live cluster at runtime: node names,
+# replica count, controller IPs, and the storage pool (a single pool is used
+# automatically; with several you are asked to pick one). STORAGE_POOL only
+# needs a value to override that discovery on a non-interactive run.
 RESOURCE = "linstor_db"
 RESOURCE_GROUP = "linstor-db-grp"
 STORAGE_POOL = ${JSON.stringify(pool)}
@@ -174,7 +174,27 @@ def preflight():
             + ")")
 
 
+def choose(prompt, options):
+    """Interactive numbered picker; falls back to a clear error when there is
+    no TTY (e.g. the script is being piped) so automation can set the
+    STORAGE_POOL override instead."""
+    for i, opt in enumerate(options, 1):
+        print("  " + str(i) + ") " + opt)
+    try:
+        reply = input(prompt + " [1-" + str(len(options)) + "] ").strip()
+    except EOFError:
+        die("multiple storage pools and no TTY to choose — set STORAGE_POOL "
+            "at the top of this script")
+    if reply.isdigit() and 1 <= int(reply) <= len(options):
+        return options[int(reply) - 1]
+    die("invalid selection: " + reply)
+
+
 def resolve_storage_pool():
+    """Discover the storage pool from the live cluster. A single (non-diskless)
+    pool is used automatically; with several the user picks one interactively.
+    The STORAGE_POOL constant, when set, overrides the discovery (and skips the
+    prompt) — handy for non-interactive runs."""
     data = json.loads(out(["linstor", "--machine-readable",
                            "storage-pool", "list"]))
     pools = sorted({sp.get("storage_pool_name", "")
@@ -186,11 +206,12 @@ def resolve_storage_pool():
             die("storage pool '" + STORAGE_POOL + "' not found on this "
                 "cluster — available: " + (", ".join(pools) or "none"))
         return STORAGE_POOL
+    if not pools:
+        die("no storage pool found on this cluster — create one first")
     if len(pools) == 1:
         return pools[0]
-    die("cannot auto-detect the storage pool (found: "
-        + (", ".join(pools) or "none")
-        + ") — set STORAGE_POOL at the top of this script")
+    print("Multiple storage pools found; pick the one for the controller DB:")
+    return choose("storage pool", pools)
 
 
 def cluster_node_names():

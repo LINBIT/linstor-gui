@@ -20,6 +20,16 @@ describe('buildHaSetupScript', () => {
     expect(script).toContain('def resolve_storage_pool');
   });
 
+  it('resolves the storage pool at runtime — auto for one, interactive for many', () => {
+    const script = buildHaSetupScript();
+    expect(script).toContain('def choose');
+    expect(script).toContain('Multiple storage pools found');
+    // no longer bails out asking the user to hand-edit a constant
+    expect(script).not.toContain('cannot auto-detect the storage pool');
+    // still supports a non-interactive override + rejects an EOF (piped) run
+    expect(script).toContain('no TTY to choose');
+  });
+
   it('discovers nodes, replica count and controller IPs at runtime', () => {
     const script = buildHaSetupScript({ storagePool: 'p' });
     // no wizard-baked cluster facts besides the pool prefill
