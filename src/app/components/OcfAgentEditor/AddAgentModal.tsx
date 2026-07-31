@@ -1,19 +1,18 @@
 import React, { useMemo, useState } from 'react';
-import { Modal, Table } from 'antd';
+import { Modal, Select, Table, Tag } from 'antd';
 import { Input } from '@app/components/Input';
 import { Button } from '@app/components/Button';
 import { SearchOutlined } from '@ant-design/icons';
 
-interface ResourceAgentsByProvider {
-  providers: Record<
-    string,
-    Array<{
-      name: string;
-      shortdesc?: string;
-      longdesc?: string;
-    }>
-  >;
-}
+import {
+  AGENT_PLATFORM_LABELS,
+  AgentPlatform,
+  CatalogAgent,
+  DEFAULT_AGENT_PLATFORMS,
+  agentKey,
+  availablePlatforms,
+  filterAgentsByPlatform,
+} from './agentCatalog';
 
 interface AddAgentModalProps {
   visible: boolean;
@@ -23,8 +22,13 @@ interface AddAgentModalProps {
   onProviderChange: (provider: string) => void;
   selectedAgent: string;
   onAgentChange: (agent: string) => void;
-  allAgents: ResourceAgentsByProvider | null;
+  agents: CatalogAgent[] | null;
 }
+
+const PLATFORM_COLORS: Record<AgentPlatform, string> = {
+  linux: 'blue',
+  windows: 'geekblue',
+};
 
 export function AddAgentModal({
   visible,
@@ -34,46 +38,67 @@ export function AddAgentModal({
   onProviderChange,
   selectedAgent,
   onAgentChange,
-  allAgents,
+  agents,
 }: AddAgentModalProps) {
   const [searchText, setSearchText] = useState('');
+  // Linux only until Windows is ticked, so a Linux cluster is never offered
+  // agents it cannot run.
+  const [platforms, setPlatforms] = useState<AgentPlatform[]>(DEFAULT_AGENT_PLATFORMS);
+
+  const platformOptions = useMemo(
+    () =>
+      availablePlatforms(agents ?? []).map((platform) => ({
+        label: AGENT_PLATFORM_LABELS[platform],
+        value: platform,
+      })),
+    [agents],
+  );
 
   const dataSource = useMemo(() => {
-    if (!allAgents) return [];
-    const all = Object.entries(allAgents.providers).flatMap(([provider, agents]) =>
-      agents.map((agent) => ({
-        key: `${provider}:${agent.name}`,
-        provider,
-        name: agent.name,
-        description: agent.shortdesc || agent.longdesc || '',
-      })),
-    );
+    if (!agents) return [];
+    const rows = filterAgentsByPlatform(agents, platforms).map((agent) => ({
+      key: agentKey(agent),
+      platform: agent.platform,
+      provider: agent.provider,
+      name: agent.name,
+      description: agent.shortdesc || agent.longdesc || '',
+    }));
 
-    if (!searchText) return all;
+    if (!searchText) return rows;
 
     const lowerSearch = searchText.toLowerCase();
-    return all.filter(
+    return rows.filter(
       (item) =>
         item.provider.toLowerCase().includes(lowerSearch) ||
         item.name.toLowerCase().includes(lowerSearch) ||
         item.description.toLowerCase().includes(lowerSearch),
     );
-  }, [allAgents, searchText]);
+  }, [agents, platforms, searchText]);
 
   const columns = [
+    {
+      title: 'Platform',
+      dataIndex: 'platform',
+      key: 'platform',
+      width: 110,
+      sorter: (a: { platform: AgentPlatform }, b: { platform: AgentPlatform }) => a.platform.localeCompare(b.platform),
+      render: (platform: AgentPlatform) => (
+        <Tag color={PLATFORM_COLORS[platform]}>{AGENT_PLATFORM_LABELS[platform]}</Tag>
+      ),
+    },
     {
       title: 'Provider',
       dataIndex: 'provider',
       key: 'provider',
       width: 120,
-      sorter: (a: any, b: any) => a.provider.localeCompare(b.provider),
+      sorter: (a: { provider: string }, b: { provider: string }) => a.provider.localeCompare(b.provider),
     },
     {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
       width: 180,
-      sorter: (a: any, b: any) => a.name.localeCompare(b.name),
+      sorter: (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name),
     },
     {
       title: 'Description',
@@ -83,26 +108,34 @@ export function AddAgentModal({
     },
   ];
 
+  // The caller tracks provider+name, which is what an ocf: line carries; the
+  // key adds the platform so the two catalogs cannot collide in the table.
+  const selectedKey = dataSource.find((row) => row.provider === selectedProvider && row.name === selectedAgent)?.key;
+
   const rowSelection = {
     type: 'radio' as const,
-    selectedRowKeys: selectedProvider && selectedAgent ? [`${selectedProvider}:${selectedAgent}`] : [],
+    selectedRowKeys: selectedKey ? [selectedKey] : [],
     onChange: (selectedRowKeys: React.Key[]) => {
-      const key = selectedRowKeys[0] as string;
-      if (key) {
-        const [p, a] = key.split(':');
-        onProviderChange(p);
-        onAgentChange(a);
+      const row = dataSource.find((item) => item.key === selectedRowKeys[0]);
+      if (row) {
+        onProviderChange(row.provider);
+        onAgentChange(row.name);
       }
     },
   };
 
-  const handleCancel = () => {
+  const reset = () => {
     setSearchText('');
+    setPlatforms(DEFAULT_AGENT_PLATFORMS);
+  };
+
+  const handleCancel = () => {
+    reset();
     onCancel();
   };
 
   const handleOk = () => {
-    setSearchText('');
+    reset();
     onOk();
   };
 
@@ -123,6 +156,17 @@ export function AddAgentModal({
       ]}
     >
       <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <Select
+          mode="multiple"
+          allowClear
+          value={platforms}
+          onChange={setPlatforms}
+          options={platformOptions}
+          placeholder="Select a platform"
+          aria-label="Filter by platform"
+          style={{ width: '100%' }}
+        />
+
         <Table
           size="small"
           dataSource={dataSource}

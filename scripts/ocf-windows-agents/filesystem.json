@@ -1,0 +1,52 @@
+{
+  "name": "Filesystem",
+  "shortdesc": "Resource agent for WinDRBD filesystem mounts",
+  "longdesc": "This resource agent manages the online/read-only state of a WinDRBD\ndisk and assigns a mountpoint (drive letter or path) to one of its\npartitions. It does not initialize, format, or partition the disk.",
+  "parameters": [
+    {
+      "name": "device",
+      "required": true,
+      "type": "string",
+      "shortdesc": "DRBD device path (e.g. /dev/drbd0 or /dev/drbd0p2)",
+      "longdesc": "The DRBD device path used to identify the WinDRBD disk, e.g.\n/dev/drbd0 or /dev/drbd0p2 for partition 2. The minor number\nis extracted from this path."
+    },
+    {
+      "name": "directory",
+      "required": true,
+      "type": "string",
+      "shortdesc": "Mount point (drive letter or path)",
+      "longdesc": "The mount point where the partition should be assigned, e.g.\nD: or C:\\ClusterData."
+    },
+    {
+      "name": "hyper_v",
+      "required": false,
+      "type": "boolean",
+      "shortdesc": "Skip clearing read-only flag (for Hyper-V shared storage)",
+      "longdesc": "If set to true, the read-only attribute of the disk will not be\ncleared on start. This is needed when the disk is used as Hyper-V\nshared storage managed by the HyperV resource agent."
+    }
+  ],
+  "actions": [
+    {
+      "name": "start",
+      "timeout": "20"
+    },
+    {
+      "name": "stop",
+      "timeout": "20"
+    },
+    {
+      "name": "monitor",
+      "timeout": "20",
+      "interval": "10",
+      "depth": "0"
+    },
+    {
+      "name": "describe",
+      "timeout": "5"
+    },
+    {
+      "name": "meta-data",
+      "timeout": "5"
+    }
+  ]
+}

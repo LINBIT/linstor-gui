@@ -31,7 +31,7 @@ import {
 import { parse } from 'smol-toml';
 import { useAllResourceDefinitions } from '@app/features/ha/useHA';
 import { SortableAgentItem } from './SortableAgentItem';
-import { allAgents as allAgentsData } from './all_agents';
+import { agentCatalog, agentList } from './agentCatalog';
 import { AddAgentModal } from './AddAgentModal';
 import { AddParameterModal } from './AddParameterModal';
 import { AgentPreview } from './AgentPreview';
@@ -308,8 +308,10 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
   // Form values for live preview
   const [, forceUpdate] = useState({});
 
-  // All available resource agents (grouped by provider) - using local static data
-  const [allAgents] = useState<ResourceAgentsByProvider>(allAgentsData);
+  // All available resource agents, Linux and Windows, from the local catalog.
+  // Grouped by provider for metadata lookup; the picker gets the flat list so
+  // it can filter by platform.
+  const [allAgents] = useState<ResourceAgentsByProvider>(agentCatalog);
 
   // Expanded agent keys
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
@@ -1597,7 +1599,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
           onProviderChange={setSelectedProvider}
           selectedAgent={selectedAgent}
           onAgentChange={setSelectedAgent}
-          allAgents={allAgents}
+          agents={agentList}
         />
 
         <Modal

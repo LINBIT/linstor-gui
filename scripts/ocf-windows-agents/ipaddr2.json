@@ -1,0 +1,52 @@
+{
+  "name": "ipaddr2-windows",
+  "shortdesc": "Resource agent for controlling an IPv4 cluster IP address",
+  "longdesc": "Resource agent for controlling an IPv4 cluster IP address.\nIt uses the netsh utility to add and remove the IP\naddress. It uses the ipconfig tool to check if the\nIP address is configured and up and running.",
+  "parameters": [
+    {
+      "name": "ip",
+      "required": true,
+      "type": "string",
+      "shortdesc": "The IPv4 cluster IP address.",
+      "longdesc": "The IPv4 cluster IP address. Example: 10.43.224.99."
+    },
+    {
+      "name": "nic",
+      "required": true,
+      "type": "string",
+      "shortdesc": "The network interface for the IP address",
+      "longdesc": "The network interface where this cluster IP should be bound\nto. Example: \"Ethernet Instance 0\". This must match exactly\nthe Name of the network interface (which might be longer)."
+    },
+    {
+      "name": "cidr_netmask",
+      "required": false,
+      "type": "integer",
+      "shortdesc": "Network prefix length in CIDR notation (e.g. 24)",
+      "longdesc": "The network prefix length in CIDR notation, e.g. 24 for a /24\n(255.255.255.0) network. If not specified, the netsh command will\nuse the interface's existing subnet mask."
+    }
+  ],
+  "actions": [
+    {
+      "name": "start",
+      "timeout": "20"
+    },
+    {
+      "name": "stop",
+      "timeout": "20"
+    },
+    {
+      "name": "monitor",
+      "timeout": "20",
+      "interval": "10",
+      "depth": "0"
+    },
+    {
+      "name": "describe",
+      "timeout": "5"
+    },
+    {
+      "name": "meta-data",
+      "timeout": "5"
+    }
+  ]
+}

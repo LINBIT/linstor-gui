@@ -1,0 +1,52 @@
+{
+  "name": "windows_share",
+  "shortdesc": "Resource agent for Windows network shares",
+  "longdesc": "This resource agent manages a Windows network share using the\nnet share command. On start it creates the share if it does not\nalready exist. On stop it removes the share.",
+  "parameters": [
+    {
+      "name": "directory",
+      "required": true,
+      "type": "string",
+      "shortdesc": "The local directory to share",
+      "longdesc": "The local directory path to expose as a network share,\ne.g. D:\\SharedData."
+    },
+    {
+      "name": "sharename",
+      "required": true,
+      "type": "string",
+      "shortdesc": "The network share name",
+      "longdesc": "The name of the network share as it will appear on the network,\ne.g. SharedData."
+    },
+    {
+      "name": "grant",
+      "required": false,
+      "type": "string",
+      "shortdesc": "Access permissions (/GRANT:user,permission)",
+      "longdesc": "Optional access permissions passed as the /GRANT argument to\nnet share. Format is user,permission, e.g. Administrator,FULL\nor Everyone,READ. If not specified, default Windows share\npermissions apply."
+    }
+  ],
+  "actions": [
+    {
+      "name": "start",
+      "timeout": "20"
+    },
+    {
+      "name": "stop",
+      "timeout": "20"
+    },
+    {
+      "name": "monitor",
+      "timeout": "20",
+      "interval": "10",
+      "depth": "0"
+    },
+    {
+      "name": "describe",
+      "timeout": "5"
+    },
+    {
+      "name": "meta-data",
+      "timeout": "5"
+    }
+  ]
+}

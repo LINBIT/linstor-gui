@@ -1,0 +1,38 @@
+{
+  "name": "windows_service",
+  "shortdesc": "Resource agent for Windows Services",
+  "longdesc": "This resource agent controls a Windows Service. It uses\n  the net utility for starting and stopping, and the sc\n  utility for monitoring.",
+  "parameters": [
+    {
+      "name": "service_name",
+      "required": true,
+      "type": "string",
+      "shortdesc": "Windows Service name",
+      "longdesc": "The name of the Windows Service. Example would be MSSQLSERVER or MSSQL$MSSQLSERVER02."
+    }
+  ],
+  "actions": [
+    {
+      "name": "start",
+      "timeout": "20"
+    },
+    {
+      "name": "stop",
+      "timeout": "20"
+    },
+    {
+      "name": "monitor",
+      "timeout": "20",
+      "interval": "10",
+      "depth": "0"
+    },
+    {
+      "name": "describe",
+      "timeout": "5"
+    },
+    {
+      "name": "meta-data",
+      "timeout": "5"
+    }
+  ]
+}

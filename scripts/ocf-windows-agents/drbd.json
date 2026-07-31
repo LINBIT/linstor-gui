@@ -1,0 +1,46 @@
+{
+  "name": "DRBD",
+  "shortdesc": "Resource agent for DRBD",
+  "longdesc": "This resource agent manages a single DRBD resource.",
+  "parameters": [
+    {
+      "name": "drbd_resource",
+      "required": true,
+      "type": "string",
+      "shortdesc": "Name of the DRBD resource to manage.",
+      "longdesc": "Name of the DRBD resource to manage."
+    }
+  ],
+  "actions": [
+    {
+      "name": "start",
+      "timeout": "20"
+    },
+    {
+      "name": "stop",
+      "timeout": "20"
+    },
+    {
+      "name": "promote",
+      "timeout": "20"
+    },
+    {
+      "name": "demote",
+      "timeout": "20"
+    },
+    {
+      "name": "monitor",
+      "timeout": "20",
+      "interval": "10",
+      "depth": "0"
+    },
+    {
+      "name": "describe",
+      "timeout": "5"
+    },
+    {
+      "name": "meta-data",
+      "timeout": "5"
+    }
+  ]
+}
