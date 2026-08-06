@@ -13593,7 +13593,7 @@ export const allAgents = {
         parameters: [
           {
             name: 'destination',
-            unique: true,
+            unique: false,
             required: true,
             shortdesc: 'Destination network',
             longdesc:

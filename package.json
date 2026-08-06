@@ -24,6 +24,8 @@
     "generate-api": "npm run generate-api:linstor && npm run generate-api:gateway",
     "generate-api:linstor": "openapi-typescript ./src/app/apis/Linstor-Linstor-1.25.0-resolved.yaml --output ./src/app/apis/schema.ts",
     "generate-api:gateway": "openapi-typescript ./src/app/apis/Linstor-linstor-gateway-2.0.0-resolved.yaml --output ./src/app/apis/gatewayschema.ts",
+    "generate-agents": "node scripts/generate-ocf-agents.mjs --all --format ts --merge src/app/components/OcfAgentEditor/all_agents.ts --out src/app/components/OcfAgentEditor/all_agents.ts && prettier --write src/app/components/OcfAgentEditor/all_agents.ts",
+    "generate-agents:windows": "node scripts/generate-windows-agents.mjs",
     "prepare": "husky"
   },
   "devDependencies": {

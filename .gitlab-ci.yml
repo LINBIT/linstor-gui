@@ -7,6 +7,78 @@ stages:
   - test
   - build
 
+# Rebuild the static OCF agent catalog from its three upstreams
+# (resource-agents / drbd-utils / pacemaker) and publish it as an artifact.
+# Nothing is executed: the agents' meta-data XML is parsed statically, so the
+# runner needs only git + node — no resource-agents package, no cluster.
+#
+# Manual so a release can pick up new agents deliberately: download the artifact,
+# commit it, and the change is reviewable in a normal MR. Running `npm run
+# generate-agents` locally does the same thing.
+generate-agents:
+  stage: test
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: manual
+      allow_failure: true
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: manual
+      allow_failure: true
+  before_script:
+    - npm ci
+  script:
+    - npm run generate-agents
+    - npm run type-check
+    # Surface drift rather than failing the pipeline: the catalog tracks external
+    # projects, so it going stale is expected and is a prompt to commit, not a break.
+    - |
+      if git diff --quiet -- src/app/components/OcfAgentEditor/all_agents.ts; then
+        echo "OCF agent catalog is up to date."
+      else
+        echo "OCF agent catalog is OUT OF DATE — commit the artifact below."
+        git --no-pager diff --stat -- src/app/components/OcfAgentEditor/all_agents.ts
+      fi
+  artifacts:
+    paths:
+      - 'src/app/components/OcfAgentEditor/all_agents.ts'
+    expire_in: '30 days'
+
+# The same thing for the Windows catalog, from ocf-resource-agents-rust. Its
+# agents print their meta-data from a raw string literal, so this parses the
+# source too — no Rust toolchain, no cargo build, git + node as above.
+#
+# That repo is on this GitLab, so it is cloned with CI_JOB_TOKEN rather than a
+# deploy key. It has to allow this project in its CI_JOB_TOKEN allowlist
+# (Settings > CI/CD > Job token permissions) or the clone gets a 404.
+generate-agents-windows:
+  stage: test
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: manual
+      allow_failure: true
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: manual
+      allow_failure: true
+  before_script:
+    - npm ci
+  script:
+    - |
+      npm run generate-agents:windows -- \
+        --repo "https://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/drbd/ocf-resource-agents-rust.git"
+    - npm run type-check
+    # Drift is a prompt to commit, not a broken pipeline — same reasoning as above.
+    - |
+      if git diff --quiet -- src/app/components/OcfAgentEditor/windows_agents.ts; then
+        echo "Windows agent catalog is up to date."
+      else
+        echo "Windows agent catalog is OUT OF DATE — commit the artifact below."
+        git --no-pager diff --stat -- src/app/components/OcfAgentEditor/windows_agents.ts
+      fi
+  artifacts:
+    paths:
+      - 'src/app/components/OcfAgentEditor/windows_agents.ts'
+    expire_in: '30 days'
+
 test:
   stage: test
   rules:
