@@ -9,6 +9,7 @@ import en from './english';
 import fr from './french';
 import de from './german';
 import ja from './japanese';
+import ka from './georgian';
 import tr from './turkish';
 import es from './spanish';
 import ru from './russian';
@@ -20,6 +21,7 @@ const translations = {
   de,
   zh,
   ja,
+  ka,
   fr,
   es,
   ru,
