@@ -76,6 +76,11 @@ export const antdTheme: ThemeConfig = {
     Select: {
       optionSelectedBg: tokens.color.brand.primaryHover,
       optionActiveBg: tokens.color.brand.primaryHover,
+      // The peach fill stays light in dark mode, so its label has to stay dark
+      // (design token `text/on-brand`) — antd's dark algorithm would otherwise
+      // paint near-white text on it. The hovered option has no token of its
+      // own; app.css covers that one.
+      optionSelectedColor: tokens.color.brand.onPrimary,
     },
     DatePicker: {
       activeBorderColor: tokens.color.brand.primary,

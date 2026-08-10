@@ -256,16 +256,22 @@ const zh = {
     further_tasks: '进一步任务',
     further_tasks_intro: '集群跑起来后,你可能希望把 controller 本身也做成高可用,这样单节点宕机不会带垮 LINSTOR。',
     ha_guide_label: '搭建 LINSTOR 控制器高可用',
-    ha_script_intro:
-      '复制下面的 Python 脚本,在当前运行 linstor-controller 的节点上执行。脚本会把 controller 数据库迁移到多副本 DRBD 资源上,并把 controller 的启停交给 DRBD Reactor 管理;执行完成后会打印出每个备用节点需要执行的命令。',
-    ha_script_req_root: '在当前活动 controller 节点上以 root 身份运行。',
-    ha_script_req_packages: '该节点需要 linstor CLI、drbd-utils 和 drbd-reactor。',
-    ha_script_req_standby: '备用节点需要安装 linstor-controller 和 drbd-reactor。',
-    ha_script_copy: '复制脚本',
-    ha_script_download: '下载',
-    ha_script_copied: '脚本已复制到剪贴板',
-    ha_script_copy_failed: '复制失败——请手动选中脚本文本复制',
-    ha_script_outro:
+    ha_cmd_intro:
+      'linstor-controller-ha-setup 脚本随 linstor-controller 一起安装。复制下面的命令,登录到当前运行 linstor-controller 的节点执行即可。脚本会把 controller 数据库迁移到多副本 DRBD 资源上,并把 controller 的启停交给 DRBD Reactor 管理;执行完成后会打印出每个备用节点需要执行的命令。',
+    ha_cmd_req_root: '在当前活动 controller 节点上以 root 身份运行——该节点必须在下面选中的候选节点里。',
+    ha_cmd_req_packages: '该节点需要 linstor CLI、drbd-utils 和 drbd-reactor。',
+    ha_cmd_req_standby: '备用节点需要安装 linstor-controller 和 drbd-reactor。',
+    ha_cmd_nodes_label: 'Controller 候选节点',
+    ha_cmd_nodes_hint: '只有这些节点会运行 controller 并保存一份数据库副本。通常选 3 个;再多主要是增加复制开销。',
+    ha_cmd_nodes_min: '至少选择 {{count}} 个节点——controller 无法故障切换到自己。',
+    ha_cmd_vip_label: 'Controller 虚拟 IP(可选)',
+    ha_cmd_vip_hint:
+      '留空则让客户端使用候选节点 IP 列表。填了之后,DRBD Reactor 会把这个地址挂到当前运行 controller 的节点上,客户端和集成只需要记一个地址。',
+    ha_cmd_vip_invalid: '请填写带前缀长度的地址,例如 10.0.0.100/24。',
+    ha_cmd_copy: '复制命令',
+    ha_cmd_copied: '命令已复制到剪贴板',
+    ha_cmd_copy_failed: '复制失败——请手动选中命令文本复制',
+    ha_cmd_outro:
       '脚本在做任何变更前会先确认,如果集群看起来已配置过 HA 会直接中止。完成后请把客户端和集成(Proxmox、CSI 等)指向所有 controller 的 IP——完整说明见 LINSTOR 用户手册。',
     create_cluster: '创建集群',
     creating_cluster: '正在创建集群…',

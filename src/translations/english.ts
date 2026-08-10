@@ -260,16 +260,23 @@ const en = {
     further_tasks_intro:
       'Once the cluster is up, you may want to make the controller itself highly available so a single node going down does not take LINSTOR with it.',
     ha_guide_label: 'Set up a highly available LINSTOR controller',
-    ha_script_intro:
-      'Copy the Python script below and run it on the node that is currently running linstor-controller. It moves the controller database onto a replicated DRBD resource and hands the controller over to DRBD Reactor — when it finishes, it prints the commands to run on each standby node.',
-    ha_script_req_root: 'Run as root on the active controller node.',
-    ha_script_req_packages: 'Requires the linstor CLI, drbd-utils and drbd-reactor on that node.',
-    ha_script_req_standby: 'Standby nodes need linstor-controller and drbd-reactor installed.',
-    ha_script_copy: 'Copy script',
-    ha_script_download: 'Download',
-    ha_script_copied: 'Script copied to clipboard',
-    ha_script_copy_failed: 'Copy failed — select the script text and copy it manually',
-    ha_script_outro:
+    ha_cmd_intro:
+      'linstor-controller-ha-setup ships with linstor-controller. Copy the command below, log in to the node that is currently running linstor-controller, and run it there. It moves the controller database onto a replicated DRBD resource and hands the controller over to DRBD Reactor — when it finishes, it prints the commands to run on each standby node.',
+    ha_cmd_req_root: 'Run as root on the active controller node — that node must be one of the candidates below.',
+    ha_cmd_req_packages: 'Requires the linstor CLI, drbd-utils and drbd-reactor on that node.',
+    ha_cmd_req_standby: 'Standby nodes need linstor-controller and drbd-reactor installed.',
+    ha_cmd_nodes_label: 'Controller candidate nodes',
+    ha_cmd_nodes_hint:
+      'Only these nodes get a controller and a replica of its database. Three is the usual choice; more nodes mainly add replication overhead.',
+    ha_cmd_nodes_min: 'Pick at least {{count}} nodes — the controller cannot fail over to itself.',
+    ha_cmd_vip_label: 'Controller virtual IP (optional)',
+    ha_cmd_vip_hint:
+      'Leave empty to point clients at the list of candidates instead. With a VIP, DRBD Reactor brings the address up on whichever node runs the controller, so clients and integrations only need one address.',
+    ha_cmd_vip_invalid: 'Enter the address with a prefix length, for example 10.0.0.100/24.',
+    ha_cmd_copy: 'Copy command',
+    ha_cmd_copied: 'Command copied to clipboard',
+    ha_cmd_copy_failed: 'Copy failed — select the command text and copy it manually',
+    ha_cmd_outro:
       'The script asks for confirmation before changing anything and aborts if the cluster already looks HA-configured. Afterwards, point clients and integrations (Proxmox, CSI, …) at all controller IPs — see the LINSTOR user guide for the full reference.',
     create_cluster: 'Create cluster',
     creating_cluster: 'Creating cluster…',

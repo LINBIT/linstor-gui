@@ -130,6 +130,23 @@ iframe {
   transition: transform 150ms ease;
 }
 
+/* Select dropdown: the hovered option is filled with the brand peach, which
+ * stays light in dark mode — so its label needs the on-brand dark ink. antd
+ * has a token for the *selected* option's color but none for the active one,
+ * hence the rule here. */
+.ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+  color: var(--text-on-brand);
+}
+
+/* Same for the check mark on the selected row — antd draws it in colorPrimary,
+ * which is the peach the row is already filled with, so it disappears. The
+ * extra `.ant-select-item` is there to out-specify antd's own rule. */
+.ant-select-dropdown
+  .ant-select-item.ant-select-item-option-selected:not(.ant-select-item-option-disabled)
+  .ant-select-item-option-state {
+  color: var(--text-on-brand);
+}
+
 /* Theme-aware brand mark in the top bar: dark lettering on the white header,
  * white lettering when data-theme="dark". */
 :root:not([data-theme='dark']) .logo-on-dark {
