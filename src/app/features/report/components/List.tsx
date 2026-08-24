@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect, useState } from 'react';
-import { Form, Space, Table, Tag, DatePicker, Popconfirm, Dropdown, Tooltip } from 'antd';
+import { Form, Space, Table, Tag, DatePicker, Dropdown, Tooltip } from 'antd';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
 import { Link } from '@app/components/Link';
@@ -25,6 +25,7 @@ import { LiaToolsSolid } from 'react-icons/lia';
 import DownloadSOS from './DownloadSOS';
 import { useTranslation } from 'react-i18next';
 import { UIMode } from '@app/models/setting';
+import { Popconfirm } from '@app/components/Popconfirm';
 
 const { RangePicker } = DatePicker;
 

@@ -7,9 +7,6 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import { Space } from 'antd';
-import { ReloadOutlined } from '@ant-design/icons';
-import { Button } from '@app/components/Button';
 
 import { Dispatch, RootState } from '@app/store';
 import PageBasic from '@app/components/PageBasic';
@@ -32,7 +29,7 @@ const List = () => {
     dispatch.nvme.getList();
   }, [dispatch.nvme]);
 
-  const createISCSI = () => {
+  const createNVMeOf = () => {
     navigate(`/gateway/nvme-of/create`);
   };
 
@@ -60,28 +57,17 @@ const List = () => {
     });
   };
 
-  const handleReload = () => {
-    dispatch.nvme.getList();
-  };
-
   return (
     <PageBasic title={t('nvme:list')}>
-      <Space style={{ marginBottom: '1rem' }}>
-        <Button type="primary" onClick={createISCSI}>
-          {t('common:create')}
-        </Button>
-        <Button icon={<ReloadOutlined />} onClick={handleReload} loading={loading}>
-          {t('common:reload')}
-        </Button>
-      </Space>
-
       <NVMeListV2
+        onCreate={createNVMeOf}
         list={list}
         handleDelete={handleDelete}
         handleStart={handleStart}
         handleStop={handleStop}
         handleDeleteVolume={handleDeleteVolume}
         handleAddVolume={handleAddVolume}
+        loading={loading}
       />
     </PageBasic>
   );

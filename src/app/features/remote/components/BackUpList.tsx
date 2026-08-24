@@ -6,7 +6,7 @@
 
 import { useState } from 'react';
 import { logger } from '@app/utils/logger';
-import { Form, Space, Table, Popconfirm, Dropdown, Tooltip } from 'antd';
+import { Form, Space, Table, Dropdown, Tooltip } from 'antd';
 import { Input } from '@app/components/Input';
 import { Button } from '@app/components/Button';
 import type { TableProps } from 'antd';
@@ -20,6 +20,7 @@ import { deleteBackup, getBackup } from '../api';
 import { SearchForm } from './styled';
 import { formatTime } from '@app/utils/time';
 import { CreateBackupForm } from './CreateBackupForm';
+import { Popconfirm } from '@app/components/Popconfirm';
 
 type RemoteQuery = {
   origin_rsc?: string | null;

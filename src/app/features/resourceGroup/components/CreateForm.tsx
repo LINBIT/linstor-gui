@@ -7,7 +7,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { logger } from '@app/utils/logger';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Checkbox, Col, Divider, Form, message, Popover, Row, Switch, Spin } from 'antd';
+import { Col, Divider, Form, message, Popover, Row, Spin } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
@@ -34,6 +34,8 @@ import { DownOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { SizeInput } from '@app/components/SizeInput';
 import { LabelContainer, TooltipContainer, TooltipLabelContainer } from './styled';
 import { useTranslation } from 'react-i18next';
+import { Checkbox } from '@app/components/Checkbox';
+import { Switch } from '@app/components/Switch';
 
 type FormType = {
   name: string;

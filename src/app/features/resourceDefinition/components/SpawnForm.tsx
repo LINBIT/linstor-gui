@@ -6,13 +6,14 @@
 
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Checkbox, Form, Modal } from 'antd';
+import { Form, Modal } from 'antd';
 import { Input } from '@app/components/Input';
 import { Button } from '@app/components/Button';
 
 import { autoPlace } from '../api';
 import { AutoPlaceRequestBody } from '../types';
 import { useTranslation } from 'react-i18next';
+import { Checkbox } from '@app/components/Checkbox';
 
 type FormType = {
   place_count: number;

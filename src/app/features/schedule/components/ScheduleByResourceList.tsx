@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { logger } from '@app/utils/logger';
-import { Form, Table, Popconfirm, message, Space, Checkbox, Dropdown, Tooltip, Tag } from 'antd';
+import { Form, Table, message, Space, Dropdown, Tooltip, Tag } from 'antd';
 import { Input } from '@app/components/Input';
 import { Button } from '@app/components/Button';
 import type { TableProps } from 'antd';
@@ -24,6 +24,8 @@ import EnableScheduleForm from './EnableScheduleForm';
 import { RootState } from '@app/store';
 import { useSelector } from 'react-redux';
 import { UIMode } from '@app/models/setting';
+import { Popconfirm } from '@app/components/Popconfirm';
+import { Checkbox } from '@app/components/Checkbox';
 
 export const ScheduleByResourceList = () => {
   const { t } = useTranslation(['schedule', 'common']);

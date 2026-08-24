@@ -8,10 +8,6 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Space } from 'antd';
-import { ReloadOutlined } from '@ant-design/icons';
-
-import { Button } from '@app/components/Button';
 
 import { Dispatch, RootState } from '@app/store';
 import PageBasic from '@app/components/PageBasic';
@@ -61,27 +57,17 @@ const List: React.FunctionComponent = () => {
     });
   };
 
-  const handleReload = () => {
-    dispatch.iscsi.getList({});
-  };
-
   return (
     <PageBasic title={t('iscsi:list')}>
-      <Space style={{ marginBottom: '1rem' }}>
-        <Button type="primary" onClick={createISCSI}>
-          {t('common:create')}
-        </Button>
-        <Button icon={<ReloadOutlined />} onClick={handleReload} loading={loading}>
-          {t('common:reload')}
-        </Button>
-      </Space>
       <ISCSIListV2
+        onCreate={createISCSI}
         list={list as ISCSIResource[]}
         handleDelete={handleDelete}
         handleStart={handleStart}
         handleStop={handleStop}
         handleDeleteVolume={handleDeleteVolume}
         handleAddVolume={handleAddVolume}
+        loading={loading}
       />
     </PageBasic>
   );

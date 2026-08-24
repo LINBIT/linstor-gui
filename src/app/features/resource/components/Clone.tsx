@@ -6,12 +6,13 @@
 
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Checkbox, Form, Modal } from 'antd';
+import { Form, Modal } from 'antd';
 import { Input } from '@app/components/Input';
 import { useTranslation } from 'react-i18next';
 
 import { cloneResourceDefinition, ResourceDefinitionCloneRequest } from '@app/features/resourceDefinition';
 import { Button } from '@app/components/Button';
+import { Checkbox } from '@app/components/Checkbox';
 
 type FormType = {
   name: string;

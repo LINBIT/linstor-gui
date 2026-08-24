@@ -5,20 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useMemo, useRef, useState } from 'react';
-import {
-  Alert,
-  Button as AntButton,
-  Form,
-  Modal,
-  Radio,
-  Space,
-  Spin,
-  Steps,
-  Table,
-  Tag,
-  Typography,
-  message,
-} from 'antd';
+import { Alert, Form, Modal, Space, Spin, Steps, Table, Tag, Typography, message } from 'antd';
 import { Input } from '@app/components/Input';
 import { InputNumber } from '@app/components/InputNumber';
 import { Select } from '@app/components/Select';
@@ -32,6 +19,7 @@ import { createPhysicalStorage, createStoragePool } from '@app/features/storageP
 import { createResourceGroup, updateResourceGroup } from '@app/features/resourceGroup';
 import { ResourceGroupStep, type ResourceGroupStepHandle, type ResourceGroupPlan } from './ResourceGroupStep';
 import { HASetupGuide } from './HASetupGuide';
+import { Radio } from '@app/components/Radio';
 
 type NodeType = 'Satellite' | 'Combined' | 'Auxiliary';
 
@@ -312,7 +300,7 @@ export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = ({ open, on
 
   const nodeFooter = (
     <Space>
-      <AntButton onClick={handleClose}>{t('common:cancel')}</AntButton>
+      <Button onClick={handleClose}>{t('common:cancel')}</Button>
       <Button type="primary" onClick={collectNodes}>
         {t('clusterSetup:next')}
       </Button>
@@ -321,9 +309,9 @@ export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = ({ open, on
 
   const poolFooter = (
     <Space>
-      <AntButton onClick={handleClose}>{t('common:cancel')}</AntButton>
-      <AntButton onClick={() => setStep(0)}>{t('common:back')}</AntButton>
-      <AntButton onClick={skipPools}>{t('common:skip')}</AntButton>
+      <Button onClick={handleClose}>{t('common:cancel')}</Button>
+      <Button onClick={() => setStep(0)}>{t('common:back')}</Button>
+      <Button onClick={skipPools}>{t('common:skip')}</Button>
       <Button type="primary" onClick={collectPools}>
         {t('clusterSetup:next')}
       </Button>
@@ -332,9 +320,9 @@ export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = ({ open, on
 
   const rgFooter = (
     <Space>
-      <AntButton onClick={handleClose}>{t('common:cancel')}</AntButton>
-      <AntButton onClick={() => setStep(1)}>{t('common:back')}</AntButton>
-      <AntButton onClick={skipRG}>{t('common:skip')}</AntButton>
+      <Button onClick={handleClose}>{t('common:cancel')}</Button>
+      <Button onClick={() => setStep(1)}>{t('common:back')}</Button>
+      <Button onClick={skipRG}>{t('common:skip')}</Button>
       <Button type="primary" onClick={collectRG}>
         {t('clusterSetup:next')}
       </Button>
@@ -349,9 +337,9 @@ export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = ({ open, on
     </Space>
   ) : (
     <Space>
-      <AntButton disabled={creating} onClick={() => setStep(2)}>
+      <Button disabled={creating} onClick={() => setStep(2)}>
         {t('common:back')}
-      </AntButton>
+      </Button>
       <Button type="primary" loading={creating} onClick={createCluster}>
         {t('clusterSetup:create_cluster')}
       </Button>
@@ -437,7 +425,7 @@ export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = ({ open, on
                       key: 'action',
                       width: 40,
                       render: (_, _row, idx) => (
-                        <AntButton
+                        <Button
                           type="text"
                           icon={<MinusCircleOutlined />}
                           disabled={fields.length <= 1}
@@ -447,7 +435,7 @@ export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = ({ open, on
                     },
                   ]}
                 />
-                <AntButton
+                <Button
                   type="dashed"
                   block
                   icon={<PlusOutlined />}
@@ -455,7 +443,7 @@ export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = ({ open, on
                   onClick={() => add({ name: '', ip: '', port: 3366, type: 'Satellite' })}
                 >
                   {t('clusterSetup:add_node_row')}
-                </AntButton>
+                </Button>
               </>
             )}
           </Form.List>

@@ -191,7 +191,7 @@ describe('ISCSIList Component', () => {
       // Each target has 2 popconfirm buttons: start/stop and delete
       // Target1 (Started): stop button (index 0), delete button (index 1)
       // Target2 (Stopped): start button (index 2), delete button (index 3)
-      fireEvent.click(confirmButtons[0]);
+      fireEvent.click(confirmButtons[1]);
 
       expect(mockHandlers.handleStop).toHaveBeenCalledWith('iqn.2024-01.com.example:target1');
     });
@@ -201,7 +201,7 @@ describe('ISCSIList Component', () => {
 
       const confirmButtons = screen.getAllByTestId('popconfirm-ok');
       // Target2's start button is at index 2
-      fireEvent.click(confirmButtons[2]);
+      fireEvent.click(confirmButtons[3]);
 
       expect(mockHandlers.handleStart).toHaveBeenCalledWith('iqn.2024-01.com.example:target2');
     });
@@ -213,7 +213,7 @@ describe('ISCSIList Component', () => {
 
       const confirmButtons = screen.getAllByTestId('popconfirm-ok');
       // Delete button for first target is at index 1
-      fireEvent.click(confirmButtons[1]);
+      fireEvent.click(confirmButtons[2]);
 
       expect(mockHandlers.handleDelete).toHaveBeenCalledWith('iqn.2024-01.com.example:target1');
     });
@@ -230,9 +230,9 @@ describe('ISCSIList Component', () => {
     it('should open modal when add volume button is clicked', () => {
       renderComponent();
 
-      const buttons = screen.getAllByRole('button');
-      const addButton = buttons.find((b) => b.textContent?.includes('iscsi:add_volume'));
-      fireEvent.click(addButton!);
+      // Add Volume is a dropdown menu item now, not a standalone button.
+      const addItems = screen.getAllByTestId('dropdown-item-add_volume');
+      fireEvent.click(addItems[0]);
 
       expect(screen.getByTestId('modal')).toBeInTheDocument();
       expect(screen.getByTestId('size-input')).toBeInTheDocument();
@@ -241,9 +241,9 @@ describe('ISCSIList Component', () => {
     it('should close modal when cancel button is clicked', () => {
       renderComponent();
 
-      const buttons = screen.getAllByRole('button');
-      const addButton = buttons.find((b) => b.textContent?.includes('iscsi:add_volume'));
-      fireEvent.click(addButton!);
+      // Add Volume is a dropdown menu item now, not a standalone button.
+      const addItems = screen.getAllByTestId('dropdown-item-add_volume');
+      fireEvent.click(addItems[0]);
 
       expect(screen.getByTestId('modal')).toBeInTheDocument();
 
@@ -269,7 +269,7 @@ describe('ISCSIList Component', () => {
       // First 4 buttons are for the main table (2 targets x 2 actions each)
       // Volume delete buttons follow: target1 has 2 volumes (LUN 1 and LUN 2)
       // The first volume delete button is at index 4
-      const volumeDeleteButton = confirmButtons[4];
+      const volumeDeleteButton = confirmButtons[5];
       fireEvent.click(volumeDeleteButton);
 
       expect(mockHandlers.handleDeleteVolume).toHaveBeenCalled();

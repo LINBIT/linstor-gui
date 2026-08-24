@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react';
 import { logger } from '@app/utils/logger';
-import { Form, Space, Table, Popconfirm, message, Dropdown, Tooltip } from 'antd';
+import { Form, Space, Table, message, Dropdown, Tooltip } from 'antd';
 import { Input } from '@app/components/Input';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -17,6 +17,7 @@ import { LiaToolsSolid } from 'react-icons/lia';
 import { deleteSchedule, getScheduleList } from '../api';
 import { SearchForm } from './styled';
 import ScheduleModal from './ScheduleModal';
+import { Popconfirm } from '@app/components/Popconfirm';
 
 export const List = () => {
   const [form] = Form.useForm();

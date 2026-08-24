@@ -234,7 +234,7 @@ describe('NFSList Component', () => {
       // Each export has 2 popconfirm buttons: start/stop and delete
       // Export1 (Started): stop button (index 0), delete button (index 1)
       // Export2 (Stopped): start button (index 2), delete button (index 3)
-      fireEvent.click(confirmButtons[0]);
+      fireEvent.click(confirmButtons[1]);
 
       expect(mockHandlers.handleStop).toHaveBeenCalledWith('nfs-export-1');
     });
@@ -244,7 +244,7 @@ describe('NFSList Component', () => {
 
       const confirmButtons = screen.getAllByTestId('popconfirm-ok');
       // Export2's start button is at index 2
-      fireEvent.click(confirmButtons[2]);
+      fireEvent.click(confirmButtons[3]);
 
       expect(mockHandlers.handleStart).toHaveBeenCalledWith('nfs-export-2');
     });
@@ -256,7 +256,7 @@ describe('NFSList Component', () => {
 
       const confirmButtons = screen.getAllByTestId('popconfirm-ok');
       // Delete button for first export is at index 1
-      fireEvent.click(confirmButtons[1]);
+      fireEvent.click(confirmButtons[2]);
 
       expect(mockHandlers.handleDelete).toHaveBeenCalledWith('nfs-export-1');
     });

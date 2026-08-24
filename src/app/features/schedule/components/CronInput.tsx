@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState, useEffect } from 'react';
-import { Modal, Button as AntButton, Space, Alert } from 'antd';
+import { Modal, Space, Alert } from 'antd';
 import { Input } from '@app/components/Input';
 import cronParser from 'cron-parser';
 import { Cron, CronError } from 'react-js-cron';
@@ -140,9 +140,9 @@ const CronInput: React.FC<CronInputProps> = ({ value = '0 0 * * *', onChange }) 
         placeholder="Cron Expression"
         status={inputError ? 'error' : ''}
         addonAfter={
-          <AntButton type="link" onClick={handleOpenModal}>
+          <Button type="link" onClick={handleOpenModal}>
             Open Cron Editor
-          </AntButton>
+          </Button>
         }
       />
 

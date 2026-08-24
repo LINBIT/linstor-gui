@@ -51,17 +51,20 @@ export const antdTheme: ThemeConfig = {
     controlOutline: tokens.focusRing,
   },
   components: {
+    // Selection controls (checkbox/radio/switch) sit on light row tints, where
+    // the button peach #FFCC9C looks washed out at 16px. They use the deeper
+    // primaryActive as their checked fill and the brand accent on hover.
     Switch: {
-      colorPrimary: tokens.color.brand.primary,
-      colorPrimaryHover: tokens.color.brand.primaryHover,
+      colorPrimary: tokens.color.brand.primaryActive,
+      colorPrimaryHover: tokens.color.brand.accent,
     },
     Checkbox: {
-      colorPrimary: tokens.color.brand.primary,
-      colorPrimaryHover: tokens.color.brand.primaryHover,
+      colorPrimary: tokens.color.brand.primaryActive,
+      colorPrimaryHover: tokens.color.brand.accent,
     },
     Radio: {
-      colorPrimary: tokens.color.brand.primary,
-      colorPrimaryHover: tokens.color.brand.primaryHover,
+      colorPrimary: tokens.color.brand.primaryActive,
+      colorPrimaryHover: tokens.color.brand.accent,
     },
     Input: {
       activeBorderColor: tokens.color.brand.primary,

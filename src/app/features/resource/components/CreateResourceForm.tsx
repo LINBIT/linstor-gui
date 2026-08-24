@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Form, Radio, Switch } from 'antd';
+import { Form } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
@@ -20,6 +20,8 @@ import { fullySuccess } from '@app/features/requests';
 import { autoPlace, resourceCreateOnNode, resourceModify, getResources } from '../api';
 import { AutoPlaceRequestBody, ResourceCreateRequestBody, ResourceModifyRequestBody } from '../types';
 import { useTranslation } from 'react-i18next';
+import { Switch } from '@app/components/Switch';
+import { Radio } from '@app/components/Radio';
 
 type FormType = {
   allocate_method: 'manual' | 'auto';

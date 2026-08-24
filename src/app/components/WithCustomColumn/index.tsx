@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react';
 import { logger } from '@app/utils/logger';
-import { Button, Tooltip } from 'antd';
+import { Tooltip } from 'antd';
 import AddColumnModal from './AddColumnModal';
 import { uniqBy } from 'lodash';
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons';
@@ -14,6 +14,7 @@ import styled from '@emotion/styled';
 import ResetIcon from './reset.svg';
 import SVG from 'react-inlinesvg';
 import { useTranslation } from 'react-i18next';
+import { Button } from '@app/components/Button';
 
 interface CustomColumn {
   title: string;

@@ -7,7 +7,7 @@
 import React, { useEffect, useState } from 'react';
 import { logger } from '@app/utils/logger';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Checkbox, Form, Modal, Space, notification } from 'antd';
+import { Form, Modal, Space, notification } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 
@@ -20,6 +20,7 @@ import { clusterPrivateVolumeSizeKib } from '../const';
 import { ErrorMessage } from '@app/features/vsan';
 
 import { Content } from './styled';
+import { Checkbox } from '@app/components/Checkbox';
 
 const timeRegx = /^((19|20)\d\d[-](0[1-9]|1[012]))$/;
 const domainRegx = /^([a-zA-Z\d.][a-zA-Z\d.-]*\.[a-zA-Z\d.][a-zA-Z\d.-]*[a-zA-Z\d])$/;

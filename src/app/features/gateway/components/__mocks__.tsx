@@ -393,7 +393,18 @@ vi.mock('antd', () => ({
   ),
   Breadcrumb: ({ children, ...props }: any) => <div data-testid="breadcrumb">{children}</div>,
   Menu: ({ children, ...props }: any) => <div data-testid="menu">{children}</div>,
-  Dropdown: ({ children, overlay }: any) => <div data-testid="dropdown">{children}</div>,
+  // Render the menu items too: the list actions live in a Dropdown menu and
+  // the tests click the Popconfirm buttons inside the item labels.
+  Dropdown: ({ children, menu }: any) => (
+    <div data-testid="dropdown">
+      {children}
+      {menu?.items?.map((item: any) => (
+        <div key={item.key} data-testid={`dropdown-item-${item.key}`} onClick={item.onClick}>
+          {item.label}
+        </div>
+      ))}
+    </div>
+  ),
   Avatar: ({ children, src, alt, ...props }: any) => (
     <div data-testid="avatar" data-src={src} data-alt={alt}>
       {children}
@@ -434,6 +445,9 @@ vi.mock('@ant-design/icons', () => ({
     </span>
   ),
   MinusCircleOutlined: ({ onClick }: any) => <span data-testid="minus-icon" onClick={onClick} />,
+  MoreOutlined: () => <span data-testid="more-icon" />,
+  CheckCircleFilled: ({ style }: any) => <span data-testid="check-circle-icon" />,
+  CloseCircleFilled: ({ style }: any) => <span data-testid="close-circle-icon" />,
   PlusOutlined: () => <span data-testid="plus-icon">+</span>,
   VerticalAlignTopOutlined: () => <span data-testid="vertical-align-top-icon">↑</span>,
   ReloadOutlined: () => <span data-testid="reload-icon">↻</span>,

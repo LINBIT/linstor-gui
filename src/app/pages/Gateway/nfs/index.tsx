@@ -7,9 +7,6 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import { Space } from 'antd';
-import { ReloadOutlined } from '@ant-design/icons';
-import { Button } from '@app/components/Button';
 
 import { Dispatch, RootState } from '@app/store';
 import PageBasic from '@app/components/PageBasic';
@@ -49,28 +46,15 @@ const List: React.FunctionComponent = () => {
     dispatch.nfs.stopNFS(iqn);
   };
 
-  const handleReload = () => {
-    dispatch.nfs.getList();
-  };
-
   return (
     <PageBasic title={t('nfs:list')}>
-      <Space style={{ marginBottom: '1em' }}>
-        {/* Always enabled: Ganesha resources are independent, so more can always
-            be created. The kernel singleton limit is enforced in the create form
-            (the Kernel option is disabled when a kernel resource already exists). */}
-        <Button type="primary" onClick={createNFS}>
-          {t('common:create')}
-        </Button>
-        <Button icon={<ReloadOutlined />} onClick={handleReload} loading={loading}>
-          {t('common:reload')}
-        </Button>
-      </Space>
       <NFSListV2
+        onCreate={createNFS}
         list={list as NFSResource[]}
         handleDelete={handleDelete}
         handleStart={handleStart}
         handleStop={handleStop}
+        loading={loading}
       />
     </PageBasic>
   );

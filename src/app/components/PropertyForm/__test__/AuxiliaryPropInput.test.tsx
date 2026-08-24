@@ -48,12 +48,16 @@ vi.mock('antd', () => ({
       Group: ({ children, ...props }: any) => <div {...props}>{children}</div>,
     },
   ),
+  // className comes AFTER the spread: the component renders the project Button
+  // (which wraps this mocked antd Button in an emotion styled()), and emotion
+  // passes its own className through props — it must not clobber the marker
+  // classes the assertions look for.
   Button: ({ children, onClick, danger, icon, shape, ...props }: MockButtonProps) => (
     <button
       data-testid="delete-button"
       onClick={onClick}
-      className={`${danger ? 'danger' : ''} ${shape ? `shape-${shape}` : ''}`}
       {...props}
+      className={`${danger ? 'danger' : ''} ${shape ? `shape-${shape}` : ''}`}
     >
       {icon}
       {children}

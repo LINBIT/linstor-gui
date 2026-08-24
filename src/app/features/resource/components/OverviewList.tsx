@@ -6,7 +6,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { logger } from '@app/utils/logger';
-import { Form, Space, Table, Flex, Tag, Dropdown, Popconfirm, Modal, Tooltip } from 'antd';
+import { Form, Space, Table, Flex, Tag, Dropdown, Modal, Tooltip } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
@@ -57,6 +57,7 @@ import { RootState } from '@app/store';
 import { UIMode } from '@app/models/setting';
 import { getResourceState } from '@app/utils/resource';
 import { SyncFlowOverlay } from './SyncFlowOverlay';
+import { Popconfirm } from '@app/components/Popconfirm';
 
 interface ExpandableSubTableProps {
   volumes: any[];

@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useRef, useState } from 'react';
-import { Button as AntButton, Form, Space, Table, Tag, Popconfirm, Dropdown, Tooltip } from 'antd';
+import { Form, Space, Table, Tag, Dropdown, Tooltip } from 'antd';
 import { Input } from '@app/components/Input';
 import type { TableProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -29,6 +29,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';
 import { UIMode } from '@app/models/setting';
 import { compareVersions } from '@app/utils/version';
+import { Popconfirm } from '@app/components/Popconfirm';
 
 export const List = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -354,7 +355,7 @@ export const List = () => {
               ],
             }}
           >
-            <AntButton type="text" icon={<MoreOutlined />} />
+            <Button type="text" icon={<MoreOutlined />} />
           </Dropdown>
         </Space>
       ),

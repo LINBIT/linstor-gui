@@ -7,7 +7,7 @@
 import React, { useState } from 'react';
 import { logger } from '@app/utils/logger';
 import { useMutation } from '@tanstack/react-query';
-import { Switch, Form, Modal, message } from 'antd';
+import { Form, Modal, message } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 
 import { createLINSTORRemote, createS3Remote } from '../api';
 import { LINSTORRemoteCreateRequestBody, S3RemoteCreateRequestBody } from '../types';
+import { Switch } from '@app/components/Switch';
 
 type RemoteType = 's3_remotes' | 'linstor_remotes' | 'ebs_remotes';
 

@@ -8,12 +8,14 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import React from 'react';
 import { deleteResourceGroup, getResourceGroups } from '../api';
 
-import { Button, Popconfirm, Table, notification } from 'antd';
+import { Table, notification } from 'antd';
 import type { TableProps } from 'antd';
 import { DEFAULT_SP } from '@app/const/type';
 import { CreateResourceGroup } from './CreateResourceGroup';
 import { ErrorMessage } from '@app/features/vsan';
 import { ActionSection } from './styled';
+import { Button } from '@app/components/Button';
+import { Popconfirm } from '@app/components/Popconfirm';
 
 interface DataType {
   name: string;

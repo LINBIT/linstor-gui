@@ -7,7 +7,7 @@
 import React, { useEffect, useState } from 'react';
 import { logger } from '@app/utils/logger';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Checkbox, Form, Modal, Tooltip, notification } from 'antd';
+import { Form, Modal, Tooltip, notification } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 
@@ -28,6 +28,7 @@ import {
 
 import { Table } from 'antd';
 import type { TableProps } from 'antd';
+import { Checkbox } from '@app/components/Checkbox';
 
 interface DataType {
   key: string;

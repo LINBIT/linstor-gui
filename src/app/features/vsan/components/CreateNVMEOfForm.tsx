@@ -7,7 +7,7 @@
 import React, { useEffect, useState } from 'react';
 import { logger } from '@app/utils/logger';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Checkbox, Form, Modal, Space, notification } from 'antd';
+import { Form, Modal, Space, notification } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 
@@ -20,6 +20,7 @@ import { clusterPrivateVolumeSizeKib } from '../const';
 import { ErrorMessage } from '@app/features/vsan';
 import { Content } from './styled';
 import { NetworkAddress } from '@app/features/gateway/types';
+import { Checkbox } from '@app/components/Checkbox';
 
 interface ResourceGroup {
   name: string;

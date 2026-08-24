@@ -9,6 +9,8 @@ import { logger } from '@app/utils/logger';
 import styled from '@emotion/styled';
 import { useSelector } from 'react-redux';
 
+import { useThemeMode } from '@app/hooks';
+
 const PageContainer = styled.div`
   width: 100%;
   height: calc(100vh - 64px);
@@ -23,6 +25,7 @@ const IFramePage = styled.iframe`
 
 export const GrafanaDashboard = () => {
   const grafanaConfig = useSelector((state: RootState) => state.setting?.grafanaConfig);
+  const { mode } = useThemeMode();
 
   logger.debug('GrafanaDashboard render:', { grafanaConfig });
 
@@ -32,17 +35,18 @@ export const GrafanaDashboard = () => {
     return null;
   }
 
-  // Add theme=light and kiosk mode to the overview URL
+  // Follow the GUI theme (light/dark) and add kiosk mode to the overview URL.
+  // The mode is part of the iframe src, so a theme switch reloads the embed.
   const getUrlWithTheme = (url: string) => {
     try {
       const urlObj = new URL(url);
-      urlObj.searchParams.set('theme', 'light');
+      urlObj.searchParams.set('theme', mode);
       urlObj.searchParams.set('kiosk', '');
       return urlObj.toString();
     } catch {
       // If URL parsing fails, just append parameters
       const separator = url.includes('?') ? '&' : '?';
-      return `${url}${separator}theme=light&kiosk`;
+      return `${url}${separator}theme=${mode}&kiosk`;
     }
   };
 

@@ -183,7 +183,7 @@ describe('NVMeList Component', () => {
       // Each target has 2 popconfirm buttons: start/stop and delete
       // Target1 (Started): stop button (index 0), delete button (index 1)
       // Target2 (Stopped): start button (index 2), delete button (index 3)
-      fireEvent.click(confirmButtons[0]);
+      fireEvent.click(confirmButtons[1]);
 
       expect(mockHandlers.handleStop).toHaveBeenCalledWith('nqn.2014-08.org.nvmexpress:target1');
     });
@@ -193,7 +193,7 @@ describe('NVMeList Component', () => {
 
       const confirmButtons = screen.getAllByTestId('popconfirm-ok');
       // Target2's start button is at index 2
-      fireEvent.click(confirmButtons[2]);
+      fireEvent.click(confirmButtons[3]);
 
       expect(mockHandlers.handleStart).toHaveBeenCalledWith('nqn.2014-08.org.nvmexpress:target2');
     });
@@ -205,7 +205,7 @@ describe('NVMeList Component', () => {
 
       const confirmButtons = screen.getAllByTestId('popconfirm-ok');
       // Delete button for first target is at index 1
-      fireEvent.click(confirmButtons[1]);
+      fireEvent.click(confirmButtons[2]);
 
       expect(mockHandlers.handleDelete).toHaveBeenCalledWith('nqn.2014-08.org.nvmexpress:target1');
     });
@@ -223,11 +223,9 @@ describe('NVMeList Component', () => {
     it('should open modal when add volume button is clicked', () => {
       renderComponent();
 
-      // Find all buttons
-      const buttons = screen.getAllByRole('button');
-      // Find the add volume button
-      const addButton = buttons.find((b) => b.textContent?.includes('nvme:add_volume'));
-      fireEvent.click(addButton!);
+      // Add Volume is a dropdown menu item now, not a standalone button.
+      const addItems = screen.getAllByTestId('dropdown-item-add_volume');
+      fireEvent.click(addItems[0]);
 
       expect(screen.getByTestId('modal')).toBeInTheDocument();
       expect(screen.getByTestId('size-input')).toBeInTheDocument();
@@ -237,9 +235,9 @@ describe('NVMeList Component', () => {
       renderComponent();
 
       // Open modal
-      const buttons = screen.getAllByRole('button');
-      const addButton = buttons.find((b) => b.textContent?.includes('nvme:add_volume'));
-      fireEvent.click(addButton!);
+      // Add Volume is a dropdown menu item now, not a standalone button.
+      const addItems = screen.getAllByTestId('dropdown-item-add_volume');
+      fireEvent.click(addItems[0]);
 
       expect(screen.getByTestId('modal')).toBeInTheDocument();
 
@@ -270,7 +268,7 @@ describe('NVMeList Component', () => {
       // So there are 2 more volume delete buttons
       // Total: 4 (main) + 2 (volumes) = 6 buttons
       // The first volume delete button is at index 4
-      const volumeDeleteButton = confirmButtons[4];
+      const volumeDeleteButton = confirmButtons[5];
       fireEvent.click(volumeDeleteButton);
 
       expect(mockHandlers.handleDeleteVolume).toHaveBeenCalled();

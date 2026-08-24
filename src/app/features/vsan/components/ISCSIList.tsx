@@ -6,7 +6,7 @@
 
 import { useMutation, useQuery } from '@tanstack/react-query';
 import React from 'react';
-import { Button, Popconfirm, Space, Table, Tag, notification } from 'antd';
+import { Space, Table, Tag, notification } from 'antd';
 import type { TableProps } from 'antd';
 
 import { ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
@@ -18,6 +18,8 @@ import { CreateISCSIForm } from './CreateISCSIForm';
 import { formatBytes } from '@app/utils/size';
 import { GrowVolume } from './GrowVolume';
 import { ActionSection } from './styled';
+import { Button } from '@app/components/Button';
+import { Popconfirm } from '@app/components/Popconfirm';
 
 interface DataType {
   iqn: string;

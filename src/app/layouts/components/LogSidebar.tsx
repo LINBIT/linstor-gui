@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { logManager, LogItem } from '@app/utils/toast'; // Adjust to the correct import path
-import { Drawer, List, Badge, Space, Popconfirm } from 'antd'; // Import Popconfirm
+import { Drawer, List, Badge, Space } from 'antd'; // Import Popconfirm
 import { Button } from '@app/components/Button';
 import { useTranslation } from 'react-i18next';
 import { LogIcon } from '@app/components/SVGIcon';
+import { Popconfirm } from '@app/components/Popconfirm';
 
 const LogSidebar: React.FC = () => {
   const [visible, setVisible] = useState(false); // Controls the visibility of the Drawer

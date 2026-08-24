@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useMemo, useRef, useState } from 'react';
-import { Form, Space, Table, Tag, Popconfirm, Dropdown, Tooltip } from 'antd';
+import { Form, Space, Table, Tag, Dropdown, Tooltip } from 'antd';
 import { Input } from '@app/components/Input';
 import { RegexFilterHint } from '@app/components/RegexFilterHint';
 import { Button } from '@app/components/Button';
@@ -34,6 +34,7 @@ import { SpawnForm } from './SpawnForm';
 import { AddVolumeGroupForm } from './AddVolumeGroupForm';
 import { uniqId } from '@app/utils/stringUtils';
 import { LiaToolsSolid } from 'react-icons/lia';
+import { Popconfirm } from '@app/components/Popconfirm';
 
 const drbdOptionsByKey = Object.fromEntries(
   Object.entries(drbdOptions.properties).map(([name, opt]) => [opt.key, { name, ...opt }]),

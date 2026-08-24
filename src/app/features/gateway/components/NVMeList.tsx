@@ -4,14 +4,16 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { useState, useMemo } from 'react';
-import { Form, Modal, Space, Table, Tag } from 'antd';
+import React, { useState, useMemo } from 'react';
+import { Dropdown, Form, Modal, Space, Table } from 'antd';
 import { Popconfirm } from '@app/components/Popconfirm';
 import type { TableProps } from 'antd';
-import { DownOutlined, RightOutlined } from '@ant-design/icons';
-import { ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
+import { DownOutlined, MoreOutlined, RightOutlined } from '@ant-design/icons';
 import { Button } from '@app/components/Button';
+import { Input } from '@app/components/Input';
 import { Link } from '@app/components/Link';
+import { SearchForm } from '@app/components/SearchForm';
+import { SupportStatus } from '@app/components/SupportStatus';
 import { formatBytes } from '@app/utils/size';
 
 import { NVMEOFResource } from '../types';
@@ -27,6 +29,7 @@ type NVMeListProps = {
   handleStop: (nqn: string) => void;
   handleDeleteVolume: (nqn: string, lun: number) => void;
   handleAddVolume: (nqn: string, LUN: number, size_kib: number) => void;
+  onCreate?: () => void;
   loading?: boolean;
 };
 
@@ -55,12 +58,15 @@ export const NVMeList = ({
   handleStart,
   handleAddVolume,
   handleDeleteVolume,
+  onCreate,
   loading = false,
 }: NVMeListProps) => {
   const [lunModal, setLunModal] = useState(false);
   const [NQN, setNQN] = useState('');
   const [LUN, setLUN] = useState(0);
   const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [nameFilter, setNameFilter] = useState('');
   const { t } = useTranslation(['common', 'nvme']);
 
   const { addingVolume } = useSelector((state: RootState) => ({
@@ -68,6 +74,31 @@ export const NVMeList = ({
   }));
 
   const [form] = Form.useForm<FormType>();
+  const [searchForm] = Form.useForm<{ name: string }>();
+
+  // The gateway list is small and already fully loaded, so filtering is
+  // client-side, unlike the query-backed inventory lists.
+  const filteredList = (list ?? []).filter(
+    (item) => !nameFilter || (item.nqn ?? '').toLowerCase().includes(nameFilter.toLowerCase()),
+  );
+
+  const handleSearch = () => {
+    setNameFilter(searchForm.getFieldValue('name') ?? '');
+  };
+
+  const handleReset = () => {
+    searchForm.resetFields();
+    setNameFilter('');
+  };
+
+  const hasSelected = selectedRowKeys.length > 0;
+
+  const handleDeleteBulk = () => {
+    selectedRowKeys.forEach((key) => {
+      handleDelete(String(key));
+    });
+    setSelectedRowKeys([]);
+  };
 
   // Main table columns (Target level)
   const columns: TableProps<NVMEOFResource & NVMeOperationStatus>['columns'] = [
@@ -109,66 +140,83 @@ export const NVMeList = ({
       align: 'center',
       render: (_, item) => {
         const isStarted = item?.status?.service === 'Started';
-        return <Tag color={isStarted ? SUCCESS_COLOR : ERROR_COLOR}>{item?.status?.service}</Tag>;
+        return (
+          <>
+            <SupportStatus supported={isStarted} />
+            <span style={{ marginLeft: 4 }}>{item?.status?.service}</span>
+          </>
+        );
       },
     },
     {
       title: t('common:action'),
       key: 'action',
+      width: 80,
+      align: 'center',
       render: (_, record) => {
         const isStarted = record?.status?.service === 'Started';
 
         return (
           <Space size="small">
-            <Popconfirm
-              title={`Are you sure to ${isStarted ? 'stop' : 'start'} this target?`}
-              onConfirm={() => {
-                if (record.nqn) {
-                  if (isStarted) {
-                    handleStop(record.nqn);
-                  } else {
-                    handleStart(record.nqn);
-                  }
-                }
+            <Dropdown
+              menu={{
+                items: [
+                  {
+                    key: 'startstop',
+                    label: (
+                      <Popconfirm
+                        key="startstop"
+                        title={`Are you sure to ${isStarted ? 'stop' : 'start'} this target?`}
+                        okText="Yes"
+                        cancelText="No"
+                        onConfirm={() => {
+                          if (record.nqn) {
+                            if (isStarted) {
+                              handleStop(record.nqn);
+                            } else {
+                              handleStart(record.nqn);
+                            }
+                          }
+                        }}
+                      >
+                        <div className="w-full">{isStarted ? t('common:stop') : t('common:start')}</div>
+                      </Popconfirm>
+                    ),
+                  },
+                  {
+                    key: 'add_volume',
+                    label: t('nvme:add_volume'),
+                    onClick: () => {
+                      if (record?.volumes && record.nqn) {
+                        setNQN(record.nqn);
+                        setLUN((record?.volumes?.[record?.volumes?.length - 1]?.number ?? 1) + 1);
+                        setLunModal(true);
+                      }
+                    },
+                  },
+                  {
+                    key: 'delete',
+                    label: (
+                      <Popconfirm
+                        key="delete"
+                        title="Are you sure to delete this target?"
+                        okText="Yes"
+                        cancelText="No"
+                        onConfirm={() => {
+                          if (record.nqn) {
+                            handleDelete(record.nqn);
+                          }
+                        }}
+                      >
+                        <div className="w-full text-red-600">{t('common:delete')}</div>
+                      </Popconfirm>
+                    ),
+                  },
+                ],
               }}
-              okText="Yes"
-              cancelText="No"
             >
-              <Button type="secondary" size="small" loading={record.starting || record.stopping}>
-                {record.starting && t('common:starting')}
-                {record.stopping && t('common:stopping')}
-                {!record.starting && !record.stopping && isStarted && t('common:stop')}
-                {!record.starting && !record.stopping && !isStarted && t('common:start')}
-              </Button>
-            </Popconfirm>
-            <Button
-              type="primary"
-              size="small"
-              onClick={() => {
-                if (record?.volumes && record.nqn) {
-                  setNQN(record.nqn);
-                  setLUN((record?.volumes?.[record?.volumes?.length - 1]?.number ?? 1) + 1);
-                  setLunModal(true);
-                }
-              }}
-              loading={addingVolume}
-            >
-              {addingVolume ? t('nvme:adding_volume') : t('nvme:add_volume')}
-            </Button>
-            <Popconfirm
-              title="Are you sure to delete this target?"
-              onConfirm={() => {
-                if (record.nqn) {
-                  handleDelete(record.nqn);
-                }
-              }}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button danger size="small" loading={record.deleting}>
-                {record.deleting ? t('common:deleting') : t('common:delete')}
-              </Button>
-            </Popconfirm>
+              <Button type="text" icon={<MoreOutlined />} />
+            </Dropdown>
           </Space>
         );
       },
@@ -198,7 +246,12 @@ export const NVMeList = ({
       align: 'center',
       render: (state) => {
         const isOk = state === 'OK';
-        return <Tag color={isOk ? SUCCESS_COLOR : ERROR_COLOR}>{state || 'Unknown'}</Tag>;
+        return (
+          <>
+            <SupportStatus supported={isOk} />
+            <span style={{ marginLeft: 4 }}>{state || 'Unknown'}</span>
+          </>
+        );
       },
     },
     {
@@ -296,12 +349,58 @@ export const NVMeList = ({
 
   return (
     <div>
+      <SearchForm>
+        <Form form={searchForm} name="nvme_list_form" layout="inline">
+          <Form.Item name="name" label={t('common:name')}>
+            <Input placeholder={t('nvme:nqn')} />
+          </Form.Item>
+
+          <Form.Item>
+            <Space size="small">
+              <Button type="primary" onClick={handleSearch}>
+                {t('common:search')}
+              </Button>
+
+              <Button type="secondary" onClick={handleReset}>
+                {t('common:reset')}
+              </Button>
+
+              <Popconfirm
+                key="delete"
+                title="Delete targets"
+                description="Are you sure to delete the selected targets?"
+                okText="Yes"
+                cancelText="No"
+                onConfirm={handleDeleteBulk}
+                disabled={!hasSelected}
+              >
+                <Button danger disabled={!hasSelected}>
+                  {t('common:delete')}
+                </Button>
+              </Popconfirm>
+            </Space>
+          </Form.Item>
+        </Form>
+
+        {onCreate && (
+          <Button type="primary" onClick={onCreate}>
+            + {t('common:add')}
+          </Button>
+        )}
+      </SearchForm>
+
+      <br />
+
       <Table<NVMEOFResource & NVMeOperationStatus>
         columns={columns}
-        dataSource={list ?? []}
+        dataSource={filteredList}
         rowKey="nqn"
         scroll={{ x: 960 }}
         loading={loading}
+        rowSelection={{
+          selectedRowKeys,
+          onChange: setSelectedRowKeys,
+        }}
         expandable={{
           expandedRowRender,
           expandedRowKeys,

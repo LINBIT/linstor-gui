@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { Button as AntButton, Popconfirm, Table } from 'antd';
+import { Table } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 import { useState } from 'react';
@@ -17,6 +17,7 @@ import { getControllerProperties, updateController } from '@app/features/node';
 import { handlePropsToFormOption } from '@app/utils/property';
 import { MinusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import { Popconfirm } from '@app/components/Popconfirm';
 
 export const Controller = () => {
   const [editMode, setEditMode] = useState(false);
@@ -106,7 +107,7 @@ export const Controller = () => {
             okText="Yes"
             cancelText="No"
           >
-            <AntButton danger shape="circle" icon={<MinusOutlined />} size="small" style={{ marginLeft: 6 }} />
+            <Button danger shape="circle" icon={<MinusOutlined />} size="small" style={{ marginLeft: 6 }} />
           </Popconfirm>
         )}
       </div>

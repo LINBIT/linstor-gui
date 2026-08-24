@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState, useMemo } from 'react';
-import { Button as AntButton, Space, Table, Tag, Popconfirm, Dropdown, Modal, Spin, Switch, message } from 'antd';
+import { Space, Table, Tag, Dropdown, Modal, Spin, message } from 'antd';
 import { Select } from '@app/components/Select';
 import { Input } from '@app/components/Input';
 import type { TableProps } from 'antd';
@@ -27,6 +27,8 @@ import {
 import { getFile } from '../api';
 import { uniqId } from '@app/utils/stringUtils';
 import { BRAND_COLOR } from '@app/const/color';
+import { Popconfirm } from '@app/components/Popconfirm';
+import { Switch } from '@app/components/Switch';
 
 const DRBD_REACTOR_CONFIG_PREFIX = '/etc/drbd-reactor.d/';
 
@@ -306,7 +308,7 @@ export const List = () => {
                 ],
               }}
             >
-              <AntButton type="text" icon={<MoreOutlined />} />
+              <Button type="text" icon={<MoreOutlined />} />
             </Dropdown>
           </Space>
         );

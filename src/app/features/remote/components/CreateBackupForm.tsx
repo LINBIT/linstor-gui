@@ -7,7 +7,7 @@
 import React, { useState } from 'react';
 import { logger } from '@app/utils/logger';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Switch, Form, Modal, message } from 'antd';
+import { Form, Modal, message } from 'antd';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
 
@@ -17,6 +17,7 @@ import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getResources } from '@app/features/resource';
 import { uniqBy } from 'lodash';
+import { Switch } from '@app/components/Switch';
 
 type FormType = {
   rsc_name: string;

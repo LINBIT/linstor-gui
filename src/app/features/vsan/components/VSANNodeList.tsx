@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react';
 import { logger } from '@app/utils/logger';
-import { Table, Tag, Popover, Space, Modal, Progress, Tooltip, Popconfirm, notification } from 'antd';
+import { Table, Tag, Popover, Space, Modal, Progress, Tooltip, notification } from 'antd';
 import { InputNumber } from '@app/components/InputNumber';
 import type { ColumnsType } from 'antd/es/table';
 import { getNodesFromVSAN, setNodeStandBy, setNodeMaintenance, getCloudStackNodes } from '../api';
@@ -23,6 +23,7 @@ import { useSelector } from 'react-redux';
 import { UIMode } from '@app/models/setting';
 import { Button } from '@app/components/Button';
 import { Switch } from '@app/components/Switch';
+import { Popconfirm } from '@app/components/Popconfirm';
 
 interface DataType {
   hostname: string;

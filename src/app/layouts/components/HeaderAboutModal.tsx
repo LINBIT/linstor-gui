@@ -6,7 +6,8 @@ import { Input } from '@app/components/Input';
 import { useSelector } from 'react-redux';
 
 import { Button } from '@app/components/Button';
-import brandImg from '@app/assets/brand-light.svg';
+import brandImgOnLight from '@app/assets/brand-light.svg';
+import brandImgOnDark from '@app/assets/brand-dark.svg';
 import bgImg from '@app/assets/about-bg.svg';
 import { LINSTORVersionInfo } from './types';
 import { RootState } from '@app/store';
@@ -51,8 +52,8 @@ const HeaderAboutModal: React.FC<HeaderAboutModalProps> = ({ linstorVersion }) =
       </Tooltip>
       <div className="flex items-center relative z-50">
         {isModalOpen && (
-          <div className="fixed inset-0 flex items-center justify-center text-black">
-            <div className="relative max-w-[1000px] max-h-[620px] w-full h-full flex rounded-2xl shadow-2xl overflow-hidden bg-white">
+          <div className="fixed inset-0 flex items-center justify-center text-[var(--text-primary)]">
+            <div className="relative max-w-[1000px] max-h-[620px] w-full h-full flex rounded-2xl shadow-2xl overflow-hidden bg-[var(--bg-page)]">
               <img src={bgImg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-20" />
               <div
                 className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full z-10 cursor-pointer"
@@ -62,7 +63,8 @@ const HeaderAboutModal: React.FC<HeaderAboutModalProps> = ({ linstorVersion }) =
               </div>
 
               <div className="w-3/5 pt-[71px] pl-[68px] rounded-2xl relative z-10">
-                <img src={brandImg} alt="LINBIT logo" className="w-40 block" />
+                <img src={brandImgOnLight} alt="LINBIT logo" className="w-40 block logo-on-light" />
+                <img src={brandImgOnDark} alt="LINBIT logo" className="w-40 block logo-on-dark" />
                 <div className="pl-[48px]">
                   <div className="text-[52px] mt-8 mb-6">LINBIT-SDS</div>
                   <div className="[&>*:not(:last-child)]:mb-3">

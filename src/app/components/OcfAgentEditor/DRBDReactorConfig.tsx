@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Switch, Card, Tooltip, Dropdown, MenuProps } from 'antd';
+import { Form, Card, Tooltip, Dropdown, MenuProps } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 import { InputNumber } from '@app/components/InputNumber';
 import { InfoCircleOutlined, PlusOutlined, MinusCircleOutlined, DownOutlined } from '@ant-design/icons';
 import { Button } from '@app/components/Button';
+import { Switch } from '@app/components/Switch';
 
 const { Option } = Select;
 

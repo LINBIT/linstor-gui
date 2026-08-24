@@ -5,11 +5,12 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
-import { List, Tag, Popconfirm } from 'antd';
+import { List, Tag } from 'antd';
 import { Button } from '@app/components/Button';
 import { CreateNetWorkInterfaceRequestBody, NetWorkInterface } from '@app/features/ip';
 import { NetInterfaceDetail } from './NetInterfaceDetail';
 import { useTranslation } from 'react-i18next';
+import { Popconfirm } from '@app/components/Popconfirm';
 
 interface Props {
   list: NetWorkInterface[];

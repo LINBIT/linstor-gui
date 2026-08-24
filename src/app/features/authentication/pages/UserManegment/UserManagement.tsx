@@ -9,7 +9,7 @@ import { logger } from '@app/utils/logger';
 import PageBasic from '@app/components/PageBasic';
 import { Dispatch, RootState } from '@app/store';
 import { useDispatch, useSelector } from 'react-redux';
-import { Avatar, Button, List, Popconfirm, Divider, Alert } from 'antd';
+import { Avatar, List, Divider, Alert } from 'antd';
 import bg from '@app/assets/user_bg.svg';
 import { BG, MainContent, StyledSection } from './styled';
 import { QuestionCircleOutlined } from '@ant-design/icons';
@@ -21,6 +21,8 @@ import { authAPI } from '@app/features/authentication';
 import { useIsAdmin } from '@app/hooks';
 import { useTranslation } from 'react-i18next';
 import { Switch } from '@app/components/Switch';
+import { Button } from '@app/components/Button';
+import { Popconfirm } from '@app/components/Popconfirm';
 
 export const UserManagement = () => {
   const dispatch = useDispatch<Dispatch>();

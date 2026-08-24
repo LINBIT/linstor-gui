@@ -5,11 +5,14 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useMemo, useState } from 'react';
-import { Alert, Collapse, Input, Select, Typography, message } from 'antd';
+import { Alert, Collapse, Typography, message } from 'antd';
 import { CopyOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
 import Button from '@app/components/Button';
+
+import { Input } from '@app/components/Input';
+import { Select } from '@app/components/Select';
 
 import {
   DEFAULT_HA_NODE_COUNT,

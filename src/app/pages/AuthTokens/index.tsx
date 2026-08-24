@@ -5,22 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect, useState } from 'react';
-import {
-  Alert,
-  Button as AntButton,
-  Card,
-  DatePicker,
-  Dropdown,
-  Form,
-  Modal,
-  Popconfirm,
-  Space,
-  Switch,
-  Table,
-  Tag,
-  Typography,
-  message,
-} from 'antd';
+import { Alert, Card, DatePicker, Dropdown, Form, Modal, Space, Table, Tag, Typography, message } from 'antd';
 import { Input } from '@app/components/Input';
 import type { ColumnsType } from 'antd/es/table';
 import { MoreOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
@@ -33,6 +18,8 @@ import utc from 'dayjs/plugin/utc';
 import Button from '@app/components/Button';
 import service from '@app/requests';
 import { useLinstorVersion, MIN_API_VERSION } from '@app/hooks';
+import { Popconfirm } from '@app/components/Popconfirm';
+import { Switch } from '@app/components/Switch';
 
 const TOKEN_AUTH_PROPERTY = 'Auth/TokenAuthenticationEnabled';
 
@@ -289,7 +276,7 @@ const AuthTokens = () => {
             ],
           }}
         >
-          <AntButton
+          <Button
             type="text"
             icon={<MoreOutlined />}
             loading={updatingTokenId === token.id || deletingTokenId === token.id}

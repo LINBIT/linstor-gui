@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Button as AntButton, Form, Space, Table, Tag, Popconfirm, Dropdown } from 'antd';
+import { Form, Space, Table, Tag, Dropdown } from 'antd';
 import { Input } from '@app/components/Input';
 import { RegexFilterHint } from '@app/components/RegexFilterHint';
 import type { TableProps } from 'antd';
@@ -28,6 +28,7 @@ import { ResizeVolumeModal } from './ResizeVolumeModal';
 import { uniqId } from '@app/utils/stringUtils';
 import { omit } from '@app/utils/object';
 import { useTranslation } from 'react-i18next';
+import { Popconfirm } from '@app/components/Popconfirm';
 
 export const List = () => {
   const [current, setCurrent] = useState<ResourceDefinition>();
@@ -157,14 +158,14 @@ export const List = () => {
       showSorterTooltip: false,
       render: (resource_group_name) => {
         return (
-          <AntButton
+          <Button
             type="link"
             onClick={() => {
               navigate(`/storage-configuration/resource-groups?resource_groups=${resource_group_name}`);
             }}
           >
             {resource_group_name}
-          </AntButton>
+          </Button>
         );
       },
     },
@@ -204,7 +205,7 @@ export const List = () => {
               deleteMutation.mutate(record.name || '');
             }}
           >
-            <AntButton danger>{t('common:delete')}</AntButton>
+            <Button danger>{t('common:delete')}</Button>
           </Popconfirm>
 
           <Dropdown
@@ -245,7 +246,7 @@ export const List = () => {
               ],
             }}
           >
-            <AntButton type="text" icon={<MoreOutlined />} />
+            <Button type="text" icon={<MoreOutlined />} />
           </Dropdown>
         </Space>
       ),
@@ -289,7 +290,7 @@ export const List = () => {
                   cancelText="No"
                   onConfirm={handleDeleteBulk}
                 >
-                  <AntButton danger>{t('common:delete')}</AntButton>
+                  <Button danger>{t('common:delete')}</Button>
                 </Popconfirm>
               )}
             </Space>

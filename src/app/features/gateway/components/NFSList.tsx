@@ -4,15 +4,17 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { useEffect, useState } from 'react';
-import { Alert, Space, Table, Tag } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Alert, Dropdown, Form, Space, Table, Tag } from 'antd';
 import { Popconfirm } from '@app/components/Popconfirm';
 import type { TableProps } from 'antd';
-import { DownOutlined, RightOutlined } from '@ant-design/icons';
+import { DownOutlined, MoreOutlined, RightOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import { ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
 import { Button } from '@app/components/Button';
+import { Input } from '@app/components/Input';
 import { Link } from '@app/components/Link';
+import { SearchForm } from '@app/components/SearchForm';
+import { SupportStatus } from '@app/components/SupportStatus';
 import { formatBytes } from '@app/utils/size';
 
 import { NFSResource } from '../types';
@@ -20,9 +22,10 @@ import { ExportBasePath } from '../const';
 
 type NFSListProps = {
   list: NFSResource[];
-  handleDelete: (iqn: string) => void;
-  handleStart: (iqn: string) => void;
-  handleStop: (iqn: string) => void;
+  handleDelete: (name: string) => void;
+  handleStart: (name: string) => void;
+  handleStop: (name: string) => void;
+  onCreate?: () => void;
   loading?: boolean;
 };
 
@@ -42,9 +45,12 @@ type VolumeData = {
   state?: string;
 };
 
-export const NFSList = ({ list, handleDelete, handleStop, handleStart, loading = false }: NFSListProps) => {
+export const NFSList = ({ list, handleDelete, handleStop, handleStart, onCreate, loading = false }: NFSListProps) => {
   const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [nameFilter, setNameFilter] = useState('');
   const [initialized, setInitialized] = useState(false);
+  const [form] = Form.useForm<{ name: string }>();
   const { t } = useTranslation(['common', 'nfs']);
 
   // Auto-expand first row when list is loaded (only once)
@@ -57,6 +63,31 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart, loading =
       setInitialized(true);
     }
   }, [list, initialized]);
+
+  // The gateway list is small and already fully loaded, so filtering is
+  // client-side, unlike the query-backed inventory lists.
+  const filteredList = (list ?? []).filter(
+    (item) => !nameFilter || (item.name ?? '').toLowerCase().includes(nameFilter.toLowerCase()),
+  );
+
+  const handleSearch = () => {
+    setNameFilter(form.getFieldValue('name') ?? '');
+  };
+
+  const handleReset = () => {
+    form.resetFields();
+    setNameFilter('');
+  };
+
+  const hasSelected = selectedRowKeys.length > 0;
+
+  const handleDeleteBulk = () => {
+    selectedRowKeys.forEach((key) => {
+      handleDelete(String(key));
+    });
+    setSelectedRowKeys([]);
+  };
+
   const columns: TableProps<NFSResource & NFSOperationStatus>['columns'] = [
     {
       title: t('common:name'),
@@ -102,11 +133,7 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart, loading =
       align: 'center',
       render: (_, item) => {
         const isGanesha = item.implementation === 'ganesha';
-        return (
-          <Tag color={isGanesha ? 'geekblue' : 'default'}>
-            {isGanesha ? t('nfs:implementation_ganesha') : t('nfs:implementation_kernel')}
-          </Tag>
-        );
+        return <Tag>{isGanesha ? t('nfs:implementation_ganesha') : t('nfs:implementation_kernel')}</Tag>;
       },
     },
     {
@@ -124,7 +151,12 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart, loading =
       align: 'center',
       render: (_, item) => {
         const isStarted = item?.status?.service === 'Started';
-        return <Tag color={isStarted ? SUCCESS_COLOR : ERROR_COLOR}>{item?.status?.service}</Tag>;
+        return (
+          <>
+            <SupportStatus supported={isStarted} />
+            <span style={{ marginLeft: 4 }}>{item?.status?.service}</span>
+          </>
+        );
       },
     },
     {
@@ -132,53 +164,73 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart, loading =
       dataIndex: 'linstor_state',
       render: (_, item) => {
         const isOk = item?.status?.state === 'OK';
-        return <Tag color={isOk ? SUCCESS_COLOR : ERROR_COLOR}>{item?.status?.state}</Tag>;
+        return (
+          <>
+            <SupportStatus supported={isOk} />
+            <span style={{ marginLeft: 4 }}>{item?.status?.state}</span>
+          </>
+        );
       },
       align: 'center',
     },
     {
       title: t('common:action'),
       key: 'action',
+      width: 80,
+      align: 'center',
       render: (_text, record) => {
         const isStarted = record?.status?.service === 'Started';
 
         return (
           <Space size="small">
-            <Popconfirm
-              title={`Are you sure to ${isStarted ? 'stop' : 'start'} this target?`}
-              onConfirm={() => {
-                if (record.name) {
-                  if (isStarted) {
-                    handleStop(record.name);
-                  } else {
-                    handleStart(record.name);
-                  }
-                }
+            <Dropdown
+              menu={{
+                items: [
+                  {
+                    key: 'startstop',
+                    label: (
+                      <Popconfirm
+                        key="startstop"
+                        title={`Are you sure to ${isStarted ? 'stop' : 'start'} this export?`}
+                        okText="Yes"
+                        cancelText="No"
+                        onConfirm={() => {
+                          if (record.name) {
+                            if (isStarted) {
+                              handleStop(record.name);
+                            } else {
+                              handleStart(record.name);
+                            }
+                          }
+                        }}
+                      >
+                        <div className="w-full">{isStarted ? t('common:stop') : t('common:start')}</div>
+                      </Popconfirm>
+                    ),
+                  },
+                  {
+                    key: 'delete',
+                    label: (
+                      <Popconfirm
+                        key="delete"
+                        title="Are you sure to delete this export?"
+                        okText="Yes"
+                        cancelText="No"
+                        onConfirm={() => {
+                          if (record.name) {
+                            handleDelete(record.name);
+                          }
+                        }}
+                      >
+                        <div className="w-full text-red-600">{t('common:delete')}</div>
+                      </Popconfirm>
+                    ),
+                  },
+                ],
               }}
-              okText="Yes"
-              cancelText="No"
             >
-              <Button type="secondary" size="small" loading={record.starting || record.stopping}>
-                {record.starting && t('common:starting')}
-                {record.stopping && t('common:stopping')}
-                {!record.starting && !record.stopping && isStarted && t('common:stop')}
-                {!record.starting && !record.stopping && !isStarted && t('common:start')}
-              </Button>
-            </Popconfirm>
-            <Popconfirm
-              title="Are you sure to delete this target?"
-              onConfirm={() => {
-                if (record.name) {
-                  handleDelete(record.name);
-                }
-              }}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button danger size="small" loading={record.deleting}>
-                {record.deleting ? t('common:deleting') : t('common:delete')}
-              </Button>
-            </Popconfirm>
+              <Button type="text" icon={<MoreOutlined />} />
+            </Dropdown>
           </Space>
         );
       },
@@ -222,7 +274,12 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart, loading =
       align: 'center',
       render: (state) => {
         const isOk = state === 'OK';
-        return <Tag color={isOk ? SUCCESS_COLOR : ERROR_COLOR}>{state || 'Unknown'}</Tag>;
+        return (
+          <>
+            <SupportStatus supported={isOk} />
+            <span style={{ marginLeft: 4 }}>{state || 'Unknown'}</span>
+          </>
+        );
       },
     },
   ];
@@ -295,14 +352,60 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart, loading =
 
   return (
     <div>
+      <SearchForm>
+        <Form form={form} name="nfs_list_form" layout="inline">
+          <Form.Item name="name" label={t('common:name')}>
+            <Input placeholder={t('common:name')} />
+          </Form.Item>
+
+          <Form.Item>
+            <Space size="small">
+              <Button type="primary" onClick={handleSearch}>
+                {t('common:search')}
+              </Button>
+
+              <Button type="secondary" onClick={handleReset}>
+                {t('common:reset')}
+              </Button>
+
+              <Popconfirm
+                key="delete"
+                title="Delete exports"
+                description="Are you sure to delete the selected exports?"
+                okText="Yes"
+                cancelText="No"
+                onConfirm={handleDeleteBulk}
+                disabled={!hasSelected}
+              >
+                <Button danger disabled={!hasSelected}>
+                  {t('common:delete')}
+                </Button>
+              </Popconfirm>
+            </Space>
+          </Form.Item>
+        </Form>
+
+        {onCreate && (
+          <Button type="primary" onClick={onCreate}>
+            + {t('common:add')}
+          </Button>
+        )}
+      </SearchForm>
+
+      <br />
+
       <Alert message={t('nfs:only_one_resource_note')} type="warning" showIcon style={{ marginBottom: 24 }} />
       <Table<NFSResource & NFSOperationStatus>
         bordered={false}
         columns={columns}
-        dataSource={list ?? []}
+        dataSource={filteredList}
         loading={loading}
         scroll={{ x: 960 }}
         rowKey="name"
+        rowSelection={{
+          selectedRowKeys,
+          onChange: setSelectedRowKeys,
+        }}
         expandable={{
           expandedRowRender,
           expandedRowKeys,

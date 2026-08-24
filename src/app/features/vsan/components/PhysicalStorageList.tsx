@@ -8,13 +8,14 @@ import { useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import { getStoragePool } from '../api';
 
-import { Button, Table } from 'antd';
+import { Table } from 'antd';
 import type { TableProps } from 'antd';
 import { REFETCH_INTERVAL } from '@app/const/time';
 import { formatBytes } from '@app/utils/size';
 import { DEFAULT_SP } from '@app/const/type';
 import { CreateStoragePoolForm } from '@app/features/vsan';
 import { ActionSection } from './styled';
+import { Button } from '@app/components/Button';
 
 interface DataType {
   name: string;

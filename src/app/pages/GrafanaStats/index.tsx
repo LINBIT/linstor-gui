@@ -16,7 +16,7 @@ import TimeRangeSelector from '@app/components/TimeRangeSelector';
 
 import { RootState } from '@app/store';
 import PageBasic from '@app/components/PageBasic';
-import { usePreloadIframes } from '@app/hooks';
+import { usePreloadIframes, useThemeMode } from '@app/hooks';
 
 const { Title } = Typography;
 
@@ -79,6 +79,8 @@ const GrafanaStats: React.FC = () => {
     grafanaConfig: state.setting.grafanaConfig,
   }));
 
+  const { mode } = useThemeMode();
+
   const generateGrafanaUrl = useMemo(
     () => (panelId?: number) => {
       if (!nodeName || !grafanaConfig?.enable || !panelId) return '';
@@ -94,7 +96,7 @@ const GrafanaStats: React.FC = () => {
         viewPanel: `panel-${panelId}`,
         from: timeRange,
         to: 'now',
-        theme: 'light',
+        theme: mode,
         refresh: '10s',
         timezone: 'browser',
         'var-nodename': nodeName,
@@ -102,7 +104,7 @@ const GrafanaStats: React.FC = () => {
 
       return `${baseUrl}/d-solo/${dashboardUid}/_?${params.toString()}`;
     },
-    [nodeName, grafanaConfig?.enable, grafanaConfig?.baseUrl, grafanaConfig?.dashboardUid, timeRange],
+    [nodeName, grafanaConfig?.enable, grafanaConfig?.baseUrl, grafanaConfig?.dashboardUid, timeRange, mode],
   );
 
   const generateDrbdUrl = useMemo(
@@ -131,7 +133,7 @@ const GrafanaStats: React.FC = () => {
         from: timeRange,
         to: 'now',
         timezone: 'browser',
-        theme: 'light',
+        theme: mode,
         refresh: '10s',
         'var-instance': '$__all',
         'var-resource': resourceName || '$__all',
@@ -147,6 +149,7 @@ const GrafanaStats: React.FC = () => {
       grafanaConfig?.drbdUid,
       resourceName,
       timeRange,
+      mode,
     ],
   );
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { logger } from '@app/utils/logger';
-import { Modal, Form, Checkbox, message } from 'antd';
+import { Modal, Form, message } from 'antd';
 import { Select } from '@app/components/Select';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { getNodes } from '@app/features/node/api';
@@ -9,6 +9,7 @@ import { useStoragePools } from '@app/features/storagePool';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@app/components/Button';
 import { uniqBy } from 'lodash';
+import { Checkbox } from '@app/components/Checkbox';
 
 interface AddToNodeModalProps {
   open: boolean;

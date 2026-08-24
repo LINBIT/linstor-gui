@@ -1,8 +1,10 @@
 import React, { useMemo, useState } from 'react';
-import { Modal, Select, Table, Tag } from 'antd';
+import { Modal, Table, Tag } from 'antd';
 import { Input } from '@app/components/Input';
 import { Button } from '@app/components/Button';
 import { SearchOutlined } from '@ant-design/icons';
+
+import { Select } from '@app/components/Select';
 
 import {
   AGENT_PLATFORM_LABELS,

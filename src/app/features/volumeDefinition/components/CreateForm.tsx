@@ -7,7 +7,7 @@
 import React, { useState } from 'react';
 import { logger } from '@app/utils/logger';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Form, Modal } from 'antd';
+import { Form, Modal } from 'antd';
 import { Select } from '@app/components/Select';
 import { useTranslation } from 'react-i18next';
 

@@ -11,18 +11,26 @@ import { tokens } from '@app/const/color';
 import SVG from 'react-inlinesvg';
 import DeleteIcon from '@app/assets/icons/delete.svg';
 
+/** Variants rendered by antd as-is; the brand base styling must not override
+ *  their color (a link stays link-colored, a text button inherits). */
+const NATIVE_VARIANTS = ['text', 'link', 'dashed'];
+
 const StyledButton = styled(AntButton, {
   shouldForwardProp: (prop) => !['buttontype', 'isdanger'].includes(prop),
 })<{
   buttontype?: 'primary' | 'secondary' | 'default' | 'text' | 'link' | 'dashed';
   isdanger?: boolean;
 }>`
-  /* Transparent variants (secondary/text/link/default) follow the theme;
-   * primary overrides below — its brand fill stays light in both modes, so
-   * its label stays dark (text/on-brand). */
-  color: var(--text-nav) !important;
-  font-weight: 600 !important;
-  border-radius: 4px !important;
+  /* Brand base for the filled/bordered variants; primary overrides below —
+   * its brand fill stays light in both modes, so its label stays dark
+   * (text/on-brand). text/link/dashed keep their antd look. */
+  ${(props) =>
+    !NATIVE_VARIANTS.includes(props.buttontype ?? '') &&
+    `
+    color: var(--text-nav) !important;
+    font-weight: 600 !important;
+  `}
+  ${(props) => (props.shape === 'circle' || props.shape === 'round' ? '' : 'border-radius: 4px !important;')}
 
   /* Global disabled state */
   &:disabled,
@@ -157,9 +165,11 @@ export const Button: React.FC<ButtonProps> = ({
   className,
   ...restProps
 }) => {
-  // Map to Ant Design button type
+  // Map to Ant Design button type; text/link/dashed pass through so they keep
+  // their native (borderless / link-colored / dashed) rendering.
   const getAntButtonType = (): AntButtonProps['type'] => {
     if (danger) return 'primary';
+    if (type === 'text' || type === 'link' || type === 'dashed') return type;
     return type === 'primary' ? 'primary' : 'default';
   };
 

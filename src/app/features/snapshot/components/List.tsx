@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Form, Table, Popconfirm, Space, Dropdown, Tooltip, Modal } from 'antd';
+import { Form, Table, Space, Dropdown, Tooltip, Modal } from 'antd';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
 import type { TableProps } from 'antd';
@@ -30,6 +30,7 @@ import RestoreFrom from './RestoreFrom';
 import { RootState } from '@app/store';
 import { useSelector } from 'react-redux';
 import { UIMode } from '@app/models/setting';
+import { Popconfirm } from '@app/components/Popconfirm';
 
 export const List = () => {
   const [form] = Form.useForm();

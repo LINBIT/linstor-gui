@@ -7,7 +7,7 @@
 import React, { useEffect, useState } from 'react';
 import { logger } from '@app/utils/logger';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button as AntButton, Checkbox, Form, Modal, Space, notification } from 'antd';
+import { Form, Modal, Space, notification } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 
@@ -20,6 +20,7 @@ import { formatBytes } from '@app/utils/size';
 import { clusterPrivateVolumeSizeKib } from '../const';
 import { ErrorMessage } from '../types';
 import { Content } from './styled';
+import { Checkbox } from '@app/components/Checkbox';
 
 type FormType = {
   name: string;
@@ -330,7 +331,7 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
                       </Form.Item>
 
                       {fields.length > 0 ? (
-                        <AntButton
+                        <Button
                           danger
                           style={{
                             marginLeft: 10,
@@ -339,14 +340,14 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
                           onClick={() => remove(field.name)}
                         >
                           Delete
-                        </AntButton>
+                        </Button>
                       ) : null}
                     </Form.Item>
                   ))}
                   <Form.Item>
-                    <AntButton type="dashed" onClick={() => add()} style={{ width: '60%' }}>
+                    <Button type="dashed" onClick={() => add()} style={{ width: '60%' }}>
                       Volumes <PlusOutlined />
-                    </AntButton>
+                    </Button>
                     <Form.ErrorList errors={errors} />
                   </Form.Item>
                 </>
@@ -387,9 +388,9 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
                     </Form.Item>
                   ))}
                   <Form.Item>
-                    <AntButton type="dashed" onClick={() => add()} style={{ width: '60%' }}>
+                    <Button type="dashed" onClick={() => add()} style={{ width: '60%' }}>
                       Allowed IPs <PlusOutlined />
-                    </AntButton>
+                    </Button>
                     <Form.ErrorList errors={errors} />
                   </Form.Item>
                 </>

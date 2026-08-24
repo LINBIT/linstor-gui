@@ -7,13 +7,14 @@
 import React, { useEffect } from 'react';
 import { logger } from '@app/utils/logger';
 import { Button } from '@app/components/Button';
-import { Form, Modal, Space, Spin, Checkbox, message } from 'antd';
+import { Form, Modal, Space, Spin, message } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getVolumeDefinitionListByResource, updateVolumeDefinition } from '../api';
 import { sizeOptions, convertRoundUp } from '@app/utils/size';
 import { useTranslation } from 'react-i18next';
+import { Checkbox } from '@app/components/Checkbox';
 
 interface ResizeVolumeModalProps {
   open: boolean;

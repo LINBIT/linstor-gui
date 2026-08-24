@@ -10,7 +10,7 @@ import { Card, Row, Col, Empty } from 'antd';
 import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';
 import styled from '@emotion/styled';
-import { usePreloadIframes } from '@app/hooks';
+import { usePreloadIframes, useThemeMode } from '@app/hooks';
 import TimeRangeSelector from '@app/components/TimeRangeSelector';
 
 const ChartIframe = styled.iframe`
@@ -40,6 +40,7 @@ interface ChartPanel {
 const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
   const grafanaConfig = useSelector((state: RootState) => state.setting?.grafanaConfig);
   const [timeRange, setTimeRange] = useState('now-1h');
+  const { mode } = useThemeMode();
 
   logger.debug('GrafanaCharts render:', { grafanaConfig, hostname });
 
@@ -52,7 +53,8 @@ const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
       viewPanel: `panel-${panelId}`,
       from: timeRange,
       to: 'now',
-      theme: 'light',
+      // Follow the GUI theme; being part of the src, a switch reloads the panel.
+      theme: mode,
       refresh: '10s',
       timezone: 'browser',
     });
@@ -78,7 +80,14 @@ const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
     ].filter(Boolean) as number[];
 
     return panels.map((panelId) => generateGrafanaSoloUrl(panelId));
-  }, [grafanaConfig?.enable, grafanaConfig?.baseUrl, grafanaConfig?.dashboardUid, grafanaConfig?.panelIds, timeRange]);
+  }, [
+    grafanaConfig?.enable,
+    grafanaConfig?.baseUrl,
+    grafanaConfig?.dashboardUid,
+    grafanaConfig?.panelIds,
+    timeRange,
+    mode,
+  ]);
 
   // Preload iframe URLs only if Grafana is enabled
   usePreloadIframes(iframeUrls, { prefetch: false });

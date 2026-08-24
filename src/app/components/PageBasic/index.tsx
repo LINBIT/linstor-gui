@@ -5,10 +5,10 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { PropsWithChildren } from 'react';
-import { Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { WidthProvider } from './WidthContext';
+import { Button } from '@app/components/Button';
 
 interface Props {
   title: string;

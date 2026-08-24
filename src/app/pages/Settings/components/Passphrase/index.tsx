@@ -6,13 +6,14 @@
 
 import React from 'react';
 import { logger } from '@app/utils/logger';
-import { message, Form, FormProps, Radio } from 'antd';
+import { message, Form, FormProps } from 'antd';
 import { Input } from '@app/components/Input';
 import styled from '@emotion/styled';
 import { Button } from '@app/components/Button';
 import { useMutation } from '@tanstack/react-query';
 import { createPassphrase, editPassphrase } from '@app/features/settings/passphrase';
 import { useTranslation } from 'react-i18next';
+import { Radio } from '@app/components/Radio';
 
 const Wrapper = styled.div`
   padding: 2em 0;

@@ -7,7 +7,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Layout, message, FloatButton, Button, Grid } from 'antd';
+import { Layout, message, FloatButton, Grid } from 'antd';
 import { VerticalAlignTopOutlined } from '@ant-design/icons';
 import { IoMenuOutline } from 'react-icons/io5';
 import SVG from 'react-inlinesvg';
@@ -35,6 +35,7 @@ import {
   Warning,
 } from './styled';
 import './AppLayout.css';
+import { Button } from '@app/components/Button';
 
 const { Header, Content, Sider } = Layout;
 

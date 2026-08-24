@@ -8,7 +8,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import React from 'react';
 import { deleteNVMeExport, getNVMeoFTarget } from '../api';
 
-import { Button, notification, Popconfirm, Space, Table, Tag } from 'antd';
+import { notification, Space, Table, Tag } from 'antd';
 import type { TableProps } from 'antd';
 import { ErrorMessage, NVMeTarget } from '../types';
 import { ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
@@ -17,6 +17,8 @@ import { CreateNVMEOfForm } from './CreateNVMEOfForm';
 import { formatBytes } from '@app/utils/size';
 import { GrowVolume } from './GrowVolume';
 import { ActionSection } from './styled';
+import { Button } from '@app/components/Button';
+import { Popconfirm } from '@app/components/Popconfirm';
 
 interface DataType {
   nqn: string;

@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
-import { Alert, Button as AntButton, Form, Space, Typography } from 'antd';
+import { Alert, Form, Space, Typography } from 'antd';
 import { Input } from '@app/components/Input';
 import { InputNumber } from '@app/components/InputNumber';
 import { Select } from '@app/components/Select';
@@ -13,6 +13,7 @@ import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
 import { SERVICE_KEYS, ServiceKey, getServicePreset } from '../presets';
+import { Button } from '@app/components/Button';
 
 type PropRow = { id: string; key: string; value: string };
 
@@ -135,7 +136,7 @@ export const ResourceGroupStep = forwardRef<ResourceGroupStepHandle, ResourceGro
               onChange={(e) => updateRow(row.id, { value: e.target.value })}
               style={{ width: 220 }}
             />
-            <AntButton
+            <Button
               type="text"
               danger
               icon={<DeleteOutlined />}
@@ -144,9 +145,9 @@ export const ResourceGroupStep = forwardRef<ResourceGroupStepHandle, ResourceGro
             />
           </Space>
         ))}
-        <AntButton type="dashed" icon={<PlusOutlined />} onClick={addRow} style={{ width: 600 }}>
+        <Button type="dashed" icon={<PlusOutlined />} onClick={addRow} style={{ width: 600 }}>
           {t('clusterSetup:add_property')}
-        </AntButton>
+        </Button>
       </Space>
     </Form>
   );

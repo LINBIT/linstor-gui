@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react';
 import { logger } from '@app/utils/logger';
-import { Form, Space, Table, Popconfirm, Dropdown, Tooltip } from 'antd';
+import { Form, Space, Table, Dropdown, Tooltip } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
@@ -24,6 +24,7 @@ import { CreateRemoteForm } from './CreateRemoteForm';
 import { UIMode } from '@app/models/setting';
 import { RootState } from '@app/store';
 import { useSelector } from 'react-redux';
+import { Popconfirm } from '@app/components/Popconfirm';
 
 type RemoteQuery = {
   name?: string | null;

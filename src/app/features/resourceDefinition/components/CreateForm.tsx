@@ -7,7 +7,7 @@
 import React from 'react';
 import { logger } from '@app/utils/logger';
 import { useMutation } from '@tanstack/react-query';
-import { Checkbox, Form, Radio, Switch } from 'antd';
+import { Form } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
@@ -25,6 +25,9 @@ import {
 } from '../types';
 import { SizeInput } from '@app/components/SizeInput';
 import { useTranslation } from 'react-i18next';
+import { Checkbox } from '@app/components/Checkbox';
+import { Switch } from '@app/components/Switch';
+import { Radio } from '@app/components/Radio';
 
 type FormType = {
   replication_mode: 'A' | 'C';

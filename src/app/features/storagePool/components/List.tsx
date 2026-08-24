@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Form, Space, Table, Tag, Popconfirm, Dropdown, Tooltip } from 'antd';
+import { Form, Space, Table, Tag, Dropdown, Tooltip } from 'antd';
 import { Select } from '@app/components/Select';
 import { Input } from '@app/components/Input';
 import { RegexFilterHint } from '@app/components/RegexFilterHint';
@@ -32,6 +32,7 @@ import { LiaToolsSolid } from 'react-icons/lia';
 import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';
 import { UIMode } from '@app/models/setting';
+import { Popconfirm } from '@app/components/Popconfirm';
 
 export const List = () => {
   const [form] = Form.useForm();

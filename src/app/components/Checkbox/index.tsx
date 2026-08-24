@@ -11,18 +11,18 @@ import { tokens } from '@app/const/color';
 
 const StyledCheckbox = styled(AntCheckbox)`
   .ant-checkbox-checked .ant-checkbox-inner {
-    background-color: ${tokens.color.brand.primary} !important;
-    border-color: ${tokens.color.brand.primary} !important;
+    background-color: ${tokens.color.brand.primaryActive} !important;
+    border-color: ${tokens.color.brand.primaryActive} !important;
   }
 
   .ant-checkbox-checked::after {
-    border-color: ${tokens.color.brand.primary} !important;
+    border-color: ${tokens.color.brand.primaryActive} !important;
   }
 
   .ant-checkbox-wrapper:hover .ant-checkbox-inner,
   .ant-checkbox:hover .ant-checkbox-inner,
   .ant-checkbox-input:focus + .ant-checkbox-inner {
-    border-color: ${tokens.color.brand.primary} !important;
+    border-color: ${tokens.color.brand.primaryActive} !important;
   }
 
   .ant-checkbox-checked .ant-checkbox-inner::after {
@@ -31,19 +31,19 @@ const StyledCheckbox = styled(AntCheckbox)`
 
   &.ant-checkbox-wrapper-checked {
     .ant-checkbox-checked .ant-checkbox-inner {
-      background-color: ${tokens.color.brand.primary} !important;
-      border-color: ${tokens.color.brand.primary} !important;
+      background-color: ${tokens.color.brand.primaryActive} !important;
+      border-color: ${tokens.color.brand.primaryActive} !important;
     }
 
     &:hover .ant-checkbox-checked .ant-checkbox-inner {
-      background-color: ${tokens.color.brand.primaryHover} !important;
-      border-color: ${tokens.color.brand.primaryHover} !important;
+      background-color: ${tokens.color.brand.accent} !important;
+      border-color: ${tokens.color.brand.accent} !important;
     }
   }
 
   .ant-checkbox-wrapper:hover .ant-checkbox-checked .ant-checkbox-inner {
-    background-color: ${tokens.color.brand.primaryHover} !important;
-    border-color: ${tokens.color.brand.primaryHover} !important;
+    background-color: ${tokens.color.brand.accent} !important;
+    border-color: ${tokens.color.brand.accent} !important;
   }
 `;
 
@@ -74,7 +74,7 @@ export interface CheckboxProps extends Omit<AntCheckboxProps, 'checked' | 'defau
 
 /**
  * Custom Checkbox component
- * Features custom color scheme with ${tokens.color.brand.primary} as the primary color
+ * Features custom color scheme with ${tokens.color.brand.primaryActive} as the primary color
  * Based on Ant Design Checkbox with custom styling
  */
 export const Checkbox: React.FC<CheckboxProps> = ({
