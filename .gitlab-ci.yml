@@ -142,6 +142,11 @@ deploy:
   script:
     - . gitlab-utils.sh
     - ci_prepare_tools
+    # The image has pulp-cli but not lbbuildctl; fetch it from Pulp the same
+    # way linstor-server does (the pinned ci_fetch_lbbuildctl still points at
+    # the retired Nexus).
+    - curl -sSfL https://pulp.at.linbit.com/pulp/content/file/lbbuild/lbbuildctl-latest -o /usr/local/bin/lbbuildctl
+    - chmod +x /usr/local/bin/lbbuildctl
     - VERSION="0.0.0.$CI_COMMIT_SHORT_SHA"
     - pulp file content upload --repository lbbuild-upstream
       --file linstor-gui-$VERSION.tar.gz
