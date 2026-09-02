@@ -43,6 +43,9 @@ deps: ## install dependencies
 #   make ocf-agents-windows OCF_RS_JSON=/path/with/*.json
 # OCF_RS_OUT overrides the output file; OCF_RS_FLAGS passes anything else
 # through to the script.
+#
+# A Windows product build should also start the agent picker on its own
+# platform: VITE_OCF_AGENT_PLATFORMS=windows npm run build (default: linux).
 OCF_RS_SRC =
 OCF_RS_JSON =
 OCF_RS_OUT =

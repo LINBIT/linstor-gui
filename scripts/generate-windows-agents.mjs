@@ -130,14 +130,17 @@ export function extractMetaXml(source) {
  * fallbacks toResourceAgent() uses for absent XML attributes.
  */
 export function agentFromJson(doc) {
+  // ocf2json always emits both arrays; requiring them keeps an unrelated
+  // *.json sitting next to the agents (a package.json, say) out of the catalog.
   if (!doc || typeof doc.name !== 'string' || !doc.name) return null;
+  if (!Array.isArray(doc.parameters) || !Array.isArray(doc.actions)) return null;
   const str = (v) => (typeof v === 'string' ? v : '');
   return {
     name: doc.name,
     version: str(doc.version) || '0.0',
     shortdesc: str(doc.shortdesc),
     longdesc: str(doc.longdesc),
-    parameters: (Array.isArray(doc.parameters) ? doc.parameters : []).map((p) => ({
+    parameters: doc.parameters.map((p) => ({
       name: str(p.name),
       unique: p.unique === true || p.unique === '1',
       required: p.required === true || p.required === '1',
@@ -146,7 +149,7 @@ export function agentFromJson(doc) {
       type: str(p.type),
       default: str(p.default),
     })),
-    actions: (Array.isArray(doc.actions) ? doc.actions : []).map((a) => ({
+    actions: doc.actions.map((a) => ({
       name: str(a.name),
       timeout: str(a.timeout),
       interval: str(a.interval),
@@ -170,7 +173,7 @@ function scanJsonDir(dir) {
     }
     const agent = agentFromJson(doc);
     if (!agent) {
-      skipped.push([file, 'no "name" field — not an ocf2json document']);
+      skipped.push([file, 'not an ocf2json document (needs name, parameters[] and actions[])']);
       continue;
     }
     agents.push(agent);

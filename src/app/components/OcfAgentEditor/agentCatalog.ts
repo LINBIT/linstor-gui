@@ -21,9 +21,27 @@ export type AgentPlatform = 'linux' | 'windows';
 
 export const AGENT_PLATFORMS: AgentPlatform[] = ['linux', 'windows'];
 
-/** What the editor starts with: Linux only. Windows agents are opt-in, so a
- *  Linux cluster is never offered agents it cannot run. */
-export const DEFAULT_AGENT_PLATFORMS: AgentPlatform[] = ['linux'];
+/**
+ * Parse a build-time platform list such as "windows" or "linux,windows".
+ * Unknown names are dropped; an empty or all-unknown list yields null so the
+ * caller can fall back to the built-in default.
+ */
+export function parsePlatformList(value: string | undefined): AgentPlatform[] | null {
+  if (!value) return null;
+  const wanted = value
+    .split(',')
+    .map((p) => p.trim().toLowerCase())
+    .filter((p): p is AgentPlatform => (AGENT_PLATFORMS as string[]).includes(p));
+  return wanted.length > 0 ? [...new Set(wanted)] : null;
+}
+
+/** What the editor starts with. Linux only by default, so a Linux cluster is
+ *  never offered agents it cannot run; a build for a Windows product (SDS /
+ *  WinDRBD) sets VITE_OCF_AGENT_PLATFORMS=windows (or linux,windows) at
+ *  build time to start on its own platform instead. */
+export const DEFAULT_AGENT_PLATFORMS: AgentPlatform[] = parsePlatformList(import.meta.env.VITE_OCF_AGENT_PLATFORMS) ?? [
+  'linux',
+];
 
 export const AGENT_PLATFORM_LABELS: Record<AgentPlatform, string> = {
   linux: 'Linux',
