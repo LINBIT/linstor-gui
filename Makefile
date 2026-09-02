@@ -32,6 +32,38 @@ help:
 deps: ## install dependencies
 	npm install
 
+# OCF agent catalogs. Both generators only need git + node: they parse the
+# agents' meta-data XML statically, nothing is built or executed.
+#
+# The Windows one can use an existing checkout instead of cloning, which is
+# what a build that has linstor-gui as a submodule wants:
+#   make ocf-agents-windows OCF_RS_SRC=/path/to/ocf-resource-agents-rust
+# OCF_RS_OUT overrides the output file; OCF_RS_FLAGS passes anything else
+# through to the script.
+OCF_RS_SRC =
+OCF_RS_OUT =
+OCF_RS_FLAGS =
+OCF_LINUX_CATALOG := src/app/components/OcfAgentEditor/all_agents.ts
+
+.PHONY: ocf-agents
+ocf-agents: ## regenerate the Linux OCF agent catalog (all_agents.ts)
+	npm run generate-agents
+
+.PHONY: ocf-agents-windows
+ocf-agents-windows: ## regenerate the Windows OCF agent catalog (windows_agents.ts)
+	node scripts/generate-windows-agents.mjs \
+		$(if $(OCF_RS_SRC),--src $(OCF_RS_SRC)) \
+		$(if $(OCF_RS_OUT),--out $(OCF_RS_OUT)) \
+		$(OCF_RS_FLAGS)
+
+# The Windows generator has a native --check; the Linux one is regenerated
+# and compared with git, the same way the CI job does it.
+.PHONY: ocf-agents-check
+ocf-agents-check: ## verify both catalogs are up to date (Linux side regenerates in place)
+	node scripts/generate-windows-agents.mjs --check $(if $(OCF_RS_SRC),--src $(OCF_RS_SRC))
+	npm run generate-agents
+	git diff --quiet -- $(OCF_LINUX_CATALOG) || { echo "$(OCF_LINUX_CATALOG) is out of date"; exit 1; }
+
 .PHONY: release
 release: checkVERSION build sbom/linstor-gui.cdx.json sbom/linstor-gui.spdx.json
 	mkdir -p /tmp/$(PROG)-$(VERSION)
