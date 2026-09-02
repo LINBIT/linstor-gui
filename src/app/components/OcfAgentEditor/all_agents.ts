@@ -4926,6 +4926,162 @@ export const allAgents = {
         ],
       },
       {
+        name: 'ibmmq',
+        version: '1.1',
+        shortdesc: 'Manages an IBM MQ queue manager',
+        longdesc:
+          'Resource agent for an IBM MQ queue manager. Starts the queue manager\nwith strmqm, stops it with endmqm -i escalating to endmqm -p and\nfinally direct termination of the queue manager process family, and\nmonitors it via dspmq run-state. A deep monitor (OCF_CHECK_LEVEL 10 or\nhigher) additionally verifies responsiveness with runmqsc "ping qmgr".\nA deeper monitor (OCF_CHECK_LEVEL 20 or higher) additionally puts a\nprobe message on a dedicated test queue (parameter test_queue) and gets\nit back, proving end-to-end message flow including the transaction log.\nOptional checks cover the command server (amqpcsea), a queue manager\nlistener (runmqlsr) and a custom external monitor program.\n\nFor failover configurations the queue manager data and log directories\nmust live on storage that follows the resource (e.g. a Filesystem\nresource on shared or replicated storage) and the queue manager must be\naddressable on all eligible nodes. Order this resource after the\nfilesystem and IP resources in a group.',
+        parameters: [
+          {
+            name: 'qmgr',
+            unique: true,
+            required: true,
+            shortdesc: 'Queue manager name',
+            longdesc: 'Name of the IBM MQ queue manager managed by this resource.',
+            type: 'string',
+            default: '',
+          },
+          {
+            name: 'mquser',
+            unique: false,
+            required: false,
+            shortdesc: 'MQ administrative user',
+            longdesc:
+              'Operating system user owning the IBM MQ installation. All MQ commands\nare executed as this user via a login shell.',
+            type: 'string',
+            default: 'mqm',
+          },
+          {
+            name: 'mq_installation_path',
+            unique: false,
+            required: false,
+            shortdesc: 'MQ installation path',
+            longdesc:
+              "MQ installation path for multi-installation environments (MQ 7.1+).\nWhen set, PATH is prefixed with this path's bin directory before\nrunning MQ commands. Leave empty to use the primary installation.",
+            type: 'string',
+            default: '',
+          },
+          {
+            name: 'env_file',
+            unique: false,
+            required: false,
+            shortdesc: 'Environment file',
+            longdesc:
+              "Absolute path to a file sourced before every MQ command, e.g. to run\nsetmqenv or export queue manager environment variables. The file is\nexecuted by the system's /bin/sh, so it must be compatible with that\nshell (POSIX sh syntax is safe on every distribution).",
+            type: 'string',
+            default: '',
+          },
+          {
+            name: 'strmqm_opts',
+            unique: false,
+            required: false,
+            shortdesc: 'Extra strmqm options',
+            longdesc:
+              "Additional options passed to strmqm on start. Do not use -x (multi\ninstance standby mode); standby coordination is Pacemaker's job in this\ndeployment model.",
+            type: 'string',
+            default: '',
+          },
+          {
+            name: 'immediate_stop_timeout',
+            unique: false,
+            required: false,
+            shortdesc: 'Immediate stop timeout',
+            longdesc:
+              'Seconds to wait for "endmqm -i" (immediate shutdown) to complete before\nescalating to a pre-emptive shutdown.',
+            type: 'integer',
+            default: '30',
+          },
+          {
+            name: 'preemptive_stop_timeout',
+            unique: false,
+            required: false,
+            shortdesc: 'Pre-emptive stop timeout',
+            longdesc:
+              'Seconds to wait for "endmqm -p" (pre-emptive shutdown) to complete\nbefore terminating the queue manager process family directly.',
+            type: 'integer',
+            default: '10',
+          },
+          {
+            name: 'monitor_command_server',
+            unique: false,
+            required: false,
+            shortdesc: 'Monitor the command server',
+            longdesc:
+              'When true, the monitor additionally requires the command server process\n(amqpcsea) of this queue manager to be running. Note that on modern MQ\nthe command server is started with the queue manager by default.',
+            type: 'boolean',
+            default: 'false',
+          },
+          {
+            name: 'monitor_listener',
+            unique: false,
+            required: false,
+            shortdesc: 'Monitor a runmqlsr listener',
+            longdesc:
+              'When true, the monitor additionally requires at least one runmqlsr\nlistener process for this queue manager to be running. Use only when\nthe listener is started via the queue manager service definitions\n(DEFINE SERVICE / runmqlsr under qmgr control), otherwise manage the\nlistener as a separate resource.',
+            type: 'boolean',
+            default: 'false',
+          },
+          {
+            name: 'test_queue',
+            unique: false,
+            required: false,
+            shortdesc: 'Dedicated queue for the level-20 put/get probe',
+            longdesc:
+              'Name of a dedicated local queue used by the OCF_CHECK_LEVEL 20 monitor\nfor a put/get probe (via dmpmqmsg). The queue must exist, must be used\nexclusively by this agent, and is drained by every probe -- never point\nit at an application queue. Required when a monitor operation with\nOCF_CHECK_LEVEL 20 or higher is configured. Example definition:\nDEFINE QLOCAL(RA.PROBE.QUEUE) DEFPSIST(YES) MAXDEPTH(100).',
+            type: 'string',
+            default: '',
+          },
+          {
+            name: 'monitor_program',
+            unique: false,
+            required: false,
+            shortdesc: 'Custom monitor program',
+            longdesc:
+              'Absolute path (with optional arguments) of an external program executed\nas the MQ user during monitor. Exit code 0 means healthy; any other\nexit code marks the resource failed. The program must complete well\nwithin the monitor action timeout.',
+            type: 'string',
+            default: '',
+          },
+        ],
+        actions: [
+          {
+            name: 'start',
+            timeout: '180s',
+            interval: '',
+            depth: '',
+          },
+          {
+            name: 'stop',
+            timeout: '120s',
+            interval: '',
+            depth: '',
+          },
+          {
+            name: 'monitor',
+            timeout: '60s',
+            interval: '30s',
+            depth: '0',
+          },
+          {
+            name: 'monitor',
+            timeout: '60s',
+            interval: '120s',
+            depth: '10',
+          },
+          {
+            name: 'validate-all',
+            timeout: '30s',
+            interval: '',
+            depth: '',
+          },
+          {
+            name: 'meta-data',
+            timeout: '5s',
+            interval: '',
+            depth: '',
+          },
+        ],
+      },
+      {
         name: 'ICP',
         version: '1.0',
         shortdesc: 'Manages an ICP Vortex clustered host drive',
@@ -8339,6 +8495,127 @@ export const allAgents = {
           },
           {
             name: 'meta-data',
+            timeout: '5s',
+            interval: '',
+            depth: '',
+          },
+        ],
+      },
+      {
+        name: 'mediationzone',
+        version: '1.0',
+        shortdesc: 'Manages a MediationZone pico process.',
+        longdesc:
+          'The mediationzone resource agent manages MediationZone (by DigitalRoute)\npico processes as active/passive cluster resources.\n\nUse one resource per pico. The platform VIP must start first, then the\nplatform container, followed by any other containers (ui, ec, etc.).\n\nSet meta priority=100 on the platform resource. The platform is the most\ncritical pico - all other picos depend on it. In a split-brain, Pacemaker\nfences the lower-priority node first, ensuring the platform node survives.\nThe cluster property priority-fencing-delay must be greater than 0 for this\nto take effect.',
+        parameters: [
+          {
+            name: 'os_user',
+            unique: false,
+            required: false,
+            shortdesc: 'OS user to run mzsh as.',
+            longdesc: 'OS user that owns the MediationZone installation and runs mzsh commands.',
+            type: 'string',
+            default: 'mzadmin',
+          },
+          {
+            name: 'mz_home',
+            unique: false,
+            required: false,
+            shortdesc: 'MZ_HOME directory.',
+            longdesc:
+              'Path to the MediationZone installation directory. Passed to mzsh as MZ_HOME. mzsh is expected at MZ_HOME/bin/mzsh.',
+            type: 'string',
+            default: '/opt/mz',
+          },
+          {
+            name: 'java_home',
+            unique: false,
+            required: false,
+            shortdesc: 'JAVA_HOME directory.',
+            longdesc: 'Path to the JDK or JRE used by MediationZone.',
+            type: 'string',
+            default: '/usr/lib/jvm/java-17-openjdk',
+          },
+          {
+            name: 'pico_name',
+            unique: false,
+            required: false,
+            shortdesc: 'Name of the pico to manage.',
+            longdesc:
+              'Name of the MediationZone pico to manage. Known names with default ports are platform (9000) and ui (9001). Set pico_port explicitly for other pico name and port combinations.',
+            type: 'string',
+            default: 'platform',
+          },
+          {
+            name: 'pico_port',
+            unique: false,
+            required: false,
+            shortdesc: 'Web server port of the pico.',
+            longdesc:
+              'The port the pico web server listens on. Used to clear TIME-WAIT connections before startup. Defaults to 9000 for platform and 9001 for ui. Must be set explicitly when managing a different pico type, or when the default port has been changed in the container configuration.',
+            type: 'integer',
+            default: '',
+          },
+          {
+            name: 'mzsh_timeout',
+            unique: false,
+            required: false,
+            shortdesc: 'Timeout in seconds for a single mzsh call.',
+            longdesc:
+              'Maximum time in seconds to wait for a single mzsh call (status, shutdown, kill, and the pre-start kill that runs before startup). Must be 10 or higher. The stop action chains shutdown then kill on failure, so worst-case stop time is 2 x mzsh_timeout. If mzsh_timeout is too short, both shutdown and kill time out and the stop action fails - Pacemaker then fences the node to recover. Additionally, set the stop operation timeout on the cluster resource to at least 2 x mzsh_timeout + 60s.',
+            type: 'integer',
+            default: '30',
+          },
+          {
+            name: 'monitor_retries',
+            unique: false,
+            required: false,
+            shortdesc: 'Number of mzsh status retries in the monitor action.',
+            longdesc:
+              'How many times the monitor action retries mzsh status after an initial failure before reporting the pico as not running or failed. Applies only to the monitor action - start and stop are not affected. A value of 0 disables retries. Increase if transient status failures cause unwanted restarts in your environment. Must be 0 or higher.',
+            type: 'integer',
+            default: '1',
+          },
+        ],
+        actions: [
+          {
+            name: 'start',
+            timeout: '360s',
+            interval: '',
+            depth: '',
+          },
+          {
+            name: 'stop',
+            timeout: '360s',
+            interval: '',
+            depth: '',
+          },
+          {
+            name: 'monitor',
+            timeout: '90s',
+            interval: '60s',
+            depth: '',
+          },
+          {
+            name: 'validate-all',
+            timeout: '30s',
+            interval: '',
+            depth: '',
+          },
+          {
+            name: 'meta-data',
+            timeout: '5s',
+            interval: '',
+            depth: '',
+          },
+          {
+            name: 'methods',
+            timeout: '5s',
+            interval: '',
+            depth: '',
+          },
+          {
+            name: 'usage',
             timeout: '5s',
             interval: '',
             depth: '',
@@ -13593,11 +13870,11 @@ export const allAgents = {
         parameters: [
           {
             name: 'destination',
-            unique: false,
+            unique: true,
             required: true,
             shortdesc: 'Destination network',
             longdesc:
-              'The destination network (or host) to be configured for the route. \nSpecify the netmask suffix in CIDR notation (e.g. "/24").\nIf no suffix is given, a host route will be created.\nSpecify "0.0.0.0/0" or "default" if you want this resource to set \nthe system default route.',
+              'The destination network (or host) to be configured for the route. \nSpecify the netmask suffix in CIDR notation (e.g. "/24").\nIf no suffix is given, a host route will be created.\nSpecify "0.0.0.0/0" or "::/0" if you want this resource to set\nthe system default route. The keyword "default" is also accepted,\nbut the unique constraint on this parameter will prevent from\nadding both IPv4 and IPv6 default routes at the same time in\nthis way.',
             type: 'string',
             default: '',
           },
@@ -17456,6 +17733,16 @@ export const allAgents = {
             longdesc: 'zpool import is given the -f option.',
             type: 'boolean',
             default: 'true',
+          },
+          {
+            name: 'settle_timeout',
+            unique: false,
+            required: false,
+            shortdesc: 'Seconds to wait for the pool state to settle after import',
+            longdesc:
+              'Seconds to wait after a successful import for the pool state to settle before\nreporting the pool as started.\n\n/proc/spl/kstat/zfs/<pool>/state is a lock-free snapshot of the root vdev\nstate, so shortly after an import it can still read OFFLINE or TRANSITIONING\nwhile vdevs are being reopened. Pacemaker starts the recurring monitor as soon\nas start returns, and the monitor treats anything other than ONLINE, DEGRADED\nor FAULTED as a hard error, so a reading taken inside that window fails a\nhealthy pool and triggers a needless recovery.\n\nThe pool state is read once before any waiting, so a pool that is already\nsettled - the common case - costs nothing. Set to 0 to disable the wait.',
+            type: 'integer',
+            default: '10',
           },
         ],
         actions: [
