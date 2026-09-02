@@ -38,9 +38,13 @@ deps: ## install dependencies
 # The Windows one can use an existing checkout instead of cloning, which is
 # what a build that has linstor-gui as a submodule wants:
 #   make ocf-agents-windows OCF_RS_SRC=/path/to/ocf-resource-agents-rust
+# or the per-agent JSON that repo's `make json-files` produces (loses
+# version/unique/default, so prefer the checkout):
+#   make ocf-agents-windows OCF_RS_JSON=/path/with/*.json
 # OCF_RS_OUT overrides the output file; OCF_RS_FLAGS passes anything else
 # through to the script.
 OCF_RS_SRC =
+OCF_RS_JSON =
 OCF_RS_OUT =
 OCF_RS_FLAGS =
 OCF_LINUX_CATALOG := src/app/components/OcfAgentEditor/all_agents.ts
@@ -53,6 +57,7 @@ ocf-agents: ## regenerate the Linux OCF agent catalog (all_agents.ts)
 ocf-agents-windows: ## regenerate the Windows OCF agent catalog (windows_agents.ts)
 	node scripts/generate-windows-agents.mjs \
 		$(if $(OCF_RS_SRC),--src $(OCF_RS_SRC)) \
+		$(if $(OCF_RS_JSON),--from-json $(OCF_RS_JSON)) \
 		$(if $(OCF_RS_OUT),--out $(OCF_RS_OUT)) \
 		$(OCF_RS_FLAGS)
 

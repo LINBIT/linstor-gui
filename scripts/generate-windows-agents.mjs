@@ -25,15 +25,20 @@
 //
 // Usage:
 //   node scripts/generate-windows-agents.mjs
-//   node scripts/generate-windows-agents.mjs --check      # verify, do not write
-//   node scripts/generate-windows-agents.mjs --src DIR    # existing checkout
+//   node scripts/generate-windows-agents.mjs --check          # verify, do not write
+//   node scripts/generate-windows-agents.mjs --src DIR        # existing checkout
+//   node scripts/generate-windows-agents.mjs --from-json DIR  # `make json-files` output
 //
-//     --repo <url>     Repo URL      (default: LINBIT ocf-resource-agents-rust)
-//     --ref <ref>      Branch or tag (default: the repo's default branch)
-//     --src <dir>      Use an existing checkout instead of cloning
-//     --out <file>     Output file
-//     --provider <p>   Provider name in the output (default: linbit)
-//     --keep           Do not delete the temp clone
+//     --repo <url>       Repo URL      (default: LINBIT ocf-resource-agents-rust)
+//     --ref <ref>        Branch or tag (default: the repo's default branch)
+//     --src <dir>        Use an existing checkout instead of cloning
+//     --from-json <dir>  Build from the repo's ocf2json.py output (one JSON per
+//                        agent) instead of the sources. That format carries no
+//                        version, `unique` or parameter default, so those come
+//                        out as '0.0', false and '' — prefer --src when you can.
+//     --out <file>       Output file
+//     --provider <p>     Provider name in the output (default: linbit)
+//     --keep             Do not delete the temp clone
 
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
@@ -50,6 +55,7 @@ const DEFAULTS = {
   repo: 'https://gitlab.at.linbit.com/drbd/ocf-resource-agents-rust.git',
   ref: null,
   src: null,
+  fromJson: null,
   out: join(REPO, 'src/app/components/OcfAgentEditor/windows_agents.ts'),
   // The WinDRBD agents ship under the linbit provider, i.e. ocf:linbit:HyperV.
   provider: 'linbit',
@@ -65,10 +71,16 @@ function parseArgs(argv) {
     else if (arg === '--repo') options.repo = argv[++i];
     else if (arg === '--ref') options.ref = argv[++i];
     else if (arg === '--src') options.src = resolve(argv[++i]);
+    else if (arg === '--from-json') options.fromJson = resolve(argv[++i]);
     else if (arg === '--out') options.out = resolve(argv[++i]);
     else if (arg === '--provider') options.provider = argv[++i];
     else if (arg === '--help' || arg === '-h') {
-      console.log(readFileSync(fileURLToPath(import.meta.url), 'utf8').split('\n').slice(1, 36).join('\n'));
+      console.log(
+        readFileSync(fileURLToPath(import.meta.url), 'utf8')
+          .split('\n')
+          .slice(1, 41)
+          .join('\n'),
+      );
       process.exit(0);
     } else {
       console.error(`unknown argument: ${arg}`);
@@ -110,12 +122,71 @@ export function extractMetaXml(source) {
   return null;
 }
 
+/**
+ * A ResourceAgent from one ocf2json.py document (`make json-files` in
+ * ocf-resource-agents-rust). The converter keeps name/shortdesc/longdesc,
+ * parameters (name, required, type, descriptions) and the raw action
+ * attributes — nothing else — so the fields it does not carry get the same
+ * fallbacks toResourceAgent() uses for absent XML attributes.
+ */
+export function agentFromJson(doc) {
+  if (!doc || typeof doc.name !== 'string' || !doc.name) return null;
+  const str = (v) => (typeof v === 'string' ? v : '');
+  return {
+    name: doc.name,
+    version: str(doc.version) || '0.0',
+    shortdesc: str(doc.shortdesc),
+    longdesc: str(doc.longdesc),
+    parameters: (Array.isArray(doc.parameters) ? doc.parameters : []).map((p) => ({
+      name: str(p.name),
+      unique: p.unique === true || p.unique === '1',
+      required: p.required === true || p.required === '1',
+      shortdesc: str(p.shortdesc),
+      longdesc: str(p.longdesc),
+      type: str(p.type),
+      default: str(p.default),
+    })),
+    actions: (Array.isArray(doc.actions) ? doc.actions : []).map((a) => ({
+      name: str(a.name),
+      timeout: str(a.timeout),
+      interval: str(a.interval),
+      depth: str(a.depth),
+    })),
+  };
+}
+
+function scanJsonDir(dir) {
+  const agents = [];
+  const skipped = [];
+  for (const file of readdirSync(dir)
+    .filter((f) => f.endsWith('.json'))
+    .sort()) {
+    let doc;
+    try {
+      doc = JSON.parse(readFileSync(join(dir, file), 'utf8'));
+    } catch (err) {
+      skipped.push([file, `not valid JSON: ${err.message}`]);
+      continue;
+    }
+    const agent = agentFromJson(doc);
+    if (!agent) {
+      skipped.push([file, 'no "name" field — not an ocf2json document']);
+      continue;
+    }
+    agents.push(agent);
+  }
+  agents.sort((a, b) => a.name.localeCompare(b.name));
+  return { agents, skipped };
+}
+
 function scanAgents(srcDir) {
   const agents = [];
   const skipped = [];
   // lib.rs / main.rs / resource_agent.rs are plumbing and simply carry no
   // metadata literal, so there is no list of files to keep in sync here.
-  for (const file of readdirSync(srcDir).filter((f) => f.endsWith('.rs')).sort()) {
+  for (const file of readdirSync(srcDir)
+    .filter((f) => f.endsWith('.rs'))
+    .sort()) {
     const xml = extractMetaXml(readFileSync(join(srcDir, file), 'utf8'));
     if (!xml) continue;
     const agent = toResourceAgent(parseXml(xml));
@@ -135,7 +206,9 @@ function scanAgents(srcDir) {
 async function format(source, filepath) {
   try {
     const prettier = await import('prettier');
-    const config = (await prettier.resolveConfig(filepath)) ?? {};
+    // Always this repo's config, even when --out points outside the tree
+    // (an external build), so the output is identical wherever it is written.
+    const config = (await prettier.resolveConfig(join(REPO, 'package.json'))) ?? {};
     return await prettier.format(source, { ...config, filepath });
   } catch {
     return source;
@@ -157,36 +230,55 @@ export function scrubUrl(url) {
   }
 }
 
-function render(agents, provider, repo, ref) {
+function render(agents, provider, source, ref, how) {
   const doc = { providers: { [provider]: agents } };
   return (
     `// GENERATED FILE — do not edit by hand.\n` +
     `// Regenerate with: node scripts/generate-windows-agents.mjs\n` +
-    `// Source: ${scrubUrl(repo)}${ref ? ` (${ref})` : ''}, parsed from the agents' meta_data() literals.\n` +
+    `// Source: ${scrubUrl(source)}${ref ? ` (${ref})` : ''}, ${how}.\n` +
     `export const windowsAgents = ${JSON.stringify(doc, null, 2)} as const;\n`
   );
 }
 
 async function main() {
   const options = parseArgs(process.argv.slice(2));
+  if (options.src && options.fromJson) {
+    console.error('--src and --from-json are mutually exclusive');
+    process.exit(2);
+  }
 
-  const checkout = options.src || clone(options.repo, options.ref, options.keep);
   let scan;
-  try {
-    scan = scanAgents(join(checkout, 'src'));
-  } finally {
-    if (!options.src && !options.keep) rmSync(checkout, { recursive: true, force: true });
+  let scanned;
+  let source;
+  let how;
+  let ref = options.ref;
+  if (options.fromJson) {
+    scanned = options.fromJson;
+    source = options.fromJson;
+    how = "converted from the agents' ocf2json.py output (no version/unique/default in that format)";
+    ref = null;
+    scan = scanJsonDir(options.fromJson);
+  } else {
+    const checkout = options.src || clone(options.repo, options.ref, options.keep);
+    scanned = join(checkout, 'src');
+    source = options.repo;
+    how = "parsed from the agents' meta_data() literals";
+    try {
+      scan = scanAgents(scanned);
+    } finally {
+      if (!options.src && !options.keep) rmSync(checkout, { recursive: true, force: true });
+    }
   }
   const { agents, skipped } = scan;
 
   if (agents.length === 0) {
     // Writing an empty catalog would quietly take every Windows agent out of
     // the editor and still look like a successful run.
-    console.error(`no agents found under ${join(checkout, 'src')} — refusing to write an empty catalog`);
+    console.error(`no agents found under ${scanned} — refusing to write an empty catalog`);
     process.exit(1);
   }
 
-  const rendered = await format(render(agents, options.provider, options.repo, options.ref), options.out);
+  const rendered = await format(render(agents, options.provider, source, ref, how), options.out);
 
   if (options.check) {
     let current = '';
