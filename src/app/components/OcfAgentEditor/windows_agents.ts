@@ -339,7 +339,7 @@ export const windowsAgents = {
         actions: [
           {
             name: 'start',
-            timeout: '20',
+            timeout: '120',
             interval: '',
             depth: '',
           },
