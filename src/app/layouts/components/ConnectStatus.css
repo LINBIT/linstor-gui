@@ -3,13 +3,16 @@
  * Copyright (c) 2024 LINBIT
  * Author: Liang Li <liang.li@linbit.com>
  */
+
+/* Same weight as the lock and log icons next to it (icon/default); the
+ * subtle token reads as disabled in dark mode. */
 .connect__status {
   display: flex;
   align-items: center;
-  color: var(--icon-subtle);
+  color: var(--icon-default);
 }
 
-.connected__img {
-  width: 1.5rem;
-  height: 1.5rem;
+/* A lost controller connection is an error state, not a dimmer icon. */
+.connect__status--disconnected {
+  color: var(--status-error);
 }

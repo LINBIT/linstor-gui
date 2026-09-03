@@ -28,7 +28,7 @@ const ConnectStatus: React.FC = () => {
   }
 
   return (
-    <div className="connect__status">
+    <div className={`connect__status${error ? ' connect__status--disconnected' : ''}`}>
       {error ? (
         <Tooltip title={t('disconnected')}>
           <div className="inline-block">
