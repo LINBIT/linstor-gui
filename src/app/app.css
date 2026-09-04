@@ -8,9 +8,12 @@
 @import 'tailwindcss';
 
 /* Design font (DESIGN.md): Roboto, self-hosted via @fontsource — the system
- * fallback (SF Pro) renders visibly heavier than Figma's Roboto. */
+ * fallback (SF Pro) renders visibly heavier than Figma's Roboto. Every weight
+ * the design uses must be listed: buttons and page titles are 600, and
+ * without that face the browser substitutes 700, which reads as bold. */
 @import '@fontsource/roboto/400.css';
 @import '@fontsource/roboto/500.css';
+@import '@fontsource/roboto/600.css';
 @import '@fontsource/roboto/700.css';
 
 #app-loading {
@@ -136,6 +139,14 @@ iframe {
  * hence the rule here. */
 .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
   color: var(--text-on-brand);
+}
+
+/* antd only eases the option background (0.3s); the ink flips instantly,
+ * which reads as a stutter against the peach fill. Ease both, briefly. */
+.ant-select-dropdown .ant-select-item-option {
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
 }
 
 /* Same for the check mark on the selected row — antd draws it in colorPrimary,

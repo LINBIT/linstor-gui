@@ -253,6 +253,24 @@ describe('StoragePoolInfo', () => {
       expect(seriesNames).toContain('pool2 - <b>Used<b>');
       expect(seriesNames).toContain('pool2 - <b>Free</b>');
     });
+
+    it('should show the total of each series next to its legend label', async () => {
+      mockGetStoragePool.mockResolvedValue(mockStoragePoolData);
+
+      renderWithQueryClient(<StoragePoolInfo />);
+
+      await screen.findByTestId('mock-chart');
+
+      // Summed over the rendered nodes: pool1 used = 600M + 900M, pool1 free
+      // = 400M + 600M, Node used = 1.5G + 2.5G (formatBytes is mocked to raw bytes).
+      const legendValues = Array.from(document.querySelectorAll('.storage-pool-custom-legend-value')).map(
+        (el) => el.textContent,
+      );
+      expect(legendValues).toContain('1500000000 B');
+      expect(legendValues).toContain('1000000000 B');
+      expect(legendValues).toContain('4000000000 B');
+      expect(legendValues).toHaveLength(6); // 2 pools x (used + free) + Node used + Node free
+    });
   });
 
   describe('chart configuration', () => {

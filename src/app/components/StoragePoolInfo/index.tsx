@@ -221,6 +221,15 @@ const ChartContainer = styled.div<{ enableScroll?: boolean; isLegendHovering?: b
     font-weight: 700;
   }
 
+  .storage-pool-custom-legend-value {
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .storage-pool-custom-legend-item.is-highlighted .storage-pool-custom-legend-value {
+    color: var(--text-primary);
+  }
+
   .storage-pool-custom-legend-marker {
     width: 12px;
     height: 12px;
@@ -669,6 +678,13 @@ export const StoragePoolInfo: React.FC = () => {
     };
   }, [poolsData]);
 
+  // Sum of each series over the rendered nodes, shown next to its legend
+  // label: the legend otherwise only highlights bars and gives no figure.
+  const seriesTotals = useMemo(
+    () => chartData.series.map((seriesItem) => seriesItem.data.reduce((sum, value) => sum + value, 0)),
+    [chartData.series],
+  );
+
   const getSeriesIndexByGroupAndSide = (group: string, side: 'free' | 'used'): number =>
     chartData.series.findIndex((s) => s.group === group && (side === 'free') === s.name.includes('Free'));
 
@@ -981,6 +997,7 @@ export const StoragePoolInfo: React.FC = () => {
               >
                 <span className="storage-pool-custom-legend-marker" style={{ background: seriesItem.color }} />
                 <span>{formatLegendLabel(seriesItem.name)}</span>
+                <span className="storage-pool-custom-legend-value">{formatBytes(seriesTotals[index])}</span>
               </div>
             ))}
           </div>
