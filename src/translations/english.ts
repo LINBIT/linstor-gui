@@ -984,6 +984,7 @@ org_role = Viewer`,
   about: {
     linstor_version: 'LINSTOR Version',
     ui_version: 'UI Version',
+    sds_version: 'LINBIT SDS Version',
     controller_ip: 'Controller Binding IP',
     controller_active_on: 'Controller Active On',
     trademark:

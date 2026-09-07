@@ -13,6 +13,7 @@ import { LINSTORVersionInfo } from './types';
 import { RootState } from '@app/store';
 import { UIMode } from '@app/models/setting';
 import { DotsIcon } from '@app/components/SVGIcon';
+import { linbitSdsVersion, uiVersion } from './aboutVersion';
 
 interface HeaderAboutModalProps {
   linstorVersion?: LINSTORVersionInfo;
@@ -41,7 +42,8 @@ const HeaderAboutModal: React.FC<HeaderAboutModalProps> = ({ linstorVersion }) =
 
   const hostName = window ? window.location.host : '';
 
-  const version = import.meta.env.VITE_VERSION ?? 'DEV';
+  const version = uiVersion(import.meta.env.VITE_VERSION);
+  const sdsVersion = linbitSdsVersion(import.meta.env.LINBIT_SDS_VERSION);
 
   return (
     <div className="flex items-center">
@@ -88,6 +90,12 @@ const HeaderAboutModal: React.FC<HeaderAboutModalProps> = ({ linstorVersion }) =
                         {version}
                       </span>
                     </div>
+                    {sdsVersion && (
+                      <div className="flex justify-between text-base">
+                        <span className="font-medium">{t('sds_version')}</span>
+                        <span>{sdsVersion}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between text-base">
                       <span className="font-medium">{t('controller_ip')}</span>
                       <span>0.0.0.0</span>

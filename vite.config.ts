@@ -14,7 +14,10 @@ import { resolve } from 'path';
 // https://vitejs.dev/config/
 export default defineConfig(({ mode, command }) => {
   // Load env variables based on mode
-  const env = loadEnv(mode, process.cwd(), 'VITE_');
+  // VITE_* is the usual client-exposed set. LINBIT_SDS_VERSION is the one
+  // unprefixed variable a product build (LINBIT SDS for Windows) sets in its
+  // own make process; it shows up in the About panel when present.
+  const env = loadEnv(mode, process.cwd(), ['VITE_', 'LINBIT_SDS_VERSION']);
 
   const HOST = env.VITE_HOST || '127.0.0.1';
   const PORT = Number(env.VITE_PORT) || 3373;
@@ -173,6 +176,12 @@ export default defineConfig(({ mode, command }) => {
         },
       },
     },
+
+    // Which variables reach the client as import.meta.env.*. Must list the
+    // unprefixed LINBIT_SDS_VERSION too: the define below only covers whole-
+    // object access, the per-key replacement Vite does at build time keys off
+    // this list.
+    envPrefix: ['VITE_', 'LINBIT_SDS_VERSION'],
 
     // Define global constants
     define: {

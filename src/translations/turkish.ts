@@ -573,6 +573,7 @@ const tr = {
   about: {
     linstor_version: 'LINSTOR SÜRÜMÜ',
     ui_version: 'UI Sürümü',
+    sds_version: 'LINBIT SDS Sürümü',
     controller_ip: "Denetleyici Bağlama IP'si",
     controller_active_on: 'Denetleyici Aktif',
     trademark:

@@ -577,6 +577,7 @@ const de = {
   about: {
     linstor_version: 'LINSTOR VERSION',
     ui_version: 'UI Version',
+    sds_version: 'LINBIT SDS Version',
     controller_ip: 'Controller Binding IP',
     controller_active_on: 'Controller aktiv auf',
     trademark:

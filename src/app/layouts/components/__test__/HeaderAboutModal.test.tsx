@@ -1,3 +1,4 @@
+import { linbitSdsVersion, uiVersion } from '../aboutVersion';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { Provider } from 'react-redux';
@@ -176,6 +177,22 @@ describe('HeaderAboutModal Component Logic', () => {
       const normalStore = createMockStore('NORMAL');
 
       expect(normalStore.getState().setting.mode).toBe('NORMAL');
+    });
+  });
+
+  describe('version helpers', () => {
+    it('reads the UI version and treats unset or empty as a dev build', () => {
+      expect(uiVersion('2.5.0')).toBe('2.5.0');
+      expect(uiVersion(undefined)).toBe('DEV');
+      // `make build` without VERSION writes VITE_VERSION= into .env.
+      expect(uiVersion('')).toBe('DEV');
+      expect(uiVersion('  ')).toBe('DEV');
+    });
+
+    it('shows the LINBIT SDS version only when the build set one', () => {
+      expect(linbitSdsVersion('1.0.4')).toBe('1.0.4');
+      expect(linbitSdsVersion(undefined)).toBeNull();
+      expect(linbitSdsVersion('')).toBeNull();
     });
   });
 

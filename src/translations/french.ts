@@ -576,6 +576,7 @@ const fr = {
   about: {
     linstor_version: 'VERSION LINSTOR',
     ui_version: 'Version UI',
+    sds_version: 'Version LINBIT SDS',
     controller_ip: 'IP de liaison du contrôleur',
     controller_active_on: 'Contrôleur actif sur',
     trademark:

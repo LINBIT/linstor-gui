@@ -912,6 +912,7 @@ org_role = Viewer`,
   about: {
     linstor_version: 'LINSTOR 版本',
     ui_version: 'UI 版本',
+    sds_version: 'LINBIT SDS 版本',
     controller_ip: '控制器绑定 IP',
     controller_active_on: '控制器活动于',
     trademark:

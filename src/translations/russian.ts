@@ -574,6 +574,7 @@ const ru = {
   about: {
     linstor_version: 'ВЕРСИЯ LINSTOR',
     ui_version: 'Версия UI',
+    sds_version: 'Версия LINBIT SDS',
     controller_ip: 'IP привязки контроллера',
     controller_active_on: 'Контроллер активен на',
     trademark:

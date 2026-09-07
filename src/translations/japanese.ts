@@ -574,6 +574,7 @@ const ja = {
   about: {
     linstor_version: 'LINSTORバージョン',
     ui_version: 'UIバージョン',
+    sds_version: 'LINBIT SDS Version',
     controller_ip: 'コントローラーバインディングIP',
     controller_active_on: 'コントローラーアクティブ',
     trademark:

@@ -16,6 +16,8 @@ endif
 	echo VITE_VERSION=$(VERSION) > $@
 
 .PHONY: build
+# A product build can add its own version line to the About panel:
+#   LINBIT_SDS_VERSION=1.0.4 make build VERSION=2.5.0
 build: deps .env ## build project
 	npm run build
 
