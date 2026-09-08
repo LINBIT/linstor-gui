@@ -1,5 +1,28 @@
 # Changelog
 
+# 2.6.0 - unreleased
+
+### Added
+
+- Dark mode
+- Design system with shared UI components
+- Controller HA setup script in the cluster setup wizard
+- Quick spawn from a resource group on the resource overview
+- Windows (WinDRBD) OCF agents in the agent editor
+- LINBIT SDS version in the About panel
+
+### Changed
+
+- Gateway lists use the same search, selection and actions as other lists
+- Upgrade dependencies and resolve all npm audit vulnerabilities
+
+### Fixed
+
+- Spawn form validation
+- Dark mode text and colors on charts, tags and modals
+- Button font weight and Select hover animation
+- Empty UI version in the About panel
+
 # 2.5.0 - 2026-07-01
 
 ### Added
