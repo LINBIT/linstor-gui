@@ -1,7 +1,7 @@
 %define debug_package %{nil}
 
 Name: linstor-gui
-Version: 2.5.0
+Version: 2.6.0
 Release: 1
 Summary: GUI for LINSTOR
 %global tarball_version %(echo "%{version}" | sed -e 's/~rc/-rc/' -e 's/~alpha/-alpha/')
@@ -34,6 +34,9 @@ make install DESTDIR=%{buildroot}
 
 
 %changelog
+* Tue Sep 08 2026 Christoph Böhmwalder <christoph.boehmwalder@linbit.com> - 2.6.0-1
+- New upstream release
+
 * Thu Jul 02 2026 Christoph Böhmwalder <christoph.boehmwalder@linbit.com> - 2.5.0-1
 - New upstream release
 
