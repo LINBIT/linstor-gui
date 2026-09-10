@@ -20,8 +20,10 @@ stages:
 generate-agents:
   stage: test
   rules:
+    # Runs on every release tag as a check (the catalog tracks external
+    # projects, so drift is expected and must not block the release);
+    # on main it stays a button.
     - if: $CI_COMMIT_TAG
-      when: manual
       allow_failure: true
     - if: $CI_COMMIT_BRANCH == "main"
       when: manual
@@ -55,8 +57,10 @@ generate-agents:
 generate-agents-windows:
   stage: test
   rules:
+    # Runs on every release tag as a check (the catalog tracks external
+    # projects, so drift is expected and must not block the release);
+    # on main it stays a button.
     - if: $CI_COMMIT_TAG
-      when: manual
       allow_failure: true
     - if: $CI_COMMIT_BRANCH == "main"
       when: manual
