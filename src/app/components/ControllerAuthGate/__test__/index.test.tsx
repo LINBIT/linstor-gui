@@ -44,6 +44,30 @@ describe('ControllerAuthGate', () => {
     });
   });
 
+  it('probes with a short timeout so a stalled controller cannot hang the whole app', async () => {
+    // The gate blocks every route while it probes. Inheriting the shared
+    // client's ten-minute timeout meant a controller that accepts the
+    // connection but never answers left the user on a spinner for that long.
+    mockGet.mockResolvedValueOnce({ data: { rest_api_version: '1.28.0' } });
+    mockGet.mockResolvedValueOnce({ data: {} });
+
+    render(
+      <ControllerAuthGate>
+        <div>protected content</div>
+      </ControllerAuthGate>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('protected content')).toBeInTheDocument();
+    });
+
+    for (const call of mockGet.mock.calls) {
+      const config = call[1] as { timeout?: number } | undefined;
+      expect(config?.timeout).toBeDefined();
+      expect(config!.timeout).toBeLessThanOrEqual(30_000);
+    }
+  });
+
   it('renders children without checking properties when the controller is older than 1.28.0', async () => {
     mockGet.mockResolvedValueOnce({ data: { rest_api_version: '1.27.0' } });
 
@@ -58,7 +82,10 @@ describe('ControllerAuthGate', () => {
     });
 
     expect(mockGet).toHaveBeenCalledTimes(1);
-    expect(mockGet).toHaveBeenCalledWith('/v1/controller/version');
+    expect(mockGet).toHaveBeenCalledWith(
+      '/v1/controller/version',
+      expect.objectContaining({ timeout: expect.any(Number) }),
+    );
   });
 
   it('renders children when token authentication is disabled on a 1.28.0+ controller', async () => {
@@ -76,7 +103,11 @@ describe('ControllerAuthGate', () => {
     });
 
     expect(mockGet).toHaveBeenCalledTimes(2);
-    expect(mockGet).toHaveBeenNthCalledWith(2, '/v1/controller/properties');
+    expect(mockGet).toHaveBeenNthCalledWith(
+      2,
+      '/v1/controller/properties',
+      expect.objectContaining({ timeout: expect.any(Number) }),
+    );
   });
 
   it('shows the token prompt when version is recent and token authentication is enabled', async () => {
@@ -152,7 +183,10 @@ describe('ControllerAuthGate', () => {
       expect(screen.getByText('protected content')).toBeInTheDocument();
     });
 
-    expect(mockGet).toHaveBeenCalledWith('/v1/controller/version');
+    expect(mockGet).toHaveBeenCalledWith(
+      '/v1/controller/version',
+      expect.objectContaining({ timeout: expect.any(Number) }),
+    );
     expect(isControllerAuthRequired()).toBe(false);
   });
 
