@@ -60,6 +60,37 @@ VITE_HCI_VSAN_API_HOST=https://192.168.123.214
 - `npm run start:dev`,
 - Open your browser and navigate to `http://localhost:3373`
 
+### Refreshing the LINSTOR API types
+
+`src/app/apis/schema.ts` is generated from a copy of the controller's OpenAPI
+spec, kept in `src/app/apis/Linstor-Linstor-<version>.yaml`. That version is the
+**REST API version**, not the LINSTOR release version (REST 1.28.0 ships with
+LINSTOR 1.34.x, REST 1.29.1 with 1.35.x). `GET /v1/controller/version` reports
+the running controller's value as `rest_api_version`, and `MIN_API_VERSION`
+gates GUI features on it.
+
+To pick up a newer controller API:
+
+```sh
+# The spec lives in the linstor-server repo, on the release branch (not a
+# feature branch, or you bake unreleased endpoints into the GUI).
+cp /path/to/linstor-server/docs/rest_v1_openapi.yaml \
+   src/app/apis/Linstor-Linstor-<new version>.yaml
+git rm src/app/apis/Linstor-Linstor-<old version>.yaml
+
+# Point the generator at the new file, then regenerate.
+#   package.json -> scripts -> generate-api:linstor
+npm run generate-api:linstor
+npm run type-check
+```
+
+The v1 API only adds, so regenerating is usually clean. Removals do happen
+(the Seagate EXOS and snapshot-shipping endpoints went away in LINSTOR 1.32),
+so let `type-check` tell you what broke rather than assuming.
+
+Prefer the generated types over hand-writing a response shape. Anything typed
+by hand drifts silently the next time the controller changes.
+
 ## Help
 
 To report a problem with this software or to make a feature request, open an issue within this project.

@@ -2,6 +2,9 @@ openapi: 3.0.2
 servers:
   - url: http://localhost:3370
     description: Local Linstor controller
+security:
+  - bearerAuth: []
+  - {}
 info:
   description: |
     Linstor REST API V1
@@ -18,7 +21,7 @@ info:
     ```
 
     After setting this properties restart the controller and the new values should be used.
-  version: 1.25.0
+  version: 1.29.1
   title: Linstor REST API
   contact:
     email: rene.peinthor@linbit.com
@@ -247,6 +250,153 @@ paths:
                   satellite_encryption_type: Plain
                   is_active: true
         description: Node to add to Linstor
+  /v1/nodes/exec/drbd-reactorctl/status:
+    post:
+      tags:
+        - developers
+      summary: get drbd-reactor status from nodes
+      operationId: nodeExecDrbdReactorStatus
+      description: |
+        Executes 'drbd-reactorctl status --json' on specified nodes and returns the output.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReactorExecRequest'
+            example:
+              nodes: ["nodeA", "nodeB"]
+      responses:
+        '200':
+          description: drbd-reactor status results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReactorExecResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '500':
+          $ref: '#/components/responses/OperationFailed'
+  /v1/nodes/exec/drbd-reactorctl/evict:
+    post:
+      tags:
+        - developers
+      summary: evict drbd-reactor resources on nodes
+      operationId: nodeExecDrbdReactorEvict
+      description: |
+        Executes 'drbd-reactorctl evict <resource>' on specified nodes.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReactorExecRequest'
+            example:
+              nodes: ["nodeA"]
+              resource: "linstor_controller"
+      responses:
+        '200':
+          description: evict command results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReactorExecResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '500':
+          $ref: '#/components/responses/OperationFailed'
+  /v1/nodes/exec/drbd-reactorctl/disable:
+    post:
+      tags:
+        - developers
+      summary: disable drbd-reactor plugin on nodes
+      operationId: nodeExecDrbdReactorDisable
+      description: |
+        Executes 'drbd-reactorctl disable <config>' on specified nodes.
+        If 'now' is true, also stops the drbd-services target immediately
+        (equivalent to 'drbd-reactorctl disable --now <config>').
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReactorPluginRequest'
+            example:
+              nodes: ["nodeA"]
+              config: "linstor_controller"
+              now: false
+      responses:
+        '200':
+          description: disable command results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReactorExecResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '500':
+          $ref: '#/components/responses/OperationFailed'
+  /v1/nodes/exec/drbd-reactorctl/enable:
+    post:
+      tags:
+        - developers
+      summary: enable drbd-reactor plugin on nodes
+      operationId: nodeExecDrbdReactorEnable
+      description: |
+        Executes 'drbd-reactorctl enable <config>' on specified nodes.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReactorPluginRequest'
+            example:
+              nodes: ["nodeA"]
+              config: "linstor_controller"
+      responses:
+        '200':
+          description: enable command results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReactorExecResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '500':
+          $ref: '#/components/responses/OperationFailed'
+  /v1/nodes/exec/drbd-reactorctl/restart:
+    post:
+      tags:
+        - developers
+      summary: restart drbd-reactor plugin on nodes
+      operationId: nodeExecDrbdReactorRestart
+      description: |
+        Executes 'drbd-reactorctl restart <config>' on specified nodes.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReactorPluginRequest'
+            example:
+              nodes: ["nodeA"]
+              config: "linstor_controller"
+      responses:
+        '200':
+          description: restart command results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReactorExecResponse'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '500':
+          $ref: '#/components/responses/OperationFailed'
   /v1/stats/nodes:
     get:
       tags:
@@ -267,6 +417,21 @@ paths:
   /v1/nodes/{node}:
     parameters:
       - $ref: '#/components/parameters/Node'
+    get:
+      tags:
+        - developers
+      summary: Lists a specific node
+      operationId: nodeGet
+      description: Returns a specific node registered to Linstor
+      responses:
+        '200':
+          description: Specified node
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Node'
+        '404':
+          $ref: '#/components/responses/ObjectNotFound'
     put:
       tags:
         - developers
@@ -591,6 +756,21 @@ paths:
     parameters:
       - $ref: '#/components/parameters/Node'
       - $ref: '#/components/parameters/NetInterface'
+    get:
+      tags:
+        - developers
+      summary: Lists a specific netinterface of a node
+      operationId: netinterfaceGet
+      description: Returns a specific netinterface of a node
+      responses:
+        '200':
+          description: Specified netinterface
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NetInterface'
+        '404':
+          $ref: '#/components/responses/ObjectNotFound'
     put:
       tags:
         - developers
@@ -642,11 +822,13 @@ paths:
         - name: storage_pools
           in: query
           description: Filter only for the specified storage pools, if not specified
-            no filtering.
+            no filtering. Names may be Java regular expressions and are
+            matched case-insensitively.
           schema:
             type: array
             items:
               type: string
+        - $ref: '#/components/parameters/Props'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/Limit'
         - $ref: '#/components/parameters/Cached'
@@ -697,6 +879,23 @@ paths:
     parameters:
       - $ref: '#/components/parameters/Node'
       - $ref: '#/components/parameters/StoragePool'
+    get:
+      tags:
+        - developers
+      summary: Lists a specific storage pool of a node
+      operationId: nodeStoragePoolGet
+      description: Returns a specific storage pool of a node
+      parameters:
+        - $ref: '#/components/parameters/Cached'
+      responses:
+        '200':
+          description: Specified storage pool
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoragePool'
+        '404':
+          $ref: '#/components/responses/ObjectNotFound'
     put:
       tags:
         - developers
@@ -868,6 +1067,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiCallRcList'
+  /v1/nodes/{node}/evict:
+    parameters:
+      - $ref: '#/components/parameters/Node'
+    put:
+      tags:
+        - developers
+      summary: evicts the node
+      operationId: nodeEvict
+      description: |
+        Marks an offline node as EVICTED and tries to restore the redundancy
+        of the DRBD resources of the evicted node by placing them on other
+        nodes. Evicting an online node is not possible. An evicted node can
+        be reactivated using node restore.
+      responses:
+        '200':
+          description: node evicted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiCallRcList'
+        '500':
+          $ref: '#/components/responses/OperationFailed'
   /v1/nodes/{node}/config:
     parameters:
       - $ref: '#/components/parameters/Node'
@@ -946,6 +1167,11 @@ paths:
                 $ref: '#/components/schemas/ApiCallRcList'
         '500':
           $ref: '#/components/responses/OperationFailed'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NodeEvacuate'
   /v1/nodes/ebs:
     post:
       tags:
@@ -1048,11 +1274,18 @@ paths:
         - name: resource_definitions
           in: query
           description: Filter only for the specified resource definitions, if not
-            specified no filtering.
+            specified no filtering. Names may be Java regular expressions
+            and are matched case-insensitively.
           schema:
             type: array
             items:
               type: string
+        - name: with_volume_definitions
+          in: query
+          description: Include volume definitions attached to the resource definition
+          schema:
+            type: boolean
+            default: false
         - $ref: '#/components/parameters/Props'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/Limit'
@@ -1114,6 +1347,21 @@ paths:
   /v1/resource-definitions/{resource}:
     parameters:
       - $ref: '#/components/parameters/Resource'
+    get:
+      tags:
+        - developers
+      summary: Lists a specific resource-definition
+      operationId: resourceDefinitionGet
+      description: Returns a specific resource-definition
+      responses:
+        '200':
+          description: Specified resource-definition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceDefinition'
+        '404':
+          $ref: '#/components/responses/ObjectNotFound'
     put:
       tags:
         - developers
@@ -1698,6 +1946,21 @@ paths:
     parameters:
       - $ref: '#/components/parameters/Resource'
       - $ref: '#/components/parameters/VolumeNumber'
+    get:
+      tags:
+        - developers
+      summary: Lists a specific volume-definition
+      operationId: volumeDefinitionGet
+      description: Returns a specific volume-definition of a resource-definition
+      responses:
+        '200':
+          description: Specified volume-definition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VolumeDefinition'
+        '404':
+          $ref: '#/components/responses/ObjectNotFound'
     put:
       tags:
         - developers
@@ -2019,10 +2282,57 @@ paths:
               - resource:
                   name: rsc1
                   node_name: alpha
+    delete:
+      tags:
+        - developers
+      summary: truncate a resource-definition
+      operationId: resourceDefinitionTruncate
+      description: |
+        Deletes all resources of the resource-definition ("truncate") without deleting the
+        resource-definition itself or any of its snapshots.
+
+        If `delete_empty_resource_definition` is set, the resource-definition is deleted as
+        well when it has neither resources nor snapshots left after the truncate. The check
+        and the resource-definition deletion are performed atomically, so a concurrently
+        created resource or snapshot keeps the resource-definition.
+      parameters:
+        - in: query
+          name: delete_empty_resource_definition
+          description: |
+            If true, also delete the resource-definition when it has neither resources nor
+            snapshots left after its resources have been deleted. The check and the
+            resource-definition deletion are performed atomically.
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: resources deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiCallRcList'
+        '500':
+          $ref: '#/components/responses/OperationFailed'
   /v1/resource-definitions/{resource}/resources/{node}:
     parameters:
       - $ref: '#/components/parameters/Resource'
       - $ref: '#/components/parameters/Node'
+    get:
+      tags:
+        - developers
+      summary: Lists a specific resource on a node
+      operationId: resourceGet
+      description: Returns a specific resource of a resource-definition on the given node
+      responses:
+        '200':
+          description: Specified resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+        '404':
+          $ref: '#/components/responses/ObjectNotFound'
     post:
       tags:
         - developers
@@ -2191,6 +2501,34 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ResourceMakeAvailable'
+  /v1/resource-definitions/{resource}/resources/{node}/unmake-available:
+    parameters:
+      - $ref: '#/components/parameters/Resource'
+      - $ref: '#/components/parameters/Node'
+    post:
+      tags:
+        - developers
+      summary: reverts a make-available issued for a live migration
+      operationId: resourceUnmakeAvailableOnNode
+      description: |
+        Reverts the changes of a make-available with `auto_manage_dual_primary`
+        and removes the resource from the given node (the migration source) if
+        that can be done without losing data: the resource is deleted if it is
+        diskless or if it is a redundant copy in a shared storage pool.
+        Tiebreaker and diskful resources are kept.
+
+        Calling this for a resource that is not deployed on the node is a
+        successful no-op, so automation clients can always issue this call
+        after a migration.
+      responses:
+        '200':
+          description: resource is no longer available on the node
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiCallRcList'
+        '500':
+          $ref: '#/components/responses/OperationFailed'
   /v1/resource-definitions/{resource}/resources/{node}/activate:
     parameters:
       - $ref: '#/components/parameters/Resource'
@@ -2276,6 +2614,7 @@ paths:
 
         /v1/resource-definitions/rsc1/resources/nodeA/volumes/0
       parameters:
+        - $ref: '#/components/parameters/Props'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/Limit'
       responses:
@@ -2293,6 +2632,21 @@ paths:
       - $ref: '#/components/parameters/Resource'
       - $ref: '#/components/parameters/Node'
       - $ref: '#/components/parameters/VolumeNumber'
+    get:
+      tags:
+        - developers
+      summary: Lists a specific volume of a resource
+      operationId: resourceVolumeGet
+      description: Returns a specific volume of a resource on the given node
+      responses:
+        '200':
+          description: Specified volume
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Volume'
+        '404':
+          $ref: '#/components/responses/ObjectNotFound'
     put:
       tags:
         - developers
@@ -2351,16 +2705,46 @@ paths:
                 'sys/fs/blkio_throttle_write':
                   info: 'Sets the /sys/fs/cgroup/blkio/blkio.throttle.write_bps_device'
                   prop_type: 'long'
-  /v1/resource-definitions/{resource}/resources/{node}/toggle-disk/diskless:
+  /v1/resource-definitions/{resource}/resources/{node}/toggle-disk:
     parameters:
       - $ref: '#/components/parameters/Resource'
       - $ref: '#/components/parameters/Node'
     put:
       tags:
         - developers
+      summary: toggle a resource into diskless or diskful
+      operationId: resourceToggleDisk
+      description: toggle a diskful resource to a diskless/client resource or vice versa
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ToggleDiskRequest'
+            example:
+              operation: 'INTO_DRBD_DISKLESS'
+              storage_pool: 'MyDisklessPool'
+      responses:
+        '200':
+          description: resource toggled to diskless
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiCallRcList'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '500':
+          $ref: '#/components/responses/OperationFailed'
+  /v1/resource-definitions/{resource}/resources/{node}/toggle-disk/diskless:
+    parameters:
+      - $ref: '#/components/parameters/Resource'
+      - $ref: '#/components/parameters/Node'
+    put:
+      deprecated: true
+      tags:
+        - developers
       summary: toggle a resource to diskless
       operationId: resourceToggleDiskless
-      description: toggle a resource to a diskless resource
+      description: Deprecated. Use /v1/resource-definitions/{resource}/resources/{node}/toggle-disk instead
 
       responses:
         '200':
@@ -2385,12 +2769,12 @@ paths:
         schema:
           type: string
     put:
+      deprecated: true
       tags:
         - developers
       summary: toggle a resource to diskless resource
       operationId: resourceToggleDisklessDisklesspool
-      description: |
-        toggle a resource to a diskless.
+      description: Deprecated. Use /v1/resource-definitions/{resource}/resources/{node}/toggle-disk instead
 
       responses:
         '200':
@@ -2408,12 +2792,12 @@ paths:
       - $ref: '#/components/parameters/Resource'
       - $ref: '#/components/parameters/Node'
     put:
+      deprecated: true
       tags:
         - developers
       summary: toggle a resource to a diskful resource
       operationId: resourceToggleDiskful
-      description: |
-        toggle a resource to a diskful resource using the default storage pool
+      description: Deprecated. Use /v1/resource-definitions/{resource}/resources/{node}/toggle-disk instead
 
       requestBody:
         content:
@@ -2440,11 +2824,12 @@ paths:
       - $ref: '#/components/parameters/Node'
       - $ref: '#/components/parameters/StoragePool'
     put:
+      deprecated: true
       tags:
         - developers
       summary: toggle a resource to a diskful resource
       operationId: resourceToggleDiskfulStoragepool
-      description: toggle a resource to a diskful resource
+      description: Deprecated. Use /v1/resource-definitions/{resource}/resources/{node}/toggle-disk instead
 
       requestBody:
         content:
@@ -2476,12 +2861,12 @@ paths:
         schema:
           type: string
     put:
+      deprecated: true
       tags:
         - developers
       summary: migrate a resource to another node
       operationId: resourceMigrateDisk
-      description: |
-        migrate a resource to another node without reducing the redundancy count
+      description: Deprecated. Use /v1/resource-definitions/{resource}/resources/{node}/toggle-disk instead
 
       requestBody:
         content:
@@ -2514,12 +2899,12 @@ paths:
           type: string
       - $ref: '#/components/parameters/StoragePool'
     put:
+      deprecated: true
       tags:
         - developers
       summary: migrate a resource to another node
       operationId: resourceMigrateDiskStoragepool
-      description: |
-        migrate a resource to another node without reducing the redundency count
+      description: Deprecated. Use /v1/resource-definitions/{resource}/resources/{node}/toggle-disk instead
 
       responses:
         '200':
@@ -2802,6 +3187,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Snapshot'
+    put:
+      parameters:
+        - $ref: '#/components/parameters/Resource'
+        - name: snapshot
+          in: path
+          required: true
+          description: Snapshot name to use
+          schema:
+            type: string
+      tags:
+        - developers
+      operationId: snapshotModify
+      summary: modify a snapshot
+      description: Modify snapshot definition properties
+      responses:
+        '200':
+          description: snapshot definition modified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiCallRcList'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '404':
+          $ref: '#/components/responses/ObjectNotFound'
+        '500':
+          $ref: '#/components/responses/OperationFailed'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SnapshotModify'
     delete:
       parameters:
         - $ref: '#/components/parameters/Resource'
@@ -2818,6 +3235,15 @@ paths:
             type: array
             items:
               type: string
+        - name: delete_empty_resource_definition
+          in: query
+          description: |
+            If true, also delete the resource-definition when it has neither resources nor
+            snapshots left after this snapshot has been deleted. The check and the
+            resource-definition deletion are performed atomically.
+          schema:
+            type: boolean
+            default: false
       tags:
         - developers
       summary: delete a snapshot
@@ -2918,29 +3344,11 @@ paths:
                 $ref: '#/components/schemas/ApiCallRcList'
         '500':
           $ref: '#/components/responses/OperationFailed'
-  /v1/resource-definitions/{resource}/snapshot-shipping:
-    parameters:
-      - $ref: '#/components/parameters/Resource'
-    post:
-      tags:
-        - developers
-      summary: ship a snapshot
-      description: Transfers the resource from one node to another based on snapshot-shipping
-      operationId: snapshotShipping
-      responses:
-        '200':
-          description: Snapshot shipping in progress
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiCallRcList'
-        '500':
-          $ref: '#/components/responses/OperationFailed'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SnapshotShipping'
+              $ref: '#/components/schemas/SnapshotRollback'
   /v1/resource-groups:
     get:
       tags:
@@ -2958,7 +3366,8 @@ paths:
         - name: resource_groups
           in: query
           description: Filter only for the specified resource groups, if not specified
-            no filtering.
+            no filtering. Names may be Java regular expressions and are
+            matched case-insensitively.
           schema:
             type: array
             items:
@@ -3025,6 +3434,21 @@ paths:
   /v1/resource-groups/{resource_group}:
     parameters:
       - $ref: '#/components/parameters/ResourceGroupName'
+    get:
+      tags:
+        - developers
+      summary: Lists a specific resource-group
+      operationId: resourceGroupGet
+      description: Returns a specific resource-group
+      responses:
+        '200':
+          description: Specified resource-group
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceGroup'
+        '404':
+          $ref: '#/components/responses/ObjectNotFound'
     put:
       tags:
         - developers
@@ -3347,6 +3771,21 @@ paths:
     parameters:
       - $ref: '#/components/parameters/ResourceGroupName'
       - $ref: '#/components/parameters/VolumeNumber'
+    get:
+      tags:
+        - developers
+      summary: Lists a specific volume-group
+      operationId: volumeGroupGet
+      description: Returns a specific volume-group of a resource-group
+      responses:
+        '200':
+          description: Specified volume-group
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VolumeGroup'
+        '404':
+          $ref: '#/components/responses/ObjectNotFound'
     put:
       tags:
         - developers
@@ -4150,11 +4589,33 @@ paths:
               $ref: '#/components/schemas/ControllerConfig'
   /v1/controller/backup/db:
     post:
+      deprecated: true
       tags:
         - developers
       summary: create a database backup
       operationId: controllerBackupDB
       description: create a h2 database backup. Currently only H2(embedded) db is working.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatabaseBackupRequest'
+      responses:
+        '201':
+          description: database backup created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiCallRcList'
+        '500':
+          $ref: '#/components/responses/OperationFailed'
+  /v1/controller/database/export:
+    post:
+      tags:
+        - developers
+      summary: export the controller's database
+      operationId: controllerExportDB
+      description: unlike controllerBackupDB this API works with all supported database types and dialects.
       requestBody:
         content:
           application/json:
@@ -4185,6 +4646,87 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ControllerVersion'
+  /v1/controller/auth/initialize-token-auth:
+    post:
+      summary: initialize the token authentication
+      operationId: controllerAuthTokenInitialize
+      description: enables token auth and creates a first token and creates tokens on each satellite
+      tags:
+        - developers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InitAuthTokenRequest'
+      responses:
+        '201':
+          description: auth token initialized response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiCallRcList'
+  /v1/controller/auth/token:
+    get:
+      summary: list all current API auth tokens
+      operationId: controllerAuthTokenList
+      description: give a list of all current API auth tokens with information
+      tags:
+        - developers
+      responses:
+        '200':
+          description: token list response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokenListResponse'
+    post:
+      summary: create a new API token
+      operationId: controllerAuthTokenCreate
+      description: create a new API token and enable token auth
+      tags:
+        - developers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAuthToken'
+      responses:
+        '201':
+          description: auth token created response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiCallRcList'
+  /v1/controller/auth/token/{authtokenid}:
+    parameters:
+      - $ref: '#/components/parameters/AuthTokenId'
+    put:
+      summary: disables/enables an api token
+      operationId: controllerAuthTokenModify
+      tags:
+        - developers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModifyAuthToken'
+      responses:
+        '200':
+          description: auth token successful modified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiCallRcList'
+    delete:
+      summary: revoke an API auth token
+      operationId: controllerAuthTokenRevoke
+      description: revoke an auth token
+      tags:
+        - developers
+      responses:
+        '200':
+          description: auth token successful revoked
+
   /v1/resource-definitions/{resource}/drbd-proxy:
     parameters:
       - $ref: '#/components/parameters/Resource'
@@ -4683,7 +5225,8 @@ paths:
         - name: storage_pools
           in: query
           description: Filter only for the specified storage pools, if not specified
-            no filtering.
+            no filtering. Names may be Java regular expressions and are
+            matched case-insensitively.
           schema:
             type: array
             items:
@@ -4716,7 +5259,8 @@ paths:
         - name: storage_pools
           in: query
           description: Filter only for the specified storage pools, if not specified
-            no filtering.
+            no filtering. Names may be Java regular expressions and are
+            matched case-insensitively.
           schema:
             type: array
             items:
@@ -4759,48 +5303,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Snapshot'
-        '500':
-          $ref: '#/components/responses/OperationFailed'
-
-  /v1/view/snapshot-shippings:
-    get:
-      tags:
-        - developers
-      operationId: viewSnapshotShippings
-      summary: view current snapshot shippings
-      parameters:
-        - $ref: '#/components/parameters/Nodes'
-        - $ref: '#/components/parameters/Resources'
-        - name: snapshots
-          in: query
-          description: Filter only for the specified snapshots, if not specified,
-            no filtering.
-          schema:
-            type: array
-            items:
-              type: string
-        - name: status
-          in: query
-          description: Filter only for the specified status, if not specified, no
-            filtering.
-          schema:
-            type: array
-            items:
-              type: string
-              enum:
-                - running
-                - complete
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/Limit'
-      responses:
-        '200':
-          description: physical storage list
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/SnapshotShippingStatus'
         '500':
           $ref: '#/components/responses/OperationFailed'
   /v1/view/schedules-by-resource:
@@ -5517,178 +6019,6 @@ paths:
                         enum: [node-modified]
                       data:
                         $ref: '#/components/schemas/EventNodeModified'
-  /v1/vendor/seagate/exos/defaults:
-    get:
-      deprecated: true
-      tags:
-        - developers
-      summary: Lists default setting for all EXOS enclosures
-      description: Lists default setting for all EXOS enclosures
-      responses:
-        '200':
-          description: List of default settings
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ExosDefaults'
-    put:
-      deprecated: true
-      tags:
-        - developers
-      summary: modify default settings of EXOS configurations
-      operationId: exosModifyDefault
-      description: |
-        Sets or modifies default username / password for EXOS enclosures
-      responses:
-        '200':
-          description: default configuration modified
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiCallRcList'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ExosDefaultsModify'
-  /v1/vendor/seagate/exos/enclosures:
-    get:
-      deprecated: true
-      tags:
-        - developers
-      summary: List of EXOS enclosures
-      description: Lists EXOS enclosures including controller IP and health status
-      parameters:
-        - name: nocache
-          in: query
-          description: Force recaching before response
-          schema:
-            type: boolean
-      responses:
-        '200':
-          description: List of EXOS enclosures
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ExosEnclosureHealth'
-    post:
-      deprecated: true
-      tags:
-        - developers
-      summary: creates a new enclosure
-      operationId: exosCreate
-      description: Creates a new enclosure unless it already exists
-      responses:
-        '200':
-          description: Enclosure successfully created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiCallRcList'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ExosEnclosure'
-  /v1/vendor/seagate/exos/enclosures/{enclosure}:
-    put:
-      deprecated: true
-      tags:
-        - developers
-      summary: modifies an existing enclosure
-      operationId: exosModify
-      description: Modifies an existing enclosure
-      parameters:
-        - name: enclosure
-          in: path
-          required: true
-          description: Name of the enclosure
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Enclosure successfully modified
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiCallRcList'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ExosEnclosure'
-    delete:
-      deprecated: true
-      tags:
-        - developers
-      summary: modifies an existing enclosure
-      operationId: exosDelete
-      description: Deletes an existing enclosure
-      parameters:
-        - name: enclosure
-          in: path
-          required: true
-          description: Name of the enclosure
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Enclosure successfully deleted
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiCallRcList'
-  /v1/vendor/seagate/exos/{enclosure}/events:
-    get:
-      deprecated: true
-      tags:
-        - developers
-      summary: Returns the last EXOS events
-      operationId: exosDescribe
-      description: Lists the most current X events
-      parameters:
-        - name: enclosure
-          in: path
-          required: true
-          description: Name of the enclosure
-          schema:
-            type: string
-        - name: count
-          in: query
-          description: Number of events to fetch
-          schema:
-            type: integer
-            format: int32
-      responses:
-        '200':
-          description: List of EXOS events
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ExosEnclosureEvent'
-  /v1/vendor/seagate/exos/map:
-    get:
-      deprecated: true
-      tags:
-        - developers
-      summary: Lists all EXOS Ports connected to each Linstor Node
-      operationId: exosMap
-      description: Lists the connection-mesh of EXOS Ports to Linstor Nodes
-      responses:
-        '200':
-          description: List of EXOS events
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ExosConnectionMap'
   /v1/remotes:
     get:
       tags:
@@ -6048,6 +6378,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExtFileCheckResult'
+  /v1/files/{extFileName}/status/{node}:
+    parameters:
+      - $ref: '#/components/parameters/ExternalFileName'
+      - $ref: '#/components/parameters/Node'
+    get:
+      tags:
+        - developers
+      summary: queries on-demand status of an external file on a satellite
+      description: >
+        Queries the satellite for the current on-disk status of the external file.
+        Returns the actual path where the file exists (which may differ from the
+        canonical path if an alternative suffix is in use) and whether the content
+        matches LINSTOR's expected checksum.
+      responses:
+        '200':
+          description: returns the external file status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtFileStatusResult'
+        '503':
+          description: Satellite not connected
   /v1/queries/resource-groups/query-all-size-info:
     post:
       tags:
@@ -6072,6 +6424,10 @@ paths:
         '500':
           $ref: '#/components/responses/OperationFailed'
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
   parameters:
     Resource:
       name: resource
@@ -6105,6 +6461,7 @@ components:
       name: nodes
       in: query
       description: Filter only for the specified nodes, if not specified, no filtering.
+        Names may be Java regular expressions and are matched case-insensitively.
       schema:
         type: array
         items:
@@ -6113,6 +6470,7 @@ components:
       name: resources
       in: query
       description: Filter only for the specified resources, if not specified, no filtering.
+        Names may be Java regular expressions and are matched case-insensitively.
       schema:
         type: array
         items:
@@ -6157,7 +6515,10 @@ components:
     Props:
       name: props
       in: query
-      description: filter by given properties, full property path
+      description: 'Filter by given properties, full property path. A filter is either a property
+        key (matches if the property is set) or `key=value` (matches if the property has that value).
+        Both the key and the value may be Java regular expressions (matched in full), case-sensitively,
+        e.g. `Aux/.*` or `DrbdOptions/.*=yes`. Multiple filters are combined with AND.'
       schema:
         type: array
         items:
@@ -6199,6 +6560,13 @@ components:
       example: '%2Fetc%2Fsome.conf'
       schema:
         type: string
+    AuthTokenId:
+      name: authtokenid
+      in: path
+      required: true
+      description: Auth token ID
+      schema:
+        type: integer
 
   responses:
     InvalidInput:
@@ -6250,7 +6618,7 @@ components:
             type: string
         obj_refs:
           type: object
-          description: Map of objection that have been involved by the operation.
+          description: Map of objects that have been involved in the operation.
           additionalProperties:
             type: string
         created_at:
@@ -6332,6 +6700,19 @@ components:
           type: integer
           format: int64
           description: milliseconds since unix epoch in UTC
+        platform:
+          type: string
+          example: LINUX
+          description: |
+            Enum describing the satellite's platform (Linux/Windows)
+          enum:
+            - LINUX
+            - WINDOWS
+        os_variant:
+          type: string
+          example: Ubuntu 18.04.2 LTS
+          description: |
+            String describing the satellite's OS variant (Linux distri, Windows version)
     NodeCreateEbs:
       type: object
       required:
@@ -6366,6 +6747,19 @@ components:
           type: boolean
         delete_snapshots:
           type: boolean
+    NodeEvacuate:
+      type: object
+      properties:
+        target:
+          type: array
+          items:
+            type: string
+          description: List of nodes that are allowed to be used as evacuation-target
+        do_not_target:
+          type: array
+          items:
+            type: string
+          description: List of nodes that are prohibited to be used as evacuation-target
     NetInterface:
       type: object
       required:
@@ -6527,7 +6921,7 @@ components:
           type: integer
           format: int32
           example: 7000
-          description: used drbd port for this resource
+          description: The preferred TCP port if available on node level
         transport_type:
           type: string
         secret:
@@ -6582,7 +6976,7 @@ components:
         drbd_port:
           type: integer
           format: int32
-          description: drbd port for resources
+          description: The preferred TCP port if available on node level
         drbd_secret:
           type: string
           example: 7sqCWjvGmwAiV5kzg3VF
@@ -6612,7 +7006,7 @@ components:
         drbd_port:
           type: integer
           format: int32
-          description: drbd port for resources
+          description: The preferred TCP port if available on node level
         drbd_peer_slots:
           type: integer
           format: int32
@@ -6725,6 +7119,11 @@ components:
         node_id:
           type: integer
           format: int32
+        tcp_ports:
+          type: array
+          items:
+            type: integer
+            format: int32
         peer_slots:
           type: integer
           format: int32
@@ -6899,6 +7298,22 @@ components:
         drbd_node_id:
           type: integer
           format: int32
+        drbd_tcp_port_count:
+          type: integer
+          format: int32
+        drbd_tcp_ports:
+          type: array
+          items:
+            type: integer
+            format: int32
+        snap_names:
+          type: array
+          items:
+            type: string
+        copy_all_snaps:
+          type: boolean
+        drbd_client:
+          type: boolean
     ResourceMakeAvailable:
       type: object
       properties:
@@ -6910,6 +7325,31 @@ components:
           type: boolean
           default: false
           description: if true resource will be created as diskful even if diskless would be possible
+        drbd_tcp_ports:
+          type: array
+          items:
+            type: integer
+            format: int32
+        snap_names:
+          type: array
+          items:
+            type: string
+        copy_all_snaps:
+          type: boolean
+        auto_manage_dual_primary:
+          type: boolean
+          default: false
+          description: |
+            If true, prepare the resource for a live migration to this node:
+            for DRBD resources allow-two-primaries (and protocol C if needed)
+            is set between the migration source (the node the resource is
+            currently in use on) and this node; for resources in a shared
+            storage pool the resource is activated on both nodes.
+            If the resource is not in use on any node, there is no migration
+            to prepare and the resource is simply made available, so the
+            option can always be set by clients that cannot distinguish a
+            live-migration attach from a plain attach.
+            Revert with unmake-available on the migration source node.
     ResourceModify:
       type: object
       properties:
@@ -6923,6 +7363,10 @@ components:
           type: array
           items:
             type: string
+        drbd_tiebreaker:
+          type: boolean
+        drbd_client:
+          type: boolean
     VolumeModify:
       type: object
       properties:
@@ -6985,6 +7429,8 @@ components:
           type: string
           description: String describing current volume state
         opened:
+          type: boolean
+        corrupted_key:
           type: boolean
 
     StorageVolume:
@@ -7210,6 +7656,12 @@ components:
         peer_slots:
           type: integer
           format: int32
+        snap_names:
+          type: array
+          items:
+            type: string
+        copy_all_snaps:
+          type: boolean
     ResourceGroupSpawn:
       type: object
       properties:
@@ -7299,6 +7751,12 @@ components:
       properties:
         select_filter:
           $ref: '#/components/schemas/AutoSelectFilter'
+        snap_names:
+          type: array
+          items:
+            type: string
+        copy_all_snaps:
+          type: boolean
     AutoPlaceRequest:
       type: object
       required:
@@ -7314,6 +7772,12 @@ components:
           items:
             $ref: '#/components/schemas/LayerType'
           default: null
+        snap_names:
+          type: array
+          items:
+            type: string
+        copy_all_snaps:
+          type: boolean
     AutoSelectFilter:
       # do not add defaults
       type: object
@@ -7380,6 +7844,9 @@ components:
           type: number
           format: double
           description: Multiplier of thin storage pool's free space
+        port_count:
+          type: integer
+          format: int32
     Candidate:
       type: object
       properties:
@@ -7855,6 +8322,11 @@ components:
           items:
             type: string
         port:
+          deprecated: true
+          type: integer
+        drbd_proxy_port_a:
+          type: integer
+        drbd_proxy_port_b:
           type: integer
     ResourceConnectionModify:
       type: object
@@ -7888,7 +8360,6 @@ components:
           items:
             type: string
         props:
-          deprecated: true
           $ref: '#/components/schemas/Properties'
         snapshot_definition_props:
           $ref: '#/components/schemas/Properties'
@@ -7910,20 +8381,19 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SnapshotNode'
-    SnapshotShippingStatus:
+    SnapshotModify:
       type: object
       properties:
-        snapshot:
-          $ref: '#/components/schemas/Snapshot'
-        from_node_name:
-          type: string
-        to_node_name:
-          type: string
-        status:
-          type: string
-          enum:
-            - Running
-            - Complete
+        override_props:
+          $ref: '#/components/schemas/Properties'
+        delete_props:
+          type: array
+          items:
+            type: string
+        delete_namespaces:
+          type: array
+          items:
+            type: string
     SnapshotNode:
       type: object
       description: Objects holding one or multiple SnapshotVolumeNode objects for the given node
@@ -7967,7 +8437,6 @@ components:
           format: int32
           description: Volume number of the snapshot
         props:
-          deprecated: true
           $ref: '#/components/schemas/Properties'
         snapshot_volume_props:
           $ref: '#/components/schemas/Properties'
@@ -8008,24 +8477,19 @@ components:
           type: object
           additionalProperties:
             type: string
-    SnapshotShipping:
+    SnapshotRollback:
       type: object
-      required:
-        - from_node
-        - to_node
       properties:
-        from_node:
+        zfs_rollback_strategy:
           type: string
-          description: Node where to ship the snapshot from
-        from_nic:
-          type: string
-          description: NetInterface of the source node
-        to_node:
-          type: string
-          description: Node where to ship the snapshot
-        to_nic:
-          type: string
-          description: NetInterface of the destination node
+          enum:
+            - "rollback"
+            - "clone"
+            - "dynamic"
+          description: |
+            "'rollback' will try to use 'zfs rollback' (fail fast if more recent snapshots exist). 'clone' renames the "
+            "original ZVOL and creates a clone from the given snapshot with the original ZVOLs name. 'dynamic' chooses "
+            "'rollback' if possible, 'clone' otherwise. This overrides possibly existing properties"
     BackupList:
       type: object
       properties:
@@ -8162,6 +8626,8 @@ components:
           type: string
         incremental:
           type: boolean
+        dst_snap_name:
+          type: string
     BackupAbort:
       type: object
       required:
@@ -8173,6 +8639,8 @@ components:
           type: boolean
         create:
           type: boolean
+        snapshot:
+          type: string
     BackupShip:
       type: object
       required:
@@ -8213,6 +8681,10 @@ components:
             If the destination resource-definition exists and has resources, the force_mv_rsc_grp must be used in order
             to change the resource-group of the destination resource-definition. This is a safety-option to prevent
             unexpected autoplace-actions for example performed by the BalanceResourceTask.
+        src_snap_name:
+          type: string
+        dst_snap_name:
+          type: string
     BackupInfo:
       type: object
       required:
@@ -8316,6 +8788,9 @@ components:
           default: false
         dst_rsc_grp:
           type: string
+        dst_rsc_name:
+          type: string
+          description: only usable in combination with 'rsc_name'
         force_mv_rsc_grp:
           type: boolean
           default: false
@@ -8515,7 +8990,15 @@ components:
         port:
           type: integer
           format: int32
-          description: Proxy port to use (optional)
+          description: Proxy port to use (optional). Is used as a default port if port_source or port_target is not set
+        port_src:
+          type: integer
+          format: int32
+          description: Port to use for DRBD Proxy (optiona, auto-generated if omitted).
+        port_target:
+          type: integer
+          format: int32
+          description: Port to use for DRBD Proxy (optiona, auto-generated if omitted).
     DrbdProxyModify:
       type: object
       properties:
@@ -8633,6 +9116,26 @@ components:
           type: boolean
           default: false
           description: initialize SED with a random password
+        pv_create_arguments:
+          type: array
+          description: Arguments to pass to pvcreate command.
+          items:
+            type: string
+        vg_create_arguments:
+          type: array
+          description: Arguments to pass to vgcreate command.
+          items:
+            type: string
+        lv_create_arguments:
+          type: array
+          description: Arguments to pass to lvcreate command.
+          items:
+            type: string
+        zpool_create_arguments:
+          type: array
+          description: Arguments to pass to zpool command.
+          items:
+            type: string
     EventMayPromoteChange:
       type: object
       description: may-promote-change
@@ -8655,99 +9158,6 @@ components:
           $ref: '#/components/schemas/Node'
         new_node:
           $ref: '#/components/schemas/Node'
-    ExosDefaults:
-      deprecated: true
-      type: object
-      description: Default settings for EXOS enclosures
-      properties:
-        username:
-          type: string
-        username_env:
-          type: string
-        password:
-          type: string
-        password_env:
-          type: string
-    ExosDefaultsModify:
-      deprecated: true
-      allOf:
-        - $ref: '#/components/schemas/ExosDefaults'
-        - type: object
-          properties:
-            unset_keys:
-              type: array
-              items:
-                type: string
-              description: |
-                A list of keys to unset. The keys have to exist in ExosDefaults
-    ExosEnclosureHealth:
-      deprecated: true
-      type: object
-      description: EXOS enclosure name, controller IPs and health status
-      properties:
-        name:
-          type: string
-        ctrl_a_ip:
-          type: string
-        ctrl_b_ip:
-          type: string
-        health:
-          type: string
-        health_reason:
-          type: string
-    ExosEnclosure:
-      deprecated: true
-      type: object
-      description: EXOS enclosure
-      properties:
-        name:
-          type: string
-        ctrl_a_ip:
-          type: string
-        ctrl_b_ip:
-          type: string
-        username:
-          type: string
-        username_env:
-          type: string
-        password:
-          type: string
-        password_env:
-          type: string
-    ExosEnclosureEvent:
-      deprecated: true
-      type: object
-      description: EXOS event
-      properties:
-        severity:
-          type: string
-        event_id:
-          type: string
-        controller:
-          type: string
-        time_stamp:
-          type: string
-        time_stamp_numeric:
-          type: integer
-          format: int64
-        message:
-          type: string
-        additional_information:
-          type: string
-        recommended_action:
-          type: string
-    ExosConnectionMap:
-      deprecated: true
-      type: object
-      properties:
-        node_name:
-          type: string
-        enclosure_name:
-          type: string
-        connections:
-          type: array
-          items:
-            type: string
     ExternalFile:
       type: object
       description: External file which can be configured to be deployed by Linstor
@@ -8760,13 +9170,58 @@ components:
           description: The contents of the file, in base64 encoding
           type: string
           example: 'SGVsbG8sIFdvcmxkIQo='
+        alt_suffixes:
+          description: |
+            List of alternative file suffixes. If the file exists with any of these
+            suffixes appended to the path, LINSTOR will not recreate the original file
+            but instead update the existing alternative.
+          type: array
+          default: null
+          items:
+            type: string
+          example: ['.disabled']
     ExtFileCheckResult:
       type: object
       properties:
         allowed:
           type: boolean
+    ExtFileStatusResult:
+      type: object
+      properties:
+        actual_path:
+          description: >
+            The path where the file currently exists on disk.
+            Omitted if the file was not found.
+          type: string
+        content_match:
+          description: >
+            true if the file's content checksum matches LINSTOR's expected checksum
+          type: boolean
+    ToggleDiskRequest:
+      type: object
+      description: ToggleDisk optional payload data
+      properties:
+        operation:
+          type: string
+          description: |
+            The type of the toggle-disk operation
+            INTO_DRBD_DISKLESS -> toggles the resource into a DRBD diskless resource (with quorum vote)
+            INTO_DRBD_CLIENT -> toggles the resource into a DRBD client resource (without quorum vote)
+            INTO_DRBD_DISKFUL -> toggles the resource into a DRBD diskful resource (always with quorum vote)
+          enum: [INTO_DRBD_DISKFUL, INTO_DRBD_CLIENT, INTO_DRBD_DISKLESS]
+        storage_pool:
+          type: string
+          description: The name of the target storage pool to toggle into
+        migrate_from:
+          type: string
+          description: The node name from which the source-resource should be deleted after DRBD finished syncing
+        layer_list:
+          type: array
+          items:
+            $ref: '#/components/schemas/LayerType'
     ToggleDiskDiskful:
       type: object
+      deprecated: true
       description: ToggleDisk optional payload data
       properties:
         layer_list:
@@ -8801,9 +9256,28 @@ components:
           items:
             type: string
           description: For volumes with encryption's, you can provide your own passphrases here.
+        volume_sizes:
+          type: array
+          items:
+            type: integer
+            format: int64
+          description: |
+            Sizes (in KiB) to grow the cloned volume-definitions to, per volume number.
+            0 or omitted keeps the source volume size. Sizes smaller than the source are rejected.
+            The resize happens as part of the clone before an optional BalanceAfterClone placement.
         resource_group:
           type: string
           description: Place clone into the given resource group and use storage pools of this group.
+        override_props:
+          $ref: '#/components/schemas/Properties'
+        delete_props:
+          type: array
+          items:
+            type: string
+        delete_namespaces:
+          type: array
+          items:
+            type: string
     ResourceDefinitionCloneStarted:
       type: object
       description: Clone request started object
@@ -8834,7 +9308,7 @@ components:
           type: string
           description: |
             CLONING -> indicates the resource is currently copying data
-            FAILED -> error occured while cloning, resource not usable
+            FAILED -> error occurred while cloning, resource not usable
             COMPLETE -> resource is ready to use
           enum: [COMPLETE, CLONING, FAILED]
 #        progress:
@@ -9024,3 +9498,145 @@ components:
         count:
           type: integer
           format: int64
+
+    AuthToken:
+      type: object
+      required:
+        - id
+        - created_at
+        - description
+        - is_active
+        - is_user_token
+      properties:
+        id:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        is_active:
+          type: boolean
+          default: true
+        deleted_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        description:
+          type: string
+        ip_filter:
+          type: string
+        is_user_token:
+          type: boolean
+          default: true
+    AuthTokenListResponse:
+      type: object
+      required:
+        - count
+        - list
+      properties:
+        count:
+          type: integer
+          format: int64
+        list:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuthToken'
+    CreateAuthToken:
+      type: object
+      required:
+        - description
+      properties:
+        description:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+        ip_filter:
+          type: string
+    ModifyAuthToken:
+      type: object
+      properties:
+        description:
+          type: string
+        ip_filter:
+          type: string
+        is_active:
+          type: boolean
+    InitAuthTokenRequest:
+      type: object
+      required:
+        - only_satellites
+      properties:
+        only_satellites:
+          type: boolean
+          default: false
+        description:
+          type: string
+          default: init-client
+        no_https:
+          type: boolean
+          default: false
+
+    ReactorExecRequest:
+      type: object
+      required:
+        - nodes
+      properties:
+        nodes:
+          type: array
+          items:
+            type: string
+        resource:
+          type: string
+          description: The resource name for evict operation
+        wait:
+          type: boolean
+          default: false
+          description: |
+            For evict only: if true, the command runs synchronously and the response
+            includes active_node (the node that took over). Use only when the evicted
+            service is not the LINSTOR controller itself, as evicting the controller
+            drops the satellite connection.
+
+    ReactorPluginRequest:
+      type: object
+      required:
+        - nodes
+        - config
+      properties:
+        nodes:
+          type: array
+          items:
+            type: string
+        config:
+          type: string
+          description: The plugin config name (e.g., linstor_controller)
+        now:
+          type: boolean
+          default: false
+          description: |
+            For disable only: if true, also stops the drbd-services target immediately
+            (equivalent to 'drbd-reactorctl disable --now'). Defaults to false.
+
+    ReactorExecResponse:
+      type: object
+      required:
+        - node
+        - exit_code
+      properties:
+        node:
+          type: string
+        exit_code:
+          type: integer
+        stdout_utf8:
+          type: string
+          description: The stdout content as a UTF-8 string
+        stderr_utf8:
+          type: string
+          description: The stderr content as a UTF-8 string
+        active_node:
+          type: string
+          description: |
+            For evict with wait=true: the node that took over after eviction.
+            Absent if eviction was async, no takeover occurred, or output could not be parsed.

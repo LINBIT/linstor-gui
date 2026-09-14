@@ -6,6 +6,7 @@
 
 import { get, put, post, del } from '../requests';
 import { logger } from '@app/utils/logger';
+import type { components } from '@app/apis/schema';
 
 const getHAResourceDefinitions = () => {
   return get('/v1/resource-definitions', {
@@ -71,15 +72,13 @@ const getResources = (resourceName?: string) => {
   });
 };
 
-// drbd-reactorctl API types
-interface ExecResponse {
-  node: string;
-  exit_code: number;
-  stdout_utf8?: string;
-  stderr_utf8?: string;
-  active_node?: string | null;
-}
+// The controller's response shape for /v1/nodes/exec/drbd-reactorctl/*.
+// Generated from the OpenAPI spec rather than hand-written, so it tracks the
+// controller instead of drifting from it.
+type ExecResponse = components['schemas']['ReactorExecResponse'];
 
+// drbd-reactorctl's own --json output, carried inside ExecResponse.stdout_utf8.
+// Not a LINSTOR API type, so it stays hand-written.
 interface DrbdReactorStatus {
   promoter?: Array<{
     drbd_resource: string;

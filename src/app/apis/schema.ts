@@ -17,7 +17,6 @@ export interface paths {
          * creates one snapshot for multiple resources each
          * @description Suspends IO for all given resources before taking the snapshots on
          *     all participating nodes before resuming IO again.
-         *
          */
         post: operations["createMultiSnapshot"];
         delete?: never;
@@ -42,7 +41,6 @@ export interface paths {
         /**
          * add a storage pool definition to Linstor
          * @description Adds a storage pool definition to Linstor
-         *
          */
         post: operations["storagePoolDfnAdd"];
         delete?: never;
@@ -72,7 +70,6 @@ export interface paths {
          *
          *     Possible properties are:
          *     - `MaxOversubscriptionRatio` - range[`1-1000`]
-         *
          */
         put: operations["storPoolDfnModify"];
         post?: never;
@@ -97,7 +94,6 @@ export interface paths {
          * List all storage-pool-definition properties
          * @description List all properties, including their names and descriptions, that can
          *     be set for any given storage pool definition.
-         *
          */
         get: {
             parameters: {
@@ -108,14 +104,28 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description A map where the key is the property name and the value is a
+                /**
+                 * @description A map where the key is the property name and the value is a
                  *     PropsInfo object describing the property.
-                 *      */
+                 */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        /**
+                         * @example {
+                         *       "MaxOversubscriptionRatio": {
+                         *         "info": "Maximum allowed ratio of the sum of volume sizes in a thin pool to the total capacity of the pool (default 20)",
+                         *         "prop_type": "range",
+                         *         "value": "(1 - 1000)"
+                         *       },
+                         *       "sys/fs/blkio_throttle_read_iops": {
+                         *         "info": "Sets the /sys/fs/cgroup/blkio/blkio.throttle.read_iops_device",
+                         *         "prop_type": "long"
+                         *       }
+                         *     }
+                         */
                         "application/json": {
                             [key: string]: components["schemas"]["PropsInfo"];
                         };
@@ -141,7 +151,6 @@ export interface paths {
         /**
          * Lists nodes registered to the controller
          * @description Returns an array of all nodes registered to Linstor.
-         *
          */
         get: operations["nodeList"];
         put?: never;
@@ -152,9 +161,110 @@ export interface paths {
          *     If only one net-interface is specified and it is does not specify
          *     a `satellite_port` it will apply the default port and `satellite_encryption_type`
          *     for this net-interface.
-         *
          */
         post: operations["nodeAdd"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/nodes/exec/drbd-reactorctl/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * get drbd-reactor status from nodes
+         * @description Executes 'drbd-reactorctl status --json' on specified nodes and returns the output.
+         */
+        post: operations["nodeExecDrbdReactorStatus"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/nodes/exec/drbd-reactorctl/evict": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * evict drbd-reactor resources on nodes
+         * @description Executes 'drbd-reactorctl evict <resource>' on specified nodes.
+         */
+        post: operations["nodeExecDrbdReactorEvict"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/nodes/exec/drbd-reactorctl/disable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * disable drbd-reactor plugin on nodes
+         * @description Executes 'drbd-reactorctl disable <config>' on specified nodes.
+         *     If 'now' is true, also stops the drbd-services target immediately
+         *     (equivalent to 'drbd-reactorctl disable --now <config>').
+         */
+        post: operations["nodeExecDrbdReactorDisable"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/nodes/exec/drbd-reactorctl/enable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * enable drbd-reactor plugin on nodes
+         * @description Executes 'drbd-reactorctl enable <config>' on specified nodes.
+         */
+        post: operations["nodeExecDrbdReactorEnable"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/nodes/exec/drbd-reactorctl/restart": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * restart drbd-reactor plugin on nodes
+         * @description Executes 'drbd-reactorctl restart <config>' on specified nodes.
+         */
+        post: operations["nodeExecDrbdReactorRestart"];
         delete?: never;
         options?: never;
         head?: never;
@@ -171,7 +281,6 @@ export interface paths {
         /**
          * Return stats of all nodes.
          * @description Returns a node stats object.
-         *
          */
         get: operations["nodeStats"];
         put?: never;
@@ -192,7 +301,11 @@ export interface paths {
             };
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Lists a specific node
+         * @description Returns a specific node registered to Linstor
+         */
+        get: operations["nodeGet"];
         /**
          * modify a node
          * @description Sets or modifies properties
@@ -362,7 +475,6 @@ export interface paths {
          *     - `DrbdOptions/auto-diskful-allow-cleanup` - boolean_true_false
          *
          *         Allows this resource to be cleaned up after toggle-disk + resync is finished
-         *
          */
         put: operations["nodeModify"];
         post?: never;
@@ -387,7 +499,6 @@ export interface paths {
          * List all node properties
          * @description List all properties, including their names and descriptions, that can
          *     be set for any given node.
-         *
          */
         get: {
             parameters: {
@@ -398,14 +509,30 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description A map where the key is the property name and the value is a
+                /**
+                 * @description A map where the key is the property name and the value is a
                  *     PropsInfo object describing the property.
-                 *      */
+                 */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        /**
+                         * @example {
+                         *       "Cache/Cachesize": {
+                         *         "info": "Size of the cache in % (0-100) or KiB otherwise.",
+                         *         "prop_type": "regex",
+                         *         "value": "^100%|[0-9]{1,2}([.][0-9]*)?%|[1-9][0-9]{2,}$",
+                         *         "dflt": "5%"
+                         *       },
+                         *       "StorPoolName": {
+                         *         "info": "Linstor storage pool name to use.",
+                         *         "prop_type": "regex",
+                         *         "value": "^[a-zA-Z0-9_][a-zA-Z0-9_-]{2,47}$"
+                         *       }
+                         *     }
+                         */
                         "application/json": {
                             [key: string]: components["schemas"]["PropsInfo"];
                         };
@@ -489,7 +616,6 @@ export interface paths {
          *
          *     If satellite_port and satellite_encryption_type are given
          *     the netinterface can also work as connection to the controller
-         *
          */
         post: operations["netinterfaceCreate"];
         delete?: never;
@@ -510,7 +636,11 @@ export interface paths {
             };
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Lists a specific netinterface of a node
+         * @description Returns a specific netinterface of a node
+         */
+        get: operations["netinterfaceGet"];
         /**
          * modify a netinterface from a node
          * @description Modify a netinterface from a node
@@ -555,7 +685,6 @@ export interface paths {
          *       * `ZFS`: `StorDriver/ZPool`
          *       * `ZFS_THIN`: `StorDriver/ZPoolThin`
          *       * `DISKLESS`: Does not need a property as it has no backing pool
-         *
          */
         post: operations["nodeStoragePoolCreate"];
         delete?: never;
@@ -576,7 +705,11 @@ export interface paths {
             };
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Lists a specific storage pool of a node
+         * @description Returns a specific storage pool of a node
+         */
+        get: operations["nodeStoragePoolGet"];
         /**
          * modify a storage pool
          * @description Sets or modifies properties
@@ -665,7 +798,6 @@ export interface paths {
          *     - `Autoplacer/MaxThroughput` - long
          *
          *         The maximum throughput the given storage pool is capable of.
-         *
          */
         put: operations["nodeStoragePoolModify"];
         post?: never;
@@ -693,7 +825,6 @@ export interface paths {
          * List all storage-pool properties
          * @description List all properties, including their names and descriptions, that can
          *     be set for any given storage pool on a particular node.
-         *
          */
         get: {
             parameters: {
@@ -707,14 +838,29 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description A map where the key is the property name and the value is a
+                /**
+                 * @description A map where the key is the property name and the value is a
                  *     PropsInfo object describing the property.
-                 *      */
+                 */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        /**
+                         * @example {
+                         *       "PrefNic": {
+                         *         "info": "Preferred network interface to use",
+                         *         "prop_type": "regex",
+                         *         "value": "^[a-zA-Z0-9_][a-zA-Z0-9_-]{2,47}$"
+                         *       },
+                         *       "StorDriver/LvcreateType": {
+                         *         "prop_type": "regex",
+                         *         "value": "(?:linear|lz4|lzma|mirror|raid0|raid1|raid10|raid4|raid5|raid6|striped)",
+                         *         "dflt": "linear"
+                         *       }
+                         *     }
+                         */
                         "application/json": {
                             [key: string]: components["schemas"]["PropsInfo"];
                         };
@@ -779,6 +925,32 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/nodes/{node}/evict": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description node to use */
+                node: components["parameters"]["Node"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * evicts the node
+         * @description Marks an offline node as EVICTED and tries to restore the redundancy
+         *     of the DRBD resources of the evicted node by placing them on other
+         *     nodes. Evicting an online node is not possible. An evicted node can
+         *     be reactivated using node restore.
+         */
+        put: operations["nodeEvict"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/nodes/{node}/config": {
         parameters: {
             query?: never;
@@ -792,7 +964,6 @@ export interface paths {
         /**
          * show satellite config
          * @description Show Satellite config
-         *
          */
         get: operations["SatelliteConfig"];
         /** modify satellite config */
@@ -820,7 +991,6 @@ export interface paths {
          * @description Evacuates DRBD resources from the given node to other available nodes
          *     and deletes the evacuated resources once the sync is complete. Additionally
          *     sets the Node into EVACUATE state (no new resources allowed)
-         *
          */
         put: operations["nodeEvacuate"];
         post?: never;
@@ -886,7 +1056,6 @@ export interface paths {
         /**
          * modify a node connection
          * @description Sets or modifies properties
-         *
          */
         put: operations["nodeConnectionModify"];
         post?: never;
@@ -911,7 +1080,6 @@ export interface paths {
          *     to the resource string like:
          *
          *     /v1/resource-definitions/rsc1
-         *
          */
         get: operations["resourceDefinitionList"];
         put?: never;
@@ -921,7 +1089,6 @@ export interface paths {
          *
          *     Only required property is the name of the resource definition.
          *     All other properties are optional.
-         *
          */
         post: operations["resourceDefinitionCreate"];
         delete?: never;
@@ -940,7 +1107,6 @@ export interface paths {
         /**
          * Return stats of all resource definitions.
          * @description Returns a resource definition stats object.
-         *
          */
         get: operations["resourceDefinitionStats"];
         put?: never;
@@ -961,7 +1127,11 @@ export interface paths {
             };
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Lists a specific resource-definition
+         * @description Returns a specific resource-definition
+         */
+        get: operations["resourceDefinitionGet"];
         /**
          * modify a resource-definition
          * @description Sets or modifies properties
@@ -1316,7 +1486,6 @@ export interface paths {
          *     - `DrbdOptions/Handlers/pri-lost-after-sb` - string
          *     - `DrbdOptions/Handlers/pri-on-incon-degr` - string
          *     - `DrbdOptions/Handlers/split-brain` - string
-         *
          */
         put: operations["resourceDefinitionModify"];
         post?: never;
@@ -1349,7 +1518,6 @@ export interface paths {
          *       * LVM -> dd
          *       * LVM-thin -> snapshot -> logical volume
          *       * ZFS -> zfs send/recieve
-         *
          */
         post: operations["resourceDefinitionClone"];
         delete?: never;
@@ -1373,7 +1541,6 @@ export interface paths {
         /**
          * retrieve status of the current clone process
          * @description Get info of the current clone status. e.g. if completed.
-         *
          */
         get: operations["resourceDefinitionCloneStatus"];
         put?: never;
@@ -1397,7 +1564,6 @@ export interface paths {
         /**
          * check if a resource is currently synced on all nodes
          * @description Get info if the resource is synced on all nodes
-         *
          */
         get: operations["resourceDefinitionSyncStatus"];
         put?: never;
@@ -1430,7 +1596,6 @@ export interface paths {
          * @description Enables deployment of a previously created external file for a resource definition.
          *     This has the effect that the external file will be created in a host's file
          *     system whenever `resource` is deployed on that host.
-         *
          */
         post: operations["resourceDeploy"];
         /**
@@ -1438,7 +1603,6 @@ export interface paths {
          * @description Removes the requirement from this resource definition to create the given external file.
          *     If nothing requires the external file to exist on a satellite, the satellite also will delete the
          *     external file from the host's file system.
-         *
          */
         delete: operations["resourceUndeploy"];
         options?: never;
@@ -1457,7 +1621,6 @@ export interface paths {
          * List all resource-definition properties
          * @description List all properties, including their names and descriptions, that can
          *     be set for any given resource definition.
-         *
          */
         get: {
             parameters: {
@@ -1468,9 +1631,10 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description A map where the key is the property name and the value is a
+                /**
+                 * @description A map where the key is the property name and the value is a
                  *     PropsInfo object describing the property.
-                 *      */
+                 */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -1509,7 +1673,6 @@ export interface paths {
          *     to the resource string like:
          *
          *     /v1/resource-definitions/rsc1/volume-definitions/0
-         *
          */
         get: operations["volumeDefinitionList"];
         put?: never;
@@ -1518,7 +1681,6 @@ export interface paths {
          * @description Adds a volume-definition.
          *
          *     Required properties is only `size`, all other will be auto generated if not given.
-         *
          */
         post: operations["volumeDefinitionCreate"];
         delete?: never;
@@ -1539,7 +1701,11 @@ export interface paths {
             };
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Lists a specific volume-definition
+         * @description Returns a specific volume-definition of a resource-definition
+         */
+        get: operations["volumeDefinitionGet"];
         /**
          * modify a volume-definition
          * @description Sets or modifies properties
@@ -1717,7 +1883,6 @@ export interface paths {
          *         * 1M-striping
          *
          *     - `DrbdOptions/Disk/rs-discard-granularity` - range[`0-1048576`]
-         *
          */
         put: operations["volumeDefinitionModify"];
         post?: never;
@@ -1745,7 +1910,6 @@ export interface paths {
          * List all volume-definition properties
          * @description List all properties, including their names and descriptions, that can
          *     be set for any given volume definition of a particular resource.
-         *
          */
         get: {
             parameters: {
@@ -1759,14 +1923,30 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description A map where the key is the property name and the value is a
+                /**
+                 * @description A map where the key is the property name and the value is a
                  *     PropsInfo object describing the property.
-                 *      */
+                 */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        /**
+                         * @example {
+                         *       "StorDriver/LvcreateType": {
+                         *         "prop_type": "regex",
+                         *         "value": "(?:linear|lz4|lzma|mirror|raid0|raid1|raid10|raid4|raid5|raid6|striped)",
+                         *         "dflt": "linear"
+                         *       },
+                         *       "DrbdOptions/Disk/disk-timeout": {
+                         *         "prop_type": "range",
+                         *         "value": "(0 - 6000)",
+                         *         "dflt": "0",
+                         *         "unit": "1/10 seconds"
+                         *       }
+                         *     }
+                         */
                         "application/json": {
                             [key: string]: components["schemas"]["PropsInfo"];
                         };
@@ -1825,17 +2005,25 @@ export interface paths {
          *     to the resource string like:
          *
          *     /v1/resource-definitions/rsc1/resources/nodeA
-         *
          */
         get: operations["resourceList"];
         put?: never;
         /**
          * create one or more resources.
          * @description Adds one or more resource(s).
-         *
          */
         post: operations["resourceCreate"];
-        delete?: never;
+        /**
+         * truncate a resource-definition
+         * @description Deletes all resources of the resource-definition ("truncate") without deleting the
+         *     resource-definition itself or any of its snapshots.
+         *
+         *     If `delete_empty_resource_definition` is set, the resource-definition is deleted as
+         *     well when it has neither resources nor snapshots left after the truncate. The check
+         *     and the resource-definition deletion are performed atomically, so a concurrently
+         *     created resource or snapshot keeps the resource-definition.
+         */
+        delete: operations["resourceDefinitionTruncate"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1853,7 +2041,11 @@ export interface paths {
             };
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Lists a specific resource on a node
+         * @description Returns a specific resource of a resource-definition on the given node
+         */
+        get: operations["resourceGet"];
         /**
          * modify a resource
          * @description Sets or modifies properties
@@ -1909,8 +2101,6 @@ export interface paths {
          *     - `DrbdOptions/auto-diskful-allow-cleanup` - boolean_true_false
          *
          *         Allows this resource to be cleaned up after toggle-disk + resync is finished
-         *
-         *
          */
         put: operations["resourceModify"];
         /**
@@ -1929,7 +2119,6 @@ export interface paths {
          *       }
          *     }
          *     ```
-         *
          */
         post: operations["resourceCreateOnNode"];
         /**
@@ -1968,9 +2157,41 @@ export interface paths {
          *     used.
          *
          *     The storage pool will be selected by the autoplacer.
-         *
          */
         post: operations["resourceMakeAvailableOnNode"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/resource-definitions/{resource}/resources/{node}/unmake-available": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description resource to use */
+                resource: components["parameters"]["Resource"];
+                /** @description node to use */
+                node: components["parameters"]["Node"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * reverts a make-available issued for a live migration
+         * @description Reverts the changes of a make-available with `auto_manage_dual_primary`
+         *     and removes the resource from the given node (the migration source) if
+         *     that can be done without losing data: the resource is deleted if it is
+         *     diskless or if it is a redundant copy in a shared storage pool.
+         *     Tiebreaker and diskful resources are kept.
+         *
+         *     Calling this for a resource that is not deployed on the node is a
+         *     successful no-op, so automation clients can always issue this call
+         *     after a migration.
+         */
+        post: operations["resourceUnmakeAvailableOnNode"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2041,7 +2262,6 @@ export interface paths {
          * List all resource properties
          * @description List all properties, including their names and descriptions, that can
          *     be set for any given resource in a particular resource definition.
-         *
          */
         get: {
             parameters: {
@@ -2055,14 +2275,29 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description A map where the key is the property name and the value is a
+                /**
+                 * @description A map where the key is the property name and the value is a
                  *     PropsInfo object describing the property.
-                 *      */
+                 */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        /**
+                         * @example {
+                         *       "DrbdOptions/auto-diskful-allow-cleanup": {
+                         *         "info": "Allows this resource to be cleaned up after toggle-disk + resync is finished",
+                         *         "prop_type": "boolean_true_false",
+                         *         "value": "(?i)(?:true|false|yes|no)"
+                         *       },
+                         *       "FileSystem/Type": {
+                         *         "info": "File system type to use",
+                         *         "prop_type": "regex",
+                         *         "value": "(?:ext4|xfs)"
+                         *       }
+                         *     }
+                         */
                         "application/json": {
                             [key: string]: components["schemas"]["PropsInfo"];
                         };
@@ -2098,7 +2333,6 @@ export interface paths {
          *     to the resource string like:
          *
          *     /v1/resource-definitions/rsc1/resources/nodeA/volumes/0
-         *
          */
         get: operations["resourceVolumeList"];
         put?: never;
@@ -2123,7 +2357,11 @@ export interface paths {
             };
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Lists a specific volume of a resource
+         * @description Returns a specific volume of a resource on the given node
+         */
+        get: operations["resourceVolumeGet"];
         /**
          * modify a volume
          * @description Sets or modifies properties
@@ -2131,7 +2369,6 @@ export interface paths {
          *     Possible properties are:
          *     - `sys/fs/blkio_throttle_read` - number
          *     - `sys/fs/blkio_throttle_write` - number
-         *
          */
         put: operations["volumeModify"];
         post?: never;
@@ -2157,7 +2394,6 @@ export interface paths {
          * List all volume properties
          * @description List all properties, including their names and descriptions, that can
          *     be set for any given volume of a particular resource on a particular node.
-         *
          */
         get: {
             parameters: {
@@ -2173,14 +2409,28 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description A map where the key is the property name and the value is a
+                /**
+                 * @description A map where the key is the property name and the value is a
                  *     PropsInfo object describing the property.
-                 *      */
+                 */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        /**
+                         * @example {
+                         *       "StorPoolNameDrbdMeta": {
+                         *         "info": "Linstor storage pool name to use for external metadata.",
+                         *         "prop_type": "regex",
+                         *         "value": "^|.internal|[a-zA-Z0-9_][a-zA-Z0-9_-]{2,47}$"
+                         *       },
+                         *       "sys/fs/blkio_throttle_write": {
+                         *         "info": "Sets the /sys/fs/cgroup/blkio/blkio.throttle.write_bps_device",
+                         *         "prop_type": "long"
+                         *       }
+                         *     }
+                         */
                         "application/json": {
                             [key: string]: components["schemas"]["PropsInfo"];
                         };
@@ -2189,6 +2439,31 @@ export interface paths {
             };
         };
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/resource-definitions/{resource}/resources/{node}/toggle-disk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description resource to use */
+                resource: components["parameters"]["Resource"];
+                /** @description node to use */
+                node: components["parameters"]["Node"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * toggle a resource into diskless or diskful
+         * @description toggle a diskful resource to a diskless/client resource or vice versa
+         */
+        put: operations["resourceToggleDisk"];
         post?: never;
         delete?: never;
         options?: never;
@@ -2211,7 +2486,8 @@ export interface paths {
         get?: never;
         /**
          * toggle a resource to diskless
-         * @description toggle a resource to a diskless resource
+         * @deprecated
+         * @description Deprecated. Use /v1/resource-definitions/{resource}/resources/{node}/toggle-disk instead
          */
         put: operations["resourceToggleDiskless"];
         post?: never;
@@ -2238,8 +2514,8 @@ export interface paths {
         get?: never;
         /**
          * toggle a resource to diskless resource
-         * @description toggle a resource to a diskless.
-         *
+         * @deprecated
+         * @description Deprecated. Use /v1/resource-definitions/{resource}/resources/{node}/toggle-disk instead
          */
         put: operations["resourceToggleDisklessDisklesspool"];
         post?: never;
@@ -2264,8 +2540,8 @@ export interface paths {
         get?: never;
         /**
          * toggle a resource to a diskful resource
-         * @description toggle a resource to a diskful resource using the default storage pool
-         *
+         * @deprecated
+         * @description Deprecated. Use /v1/resource-definitions/{resource}/resources/{node}/toggle-disk instead
          */
         put: operations["resourceToggleDiskful"];
         post?: never;
@@ -2292,7 +2568,8 @@ export interface paths {
         get?: never;
         /**
          * toggle a resource to a diskful resource
-         * @description toggle a resource to a diskful resource
+         * @deprecated
+         * @description Deprecated. Use /v1/resource-definitions/{resource}/resources/{node}/toggle-disk instead
          */
         put: operations["resourceToggleDiskfulStoragepool"];
         post?: never;
@@ -2319,8 +2596,8 @@ export interface paths {
         get?: never;
         /**
          * migrate a resource to another node
-         * @description migrate a resource to another node without reducing the redundancy count
-         *
+         * @deprecated
+         * @description Deprecated. Use /v1/resource-definitions/{resource}/resources/{node}/toggle-disk instead
          */
         put: operations["resourceMigrateDisk"];
         post?: never;
@@ -2349,8 +2626,8 @@ export interface paths {
         get?: never;
         /**
          * migrate a resource to another node
-         * @description migrate a resource to another node without reducing the redundency count
-         *
+         * @deprecated
+         * @description Deprecated. Use /v1/resource-definitions/{resource}/resources/{node}/toggle-disk instead
          */
         put: operations["resourceMigrateDiskStoragepool"];
         post?: never;
@@ -2376,7 +2653,6 @@ export interface paths {
          * autoplace resource
          * @description Auto place the resource on the specified place_count redundency.
          *     If place_count isn't given 2 is the default.
-         *
          */
         post: operations["resourceAutoplace"];
         delete?: never;
@@ -2505,7 +2781,6 @@ export interface paths {
          *
          *     - `DrbdOptions/Net/max-buffers` - range[`32-131072`]
          *     - `DrbdOptions/Net/allow-remote-read` - boolean
-         *
          */
         put: operations["resourceConnectionModify"];
         post?: never;
@@ -2529,7 +2804,6 @@ export interface paths {
          * List all resource-connection properties
          * @description List all properties, including their names and descriptions, that can
          *     be set for any given connection of a particular resource.
-         *
          */
         get: {
             parameters: {
@@ -2543,14 +2817,29 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description A map where the key is the property name and the value is a
+                /**
+                 * @description A map where the key is the property name and the value is a
                  *     PropsInfo object describing the property.
-                 *      */
+                 */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        /**
+                         * @example {
+                         *       "DrbdOptions/PeerDevice/resync-rate": {
+                         *         "prop_type": "range",
+                         *         "value": "(1 - 8388608)",
+                         *         "dflt": "250",
+                         *         "unit": "bytes/second"
+                         *       },
+                         *       "DrbdOptions/Net/fencing": {
+                         *         "prop_type": "regex",
+                         *         "value": "(?:dont-care|resource-and-stonith|resource-only)"
+                         *       }
+                         *     }
+                         */
                         "application/json": {
                             [key: string]: components["schemas"]["PropsInfo"];
                         };
@@ -2605,7 +2894,11 @@ export interface paths {
          * @description List the given snapshot for a resource
          */
         get: operations["resourceSnapshotList"];
-        put?: never;
+        /**
+         * modify a snapshot
+         * @description Modify snapshot definition properties
+         */
+        put: operations["snapshotModify"];
         post?: never;
         /**
          * delete a snapshot
@@ -2692,29 +2985,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/resource-definitions/{resource}/snapshot-shipping": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description resource to use */
-                resource: components["parameters"]["Resource"];
-            };
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * ship a snapshot
-         * @description Transfers the resource from one node to another based on snapshot-shipping
-         */
-        post: operations["snapshotShipping"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/v1/resource-groups": {
         parameters: {
             query?: never;
@@ -2730,7 +3000,6 @@ export interface paths {
          *     to the resource string like:
          *
          *     /v1/resource-groups/rscgrp1
-         *
          */
         get: operations["resourceGroupList"];
         put?: never;
@@ -2740,7 +3009,6 @@ export interface paths {
          *
          *     Only required property is the name of the resource group.
          *     All other properties are optional.
-         *
          */
         post: operations["resourceGroupCreate"];
         delete?: never;
@@ -2759,7 +3027,6 @@ export interface paths {
         /**
          * Return stats of all resource groups.
          * @description Returns a resource group stats object.
-         *
          */
         get: operations["resourceGroupStats"];
         put?: never;
@@ -2780,7 +3047,11 @@ export interface paths {
             };
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Lists a specific resource-group
+         * @description Returns a specific resource-group
+         */
+        get: operations["resourceGroupGet"];
         /**
          * modify a resource-group
          * @description Sets or modifies properties
@@ -2954,7 +3225,6 @@ export interface paths {
          *     - `DrbdOptions/Handlers/pri-lost-after-sb` - string
          *     - `DrbdOptions/Handlers/pri-on-incon-degr` - string
          *     - `DrbdOptions/Handlers/split-brain` - string
-         *
          */
         put: operations["resourceGroupModify"];
         post?: never;
@@ -2979,7 +3249,6 @@ export interface paths {
          * List all resource-group properties
          * @description List all properties, including their names and descriptions, that can
          *     be set for any given resource group.
-         *
          */
         get: {
             parameters: {
@@ -2990,14 +3259,30 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description A map where the key is the property name and the value is a
+                /**
+                 * @description A map where the key is the property name and the value is a
                  *     PropsInfo object describing the property.
-                 *      */
+                 */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        /**
+                         * @example {
+                         *       "Writecache/Options/AutocommitBlocks": {
+                         *         "info": "when the application writes this amount of blocks without issuing the FLUSH request, the blocks are automatically committed",
+                         *         "prop_type": "long",
+                         *         "dflt": "64 for pmem, 65536 for ssd"
+                         *       },
+                         *       "DrbdOptions/Resource/peer-ack-delay": {
+                         *         "prop_type": "range",
+                         *         "value": "(1 - 10000)",
+                         *         "dflt": "100",
+                         *         "unit": "milliseconds"
+                         *       }
+                         *     }
+                         */
                         "application/json": {
                             [key: string]: components["schemas"]["PropsInfo"];
                         };
@@ -3028,7 +3313,6 @@ export interface paths {
         /**
          * create a new resource-definition based on the given resource-group
          * @description Creates a new resource-definition and auto-deploys if configured to do so.
-         *
          */
         post: operations["resourceGroupSpawn"];
         delete?: never;
@@ -3055,14 +3339,12 @@ export interface paths {
          *     to the resource string like:
          *
          *     /v1/resource-groups/rscgrp1/volume-groups/0
-         *
          */
         get: operations["volumeGroupList"];
         put?: never;
         /**
          * add a volume-group to a resource-group
          * @description Adds a volume-group.
-         *
          */
         post: operations["volumeGroupCreate"];
         delete?: never;
@@ -3083,7 +3365,11 @@ export interface paths {
             };
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Lists a specific volume-group
+         * @description Returns a specific volume-group of a resource-group
+         */
+        get: operations["volumeGroupGet"];
         /**
          * modify a volume-group
          * @description Sets or modifies properties
@@ -3155,7 +3441,6 @@ export interface paths {
          *     - `DrbdOptions/Disk/md-flushes` - boolean
          *     - `DrbdOptions/Disk/disk-barrier` - boolean
          *     - `DrbdOptions/Disk/discard-zeroes-if-aligned` - boolean
-         *
          */
         put: operations["volumeGroupModify"];
         post?: never;
@@ -3183,7 +3468,6 @@ export interface paths {
          * List all volume-group properties
          * @description List all properties, including their names and descriptions, that can
          *     be set for any given volume group of a particular resource group.
-         *
          */
         get: {
             parameters: {
@@ -3197,14 +3481,30 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description A map where the key is the property name and the value is a
+                /**
+                 * @description A map where the key is the property name and the value is a
                  *     PropsInfo object describing the property.
-                 *      */
+                 */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        /**
+                         * @example {
+                         *       "Cache/Policy": {
+                         *         "info": "Replacement policy",
+                         *         "prop_type": "regex",
+                         *         "value": "(?:cleaner|mq|smq)",
+                         *         "dflt": "smq"
+                         *       },
+                         *       "StorPoolNameDrbdMeta": {
+                         *         "info": "Linstor storage pool name to use for external metadata.",
+                         *         "prop_type": "regex",
+                         *         "value": "^|.internal|[a-zA-Z0-9_][a-zA-Z0-9_-]{2,47}$"
+                         *       }
+                         *     }
+                         */
                         "application/json": {
                             [key: string]: components["schemas"]["PropsInfo"];
                         };
@@ -3260,7 +3560,6 @@ export interface paths {
          * query size information of the current resource group
          * @description Query size information like maximum volume size for the next
          *     spawn command. The result will include the selected storage pools.
-         *
          */
         post: operations["querySizeInfo"];
         delete?: never;
@@ -3284,7 +3583,6 @@ export interface paths {
         /**
          * adjusts (calls autoplace for) all resource-definitions of the given resource-group
          * @description Adjusts (calls autoplace for) all resource-definitions of the given resource-group
-         *
          */
         post: operations["resourceGroupAdjust"];
         delete?: never;
@@ -3305,7 +3603,6 @@ export interface paths {
         /**
          * adjusts (calls autoplace for) all resource-definitions of all resource-groups
          * @description Adjusts (calls autoplace for) all resource-definitions of all resource-groups
-         *
          */
         post: operations["resourceGroupAdjustAll"];
         delete?: never;
@@ -3324,7 +3621,6 @@ export interface paths {
         /**
          * lists all controller properties
          * @description Lists all controller properties.
-         *
          */
         get: operations["controllerPropertyList"];
         put?: never;
@@ -3719,7 +4015,6 @@ export interface paths {
          *     - `DrbdOptions/Handlers/pri-lost-after-sb` - string
          *     - `DrbdOptions/Handlers/pri-on-incon-degr` - string
          *     - `DrbdOptions/Handlers/split-brain` - string
-         *
          */
         post: operations["controllerPropertyModify"];
         delete?: never;
@@ -3762,7 +4057,6 @@ export interface paths {
          * List all controller properties
          * @description List all properties, including their names and descriptions, that can
          *     be set for the LINSTOR controller.
-         *
          */
         get: {
             parameters: {
@@ -3773,14 +4067,29 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description A map where the key is the property name and the value is a
+                /**
+                 * @description A map where the key is the property name and the value is a
                  *     PropsInfo object describing the property.
-                 *      */
+                 */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        /**
+                         * @example {
+                         *       "ExtCmdWaitTimeout": {
+                         *         "info": "Wait timeout for an external command in milliseconds",
+                         *         "prop_type": "long"
+                         *       },
+                         *       "Autoplacer/Weights/MinReservedSpace": {
+                         *         "info": "Weight of 'MinReservedSpace' autoplacer-strategy",
+                         *         "prop_type": "regex",
+                         *         "value": "^[0-9]+([.][0-9]+)?",
+                         *         "dflt": "0.0"
+                         *       }
+                         *     }
+                         */
                         "application/json": {
                             [key: string]: components["schemas"]["PropsInfo"];
                         };
@@ -3808,7 +4117,6 @@ export interface paths {
          * @description List all properties, including their names and descriptions, that can
          *     be set for any entity in the cluster. This includes the controller,
          *     resource definitions, resource groups, connections, volumes, etc.
-         *
          */
         get: {
             parameters: {
@@ -3819,16 +4127,48 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description A structure that maps entity types to a map of their properties.
+                /**
+                 * @description A structure that maps entity types to a map of their properties.
                  *     The key is the entity type in uppercase. The value is a map
                  *     where the key is the property name and the value is a PropsInfo
                  *     object describing the property.
-                 *      */
+                 */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        /**
+                         * @example {
+                         *       "NODE": {
+                         *         "Cache/CachePool": {
+                         *           "info": "Name of the storage pool used for the cache cache device",
+                         *           "prop_type": "regex",
+                         *           "value": "^[a-zA-Z0-9_][a-zA-Z0-9_-]{2,47}$"
+                         *         },
+                         *         "Writecache/Options/LowWatermark": {
+                         *           "info": "stop writeback when the number of used blocks drops below this watermark",
+                         *           "prop_type": "long",
+                         *           "dflt": "45"
+                         *         }
+                         *       },
+                         *       "STORAGEPOOL_DEFINITION": {
+                         *         "MaxOversubscriptionRatio": {
+                         *           "info": "Maximum allowed ratio of the sum of volume sizes in a thin pool to the total capacity of the pool (default 20)",
+                         *           "prop_type": "range",
+                         *           "value": "(1 - 1000)"
+                         *         }
+                         *       },
+                         *       "CONTROLLER": {
+                         *         "Autoplacer/Weights/MinReservedSpace": {
+                         *           "info": "Weight of 'MinReservedSpace' autoplacer-strategy",
+                         *           "prop_type": "regex",
+                         *           "value": "^[0-9]+([.][0-9]+)?",
+                         *           "dflt": "0.0"
+                         *         }
+                         *       }
+                         *     }
+                         */
                         "application/json": {
                             [key: string]: {
                                 [key: string]: components["schemas"]["PropsInfo"];
@@ -3856,7 +4196,6 @@ export interface paths {
         /**
          * show controller config
          * @description Show Controller config
-         *
          */
         get: operations["ControllerConfig"];
         /** modify controller config */
@@ -3879,9 +4218,30 @@ export interface paths {
         put?: never;
         /**
          * create a database backup
+         * @deprecated
          * @description create a h2 database backup. Currently only H2(embedded) db is working.
          */
         post: operations["controllerBackupDB"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/controller/database/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * export the controller's database
+         * @description unlike controllerBackupDB this API works with all supported database types and dialects.
+         */
+        post: operations["controllerExportDB"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3898,12 +4258,79 @@ export interface paths {
         /**
          * show controller version info
          * @description Show Controller version info
-         *
          */
         get: operations["controllerVersion"];
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/controller/auth/initialize-token-auth": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * initialize the token authentication
+         * @description enables token auth and creates a first token and creates tokens on each satellite
+         */
+        post: operations["controllerAuthTokenInitialize"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/controller/auth/token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * list all current API auth tokens
+         * @description give a list of all current API auth tokens with information
+         */
+        get: operations["controllerAuthTokenList"];
+        put?: never;
+        /**
+         * create a new API token
+         * @description create a new API token and enable token auth
+         */
+        post: operations["controllerAuthTokenCreate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/controller/auth/token/{authtokenid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Auth token ID */
+                authtokenid: components["parameters"]["AuthTokenId"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        /** disables/enables an api token */
+        put: operations["controllerAuthTokenModify"];
+        post?: never;
+        /**
+         * revoke an API auth token
+         * @description revoke an auth token
+         */
+        delete: operations["controllerAuthTokenRevoke"];
         options?: never;
         head?: never;
         patch?: never;
@@ -3956,7 +4383,6 @@ export interface paths {
          *     - `DrbdOptions/ProxyCompression/numa-threshold` - range[`0-253`]
          *     - `DrbdOptions/ProxyCompression/level` - range[`1-9`]
          *     - `DrbdOptions/ProxyCompression/level` - range[`1-22`]
-         *
          */
         put: operations["resourceDrbdProxyModify"];
         post?: never;
@@ -3980,7 +4406,6 @@ export interface paths {
          * List all drbd-proxy properties
          * @description List all properties, including their names and descriptions, that can
          *     be set for DRBD proxy on a given resource definition.
-         *
          */
         get: {
             parameters: {
@@ -3994,7 +4419,8 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description A structure that maps the DBRD proxy configuration sections to their properties.
+                /**
+                 * @description A structure that maps the DBRD proxy configuration sections to their properties.
                  *     The key is the DRBD proxy configuration section The value is a map where the
                  *     key is the property name and the value is a PropsInfo object describing the
                  *     property.\
@@ -4004,12 +4430,32 @@ export interface paths {
                  *     - DRBD_PROXY_LZ4
                  *     - DRBD_PROXY_ZLIB
                  *     - DRBD_PROXY_ZSTD
-                 *      */
+                 */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
+                        /**
+                         * @example {
+                         *       "DRBD_PROXY": {
+                         *         "DrbdOptions/Proxy/ping-timeout": {
+                         *           "prop_type": "range",
+                         *           "value": "(1 - 300)",
+                         *           "dflt": "200",
+                         *           "unit": "1/10 seconds"
+                         *         }
+                         *       },
+                         *       "DRBD_PROXY_LZ4": {},
+                         *       "DRBD_PROXY_LZMA": {
+                         *         "DrbdOptions/ProxyCompression/lp": {
+                         *           "prop_type": "range",
+                         *           "value": "(0 - 4)",
+                         *           "dflt": "0"
+                         *         }
+                         *       }
+                         *     }
+                         */
                         "application/json": {
                             [key: string]: components["schemas"]["PropsInfo"];
                         };
@@ -4136,7 +4582,6 @@ export interface paths {
         /**
          * Return stats of all error-reports.
          * @description Returns a error report stats object.
-         *
          */
         get: operations["errorReportStats"];
         put?: never;
@@ -4294,23 +4739,6 @@ export interface paths {
          * @description This REST-resource should be used if you want to get an overview of all snapshots.
          */
         get: operations["viewSnapshots"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/view/snapshot-shippings": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** view current snapshot shippings */
-        get: operations["viewSnapshotShippings"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4492,7 +4920,6 @@ export interface paths {
         /**
          * Return stats of all resources.
          * @description Returns a resource stats object.
-         *
          */
         get: operations["resourcesStats"];
         put?: never;
@@ -4513,7 +4940,6 @@ export interface paths {
         /**
          * Return stats of all storage pools.
          * @description Returns a storage pool stats object.
-         *
          */
         get: operations["storagePoolsStats"];
         put?: never;
@@ -4554,7 +4980,6 @@ export interface paths {
         /**
          * show physical storage on a single node
          * @description Gives a complete list of physical storage that can be turned into a LINSTOR storage-pool.
-         *
          */
         get: operations["getPhysicalStorage"];
         put?: never;
@@ -4563,7 +4988,6 @@ export interface paths {
          * @description Creates a LVM/LVM-thin, ZFS pool on the given device and if supported VDO(optional) under it.
          *     logcal_size_kib parameter is only needed if LVM-thin or vdo is used.
          *     Also note VDO can only used with LVM-fat.
-         *
          */
         post: operations["createDevicePool"];
         delete?: never;
@@ -5169,168 +5593,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/vendor/seagate/exos/defaults": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Lists default setting for all EXOS enclosures
-         * @deprecated
-         * @description Lists default setting for all EXOS enclosures
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description List of default settings */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ExosDefaults"][];
-                    };
-                };
-            };
-        };
-        /**
-         * modify default settings of EXOS configurations
-         * @deprecated
-         * @description Sets or modifies default username / password for EXOS enclosures
-         *
-         */
-        put: operations["exosModifyDefault"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/vendor/seagate/exos/enclosures": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List of EXOS enclosures
-         * @deprecated
-         * @description Lists EXOS enclosures including controller IP and health status
-         */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Force recaching before response */
-                    nocache?: boolean;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description List of EXOS enclosures */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ExosEnclosureHealth"][];
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * creates a new enclosure
-         * @deprecated
-         * @description Creates a new enclosure unless it already exists
-         */
-        post: operations["exosCreate"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/vendor/seagate/exos/enclosures/{enclosure}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * modifies an existing enclosure
-         * @deprecated
-         * @description Modifies an existing enclosure
-         */
-        put: operations["exosModify"];
-        post?: never;
-        /**
-         * modifies an existing enclosure
-         * @deprecated
-         * @description Deletes an existing enclosure
-         */
-        delete: operations["exosDelete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/vendor/seagate/exos/{enclosure}/events": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Returns the last EXOS events
-         * @deprecated
-         * @description Lists the most current X events
-         */
-        get: operations["exosDescribe"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/vendor/seagate/exos/map": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Lists all EXOS Ports connected to each Linstor Node
-         * @deprecated
-         * @description Lists the connection-mesh of EXOS Ports to Linstor Nodes
-         */
-        get: operations["exosMap"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/v1/remotes": {
         parameters: {
             query?: never;
@@ -5897,7 +6159,6 @@ export interface paths {
          * @description Get a list of previously registered external files.
          *     File contents are not included, unless the "content" query parameter
          *     is explicitly set to true.
-         *
          */
         get: {
             parameters: {
@@ -6012,7 +6273,6 @@ export interface paths {
          * delete the given external file
          * @description Deletes the given external file. This effectively also deletes the file
          *     on all satellites
-         *
          */
         delete: {
             parameters: {
@@ -6100,6 +6360,68 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/files/{extFileName}/status/{node}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Name of an external file. Must be an absolute path in URL-encoding
+                 * @example %2Fetc%2Fsome.conf
+                 */
+                extFileName: components["parameters"]["ExternalFileName"];
+                /** @description node to use */
+                node: components["parameters"]["Node"];
+            };
+            cookie?: never;
+        };
+        /**
+         * queries on-demand status of an external file on a satellite
+         * @description Queries the satellite for the current on-disk status of the external file. Returns the actual path where the file exists (which may differ from the canonical path if an alternative suffix is in use) and whether the content matches LINSTOR's expected checksum.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /**
+                     * @description Name of an external file. Must be an absolute path in URL-encoding
+                     * @example %2Fetc%2Fsome.conf
+                     */
+                    extFileName: components["parameters"]["ExternalFileName"];
+                    /** @description node to use */
+                    node: components["parameters"]["Node"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description returns the external file status */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ExtFileStatusResult"];
+                    };
+                };
+                /** @description Satellite not connected */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/queries/resource-groups/query-all-size-info": {
         parameters: {
             query?: never;
@@ -6113,7 +6435,6 @@ export interface paths {
          * Queries size information from all available resource groups
          * @description Unlike /v1/resource-groups/{resource_group}/query-size-info, this API
          *     returns the QSI result for all currently available resource groups
-         *
          */
         post: operations["QryAllSizeInfo"];
         delete?: never;
@@ -6143,7 +6464,7 @@ export interface components {
             correction?: string;
             /** @description List of error report ids related to this api call return code. */
             error_report_ids?: string[];
-            /** @description Map of objection that have been involved by the operation. */
+            /** @description Map of objects that have been involved in the operation. */
             obj_refs?: {
                 [key: string]: string;
             };
@@ -6159,14 +6480,11 @@ export interface components {
              * @enum {string}
              */
             type: "Controller" | "Satellite" | "Combined" | "Auxiliary";
-            platform?: string;
-            os_variant?: string;
             flags?: string[];
             props?: components["schemas"]["Properties"];
             net_interfaces?: components["schemas"]["NetInterface"][];
             /**
              * @description Enum describing the current connection status.
-             *
              * @example ONLINE
              * @enum {string}
              */
@@ -6189,6 +6507,17 @@ export interface components {
              * @description milliseconds since unix epoch in UTC
              */
             eviction_timestamp?: number;
+            /**
+             * @description Enum describing the satellite's platform (Linux/Windows)
+             * @example LINUX
+             * @enum {string}
+             */
+            platform?: "LINUX" | "WINDOWS";
+            /**
+             * @description String describing the satellite's OS variant (Linux distri, Windows version)
+             * @example Ubuntu 18.04.2 LTS
+             */
+            os_variant?: string;
         };
         NodeCreateEbs: {
             /** @example nodeA */
@@ -6205,6 +6534,12 @@ export interface components {
         NodeRestore: {
             delete_resources?: boolean;
             delete_snapshots?: boolean;
+        };
+        NodeEvacuate: {
+            /** @description List of nodes that are allowed to be used as evacuation-target */
+            target?: string[];
+            /** @description List of nodes that are prohibited to be used as evacuation-target */
+            do_not_target?: string[];
         };
         NetInterface: {
             /** @example default */
@@ -6243,12 +6578,13 @@ export interface components {
         };
         /** @enum {string} */
         ProviderKind: "DISKLESS" | "LVM" | "LVM_THIN" | "ZFS" | "ZFS_THIN" | "FILE" | "FILE_THIN" | "SPDK" | "EBS_TARGET" | "EBS_INIT";
-        /** @description Contains information about a storage pool.
+        /**
+         * @description Contains information about a storage pool.
          *
          *     If state is `Error` check the storage pool object path for detailed error description:
          *
          *       /v1/nodes/{nodename}/storage-pools/{poolname}
-         *      */
+         */
         StoragePool: {
             /** @example DfltStorPool */
             storage_pool_name: string;
@@ -6305,7 +6641,7 @@ export interface components {
             al_stripe_size_kib?: number;
             /**
              * Format: int32
-             * @description used drbd port for this resource
+             * @description The preferred TCP port if available on node level
              * @example 7000
              */
             port?: number;
@@ -6343,7 +6679,7 @@ export interface components {
         ResourceDefinitionCreate: {
             /**
              * Format: int32
-             * @description drbd port for resources
+             * @description The preferred TCP port if available on node level
              */
             drbd_port?: number;
             /**
@@ -6366,7 +6702,7 @@ export interface components {
             delete_namespaces?: string[];
             /**
              * Format: int32
-             * @description drbd port for resources
+             * @description The preferred TCP port if available on node level
              */
             drbd_port?: number;
             /**
@@ -6419,11 +6755,12 @@ export interface components {
             override_props?: components["schemas"]["Properties"];
             delete_props?: string[];
             delete_namespaces?: string[];
-            /** @description To add a flag just specify the flag name, to remove a flag prepend it with a '-'.
+            /**
+             * @description To add a flag just specify the flag name, to remove a flag prepend it with a '-'.
              *
              *     Flags:
              *       * GROSS_SIZE
-             *      */
+             */
             flags?: string[];
         };
         VolumeDefinitionModifyPassphrase: {
@@ -6434,6 +6771,7 @@ export interface components {
             drbd_resource_definition?: components["schemas"]["DrbdResourceDefinitionLayer"];
             /** Format: int32 */
             node_id?: number;
+            tcp_ports?: number[];
             /** Format: int32 */
             peer_slots?: number;
             /** Format: int32 */
@@ -6514,9 +6852,10 @@ export interface components {
         };
         ResourceWithVolumes: components["schemas"]["Resource"] & {
             volumes?: components["schemas"]["Volume"][];
-            /** @description shared space name of the data storage pool of the first volume of
+            /**
+             * @description shared space name of the data storage pool of the first volume of
              *     the resource or empty if data storage pool is not shared
-             *      */
+             */
             shared_name?: string;
         };
         ResourceCreate: {
@@ -6524,6 +6863,12 @@ export interface components {
             layer_list?: components["schemas"]["LayerType"][];
             /** Format: int32 */
             drbd_node_id?: number;
+            /** Format: int32 */
+            drbd_tcp_port_count?: number;
+            drbd_tcp_ports?: number[];
+            snap_names?: string[];
+            copy_all_snaps?: boolean;
+            drbd_client?: boolean;
         };
         ResourceMakeAvailable: {
             layer_list?: components["schemas"]["LayerType"][];
@@ -6532,11 +6877,30 @@ export interface components {
              * @default false
              */
             diskful: boolean;
+            drbd_tcp_ports?: number[];
+            snap_names?: string[];
+            copy_all_snaps?: boolean;
+            /**
+             * @description If true, prepare the resource for a live migration to this node:
+             *     for DRBD resources allow-two-primaries (and protocol C if needed)
+             *     is set between the migration source (the node the resource is
+             *     currently in use on) and this node; for resources in a shared
+             *     storage pool the resource is activated on both nodes.
+             *     If the resource is not in use on any node, there is no migration
+             *     to prepare and the resource is simply made available, so the
+             *     option can always be set by clients that cannot distinguish a
+             *     live-migration attach from a plain attach.
+             *     Revert with unmake-available on the migration source node.
+             * @default false
+             */
+            auto_manage_dual_primary: boolean;
         };
         ResourceModify: {
             override_props?: components["schemas"]["Properties"];
             delete_props?: string[];
             delete_namespaces?: string[];
+            drbd_tiebreaker?: boolean;
+            drbd_client?: boolean;
         };
         VolumeModify: {
             override_props?: components["schemas"]["Properties"];
@@ -6573,6 +6937,7 @@ export interface components {
             /** @description String describing current volume state */
             disk_state?: string;
             opened?: boolean;
+            corrupted_key?: boolean;
         };
         StorageVolume: {
             /** Format: int32 */
@@ -6707,6 +7072,8 @@ export interface components {
             select_filter?: components["schemas"]["AutoSelectFilter"];
             /** Format: int32 */
             peer_slots?: number;
+            snap_names?: string[];
+            copy_all_snaps?: boolean;
         };
         ResourceGroupSpawn: {
             /** @description name of the resulting resource-definition */
@@ -6726,14 +7093,12 @@ export interface components {
              *
              *     If the count of vlm_sizes matches the number of volume-groups, this "partial" parameter
              *     has no effect.
-             *
              * @default false
              */
             partial: boolean;
             /**
              * @description If true, the spawn command will only create the resource-definition with the volume-definitions
              *     but will not perform an auto-place, even if it is configured.
-             *
              * @default false
              */
             definitions_only: boolean;
@@ -6756,17 +7121,20 @@ export interface components {
         };
         VolumeGroupModify: {
             override_props?: components["schemas"]["Properties"];
-            /** @description To add a flag just specify the flag name, to remove a flag prepend it with a '-'.
+            /**
+             * @description To add a flag just specify the flag name, to remove a flag prepend it with a '-'.
              *
              *     Flags:
              *       * GROSS_SIZE
-             *      */
+             */
             flags?: string[];
             delete_props?: string[];
             delete_namespaces?: string[];
         };
         ResourceGroupAdjust: {
             select_filter?: components["schemas"]["AutoSelectFilter"];
+            snap_names?: string[];
+            copy_all_snaps?: boolean;
         };
         AutoPlaceRequest: {
             /** @default false */
@@ -6774,6 +7142,8 @@ export interface components {
             select_filter: components["schemas"]["AutoSelectFilter"];
             /** @default null */
             layer_list: components["schemas"]["LayerType"][];
+            snap_names?: string[];
+            copy_all_snaps?: boolean;
         };
         AutoSelectFilter: {
             /** Format: int32 */
@@ -6808,6 +7178,8 @@ export interface components {
              * @description Multiplier of thin storage pool's free space
              */
             overprovision?: number;
+            /** Format: int32 */
+            port_count?: number;
         };
         Candidate: {
             /** @example DfltStorPool */
@@ -6996,13 +7368,15 @@ export interface components {
             port?: number;
             com_type?: string;
         };
-        /** @example {
+        /**
+         * @example {
          *       "info": "sets the c-plan-ahead parameter for a peer device",
          *       "prop_type": "range",
          *       "value": "(0 - 300)",
          *       "dflt": "20",
          *       "unit": "1/10 seconds"
-         *     } */
+         *     }
+         */
         PropsInfo: {
             info?: string;
             prop_type?: string;
@@ -7010,20 +7384,23 @@ export interface components {
             dflt?: string;
             unit?: string;
         };
-        /** @example {
+        /**
+         * @example {
          *       "node_name": "Controller",
          *       "error_time": 1536827504594,
          *       "filename": "ErrorReport-5B9A15B7-00000-000000.log"
-         *     } */
+         *     }
+         */
         ErrorReport: {
             node_name?: string;
             /** Format: int64 */
             error_time: number;
-            /** @description Filename of the error report on the server.
+            /**
+             * @description Filename of the error report on the server.
              *
              *     Format is:
              *     ```ErrorReport-{instanceid}-{nodeid}-{sequencenumber}.log```
-             *      */
+             */
             filename?: string;
             /** @description Contains the full text of the error report file. */
             text?: string;
@@ -7096,7 +7473,10 @@ export interface components {
             node_b?: string;
             props?: components["schemas"]["Properties"];
             flags?: string[];
+            /** @deprecated */
             port?: number;
+            drbd_proxy_port_a?: number;
+            drbd_proxy_port_b?: number;
         };
         ResourceConnectionModify: {
             override_props?: components["schemas"]["Properties"];
@@ -7110,7 +7490,6 @@ export interface components {
             name?: string;
             resource_name?: string;
             nodes?: string[];
-            /** @deprecated */
             props?: components["schemas"]["Properties"];
             snapshot_definition_props?: components["schemas"]["Properties"];
             resource_definition_props?: components["schemas"]["Properties"];
@@ -7123,12 +7502,10 @@ export interface components {
             uuid?: string;
             snapshots?: components["schemas"]["SnapshotNode"][];
         };
-        SnapshotShippingStatus: {
-            snapshot?: components["schemas"]["Snapshot"];
-            from_node_name?: string;
-            to_node_name?: string;
-            /** @enum {string} */
-            status?: "Running" | "Complete";
+        SnapshotModify: {
+            override_props?: components["schemas"]["Properties"];
+            delete_props?: string[];
+            delete_namespaces?: string[];
         };
         /** @description Objects holding one or multiple SnapshotVolumeNode objects for the given node */
         SnapshotNode: {
@@ -7163,7 +7540,6 @@ export interface components {
              * @description Volume number of the snapshot
              */
             vlm_nr?: number;
-            /** @deprecated */
             props?: components["schemas"]["Properties"];
             snapshot_volume_props?: components["schemas"]["Properties"];
             volume_props?: components["schemas"]["Properties"];
@@ -7193,15 +7569,14 @@ export interface components {
                 [key: string]: string;
             };
         };
-        SnapshotShipping: {
-            /** @description Node where to ship the snapshot from */
-            from_node: string;
-            /** @description NetInterface of the source node */
-            from_nic?: string;
-            /** @description Node where to ship the snapshot */
-            to_node: string;
-            /** @description NetInterface of the destination node */
-            to_nic?: string;
+        SnapshotRollback: {
+            /**
+             * @description "'rollback' will try to use 'zfs rollback' (fail fast if more recent snapshots exist). 'clone' renames the "
+             *     "original ZVOL and creates a clone from the given snapshot with the original ZVOLs name. 'dynamic' chooses "
+             *     "'rollback' if possible, 'clone' otherwise. This overrides possibly existing properties"
+             * @enum {string}
+             */
+            zfs_rollback_strategy?: "rollback" | "clone" | "dynamic";
         };
         BackupList: {
             /** @description A list containing all entries found that are or could be from linstor */
@@ -7266,7 +7641,6 @@ export interface components {
              * @description If the destination resource-definition exists and has resources, the force_mv_rsc_grp must be used in order
              *     to change the resource-group of the destination resource-definition. This is a safety-option to prevent
              *     unexpected autoplace-actions for example performed by the BalanceResourceTask.
-             *
              * @default false
              */
             force_mv_rsc_grp: boolean;
@@ -7276,11 +7650,13 @@ export interface components {
             node_name?: string;
             snap_name?: string;
             incremental?: boolean;
+            dst_snap_name?: string;
         };
         BackupAbort: {
             rsc_name: string;
             restore?: boolean;
             create?: boolean;
+            snapshot?: string;
         };
         BackupShip: {
             src_node_name?: string;
@@ -7303,10 +7679,11 @@ export interface components {
              * @description If the destination resource-definition exists and has resources, the force_mv_rsc_grp must be used in order
              *     to change the resource-group of the destination resource-definition. This is a safety-option to prevent
              *     unexpected autoplace-actions for example performed by the BalanceResourceTask.
-             *
              * @default false
              */
             force_mv_rsc_grp: boolean;
+            src_snap_name?: string;
+            dst_snap_name?: string;
         };
         BackupInfo: {
             rsc: string;
@@ -7359,11 +7736,12 @@ export interface components {
             /** @default false */
             force_restore: boolean;
             dst_rsc_grp?: string;
+            /** @description only usable in combination with 'rsc_name' */
+            dst_rsc_name?: string;
             /**
              * @description If the destination resource-definition exists and has resources, the force_mv_rsc_grp must be used in order
              *     to change the resource-group of the destination resource-definition. This is a safety-option to prevent
              *     unexpected autoplace-actions for example performed by the BalanceResourceTask.
-             *
              * @default false
              */
             force_mv_rsc_grp: boolean;
@@ -7385,37 +7763,37 @@ export interface components {
             rsc_name: string;
             remote_name: string;
             schedule_name: string;
-            /** @description The reason for why this rscDfn has no active schedules.
+            /**
+             * @description The reason for why this rscDfn has no active schedules.
              *     If this is set, ignore all long and boolean parameters.
-             *      */
+             */
             reason?: string;
             /**
              * Format: int64
              * @description The time at which the last scheduled shipping was shipped.
              *     If negative, no scheduled shipping has happened yet.
-             *
              */
             last_snap_time?: number;
-            /** @description Whether the last shipping was incremental or not.
+            /**
+             * @description Whether the last shipping was incremental or not.
              *     Ignore this value if last_snap_time is negative.
-             *      */
+             */
             last_snap_inc?: boolean;
             /**
              * Format: int64
              * @description The time at which the next scheduled shipping will happen.
              *     If negative, the shipping is currently running.
-             *
              */
             next_exec_time?: number;
-            /** @description Whether the next scheduled shipping will be incremental or not.
+            /**
+             * @description Whether the next scheduled shipping will be incremental or not.
              *     Ignore if next_exec_time is negative
-             *      */
+             */
             next_exec_inc?: boolean;
             /**
              * Format: int64
              * @description The time at which the next scheduled full backup should happen.
              *     If negative, the time could not be computed
-             *
              */
             next_planned_full?: number;
             /**
@@ -7423,25 +7801,27 @@ export interface components {
              * @description The time at which the next scheduled incremental backup should happen.
              *     If negative, either there is no cron for incremental backups or
              *     the time could not be computed
-             *
              */
             next_planned_inc?: number;
         };
         BackupQueues: {
-            /** @description All nodes with a list of queued snapshots. Will be empty
+            /**
+             * @description All nodes with a list of queued snapshots. Will be empty
              *     if snap_queues is set
-             *      */
+             */
             node_queues?: components["schemas"]["NodeQueue"][];
-            /** @description All snapshots with a list of nodes they are queued on. Will be empty
+            /**
+             * @description All snapshots with a list of nodes they are queued on. Will be empty
              *     if node_queues is set
-             *      */
+             */
             snap_queues?: components["schemas"]["SnapQueue"][];
         };
         NodeQueue: {
             node_name: string;
-            /** @description The list of queued snapshots. Will be empty if this is an item of
+            /**
+             * @description The list of queued snapshots. Will be empty if this is an item of
              *     SnapQueue.queue
-             *      */
+             */
             queue?: components["schemas"]["SnapQueue"][];
         };
         SnapQueue: {
@@ -7453,9 +7833,10 @@ export interface components {
             /** Format: int64 */
             start_timestamp: number;
             pref_node: string;
-            /** @description The list of nodes this snapshot is queued on. Will be empty if this
+            /**
+             * @description The list of nodes this snapshot is queued on. Will be empty if this
              *     is an item of NodeQueue.queue
-             *      */
+             */
             queue?: components["schemas"]["NodeQueue"][];
         };
         PassphraseStatus: {
@@ -7479,16 +7860,25 @@ export interface components {
         DrbdProxyEnable: {
             /**
              * Format: int32
-             * @description Proxy port to use (optional)
+             * @description Proxy port to use (optional). Is used as a default port if port_source or port_target is not set
              */
             port?: number;
+            /**
+             * Format: int32
+             * @description Port to use for DRBD Proxy (optiona, auto-generated if omitted).
+             */
+            port_src?: number;
+            /**
+             * Format: int32
+             * @description Port to use for DRBD Proxy (optiona, auto-generated if omitted).
+             */
+            port_target?: number;
         };
         DrbdProxyModify: {
             override_props?: components["schemas"]["Properties"];
             delete_props?: string[];
             /**
              * @description Compression type used by the proxy.
-             *
              * @enum {string}
              */
             compression_type?: "none" | "zlib" | "lzma" | "lz4";
@@ -7536,7 +7926,6 @@ export interface components {
             device_paths: string[];
             /**
              * @description RAID level to use for pool.
-             *
              * @default JBOD
              * @enum {string}
              */
@@ -7560,6 +7949,14 @@ export interface components {
              * @default false
              */
             sed: boolean;
+            /** @description Arguments to pass to pvcreate command. */
+            pv_create_arguments?: string[];
+            /** @description Arguments to pass to vgcreate command. */
+            vg_create_arguments?: string[];
+            /** @description Arguments to pass to lvcreate command. */
+            lv_create_arguments?: string[];
+            /** @description Arguments to pass to zpool command. */
+            zpool_create_arguments?: string[];
         };
         /** @description may-promote-change */
         EventMayPromoteChange: {
@@ -7574,67 +7971,6 @@ export interface components {
             old_node?: components["schemas"]["Node"];
             new_node?: components["schemas"]["Node"];
         };
-        /**
-         * @deprecated
-         * @description Default settings for EXOS enclosures
-         */
-        ExosDefaults: {
-            username?: string;
-            username_env?: string;
-            password?: string;
-            password_env?: string;
-        };
-        /** @deprecated */
-        ExosDefaultsModify: components["schemas"]["ExosDefaults"] & {
-            /** @description A list of keys to unset. The keys have to exist in ExosDefaults
-             *      */
-            unset_keys?: string[];
-        };
-        /**
-         * @deprecated
-         * @description EXOS enclosure name, controller IPs and health status
-         */
-        ExosEnclosureHealth: {
-            name?: string;
-            ctrl_a_ip?: string;
-            ctrl_b_ip?: string;
-            health?: string;
-            health_reason?: string;
-        };
-        /**
-         * @deprecated
-         * @description EXOS enclosure
-         */
-        ExosEnclosure: {
-            name?: string;
-            ctrl_a_ip?: string;
-            ctrl_b_ip?: string;
-            username?: string;
-            username_env?: string;
-            password?: string;
-            password_env?: string;
-        };
-        /**
-         * @deprecated
-         * @description EXOS event
-         */
-        ExosEnclosureEvent: {
-            severity?: string;
-            event_id?: string;
-            controller?: string;
-            time_stamp?: string;
-            /** Format: int64 */
-            time_stamp_numeric?: number;
-            message?: string;
-            additional_information?: string;
-            recommended_action?: string;
-        };
-        /** @deprecated */
-        ExosConnectionMap: {
-            node_name?: string;
-            enclosure_name?: string;
-            connections?: string[];
-        };
         /** @description External file which can be configured to be deployed by Linstor */
         ExternalFile: {
             /**
@@ -7647,32 +7983,78 @@ export interface components {
              * @example SGVsbG8sIFdvcmxkIQo=
              */
             content?: string;
+            /**
+             * @description List of alternative file suffixes. If the file exists with any of these
+             *     suffixes appended to the path, LINSTOR will not recreate the original file
+             *     but instead update the existing alternative.
+             * @default null
+             * @example [
+             *       ".disabled"
+             *     ]
+             */
+            alt_suffixes: string[];
         };
         ExtFileCheckResult: {
             allowed?: boolean;
         };
+        ExtFileStatusResult: {
+            /** @description The path where the file currently exists on disk. Omitted if the file was not found. */
+            actual_path?: string;
+            /** @description true if the file's content checksum matches LINSTOR's expected checksum */
+            content_match?: boolean;
+        };
         /** @description ToggleDisk optional payload data */
+        ToggleDiskRequest: {
+            /**
+             * @description The type of the toggle-disk operation
+             *     INTO_DRBD_DISKLESS -> toggles the resource into a DRBD diskless resource (with quorum vote)
+             *     INTO_DRBD_CLIENT -> toggles the resource into a DRBD client resource (without quorum vote)
+             *     INTO_DRBD_DISKFUL -> toggles the resource into a DRBD diskful resource (always with quorum vote)
+             * @enum {string}
+             */
+            operation?: "INTO_DRBD_DISKFUL" | "INTO_DRBD_CLIENT" | "INTO_DRBD_DISKLESS";
+            /** @description The name of the target storage pool to toggle into */
+            storage_pool?: string;
+            /** @description The node name from which the source-resource should be deleted after DRBD finished syncing */
+            migrate_from?: string;
+            layer_list?: components["schemas"]["LayerType"][];
+        };
+        /**
+         * @deprecated
+         * @description ToggleDisk optional payload data
+         */
         ToggleDiskDiskful: {
             layer_list?: components["schemas"]["LayerType"][];
         };
-        /** @description External name can be used to have native resource names.
+        /**
+         * @description External name can be used to have native resource names.
          *     If you need to store a non Linstor compatible resource name use this field
          *     and Linstor will generate a compatible name.
-         *      */
+         */
         ExternalName: string;
         /** @description Clone request object */
         ResourceDefinitionCloneRequest: {
             name?: string;
             external_name?: components["schemas"]["ExternalName"];
-            /** @description If true Zfs will not use send/recv to clone, but instead
+            /**
+             * @description If true Zfs will not use send/recv to clone, but instead
              *     use a parent snapshot with clone, which cannot be deleted
-             *      */
+             */
             use_zfs_clone?: boolean;
             layer_list?: components["schemas"]["LayerType"][];
             /** @description For volumes with encryption's, you can provide your own passphrases here. */
             volume_passphrases?: string[];
+            /**
+             * @description Sizes (in KiB) to grow the cloned volume-definitions to, per volume number.
+             *     0 or omitted keeps the source volume size. Sizes smaller than the source are rejected.
+             *     The resize happens as part of the clone before an optional BalanceAfterClone placement.
+             */
+            volume_sizes?: number[];
             /** @description Place clone into the given resource group and use storage pools of this group. */
             resource_group?: string;
+            override_props?: components["schemas"]["Properties"];
+            delete_props?: string[];
+            delete_namespaces?: string[];
         };
         /** @description Clone request started object */
         ResourceDefinitionCloneStarted: {
@@ -7691,9 +8073,8 @@ export interface components {
         ResourceDefinitionCloneStatus: {
             /**
              * @description CLONING -> indicates the resource is currently copying data
-             *     FAILED -> error occured while cloning, resource not usable
+             *     FAILED -> error occurred while cloning, resource not usable
              *     COMPLETE -> resource is ready to use
-             *
              * @enum {string}
              */
             status: "COMPLETE" | "CLONING" | "FAILED";
@@ -7805,6 +8186,82 @@ export interface components {
             /** Format: int64 */
             count: number;
         };
+        AuthToken: {
+            id: number;
+            /** Format: date-time */
+            created_at: string;
+            /** @default true */
+            is_active: boolean;
+            /** Format: date-time */
+            deleted_at?: string;
+            /** Format: date-time */
+            expires_at?: string;
+            description: string;
+            ip_filter?: string;
+            /** @default true */
+            is_user_token: boolean;
+        };
+        AuthTokenListResponse: {
+            /** Format: int64 */
+            count: number;
+            list: components["schemas"]["AuthToken"][];
+        };
+        CreateAuthToken: {
+            description: string;
+            /** Format: date-time */
+            expires_at?: string;
+            ip_filter?: string;
+        };
+        ModifyAuthToken: {
+            description?: string;
+            ip_filter?: string;
+            is_active?: boolean;
+        };
+        InitAuthTokenRequest: {
+            /** @default false */
+            only_satellites: boolean;
+            /** @default init-client */
+            description: string;
+            /** @default false */
+            no_https: boolean;
+        };
+        ReactorExecRequest: {
+            nodes: string[];
+            /** @description The resource name for evict operation */
+            resource?: string;
+            /**
+             * @description For evict only: if true, the command runs synchronously and the response
+             *     includes active_node (the node that took over). Use only when the evicted
+             *     service is not the LINSTOR controller itself, as evicting the controller
+             *     drops the satellite connection.
+             * @default false
+             */
+            wait: boolean;
+        };
+        ReactorPluginRequest: {
+            nodes: string[];
+            /** @description The plugin config name (e.g., linstor_controller) */
+            config: string;
+            /**
+             * @description For disable only: if true, also stops the drbd-services target immediately
+             *     (equivalent to 'drbd-reactorctl disable --now'). Defaults to false.
+             * @default false
+             */
+            now: boolean;
+        };
+        ReactorExecResponse: {
+            node: string;
+            exit_code: number;
+            /** @description The stdout content as a UTF-8 string */
+            stdout_utf8?: string;
+            /** @description The stderr content as a UTF-8 string */
+            stderr_utf8?: string;
+            /**
+             * @description For evict with wait=true: the node that took over after eviction.
+             *     Absent if eviction was async, no takeover occurred, or output could not be parsed.
+             */
+            active_node?: string;
+        };
     };
     responses: {
         /** @description invalid input, or request failed */
@@ -7844,9 +8301,9 @@ export interface components {
         ResourceGroupName: string;
         /** @description node to use */
         Node: string;
-        /** @description Filter only for the specified nodes, if not specified, no filtering. */
+        /** @description Filter only for the specified nodes, if not specified, no filtering. Names may be Java regular expressions and are matched case-insensitively. */
         Nodes: string[];
-        /** @description Filter only for the specified resources, if not specified, no filtering. */
+        /** @description Filter only for the specified resources, if not specified, no filtering. Names may be Java regular expressions and are matched case-insensitively. */
         Resources: string[];
         /** @description netinterface name to use */
         NetInterface: string;
@@ -7858,7 +8315,7 @@ export interface components {
         Limit: number;
         /** @description query data from cache if available */
         Cached: boolean;
-        /** @description filter by given properties, full property path */
+        /** @description Filter by given properties, full property path. A filter is either a property key (matches if the property is set) or `key=value` (matches if the property has that value). Both the key and the value may be Java regular expressions (matched in full), case-sensitively, e.g. `Aux/.*` or `DrbdOptions/.*=yes`. Multiple filters are combined with AND. */
         Props: string[];
         /** @description source node of the connection */
         NodeA: string;
@@ -7873,6 +8330,8 @@ export interface components {
          * @example %2Fetc%2Fsome.conf
          */
         ExternalFileName: string;
+        /** @description Auth token ID */
+        AuthTokenId: number;
     };
     requestBodies: never;
     headers: never;
@@ -7889,9 +8348,11 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                /** @example {
+                /**
+                 * @example {
                  *       "name": "snap1"
-                 *     } */
+                 *     }
+                 */
                 "application/json": components["schemas"]["CreateMultiSnapshotRequest"];
             };
         };
@@ -7944,9 +8405,11 @@ export interface operations {
         /** @description Storage pool definition to add */
         requestBody?: {
             content: {
-                /** @example {
+                /**
+                 * @example {
                  *       "storage_pool_name": "ssd_pool"
-                 *     } */
+                 *     }
+                 */
                 "application/json": components["schemas"]["StoragePoolDefinition"];
             };
         };
@@ -7999,14 +8462,16 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                /** @example {
+                /**
+                 * @example {
                  *       "override_props": {
                  *         "Aux/testprop": "1"
                  *       },
                  *       "delete_props": [
                  *         "Aux/deleteprop"
                  *       ]
-                 *     } */
+                 *     }
+                 */
                 "application/json": components["schemas"]["StoragePoolDefinitionModify"];
             };
         };
@@ -8049,9 +8514,9 @@ export interface operations {
     nodeList: {
         parameters: {
             query?: {
-                /** @description Filter only for the specified nodes, if not specified, no filtering. */
+                /** @description Filter only for the specified nodes, if not specified, no filtering. Names may be Java regular expressions and are matched case-insensitively. */
                 nodes?: components["parameters"]["Nodes"];
-                /** @description filter by given properties, full property path */
+                /** @description Filter by given properties, full property path. A filter is either a property key (matches if the property is set) or `key=value` (matches if the property has that value). Both the key and the value may be Java regular expressions (matched in full), case-sensitively, e.g. `Aux/.*` or `DrbdOptions/.*=yes`. Multiple filters are combined with AND. */
                 props?: components["parameters"]["Props"];
                 /** @description number of records to skip for pagination */
                 offset?: components["parameters"]["Offset"];
@@ -8086,7 +8551,8 @@ export interface operations {
         /** @description Node to add to Linstor */
         requestBody?: {
             content: {
-                /** @example {
+                /**
+                 * @example {
                  *       "name": "nodeA",
                  *       "type": "SATELLITE",
                  *       "net_interfaces": [
@@ -8098,7 +8564,8 @@ export interface operations {
                  *           "is_active": true
                  *         }
                  *       ]
-                 *     } */
+                 *     }
+                 */
                 "application/json": components["schemas"]["Node"];
             };
         };
@@ -8110,6 +8577,177 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApiCallRcList"];
+                };
+            };
+            400: components["responses"]["InvalidInput"];
+            500: components["responses"]["OperationFailed"];
+        };
+    };
+    nodeExecDrbdReactorStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                /**
+                 * @example {
+                 *       "nodes": [
+                 *         "nodeA",
+                 *         "nodeB"
+                 *       ]
+                 *     }
+                 */
+                "application/json": components["schemas"]["ReactorExecRequest"];
+            };
+        };
+        responses: {
+            /** @description drbd-reactor status results */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReactorExecResponse"][];
+                };
+            };
+            400: components["responses"]["InvalidInput"];
+            500: components["responses"]["OperationFailed"];
+        };
+    };
+    nodeExecDrbdReactorEvict: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                /**
+                 * @example {
+                 *       "nodes": [
+                 *         "nodeA"
+                 *       ],
+                 *       "resource": "linstor_controller"
+                 *     }
+                 */
+                "application/json": components["schemas"]["ReactorExecRequest"];
+            };
+        };
+        responses: {
+            /** @description evict command results */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReactorExecResponse"][];
+                };
+            };
+            400: components["responses"]["InvalidInput"];
+            500: components["responses"]["OperationFailed"];
+        };
+    };
+    nodeExecDrbdReactorDisable: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                /**
+                 * @example {
+                 *       "nodes": [
+                 *         "nodeA"
+                 *       ],
+                 *       "config": "linstor_controller",
+                 *       "now": false
+                 *     }
+                 */
+                "application/json": components["schemas"]["ReactorPluginRequest"];
+            };
+        };
+        responses: {
+            /** @description disable command results */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReactorExecResponse"][];
+                };
+            };
+            400: components["responses"]["InvalidInput"];
+            500: components["responses"]["OperationFailed"];
+        };
+    };
+    nodeExecDrbdReactorEnable: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                /**
+                 * @example {
+                 *       "nodes": [
+                 *         "nodeA"
+                 *       ],
+                 *       "config": "linstor_controller"
+                 *     }
+                 */
+                "application/json": components["schemas"]["ReactorPluginRequest"];
+            };
+        };
+        responses: {
+            /** @description enable command results */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReactorExecResponse"][];
+                };
+            };
+            400: components["responses"]["InvalidInput"];
+            500: components["responses"]["OperationFailed"];
+        };
+    };
+    nodeExecDrbdReactorRestart: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                /**
+                 * @example {
+                 *       "nodes": [
+                 *         "nodeA"
+                 *       ],
+                 *       "config": "linstor_controller"
+                 *     }
+                 */
+                "application/json": components["schemas"]["ReactorPluginRequest"];
+            };
+        };
+        responses: {
+            /** @description restart command results */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReactorExecResponse"][];
                 };
             };
             400: components["responses"]["InvalidInput"];
@@ -8137,6 +8775,30 @@ export interface operations {
             400: components["responses"]["InvalidInput"];
         };
     };
+    nodeGet: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description node to use */
+                node: components["parameters"]["Node"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Specified node */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Node"];
+                };
+            };
+            404: components["responses"]["ObjectNotFound"];
+        };
+    };
     nodeModify: {
         parameters: {
             query?: never;
@@ -8149,14 +8811,16 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                /** @example {
+                /**
+                 * @example {
                  *       "override_props": {
                  *         "Aux/testprop": "1"
                  *       },
                  *       "delete_props": [
                  *         "Aux/deleteprop"
                  *       ]
-                 *     } */
+                 *     }
+                 */
                 "application/json": components["schemas"]["NodeModify"];
             };
         };
@@ -8302,6 +8966,32 @@ export interface operations {
             500: components["responses"]["OperationFailed"];
         };
     };
+    netinterfaceGet: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description node to use */
+                node: components["parameters"]["Node"];
+                /** @description netinterface name to use */
+                netinterface: components["parameters"]["NetInterface"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Specified netinterface */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NetInterface"];
+                };
+            };
+            404: components["responses"]["ObjectNotFound"];
+        };
+    };
     netinterfaceModified: {
         parameters: {
             query?: never;
@@ -8362,10 +9052,12 @@ export interface operations {
     nodeStoragePoolList: {
         parameters: {
             query?: {
-                /** @description Filter only for the specified nodes, if not specified, no filtering. */
+                /** @description Filter only for the specified nodes, if not specified, no filtering. Names may be Java regular expressions and are matched case-insensitively. */
                 nodes?: components["parameters"]["Nodes"];
-                /** @description Filter only for the specified storage pools, if not specified no filtering. */
+                /** @description Filter only for the specified storage pools, if not specified no filtering. Names may be Java regular expressions and are matched case-insensitively. */
                 storage_pools?: string[];
+                /** @description Filter by given properties, full property path. A filter is either a property key (matches if the property is set) or `key=value` (matches if the property has that value). Both the key and the value may be Java regular expressions (matched in full), case-sensitively, e.g. `Aux/.*` or `DrbdOptions/.*=yes`. Multiple filters are combined with AND. */
+                props?: components["parameters"]["Props"];
                 /** @description number of records to skip for pagination */
                 offset?: components["parameters"]["Offset"];
                 /** @description maximum number of records to return */
@@ -8405,14 +9097,16 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                /** @example {
+                /**
+                 * @example {
                  *       "storage_pool_name": "DfltStorPool",
                  *       "provider_kind": "LVM_THIN",
                  *       "props": {
                  *         "StorDriver/LvmVg": "mylvmpool",
                  *         "StorDriver/ThinPool": "thin"
                  *       }
-                 *     } */
+                 *     }
+                 */
                 "application/json": components["schemas"]["StoragePool"];
             };
         };
@@ -8426,6 +9120,35 @@ export interface operations {
                     "application/json": components["schemas"]["ApiCallRcList"];
                 };
             };
+        };
+    };
+    nodeStoragePoolGet: {
+        parameters: {
+            query?: {
+                /** @description query data from cache if available */
+                cached?: components["parameters"]["Cached"];
+            };
+            header?: never;
+            path: {
+                /** @description node to use */
+                node: components["parameters"]["Node"];
+                /** @description Storage pool to use */
+                storagepool: components["parameters"]["StoragePool"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Specified storage pool */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StoragePool"];
+                };
+            };
+            404: components["responses"]["ObjectNotFound"];
         };
     };
     nodeStoragePoolModify: {
@@ -8442,14 +9165,16 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                /** @example {
+                /**
+                 * @example {
                  *       "override_props": {
                  *         "Aux/testprop": "1"
                  *       },
                  *       "delete_props": [
                  *         "Aux/deleteprop"
                  *       ]
-                 *     } */
+                 *     }
+                 */
                 "application/json": components["schemas"]["StoragePoolDefinitionModify"];
             };
         };
@@ -8488,6 +9213,30 @@ export interface operations {
                     "application/json": components["schemas"]["ApiCallRcList"];
                 };
             };
+        };
+    };
+    nodeEvict: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description node to use */
+                node: components["parameters"]["Node"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description node evicted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiCallRcList"];
+                };
+            };
+            500: components["responses"]["OperationFailed"];
         };
     };
     SatelliteConfig: {
@@ -8579,7 +9328,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["NodeEvacuate"];
+            };
+        };
         responses: {
             /** @description resources started to evacaute */
             200: {
@@ -8603,10 +9356,12 @@ export interface operations {
         /** @description Node to add to Linstor */
         requestBody?: {
             content: {
-                /** @example {
+                /**
+                 * @example {
                  *       "name": "nodeA",
                  *       "ebs_remote_name": "EbsRemote"
-                 *     } */
+                 *     }
+                 */
                 "application/json": components["schemas"]["NodeCreateEbs"];
             };
         };
@@ -8685,9 +9440,11 @@ export interface operations {
     resourceDefinitionList: {
         parameters: {
             query?: {
-                /** @description Filter only for the specified resource definitions, if not specified no filtering. */
+                /** @description Filter only for the specified resource definitions, if not specified no filtering. Names may be Java regular expressions and are matched case-insensitively. */
                 resource_definitions?: string[];
-                /** @description filter by given properties, full property path */
+                /** @description Include volume definitions attached to the resource definition */
+                with_volume_definitions?: boolean;
+                /** @description Filter by given properties, full property path. A filter is either a property key (matches if the property is set) or `key=value` (matches if the property has that value). Both the key and the value may be Java regular expressions (matched in full), case-sensitively, e.g. `Aux/.*` or `DrbdOptions/.*=yes`. Multiple filters are combined with AND. */
                 props?: components["parameters"]["Props"];
                 /** @description number of records to skip for pagination */
                 offset?: components["parameters"]["Offset"];
@@ -8720,11 +9477,13 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                /** @example {
+                /**
+                 * @example {
                  *       "resource_definition": {
                  *         "name": "rsc1"
                  *       }
-                 *     } */
+                 *     }
+                 */
                 "application/json": components["schemas"]["ResourceDefinitionCreate"];
             };
         };
@@ -8763,6 +9522,30 @@ export interface operations {
             400: components["responses"]["InvalidInput"];
         };
     };
+    resourceDefinitionGet: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description resource to use */
+                resource: components["parameters"]["Resource"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Specified resource-definition */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceDefinition"];
+                };
+            };
+            404: components["responses"]["ObjectNotFound"];
+        };
+    };
     resourceDefinitionModify: {
         parameters: {
             query?: never;
@@ -8775,14 +9558,16 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                /** @example {
+                /**
+                 * @example {
                  *       "override_props": {
                  *         "Aux/testprop": "1"
                  *       },
                  *       "delete_props": [
                  *         "Aux/deleteprop"
                  *       ]
-                 *     } */
+                 *     }
+                 */
                 "application/json": components["schemas"]["ResourceDefinitionModify"];
             };
         };
@@ -8996,11 +9781,13 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                /** @example {
+                /**
+                 * @example {
                  *       "volume_definition": {
                  *         "size_kib": 262144
                  *       }
-                 *     } */
+                 *     }
+                 */
                 "application/json": components["schemas"]["VolumeDefinitionCreate"];
             };
         };
@@ -9018,6 +9805,32 @@ export interface operations {
             500: components["responses"]["OperationFailed"];
         };
     };
+    volumeDefinitionGet: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description resource to use */
+                resource: components["parameters"]["Resource"];
+                /** @description Volume number of the definition */
+                volume_number: components["parameters"]["VolumeNumber"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Specified volume-definition */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VolumeDefinition"];
+                };
+            };
+            404: components["responses"]["ObjectNotFound"];
+        };
+    };
     volumeDefinitionModify: {
         parameters: {
             query?: never;
@@ -9032,14 +9845,16 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                /** @example {
+                /**
+                 * @example {
                  *       "override_props": {
                  *         "Aux/testprop": "1"
                  *       },
                  *       "delete_props": [
                  *         "Aux/deleteprop"
                  *       ]
-                 *     } */
+                 *     }
+                 */
                 "application/json": components["schemas"]["VolumeDefinitionModify"];
             };
         };
@@ -9149,14 +9964,16 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                /** @example [
+                /**
+                 * @example [
                  *       {
                  *         "resource": {
                  *           "name": "rsc1",
                  *           "node_name": "alpha"
                  *         }
                  *       }
-                 *     ] */
+                 *     ]
+                 */
                 "application/json": components["schemas"]["ResourceCreate"][];
             };
         };
@@ -9174,6 +9991,63 @@ export interface operations {
             500: components["responses"]["OperationFailed"];
         };
     };
+    resourceDefinitionTruncate: {
+        parameters: {
+            query?: {
+                /**
+                 * @description If true, also delete the resource-definition when it has neither resources nor
+                 *     snapshots left after its resources have been deleted. The check and the
+                 *     resource-definition deletion are performed atomically.
+                 */
+                delete_empty_resource_definition?: boolean;
+            };
+            header?: never;
+            path: {
+                /** @description resource to use */
+                resource: components["parameters"]["Resource"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description resources deleted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiCallRcList"];
+                };
+            };
+            500: components["responses"]["OperationFailed"];
+        };
+    };
+    resourceGet: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description resource to use */
+                resource: components["parameters"]["Resource"];
+                /** @description node to use */
+                node: components["parameters"]["Node"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Specified resource */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resource"];
+                };
+            };
+            404: components["responses"]["ObjectNotFound"];
+        };
+    };
     resourceModify: {
         parameters: {
             query?: never;
@@ -9188,14 +10062,16 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                /** @example {
+                /**
+                 * @example {
                  *       "override_props": {
                  *         "Aux/testprop": "1"
                  *       },
                  *       "delete_props": [
                  *         "Aux/deleteprop"
                  *       ]
-                 *     } */
+                 *     }
+                 */
                 "application/json": components["schemas"]["ResourceModify"];
             };
         };
@@ -9301,6 +10177,32 @@ export interface operations {
             500: components["responses"]["OperationFailed"];
         };
     };
+    resourceUnmakeAvailableOnNode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description resource to use */
+                resource: components["parameters"]["Resource"];
+                /** @description node to use */
+                node: components["parameters"]["Node"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description resource is no longer available on the node */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiCallRcList"];
+                };
+            };
+            500: components["responses"]["OperationFailed"];
+        };
+    };
     ActivateRsc: {
         parameters: {
             query?: never;
@@ -9356,6 +10258,8 @@ export interface operations {
     resourceVolumeList: {
         parameters: {
             query?: {
+                /** @description Filter by given properties, full property path. A filter is either a property key (matches if the property is set) or `key=value` (matches if the property has that value). Both the key and the value may be Java regular expressions (matched in full), case-sensitively, e.g. `Aux/.*` or `DrbdOptions/.*=yes`. Multiple filters are combined with AND. */
+                props?: components["parameters"]["Props"];
                 /** @description number of records to skip for pagination */
                 offset?: components["parameters"]["Offset"];
                 /** @description maximum number of records to return */
@@ -9383,6 +10287,34 @@ export interface operations {
             };
         };
     };
+    resourceVolumeGet: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description resource to use */
+                resource: components["parameters"]["Resource"];
+                /** @description node to use */
+                node: components["parameters"]["Node"];
+                /** @description Volume number of the definition */
+                volume_number: components["parameters"]["VolumeNumber"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Specified volume */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Volume"];
+                };
+            };
+            404: components["responses"]["ObjectNotFound"];
+        };
+    };
     volumeModify: {
         parameters: {
             query?: never;
@@ -9399,14 +10331,16 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                /** @example {
+                /**
+                 * @example {
                  *       "override_props": {
                  *         "Aux/testprop": "1"
                  *       },
                  *       "delete_props": [
                  *         "Aux/deleteprop"
                  *       ]
-                 *     } */
+                 *     }
+                 */
                 "application/json": components["schemas"]["VolumeModify"];
             };
         };
@@ -9420,6 +10354,43 @@ export interface operations {
                     "application/json": components["schemas"]["ApiCallRcList"];
                 };
             };
+        };
+    };
+    resourceToggleDisk: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description resource to use */
+                resource: components["parameters"]["Resource"];
+                /** @description node to use */
+                node: components["parameters"]["Node"];
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                /**
+                 * @example {
+                 *       "operation": "INTO_DRBD_DISKLESS",
+                 *       "storage_pool": "MyDisklessPool"
+                 *     }
+                 */
+                "application/json": components["schemas"]["ToggleDiskRequest"];
+            };
+        };
+        responses: {
+            /** @description resource toggled to diskless */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiCallRcList"];
+                };
+            };
+            400: components["responses"]["InvalidInput"];
+            500: components["responses"]["OperationFailed"];
         };
     };
     resourceToggleDiskless: {
@@ -9492,7 +10463,8 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                /** @example {
+                /**
+                 * @example {
                  *       "toggle_disk": {
                  *         "layer_list": [
                  *           "drbd",
@@ -9500,7 +10472,8 @@ export interface operations {
                  *           "storage"
                  *         ]
                  *       }
-                 *     } */
+                 *     }
+                 */
                 "application/json": components["schemas"]["ToggleDiskDiskful"];
             };
         };
@@ -9534,7 +10507,8 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                /** @example {
+                /**
+                 * @example {
                  *       "toggle_disk": {
                  *         "layer_list": [
                  *           "drbd",
@@ -9542,7 +10516,8 @@ export interface operations {
                  *           "storage"
                  *         ]
                  *       }
-                 *     } */
+                 *     }
+                 */
                 "application/json": components["schemas"]["ToggleDiskDiskful"];
             };
         };
@@ -9576,7 +10551,8 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                /** @example {
+                /**
+                 * @example {
                  *       "toggle_disk": {
                  *         "layer_list": [
                  *           "drbd",
@@ -9584,7 +10560,8 @@ export interface operations {
                  *           "storage"
                  *         ]
                  *       }
-                 *     } */
+                 *     }
+                 */
                 "application/json": components["schemas"]["ToggleDiskDiskful"];
             };
         };
@@ -9645,11 +10622,13 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                /** @example {
+                /**
+                 * @example {
                  *       "select_filter": {
                  *         "place_count": 2
                  *       }
-                 *     } */
+                 *     }
+                 */
                 "application/json": components["schemas"]["AutoPlaceRequest"];
             };
         };
@@ -9789,9 +10768,11 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                /** @example {
+                /**
+                 * @example {
                  *       "name": "snap1"
-                 *     } */
+                 *     }
+                 */
                 "application/json": components["schemas"]["Snapshot"];
             };
         };
@@ -9834,11 +10815,49 @@ export interface operations {
             };
         };
     };
+    snapshotModify: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description resource to use */
+                resource: components["parameters"]["Resource"];
+                /** @description Snapshot name to use */
+                snapshot: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["SnapshotModify"];
+            };
+        };
+        responses: {
+            /** @description snapshot definition modified */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiCallRcList"];
+                };
+            };
+            400: components["responses"]["InvalidInput"];
+            404: components["responses"]["ObjectNotFound"];
+            500: components["responses"]["OperationFailed"];
+        };
+    };
     resourceSnapshotDelete: {
         parameters: {
             query?: {
                 /** @description Only delete snapshots of the given nodes. */
                 nodes?: string[];
+                /**
+                 * @description If true, also delete the resource-definition when it has neither resources nor
+                 *     snapshots left after this snapshot has been deleted. The check and the
+                 *     resource-definition deletion are performed atomically.
+                 */
+                delete_empty_resource_definition?: boolean;
             };
             header?: never;
             path: {
@@ -9937,37 +10956,13 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Snapshot rollbacked */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiCallRcList"];
-                };
-            };
-            500: components["responses"]["OperationFailed"];
-        };
-    };
-    snapshotShipping: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description resource to use */
-                resource: components["parameters"]["Resource"];
-            };
-            cookie?: never;
-        };
         requestBody?: {
             content: {
-                "application/json": components["schemas"]["SnapshotShipping"];
+                "application/json": components["schemas"]["SnapshotRollback"];
             };
         };
         responses: {
-            /** @description Snapshot shipping in progress */
+            /** @description Snapshot rollbacked */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -9982,9 +10977,9 @@ export interface operations {
     resourceGroupList: {
         parameters: {
             query?: {
-                /** @description Filter only for the specified resource groups, if not specified no filtering. */
+                /** @description Filter only for the specified resource groups, if not specified no filtering. Names may be Java regular expressions and are matched case-insensitively. */
                 resource_groups?: string[];
-                /** @description filter by given properties, full property path */
+                /** @description Filter by given properties, full property path. A filter is either a property key (matches if the property is set) or `key=value` (matches if the property has that value). Both the key and the value may be Java regular expressions (matched in full), case-sensitively, e.g. `Aux/.*` or `DrbdOptions/.*=yes`. Multiple filters are combined with AND. */
                 props?: components["parameters"]["Props"];
                 /** @description number of records to skip for pagination */
                 offset?: components["parameters"]["Offset"];
@@ -10017,9 +11012,11 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                /** @example {
+                /**
+                 * @example {
                  *       "name": "rscgrp1"
-                 *     } */
+                 *     }
+                 */
                 "application/json": components["schemas"]["ResourceGroup"];
             };
         };
@@ -10058,6 +11055,30 @@ export interface operations {
             400: components["responses"]["InvalidInput"];
         };
     };
+    resourceGroupGet: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description resource group to use */
+                resource_group: components["parameters"]["ResourceGroupName"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Specified resource-group */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourceGroup"];
+                };
+            };
+            404: components["responses"]["ObjectNotFound"];
+        };
+    };
     resourceGroupModify: {
         parameters: {
             query?: never;
@@ -10070,14 +11091,16 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                /** @example {
+                /**
+                 * @example {
                  *       "override_props": {
                  *         "Aux/testprop": "1"
                  *       },
                  *       "delete_props": [
                  *         "Aux/deleteprop"
                  *       ]
-                 *     } */
+                 *     }
+                 */
                 "application/json": components["schemas"]["ResourceGroupModify"];
             };
         };
@@ -10128,13 +11151,15 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                /** @example {
+                /**
+                 * @example {
                  *       "resource_definition_name": "res1",
                  *       "volume_sizes": [
                  *         1048576,
                  *         20971520
                  *       ]
-                 *     } */
+                 *     }
+                 */
                 "application/json": components["schemas"]["ResourceGroupSpawn"];
             };
         };
@@ -10209,6 +11234,32 @@ export interface operations {
             500: components["responses"]["OperationFailed"];
         };
     };
+    volumeGroupGet: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description resource group to use */
+                resource_group: components["parameters"]["ResourceGroupName"];
+                /** @description Volume number of the definition */
+                volume_number: components["parameters"]["VolumeNumber"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Specified volume-group */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VolumeGroup"];
+                };
+            };
+            404: components["responses"]["ObjectNotFound"];
+        };
+    };
     volumeGroupModify: {
         parameters: {
             query?: never;
@@ -10223,14 +11274,16 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                /** @example {
+                /**
+                 * @example {
                  *       "override_props": {
                  *         "Aux/testprop": "1"
                  *       },
                  *       "delete_props": [
                  *         "Aux/deleteprop"
                  *       ]
-                 *     } */
+                 *     }
+                 */
                 "application/json": components["schemas"]["VolumeGroupModify"];
             };
         };
@@ -10407,11 +11460,13 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                /** @example {
+                /**
+                 * @example {
                  *       "override_props": {
                  *         "Aux/testprop": "myprop"
                  *       }
-                 *     } */
+                 *     }
+                 */
                 "application/json": components["schemas"]["ControllerPropsModify"];
             };
         };
@@ -10533,6 +11588,31 @@ export interface operations {
             500: components["responses"]["OperationFailed"];
         };
     };
+    controllerExportDB: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["DatabaseBackupRequest"];
+            };
+        };
+        responses: {
+            /** @description database backup created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiCallRcList"];
+                };
+            };
+            500: components["responses"]["OperationFailed"];
+        };
+    };
     controllerVersion: {
         parameters: {
             query?: never;
@@ -10553,6 +11633,122 @@ export interface operations {
             };
         };
     };
+    controllerAuthTokenInitialize: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["InitAuthTokenRequest"];
+            };
+        };
+        responses: {
+            /** @description auth token initialized response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiCallRcList"];
+                };
+            };
+        };
+    };
+    controllerAuthTokenList: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description token list response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthTokenListResponse"];
+                };
+            };
+        };
+    };
+    controllerAuthTokenCreate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["CreateAuthToken"];
+            };
+        };
+        responses: {
+            /** @description auth token created response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiCallRcList"];
+                };
+            };
+        };
+    };
+    controllerAuthTokenModify: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Auth token ID */
+                authtokenid: components["parameters"]["AuthTokenId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ModifyAuthToken"];
+            };
+        };
+        responses: {
+            /** @description auth token successful modified */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiCallRcList"];
+                };
+            };
+        };
+    };
+    controllerAuthTokenRevoke: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Auth token ID */
+                authtokenid: components["parameters"]["AuthTokenId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description auth token successful revoked */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     resourceDrbdProxyModify: {
         parameters: {
             query?: never;
@@ -10565,11 +11761,13 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                /** @example {
+                /**
+                 * @example {
                  *       "override_props": {
                  *         "compression_type": "lz4"
                  *       }
-                 *     } */
+                 *     }
+                 */
                 "application/json": components["schemas"]["DrbdProxyModify"];
             };
         };
@@ -11027,13 +12225,13 @@ export interface operations {
     viewResources: {
         parameters: {
             query?: {
-                /** @description Filter only for the specified nodes, if not specified, no filtering. */
+                /** @description Filter only for the specified nodes, if not specified, no filtering. Names may be Java regular expressions and are matched case-insensitively. */
                 nodes?: components["parameters"]["Nodes"];
-                /** @description Filter only for the specified resources, if not specified, no filtering. */
+                /** @description Filter only for the specified resources, if not specified, no filtering. Names may be Java regular expressions and are matched case-insensitively. */
                 resources?: components["parameters"]["Resources"];
-                /** @description Filter only for the specified storage pools, if not specified no filtering. */
+                /** @description Filter only for the specified storage pools, if not specified no filtering. Names may be Java regular expressions and are matched case-insensitively. */
                 storage_pools?: string[];
-                /** @description filter by given properties, full property path */
+                /** @description Filter by given properties, full property path. A filter is either a property key (matches if the property is set) or `key=value` (matches if the property has that value). Both the key and the value may be Java regular expressions (matched in full), case-sensitively, e.g. `Aux/.*` or `DrbdOptions/.*=yes`. Multiple filters are combined with AND. */
                 props?: components["parameters"]["Props"];
                 /** @description number of records to skip for pagination */
                 offset?: components["parameters"]["Offset"];
@@ -11061,11 +12259,11 @@ export interface operations {
     viewStoragePools: {
         parameters: {
             query?: {
-                /** @description Filter only for the specified nodes, if not specified, no filtering. */
+                /** @description Filter only for the specified nodes, if not specified, no filtering. Names may be Java regular expressions and are matched case-insensitively. */
                 nodes?: components["parameters"]["Nodes"];
-                /** @description Filter only for the specified storage pools, if not specified no filtering. */
+                /** @description Filter only for the specified storage pools, if not specified no filtering. Names may be Java regular expressions and are matched case-insensitively. */
                 storage_pools?: string[];
-                /** @description filter by given properties, full property path */
+                /** @description Filter by given properties, full property path. A filter is either a property key (matches if the property is set) or `key=value` (matches if the property has that value). Both the key and the value may be Java regular expressions (matched in full), case-sensitively, e.g. `Aux/.*` or `DrbdOptions/.*=yes`. Multiple filters are combined with AND. */
                 props?: components["parameters"]["Props"];
                 /** @description number of records to skip for pagination */
                 offset?: components["parameters"]["Offset"];
@@ -11095,9 +12293,9 @@ export interface operations {
     viewSnapshots: {
         parameters: {
             query?: {
-                /** @description Filter only for the specified nodes, if not specified, no filtering. */
+                /** @description Filter only for the specified nodes, if not specified, no filtering. Names may be Java regular expressions and are matched case-insensitively. */
                 nodes?: components["parameters"]["Nodes"];
-                /** @description Filter only for the specified resources, if not specified, no filtering. */
+                /** @description Filter only for the specified resources, if not specified, no filtering. Names may be Java regular expressions and are matched case-insensitively. */
                 resources?: components["parameters"]["Resources"];
                 /** @description number of records to skip for pagination */
                 offset?: components["parameters"]["Offset"];
@@ -11117,40 +12315,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Snapshot"][];
-                };
-            };
-            500: components["responses"]["OperationFailed"];
-        };
-    };
-    viewSnapshotShippings: {
-        parameters: {
-            query?: {
-                /** @description Filter only for the specified nodes, if not specified, no filtering. */
-                nodes?: components["parameters"]["Nodes"];
-                /** @description Filter only for the specified resources, if not specified, no filtering. */
-                resources?: components["parameters"]["Resources"];
-                /** @description Filter only for the specified snapshots, if not specified, no filtering. */
-                snapshots?: string[];
-                /** @description Filter only for the specified status, if not specified, no filtering. */
-                status?: ("running" | "complete")[];
-                /** @description number of records to skip for pagination */
-                offset?: components["parameters"]["Offset"];
-                /** @description maximum number of records to return */
-                limit?: components["parameters"]["Limit"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description physical storage list */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SnapshotShippingStatus"][];
                 };
             };
             500: components["responses"]["OperationFailed"];
@@ -11260,13 +12424,15 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                /** @example {
+                /**
+                 * @example {
                  *       "provider_kind": "LVM_THIN",
                  *       "device_path": "/dev/sde",
                  *       "pool_name": "ssd_fast",
                  *       "logcal_size_kib": 5368709120,
                  *       "vdo_enable": false
-                 *     } */
+                 *     }
+                 */
                 "application/json": components["schemas"]["PhysicalStorageCreate"];
             };
         };
@@ -11344,150 +12510,6 @@ export interface operations {
                 };
             };
             500: components["responses"]["OperationFailed"];
-        };
-    };
-    exosModifyDefault: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "application/json": components["schemas"]["ExosDefaultsModify"];
-            };
-        };
-        responses: {
-            /** @description default configuration modified */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiCallRcList"];
-                };
-            };
-        };
-    };
-    exosCreate: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "application/json": components["schemas"]["ExosEnclosure"];
-            };
-        };
-        responses: {
-            /** @description Enclosure successfully created */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiCallRcList"];
-                };
-            };
-        };
-    };
-    exosModify: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Name of the enclosure */
-                enclosure: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "application/json": components["schemas"]["ExosEnclosure"];
-            };
-        };
-        responses: {
-            /** @description Enclosure successfully modified */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiCallRcList"];
-                };
-            };
-        };
-    };
-    exosDelete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Name of the enclosure */
-                enclosure: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Enclosure successfully deleted */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ApiCallRcList"];
-                };
-            };
-        };
-    };
-    exosDescribe: {
-        parameters: {
-            query?: {
-                /** @description Number of events to fetch */
-                count?: number;
-            };
-            header?: never;
-            path: {
-                /** @description Name of the enclosure */
-                enclosure: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of EXOS events */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ExosEnclosureEvent"][];
-                };
-            };
-        };
-    };
-    exosMap: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of EXOS events */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ExosConnectionMap"][];
-                };
-            };
         };
     };
     QryAllSizeInfo: {

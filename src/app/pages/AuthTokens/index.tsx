@@ -17,6 +17,7 @@ import utc from 'dayjs/plugin/utc';
 
 import Button from '@app/components/Button';
 import service from '@app/requests';
+import type { components } from '@app/apis/schema';
 import { useLinstorVersion, MIN_API_VERSION } from '@app/hooks';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { Switch } from '@app/components/Switch';
@@ -27,26 +28,12 @@ dayjs.extend(utc);
 
 const { Title } = Typography;
 
-type AuthToken = {
-  id: number;
-  description: string;
-  created_at: string;
-  is_active: boolean;
-  is_user_token: boolean;
-  ip_filter?: string | null;
-  expires_at?: string | null;
-};
-
-type AuthTokenListResponse = {
-  count: number;
-  list: AuthToken[];
-};
-
-type ApiCallRcEntry = {
-  obj_refs?: {
-    token?: string;
-  };
-};
+// Generated from the controller's OpenAPI spec — see src/app/apis/schema.ts.
+// These were hand-written while the bundled spec predated token auth, which
+// meant the shapes drifted (the hand-written AuthToken had no `deleted_at`).
+type AuthToken = components['schemas']['AuthToken'];
+type AuthTokenListResponse = components['schemas']['AuthTokenListResponse'];
+type ApiCallRcEntry = components['schemas']['ApiCallRc'];
 
 type CreateTokenForm = {
   description: string;
