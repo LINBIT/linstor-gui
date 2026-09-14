@@ -19,7 +19,6 @@ const items = [
   { key: 'tr', text: 'Türkçe (Turkish)', short: 'TR' },
   { key: 'es', text: 'Español (Spanish)', short: 'ES' },
   { key: 'fr', text: 'Français (French)', short: 'FR' },
-  { key: 'ru', text: 'Русский (Russian)', short: 'RU' },
 ];
 
 const LngSelector: React.FC = () => {

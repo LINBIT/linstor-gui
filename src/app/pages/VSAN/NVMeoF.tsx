@@ -5,13 +5,15 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 import PageBasic from '@app/components/PageBasic';
 import { NVMeoFList } from '@app/features/vsan';
 
 export const NVMeoF = () => {
+  const { t } = useTranslation();
   return (
-    <PageBasic title="NVMe-oF Target Configuration">
+    <PageBasic title={t('common:nvme_target_configuration')}>
       <NVMeoFList complex />
     </PageBasic>
   );

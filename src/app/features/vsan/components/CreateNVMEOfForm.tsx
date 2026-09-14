@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { logger } from '@app/utils/logger';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Form, Modal, Space, notification } from 'antd';
@@ -56,6 +57,7 @@ const domainRegx = /^([a-zA-Z\d.][a-zA-Z\d.-]*\.[a-zA-Z\d.][a-zA-Z\d.-]*[a-zA-Z\
 const nameRegx = /^([a-z_][a-z0-9_-]+)$/;
 
 const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
+  const { t } = useTranslation();
   const [form] = Form.useForm<FormType>();
   const [api, contextHolder] = notification.useNotification();
   const { data: ipPrefixes } = useNodeNetWorkInterface();
@@ -160,7 +162,7 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
       </Button>
 
       <Modal
-        title="Create"
+        title={t('common:create')}
         open={createFormModal}
         onCancel={handleCancel}
         width={800}
@@ -251,14 +253,14 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
               </Space.Compact>
             </Form.Item>
             <Form.Item
-              label="Resource Group"
+              label={t('common:resource_group')}
               name="resource_group"
               required
               rules={[{ required: true, message: 'Please select resource group!' }]}
             >
               <Select
                 allowClear
-                placeholder="Please select resource group"
+                placeholder={t('iscsi:please_select_resource_group')}
                 options={resourceGroupsFromVSAN?.data?.map((e: ResourceGroup) => ({
                   label: `${e.name} (${formatBytes(e.max_volume_size)} available)`,
                   value: e.name,
@@ -267,7 +269,7 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
             </Form.Item>
 
             <Form.Item
-              label="Service IP"
+              label={t('iscsi:service_ips')}
               name="service_ip"
               required
               rules={[
@@ -295,7 +297,7 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
               </Space>
             </Form.Item>
 
-            <Form.Item label="Size">
+            <Form.Item label={t('common:size')}>
               <Space>
                 <Form.Item name="size" required>
                   {gross_size ? <SizeInput disabled={gross_size} /> : <SizeInput />}

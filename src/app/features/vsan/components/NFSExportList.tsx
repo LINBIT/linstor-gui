@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { deleteNFSExport, getNFSExport } from '../api';
 
 import { notification, Space, Table, Tag } from 'antd';
@@ -35,6 +36,7 @@ type NFSExportListProp = {
 };
 
 export const NFSExportList = ({ complex }: NFSExportListProp) => {
+  const { t } = useTranslation();
   const [api, contextHolder] = notification.useNotification();
 
   const deleteMutation = useMutation({
@@ -116,10 +118,8 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
             />
             <Popconfirm
               key="delete"
-              title="Delete the NFS target"
-              description="Are you sure to delete this NFS target?"
-              okText="Yes"
-              cancelText="No"
+              title={t('common:delete_nfs_target')}
+              description={t('common:are_you_sure_delete_nfs_target')}
               onConfirm={() => {
                 deleteMutation.mutate(target.name);
               }}

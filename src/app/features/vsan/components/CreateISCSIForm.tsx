@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { logger } from '@app/utils/logger';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Form, Modal, Space, notification } from 'antd';
@@ -48,6 +49,7 @@ type CreateISCSIFormProps = {
 };
 
 const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
+  const { t } = useTranslation();
   const [createFormModal, setCreateFormModal] = useState(false);
   const [api, contextHolder] = notification.useNotification();
 
@@ -156,7 +158,7 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
       </Button>
 
       <Modal
-        title="Create"
+        title={t('common:create')}
         open={createFormModal}
         onCancel={handleCancel}
         width={800}
@@ -238,14 +240,14 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
             </Form.Item>
 
             <Form.Item
-              label="Resource Group"
+              label={t('common:resource_group')}
               name="resource_group"
               required
               rules={[{ required: true, message: 'Please select resource group!' }]}
             >
               <Select
                 allowClear
-                placeholder="Please select resource group"
+                placeholder={t('iscsi:please_select_resource_group')}
                 options={resourceGroupsFromVSAN?.data?.map((e) => ({
                   label: `${e.name} (${formatBytes(e.max_volume_size)} available)`,
                   value: e.name,
@@ -254,7 +256,7 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
             </Form.Item>
 
             <Form.Item
-              label="Service IP"
+              label={t('iscsi:service_ips')}
               name="service_ip"
               required
               rules={[
@@ -280,7 +282,7 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
               </Space>
             </Form.Item>
 
-            <Form.Item label="Size">
+            <Form.Item label={t('common:size')}>
               <Space>
                 <Form.Item name="size" required>
                   {gross_size ? <SizeInput disabled={gross_size} /> : <SizeInput />}
@@ -299,7 +301,7 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
               <>
                 <Form.Item
                   name="username"
-                  label="Username"
+                  label={t('common:username')}
                   tooltip="Configure mutual CHAP authentication to restrict access to the iSCSI target by supplying a username and password here."
                 >
                   <Input />
@@ -307,7 +309,7 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
 
                 <Form.Item
                   name="password"
-                  label="Password"
+                  label={t('common:password')}
                   tooltip="Configure mutual CHAP authentication to restrict access to the iSCSI target by supplying a username and password here"
                 >
                   <Input.Password />

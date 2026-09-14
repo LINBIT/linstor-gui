@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, Card, Form, Spin, Typography } from 'antd';
 import { Input } from '@app/components/Input';
 
@@ -41,6 +42,7 @@ interface ControllerAuthGateProps {
 }
 
 const ControllerAuthGate = ({ children }: ControllerAuthGateProps) => {
+  const { t } = useTranslation();
   const [form] = Form.useForm<{ token: string }>();
   const [state, setState] = useState<AuthState>('checking');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -221,11 +223,11 @@ const ControllerAuthGate = ({ children }: ControllerAuthGateProps) => {
 
             <Form form={form} layout="vertical" onFinish={handleSubmit}>
               <Form.Item
-                label="Controller Token"
+                label={t('settings:controller_auth_token')}
                 name="token"
                 rules={[{ required: true, message: 'Please enter the controller token.' }]}
               >
-                <Input.Password placeholder="Paste Bearer token" autoFocus />
+                <Input.Password placeholder={t('settings:controller_auth_token_placeholder')} autoFocus />
               </Form.Item>
 
               <div className="flex justify-end">

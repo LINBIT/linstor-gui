@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { message, Modal, Tooltip } from 'antd';
 import { Input } from '@app/components/Input';
 import styled from '@emotion/styled';
@@ -19,6 +20,7 @@ const Wrapper = styled.div`
 `;
 
 export const EnterPassphrase: React.FC = () => {
+  const { t } = useTranslation();
   const [passphrase, setPassphrase] = useState('');
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -79,11 +81,17 @@ export const EnterPassphrase: React.FC = () => {
   return (
     <>
       {contextHolder}
-      <Tooltip title="Unlock LINSTOR">
+      <Tooltip title={t('settings:unlock_linstor')}>
         <Button shape="circle" icon={<FaUnlockAlt />} onClick={showModal} />
       </Tooltip>
 
-      <Modal title="LINSTOR passphrase" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} footer={null}>
+      <Modal
+        title={t('settings:linstor_passphrase')}
+        open={isModalOpen}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        footer={null}
+      >
         <Wrapper>
           <Input.Password
             value={passphrase}
@@ -93,7 +101,7 @@ export const EnterPassphrase: React.FC = () => {
             aria-label="pass-phrase"
             type="password"
             width={100}
-            placeholder="Enter passphrase"
+            placeholder={t('settings:enter_passphrase')}
           />
         </Wrapper>
         <Button type="primary" onClick={handleSave}>

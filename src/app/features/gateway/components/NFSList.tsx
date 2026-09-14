@@ -192,8 +192,6 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart, onCreate,
                       <Popconfirm
                         key="startstop"
                         title={`Are you sure to ${isStarted ? 'stop' : 'start'} this export?`}
-                        okText="Yes"
-                        cancelText="No"
                         onConfirm={() => {
                           if (record.name) {
                             if (isStarted) {
@@ -213,9 +211,7 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart, onCreate,
                     label: (
                       <Popconfirm
                         key="delete"
-                        title="Are you sure to delete this export?"
-                        okText="Yes"
-                        cancelText="No"
+                        title={t('nfs:are_you_sure_delete_export')}
                         onConfirm={() => {
                           if (record.name) {
                             handleDelete(record.name);
@@ -370,10 +366,8 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart, onCreate,
 
               <Popconfirm
                 key="delete"
-                title="Delete exports"
-                description="Are you sure to delete the selected exports?"
-                okText="Yes"
-                cancelText="No"
+                title={t('nfs:delete_exports')}
+                description={t('nfs:are_you_sure_delete_selected_exports')}
                 onConfirm={handleDeleteBulk}
                 disabled={!hasSelected}
               >

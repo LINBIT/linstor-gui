@@ -314,10 +314,8 @@ export const List = () => {
                   label: (
                     <Popconfirm
                       key="delete"
-                      title="Delete the storage pool"
-                      description="Are you sure to delete this storage pool?"
-                      okText="Yes"
-                      cancelText="No"
+                      title={t('storage_pool:delete_storage_pool')}
+                      description={t('storage_pool:are_you_sure_delete_storage_pool')}
                       onConfirm={() => handleDelete(record.node_name ?? '', record.storage_pool_name)}
                     >
                       <div className="w-full text-red-600">{t('common:delete')}</div>
@@ -359,7 +357,7 @@ export const List = () => {
             <Select
               style={{ width: 180 }}
               allowClear
-              placeholder="Please select node"
+              placeholder={t('error_report:please_select_node')}
               options={nodes?.data?.map((e) => ({
                 label: e.name,
                 value: e.name,
@@ -368,7 +366,7 @@ export const List = () => {
           </Form.Item>
 
           <Form.Item name="storage_pools" label={t('common:storage_pool')}>
-            <Input placeholder="Storage Pool Name" suffix={<RegexFilterHint />} />
+            <Input placeholder={t('storage_pool:storage_pool_name')} suffix={<RegexFilterHint />} />
           </Form.Item>
 
           <Form.Item label={t('storage_pool:show_default')} name="show_default" valuePropName="checked">
@@ -392,10 +390,8 @@ export const List = () => {
 
               <Popconfirm
                 key="delete"
-                title="Delete storage pools"
-                description="Are you sure to delete selected storage pools?"
-                okText="Yes"
-                cancelText="No"
+                title={t('storage_pool:delete_storage_pools')}
+                description={t('storage_pool:are_you_sure_delete_selected_storage')}
                 onConfirm={handleDeleteBulk}
                 disabled={!hasSelected}
               >

@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Form } from 'antd';
 import { Input } from '@app/components/Input';
@@ -30,6 +31,7 @@ type FormType = {
 };
 
 const EditForm = () => {
+  const { t } = useTranslation();
   const nodes = useNodes();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -120,7 +122,7 @@ const EditForm = () => {
     >
       <Form.Item
         name="pool_name"
-        label="Storage Pool Name"
+        label={t('storage_pool:storage_pool_name')}
         required
         rules={[
           { required: true, message: 'Please input storage pool name!' },
@@ -130,14 +132,19 @@ const EditForm = () => {
           },
         ]}
       >
-        <Input placeholder="Please input storage pool name" disabled />
+        <Input placeholder={t('storage_pool:please_input_storage_pool_name')} disabled />
       </Form.Item>
 
-      <Form.Item label="Nodes" name="node" required rules={[{ required: true, message: 'Please select nodes!' }]}>
+      <Form.Item
+        label={t('common:nodes')}
+        name="node"
+        required
+        rules={[{ required: true, message: 'Please select nodes!' }]}
+      >
         <Select
           disabled
           allowClear
-          placeholder="Please select"
+          placeholder={t('storage_pool:please_select')}
           options={nodes?.data?.map((e) => ({
             label: e.name,
             value: e.name,
@@ -145,10 +152,10 @@ const EditForm = () => {
         />
       </Form.Item>
 
-      <Form.Item label="Network Preference" name="network">
+      <Form.Item label={t('storage_pool:network_preference')} name="network">
         <Select
           allowClear
-          placeholder="Please select"
+          placeholder={t('storage_pool:please_select')}
           options={networkData?.data?.map((e) => ({
             label: e.name,
             value: e.name,
@@ -156,7 +163,7 @@ const EditForm = () => {
         />
       </Form.Item>
 
-      <Form.Item label="Type" name="provider_kind" required>
+      <Form.Item label={t('clusterSetup:node_type')} name="provider_kind" required>
         <Select
           options={typeList.map((e) => ({
             label: e.label,

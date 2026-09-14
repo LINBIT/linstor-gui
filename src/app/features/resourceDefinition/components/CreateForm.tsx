@@ -235,7 +235,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
         ]}
         tooltip="Accepts only alphanumeric, ., +, _, and - characters. For example: res1, res.1, res+1, res_1, res-1"
       >
-        <Input placeholder="Please input resource definition name" disabled={isEdit} />
+        <Input placeholder={t('resource_definition:please_input_resource_definition_name')} disabled={isEdit} />
       </Form.Item>
 
       <Form.Item
@@ -246,7 +246,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
       >
         <Select
           allowClear
-          placeholder="Please select resource group"
+          placeholder={t('iscsi:please_select_resource_group')}
           options={resourceGroups?.map((e) => ({
             label: e.name,
             value: e.name,
@@ -286,7 +286,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
           )}
 
           <Form.Item name="place_count" label={t('common:place_count')} required>
-            <Input placeholder="Please input place count" type="number" min={0} />
+            <Input placeholder={t('resource:please_input_place_count')} type="number" min={0} />
           </Form.Item>
 
           <Form.Item name="diskless" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>

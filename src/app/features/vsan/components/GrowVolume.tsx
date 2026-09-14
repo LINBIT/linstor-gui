@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { SizeInput } from '@app/components/SizeInput';
+import { useTranslation } from 'react-i18next';
 import { logger } from '@app/utils/logger';
 import { Form, Modal, Space, notification } from 'antd';
 import { Button } from '@app/components/Button';
@@ -28,6 +29,7 @@ type GrowVolumeProps = {
 };
 
 export const GrowVolume = ({ resource, resource_group, current_kib, refetch }: GrowVolumeProps) => {
+  const { t } = useTranslation();
   const [modalOpen, setModalOpen] = useState(false);
   const [api, contextHolder] = notification.useNotification();
   const [form] = Form.useForm<FormType>();
@@ -90,7 +92,7 @@ export const GrowVolume = ({ resource, resource_group, current_kib, refetch }: G
       </Button>
 
       <Modal
-        title="Grow volume"
+        title={t('common:grow_volume')}
         open={modalOpen}
         onCancel={handleCancel}
         width={600}
@@ -112,7 +114,7 @@ export const GrowVolume = ({ resource, resource_group, current_kib, refetch }: G
             size: current_kib,
           }}
         >
-          <Form.Item label="Size">
+          <Form.Item label={t('common:size')}>
             <Space>
               <Form.Item name="size" required>
                 {use_all ? <SizeInput disabled={use_all} /> : <SizeInput defaultUnit="KiB" />}

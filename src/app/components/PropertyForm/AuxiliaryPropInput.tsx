@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Typography } from 'antd';
 import { Input } from '@app/components/Input';
 import { DeleteOutlined } from '@ant-design/icons';
@@ -31,6 +32,7 @@ const AuxiliaryPropInput: React.FC<AuxiliaryPropInputProp> = ({
   onChange,
   isFirst = false,
 }) => {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [value, setValue] = useState('');
 
@@ -63,7 +65,7 @@ const AuxiliaryPropInput: React.FC<AuxiliaryPropInputProp> = ({
               setName(newName);
               onChange({ id: initialVal.id, name: newName, value });
             }}
-            placeholder="Please input property name"
+            placeholder={t('common:please_input_property_name')}
           />
         </div>
         <div className="w-2/5 ml-2">
@@ -74,7 +76,7 @@ const AuxiliaryPropInput: React.FC<AuxiliaryPropInputProp> = ({
               setValue(newValue);
               onChange({ id: initialVal.id, name, value: newValue });
             }}
-            placeholder="Please input property value"
+            placeholder={t('common:please_input_property_value')}
           />
         </div>
         <div className="w-1/5 text-right">

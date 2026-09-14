@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { logger } from '@app/utils/logger';
 import { Card, Row, Col, Empty } from 'antd';
 import { useSelector } from 'react-redux';
@@ -38,6 +39,7 @@ interface ChartPanel {
 }
 
 const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
+  const { t } = useTranslation();
   const grafanaConfig = useSelector((state: RootState) => state.setting?.grafanaConfig);
   const [timeRange, setTimeRange] = useState('now-1h');
   const { mode } = useThemeMode();
@@ -117,14 +119,14 @@ const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
 
   if (validPanels.length === 0) {
     return (
-      <Card title="Performance Metrics" style={{ marginBottom: 16 }}>
-        <Empty description="No Grafana panels configured. Please check your Grafana settings." />
+      <Card title={t('common:performance_metrics')} style={{ marginBottom: 16 }}>
+        <Empty description={t('common:no_grafana_panels_configured_check')} />
       </Card>
     );
   }
 
   return (
-    <Card title="Performance Metrics" style={{ marginBottom: 16 }}>
+    <Card title={t('common:performance_metrics')} style={{ marginBottom: 16 }}>
       <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
       <Row gutter={[16, 16]}>
         {validPanels.map((panel) => (

@@ -96,16 +96,14 @@ export const Controller = () => {
         {inputItem}
         {deleteButton && info && (
           <Popconfirm
-            title="Delete the property"
-            description="Are you sure to delete this property?"
+            title={t('common:delete_property')}
+            description={t('common:are_you_sure_delete_property')}
             onConfirm={() => {
               mutation.mutate({
                 delete_props: [item.key],
               });
             }}
             onCancel={() => {}}
-            okText="Yes"
-            cancelText="No"
           >
             <Button danger shape="circle" icon={<MinusOutlined />} size="small" style={{ marginLeft: 6 }} />
           </Popconfirm>

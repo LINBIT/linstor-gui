@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Tabs, TabsProps } from 'antd';
 
 import PageBasic from '@app/components/PageBasic';
@@ -35,8 +36,9 @@ const items: TabsProps['items'] = [
 ];
 
 export const Dashboard = () => {
+  const { t } = useTranslation();
   return (
-    <PageBasic title="Dashboard">
+    <PageBasic title={t('menu:dashboard')}>
       <Tabs defaultActiveKey="node" items={items} />
     </PageBasic>
   );

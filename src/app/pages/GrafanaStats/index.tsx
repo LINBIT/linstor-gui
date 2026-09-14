@@ -280,7 +280,7 @@ const GrafanaStats: React.FC = () => {
           {/* DRBD Reactor dashboard message when disabled */}
           {!grafanaConfig?.drbdEnable && (
             <Alert
-              message="DRBD Reactor Dashboard"
+              message={t('settings:drbd_reactor_dashboard')}
               description={t('settings:drbd_reactor_dashboard_info')}
               type="info"
               showIcon

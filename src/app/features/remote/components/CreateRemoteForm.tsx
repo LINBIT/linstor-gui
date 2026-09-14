@@ -125,29 +125,29 @@ const CreateRemoteForm = ({ refetch }: CreateRemoteFormProps) => {
           </Form.Item>
 
           <Form.Item name="remote_name" label={t('common:name')} required>
-            <Input placeholder="Please input name" />
+            <Input placeholder={t('remote:please_input_name')} />
           </Form.Item>
 
           {remote_type === 's3_remotes' && (
             <>
               <Form.Item name="endpoint" label={t('remote:endpoint')} required>
-                <Input placeholder="Please input endpoint" />
+                <Input placeholder={t('remote:please_input_endpoint')} />
               </Form.Item>
 
               <Form.Item name="bucket" label={t('remote:bucket')} required>
-                <Input placeholder="Please input bucket" />
+                <Input placeholder={t('remote:please_input_bucket')} />
               </Form.Item>
 
               <Form.Item name="region" label={t('remote:region')} required>
-                <Input placeholder="Please input region" />
+                <Input placeholder={t('remote:please_input_region')} />
               </Form.Item>
 
               <Form.Item name="access_key" label={t('remote:access_key')} required>
-                <Input.TextArea placeholder="Please input access key" />
+                <Input.TextArea placeholder={t('remote:please_input_access_key')} />
               </Form.Item>
 
               <Form.Item name="secret_key" label={t('remote:secret_key')} required>
-                <Input.TextArea placeholder="Please input secret key" />
+                <Input.TextArea placeholder={t('remote:please_input_secret_key')} />
               </Form.Item>
 
               <Form.Item name="use_path_style" label={t('remote:use_path_style')}>
@@ -159,7 +159,7 @@ const CreateRemoteForm = ({ refetch }: CreateRemoteFormProps) => {
           {remote_type === 'linstor_remotes' && (
             <>
               <Form.Item name="url" label={t('remote:url')} required>
-                <Input placeholder="Please input url" />
+                <Input placeholder={t('remote:please_input_url')} />
               </Form.Item>
             </>
           )}

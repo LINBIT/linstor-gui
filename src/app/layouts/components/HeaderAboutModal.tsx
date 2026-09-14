@@ -47,9 +47,9 @@ const HeaderAboutModal: React.FC<HeaderAboutModalProps> = ({ linstorVersion }) =
 
   return (
     <div className="flex items-center">
-      <Tooltip placement="bottomRight" title="System Info">
+      <Tooltip placement="bottomRight" title={t('common:system_info')}>
         <div>
-          <DotsIcon title="LINSTOR GUI Info" onClick={handleModalToggle} />
+          <DotsIcon title={t('common:linstor_gui_info')} onClick={handleModalToggle} />
         </div>
       </Tooltip>
       <div className="flex items-center relative z-50">
@@ -111,7 +111,7 @@ const HeaderAboutModal: React.FC<HeaderAboutModalProps> = ({ linstorVersion }) =
             </div>
             {/* VSAN Host Modal */}
             <Modal
-              title="HCI Host"
+              title={t('common:hci_host')}
               open={hostModal}
               onCancel={() => setHostModal(false)}
               footer={

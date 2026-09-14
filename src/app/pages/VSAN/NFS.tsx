@@ -5,13 +5,15 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 import PageBasic from '@app/components/PageBasic';
 import { NFSExportList } from '@app/features/vsan';
 
 export const NFS = () => {
+  const { t } = useTranslation();
   return (
-    <PageBasic title="NFS Export Configuration">
+    <PageBasic title={t('common:nfs_export_configuration')}>
       <NFSExportList complex />
     </PageBasic>
   );

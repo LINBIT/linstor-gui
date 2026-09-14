@@ -16,6 +16,7 @@ const mockT = vi.fn((key: string) => {
     'common:clone': 'Clone',
     'common:name': 'Name',
     'common:use_zfs_clone': 'Use ZFS Clone',
+    'resource:input_clone_name': 'Input clone name',
   };
   return translations[key] || key;
 });

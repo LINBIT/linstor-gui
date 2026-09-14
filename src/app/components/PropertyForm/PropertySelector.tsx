@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Tooltip } from 'antd';
 import { Select } from '@app/components/Select';
 
@@ -23,6 +24,7 @@ interface PropertySelectorProps {
 }
 
 const PropertySelector: React.FC<PropertySelectorProps> = ({ options, handleAddProperty, handleAddAuxProp }) => {
+  const { t } = useTranslation();
   const [selected, setSelected] = useState<string>();
 
   const handleAdd = () => {
@@ -40,7 +42,7 @@ const PropertySelector: React.FC<PropertySelectorProps> = ({ options, handleAddP
     <div className="mb-4 flex items-center">
       <Select
         showSearch
-        placeholder="Select a property"
+        placeholder={t('common:select_property')}
         size="large"
         options={options}
         style={{

@@ -103,7 +103,7 @@ const CreateNVMEOfForm = () => {
       }}
     >
       <Alert
-        message="Creates a highly available NVMe-oF target based on LINSTOR and DRBD Reactor."
+        message={t('nvme:creates_highly_available_nvme_target')}
         type="info"
         showIcon
         style={{ marginBottom: 24 }}
@@ -136,7 +136,7 @@ const CreateNVMEOfForm = () => {
       >
         <Select
           allowClear
-          placeholder="Please select resource group"
+          placeholder={t('iscsi:please_select_resource_group')}
           options={resourceGroupsFromLinstor?.map((e) => ({
             label: `${e.name}`,
             value: e.name,
@@ -171,7 +171,7 @@ const CreateNVMEOfForm = () => {
       </Form.Item>
 
       <Form.Item
-        label="Gross Size"
+        label={t('iscsi:gross_size')}
         name="gross_size"
         valuePropName="checked"
         tooltip="Make all size options specify gross size, i.e. the actual space used on disk"

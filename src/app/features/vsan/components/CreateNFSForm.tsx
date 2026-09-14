@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { logger } from '@app/utils/logger';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Form, Modal, Space, notification } from 'antd';
@@ -46,6 +47,7 @@ type CreateNFSFormProps = {
 };
 
 const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
+  const { t } = useTranslation();
   const [form] = Form.useForm<FormType>();
   const [api, contextHolder] = notification.useNotification();
   const { data: ipPrefixes } = useNodeNetWorkInterface();
@@ -174,7 +176,7 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
       </Button>
 
       <Modal
-        title="Create"
+        title={t('common:create')}
         open={createFormModal}
         onCancel={handleCancel}
         width={800}
@@ -205,7 +207,7 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
             }}
           >
             <Form.Item
-              label="Name"
+              label={t('common:name')}
               name="name"
               required
               rules={[
@@ -215,17 +217,17 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
                 },
               ]}
             >
-              <Input placeholder="Please input name: my_export" />
+              <Input placeholder={t('common:please_input_name_my_export')} />
             </Form.Item>
             <Form.Item
-              label="Resource Group"
+              label={t('common:resource_group')}
               name="resource_group"
               required
               rules={[{ required: true, message: 'Please select resource group!' }]}
             >
               <Select
                 allowClear
-                placeholder="Please select resource group"
+                placeholder={t('iscsi:please_select_resource_group')}
                 options={resourceGroupsFromVSAN?.data?.map((e) => ({
                   label: `${e.name} (${formatBytes(e.max_volume_size)} available)`,
                   value: e.name,
@@ -234,7 +236,7 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
             </Form.Item>
 
             <Form.Item
-              label="Service IP"
+              label={t('iscsi:service_ips')}
               name="service_ip"
               required
               rules={[
@@ -261,7 +263,7 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
               </Space>
             </Form.Item>
 
-            <Form.Item label="Size" required>
+            <Form.Item label={t('common:size')} required>
               <Space>
                 <Form.Item name="size_kib">
                   {gross_size ? <SizeInput disabled={gross_size} /> : <SizeInput />}
@@ -272,12 +274,12 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
               </Space>
             </Form.Item>
 
-            <Form.Item name="export_path" label="Export Path" required>
+            <Form.Item name="export_path" label={t('nfs:export_path')} required>
               <Input placeholder="/" />
             </Form.Item>
 
             <Form.Item
-              label="File System"
+              label={t('nfs:file_system')}
               name="file_system"
               required
               rules={[
@@ -311,15 +313,15 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
                       required={false}
                       key={field.key}
                     >
-                      <Form.Item label="Size" name={[index, 'size_kib']}>
+                      <Form.Item label={t('common:size')} name={[index, 'size_kib']}>
                         <SizeInput />
                       </Form.Item>
 
-                      <Form.Item label="Export Path" name={[index, 'export_path']}>
-                        <Input placeholder="Please input export path: /" />
+                      <Form.Item label={t('nfs:export_path')} name={[index, 'export_path']}>
+                        <Input placeholder={t('common:please_input_export_path')} />
                       </Form.Item>
 
-                      <Form.Item label="File System" name={[index, 'file_system']}>
+                      <Form.Item label={t('nfs:file_system')} name={[index, 'file_system']}>
                         <Select
                           options={[
                             {

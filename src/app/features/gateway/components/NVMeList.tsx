@@ -167,8 +167,6 @@ export const NVMeList = ({
                       <Popconfirm
                         key="startstop"
                         title={`Are you sure to ${isStarted ? 'stop' : 'start'} this target?`}
-                        okText="Yes"
-                        cancelText="No"
                         onConfirm={() => {
                           if (record.nqn) {
                             if (isStarted) {
@@ -199,9 +197,7 @@ export const NVMeList = ({
                     label: (
                       <Popconfirm
                         key="delete"
-                        title="Are you sure to delete this target?"
-                        okText="Yes"
-                        cancelText="No"
+                        title={t('iscsi:are_you_sure_delete_target')}
                         onConfirm={() => {
                           if (record.nqn) {
                             handleDelete(record.nqn);
@@ -260,14 +256,12 @@ export const NVMeList = ({
       width: 150,
       render: (_, record) => (
         <Popconfirm
-          title="Are you sure to delete this volume?"
+          title={t('iscsi:are_you_sure_delete_volume')}
           onConfirm={() => {
             if (record.nqn && record.lunId) {
               handleDeleteVolume(record.nqn, record.lunId);
             }
           }}
-          okText="Yes"
-          cancelText="No"
         >
           <Button danger size="small">
             {t('nvme:delete_volume')}
@@ -367,10 +361,8 @@ export const NVMeList = ({
 
               <Popconfirm
                 key="delete"
-                title="Delete targets"
-                description="Are you sure to delete the selected targets?"
-                okText="Yes"
-                cancelText="No"
+                title={t('iscsi:delete_targets')}
+                description={t('iscsi:are_you_sure_delete_selected_targets')}
                 onConfirm={handleDeleteBulk}
                 disabled={!hasSelected}
               >

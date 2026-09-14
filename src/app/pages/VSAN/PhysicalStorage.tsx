@@ -5,13 +5,15 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import PageBasic from '@app/components/PageBasic';
+import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { StyledUL } from './styled';
 import { PhysicalStorageList } from '@app/features/vsan';
 
 export const PhysicalStorage = () => {
+  const { t } = useTranslation();
   return (
-    <PageBasic title="Physical Storage">
+    <PageBasic title={t('common:physical_storage')}>
       <div>
         <p>
           Below is a representation of which storage devices are present on which of your nodes. Check the respective

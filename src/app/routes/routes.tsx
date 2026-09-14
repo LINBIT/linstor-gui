@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -28,6 +29,7 @@ const RouteWithTitleUpdates = ({ component: Component, title, ...rest }: IAppRou
 const AppRoutes = (): React.ReactElement => {
   const [displayedRoutes, setDisplayedRoutes] = useState(flattenedRoutes);
   const location = useLocation();
+  const { t } = useTranslation();
 
   const { KVS, vsanModeFromSettings, hciModeFromSettings, isAdmin, grafanaConfig } = useSelector(
     (state: RootState) => ({
@@ -98,7 +100,11 @@ const AppRoutes = (): React.ReactElement => {
       <Route
         path="/reactor/create"
         element={
-          <RouteWithTitleUpdates component={ConfigEditor} path="/reactor/create" title="LINSTOR | Reactor | Create" />
+          <RouteWithTitleUpdates
+            component={ConfigEditor}
+            path="/reactor/create"
+            title={t('common:linstor_reactor_create')}
+          />
         }
       />
       <Route
@@ -107,7 +113,7 @@ const AppRoutes = (): React.ReactElement => {
           <RouteWithTitleUpdates
             component={ConfigEditor}
             path="/reactor/edit/:resourceName"
-            title="LINSTOR | Reactor | Edit"
+            title={t('common:linstor_reactor_edit')}
           />
         }
       />

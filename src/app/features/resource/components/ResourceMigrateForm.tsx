@@ -88,7 +88,7 @@ export const ResourceMigrateForm: React.FC<CollectionCreateFormProps> = ({
         >
           <Select
             allowClear
-            placeholder="Please select node"
+            placeholder={t('error_report:please_select_node')}
             options={nodes
               ?.filter((e) => e.name !== migrationInfo.node)
               .map((e) => ({

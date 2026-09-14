@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, Form } from 'antd';
 import { Input } from '@app/components/Input';
 import { useDispatch, useSelector } from 'react-redux';
@@ -24,6 +25,7 @@ interface AuthFormProps {
 }
 
 const AuthForm: React.FC<AuthFormProps> = ({ redirectTo }) => {
+  const { t } = useTranslation();
   const [isError, setIsError] = useState(false);
   const dispatch = useDispatch<Dispatch>();
   const navigate = useNavigate();
@@ -64,7 +66,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ redirectTo }) => {
     >
       {isError && (
         <Alert
-          description="Please check your username and password and try again"
+          description={t('users:please_check_username_password_try')}
           type="error"
           closable
           onClose={() => setIsError(false)}
@@ -76,7 +78,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ redirectTo }) => {
         />
       )}
       <Form.Item
-        label="Username"
+        label={t('common:username')}
         name="username"
         rules={[{ required: true, message: 'Please input your username!' }]}
         className="mb-[27px]"
@@ -85,7 +87,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ redirectTo }) => {
       </Form.Item>
 
       <Form.Item
-        label="Password"
+        label={t('common:password')}
         name="password"
         rules={[
           { required: true, message: 'Please input your password!' },

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Form, Card, Space } from 'antd';
 import { Input } from '@app/components/Input';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
@@ -10,6 +11,7 @@ interface MetadataEditorProps {
 }
 
 export const MetadataEditor: React.FC<MetadataEditorProps> = ({ initialValues, onValuesChange }) => {
+  const { t } = useTranslation();
   const [form] = Form.useForm();
   const isInternalUpdate = useRef(false);
 
@@ -46,14 +48,14 @@ export const MetadataEditor: React.FC<MetadataEditorProps> = ({ initialValues, o
               {fields.map(({ key, name, ...restField }) => (
                 <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
                   <Form.Item {...restField} name={[name, 'key']} rules={[{ required: true, message: 'Missing key' }]}>
-                    <Input placeholder="Key" />
+                    <Input placeholder={t('common:key')} />
                   </Form.Item>
                   <Form.Item
                     {...restField}
                     name={[name, 'value']}
                     rules={[{ required: true, message: 'Missing value' }]}
                   >
-                    <Input placeholder="Value" />
+                    <Input placeholder={t('clusterSetup:property_value')} />
                   </Form.Item>
                   <MinusCircleOutlined onClick={() => remove(name)} style={{ color: '#ff4d4f', cursor: 'pointer' }} />
                 </Space>

@@ -129,7 +129,7 @@ export const List = () => {
                     key: 'delete',
                     label: (
                       <Popconfirm
-                        title="Delete this schedule?"
+                        title={t('schedule:delete_schedule')}
                         onConfirm={() => {
                           handleDelete(record.schedule_name);
                         }}
@@ -154,7 +154,7 @@ export const List = () => {
       <SearchForm>
         <Form form={form} layout="inline" style={{ display: 'flex', alignItems: 'center' }}>
           <Form.Item name="name" label={t('common:name')}>
-            <Input placeholder="Name" onChange={(e) => setSearchName(e.target.value)} allowClear />
+            <Input placeholder={t('common:name')} onChange={(e) => setSearchName(e.target.value)} allowClear />
           </Form.Item>
 
           <Form.Item style={{ marginLeft: 'auto', marginRight: 0 }}>

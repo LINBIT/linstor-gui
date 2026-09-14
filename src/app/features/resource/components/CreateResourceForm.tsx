@@ -237,7 +237,7 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
       >
         <Select
           allowClear
-          placeholder="Please select resource definition group"
+          placeholder={t('resource:please_select_resource_definition_group')}
           options={resourceDefinitions?.map((e) => ({
             label: e.name,
             value: e.name,
@@ -265,7 +265,7 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
           >
             <Select
               allowClear
-              placeholder="Please select node"
+              placeholder={t('error_report:please_select_node')}
               options={nodes
                 ?.filter((node) => !nodesHaveSelectedResource?.includes(node.name))
                 .map((e) => ({
@@ -276,7 +276,11 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
           </Form.Item>
 
           <Form.Item label={t('common:storage_pool')} name="storage_pool">
-            <Select allowClear placeholder="Please select storage pool" options={[DRBD_DISKLESS, ...spList]} />
+            <Select
+              allowClear
+              placeholder={t('resource:please_select_storage_pool')}
+              options={[DRBD_DISKLESS, ...spList]}
+            />
           </Form.Item>
         </>
       )}
@@ -284,10 +288,10 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
       {!isEdit && allocate_method !== 'manual' && (
         <>
           <Form.Item label={t('common:storage_pool')} name="storage_pool">
-            <Select allowClear placeholder="Please select storage pool" options={spList} />
+            <Select allowClear placeholder={t('resource:please_select_storage_pool')} options={spList} />
           </Form.Item>
           <Form.Item name="place_count" label={t('common:place_count')} required>
-            <Input placeholder="Please input place count" type="number" min={0} />
+            <Input placeholder={t('resource:please_input_place_count')} type="number" min={0} />
           </Form.Item>
 
           <Form.Item name="diskless" label={t('common:diskless_on_remaining')}>

@@ -118,12 +118,7 @@ const LogSidebar: React.FC = () => {
                 </Button>
 
                 {/* Popconfirm for clearing all logs */}
-                <Popconfirm
-                  title="Are you sure you want to clear all logs?"
-                  onConfirm={clearAllLogs}
-                  okText="Yes"
-                  cancelText="No"
-                >
+                <Popconfirm title={t('common:are_you_sure_you_want_clear_all_logs')} onConfirm={clearAllLogs}>
                   <Button danger>{t('clear_all_logs')}</Button>
                 </Popconfirm>
               </Space>

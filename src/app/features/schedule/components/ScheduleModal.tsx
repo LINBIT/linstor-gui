@@ -145,55 +145,55 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
         >
           {/* Schedule Name */}
           <Form.Item
-            label="Schedule Name"
+            label={t('schedule:schedule_name')}
             name="schedule_name"
             rules={[
               { required: true, message: 'Schedule name is required' },
               { max: 50, message: 'Schedule name cannot exceed 50 characters' },
             ]}
           >
-            <Input placeholder="Enter schedule name" disabled={!!schedule} />
+            <Input placeholder={t('schedule:enter_schedule_name')} disabled={!!schedule} />
           </Form.Item>
 
           {/* Full Cron */}
           <Form.Item
-            label="Full Cron Expression"
+            label={t('schedule:full_cron_expression')}
             name="full_cron"
             rules={[{ required: true, message: 'Please enter a full cron expression' }]}
           >
-            {/* <Input placeholder="Enter full cron expression (e.g., * * * * *)" /> */}
+            {/* <Input placeholder={t('schedule:enter_full_cron_expression_e_g')} /> */}
             <CronInput />
           </Form.Item>
 
           {/* Incremental Cron */}
-          <Form.Item label="Incremental Cron Expression" name="inc_cron">
-            {/* <Input placeholder="Enter incremental cron expression (e.g., * * * * *)" /> */}
+          <Form.Item label={t('schedule:incremental_cron_expression')} name="inc_cron">
+            {/* <Input placeholder={t('schedule:enter_incremental_cron_expression_e_g')} /> */}
             <CronInput />
           </Form.Item>
 
           {/* Keep Local */}
           <Form.Item
-            label="Keep Local Snapshots"
+            label={t('schedule:keep_local_snapshots')}
             name="keep_local"
             tooltip="The number of snapshots that are basis for a full backup to keep locally"
             rules={[{ type: 'number', min: 0, message: 'Must be a positive number' }]}
           >
-            <InputNumber placeholder="Enter number of local snapshots" style={{ width: '100%' }} />
+            <InputNumber placeholder={t('schedule:enter_number_local_snapshots')} style={{ width: '100%' }} />
           </Form.Item>
 
           {/* Keep Remote */}
           <Form.Item
-            label="Keep Remote Backups"
+            label={t('schedule:keep_remote_backups')}
             name="keep_remote"
             tooltip="The number of full backups to keep at the remote"
             rules={[{ type: 'number', min: 0, message: 'Must be a positive number' }]}
           >
-            <InputNumber placeholder="Enter number of remote backups" style={{ width: '100%' }} />
+            <InputNumber placeholder={t('schedule:enter_number_remote_backups')} style={{ width: '100%' }} />
           </Form.Item>
 
           {/* On Failure */}
           <Form.Item
-            label="On Failure"
+            label={t('schedule:on_failure')}
             name="on_failure"
             tooltip="Action to take when a backup fails"
             rules={[{ required: true, message: 'Please select an action for failure' }]}
@@ -206,12 +206,12 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
 
           {/* Max Retries */}
           <Form.Item
-            label="Max Retries"
+            label={t('schedule:max_retries')}
             name="max_retries"
             tooltip="How many times a failed backup should be retried if on_failure is RETRY"
             rules={[{ type: 'number', min: 0, message: 'Must be a positive number' }]}
           >
-            <InputNumber placeholder="Enter max retries (optional)" style={{ width: '100%' }} />
+            <InputNumber placeholder={t('schedule:enter_max_retries_optional')} style={{ width: '100%' }} />
           </Form.Item>
         </Form>
       </Modal>

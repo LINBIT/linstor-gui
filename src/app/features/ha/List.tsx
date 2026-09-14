@@ -984,7 +984,7 @@ export const List = () => {
       <Table columns={columns} dataSource={data} rowKey="uuid" loading={isLoading} pagination={false} />
       <FileContentModal filePath={viewFilePath} visible={viewModalVisible} onClose={() => setViewModalVisible(false)} />
       <Modal
-        title="Manage HA Configuration"
+        title={t('ha:manage_ha_configuration')}
         open={manageModalVisible}
         onCancel={() => setManageModalVisible(false)}
         footer={
@@ -1006,7 +1006,7 @@ export const List = () => {
             <Text strong>Configuration File</Text>
             <Select
               className="w-full mt-1"
-              placeholder="Select an unmanaged configuration file"
+              placeholder={t('ha:select_unmanaged_configuration_file')}
               value={manageFile}
               onChange={setManageFile}
               options={unmanagedFiles.map((f) => ({ label: f.path, value: f.path }))}
@@ -1016,7 +1016,7 @@ export const List = () => {
             <Text strong>Resource Definition</Text>
             <Select
               className="w-full mt-1"
-              placeholder="Select a resource definition"
+              placeholder={t('files:select_resource_placeholder')}
               value={manageResource}
               onChange={setManageResource}
               showSearch

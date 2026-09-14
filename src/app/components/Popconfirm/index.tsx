@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Popover } from 'antd';
 import type { PopoverProps } from 'antd';
 import type { ButtonProps as AntButtonProps } from 'antd';
@@ -19,7 +20,8 @@ import { Button } from '@app/components/Button';
  * button components, so this wraps a Popover with custom content.
  *
  * The prop names mirror antd's PopconfirmProps so existing usages only need to
- * swap the import.
+ * swap the import. okText/cancelText default to the translated yes/no, so call
+ * sites do not have to repeat them — and cannot hardcode them in English.
  */
 export interface PopconfirmProps {
   title?: React.ReactNode;
@@ -56,6 +58,7 @@ export const Popconfirm: React.FC<PopconfirmProps> = ({
   overlayClassName,
   children,
 }) => {
+  const { t } = useTranslation(['common']);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -87,7 +90,7 @@ export const Popconfirm: React.FC<PopconfirmProps> = ({
       </div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 12 }}>
         <Button size="small" type="secondary" onClick={handleCancel} {...cancelButtonProps}>
-          {cancelText ?? 'Cancel'}
+          {cancelText ?? t('common:no')}
         </Button>
         <Button
           size="small"
@@ -97,7 +100,7 @@ export const Popconfirm: React.FC<PopconfirmProps> = ({
           onClick={handleConfirm}
           {...okButtonProps}
         >
-          {okText ?? 'OK'}
+          {okText ?? t('common:yes')}
         </Button>
       </div>
     </div>

@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { logger } from '@app/utils/logger';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Form, Modal, Tooltip, notification } from 'antd';
@@ -83,6 +84,7 @@ type CreateStoragePoolFormProps = {
 };
 
 const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
+  const { t } = useTranslation();
   const [form] = Form.useForm<FormType>();
   const [api, contextHolder] = notification.useNotification();
   const [createFormModal, setCreateFormModal] = useState(false);
@@ -358,7 +360,7 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
       </Button>
 
       <Modal
-        title="Create"
+        title={t('common:create')}
         open={createFormModal}
         onCancel={handleCancel}
         width={800}
@@ -391,7 +393,7 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
 Valid characters are a-z, A-Z, and 0-9 as well as _ and -
 Be aware that the name cannot start or end with - and cannot start with a number."
             name="poolName"
-            label="Storage Pool Name"
+            label={t('storage_pool:storage_pool_name')}
             required
             rules={[
               {
@@ -414,14 +416,14 @@ Be aware that the name cannot start or end with - and cannot start with a number
             ]}
           >
             {add_to_existing ? (
-              <Select options={spOption} placeholder="Please select storage pool" />
+              <Select options={spOption} placeholder={t('resource:please_select_storage_pool')} />
             ) : (
-              <Input placeholder="Please input pool name" />
+              <Input placeholder={t('common:please_input_pool_name')} />
             )}
           </Form.Item>
 
           <Form.Item
-            label="Add or create new pool"
+            label={t('common:add_create_new_pool')}
             tooltip="You can choose whether to create a new storage pool from the selected disks or to add them to an existing storage pool."
             name="add_to_existing"
             valuePropName="checked"
@@ -430,7 +432,7 @@ Be aware that the name cannot start or end with - and cannot start with a number
           </Form.Item>
 
           <Form.Item
-            label="Storage Pool Type"
+            label={t('common:storage_pool_type')}
             name="providerKind"
             tooltip={
               <div>

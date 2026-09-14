@@ -156,7 +156,7 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
           },
         ]}
       >
-        <Input placeholder="Please input node name" disabled={editing} />
+        <Input placeholder={t('node:please_input_node_name')} disabled={editing} />
       </Form.Item>
 
       <Form.Item
@@ -167,7 +167,7 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
       >
         <Select
           allowClear
-          placeholder="Please select node type"
+          placeholder={t('node:please_select_node_type')}
           options={['Controller', 'Satellite', 'Combined', 'Auxiliary', 'Openflex_Target']?.map((e) => ({
             label: e,
             value: e,
@@ -191,7 +191,7 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
         ]}
         tooltip="Must be valid IP address, like 192.168.1.1, 10.10.1.1"
       >
-        <Input placeholder="Please input IP address" />
+        <Input placeholder={t('node_detail:please_input_ip_address')} />
       </Form.Item>
 
       <Form.Item
@@ -206,7 +206,7 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
           },
         ]}
       >
-        <Input placeholder="Please input port" type="number" />
+        <Input placeholder={t('node:please_input_port')} type="number" />
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 6, span: 18 }}>

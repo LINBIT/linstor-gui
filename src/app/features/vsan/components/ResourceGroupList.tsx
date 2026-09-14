@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { deleteResourceGroup, getResourceGroups } from '../api';
 
@@ -26,6 +27,7 @@ interface DataType {
 }
 
 export const ResourceGroupList = () => {
+  const { t } = useTranslation();
   const [api, contextHolder] = notification.useNotification();
 
   const { data, refetch, isLoading } = useQuery({
@@ -79,10 +81,8 @@ export const ResourceGroupList = () => {
         return (
           <Popconfirm
             key="delete"
-            title="Delete the resource group"
-            description="Are you sure to delete this resource group?"
-            okText="Yes"
-            cancelText="No"
+            title={t('resource_group:delete_resource_group')}
+            description={t('resource_group:are_you_sure_delete_resource_group')}
             onConfirm={() => {
               deleteMutation.mutate(record.name);
             }}

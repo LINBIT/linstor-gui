@@ -602,10 +602,8 @@ export const OverviewList = () => {
                     key: 'adjust',
                     label: (
                       <Popconfirm
-                        title="Adjust the resource"
-                        description="Are you sure to adjust this resource?"
-                        okText="Yes"
-                        cancelText="No"
+                        title={t('resource:adjust_resource')}
+                        description={t('resource:are_you_sure_adjust_resource')}
                         onConfirm={() => {
                           adjustResourceGroupMutation.mutate({
                             resource_group: record.resource_group_name,
@@ -651,10 +649,8 @@ export const OverviewList = () => {
                     label: (
                       <Popconfirm
                         key="delete"
-                        title="Delete the resource definition"
-                        description="Are you sure to delete this resource definitions?"
-                        okText="Yes"
-                        cancelText="No"
+                        title={t('resource:delete_resource_definition')}
+                        description={t('resource:are_you_sure_delete_resource')}
                         onConfirm={() => {
                           deleteMutation.mutate(record.name);
                         }}
@@ -725,7 +721,7 @@ export const OverviewList = () => {
       pageSizeOptions: ['10', '20', '50', '100', '200'],
       showTotal: (total: number) => t('common:total_items', { total }),
     };
-  }, []);
+  }, [t]);
 
   const expandableRender = (record: any) => {
     const subTableColumns = [
@@ -818,7 +814,7 @@ export const OverviewList = () => {
 
           if (!grafanaConfig?.enable) {
             return (
-              <Tooltip title="Please enable and configure Grafana Dashboard in Settings to view stats" placement="top">
+              <Tooltip title={t('resource:please_enable_configure_grafana')} placement="top">
                 {statsIcon}
               </Tooltip>
             );
@@ -852,10 +848,8 @@ export const OverviewList = () => {
                       key: 'toggle',
                       label: (
                         <Popconfirm
-                          title="Toggle the resource"
-                          description="Are you sure to toggle this resource?"
-                          okText="Yes"
-                          cancelText="No"
+                          title={t('resource:toggle_resource')}
+                          description={t('resource:are_you_sure_toggle_resource')}
                           onConfirm={() => {
                             toggleResourceMutation.mutate({
                               resource: record.resource_name,
@@ -907,10 +901,8 @@ export const OverviewList = () => {
                       label: (
                         <Popconfirm
                           key="delete"
-                          title="Delete the resource"
-                          description="Are you sure to delete this resource?"
-                          okText="Yes"
-                          cancelText="No"
+                          title={t('resource:delete_resource')}
+                          description={t('resource:are_you_sure_delete_resource_2')}
                           onConfirm={() => {
                             deleteResourceMutation.mutate({
                               resource: record.resource_name ?? '',
@@ -1095,7 +1087,7 @@ export const OverviewList = () => {
       >
         <Input
           type="text"
-          placeholder="Please input snapshot name here..."
+          placeholder={t('resource:please_input_snapshot_name')}
           value={snapshotName}
           onChange={(evt) => {
             setSnapshotName(evt.target.value);

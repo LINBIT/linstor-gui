@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { deleteNVMeExport, getNVMeoFTarget } from '../api';
 
@@ -35,6 +36,7 @@ type NVMeoFListProp = {
 };
 
 export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
+  const { t } = useTranslation();
   const [api, contextHolder] = notification.useNotification();
 
   const { data, isLoading, refetch } = useQuery({
@@ -116,12 +118,7 @@ export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
               current_kib={target.size}
               refetch={refetch}
             />
-            <Popconfirm
-              title="Are you sure to delete this target?"
-              onConfirm={() => deleteTarget.mutate(target.nqn)}
-              okText="Yes"
-              cancelText="No"
-            >
+            <Popconfirm title={t('iscsi:are_you_sure_delete_target')} onConfirm={() => deleteTarget.mutate(target.nqn)}>
               <Button danger loading={deleteTarget.isLoading}>
                 Delete
               </Button>

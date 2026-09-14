@@ -1,4 +1,5 @@
 import { Form, Modal, Tag, Typography } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
 
@@ -69,6 +70,7 @@ export function AddParameterModal({
   parsedAgents,
   allAgents,
 }: AddParameterModalProps) {
+  const { t } = useTranslation();
   const agent = currentAgentIndex !== null ? parsedAgents.find((a) => a.instanceId === currentAgentIndex) : null;
 
   // Find metadata: use attached metadata or look it up in allAgents
@@ -96,7 +98,7 @@ export function AddParameterModal({
 
   return (
     <Modal
-      title="Add Parameter"
+      title={t('common:add_parameter')}
       open={visible}
       onCancel={onCancel}
       width={600}
@@ -110,9 +112,9 @@ export function AddParameterModal({
       ]}
     >
       <Form layout="vertical" style={{ marginTop: '16px' }}>
-        <Form.Item label="Parameter">
+        <Form.Item label={t('common:parameter')}>
           <Select
-            placeholder="Select parameter to add"
+            placeholder={t('common:select_parameter_add')}
             value={selectedParam || undefined}
             onChange={onParamChange}
             showSearch
@@ -124,11 +126,11 @@ export function AddParameterModal({
 
         {selectedParam && selectedParamMeta && (
           <>
-            <Form.Item label="Type">
+            <Form.Item label={t('clusterSetup:node_type')}>
               <Tag color="blue">{selectedParamMeta.type}</Tag>
             </Form.Item>
 
-            <Form.Item label="Description">
+            <Form.Item label={t('authToken:description')}>
               <div
                 style={{
                   padding: '12px',
@@ -141,7 +143,7 @@ export function AddParameterModal({
               </div>
             </Form.Item>
 
-            <Form.Item label="Default Value">
+            <Form.Item label={t('common:default_value')}>
               <Text code>{selectedParamMeta.default || '(empty)'}</Text>
             </Form.Item>
           </>

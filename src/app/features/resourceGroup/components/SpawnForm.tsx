@@ -123,7 +123,7 @@ const SpawnForm = ({ resource_group, isInDropdown = false }: SpawnFormProps) => 
         </Button>
       )}
       <Modal
-        title="Spawn"
+        title={t('common:spawn')}
         open={showSpawnForm}
         onCancel={() => setShowSpawnForm(false)}
         footer={

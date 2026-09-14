@@ -1,4 +1,5 @@
 import { logger } from '@app/utils/logger';
+import { useTranslation } from 'react-i18next';
 import {
   EyeInvisibleOutlined,
   EyeOutlined,
@@ -248,6 +249,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
   }: OcfAgentEditorProps,
   ref,
 ) {
+  const { t } = useTranslation();
   const currentTheme = 'light'; // Default to light theme
   const [internalForm] = Form.useForm();
 
@@ -1319,7 +1321,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
       {previewVisible && (
         <div
           onMouseDown={handleMouseDown}
-          title="Drag to resize"
+          title={t('common:drag_resize')}
           style={{
             cursor: 'col-resize',
             width: 20,
@@ -1470,11 +1472,11 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
                       <div style={{ padding: '0 12px 12px 12px' }}>
                         <Form.Item
                           name="resource_name"
-                          label="Resource Name"
+                          label={t('common:resource_name')}
                           rules={[{ required: true, message: 'Please select resource' }]}
                         >
                           <Select
-                            placeholder="Select resource"
+                            placeholder={t('common:select_resource')}
                             showSearch
                             loading={rdLoading}
                             options={rdOptions}
@@ -1485,7 +1487,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
                         </Form.Item>
                         <Form.Item
                           name="file_path"
-                          label="Config File"
+                          label={t('common:config_file')}
                           rules={[{ required: true, message: 'Please enter filename' }]}
                         >
                           <Input addonBefore="/etc/drbd-reactor.d/" addonAfter=".toml" placeholder="my-resource" />
@@ -1496,7 +1498,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
                     {/* OCF Agents List with Drag and Drop */}
 
                     {parsedAgents.length === 0 ? (
-                      <Empty description="No OCF agents found in start array" />
+                      <Empty description={t('common:no_ocf_agents_found_in_start_array')} />
                     ) : (
                       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                         <SortableContext items={items} strategy={verticalListSortingStrategy}>
@@ -1603,7 +1605,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
         />
 
         <Modal
-          title="Add Systemd/Mount"
+          title={t('common:add_systemd_mount')}
           open={addSystemdModalVisible}
           onCancel={closeAddSystemdModal}
           footer={[
@@ -1616,7 +1618,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
           ]}
         >
           <Form layout="vertical">
-            <Form.Item label="Unit Type" required>
+            <Form.Item label={t('common:unit_type')} required>
               <Select
                 value={systemdType}
                 onChange={(value) => setSystemdType(value)}
@@ -1627,7 +1629,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
               />
             </Form.Item>
             <Form.Item
-              label="Unit Name"
+              label={t('common:unit_name')}
               required
               extra={
                 systemdType === 'mount'
@@ -1663,7 +1665,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
 
         {/* Paste TOML Modal */}
         <Modal
-          title="Paste TOML Configuration"
+          title={t('common:paste_toml_configuration')}
           open={pasteModalVisible}
           onOk={handlePasteConfirm}
           onCancel={() => setPasteModalVisible(false)}

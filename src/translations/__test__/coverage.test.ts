@@ -4,6 +4,8 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import translations from '..';
@@ -12,23 +14,18 @@ import translations from '..';
 // back to it for anything a language is missing. That fallback is silent, which
 // is how six languages drifted a few hundred keys behind before anyone noticed.
 //
-// This is a ratchet, not a pass/fail gate. Filling six languages needs people
-// who speak them, so the debt is recorded per language below and the test fails
-// only when a language gets *worse* — adding an English string without
-// translating it is fine, adding two and translating none is not. Lower a
-// number whenever you translate; delete the entry when it reaches zero.
+// Every language is now at parity with English, and this keeps it that way:
+// adding an English string without translating it fails the suite.
+//
+// MISSING_BUDGET is the escape hatch. A language may be given a temporary
+// budget rather than blocking a change, but any entry is debt — lower it as you
+// translate and delete it at zero. The second test fails on a budget left above
+// the real number, so slack cannot sit there hiding the next drift.
 
 type Tree = Record<string, unknown>;
 
-/** Keys a language may still be missing. Only ever revise these downwards. */
-const MISSING_BUDGET: Record<string, number> = {
-  de: 364,
-  es: 364,
-  fr: 364,
-  ja: 364,
-  ru: 364,
-  tr: 364,
-};
+/** Keys a language may still be missing. Empty is the goal; only revise down. */
+const MISSING_BUDGET: Record<string, number> = {};
 
 /** Every leaf path in a translation tree, as `namespace.some.key`. */
 const flatten = (node: Tree, prefix = ''): string[] =>
@@ -46,7 +43,7 @@ describe('translation coverage', () => {
     expect(new Set(englishKeys).size).toBe(englishKeys.length);
   });
 
-  it.each(languages)('%s is no further behind English than its recorded budget', (code) => {
+  it.each(languages)('%s covers every English key', (code) => {
     const keys = new Set(flatten(translations[code] as unknown as Tree));
     const missing = englishKeys.filter((key) => !keys.has(key));
     const budget = MISSING_BUDGET[code] ?? 0;
@@ -85,5 +82,42 @@ describe('translation coverage', () => {
       extra,
       extra.length ? `${code} has ${extra.length} stale keys, e.g. ${extra.slice(0, 8).join(', ')}` : '',
     ).toEqual([]);
+  });
+  it.each(Object.keys(translations))('%s declares no duplicate keys inside a namespace', (code) => {
+    // A repeated key in an object literal is legal and the last one silently
+    // wins, so neither tsc nor the parity checks above can see it. Scan the
+    // source instead. This caught common.storage_pool and
+    // settings.linstor_passphrase, each defined twice with different values.
+    const file = {
+      en: 'english',
+      zh: 'chinese',
+      de: 'german',
+      fr: 'french',
+      es: 'spanish',
+      ru: 'russian',
+      tr: 'turkish',
+      ja: 'japanese',
+    }[code];
+    const source = readFileSync(join(process.cwd(), 'src', 'translations', `${file}.ts`), 'utf8');
+    const dupes: string[] = [];
+    let namespace: string | null = null;
+    let seen = new Set<string>();
+    for (const line of source.split('\n')) {
+      const open = /^  ([A-Za-z_][\w&-]*): \{/.exec(line);
+      if (open) {
+        namespace = open[1];
+        seen = new Set();
+        continue;
+      }
+      if (line.startsWith('  },')) {
+        namespace = null;
+        continue;
+      }
+      const key = namespace && /^    ([A-Za-z_][\w-]*):/.exec(line);
+      if (!key) continue;
+      if (seen.has(key[1])) dupes.push(`${namespace}.${key[1]}`);
+      seen.add(key[1]);
+    }
+    expect(dupes, dupes.length ? `${code} has duplicate keys: ${dupes.join(', ')}` : '').toEqual([]);
   });
 });

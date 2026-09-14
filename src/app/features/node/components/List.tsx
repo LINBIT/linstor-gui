@@ -323,10 +323,8 @@ export const List = () => {
                   label: (
                     <Popconfirm
                       key="delete"
-                      title="Delete the node"
-                      description="Are you sure to delete this node?"
-                      okText="Yes"
-                      cancelText="No"
+                      title={t('node:delete_node')}
+                      description={t('node:are_you_sure_delete_node')}
                       onConfirm={() => {
                         deleteMutation.mutate(record.name || '');
                       }}
@@ -340,10 +338,8 @@ export const List = () => {
                   label: (
                     <Popconfirm
                       key="lost"
-                      title="Lost the node"
-                      description="Are you sure to lost this node?"
-                      okText="Yes"
-                      cancelText="No"
+                      title={t('node:lost_node')}
+                      description={t('node:are_you_sure_lost_node')}
                       onConfirm={() => {
                         lostMutation.mutate(record.name || '');
                       }}
@@ -394,10 +390,8 @@ export const List = () => {
 
               <Popconfirm
                 key="delete"
-                title="Delete nodes"
-                description="Are you sure to delete selected nodes?"
-                okText="Yes"
-                cancelText="No"
+                title={t('node:delete_nodes')}
+                description={t('node:are_you_sure_delete_selected_nodes')}
                 onConfirm={handleDeleteBulk}
                 disabled={!hasSelected}
               >
@@ -409,10 +403,8 @@ export const List = () => {
               <Tooltip title={!allSelectedOffline && hasSelected ? t('node:lost_tooltip_offline_required') : ''}>
                 <Popconfirm
                   key="lost"
-                  title="Lost nodes"
-                  description="Are you sure to lost the selected nodes?"
-                  okText="Yes"
-                  cancelText="No"
+                  title={t('node:lost_nodes')}
+                  description={t('node:are_you_sure_lost_selected_nodes')}
                   onConfirm={handleLostBulk}
                   disabled={!allSelectedOffline}
                 >

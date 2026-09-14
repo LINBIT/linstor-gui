@@ -232,7 +232,7 @@ const CreateForm = () => {
           },
         ]}
       >
-        <Input placeholder="Enter storage pool name" />
+        <Input placeholder={t('storage_pool:enter_storage_pool_name')} />
       </Form.Item>
 
       {create_type === 'new' && (
@@ -255,7 +255,7 @@ const CreateForm = () => {
         <Select
           allowClear
           showSearch
-          placeholder="Select the node or nodes"
+          placeholder={t('storage_pool:select_node_nodes')}
           options={nodes?.data?.map((e) => ({
             label: e.name,
             value: e.name,
@@ -296,7 +296,7 @@ const CreateForm = () => {
           >
             <Select
               allowClear
-              placeholder="Select the path of the physical device"
+              placeholder={t('storage_pool:select_path_physical_device')}
               options={devicePathOptions?.data?.map((e) => ({
                 label: e.device,
                 value: e.device,
@@ -317,7 +317,7 @@ const CreateForm = () => {
                       name="pool_name"
                       tooltip={isZSFType ? 'ZSF Pool Name' : 'VG or VG/Thinpool Name'}
                     >
-                      <Input placeholder="Enter pool name" />
+                      <Input placeholder={t('storage_pool:enter_pool_name')} />
                     </Form.Item>
                     <Form.Item
                       label={t('storage_pool:sed')}
@@ -337,11 +337,15 @@ const CreateForm = () => {
                     }
                     {vdo_enable && (
                       <>
-                        <Form.Item label="VDO Slab Size" name="vdo_slab_size_kib" tooltip="The size of the VDO slab.">
+                        <Form.Item
+                          label={t('storage_pool:vdo_slab_size')}
+                          name="vdo_slab_size_kib"
+                          tooltip="The size of the VDO slab."
+                        >
                           <SizeInput />
                         </Form.Item>
                         <Form.Item
-                          label="VDO Logical Size"
+                          label={t('storage_pool:vdo_logical_size')}
                           name="vdo_logical_size_kib"
                           tooltip="The logical size of the VDO volume."
                         >

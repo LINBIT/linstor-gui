@@ -127,7 +127,7 @@ const CreateISCSIForm = () => {
       }}
     >
       <Alert
-        message="Creates a highly available iSCSI target based on LINSTOR and DRBD Reactor."
+        message={t('iscsi:creates_highly_available_iscsi_target')}
         type="info"
         showIcon
         style={{ marginBottom: 24 }}
@@ -157,7 +157,7 @@ const CreateISCSIForm = () => {
       >
         <Select
           allowClear
-          placeholder="Please select resource group"
+          placeholder={t('iscsi:please_select_resource_group')}
           options={resourceGroupsFromLinstor?.map((e) => ({
             label: `${e.name}`,
             value: e.name,
@@ -236,7 +236,7 @@ const CreateISCSIForm = () => {
       </Form.Item>
 
       <Form.Item
-        label="Gross Size"
+        label={t('iscsi:gross_size')}
         name="gross_size"
         valuePropName="checked"
         tooltip="Make all size options specify gross size, i.e. the actual space used on disk"
@@ -244,12 +244,20 @@ const CreateISCSIForm = () => {
         <Checkbox />
       </Form.Item>
 
-      <Form.Item label="Username" name="username" tooltip="Set the username to use for CHAP authentication (optional)">
-        <Input placeholder="CHAP username" />
+      <Form.Item
+        label={t('common:username')}
+        name="username"
+        tooltip="Set the username to use for CHAP authentication (optional)"
+      >
+        <Input placeholder={t('iscsi:chap_username')} />
       </Form.Item>
 
-      <Form.Item label="Password" name="password" tooltip="Set the password to use for CHAP authentication (optional)">
-        <Input.Password placeholder="CHAP password" />
+      <Form.Item
+        label={t('common:password')}
+        name="password"
+        tooltip="Set the password to use for CHAP authentication (optional)"
+      >
+        <Input.Password placeholder={t('iscsi:chap_password')} />
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 7, span: 17 }}>

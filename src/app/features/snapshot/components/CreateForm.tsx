@@ -149,7 +149,7 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
             </div>
           )}
           <Form.Item name="name" label={t('snapshot:snapshot_name')} required>
-            <Input placeholder="Please input snapshot name" />
+            <Input placeholder={t('snapshot:please_input_snapshot_name')} />
           </Form.Item>
 
           <Form.Item
@@ -158,13 +158,13 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
             required
             rules={[{ required: true, message: 'Please select nodes!' }]}
           >
-            <Select allowClear placeholder="Please select resource" options={resourceList} />
+            <Select allowClear placeholder={t('snapshot:please_select_resource')} options={resourceList} />
           </Form.Item>
 
           <Form.Item label={t('snapshot:nodes')} name="nodes">
             <Select
               allowClear
-              placeholder="Please select nodes"
+              placeholder={t('snapshot:please_select_nodes')}
               mode="multiple"
               options={nodes
                 ?.filter((e) => resourceNodeNames?.includes(e.name) && !disklessNodes?.includes(e.name))

@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal, Space, Alert } from 'antd';
 import { Input } from '@app/components/Input';
 import cronParser from 'cron-parser';
@@ -21,6 +22,7 @@ interface CronInputProps {
 }
 
 const CronInput: React.FC<CronInputProps> = ({ value = '0 0 * * *', onChange }) => {
+  const { t } = useTranslation();
   const [values, dispatchValues] = useCronReducer(value);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tempCronValue, setTempCronValue] = useState('');
@@ -137,7 +139,7 @@ const CronInput: React.FC<CronInputProps> = ({ value = '0 0 * * *', onChange }) 
         value={values.inputValue}
         onChange={handleInputChange}
         onBlur={handleInputBlur}
-        placeholder="Cron Expression"
+        placeholder={t('schedule:cron_expression')}
         status={inputError ? 'error' : ''}
         addonAfter={
           <Button type="link" onClick={handleOpenModal}>
@@ -153,7 +155,7 @@ const CronInput: React.FC<CronInputProps> = ({ value = '0 0 * * *', onChange }) 
       )}
 
       <Modal
-        title="Cron Editor"
+        title={t('schedule:cron_editor')}
         open={isModalOpen}
         onCancel={handleModalClose}
         footer={
@@ -176,7 +178,12 @@ const CronInput: React.FC<CronInputProps> = ({ value = '0 0 * * *', onChange }) 
 
         {error && (
           <div className="mt-2">
-            <Alert message="Invalid Cron Expression" description={error.description} type="error" showIcon />
+            <Alert
+              message={t('schedule:invalid_cron_expression')}
+              description={error.description}
+              type="error"
+              showIcon
+            />
           </div>
         )}
 

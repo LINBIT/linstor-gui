@@ -75,7 +75,7 @@ const CreateBackupForm = ({ refetch }: CreateBackupFormProps) => {
         + {t('common:add')}
       </Button>
       <Modal
-        title="Create"
+        title={t('common:create')}
         open={modelOpen}
         onCancel={() => setModelOpen(false)}
         width={800}
@@ -104,7 +104,7 @@ const CreateBackupForm = ({ refetch }: CreateBackupFormProps) => {
         >
           <Form.Item
             name="rsc_name"
-            label="Resource"
+            label={t('common:resource')}
             required
             rules={[{ required: true, message: 'Please select a resource' }]}
           >
@@ -113,11 +113,11 @@ const CreateBackupForm = ({ refetch }: CreateBackupFormProps) => {
                 label: e.name,
                 value: e.name,
               }))}
-              placeholder="Select a resource"
+              placeholder={t('remote:select_resource')}
             />
           </Form.Item>
 
-          <Form.Item name="incremental" label="Incremental">
+          <Form.Item name="incremental" label={t('schedule:inc_cron')}>
             <Switch />
           </Form.Item>
         </Form>

@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { handlePropsToFormOption } from '@app/utils/property';
+import { useTranslation } from 'react-i18next';
 import React, { useState, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
 import { FormItem } from '@app/interfaces/dynamicFormType';
 import { uniqId } from '@app/utils/stringUtils';
@@ -48,6 +49,7 @@ type AuxProp = {
 
 const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
   ({ type, initialVal, handleSubmit, children }, ref) => {
+    const { t } = useTranslation();
     const [formItemList, setFormItemList] = useState<FormItem[]>([]);
     const [formItems, setFormItems] = useState<FormItem[]>([]);
     const [auxProps, setAuxProps] = useState<AuxProp[]>([]);
@@ -295,7 +297,7 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
         </div>
         <Modal
           key={JSON.stringify(initialVal)}
-          title="Property Editor"
+          title={t('common:property_editor')}
           destroyOnClose
           open={modalVisible}
           onCancel={handleModalClose}
@@ -349,7 +351,7 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
                         const newName = e.target.value;
                         handleAuxChange({ id: prop.id, name: newName, value: prop.value });
                       }}
-                      placeholder="Please input property name"
+                      placeholder={t('common:please_input_property_name')}
                       addonBefore="Aux/"
                       style={{ fontWeight: 'normal' }}
                     />
@@ -361,7 +363,7 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
                         const newValue = e.target.value;
                         handleAuxChange({ id: prop.id, name: prop.name, value: newValue });
                       }}
-                      placeholder="Please input property value"
+                      placeholder={t('common:please_input_property_value')}
                       style={{ fontWeight: 'normal' }}
                     />
                   </div>

@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Form } from 'antd';
 import { Input } from '@app/components/Input';
@@ -31,6 +32,7 @@ type FormProps = {
 };
 
 const CreateForm = ({ editing }: FormProps) => {
+  const { t } = useTranslation();
   const { node, ip } = useParams() as { node: string; ip: string };
   const navigate = useNavigate();
   const [form] = Form.useForm<FormType>();
@@ -119,11 +121,16 @@ const CreateForm = ({ editing }: FormProps) => {
       }}
       onFinish={onFinish}
     >
-      <Form.Item label="Node" name="node" required rules={[{ required: true, message: 'Please select nodes!' }]}>
+      <Form.Item
+        label={t('common:node')}
+        name="node"
+        required
+        rules={[{ required: true, message: 'Please select nodes!' }]}
+      >
         <Select
           allowClear
           disabled={editing}
-          placeholder="Please select node"
+          placeholder={t('error_report:please_select_node')}
           options={nodes?.data?.map((e) => ({
             label: e.name,
             value: e.name,
@@ -131,13 +138,13 @@ const CreateForm = ({ editing }: FormProps) => {
         />
       </Form.Item>
 
-      <Form.Item label="Alias" name="name" required>
-        <Input placeholder="Please input alias" disabled={editing} />
+      <Form.Item label={t('node_detail:alias')} name="name" required>
+        <Input placeholder={t('node_detail:please_input_alias')} disabled={editing} />
       </Form.Item>
 
       <Form.Item
         name="address"
-        label="IP Address"
+        label={t('node_detail:ip_address')}
         required
         rules={[
           {
@@ -147,12 +154,12 @@ const CreateForm = ({ editing }: FormProps) => {
         ]}
         tooltip="Must be valid IP address, like 192.168.1.1, 10.10.1.1"
       >
-        <Input placeholder="Please input IP address" />
+        <Input placeholder={t('node_detail:please_input_ip_address')} />
       </Form.Item>
 
       <Form.Item
         name="satellite_port"
-        label="TCP Port"
+        label={t('node_detail:tcp_port')}
         required
         tooltip="Must be valid port"
         rules={[
@@ -162,11 +169,11 @@ const CreateForm = ({ editing }: FormProps) => {
           },
         ]}
       >
-        <Input placeholder="Please input TCP port" type="number" />
+        <Input placeholder={t('node_detail:please_input_tcp_port')} type="number" />
       </Form.Item>
 
       <Form.Item
-        label="Encryption Type"
+        label={t('node_detail:encryption_type')}
         name="satellite_encryption_type"
         tooltip="If satellite port and satellite encryption type are given the netinterface can also work as connection to the controller"
       >

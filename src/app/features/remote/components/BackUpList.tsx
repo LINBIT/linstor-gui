@@ -225,7 +225,7 @@ export const List = () => {
                     key: 'delete',
                     label: (
                       <Popconfirm
-                        title="Delete this backup?"
+                        title={t('remote:delete_backup')}
                         onConfirm={() => {
                           handleDelete(record.finished_time);
                         }}
@@ -256,8 +256,8 @@ export const List = () => {
             show_default: true,
           }}
         >
-          <Form.Item name="origin_rsc" label="Resource">
-            <Input placeholder="Resource" />
+          <Form.Item name="origin_rsc" label={t('common:resource')}>
+            <Input placeholder={t('common:resource')} />
           </Form.Item>
 
           <Form.Item>

@@ -7,6 +7,7 @@ import {
   QuestionCircleOutlined,
 } from '@ant-design/icons';
 import { useSortable } from '@dnd-kit/sortable';
+import { useTranslation } from 'react-i18next';
 import { CSS } from '@dnd-kit/utilities';
 import { Card, Form, Space, Tag, Tooltip, Typography } from 'antd';
 import { Input } from '@app/components/Input';
@@ -57,6 +58,7 @@ export function SortableAgentItem({
   onAddParam,
   addedParams,
 }: SortableItemProps) {
+  const { t } = useTranslation();
   // Get instanceId for stable key lookup
   // Fallback to array index if instanceId not set
   const stableKey = (agentWithMeta as any).instanceId ?? index;
@@ -85,7 +87,7 @@ export function SortableAgentItem({
     return (
       <Form.Item
         name={fieldName}
-        label="Systemd Unit"
+        label={t('common:systemd_unit')}
         initialValue={item.original}
         rules={[
           {
@@ -212,13 +214,11 @@ export function SortableAgentItem({
 
           {/* Delete button */}
           <Popconfirm
-            title="Delete this item?"
+            title={t('common:delete_item')}
             onConfirm={(e) => {
               e?.stopPropagation();
               onDelete(index);
             }}
-            okText="Yes"
-            cancelText="No"
           >
             <Button type="text" size="small" danger icon={<DeleteOutlined />} onClick={(e) => e.stopPropagation()} />
           </Popconfirm>

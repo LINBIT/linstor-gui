@@ -118,7 +118,7 @@ const CreateForm = ({ refetch, simple }: CreateFormProps) => {
           >
             <Select
               allowClear
-              placeholder="Please select resource definition"
+              placeholder={t('volume_definition:please_select_resource_definition')}
               options={resourceDefinition?.data?.map((e) => ({
                 label: e.name,
                 value: e.name,

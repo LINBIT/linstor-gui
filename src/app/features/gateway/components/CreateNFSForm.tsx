@@ -183,7 +183,7 @@ const CreateNFSForm = () => {
       >
         <Select
           allowClear
-          placeholder="Please select resource group"
+          placeholder={t('iscsi:please_select_resource_group')}
           options={resourceGroupsFromLinstor?.map((e) => ({
             label: `${e.name}`,
             value: e.name,
@@ -260,7 +260,7 @@ const CreateNFSForm = () => {
       </Form.Item>
 
       <Form.Item
-        label="Gross Size"
+        label={t('iscsi:gross_size')}
         name="gross_size"
         valuePropName="checked"
         tooltip="Make all size options specify gross size, i.e. the actual space used on disk"

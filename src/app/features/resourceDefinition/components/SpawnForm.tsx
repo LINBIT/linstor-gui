@@ -83,7 +83,7 @@ const SpawnForm = ({ resource }: SpawnFormProps) => {
           onFinish={onFinish}
         >
           <Form.Item name="place_count" label={t('common:place_count')} required>
-            <Input placeholder="Please input place count" type="number" min={0} />
+            <Input placeholder={t('resource:please_input_place_count')} type="number" min={0} />
           </Form.Item>
 
           <Form.Item name="diskless" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>

@@ -31,10 +31,8 @@ const NetInterfaceList: React.FC<Props> = ({ list, handleDeleteNetWorkInterface,
           actions={[
             <Popconfirm
               key="delete"
-              title="Delete the network interface"
-              description="Are you sure to delete this network interface?"
-              okText="Yes"
-              cancelText="No"
+              title={t('common:delete_network_interface')}
+              description={t('common:are_you_sure_delete_network_interface')}
               onConfirm={() => {
                 handleDeleteNetWorkInterface(item.name);
               }}
@@ -45,10 +43,8 @@ const NetInterfaceList: React.FC<Props> = ({ list, handleDeleteNetWorkInterface,
             </Popconfirm>,
             <Popconfirm
               key="activate"
-              title="Set as active"
-              description="Are you sure to set this network interface as active?"
-              okText="Yes"
-              cancelText="No"
+              title={t('common:activate')}
+              description={t('common:are_you_sure_set_network_interface_as')}
               onConfirm={() => {
                 handleSetActiveNetWorkInterface({ ...item });
               }}

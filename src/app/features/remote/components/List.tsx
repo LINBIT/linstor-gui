@@ -266,7 +266,7 @@ export const List = () => {
                     key: 'delete',
                     label: (
                       <Popconfirm
-                        title="Delete this remote object?"
+                        title={t('remote:delete_remote_object')}
                         onConfirm={() => {
                           handleDelete(record.remote_name);
                         }}
@@ -299,14 +299,14 @@ export const List = () => {
           style={{ display: 'flex', alignItems: 'center' }}
         >
           <Form.Item name="name" label={t('common:name')}>
-            <Input placeholder="Name" />
+            <Input placeholder={t('common:name')} />
           </Form.Item>
 
           <Form.Item name="type" label={t('remote:type')}>
             <Select
               style={{ width: 180 }}
               allowClear
-              placeholder="Select type"
+              placeholder={t('remote:select_type')}
               options={[
                 {
                   label: 'ebs',

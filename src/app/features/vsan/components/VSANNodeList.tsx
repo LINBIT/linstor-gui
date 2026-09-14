@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { logger } from '@app/utils/logger';
 import { Table, Tag, Popover, Space, Modal, Progress, Tooltip, notification } from 'antd';
 import { InputNumber } from '@app/components/InputNumber';
@@ -58,6 +59,7 @@ interface CloudStackNode {
 const IS_DEV = import.meta.env.MODE === 'development';
 
 export const VSANNodeList = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [intervalModal, setIntervalModal] = useState(false);
   const [refetchInterval, setRefetchInterval] = useState<number | null>(10);
@@ -312,7 +314,7 @@ export const VSANNodeList = () => {
       title: () => (
         <Popover
           placement="top"
-          title="Color Coding"
+          title={t('common:color_coding')}
           content={() => (
             <div>
               <p>
@@ -422,11 +424,9 @@ export const VSANNodeList = () => {
                 View
               </Button>
               <Popconfirm
-                title="Update node?"
-                description="Are you sure you want to update this node?"
+                title={t('common:update_node')}
+                description={t('common:are_you_sure_you_want_update_node')}
                 onConfirm={() => upgradeNode(record.hostname)}
-                okText="Yes"
-                cancelText="No"
               >
                 <Button disabled={!record.standby} type="default" loading={updating}>
                   Update
@@ -503,7 +503,7 @@ export const VSANNodeList = () => {
       />
 
       <Modal
-        title="Warning"
+        title={t('common:warning')}
         open={showStandbyWarning}
         onOk={() => doStandBy(standbyHost)}
         onCancel={() => setShowStandbyWarning(false)}
@@ -516,7 +516,7 @@ export const VSANNodeList = () => {
       </Modal>
 
       <Modal
-        title="Refresh Interval"
+        title={t('common:refresh_interval')}
         open={intervalModal}
         onOk={() => {
           setRefetchInterval(tempIntervalVal);

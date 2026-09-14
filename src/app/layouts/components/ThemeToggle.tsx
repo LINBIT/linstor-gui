@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import styled from '@emotion/styled';
 import { IoSunnyOutline, IoMoonOutline } from 'react-icons/io5';
 
@@ -95,6 +96,7 @@ const OPTIONS: { mode: ThemeMode; label: string }[] = [
 ];
 
 const ThemeToggle: React.FC<ThemeToggleProps> = ({ collapsed }) => {
+  const { t } = useTranslation();
   const { mode, setMode } = useThemeMode();
 
   const select = (next: ThemeMode) => {
@@ -126,7 +128,7 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ collapsed }) => {
   }
 
   return (
-    <Track role="radiogroup" aria-label="Color theme" onKeyDown={handleKeyDown}>
+    <Track role="radiogroup" aria-label={t('common:color_theme')} onKeyDown={handleKeyDown}>
       {OPTIONS.map(({ mode: value, label }) => (
         <Segment
           key={value}

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Form, Card, Tooltip, Dropdown, MenuProps } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
@@ -113,6 +114,7 @@ interface DRBDReactorConfigProps {
 }
 
 export const DRBDReactorConfig: React.FC<DRBDReactorConfigProps> = ({ initialValues, onValuesChange }) => {
+  const { t } = useTranslation();
   const [form] = Form.useForm();
   const [visibleFields, setVisibleFields] = useState<Set<string>>(new Set());
 
@@ -222,7 +224,7 @@ export const DRBDReactorConfig: React.FC<DRBDReactorConfigProps> = ({ initialVal
       case 'number':
         return <InputNumber style={{ width: '100%' }} />;
       case 'tags':
-        return <Select mode="tags" placeholder="Enter values" tokenSeparators={[',']} />;
+        return <Select mode="tags" placeholder={t('common:enter_values')} tokenSeparators={[',']} />;
       case 'input':
       default:
         return <Input />;
@@ -251,7 +253,7 @@ export const DRBDReactorConfig: React.FC<DRBDReactorConfigProps> = ({ initialVal
                 icon={<MinusCircleOutlined />}
                 onClick={() => handleRemoveField(field.name)}
                 style={{ marginTop: '30px', color: '#ff4d4f' }}
-                title="Remove field"
+                title={t('common:remove_field')}
               />
             </div>
           );

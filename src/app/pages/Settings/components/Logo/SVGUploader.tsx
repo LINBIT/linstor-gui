@@ -94,7 +94,7 @@ export const SVGFileUpload: React.FunctionComponent = () => {
 
       {customLogoEnabledFromForm && (
         <>
-          {logoSrc && <Form.Item label="Current Logo">{renderLogo(logoSrc)}</Form.Item>}
+          {logoSrc && <Form.Item label={t('settings:current_logo')}>{renderLogo(logoSrc)}</Form.Item>}
 
           <Form.Item label={t('settings:logo')} valuePropName="fileList">
             <Upload

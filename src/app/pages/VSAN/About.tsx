@@ -5,12 +5,14 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import PageBasic from '@app/components/PageBasic';
 import { StyledUL } from './styled';
 import { Modal } from 'antd';
 import { Input } from '@app/components/Input';
 
 export const About = () => {
+  const { t } = useTranslation();
   const [hostModal, setHostModal] = useState(false);
   const [host, setHost] = useState(() => {
     return window.localStorage.getItem('HCI_VSAN_HOST') || '';
@@ -22,7 +24,7 @@ export const About = () => {
   };
 
   return (
-    <PageBasic title="About LINBIT VSAN">
+    <PageBasic title={t('common:about_linbit_vsan')}>
       <p>This product was proudly created by LINBIT.</p>
       <h2>GUI version</h2>
       <p
@@ -129,7 +131,7 @@ export const About = () => {
       </StyledUL>
 
       <Modal
-        title="VSAN Host"
+        title={t('common:vsan_host')}
         open={hostModal}
         onOk={() => {
           handleSetHost();

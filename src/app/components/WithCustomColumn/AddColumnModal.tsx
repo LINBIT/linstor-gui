@@ -60,7 +60,7 @@ const AddColumnModal: React.FC<AddColumnModalProps> = ({ isVisible, onConfirm, o
         >
           <Select
             style={{ width: '100%' }}
-            placeholder="Enter column data index"
+            placeholder={t('common:enter_column_data_index')}
             options={options}
             showSearch
             onChange={(e) => form.setFieldValue('title', e)}
@@ -71,7 +71,7 @@ const AddColumnModal: React.FC<AddColumnModalProps> = ({ isVisible, onConfirm, o
           name="title"
           rules={[{ required: true, message: 'Please enter column title' }]}
         >
-          <Input placeholder="Enter column title" />
+          <Input placeholder={t('common:enter_column_title')} />
         </Form.Item>
       </Form>
     </Modal>

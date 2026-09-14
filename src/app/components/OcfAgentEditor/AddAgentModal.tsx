@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal, Table, Tag } from 'antd';
 import { Input } from '@app/components/Input';
 import { Button } from '@app/components/Button';
@@ -42,6 +43,7 @@ export function AddAgentModal({
   onAgentChange,
   agents,
 }: AddAgentModalProps) {
+  const { t } = useTranslation();
   const [searchText, setSearchText] = useState('');
   // Linux only until Windows is ticked, so a Linux cluster is never offered
   // agents it cannot run.
@@ -143,7 +145,7 @@ export function AddAgentModal({
 
   return (
     <Modal
-      title="Add Resource Agent"
+      title={t('common:add_resource_agent')}
       open={visible}
       onCancel={handleCancel}
       width={800}
@@ -164,8 +166,8 @@ export function AddAgentModal({
           value={platforms}
           onChange={setPlatforms}
           options={platformOptions}
-          placeholder="Select a platform"
-          aria-label="Filter by platform"
+          placeholder={t('common:select_platform')}
+          aria-label={t('common:filter_platform')}
           style={{ width: '100%' }}
         />
 
@@ -185,7 +187,7 @@ export function AddAgentModal({
         />
 
         <Input
-          placeholder="Search agents by provider, name or description..."
+          placeholder={t('common:search_agents_provider_name_description')}
           prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}

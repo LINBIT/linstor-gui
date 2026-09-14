@@ -175,7 +175,7 @@ describe('CreateISCSIForm Component', () => {
 
       const inputs = screen.getAllByTestId('input');
       // Should have username and password inputs
-      expect(inputs.some((i) => i.getAttribute('placeholder') === 'CHAP username')).toBe(true);
+      expect(inputs.some((i) => i.getAttribute('placeholder') === 'iscsi:chap_username')).toBe(true);
     });
 
     it('should render gross size checkbox', () => {
@@ -362,7 +362,7 @@ describe('CreateISCSIForm Component', () => {
       fireEvent.change(inputs[3], { target: { value: '192.168.1.1/24' } });
 
       // Find username and password inputs
-      const usernameInput = inputs.find((i) => i.getAttribute('placeholder') === 'CHAP username');
+      const usernameInput = inputs.find((i) => i.getAttribute('placeholder') === 'iscsi:chap_username');
       fireEvent.change(usernameInput!, { target: { value: 'admin' } });
       fireEvent.change(passwordInputs[0], { target: { value: 'password123' } });
 

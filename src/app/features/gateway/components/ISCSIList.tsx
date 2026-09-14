@@ -169,8 +169,6 @@ export const ISCSIList = ({
                       <Popconfirm
                         key="startstop"
                         title={`Are you sure to ${isStarted ? 'stop' : 'start'} this target?`}
-                        okText="Yes"
-                        cancelText="No"
                         onConfirm={() => {
                           if (record.iqn) {
                             if (isStarted) {
@@ -201,9 +199,7 @@ export const ISCSIList = ({
                     label: (
                       <Popconfirm
                         key="delete"
-                        title="Are you sure to delete this target?"
-                        okText="Yes"
-                        cancelText="No"
+                        title={t('iscsi:are_you_sure_delete_target')}
                         onConfirm={() => {
                           if (record.iqn) {
                             handleDelete(record.iqn);
@@ -262,14 +258,12 @@ export const ISCSIList = ({
       width: 150,
       render: (_, record) => (
         <Popconfirm
-          title="Are you sure to delete this volume?"
+          title={t('iscsi:are_you_sure_delete_volume')}
           onConfirm={() => {
             if (record.iqn && record.lunId) {
               handleDeleteVolume(record.iqn, record.lunId);
             }
           }}
-          okText="Yes"
-          cancelText="No"
         >
           <Button danger size="small">
             {t('iscsi:delete_volume')}
@@ -369,10 +363,8 @@ export const ISCSIList = ({
 
               <Popconfirm
                 key="delete"
-                title="Delete targets"
-                description="Are you sure to delete the selected targets?"
-                okText="Yes"
-                cancelText="No"
+                title={t('iscsi:delete_targets')}
+                description={t('iscsi:are_you_sure_delete_selected_targets')}
                 onConfirm={handleDeleteBulk}
                 disabled={!hasSelected}
               >

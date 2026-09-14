@@ -266,10 +266,8 @@ export const List = () => {
                   label: (
                     <Popconfirm
                       key="delete"
-                      title="Delete the error report"
-                      description="Are you sure to delete this error report?"
-                      okText="Yes"
-                      cancelText="No"
+                      title={t('error_report:delete_error_report')}
+                      description={t('error_report:are_you_sure_delete_error_report')}
                       onConfirm={() => {
                         handleDelete(getId(record));
                       }}
@@ -324,7 +322,7 @@ export const List = () => {
             <Select
               style={{ width: 180 }}
               allowClear
-              placeholder="Please select node"
+              placeholder={t('error_report:please_select_node')}
               options={nodes?.data?.map((e) => ({
                 label: e.name,
                 value: e.name,
@@ -336,7 +334,7 @@ export const List = () => {
             <Select
               style={{ width: 180 }}
               allowClear
-              placeholder="Please select module"
+              placeholder={t('error_report:please_select_module')}
               options={modules.map((e) => ({
                 label: e.text,
                 value: e.value,
@@ -365,10 +363,8 @@ export const List = () => {
 
               <Popconfirm
                 key="delete"
-                title="Delete the error reports"
-                description="Are you sure to delete selected error reports?"
-                okText="Yes"
-                cancelText="No"
+                title={t('error_report:delete_error_reports')}
+                description={t('error_report:are_you_sure_delete_selected_error')}
                 onConfirm={handleDeleteBulk}
                 disabled={!hasSelected}
               >

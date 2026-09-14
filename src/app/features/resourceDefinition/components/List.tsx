@@ -197,10 +197,8 @@ export const List = () => {
 
           <Popconfirm
             key="delete"
-            title="Delete the resource definition"
-            description="Are you sure to delete this resource definition?"
-            okText="Yes"
-            cancelText="No"
+            title={t('resource:delete_resource_definition')}
+            description={t('resource_definition:are_you_sure_delete_resource_definition')}
             onConfirm={() => {
               deleteMutation.mutate(record.name || '');
             }}
@@ -265,7 +263,7 @@ export const List = () => {
           }}
         >
           <Form.Item name="name" label={t('resource_definition:name')}>
-            <Input placeholder="Resource Definition Name" suffix={<RegexFilterHint />} />
+            <Input placeholder={t('common:resource_definition_name')} suffix={<RegexFilterHint />} />
           </Form.Item>
 
           <Form.Item>
@@ -284,10 +282,8 @@ export const List = () => {
               {hasSelected && (
                 <Popconfirm
                   key="delete"
-                  title="Delete resource definition"
-                  description="Are you sure to delete selected resource definitions?"
-                  okText="Yes"
-                  cancelText="No"
+                  title={t('resource_definition:delete_resource_definition')}
+                  description={t('resource_definition:are_you_sure_delete_selected_resource')}
                   onConfirm={handleDeleteBulk}
                 >
                   <Button danger>{t('common:delete')}</Button>

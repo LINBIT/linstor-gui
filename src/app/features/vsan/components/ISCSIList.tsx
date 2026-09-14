@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { Space, Table, Tag, notification } from 'antd';
 import type { TableProps } from 'antd';
@@ -35,6 +36,7 @@ type ISCSIListProp = {
 };
 
 export const ISCSIList = ({ complex }: ISCSIListProp) => {
+  const { t } = useTranslation();
   const [api, contextHolder] = notification.useNotification();
 
   const { data, isLoading, refetch } = useQuery({
@@ -116,10 +118,8 @@ export const ISCSIList = ({ complex }: ISCSIListProp) => {
             />
             <Popconfirm
               key="delete"
-              title="Delete the ISCSI target"
-              description="Are you sure to delete this ISCSI target?"
-              okText="Yes"
-              cancelText="No"
+              title={t('common:delete_iscsi_target')}
+              description={t('common:are_you_sure_delete_iscsi_target')}
               onConfirm={() => {
                 deleteMutation.mutate(target.iqn);
               }}

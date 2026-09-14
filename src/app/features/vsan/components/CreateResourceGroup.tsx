@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { logger } from '@app/utils/logger';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Form, Modal, notification } from 'antd';
@@ -27,6 +28,7 @@ type CreateResourceGroupProps = {
 };
 
 export const CreateResourceGroup = ({ refetch }: CreateResourceGroupProps) => {
+  const { t } = useTranslation();
   const [form] = Form.useForm<FormType>();
   const [api, contextHolder] = notification.useNotification();
   const [createFormModal, setCreateFormModal] = useState(false);
@@ -89,7 +91,7 @@ export const CreateResourceGroup = ({ refetch }: CreateResourceGroupProps) => {
       </Button>
 
       <Modal
-        title="Create"
+        title={t('common:create')}
         open={createFormModal}
         onCancel={handleCancel}
         width={800}
@@ -118,7 +120,7 @@ export const CreateResourceGroup = ({ refetch }: CreateResourceGroupProps) => {
           }}
         >
           <Form.Item
-            label="Resource Group:"
+            label={t('node_detail:resource_group')}
             name="name"
             required
             rules={[{ required: true, message: 'Please input resource group name!' }]}
@@ -126,11 +128,11 @@ export const CreateResourceGroup = ({ refetch }: CreateResourceGroupProps) => {
             Valid characters are a-z, A-Z, and 0-9 as well as _ and -
             Be aware that the name cannot start or end with - and cannot start with a number."
           >
-            <Input placeholder="Name" />
+            <Input placeholder={t('common:name')} />
           </Form.Item>
 
           <Form.Item
-            label="Storage Pool:"
+            label={t('common:storage_pool')}
             name="poolName"
             required
             rules={[{ required: true, message: 'Please select resource group!' }]}
@@ -138,7 +140,7 @@ export const CreateResourceGroup = ({ refetch }: CreateResourceGroupProps) => {
           >
             <Select
               allowClear
-              placeholder="Please select resource group"
+              placeholder={t('iscsi:please_select_resource_group')}
               options={storagePool?.data
                 ?.filter((e) => e.name !== DEFAULT_SP)
                 ?.concat({ name: '---any---' })
@@ -150,7 +152,7 @@ export const CreateResourceGroup = ({ refetch }: CreateResourceGroupProps) => {
           </Form.Item>
 
           <Form.Item
-            label="Replica count:"
+            label={t('common:replica_count')}
             name="placeCount"
             rules={[
               {

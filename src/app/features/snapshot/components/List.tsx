@@ -369,7 +369,7 @@ export const List = () => {
             <Select
               style={{ width: 180 }}
               allowClear
-              placeholder="Please select node"
+              placeholder={t('error_report:please_select_node')}
               options={nodes?.data?.map((e) => ({
                 label: e.name,
                 value: e.name,
@@ -381,7 +381,7 @@ export const List = () => {
             <Select
               style={{ width: 180 }}
               allowClear
-              placeholder="Please select resource"
+              placeholder={t('snapshot:please_select_resource')}
               options={uniqBy(resourceList?.data, 'name')?.map((e) => ({
                 label: e.name,
                 value: e.name,
@@ -406,10 +406,8 @@ export const List = () => {
 
               <Popconfirm
                 key="delete"
-                title="Delete snapshots"
-                description="Are you sure to delete selected snapshots?"
-                okText="Yes"
-                cancelText="No"
+                title={t('snapshot:delete_snapshots')}
+                description={t('snapshot:are_you_sure_delete_selected_snapshots')}
                 onConfirm={handleDeleteBulk}
                 disabled={!hasSelected}
               >

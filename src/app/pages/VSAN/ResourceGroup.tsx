@@ -5,12 +5,14 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import PageBasic from '@app/components/PageBasic';
+import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { ResourceGroupList } from '@app/features/vsan';
 
 export const ResourceGroup = () => {
+  const { t } = useTranslation();
   return (
-    <PageBasic title="Resource groups">
+    <PageBasic title={t('common:resource_groups')}>
       <p>
         Here you can create resource groups from your storage pools.
         <br />

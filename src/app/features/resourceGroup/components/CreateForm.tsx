@@ -279,19 +279,19 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
               },
             ]}
           >
-            <Input placeholder="Please input resource group name" disabled={isEdit} />
+            <Input placeholder={t('resource_group:please_input_resource_group_name')} disabled={isEdit} />
           </Form.Item>
 
           <Form.Item name="description" label={t('resource_group:description')}>
             <Input.TextArea
-              placeholder="Please input description"
+              placeholder={t('resource_group:please_input_description')}
               autoSize={{
                 minRows: 1,
               }}
             />
           </Form.Item>
           <Form.Item name="place_count" label={t('resource_group:place_count')} required>
-            <Input placeholder="Please input place count" type="number" min={0} />
+            <Input placeholder={t('resource:please_input_place_count')} type="number" min={0} />
           </Form.Item>
 
           {!isEdit && (
@@ -371,7 +371,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
           >
             <Select
               allowClear
-              placeholder="Please select storage pool"
+              placeholder={t('resource:please_select_storage_pool')}
               mode="multiple"
               options={uniqBy(storagePools, 'storage_pool_name')?.map((e) => ({
                 label: e.storage_pool_name,
@@ -406,7 +406,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
             <Select
               mode="multiple"
               allowClear
-              placeholder="Please select layers"
+              placeholder={t('resource_group:please_select_layers')}
               options={layerList.map((e) => ({
                 label: e,
                 value: e,
@@ -445,7 +445,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
             <Select
               allowClear
               mode="multiple"
-              placeholder="Please select providers"
+              placeholder={t('resource_group:please_select_providers')}
               options={providerList?.map((e) => ({
                 label: e,
                 value: e,
@@ -507,7 +507,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
           <Row gutter={[16, 16]}>
             <Col span={10}>
               <Form.Item
-                label="Resource Definition Name"
+                label={t('common:resource_definition_name')}
                 name="resource_definition_name"
                 required
                 rules={[
@@ -519,12 +519,12 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
                 labelCol={{ span: 8 }}
                 wrapperCol={{ span: 16 }}
               >
-                <Input placeholder="Please input resource definition group name" />
+                <Input placeholder={t('resource_group:please_input_resource_definition_group')} />
               </Form.Item>
             </Col>
 
             <Col span={10}>
-              <Form.Item name="size" label="Volume Size" required>
+              <Form.Item name="size" label={t('resource_group:volume_size')} required>
                 <SizeInput />
               </Form.Item>
             </Col>

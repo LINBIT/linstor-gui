@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert } from 'antd';
 import { AuthForm } from '@app/features/authentication';
 import logo from '@app/assets/login-logo.svg';
@@ -18,6 +19,7 @@ interface LoginProps {
 }
 
 export const Login = ({ redirectTo }: LoginProps) => {
+  const { t } = useTranslation();
   const store = useKVStore();
 
   const dispatch = useDispatch<Dispatch>();
@@ -56,7 +58,7 @@ export const Login = ({ redirectTo }: LoginProps) => {
               <>
                 <br />
                 <Alert
-                  message="Default credential: admin/admin"
+                  message={t('users:default_credential_admin_admin')}
                   type="info"
                   closable
                   className="w-[368px] mt-6 md:mt-[44px] mb-8"

@@ -77,7 +77,7 @@ const ResourceOverview: React.FunctionComponent = () => {
       >
         <Input
           type="text"
-          placeholder="Please input snapshot name here..."
+          placeholder={t('resource:please_input_snapshot_name')}
           value={snapshotName}
           onChange={(evt) => {
             setSnapshotName(evt.target.value);
