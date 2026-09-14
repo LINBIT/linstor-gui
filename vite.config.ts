@@ -202,7 +202,9 @@ export default defineConfig(({ mode, command }) => {
       environment: 'jsdom',
       setupFiles: './src/setupTests.ts',
       css: true,
-      include: ['src/app/**/__test__/**/*.{ts,tsx}', 'src/app/**/*.test.{ts,tsx}', 'src/app/**/*.spec.{ts,tsx}'],
+      // src/translations lives outside src/app but carries its own coverage
+      // test, so the pattern is src/** rather than src/app/**.
+      include: ['src/**/__test__/**/*.{ts,tsx}', 'src/**/*.test.{ts,tsx}', 'src/**/*.spec.{ts,tsx}'],
       coverage: {
         enabled: isCoverageMode,
         provider: 'v8',

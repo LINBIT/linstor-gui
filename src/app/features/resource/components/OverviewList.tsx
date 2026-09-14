@@ -972,7 +972,7 @@ export const OverviewList = () => {
                 })) || [],
                 'value',
               )}
-              placeholder="Select a resource group"
+              placeholder={t('common:select_resource_group')}
             />
           </Form.Item>
 

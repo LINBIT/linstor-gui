@@ -780,6 +780,9 @@ const en = {
   },
 
   settings: {
+    // Label above the Create/Edit radio group on the passphrase form. The
+    // key was in use but had no English entry, so the raw key was rendered.
+    create_edit_label: 'Create / Edit',
     title: 'Settings',
     general: 'General',
     custom_logo: 'Custom Logo',
