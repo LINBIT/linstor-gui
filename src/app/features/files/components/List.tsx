@@ -444,6 +444,11 @@ export const List = () => {
               value={selectedResource}
               onChange={setSelectedResource}
               loading={rdLoading}
+              // Clusters can hold hundreds of resource definitions; scrolling to
+              // one is unusable. optionFilterProp is explicit because antd
+              // filters on `value` by default, not on what the user reads.
+              showSearch
+              optionFilterProp="label"
               options={availableResources.map((rd: { name: string }) => ({
                 label: rd.name,
                 value: rd.name,
