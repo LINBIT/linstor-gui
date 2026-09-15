@@ -342,7 +342,7 @@ export const List = () => {
         columns={columns}
         dataSource={filteredFiles}
         rowKey={(item) => item.path ?? uniqId()}
-        loading={isLoading || deleteMutation.isPending}
+        loading={isLoading || deleteMutation.isLoading}
         pagination={{
           total: filteredFiles.length,
           showTotal: (total) => t('common:total_items', { total }),
@@ -360,7 +360,7 @@ export const List = () => {
         onOk={handleModifyConfirm}
         okText={t('common:save')}
         cancelText={t('common:cancel')}
-        confirmLoading={createOrUpdateMutation.isPending}
+        confirmLoading={createOrUpdateMutation.isLoading}
         width={700}
       >
         <Spin spinning={modifyLoading}>
@@ -424,7 +424,7 @@ export const List = () => {
           setSelectedResource(null);
         }}
         onOk={handleDeployConfirm}
-        confirmLoading={deployMutation.isPending}
+        confirmLoading={deployMutation.isLoading}
         okText={t('common:confirm')}
         cancelText={t('common:cancel')}
       >

@@ -81,7 +81,7 @@ const CreateFileForm = () => {
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 6, span: 18 }}>
-        <Button type="primary" htmlType="submit" loading={createOrUpdateMutation.isPending}>
+        <Button type="primary" htmlType="submit" loading={createOrUpdateMutation.isLoading}>
           {t('common:submit')}
         </Button>
 
