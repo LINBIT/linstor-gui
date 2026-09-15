@@ -16,7 +16,7 @@
     "eslint": "eslint --ext .tsx,.js ./src/",
     "lint": "npm run eslint",
     "format": "prettier --write --list-different './src/**/*.{ts,tsx,js,jsx,css}' '!src/app/apis/**'",
-    "type-check": "tsc --noEmit",
+    "type-check": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json",
     "clean": "rimraf dist",
     "test": "vitest --run",
     "test:watch": "vitest",

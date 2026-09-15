@@ -60,7 +60,7 @@ describe('resourceGroup api', () => {
   });
 
   it('creates with the whole body', async () => {
-    const body = { name: 'rg1', select_filter: { place_count: 2 } };
+    const body = { name: 'rg1', description: 'for tests' };
     await createResourceGroup(body);
     expect(post).toHaveBeenCalledWith('/v1/resource-groups', { body });
   });
@@ -99,7 +99,7 @@ describe('resourceGroup api', () => {
   });
 
   it('passes the transport result straight through', async () => {
-    await expect(createResourceGroup({ name: 'rg1' })).resolves.toBe(ok);
+    await expect(createResourceGroup({ name: 'rg1', description: '' })).resolves.toBe(ok);
     const boom = new Error('network');
     vi.mocked(del).mockRejectedValue(boom);
     await expect(deleteResourceGroup('rg1')).rejects.toBe(boom);

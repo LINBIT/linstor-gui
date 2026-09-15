@@ -4,7 +4,6 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -78,9 +77,14 @@ describe('CreateSnapshotForm', () => {
     vi.clearAllMocks();
     vi.mocked(createSnapshot).mockResolvedValue({ data: [{ ret_code: 1, message: 'created' }] } as never);
     vi.mocked(getStoragePool).mockImplementation(
-      async (query: { storage_pools?: string[] }) =>
+      async (query?: { storage_pools?: string[] }) =>
         ({
-          data: [{ storage_pool_name: query.storage_pools?.[0], supports_snapshots: query.storage_pools?.[0] === 'pool-thin' }],
+          data: [
+            {
+              storage_pool_name: query?.storage_pools?.[0],
+              supports_snapshots: query?.storage_pools?.[0] === 'pool-thin',
+            },
+          ],
         }) as never,
     );
   });

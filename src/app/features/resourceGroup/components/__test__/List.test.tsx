@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { forwardRef, useImperativeHandle, useState } from 'react';
+import { forwardRef, useImperativeHandle, useState } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';

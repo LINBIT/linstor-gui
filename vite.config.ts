@@ -12,7 +12,7 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import { resolve } from 'path';
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode, command }) => {
+export default defineConfig(({ mode }) => {
   // Load env variables based on mode
   // VITE_* is the usual client-exposed set. LINBIT_SDS_VERSION is the one
   // unprefixed variable a product build (LINBIT SDS for Windows) sets in its
@@ -106,9 +106,11 @@ export default defineConfig(({ mode, command }) => {
               proxyReq.removeHeader('authorization');
             });
 
-            proxy.on('error', (err, req, res) => {
+            proxy.on('error', (err, _req, res) => {
               console.error('Proxy error:', err);
-              if (res && typeof res.writeHead === 'function') {
+              // The error hook also fires for upgraded sockets, which cannot
+              // take a status line; only answer on a real HTTP response.
+              if (res && 'writeHead' in res && typeof res.writeHead === 'function') {
                 res.writeHead(500, {
                   'Content-Type': 'application/json',
                 });
