@@ -45,16 +45,23 @@ const SpawnForm = ({ resource_group, isInDropdown = false }: SpawnFormProps) => 
   // Keep the Spawn button disabled until every field passes its rules.
   // `validateOnly` re-checks on each change without painting errors on the
   // still-pristine fields (antd's recommended "submittable" pattern).
+  // Each change starts a new async validation; a rejection from an earlier,
+  // now-stale run can settle after the latest success and leave the button
+  // disabled, so only the most recent run may write the result.
   const watchedValues = Form.useWatch([], form);
   const [submittable, setSubmittable] = useState(false);
   useEffect(() => {
     if (!showSpawnForm) {
       return;
     }
+    let stale = false;
     form.validateFields({ validateOnly: true }).then(
-      () => setSubmittable(true),
-      () => setSubmittable(false),
+      () => !stale && setSubmittable(true),
+      () => !stale && setSubmittable(false),
     );
+    return () => {
+      stale = true;
+    };
   }, [form, showSpawnForm, watchedValues]);
 
   const { data: resourceGroupList } = useQuery({
