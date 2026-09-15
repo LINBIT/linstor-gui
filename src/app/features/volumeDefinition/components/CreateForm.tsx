@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { createVolumeDefinition, getResourceDefinition, getVolumeDefinitionListByResource } from '../api';
 import { CreateVolumeDefinitionRequestBody } from '../types';
 import { SizeInput } from '@app/components/SizeInput';
-import { Button as CustomButton } from '@app/components/Button';
+import { Button } from '@app/components/Button';
 
 type FormType = {
   resource: string;
@@ -53,21 +53,31 @@ const CreateForm = ({ refetch, simple }: CreateFormProps) => {
       const { resource, ...rest } = data;
       return createVolumeDefinition(resource, rest);
     },
+    // Close and refresh only once the definition exists; refetching before
+    // the request has settled showed the list without the new volume.
+    onSuccess: () => {
+      setShowCreateForm(false);
+      form.resetFields();
+      refetch?.();
+    },
   });
 
-  const onFinish = async (values: FormType) => {
-    const VDData = {
+  const onFinish = (values: FormType) => {
+    createVD.mutate({
       resource: values.resource,
       volume_definition: {
         size_kib: values.size,
       },
-    };
+    });
+  };
 
-    createVD.mutate(VDData);
-    setShowCreateForm(false);
-    if (refetch) {
-      refetch();
-    }
+  // The footer button sits outside the form, so validate explicitly instead
+  // of reading the raw values; otherwise the required rules never ran.
+  const submit = () => {
+    form
+      .validateFields()
+      .then(onFinish)
+      .catch(() => undefined);
   };
 
   return (
@@ -89,12 +99,12 @@ const CreateForm = ({ refetch, simple }: CreateFormProps) => {
         width={800}
         footer={
           <>
-            <CustomButton type="secondary" onClick={() => setShowCreateForm(false)}>
+            <Button type="secondary" onClick={() => setShowCreateForm(false)}>
               {t('common:cancel')}
-            </CustomButton>
-            <CustomButton type="primary" onClick={() => onFinish(form.getFieldsValue())} loading={createVD.isLoading}>
+            </Button>
+            <Button type="primary" onClick={submit} loading={createVD.isLoading}>
               {t('common:spawn')}
-            </CustomButton>
+            </Button>
           </>
         }
       >
@@ -126,7 +136,12 @@ const CreateForm = ({ refetch, simple }: CreateFormProps) => {
             />
           </Form.Item>
 
-          <Form.Item name="size" label={t('common:size')} required>
+          <Form.Item
+            name="size"
+            label={t('common:size')}
+            required
+            rules={[{ required: true, message: 'Please input size!' }]}
+          >
             <SizeInput />
           </Form.Item>
         </Form>
