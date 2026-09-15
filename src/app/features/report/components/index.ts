@@ -4,5 +4,4 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-export { CreateForm } from './CreateForm';
 export { List } from './List';
