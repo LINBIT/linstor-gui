@@ -215,6 +215,10 @@ export default defineConfig(({ mode, command }) => {
         provider: 'v8',
         reporter: ['text', 'json', 'html', 'cobertura'],
         reportsDirectory: './coverage',
+        // v8 only instruments files a test imports, so without an explicit
+        // include the ~220 untested source files never reach the denominator
+        // and the reported number was more than double the real one.
+        include: ['src/**/*.{ts,tsx}'],
         exclude: [
           'node_modules/',
           'src/setupTests.ts',
