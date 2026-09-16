@@ -45,6 +45,8 @@ const CreateRemoteForm = ({ refetch }: CreateRemoteFormProps) => {
     },
   });
 
+  // The footer button submits through the form so the required rules run;
+  // reading getFieldsValue() directly used to post an empty remote.
   const onFinish = async (
     values: FormType & {
       remote_type?: RemoteType;
@@ -92,7 +94,7 @@ const CreateRemoteForm = ({ refetch }: CreateRemoteFormProps) => {
             <Button
               type="primary"
               loading={createS3RemoteMutation.isLoading || createLINSTORRemoteMutation.isLoading}
-              onClick={() => onFinish(form.getFieldsValue())}
+              onClick={() => form.submit()}
             >
               {t('common:submit')}
             </Button>
@@ -124,29 +126,29 @@ const CreateRemoteForm = ({ refetch }: CreateRemoteFormProps) => {
             />
           </Form.Item>
 
-          <Form.Item name="remote_name" label={t('common:name')} required>
+          <Form.Item name="remote_name" label={t('common:name')} required rules={[{ required: true }]}>
             <Input placeholder={t('remote:please_input_name')} />
           </Form.Item>
 
           {remote_type === 's3_remotes' && (
             <>
-              <Form.Item name="endpoint" label={t('remote:endpoint')} required>
+              <Form.Item name="endpoint" label={t('remote:endpoint')} required rules={[{ required: true }]}>
                 <Input placeholder={t('remote:please_input_endpoint')} />
               </Form.Item>
 
-              <Form.Item name="bucket" label={t('remote:bucket')} required>
+              <Form.Item name="bucket" label={t('remote:bucket')} required rules={[{ required: true }]}>
                 <Input placeholder={t('remote:please_input_bucket')} />
               </Form.Item>
 
-              <Form.Item name="region" label={t('remote:region')} required>
+              <Form.Item name="region" label={t('remote:region')} required rules={[{ required: true }]}>
                 <Input placeholder={t('remote:please_input_region')} />
               </Form.Item>
 
-              <Form.Item name="access_key" label={t('remote:access_key')} required>
+              <Form.Item name="access_key" label={t('remote:access_key')} required rules={[{ required: true }]}>
                 <Input.TextArea placeholder={t('remote:please_input_access_key')} />
               </Form.Item>
 
-              <Form.Item name="secret_key" label={t('remote:secret_key')} required>
+              <Form.Item name="secret_key" label={t('remote:secret_key')} required rules={[{ required: true }]}>
                 <Input.TextArea placeholder={t('remote:please_input_secret_key')} />
               </Form.Item>
 
@@ -158,7 +160,7 @@ const CreateRemoteForm = ({ refetch }: CreateRemoteFormProps) => {
 
           {remote_type === 'linstor_remotes' && (
             <>
-              <Form.Item name="url" label={t('remote:url')} required>
+              <Form.Item name="url" label={t('remote:url')} required rules={[{ required: true }]}>
                 <Input placeholder={t('remote:please_input_url')} />
               </Form.Item>
             </>

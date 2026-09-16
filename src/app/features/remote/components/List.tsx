@@ -44,9 +44,6 @@ export const List = () => {
     mode: state.setting.mode,
   }));
 
-  const type = Form.useWatch('type', form);
-  const name = Form.useWatch('name', form);
-
   const [query, setQuery] = useState<RemoteQuery>(() => {
     const query = new URLSearchParams(location.search);
     const name = query.get('name');
@@ -86,12 +83,15 @@ export const List = () => {
         })
         .flat();
 
-      if (type) {
-        list = list.filter((e) => e.type === type);
+      // Filter on the query state, which is what the query key tracks. The
+      // form's watched values are still empty on the first fetch, so a
+      // ?type=... or ?name=... in the URL was never applied.
+      if (query.type) {
+        list = list.filter((e) => e.type === query.type);
       }
 
-      if (name) {
-        list = list.filter((e) => e.remote_name === name);
+      if (query.name) {
+        list = list.filter((e) => e.remote_name === query.name);
       }
 
       // fetch backup count for each remote
@@ -143,7 +143,7 @@ export const List = () => {
     const new_url = `${location.pathname}?${queryS.toString()}`;
 
     const newList = dataList?.filter((e) => {
-      if (values.name && e.name !== values.name) {
+      if (values.name && e.remote_name !== values.name) {
         return false;
       }
 

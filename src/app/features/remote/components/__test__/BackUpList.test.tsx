@@ -5,250 +5,147 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// Mock API functions
-const mockGetBackup = vi.fn();
-const mockDeleteBackup = vi.fn();
-
-vi.mock('../api', () => ({
-  getBackup: mockGetBackup,
-  deleteBackup: mockDeleteBackup,
+vi.mock('../../api', () => ({
+  getBackup: vi.fn(),
+  deleteBackup: vi.fn(),
+  createBackup: vi.fn(),
+}));
+vi.mock('@app/features/resource', () => ({
+  getResources: vi.fn(),
 }));
 
-describe('BackUpList Business Logic Tests', () => {
+const navigate = vi.fn();
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
+  return { ...actual, useNavigate: () => navigate, useParams: () => ({ remote_name: 's3-a' }) };
+});
+
+import { getBackup, deleteBackup } from '../../api';
+import { getResources } from '@app/features/resource';
+import { List } from '../BackUpList';
+
+// finished_timestamp is in ms; TZ is pinned to UTC in setupTests.
+const backups = {
+  'res-a_20231114': {
+    origin_rsc: 'res-a',
+    origin_snap: 'back_20231114_221320',
+    finished_time: '20231114_221320',
+    finished_timestamp: Date.UTC(2023, 10, 14, 22, 13, 20),
+    success: true,
+    shipping: false,
+  },
+  'res-a_20231115': {
+    origin_rsc: 'res-a',
+    origin_snap: 'back_20231115_000000',
+    finished_time: '20231115_000000',
+    finished_timestamp: Date.UTC(2023, 10, 15, 0, 0, 0),
+    success: false,
+    shipping: false,
+  },
+  'res-b_now': {
+    origin_rsc: 'res-b',
+    origin_snap: 'back_shipping',
+    finished_time: '',
+    finished_timestamp: 0,
+    success: false,
+    shipping: true,
+  },
+};
+
+const renderList = (initialEntry = '/remote/s3-a/backups') => {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+    logger: { log: () => {}, warn: () => {}, error: () => {} },
+  });
+  return render(
+    <QueryClientProvider client={client}>
+      <MemoryRouter initialEntries={[initialEntry]}>
+        <List />
+      </MemoryRouter>
+    </QueryClientProvider>,
+  );
+};
+
+const rowOf = (snap: string) => screen.getByText(snap).closest('tr') as HTMLElement;
+
+const openRowMenu = async (snap: string) => {
+  fireEvent.mouseEnter(within(rowOf(snap)).getByRole('button', { name: 'more' }));
+  let menu: HTMLElement | undefined;
+  await waitFor(() => {
+    const open = screen
+      .getAllByRole('menu')
+      .filter((m) => !m.closest('.ant-dropdown')?.classList.contains('ant-dropdown-hidden'));
+    expect(open).toHaveLength(1);
+    menu = open[0];
+  });
+  return menu as HTMLElement;
+};
+
+describe('backup List', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(getBackup).mockResolvedValue({ data: { linstor: backups } } as never);
+    vi.mocked(deleteBackup).mockResolvedValue({ data: [{ ret_code: 1 }] } as never);
+    vi.mocked(getResources).mockResolvedValue({ data: [] } as never);
   });
 
-  describe('API Integration', () => {
-    it('should handle getBackup API call successfully', async () => {
-      const mockData = {
-        data: {
-          linstor: {
-            backup1: {
-              origin_rsc: 'resource1',
-              origin_snap: 'snapshot1',
-              finished_timestamp: 1672531200,
-              finished_time: '2023-01-01T00:00:00Z',
-              success: true,
-              shipping: false,
-            },
-          },
-        },
-      };
+  it("lists the remote's backups with finish time and status", async () => {
+    renderList();
+    const done = (await screen.findByText('back_20231114_221320')).closest('tr') as HTMLElement;
+    expect(getBackup).toHaveBeenCalledWith('s3-a');
+    expect(within(done).getByText('res-a')).toBeInTheDocument();
+    expect(within(done).getByText('2023-11-14 22:13:20')).toBeInTheDocument();
+    expect(within(done).getByText('Success')).toBeInTheDocument();
+    expect(done.querySelector('.anticon-check-circle')).not.toBeNull();
 
-      mockGetBackup.mockResolvedValue(mockData);
+    const failed = rowOf('back_20231115_000000');
+    expect(within(failed).getByText('Failed')).toBeInTheDocument();
+    expect(failed.querySelector('.anticon-close-circle')).not.toBeNull();
 
-      // Simulate API call
-      const result = await mockGetBackup('test-remote');
-
-      expect(mockGetBackup).toHaveBeenCalledWith('test-remote');
-      expect(result).toEqual(mockData);
-      expect(result.data.linstor.backup1.origin_rsc).toBe('resource1');
-    });
-
-    it('should handle deleteBackup API call successfully', async () => {
-      mockDeleteBackup.mockResolvedValue({});
-
-      // Simulate delete operation
-      await mockDeleteBackup('test-remote', { timestamp: '2023-01-01T00:00:00Z' });
-
-      expect(mockDeleteBackup).toHaveBeenCalledWith('test-remote', {
-        timestamp: '2023-01-01T00:00:00Z',
-      });
-    });
-
-    it('should handle API errors gracefully', async () => {
-      const error = new Error('Network Error');
-      mockGetBackup.mockRejectedValue(error);
-
-      try {
-        await mockGetBackup('test-remote');
-      } catch (err) {
-        expect(err).toEqual(error);
-      }
-
-      expect(mockGetBackup).toHaveBeenCalledWith('test-remote');
-    });
+    expect(within(rowOf('back_shipping')).getByText('Creating...')).toBeInTheDocument();
+    expect(screen.getByText('Total 3 items')).toBeInTheDocument();
   });
 
-  describe('Data Processing Logic', () => {
-    it('should process backup data correctly', () => {
-      const rawData = {
-        data: {
-          linstor: {
-            backup1: {
-              origin_rsc: 'resource1',
-              success: true,
-              shipping: false,
-            },
-            backup2: {
-              origin_rsc: 'resource2',
-              success: false,
-              shipping: true,
-            },
-          },
-        },
-      };
-
-      // Simulate data processing logic from component
-      type BackupData = Record<string, { origin_rsc: string; success: boolean; shipping: boolean }>;
-      const processedData = Object.keys(rawData.data.linstor).map((key) => {
-        return (rawData.data.linstor as BackupData)[key];
-      });
-
-      expect(processedData).toHaveLength(2);
-      expect(processedData[0].origin_rsc).toBe('resource1');
-      expect(processedData[1].origin_rsc).toBe('resource2');
-    });
-
-    it('should filter data by resource name', () => {
-      const data = [
-        { origin_rsc: 'resource1', success: true },
-        { origin_rsc: 'resource2', success: false },
-        { origin_rsc: 'resource1', success: true },
-      ];
-
-      // Simulate filtering logic from component
-      const filtered = data.filter((item) => item.origin_rsc === 'resource1');
-
-      expect(filtered).toHaveLength(2);
-      expect(filtered.every((item) => item.origin_rsc === 'resource1')).toBe(true);
-    });
-
-    it('should handle empty data correctly', () => {
-      const rawData = {
-        data: {
-          linstor: {},
-        },
-      };
-
-      // Simulate empty data processing
-      type EmptyBackupData = Record<string, never>;
-      const processedData = Object.keys(rawData.data.linstor).map((key) => {
-        return (rawData.data.linstor as EmptyBackupData)[key];
-      });
-
-      expect(processedData).toHaveLength(0);
-    });
+  it('filters by resource from the search form and writes it to the URL', async () => {
+    renderList();
+    await screen.findByText('back_shipping');
+    fireEvent.change(screen.getByPlaceholderText('Resource'), { target: { value: 'res-b' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Search' }));
+    await waitFor(() => expect(screen.queryByText('back_20231114_221320')).not.toBeInTheDocument());
+    expect(screen.getByText('back_shipping')).toBeInTheDocument();
+    expect(navigate).toHaveBeenCalledWith('/remote/s3-a/backups?origin_rsc=res-b');
   });
 
-  describe('Status Determination Logic', () => {
-    it('should determine correct status for different backup states', () => {
-      // Simulate status logic from component
-      const getBackupStatus = (backup: { success: boolean; shipping: boolean }) => {
-        if (backup.shipping) {
-          return 'Creating';
-        }
-        return backup.success ? 'Success' : 'Failed';
-      };
+  it('seeds the resource filter from the URL, and reset clears it', async () => {
+    renderList('/remote/s3-a/backups?origin_rsc=res-a');
+    expect(await screen.findByText('back_20231114_221320')).toBeInTheDocument();
+    expect(screen.queryByText('back_shipping')).not.toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Resource')).toHaveValue('res-a');
 
-      expect(getBackupStatus({ success: true, shipping: false })).toBe('Success');
-      expect(getBackupStatus({ success: false, shipping: false })).toBe('Failed');
-      expect(getBackupStatus({ success: true, shipping: true })).toBe('Creating');
-      expect(getBackupStatus({ success: false, shipping: true })).toBe('Creating');
-    });
+    fireEvent.click(screen.getByRole('button', { name: 'Reset' }));
+    expect(await screen.findByText('back_shipping')).toBeInTheDocument();
+    expect(navigate).toHaveBeenCalledWith('/remote/s3-a/backups');
   });
 
-  describe('URL Query Parameters Logic', () => {
-    it('should parse URL query parameters correctly', () => {
-      // Simulate URL parameter parsing logic
-      const parseQuery = (search: string) => {
-        const params = new URLSearchParams(search);
-        return {
-          origin_rsc: params.get('origin_rsc'),
-        };
-      };
-
-      const query1 = parseQuery('?origin_rsc=resource1');
-      expect(query1.origin_rsc).toBe('resource1');
-
-      const query2 = parseQuery('');
-      expect(query2.origin_rsc).toBeNull();
-
-      const query3 = parseQuery('?origin_rsc=resource1&other=value');
-      expect(query3.origin_rsc).toBe('resource1');
-    });
-
-    it('should build URL with query parameters correctly', () => {
-      // Simulate URL building logic
-      const buildUrl = (base: string, params: Record<string, string | null>) => {
-        const searchParams = new URLSearchParams();
-
-        Object.entries(params).forEach(([key, value]) => {
-          if (value !== null && value !== '') {
-            searchParams.set(key, value);
-          }
-        });
-
-        const queryString = searchParams.toString();
-        return queryString ? `${base}?${queryString}` : base;
-      };
-
-      const url1 = buildUrl('/backups', { origin_rsc: 'resource1' });
-      expect(url1).toBe('/backups?origin_rsc=resource1');
-
-      const url2 = buildUrl('/backups', { origin_rsc: null });
-      expect(url2).toBe('/backups');
-
-      const url3 = buildUrl('/backups', { origin_rsc: '' });
-      expect(url3).toBe('/backups');
-    });
+  it('deletes a backup by its finish time after confirm and refetches', async () => {
+    renderList();
+    await screen.findByText('back_20231114_221320');
+    const menu = await openRowMenu('back_20231114_221320');
+    fireEvent.click(within(menu).getByText('Delete'));
+    expect(await screen.findByText('Delete this backup?')).toBeInTheDocument();
+    expect(deleteBackup).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
+    await waitFor(() => expect(deleteBackup).toHaveBeenCalledWith('s3-a', { timestamp: '20231114_221320' }));
+    await waitFor(() => expect(getBackup).toHaveBeenCalledTimes(2));
   });
 
-  describe('Search and Filter Logic', () => {
-    it('should apply search filters correctly', () => {
-      type BackupItem = { origin_rsc: string; success: boolean };
-      const data: BackupItem[] = [
-        { origin_rsc: 'web-server', success: true },
-        { origin_rsc: 'database', success: false },
-        { origin_rsc: 'web-app', success: true },
-      ];
-
-      // Simulate search logic
-      const applyFilters = (data: BackupItem[], filters: { origin_rsc?: string }) => {
-        let filtered = [...data];
-
-        if (filters.origin_rsc) {
-          filtered = filtered.filter((item) => item.origin_rsc === filters.origin_rsc);
-        }
-
-        return filtered;
-      };
-
-      const result1 = applyFilters(data, { origin_rsc: 'web-server' });
-      expect(result1).toHaveLength(1);
-      expect(result1[0].origin_rsc).toBe('web-server');
-
-      const result2 = applyFilters(data, {});
-      expect(result2).toHaveLength(3);
-    });
-  });
-
-  describe('Data Validation', () => {
-    it('should validate backup data structure', () => {
-      const validateBackup = (backup: unknown) => {
-        return (
-          typeof backup === 'object' &&
-          backup !== null &&
-          typeof (backup as Record<string, unknown>).origin_rsc === 'string' &&
-          typeof (backup as Record<string, unknown>).success === 'boolean' &&
-          typeof (backup as Record<string, unknown>).shipping === 'boolean'
-        );
-      };
-
-      const validBackup = {
-        origin_rsc: 'resource1',
-        success: true,
-        shipping: false,
-      };
-
-      const invalidBackup1 = null;
-      const invalidBackup2 = { origin_rsc: 123 };
-
-      expect(validateBackup(validBackup)).toBe(true);
-      expect(validateBackup(invalidBackup1)).toBe(false);
-      expect(validateBackup(invalidBackup2)).toBe(false);
-    });
+  it('shows an empty table when the remote holds no backups', async () => {
+    vi.mocked(getBackup).mockResolvedValue({ data: { linstor: {} } } as never);
+    renderList();
+    expect((await screen.findAllByText('No data')).length).toBeGreaterThan(0);
   });
 });
