@@ -92,7 +92,7 @@ export function SortableAgentItem({
         rules={[
           {
             required: true,
-            message: 'Unit name is required',
+            message: t('common:unit_name_required'),
           },
         ]}
       >
@@ -208,8 +208,8 @@ export function SortableAgentItem({
             <Tag color={displayInfo.typeColor}>{displayInfo.typeLabel}</Tag>
             {isOcf && ocfAgent && <Tag color={displayInfo.instanceColor}>{displayInfo.instanceLabel}</Tag>}
             {!isOcf && <Tag color={displayInfo.instanceColor}>{displayInfo.instanceLabel}</Tag>}
-            {isOcf && isLoadingMetadata && <Tag color="processing">Loading metadata...</Tag>}
-            {isOcf && !metadata && !isLoadingMetadata && <Tag color="warning">Metadata not found</Tag>}
+            {isOcf && isLoadingMetadata && <Tag color="processing">{t('common:loading_metadata')}</Tag>}
+            {isOcf && !metadata && !isLoadingMetadata && <Tag color="warning">{t('common:metadata_not_found')}</Tag>}
           </Space>
 
           {/* Delete button */}
@@ -253,7 +253,7 @@ export function SortableAgentItem({
           {/* Plain systemd unit - simple input */}
           {!isOcf && (
             <div>
-              <Text strong>Systemd Unit Configuration</Text>
+              <Text strong>{t('common:systemd_unit_configuration')}</Text>
               {renderPlainUnitField()}
             </div>
           )}
@@ -281,9 +281,9 @@ export function SortableAgentItem({
                   marginBottom: '12px',
                 }}
               >
-                <Text strong>Parameters</Text>
+                <Text strong>{t('common:parameters')}</Text>
                 <Button size="small" icon={<PlusOutlined />} onClick={() => onAddParam?.(stableKey)}>
-                  Add Parameter
+                  {t('common:add_parameter')}
                 </Button>
               </div>
 
@@ -312,7 +312,7 @@ export function SortableAgentItem({
                         rules={[
                           {
                             required: param.required,
-                            message: `${param.name} is required`,
+                            message: t('common:param_is_required', { name: param.name }),
                           },
                         ]}
                         valuePropName={param.type === 'boolean' ? 'checked' : undefined}
@@ -367,7 +367,7 @@ export function SortableAgentItem({
                         rules={[
                           {
                             required: param.required,
-                            message: `${param.name} is required`,
+                            message: t('common:param_is_required', { name: param.name }),
                           },
                         ]}
                         valuePropName={param.type === 'boolean' ? 'checked' : undefined}
@@ -402,7 +402,7 @@ export function SortableAgentItem({
           {/* OCF Agent without metadata */}
           {isOcf && !metadata && ocfAgent && (
             <div>
-              <Text strong>Parsed Parameters:</Text>
+              <Text strong>{t('common:parsed_parameters')}</Text>
               <div
                 style={{
                   marginTop: '8px',

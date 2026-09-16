@@ -208,7 +208,7 @@ export const DRBDReactorConfig: React.FC<DRBDReactorConfigProps> = ({ initialVal
     switch (field.type) {
       case 'select':
         return (
-          <Select placeholder={`Select ${field.label}`}>
+          <Select placeholder={t('common:select_field', { field: field.label })}>
             {field.options?.map((opt) => (
               <Option key={opt} value={opt}>
                 {opt}
@@ -259,7 +259,7 @@ export const DRBDReactorConfig: React.FC<DRBDReactorConfigProps> = ({ initialVal
         <div style={{ marginTop: '16px' }}>
           <Dropdown menu={{ items: menuItems }} disabled={menuItems.length === 0} trigger={['click']}>
             <Button type="dashed" block icon={<PlusOutlined />}>
-              Add Configuration <DownOutlined />
+              {t('common:add_configuration')} <DownOutlined />
             </Button>
           </Dropdown>
         </div>

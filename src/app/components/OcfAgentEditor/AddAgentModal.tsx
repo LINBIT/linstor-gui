@@ -81,7 +81,7 @@ export function AddAgentModal({
 
   const columns = [
     {
-      title: 'Platform',
+      title: t('common:platform'),
       dataIndex: 'platform',
       key: 'platform',
       width: 110,
@@ -91,21 +91,21 @@ export function AddAgentModal({
       ),
     },
     {
-      title: 'Provider',
+      title: t('common:provider'),
       dataIndex: 'provider',
       key: 'provider',
       width: 120,
       sorter: (a: { provider: string }, b: { provider: string }) => a.provider.localeCompare(b.provider),
     },
     {
-      title: 'Name',
+      title: t('common:name'),
       dataIndex: 'name',
       key: 'name',
       width: 180,
       sorter: (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name),
     },
     {
-      title: 'Description',
+      title: t('common:description'),
       dataIndex: 'description',
       key: 'description',
       ellipsis: true,
@@ -152,10 +152,10 @@ export function AddAgentModal({
       destroyOnClose
       footer={[
         <Button key="cancel" onClick={handleCancel}>
-          Cancel
+          {t('common:cancel')}
         </Button>,
         <Button key="ok" type="primary" onClick={handleOk} disabled={!selectedAgent}>
-          Add
+          {t('common:add')}
         </Button>,
       ]}
     >

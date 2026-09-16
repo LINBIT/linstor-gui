@@ -47,13 +47,17 @@ export const MetadataEditor: React.FC<MetadataEditorProps> = ({ initialValues, o
             <>
               {fields.map(({ key, name, ...restField }) => (
                 <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
-                  <Form.Item {...restField} name={[name, 'key']} rules={[{ required: true, message: 'Missing key' }]}>
+                  <Form.Item
+                    {...restField}
+                    name={[name, 'key']}
+                    rules={[{ required: true, message: t('common:missing_key') }]}
+                  >
                     <Input placeholder={t('common:key')} />
                   </Form.Item>
                   <Form.Item
                     {...restField}
                     name={[name, 'value']}
-                    rules={[{ required: true, message: 'Missing value' }]}
+                    rules={[{ required: true, message: t('common:missing_value') }]}
                   >
                     <Input placeholder={t('clusterSetup:property_value')} />
                   </Form.Item>
@@ -62,7 +66,7 @@ export const MetadataEditor: React.FC<MetadataEditorProps> = ({ initialValues, o
               ))}
               <Form.Item>
                 <Button type="dashed" onClick={() => add({ key: '', value: '' })} block icon={<PlusOutlined />}>
-                  Add Metadata
+                  {t('common:add_metadata')}
                 </Button>
               </Form.Item>
             </>

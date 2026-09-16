@@ -46,7 +46,7 @@ export function AddParameterModal({
           return !existingParams.has(p.name);
         })
         .map((p) => ({
-          label: `${p.name}${p.required ? ' (required)' : ''} - ${p.shortdesc || p.type}`,
+          label: `${p.name}${p.required ? ` (${t('common:required_label')})` : ''} - ${p.shortdesc || p.type}`,
           value: p.name,
         }))
     : [];
@@ -62,10 +62,10 @@ export function AddParameterModal({
       width={600}
       footer={[
         <Button key="cancel" onClick={onCancel}>
-          Cancel
+          {t('common:cancel')}
         </Button>,
         <Button key="ok" type="primary" onClick={onOk} disabled={!selectedParam}>
-          Add
+          {t('common:add')}
         </Button>,
       ]}
     >
@@ -97,12 +97,12 @@ export function AddParameterModal({
                   fontSize: '13px',
                 }}
               >
-                {selectedParamMeta.longdesc || selectedParamMeta.shortdesc || 'No description available'}
+                {selectedParamMeta.longdesc || selectedParamMeta.shortdesc || t('common:no_description_available')}
               </div>
             </Form.Item>
 
             <Form.Item label={t('common:default_value')}>
-              <Text code>{selectedParamMeta.default || '(empty)'}</Text>
+              <Text code>{selectedParamMeta.default || t('common:empty_value')}</Text>
             </Form.Item>
           </>
         )}

@@ -456,11 +456,11 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
         return { agentsWithIds, initialReactor, initialMetadata };
       } catch (e) {
         logger.error('Failed to parse TOML content:', e);
-        message.error('Failed to parse configuration content');
+        message.error(t('common:failed_to_parse_configuration'));
         return null;
       }
     },
-    [form, mode, profile?.name],
+    [form, mode, profile?.name, t],
   );
 
   const handlePasteConfirm = () => {
@@ -471,7 +471,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
 
     const result = applyTomlContent(pastedToml);
     if (result) {
-      message.success('Configuration applied');
+      message.success(t('common:configuration_applied'));
       setPasteModalVisible(false);
       setPastedToml('');
     }
@@ -682,7 +682,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
         await form.validateFields();
       } catch (validationError) {
         logger.warn('Form validation failed:', validationError);
-        message.error('Please fix validation errors');
+        message.error(t('common:please_fix_validation_errors'));
         setSaving(false);
         return;
       }
@@ -691,13 +691,13 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
       const filePath = mode === 'create' ? `/etc/drbd-reactor.d/${values.file_path}.toml` : undefined;
 
       if (!resourceName) {
-        message.error('Resource name is required');
+        message.error(t('common:resource_name_required'));
         setSaving(false);
         return;
       }
 
       if (mode === 'create' && !filePath) {
-        message.error('File path is required');
+        message.error(t('common:file_path_required'));
         setSaving(false);
         return;
       }
@@ -735,7 +735,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
       onSave?.(toml, resourceName, filePath);
     } catch (err) {
       logger.error('Save failed:', err);
-      message.error(`Failed to save: ${(err as { message: string }).message}`);
+      message.error(t('common:failed_to_save', { message: (err as { message: string }).message }));
     } finally {
       setSaving(false);
     }
@@ -939,7 +939,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
     // The deleted agent's params will be unused, but that's fine
 
     setParsedAgents(newAgents);
-    message.success('Agent removed');
+    message.success(t('common:agent_removed'));
   };
 
   // Remove parameter
@@ -994,7 +994,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
       return newMap;
     });
 
-    message.success(`Parameter ${paramName} removed`);
+    message.success(t('common:parameter_removed', { name: paramName }));
   };
 
   // Open add parameter Modal
@@ -1008,7 +1008,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
   // Confirm add parameter
   const confirmAddParam = () => {
     if (currentAgentIndex === null || !selectedParam) {
-      message.error('Please select a parameter');
+      message.error(t('common:please_select_parameter'));
       return;
     }
 
@@ -1026,7 +1026,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
       allAgents.providers[agent.item.ocf_agent.provider]?.find((a) => a.name === agent.item.ocf_agent!.agent_type);
 
     if (!metadata) {
-      message.error('Agent metadata not found');
+      message.error(t('common:agent_metadata_not_found'));
       return;
     }
 
@@ -1074,7 +1074,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
       return newMap;
     });
 
-    message.success(`Parameter ${selectedParam} added`);
+    message.success(t('common:parameter_added', { name: selectedParam }));
     setAddParamModalVisible(false);
     setSelectedParam('');
     setCurrentAgentIndex(null);
@@ -1083,7 +1083,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
   // Add new agent
   const handleAddAgent = () => {
     if (!selectedProvider || !selectedAgent) {
-      message.error('Please select provider and agent');
+      message.error(t('common:please_select_provider_and_agent'));
       return;
     }
 
@@ -1092,7 +1092,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
     const agentMetadata = providerAgents.find((a) => a.name === selectedAgent);
 
     if (!agentMetadata) {
-      message.error('Agent metadata not found');
+      message.error(t('common:agent_metadata_not_found'));
       return;
     }
 
@@ -1157,7 +1157,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
       },
     ]);
 
-    message.success(`Added OCF agent: ${selectedProvider}:${selectedAgent}`);
+    message.success(t('common:added_ocf_agent', { agent: `${selectedProvider}:${selectedAgent}` }));
     closeAddModal();
   };
 
@@ -1185,7 +1185,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
     const trimmedUnitName = systemdUnitName.trim();
 
     if (!trimmedUnitName) {
-      message.error('Please enter a unit name');
+      message.error(t('common:please_enter_unit_name'));
       return;
     }
 
@@ -1227,7 +1227,11 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
       },
     ]);
 
-    message.success(`Added ${systemdType} unit: ${normalizedUnitName}`);
+    message.success(
+      t(systemdType === 'mount' ? 'common:added_mount_unit' : 'common:added_service_unit', {
+        name: normalizedUnitName,
+      }),
+    );
     closeAddSystemdModal();
   };
 
@@ -1313,7 +1317,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
   if (mode === 'edit' && !profile) {
     return (
       <div style={{ textAlign: 'center', padding: '40px' }}>
-        <Text type="secondary">No profile selected</Text>
+        <Text type="secondary">{t('common:no_profile_selected')}</Text>
       </div>
     );
   }
@@ -1344,11 +1348,11 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
           tabBarExtraContent={
             <Space>
               <Button icon={<ImportOutlined />} onClick={() => setPasteModalVisible(true)}>
-                Paste
+                {t('common:paste')}
               </Button>
               {mode === 'edit' && (
                 <Button icon={<ReloadOutlined />} onClick={loadParsedAgents} disabled={!isFormDirty}>
-                  Reset
+                  {t('common:reset')}
                 </Button>
               )}
               <Button
@@ -1358,14 +1362,14 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
                 disabled={saving || !isFormDirty}
                 loading={saving}
               >
-                Save
+                {t('common:save')}
               </Button>
               <Button
                 type={previewVisible ? 'primary' : undefined}
                 icon={previewVisible ? <EyeOutlined /> : <EyeInvisibleOutlined />}
                 onClick={togglePreview}
               >
-                Preview
+                {t('common:preview')}
               </Button>
             </Space>
           }
@@ -1373,17 +1377,17 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
           items={[
             {
               key: 'services',
-              label: 'Services',
+              label: t('common:services'),
               children: renderSplitView(
                 <Card
                   title={
                     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                       <Space>
                         <Button icon={<PlusOutlined />} onClick={openAddSystemdModal}>
-                          Add Systemd/Mount
+                          {t('common:add_systemd_mount')}
                         </Button>
                         <Button type="primary" icon={<PlusOutlined />} onClick={openAddModal}>
-                          Add Resource Agent
+                          {t('common:add_resource_agent')}
                         </Button>
                       </Space>
                     </div>
@@ -1489,7 +1493,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
             {
               key: 'reactor',
 
-              label: 'DRBD Reactor Config',
+              label: t('common:drbd_reactor_config'),
 
               children: renderSplitView(
                 <div style={{ height: '100%', overflowY: 'auto', padding: '0 12px 24px 12px' }}>
@@ -1510,7 +1514,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
             {
               key: 'metadata',
 
-              label: 'Metadata',
+              label: t('common:metadata'),
 
               children: renderSplitView(
                 <div style={{ height: '100%', overflowY: 'auto', padding: '0 12px 24px 12px' }}>
@@ -1548,10 +1552,10 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
           onCancel={closeAddSystemdModal}
           footer={[
             <Button key="cancel" onClick={closeAddSystemdModal}>
-              Cancel
+              {t('common:cancel')}
             </Button>,
             <Button key="add" type="primary" onClick={handleAddSystemdUnit}>
-              Add
+              {t('common:add')}
             </Button>,
           ]}
         >
@@ -1569,11 +1573,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
             <Form.Item
               label={t('common:unit_name')}
               required
-              extra={
-                systemdType === 'mount'
-                  ? 'Examples: var-lib-mysql.mount or var-lib-mysql'
-                  : 'Examples: mysql.service or mysql'
-              }
+              extra={systemdType === 'mount' ? t('common:examples_mount_unit') : t('common:examples_service_unit')}
             >
               <Input
                 value={systemdUnitName}
@@ -1611,9 +1611,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
           destroyOnClose
         >
           <div style={{ marginBottom: 16 }}>
-            <Text type="secondary">
-              Paste a full DRBD Reactor TOML configuration below to overwrite the current editor content.
-            </Text>
+            <Text type="secondary">{t('common:paste_toml_hint')}</Text>
           </div>
           <Input.TextArea
             rows={15}

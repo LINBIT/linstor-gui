@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Card, Spin, Typography } from 'antd';
 import type { OcfAgentWithMetadata, ParamEntry, ParsedOcfAgent } from './types';
 
@@ -31,6 +32,7 @@ interface AgentPreviewProps {
 }
 
 export function AgentPreview({ parsedAgents, loading, currentTheme }: AgentPreviewProps) {
+  const { t } = useTranslation();
   // Generate OCF string from agent data
   const generateAgentString = (itemWithMeta: OcfAgentWithMetadata): string => {
     if (itemWithMeta.item.is_ocf && itemWithMeta.item.ocf_agent) {
@@ -65,7 +67,7 @@ export function AgentPreview({ parsedAgents, loading, currentTheme }: AgentPrevi
       }}
     >
       <Card
-        title={<Text strong>Live Preview (TOML)</Text>}
+        title={<Text strong>{t('common:live_preview_toml')}</Text>}
         bordered={false}
         style={{
           height: '100%',
@@ -81,7 +83,7 @@ export function AgentPreview({ parsedAgents, loading, currentTheme }: AgentPrevi
           flexDirection: 'column',
         }}
       >
-        <Spin spinning={loading} tip="Generating preview...">
+        <Spin spinning={loading} tip={t('common:generating_preview')}>
           <div
             style={{
               background: currentTheme === 'dark' ? '#0f172a' : '#f1f5f9',

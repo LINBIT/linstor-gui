@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Card, Spin, Typography } from 'antd';
 
 const { Text } = Typography;
@@ -9,12 +10,8 @@ interface TomlPreviewProps {
   title?: string;
 }
 
-export function TomlPreview({
-  content,
-  loading = false,
-  currentTheme,
-  title = 'Live Preview (TOML)',
-}: TomlPreviewProps) {
+export function TomlPreview({ content, loading = false, currentTheme, title }: TomlPreviewProps) {
+  const { t } = useTranslation();
   return (
     <div
       style={{
@@ -27,7 +24,7 @@ export function TomlPreview({
       }}
     >
       <Card
-        title={<Text strong>{title}</Text>}
+        title={<Text strong>{title ?? t('common:live_preview_toml')}</Text>}
         bordered={false}
         style={{
           height: '100%',
@@ -43,7 +40,7 @@ export function TomlPreview({
           flexDirection: 'column',
         }}
       >
-        <Spin spinning={loading} tip="Generating preview...">
+        <Spin spinning={loading} tip={t('common:generating_preview')}>
           <div
             style={{
               background: currentTheme === 'dark' ? '#0f172a' : '#f1f5f9',
