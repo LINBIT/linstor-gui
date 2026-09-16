@@ -98,6 +98,7 @@ const en = {
     deploy: 'Deploy',
     submit: 'Submit',
     cancel: 'Cancel',
+    ok: 'OK',
     close: 'Close',
     snapshot: 'Snapshot',
     success: 'Success',

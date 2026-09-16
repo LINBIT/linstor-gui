@@ -28,7 +28,7 @@ describe('Link Component', () => {
 
   it('applies primary variant styles correctly', () => {
     renderWithRouter(
-      <Link to="/test" variant="primary">
+      <Link to="/test" type="primary">
         Primary Link
       </Link>,
     );

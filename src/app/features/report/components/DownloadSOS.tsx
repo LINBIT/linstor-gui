@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@app/components/Button';
 import dayjs from 'dayjs';

@@ -4,94 +4,18 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useMutation } from '@tanstack/react-query';
-import { Modal } from 'antd';
-import { Input } from '@app/components/Input';
 
 import PageBasic from '@app/components/PageBasic';
-import { ResourceMigrateForm, resourceMigration } from '@app/features/resource';
-import { useDispatch } from 'react-redux';
 import { OverviewList } from '@app/features/resource/components';
 
 const ResourceOverview: React.FunctionComponent = () => {
   const { t } = useTranslation(['resource', 'common']);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [migrateModalOpen, setMigrateModalOpen] = useState(false);
-  const [currentResource, setCurrentResource] = useState<string>();
-  const [snapshotName, setSnapshotName] = useState<string>('');
-  const [migrationInfo, setMigrationInfo] = useState<{
-    resource: string;
-    node: string;
-  }>({
-    resource: '',
-    node: '',
-  });
-
-  const dispatch = useDispatch();
-
-  const migrateResourceMutation = useMutation({
-    mutationFn: resourceMigration,
-  });
-
-  const handleCreateSnapShot = async () => {
-    if (currentResource && snapshotName != '') {
-      await dispatch.snapshot.createSnapshot({ resource: currentResource, name: snapshotName });
-      setIsModalOpen(false);
-      setSnapshotName('');
-    }
-  };
-
-  const handleOpenMigrate = (resource: string, node: string) => {
-    setMigrateModalOpen(true);
-    setMigrationInfo({ resource, node });
-  };
-
-  const handleSnapshot = (resource: string) => {
-    setIsModalOpen(true);
-    setCurrentResource(resource);
-  };
-
-  const handleMigrate = async (val: { node: string }) => {
-    const res = await migrateResourceMutation.mutateAsync({
-      resource: migrationInfo.resource,
-      fromnode: migrationInfo.node,
-      node: val.node,
-    });
-
-    if (res.data) {
-      setMigrateModalOpen(false);
-    }
-  };
-
   return (
     <PageBasic title={t('overview')}>
-      <OverviewList handleOpenMigrate={handleOpenMigrate} handleSnapshot={handleSnapshot} />
-      <Modal
-        title={t('resource:create_snapshot')}
-        open={isModalOpen}
-        onCancel={() => setIsModalOpen(false)}
-        onOk={handleCreateSnapShot}
-      >
-        <Input
-          type="text"
-          placeholder={t('resource:please_input_snapshot_name')}
-          value={snapshotName}
-          onChange={(evt) => {
-            setSnapshotName(evt.target.value);
-          }}
-        />
-      </Modal>
-      <ResourceMigrateForm
-        open={migrateModalOpen}
-        migrationInfo={migrationInfo}
-        onCancel={() => {
-          setMigrateModalOpen(false);
-        }}
-        onCreate={handleMigrate}
-      />
+      <OverviewList />
     </PageBasic>
   );
 };

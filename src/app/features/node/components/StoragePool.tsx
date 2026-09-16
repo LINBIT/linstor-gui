@@ -4,7 +4,6 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React from 'react';
 import Chart from 'react-apexcharts';
 import { forEach, groupBy } from 'lodash';
 import { formatBytes } from '@app/utils/size';

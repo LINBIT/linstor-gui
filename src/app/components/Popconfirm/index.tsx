@@ -11,7 +11,7 @@ import type { PopoverProps } from 'antd';
 import type { ButtonProps as AntButtonProps } from 'antd';
 import { ExclamationCircleFilled } from '@ant-design/icons';
 
-import { Button } from '@app/components/Button';
+import { Button, type ButtonProps } from '@app/components/Button';
 
 /**
  * Drop-in replacement for antd's Popconfirm that renders its confirm/cancel
@@ -89,7 +89,7 @@ export const Popconfirm: React.FC<PopconfirmProps> = ({
         </div>
       </div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 12 }}>
-        <Button size="small" type="secondary" onClick={handleCancel} {...cancelButtonProps}>
+        <Button size="small" type="secondary" onClick={handleCancel} {...(cancelButtonProps as Partial<ButtonProps>)}>
           {cancelText ?? t('common:no')}
         </Button>
         <Button
@@ -98,7 +98,7 @@ export const Popconfirm: React.FC<PopconfirmProps> = ({
           danger={okType === 'danger' || okButtonProps?.danger}
           loading={loading}
           onClick={handleConfirm}
-          {...okButtonProps}
+          {...(okButtonProps as Partial<ButtonProps>)}
         >
           {okText ?? t('common:yes')}
         </Button>

@@ -160,7 +160,7 @@ export class SettingsAPI {
       if (key === '__updated__') return;
 
       // Skip unknown fields for backward compatibility
-      const fieldType = this.getFieldType(key);
+      const fieldType = this.getFieldType(key as keyof SettingsProps);
       if (!fieldType) {
         logger.debug(`Skipping unknown settings field: ${key}`);
         return;

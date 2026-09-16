@@ -75,7 +75,7 @@ export const CreateResourceGroup = ({ refetch }: CreateResourceGroupProps) => {
 
       createMutation.mutate({
         name: values.name,
-        placeCount: values.placeCount,
+        placeCount: Number(values.placeCount),
         poolName: values.poolName,
       });
     } catch (error) {

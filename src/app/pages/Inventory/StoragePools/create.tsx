@@ -4,8 +4,6 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React from 'react';
-
 import PageBasic from '@app/components/PageBasic';
 import { StoragePoolCreateForm } from '@app/features/storagePool';
 import { useTranslation } from 'react-i18next';

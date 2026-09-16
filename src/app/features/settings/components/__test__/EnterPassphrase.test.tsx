@@ -271,16 +271,12 @@ describe('EnterPassphrase Component Logic', () => {
   });
 
   describe('Success Flow', () => {
-    it('should reload page after successful unlock with delay', (done) => {
-      const delay = 1000;
+    it('should reload page after successful unlock with delay', async () => {
+      const delay = 10;
 
-      // Simulate successful unlock flow
-      setTimeout(() => {
-        // In real component, this would call window.location.reload()
-        const reloaded = true;
-        expect(reloaded).toBe(true);
-        done();
-      }, delay);
+      // Simulate successful unlock flow; in the real component this calls window.location.reload()
+      const reloaded = await new Promise<boolean>((resolve) => setTimeout(() => resolve(true), delay));
+      expect(reloaded).toBe(true);
     });
   });
 

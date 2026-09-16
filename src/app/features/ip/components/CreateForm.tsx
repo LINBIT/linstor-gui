@@ -22,7 +22,7 @@ type FormType = {
   name: string;
   address: string;
   satellite_port: number;
-  is_active: string;
+  is_active?: boolean;
 };
 
 type FormProps = {
@@ -50,7 +50,9 @@ const CreateForm = ({ editing, node, refetch }: FormProps) => {
 
   const onFinish = (values: FormType) => {
     const { is_active, ...rest } = values;
-    createNetWorkInterfaceMutation.mutate({ ...rest, is_active: is_active === 'checked' });
+    // The checkbox hands back a boolean; the old `=== 'checked'` comparison
+    // could never be true, so "Default IP" was silently ignored.
+    createNetWorkInterfaceMutation.mutate({ ...rest, is_active: Boolean(is_active) });
   };
 
   return (

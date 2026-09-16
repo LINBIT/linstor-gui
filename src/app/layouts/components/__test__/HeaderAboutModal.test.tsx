@@ -1,247 +1,111 @@
-import { linbitSdsVersion, uiVersion } from '../aboutVersion';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook } from '@testing-library/react';
-import { Provider } from 'react-redux';
-import { init } from '@rematch/core';
-import React from 'react';
+// SPDX-License-Identifier: GPL-3.0
+//
+// Copyright (c) 2024 LINBIT
+//
+// Author: Liang Li <liang.li@linbit.com>
 
-// Mock dependencies
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-  }),
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+
+import HeaderAboutModal from '../HeaderAboutModal';
+import { UIMode } from '@app/models/setting';
+
+const state = vi.hoisted(() => ({ mode: 'NORMAL' as string }));
+
+vi.mock('react-redux', () => ({
+  useSelector: (selector: (s: unknown) => unknown) => selector({ setting: { mode: state.mode } }),
 }));
 
-vi.mock('antd', () => ({
-  Modal: ({ children, title }: { children: React.ReactNode; title: string }) => (
-    <div data-testid="modal" title={title}>
-      {children}
-    </div>
-  ),
-  Input: ({ value, onChange }: { value: string; onChange: (e: any) => void }) => (
-    <input data-testid="input" value={value} onChange={onChange} />
-  ),
-}));
+const openAbout = async () => {
+  const title = await screen.findByTitle('LINSTOR GUI Info');
+  fireEvent.click(title.closest('svg') as SVGElement);
+};
 
-// Mock assets
-vi.mock('@app/assets/feather-info.svg', () => ({ default: 'info-icon.svg' }));
-vi.mock('@app/assets/brand-dark.svg', () => ({ default: 'brand-logo.svg' }));
-vi.mock('@app/assets/about_image.png', () => ({ default: 'about-image.png' }));
+const row = (label: string) => screen.getByText(label).parentElement as HTMLElement;
 
-// Mock store
-const createMockStore = (mode = 'NORMAL') =>
-  init({
-    models: {
-      setting: {
-        state: { mode },
-        reducers: {},
-      },
-    },
-  });
-
-describe('HeaderAboutModal Component Logic', () => {
-  let mockStore: ReturnType<typeof createMockStore>;
-
+describe('HeaderAboutModal', () => {
   beforeEach(() => {
-    mockStore = createMockStore();
-    vi.clearAllMocks();
-
-    // Mock localStorage
-    const mockLocalStorage = {
-      getItem: vi.fn(),
-      setItem: vi.fn(),
-      removeItem: vi.fn(),
-    };
-    Object.defineProperty(window, 'localStorage', {
-      value: mockLocalStorage,
-      writable: true,
-    });
-
-    // Mock window.location
-    Object.defineProperty(window, 'location', {
-      value: {
-        host: 'localhost:3000',
-        hostname: 'localhost',
-        reload: vi.fn(),
-      },
-      writable: true,
-    });
+    state.mode = UIMode.NORMAL;
+    vi.stubEnv('VITE_VERSION', '2.6.0');
+    vi.stubEnv('LINBIT_SDS_VERSION', '1.0.1');
   });
 
-  const createWrapper =
-    () =>
-    ({ children }: { children: React.ReactNode }) => <Provider store={mockStore}>{children}</Provider>;
-
-  describe('Component State Logic', () => {
-    it('should initialize modal state correctly', () => {
-      const initialState = {
-        isModalOpen: false,
-        hostModal: false,
-        host: '',
-      };
-
-      expect(initialState.isModalOpen).toBe(false);
-      expect(initialState.hostModal).toBe(false);
-      expect(initialState.host).toBe('');
-    });
-
-    it('should read host from localStorage on initialization', () => {
-      const mockHost = 'https://192.168.1.100:1443';
-      vi.mocked(localStorage.getItem).mockReturnValue(mockHost);
-
-      const host = localStorage.getItem('HCI_VSAN_HOST') || '';
-
-      expect(localStorage.getItem).toHaveBeenCalledWith('HCI_VSAN_HOST');
-      expect(host).toBe(mockHost);
-    });
-
-    it('should handle empty localStorage value', () => {
-      vi.mocked(localStorage.getItem).mockReturnValue(null);
-
-      const host = localStorage.getItem('HCI_VSAN_HOST') || '';
-
-      expect(host).toBe('');
-    });
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    localStorage.removeItem('HCI_VSAN_HOST');
   });
 
-  describe('Modal Toggle Logic', () => {
-    it('should toggle modal state correctly', () => {
-      let isModalOpen = false;
+  it('opens the about panel from the dots icon and closes it again', async () => {
+    render(<HeaderAboutModal linstorVersion={{ version: '1.35.0', rest_api_version: '1.30.0' }} />);
 
-      // Simulate handleModalToggle
-      const handleModalToggle = () => {
-        isModalOpen = !isModalOpen;
-      };
+    expect(screen.queryByText('LINBIT-SDS')).toBeNull();
+    await openAbout();
 
-      expect(isModalOpen).toBe(false);
-      handleModalToggle();
-      expect(isModalOpen).toBe(true);
-      handleModalToggle();
-      expect(isModalOpen).toBe(false);
-    });
+    expect(screen.getByText('LINBIT-SDS')).toBeInTheDocument();
+    expect(row('LINSTOR Version')).toHaveTextContent('1.35.0');
+    expect(row('UI Version')).toHaveTextContent('2.6.0');
+    expect(row('LINBIT SDS Version')).toHaveTextContent('1.0.1');
+    expect(row('Controller Active On')).toHaveTextContent(window.location.host);
+    expect(row('Controller Binding IP')).toHaveTextContent('0.0.0.0');
+
+    fireEvent.click(document.querySelector('.anticon-close')?.parentElement as HTMLElement);
+    expect(screen.queryByText('LINBIT-SDS')).toBeNull();
   });
 
-  describe('Host Management', () => {
-    it('should save host to localStorage and reload page', () => {
-      const mockHost = 'https://test.example.com:1443';
-      const mockReload = vi.fn();
-      window.location.reload = mockReload;
+  it('reports unknown versions and hides the SDS row when the build set none', async () => {
+    vi.stubEnv('VITE_VERSION', '');
+    vi.stubEnv('LINBIT_SDS_VERSION', '');
+    render(<HeaderAboutModal />);
+    await openAbout();
 
-      // Simulate handleSetHost
-      const handleSetHost = (host: string) => {
-        localStorage.setItem('HCI_VSAN_HOST', host);
-        window.location.reload();
-      };
-
-      handleSetHost(mockHost);
-
-      expect(localStorage.setItem).toHaveBeenCalledWith('HCI_VSAN_HOST', mockHost);
-      expect(mockReload).toHaveBeenCalledTimes(1);
-    });
+    expect(row('LINSTOR Version')).toHaveTextContent('unknown');
+    expect(row('UI Version')).toHaveTextContent('DEV');
+    expect(screen.queryByText('LINBIT SDS Version')).toBeNull();
   });
 
-  describe('Version Detection', () => {
-    it('should detect DEV version correctly', () => {
-      const version = 'DEV';
-      const isDev = version.indexOf('DEV') !== -1;
+  it('lets a DEV build in HCI mode override the HCI host', async () => {
+    vi.stubEnv('VITE_VERSION', '');
+    state.mode = UIMode.HCI;
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    render(<HeaderAboutModal />);
+    await openAbout();
 
-      expect(isDev).toBe(true);
+    fireEvent.click(screen.getByText('DEV'));
+    const dialog = await screen.findByRole('dialog');
+    expect(dialog).toHaveTextContent('HCI Host');
+
+    fireEvent.change(screen.getByPlaceholderText('https://192.168.0.1:1443'), {
+      target: { value: 'https://10.0.0.5:1443' },
     });
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
 
-    it('should detect production version correctly', () => {
-      const version = '1.9.8';
-      const isDev = version.indexOf('DEV') !== -1;
-
-      expect(isDev).toBe(false);
-    });
+    expect(localStorage.getItem('HCI_VSAN_HOST')).toBe('https://10.0.0.5:1443');
+    consoleError.mockRestore();
   });
 
-  describe('UI Mode Integration', () => {
-    it('should work with HCI mode', () => {
-      const hciStore = createMockStore('HCI');
-      const wrapper = ({ children }: { children: React.ReactNode }) => <Provider store={hciStore}>{children}</Provider>;
+  it('closes the host dialog on cancel without saving', async () => {
+    vi.stubEnv('VITE_VERSION', '');
+    state.mode = UIMode.HCI;
+    render(<HeaderAboutModal />);
+    await openAbout();
 
-      renderHook(
-        () => {
-          // Test mode selection logic
-          const mode = hciStore.getState().setting.mode;
-          return { mode };
-        },
-        { wrapper },
-      );
+    fireEvent.click(screen.getByText('DEV'));
+    await screen.findByRole('dialog');
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
-      expect(hciStore.getState().setting.mode).toBe('HCI');
+    await waitFor(() => {
+      const wrap = document.querySelector('.ant-modal-wrap') as HTMLElement | null;
+      expect(!wrap || wrap.style.display === 'none').toBe(true);
     });
-
-    it('should work with NORMAL mode', () => {
-      const normalStore = createMockStore('NORMAL');
-
-      expect(normalStore.getState().setting.mode).toBe('NORMAL');
-    });
+    expect(localStorage.getItem('HCI_VSAN_HOST')).toBeNull();
   });
 
-  describe('version helpers', () => {
-    it('reads the UI version and treats unset or empty as a dev build', () => {
-      expect(uiVersion('2.5.0')).toBe('2.5.0');
-      expect(uiVersion(undefined)).toBe('DEV');
-      // `make build` without VERSION writes VITE_VERSION= into .env.
-      expect(uiVersion('')).toBe('DEV');
-      expect(uiVersion('  ')).toBe('DEV');
-    });
+  it('does not offer the host override outside HCI mode or on release builds', async () => {
+    vi.stubEnv('VITE_VERSION', '');
+    render(<HeaderAboutModal />);
+    await openAbout();
 
-    it('shows the LINBIT SDS version only when the build set one', () => {
-      expect(linbitSdsVersion('1.0.4')).toBe('1.0.4');
-      expect(linbitSdsVersion(undefined)).toBeNull();
-      expect(linbitSdsVersion('')).toBeNull();
-    });
-  });
-
-  describe('Environment Variables', () => {
-    it('should handle version from environment', () => {
-      // Mock import.meta.env
-      const mockEnv = { VITE_VERSION: '1.9.8' };
-      const version = mockEnv.VITE_VERSION ?? 'DEV';
-
-      expect(version).toBe('1.9.8');
-    });
-
-    it('should fallback to DEV when version not set', () => {
-      const mockEnv = {};
-      const version = (mockEnv as any).VITE_VERSION ?? 'DEV';
-
-      expect(version).toBe('DEV');
-    });
-  });
-
-  describe('Version Display Logic', () => {
-    it('should determine clickable version based on DEV and HCI mode', () => {
-      const testCases = [
-        { version: 'DEV', mode: 'HCI', expected: true },
-        { version: 'DEV', mode: 'NORMAL', expected: false },
-        { version: '1.9.8', mode: 'HCI', expected: false },
-        { version: '1.9.8', mode: 'NORMAL', expected: false },
-      ];
-
-      testCases.forEach(({ version, mode, expected }) => {
-        const isClickable = version.indexOf('DEV') !== -1 && mode === 'HCI';
-        expect(isClickable).toBe(expected);
-      });
-    });
-  });
-
-  describe('LINSTOR Version Display', () => {
-    it('should display version when available', () => {
-      const linstorVersion = { version: '1.25.0' };
-      const displayVersion = linstorVersion?.version || 'unknown';
-
-      expect(displayVersion).toBe('1.25.0');
-    });
-
-    it('should show unknown when version not available', () => {
-      const linstorVersion = undefined;
-      const displayVersion = linstorVersion?.version || 'unknown';
-
-      expect(displayVersion).toBe('unknown');
-    });
+    fireEvent.click(screen.getByText('DEV'));
+    expect(screen.queryByRole('dialog')).toBeNull();
   });
 });

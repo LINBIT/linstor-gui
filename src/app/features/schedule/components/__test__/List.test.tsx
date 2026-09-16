@@ -4,7 +4,6 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -20,7 +19,14 @@ import { getScheduleList, deleteSchedule } from '../../api';
 import { List } from '../List';
 
 const schedules = [
-  { schedule_name: 'nightly', full_cron: '0 2 * * *', inc_cron: '0 * * * *', keep_local: 3, keep_remote: 7, on_failure: 'SKIP' },
+  {
+    schedule_name: 'nightly',
+    full_cron: '0 2 * * *',
+    inc_cron: '0 * * * *',
+    keep_local: 3,
+    keep_remote: 7,
+    on_failure: 'SKIP',
+  },
   { schedule_name: 'weekly', full_cron: '0 0 * * 0', on_failure: 'RETRY', max_retries: 2 },
 ];
 

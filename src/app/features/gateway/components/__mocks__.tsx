@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { ReactElement, forwardRef, isValidElement, cloneElement } from 'react';
+import { forwardRef, isValidElement, cloneElement } from 'react';
 import { vi } from 'vitest';
 
 // Mock antd components
@@ -21,36 +21,38 @@ export const captureValue = (name: string, value: any) => {
 // Helper to reset form values
 export const resetFormValues = () => formValues.clear();
 
-const FormItem = ({ children, name, onChange: formItemOnChange, ...props }: any) => {
+const FormItem = ({ children, name, onChange: formItemOnChange }: any) => {
   // Clone children and inject onChange to capture values
   const childArray = Array.isArray(children) ? children : [children];
 
   const enhanceChild = (child: any, index: number): any => {
     if (!isValidElement(child)) return child;
+    // isValidElement narrows the props to unknown; the mock pokes at them freely.
+    const element: any = child;
 
     // If child has children, recursively enhance them
-    if (child.props?.children) {
-      const enhancedGrandchildren = Array.isArray(child.props.children)
-        ? child.props.children.map((gc: any, i: number) => enhanceChild(gc, i))
-        : enhanceChild(child.props.children, 0);
+    if (element.props?.children) {
+      const enhancedGrandchildren = Array.isArray(element.props.children)
+        ? element.props.children.map((gc: any, i: number) => enhanceChild(gc, i))
+        : enhanceChild(element.props.children, 0);
 
-      return cloneElement(child, {
+      return cloneElement(element, {
         key: index,
         children: enhancedGrandchildren,
       });
     }
 
     // Check if this is a native HTML input (has data-testid="input")
-    const isNativeInput = child.props?.['data-testid'] === 'input';
+    const isNativeInput = element.props?.['data-testid'] === 'input';
     // Check for specific custom components by type name
-    const componentTypeName = child.type?.name || child.type?.displayName;
+    const componentTypeName = element.type?.name || element.type?.displayName;
     const isSizeInputComponent = componentTypeName === 'SizeInput';
 
     // For native inputs, inject onChange to capture values
-    if (isNativeInput || child.props?.placeholder !== undefined || child.type === 'input') {
-      const originalOnChange = child.props.onChange;
+    if (isNativeInput || element.props?.placeholder !== undefined || element.type === 'input') {
+      const originalOnChange = element.props.onChange;
 
-      return cloneElement(child, {
+      return cloneElement(element, {
         key: index,
         onChange: (e: any) => {
           let value: any;
@@ -70,8 +72,8 @@ const FormItem = ({ children, name, onChange: formItemOnChange, ...props }: any)
 
     // For custom components like SizeInput, pass onChange as a prop
     if (isSizeInputComponent) {
-      const originalOnChange = child.props.onChange;
-      return cloneElement(child, {
+      const originalOnChange = element.props.onChange;
+      return cloneElement(element, {
         key: index,
         onChange: (value: any) => {
           captureValue(name, value);
@@ -88,14 +90,14 @@ const FormItem = ({ children, name, onChange: formItemOnChange, ...props }: any)
   return <div data-form-item={name}>{enhancedChildren}</div>;
 };
 const FormList = ({ children, render }: any) => {
-  const fields = []; // Start with empty array, as most lists start empty
+  const fields: unknown[] = []; // Start with empty array, as most lists start empty
   const add = vi.fn();
   const remove = vi.fn();
   const renderFn = render || children;
   return <div data-testid="form-list">{renderFn(fields, { add, remove }, { errors: [] })}</div>;
 };
 
-const FormComp = forwardRef<any, any>(({ children, onFinish, onFinishFailed, onSubmit, ...props }, ref) => {
+const FormComp = forwardRef<any, any>(({ children, onFinish, onSubmit }, ref) => {
   const handleSubmit = (e: any) => {
     e.preventDefault();
     if (onSubmit) onSubmit(e);
@@ -116,7 +118,7 @@ const FormComp = forwardRef<any, any>(({ children, onFinish, onFinishFailed, onS
     </form>
   );
 });
-FormComp.useForm = () => [
+(FormComp as any).useForm = () => [
   {
     getFieldValue: vi.fn(() => 1073741824),
     resetFields: vi.fn(),
@@ -126,7 +128,7 @@ FormComp.useForm = () => [
     validateFields: vi.fn(() => Promise.resolve({})),
   },
 ];
-FormComp.Item = FormItem;
+(FormComp as any).Item = FormItem;
 (FormComp as any).List = FormList;
 (FormComp as any).ErrorList = ({ errors }: any) => (
   <div data-testid="form-error-list">{errors?.length > 0 && <span>Errors: {errors.join(', ')}</span>}</div>
@@ -347,7 +349,7 @@ vi.mock('antd', () => ({
       {children}
     </div>
   ),
-  Divider: ({ children }: any) => <hr data-testid="divider" />,
+  Divider: () => <hr data-testid="divider" />,
   Tooltip: ({ children, title }: any) => (
     <div data-testid="tooltip" data-title={title}>
       {children}
@@ -363,7 +365,7 @@ vi.mock('antd', () => ({
       {children}
     </div>
   ),
-  Tabs: ({ children, activeKey, onChange }: any) => (
+  Tabs: ({ children, activeKey }: any) => (
     <div data-testid="tabs" data-active-key={activeKey}>
       {children}
     </div>
@@ -383,7 +385,7 @@ vi.mock('antd', () => ({
       <input data-testid="date-picker" value={value} onChange={onChange} {...props} />
     ),
     {
-      RangePicker: ({ onChange, value, ...props }: any) => (
+      RangePicker: ({ onChange, value }: any) => (
         <div data-testid="date-range-picker">
           <input data-testid="date-start" value={value?.[0]} onChange={onChange} />
           <input data-testid="date-end" value={value?.[1]} onChange={onChange} />
@@ -391,8 +393,8 @@ vi.mock('antd', () => ({
       ),
     },
   ),
-  Breadcrumb: ({ children, ...props }: any) => <div data-testid="breadcrumb">{children}</div>,
-  Menu: ({ children, ...props }: any) => <div data-testid="menu">{children}</div>,
+  Breadcrumb: ({ children }: any) => <div data-testid="breadcrumb">{children}</div>,
+  Menu: ({ children }: any) => <div data-testid="menu">{children}</div>,
   // Render the menu items too: the list actions live in a Dropdown menu and
   // the tests click the Popconfirm buttons inside the item labels.
   Dropdown: ({ children, menu }: any) => (
@@ -405,22 +407,22 @@ vi.mock('antd', () => ({
       ))}
     </div>
   ),
-  Avatar: ({ children, src, alt, ...props }: any) => (
+  Avatar: ({ children, src, alt }: any) => (
     <div data-testid="avatar" data-src={src} data-alt={alt}>
       {children}
     </div>
   ),
-  Badge: ({ children, count, ...props }: any) => (
+  Badge: ({ children, count }: any) => (
     <div data-testid="badge" data-count={count}>
       {children}
     </div>
   ),
-  Progress: ({ percent, ...props }: any) => (
+  Progress: ({ percent }: any) => (
     <div data-testid="progress" data-percent={percent}>
       {percent}%
     </div>
   ),
-  Empty: ({ children, description, ...props }: any) => (
+  Empty: ({ description }: any) => (
     <div data-testid="empty" data-description={description}>
       {description}
     </div>
@@ -446,8 +448,8 @@ vi.mock('@ant-design/icons', () => ({
   ),
   MinusCircleOutlined: ({ onClick }: any) => <span data-testid="minus-icon" onClick={onClick} />,
   MoreOutlined: () => <span data-testid="more-icon" />,
-  CheckCircleFilled: ({ style }: any) => <span data-testid="check-circle-icon" />,
-  CloseCircleFilled: ({ style }: any) => <span data-testid="close-circle-icon" />,
+  CheckCircleFilled: () => <span data-testid="check-circle-icon" />,
+  CloseCircleFilled: () => <span data-testid="close-circle-icon" />,
   PlusOutlined: () => <span data-testid="plus-icon">+</span>,
   VerticalAlignTopOutlined: () => <span data-testid="vertical-align-top-icon">↑</span>,
   ReloadOutlined: () => <span data-testid="reload-icon">↻</span>,

@@ -17,7 +17,6 @@ import { compareIPv4 } from '@app/utils/ip';
 import { InfoCircleOutlined, SettingOutlined } from '@ant-design/icons';
 import { ActionContainer, UpdateStatus } from './styled';
 import { BRAND_COLOR, ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
-import { REFETCH_INTERVAL } from '@app/const/time';
 import { ErrorMessage } from '../types';
 import { RootState } from '@app/store';
 import { useSelector } from 'react-redux';
@@ -76,13 +75,13 @@ export const VSANNodeList = () => {
   const nodesFromVSAN = useQuery({
     queryKey: ['nodesFromVSAN'],
     queryFn: () => getNodesFromVSAN(),
-    refetchInterval: REFETCH_INTERVAL,
+    refetchInterval: refetchInterval ? refetchInterval * 1000 : false,
   });
 
   const cloudStackNodes = useQuery({
     queryKey: ['cloudStackNodes'],
     queryFn: () => getCloudStackNodes(),
-    refetchInterval: REFETCH_INTERVAL,
+    refetchInterval: refetchInterval ? refetchInterval * 1000 : false,
     enabled: isHCI,
   });
 
@@ -93,7 +92,10 @@ export const VSANNodeList = () => {
   });
 
   const [updatingInfo, setUpdatingInfo] = useState<
-    Record<string, { upgrading: boolean; progress: { maxSteps: number; curStep: number; label: string } }>
+    Record<
+      string,
+      { upgrading: boolean; progress: { maxSteps: number; curStep: number; label: string; message?: string } }
+    >
   >({});
 
   const [currentNode, setCurrentNode] = useState('');
@@ -400,7 +402,9 @@ export const VSANNodeList = () => {
         const updating = updatingInfo[record.hostname]?.upgrading ?? false;
         const upgradeProcess = updatingInfo[record.hostname];
         const updateProcess = upgradeProcess?.progress;
-        const progress = updateProcess?.curStep ?? 0 / (updateProcess?.maxSteps ?? 100);
+        const progress = updateProcess?.maxSteps
+          ? Math.round(((updateProcess.curStep ?? 0) / updateProcess.maxSteps) * 100)
+          : 0;
         let updateError = false;
 
         let tooltip =
@@ -414,7 +418,7 @@ export const VSANNodeList = () => {
         if (updateProcess?.label === 'Error') {
           color = ERROR_COLOR;
           updateError = true;
-          tooltip = record.upgradeProgress?.message ?? 'Update failed!';
+          tooltip = updateProcess?.message ?? 'Update failed!';
         }
 
         return (

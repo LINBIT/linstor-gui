@@ -200,8 +200,8 @@ export const Link: React.FC<LinkProps> = ({
     rel,
     style: {
       ...getSizeStyles(),
-      ...(block ? { width: '100%', display: 'flex' } : {}),
-      ...(disabled || loading ? { cursor: 'not-allowed', opacity: 0.6, pointerEvents: 'none' } : {}),
+      ...(block ? { width: '100%', display: 'flex' as const } : {}),
+      ...(disabled || loading ? { cursor: 'not-allowed', opacity: 0.6, pointerEvents: 'none' as const } : {}),
     },
     'data-link-type': type,
     ...restProps,

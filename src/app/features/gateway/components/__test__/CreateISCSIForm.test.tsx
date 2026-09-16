@@ -118,8 +118,6 @@ import { CreateISCSIForm } from '../CreateISCSIForm';
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useResourceGroups } from '@app/features/resourceGroup';
-import { createISCSIExport } from '@app/features/gateway/api';
-import { notify } from '@app/utils/toast';
 
 describe('CreateISCSIForm Component', () => {
   let mockNavigate: any;

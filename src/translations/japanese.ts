@@ -128,6 +128,7 @@ const ja = {
     deploy: 'デプロイ',
     submit: '送信',
     cancel: 'キャンセル',
+    ok: 'OK',
     snapshot: 'スナップショット',
     success: '成功',
     reset: 'リセット',

@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import React from 'react';
 import { useWidth, WidthContext, WidthContextProps } from '../useWidth';
 

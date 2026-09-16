@@ -49,14 +49,6 @@ export const nvme = createModel<RootModel>()({
       const res = await service.get('/api/v2/nvme-of');
       const data = res.data ?? [];
 
-      const list = [];
-
-      for (const item of data) {
-        for (const volume of item.volumes ?? []) {
-          list.push({ ...item, LUN: volume.number });
-        }
-      }
-
       dispatch.nvme.setNvmeList({
         total: data.length,
         list: data,

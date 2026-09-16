@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { forwardRef, useImperativeHandle, useState } from 'react';
+import { forwardRef, useImperativeHandle, useState } from 'react';
 import { Alert, Form, Space, Typography } from 'antd';
 import { Input } from '@app/components/Input';
 import { InputNumber } from '@app/components/InputNumber';

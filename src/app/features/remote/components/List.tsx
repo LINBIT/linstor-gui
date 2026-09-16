@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { logger } from '@app/utils/logger';
 import { Form, Space, Table, Dropdown, Tooltip } from 'antd';
 import { Input } from '@app/components/Input';
@@ -19,6 +19,7 @@ import { MoreOutlined } from '@ant-design/icons';
 import { LiaToolsSolid } from 'react-icons/lia';
 
 import { deleteRemote, getRemoteList, getBackup } from '../api';
+import type { RemoteListResponse } from '../types';
 import { SearchForm } from './styled';
 import { CreateRemoteForm } from './CreateRemoteForm';
 import { UIMode } from '@app/models/setting';
@@ -71,10 +72,12 @@ export const List = () => {
     queryKey: ['getRemotes', query],
     queryFn: async () => {
       const res = await getRemoteList();
+      // The OpenAPI schema types this as an array; the controller answers an object.
+      const remotes = res?.data as unknown as RemoteListResponse | undefined;
 
-      let list = Object.keys(res?.data || {})
+      let list = Object.keys(remotes || {})
         .map((key: string) => {
-          const item = res?.data?.[key as 's3_remotes' | 'linstor_remotes' | 'ebs_remotes'] || [];
+          const item = remotes?.[key as keyof RemoteListResponse] || [];
 
           return item.map((e) => ({
             ...e,
@@ -100,7 +103,7 @@ export const List = () => {
           let count = 0;
           if (e.type === 's3_remotes') {
             try {
-              const resB = await getBackup(e.remote_name);
+              const resB = await getBackup(e.remote_name ?? '');
               const lin = resB.data?.linstor || {};
               count = Object.keys(lin).length;
             } catch {

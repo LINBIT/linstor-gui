@@ -37,7 +37,7 @@ interface LogItem {
   key: string;
   url: string;
   timestamp: number;
-  result: APICALLRC & { created_at?: number };
+  result: APICALLRC;
   read: boolean;
 }
 

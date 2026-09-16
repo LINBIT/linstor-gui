@@ -130,6 +130,7 @@ const de = {
     deploy: 'Bereitstellen',
     submit: 'Absenden',
     cancel: 'Abbrechen',
+    ok: 'OK',
     snapshot: 'Snapshot',
     success: 'Erfolg',
     reset: 'Zurücksetzen',

@@ -129,6 +129,7 @@ const tr = {
     deploy: 'Dağıt',
     submit: 'Gönder',
     cancel: 'İptal',
+    ok: 'Tamam',
     snapshot: 'Anlık Görüntü',
     success: 'Başarılı',
     reset: 'Sıfırla',

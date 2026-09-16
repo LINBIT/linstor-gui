@@ -6,7 +6,7 @@
 
 import { del, get, post, put } from '@app/features/requests';
 
-import { ExternalFile } from './types';
+import { ExternalFile, ExternalFileBody } from './types';
 
 // URL-encode the path for the API
 const encodeFileName = (path: string): string => {
@@ -33,14 +33,14 @@ const getFile = (extFileName: string) => {
   });
 };
 
-const createOrUpdateFile = (extFileName: string, body: ExternalFile) => {
+const createOrUpdateFile = (extFileName: string, body: ExternalFileBody) => {
   return put('/v1/files/{extFileName}', {
     params: {
       path: {
         extFileName: encodeFileName(extFileName),
       },
     },
-    body,
+    body: body as ExternalFile,
   });
 };
 

@@ -8,7 +8,11 @@ import { components, operations } from '@app/apis/schema';
 
 export type CreateResourceDefinitionRequestBody = components['schemas']['ResourceDefinitionCreate'];
 export type CreateVolumeDefinitionRequestBody = components['schemas']['VolumeDefinitionCreate'];
-export type AutoPlaceRequestBody = components['schemas']['AutoPlaceRequest'];
+export type AutoPlaceRequest = components['schemas']['AutoPlaceRequest'];
+/** The schema marks layer_list and most filter lists required; the controller accepts a filter alone. */
+export type AutoPlaceRequestBody = Omit<Partial<AutoPlaceRequest>, 'select_filter'> & {
+  select_filter?: Partial<NonNullable<AutoPlaceRequest['select_filter']>>;
+};
 export type ResourceDefinitionListQuery = operations['resourceDefinitionList']['parameters']['query'];
 export type ResourceDefinition = components['schemas']['ResourceDefinition'];
 export type VolumeDefinition = components['schemas']['VolumeDefinition'];

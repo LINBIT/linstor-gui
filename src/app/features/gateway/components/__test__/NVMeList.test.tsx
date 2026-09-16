@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { init } from '@rematch/core';
 
 // Mock setup - must be before imports

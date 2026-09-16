@@ -4,7 +4,6 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Form } from 'antd';

@@ -219,7 +219,7 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
           </Tooltip>
         ),
       };
-    }),
+    }) ?? [],
   );
 
   const onCheckedChanged = (ev: PhysicalStorageChangeEvent) => {

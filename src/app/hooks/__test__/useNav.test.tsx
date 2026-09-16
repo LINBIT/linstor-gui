@@ -16,6 +16,7 @@ const MockNavProvider: React.FC<{ children: React.ReactNode; value?: NavContextP
   const defaultValue: NavContextProps = {
     isNavOpen,
     toggleNav: () => setIsNavOpen(!isNavOpen),
+    setNavOpen: setIsNavOpen,
   };
 
   return <NavContext.Provider value={value || defaultValue}>{children}</NavContext.Provider>;
@@ -81,6 +82,7 @@ describe('useNav', () => {
       const customValue: NavContextProps = {
         isNavOpen: true,
         toggleNav: mockToggle,
+        setNavOpen: vi.fn(),
       };
 
       render(

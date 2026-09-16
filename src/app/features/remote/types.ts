@@ -7,6 +7,8 @@
 import { components } from '@app/apis/schema';
 
 export type RemoteList = components['schemas']['RemoteList'][];
+/** What GET /v1/remotes really returns: one object keyed by remote type. */
+export type RemoteListResponse = components['schemas']['RemoteList'];
 export type S3RemoteCreateRequestBody = components['schemas']['S3Remote'];
 export type LINSTORRemoteCreateRequestBody = components['schemas']['LinstorRemote'];
 export type RemoteBackupCreateRequestBody = components['schemas']['BackupCreate'];

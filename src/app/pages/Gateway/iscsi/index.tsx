@@ -26,7 +26,7 @@ const List: React.FunctionComponent = () => {
   }));
 
   useEffect(() => {
-    dispatch.iscsi.getList({});
+    dispatch.iscsi.getList();
   }, [dispatch.iscsi]);
 
   const createISCSI = () => {

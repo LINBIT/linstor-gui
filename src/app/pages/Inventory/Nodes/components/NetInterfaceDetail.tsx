@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { Modal } from 'antd';
 import { Button } from '@app/components/Button';

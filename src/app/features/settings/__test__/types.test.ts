@@ -21,6 +21,7 @@ describe('Settings Types', () => {
         vsanMode: false,
         hciMode: false,
         vsanAvailable: true,
+        needsPasswordChange: false,
       };
 
       // Test that all properties are properly typed
@@ -94,6 +95,7 @@ describe('Settings Types', () => {
         vsanMode: false,
         hciMode: false,
         vsanAvailable: false,
+        needsPasswordChange: false,
       };
 
       // All boolean properties should be boolean type
@@ -141,6 +143,7 @@ describe('Settings Types', () => {
         vsanMode: false,
         hciMode: false,
         vsanAvailable: false,
+        needsPasswordChange: false,
       };
 
       expect(enterpriseSettings.gatewayEnabled).toBe(true);
@@ -158,6 +161,7 @@ describe('Settings Types', () => {
         vsanMode: false,
         hciMode: false,
         vsanAvailable: false,
+        needsPasswordChange: false,
       };
 
       expect(devSettings.gatewayEnabled).toBe(false);
@@ -174,6 +178,7 @@ describe('Settings Types', () => {
         vsanMode: false,
         hciMode: true,
         vsanAvailable: true,
+        needsPasswordChange: false,
       };
 
       expect(hciSettings.hciMode).toBe(true);
@@ -242,6 +247,7 @@ describe('Settings Types', () => {
         customLogoEnabled: false,
         hideDefaultCredential: false,
         vsanAvailable: false,
+        needsPasswordChange: false,
         ...partialUpdate,
       };
 
@@ -274,6 +280,7 @@ describe('Settings Types', () => {
         customLogoEnabled: false,
         hideDefaultCredential: false,
         vsanAvailable: false,
+        needsPasswordChange: false,
       };
 
       expect(settingsWithoutHost.gatewayEnabled).toBe(true);

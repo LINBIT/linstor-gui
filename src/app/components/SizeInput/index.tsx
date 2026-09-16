@@ -23,9 +23,9 @@ export const SizeInput = ({ value, onChange, placeholder, disabled, defaultUnit,
   const [inputVal, setInputVal] = useState(value || '');
   const sizeUnitSet = useRef(false);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-    const size = convertRoundUp(sizeUnit, val);
+    const size = convertRoundUp(sizeUnit, Number(val));
     setInputVal(val);
     if (onChange) {
       onChange(size);

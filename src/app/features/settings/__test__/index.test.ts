@@ -48,7 +48,7 @@ describe('Settings Index Module', () => {
         default: { type: 'instance', naming: 'camelCase' },
       };
 
-      Object.entries(exportInfo).forEach(([name, info]) => {
+      Object.values(exportInfo).forEach((info) => {
         expect(info.type).toBeDefined();
         expect(info.naming).toBeDefined();
       });

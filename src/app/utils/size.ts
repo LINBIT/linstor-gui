@@ -6,14 +6,14 @@
 
 import BigNumber from 'bignumber.js';
 
-function checkPort(rule, value, callback) {
+function checkPort(_rule: unknown, value: string, callback: (error?: Error) => void) {
   const val = new BigNumber(value);
   if (
     !/^[0-9]{1,5}$/.test(value) ||
     val.isNaN() ||
     !val.isFinite() ||
-    val.comparedTo(0) <= 0 ||
-    val.comparedTo(65534) > 0
+    (val.comparedTo(0) ?? 0) <= 0 ||
+    (val.comparedTo(65534) ?? 0) > 0
   ) {
     callback(new Error('Port range is 1~65534'));
   } else {
@@ -21,14 +21,14 @@ function checkPort(rule, value, callback) {
   }
 }
 
-function volumeSize(rule, value, callback): void {
+function volumeSize(_rule: unknown, value: string, callback: (error?: Error) => void): void {
   const val = new BigNumber(value);
   if (
     !/^[0-9]+$/.test(value) ||
     val.isNaN() ||
     !val.isFinite() ||
-    val.comparedTo(4) < 0 ||
-    val.comparedTo(1099511627776) > 0
+    (val.comparedTo(4) ?? 0) < 0 ||
+    (val.comparedTo(1099511627776) ?? 0) > 0
   ) {
     callback(new Error('Volume Size Range Error'));
   } else {
@@ -60,7 +60,7 @@ function convertRoundUp(name: string, size: number): number {
     PB: 2575,
     PiB: 562,
   };
-  const unit_in = calc[name];
+  const unit_in = calc[name as keyof typeof calc];
   const unit_out = calc.KiB;
   let result;
   const fac_in = ((unit_in & 0xffffff00) >> 8) ** (unit_in & 0xff);
@@ -71,7 +71,7 @@ function convertRoundUp(name: string, size: number): number {
   } else {
     result = byte_sz / div_out;
   }
-  return parseInt(result);
+  return Math.trunc(result);
 }
 
 const sizeOptions = [

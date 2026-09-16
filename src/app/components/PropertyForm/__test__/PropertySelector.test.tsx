@@ -23,15 +23,6 @@ interface MockTooltipProps {
   title?: string;
 }
 
-interface MockButtonProps {
-  children: React.ReactNode;
-  onClick?: () => void;
-  disabled?: boolean;
-  className?: string;
-  type?: string;
-  [key: string]: unknown;
-}
-
 // Mock Antd components
 vi.mock('antd', () => ({
   Select: ({

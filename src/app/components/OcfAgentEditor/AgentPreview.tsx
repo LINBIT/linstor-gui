@@ -1,5 +1,5 @@
 import { Card, Spin, Typography } from 'antd';
-import type { OcfAgentWithMetadata, ParamEntry, ParsedOcfAgent } from '@/api/ha-profiles';
+import type { OcfAgentWithMetadata, ParamEntry, ParsedOcfAgent } from './types';
 
 const { Text } = Typography;
 

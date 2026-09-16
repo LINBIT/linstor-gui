@@ -4,8 +4,6 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React from 'react';
-
 import PageBasic from '@app/components/PageBasic';
 import { ISCSIList } from '@app/features/vsan';
 

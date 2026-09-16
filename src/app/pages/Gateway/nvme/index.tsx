@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -12,6 +12,7 @@ import { Dispatch, RootState } from '@app/store';
 import PageBasic from '@app/components/PageBasic';
 
 import { NVMeList as NVMeListV2 } from '@app/features/gateway';
+import type { NVMEOFResource } from '@app/features/gateway/types';
 import { useNavigate } from 'react-router-dom';
 
 const List = () => {
@@ -61,7 +62,7 @@ const List = () => {
     <PageBasic title={t('nvme:list')}>
       <NVMeListV2
         onCreate={createNVMeOf}
-        list={list}
+        list={list as unknown as NVMEOFResource[]}
         handleDelete={handleDelete}
         handleStart={handleStart}
         handleStop={handleStop}

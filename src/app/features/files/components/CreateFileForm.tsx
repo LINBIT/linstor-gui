@@ -4,7 +4,6 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React from 'react';
 import { Form } from 'antd';
 import { Input } from '@app/components/Input';
 import { useNavigate } from 'react-router-dom';

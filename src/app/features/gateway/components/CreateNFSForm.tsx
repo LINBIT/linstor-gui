@@ -21,7 +21,7 @@ import { SizeInput } from '@app/components/SizeInput';
 import { notify } from '@app/utils/toast';
 import { createNFSExport, getNFSList } from '../api';
 import { useGatewayVersion, MIN_GATEWAY_VERSION } from '../hooks';
-import { NFSImplementation, NFSResource } from '../types';
+import { NFSImplementation } from '../types';
 
 type FormType = {
   name: string;
@@ -49,9 +49,7 @@ const CreateNFSForm = () => {
   // Kernel NFS is a cluster-wide singleton, so if a kernel resource already
   // exists the Kernel option is disabled and new exports must use Ganesha.
   const { data: nfsListResp } = useQuery({ queryKey: ['getNFSList'], queryFn: getNFSList });
-  const kernelExists = ((nfsListResp?.data ?? []) as NFSResource[]).some(
-    (item) => (item.implementation ?? 'kernel') === 'kernel',
-  );
+  const kernelExists = (nfsListResp?.data ?? []).some((item) => (item.implementation ?? 'kernel') === 'kernel');
 
   // NFS-Ganesha is only offered when the running linstor-gateway is >= 2.3.0
   // (detected via the version reported in /api/v2/status).

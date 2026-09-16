@@ -17,7 +17,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@app/components/Button';
 
 interface CustomColumn {
-  title: string;
+  title: React.ReactNode;
   dataIndex: string;
   key: string;
   render?: (text: string, record: Record<string, unknown>) => React.ReactNode;
@@ -88,15 +88,17 @@ const withCustomColumns = <P extends object>(
 
     const showModal = () => setIsModalVisible(true);
 
-    const handleAddColumn = (newColumn: CustomColumn) => {
+    const handleAddColumn = (newColumn: { dataIndex: string; title: string }) => {
       setColumns((prevColumns) => {
         const updatedColumns = [
           ...prevColumns.slice(0, -1),
           {
             ...newColumn,
+            key: newColumn.dataIndex,
             isCustom: true,
-            render: (text: string, record: Record<string, unknown> & { parent: { props: Record<string, unknown> } }) =>
-              record.parent.props[newColumn.dataIndex] || text,
+            render: (text: string, record: Record<string, unknown>) =>
+              ((record as { parent?: { props?: Record<string, unknown> } }).parent?.props?.[newColumn.dataIndex] ??
+                text) as React.ReactNode,
           },
           prevColumns[prevColumns.length - 1],
         ];
@@ -131,7 +133,12 @@ const withCustomColumns = <P extends object>(
     };
 
     const options = uniqBy(
-      initialDataSource.flatMap((e) => Object.keys(e.parent.props).map((key) => ({ label: key, value: key }))),
+      initialDataSource.flatMap((e) =>
+        Object.keys((e as { parent?: { props?: Record<string, unknown> } }).parent?.props ?? {}).map((key) => ({
+          label: key,
+          value: key,
+        })),
+      ),
       'label',
     );
 

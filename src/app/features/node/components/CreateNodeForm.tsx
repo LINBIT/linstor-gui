@@ -128,7 +128,7 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
       ],
     };
 
-    createNodeMutation.mutate(data);
+    createNodeMutation.mutate(data as NodeCreateRequestBody);
   };
 
   return (

@@ -12,7 +12,7 @@ const getNetWorkInterfaces = () => {
 };
 
 const getNFSList = () => {
-  return service.get<undefined, NFSResource[]>('/api/v2/nfs');
+  return service.get<NFSResource[]>('/api/v2/nfs');
 };
 
 const createNFSExport = (data: NFSResource) => {
@@ -34,7 +34,7 @@ const getResourceGroups = () => {
 // linstor-gateway health-check endpoint. Since 2.3.0 the response also carries
 // the gateway version, used to gate version-dependent features (e.g. NFS-Ganesha).
 const getGatewayStatus = () => {
-  return service.get<undefined, { status: string; version?: string }>('/api/v2/status');
+  return service.get<{ status: string; version?: string }>('/api/v2/status');
 };
 
 export {

@@ -36,7 +36,7 @@ import { FaultyResourceIcon, UserIcon } from '@app/components/SVGIcon';
 
 interface HeaderToolsProps {
   authInfo: {
-    username: string;
+    username: string | null;
   };
   vsanModeFromSetting?: boolean;
   isNotOfficialBuild?: boolean;

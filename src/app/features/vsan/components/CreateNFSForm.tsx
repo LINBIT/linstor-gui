@@ -21,11 +21,13 @@ import { formatBytes } from '@app/utils/size';
 import { clusterPrivateVolumeSizeKib } from '../const';
 import { ErrorMessage } from '../types';
 import { Content } from './styled';
+import { NetworkAddress } from '../types';
 import { Checkbox } from '@app/components/Checkbox';
 
 type FormType = {
   name: string;
   resource_group: string;
+  service_ip_prefix: string;
   service_ip: string;
   export_path: string;
   file_system: string;
@@ -57,10 +59,7 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
     queryKey: ['getResourceGroupDataFromVSAN'],
     queryFn: () => getResourceGroups(),
   });
-  const [mask, setMask] = useState(0);
-  const [prefix, setPrefix] = useState();
 
-  const service_ip = Form.useWatch('service_ip', form);
   const gross_size = Form.useWatch('gross_size', form);
   const resource_group = Form.useWatch('resource_group', form);
 
@@ -80,7 +79,7 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
     }
 
     if (gross_size) {
-      form.setFieldValue('size', maxVolumeSize);
+      form.setFieldValue('size_kib', maxVolumeSize);
     }
   }, [form, resourceGroupsFromVSAN, resource_group, gross_size]);
 
@@ -109,7 +108,8 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
   const onFinish = async () => {
     try {
       const values = await form?.validateFields();
-      const service_ip_str = prefix + service_ip + '/' + mask;
+      const mask = ipPrefixes?.find((e: NetworkAddress) => e.prefix === values.service_ip_prefix)?.mask ?? 0;
+      const service_ip_str = values.service_ip_prefix + values.service_ip + '/' + mask;
 
       const volumes = [
         {
@@ -237,35 +237,27 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
 
             <Form.Item
               label={t('iscsi:service_ips')}
-              name="service_ip"
               required
-              rules={[
-                {
-                  required: true,
-                  message: 'IP address is required!',
-                },
-              ]}
               tooltip="This is the IP address under which the iSCSI target will be reachable. This must be an address within one of the hosts subnets.
             The service IP is a newly assigned address and should not already belong to a host."
             >
               <Space>
-                <Select
-                  options={ipServiceOptions}
-                  onChange={(val, option) => {
-                    setPrefix(val);
-                    setMask((option as any)?.mask as number);
-                  }}
-                  // defaultValue={ipServiceOptions?.[0]?.value ?? ''}
-                  style={{ minWidth: 140 }}
-                  placeholder="192.168.1."
-                />
-                <Input placeholder="0" />
+                <Form.Item
+                  name="service_ip_prefix"
+                  noStyle
+                  rules={[{ required: true, message: 'IP prefix is required!' }]}
+                >
+                  <Select options={ipServiceOptions} style={{ minWidth: 140 }} placeholder="192.168.1." />
+                </Form.Item>
+                <Form.Item name="service_ip" noStyle rules={[{ required: true, message: 'IP address is required!' }]}>
+                  <Input placeholder="0" />
+                </Form.Item>
               </Space>
             </Form.Item>
 
             <Form.Item label={t('common:size')} required>
               <Space>
-                <Form.Item name="size_kib">
+                <Form.Item name="size_kib" rules={[{ required: true, message: 'Size is required!' }]}>
                   {gross_size ? <SizeInput disabled={gross_size} /> : <SizeInput />}
                 </Form.Item>
                 <Form.Item name="gross_size" valuePropName="checked">
@@ -274,7 +266,11 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
               </Space>
             </Form.Item>
 
-            <Form.Item name="export_path" label={t('nfs:export_path')} required>
+            <Form.Item
+              name="export_path"
+              label={t('nfs:export_path')}
+              rules={[{ required: true, message: 'Export path is required!' }]}
+            >
               <Input placeholder="/" />
             </Form.Item>
 

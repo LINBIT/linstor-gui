@@ -19,7 +19,7 @@ import {
 } from '@dnd-kit/core';
 
 import type { FormInstance } from 'antd';
-import { Card, Col, Empty, Form, message, Row, Space, Typography, Tabs, Modal } from 'antd';
+import { Card, Empty, Form, message, Space, Typography, Tabs, Modal } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState, forwardRef } from 'react';
@@ -42,15 +42,7 @@ import { TomlPreview } from './TomlPreview';
 import { Button } from '@app/components/Button';
 import { HAResourceDefinition } from '@app/features/ha/useHA';
 
-interface Parameter {
-  name: string;
-  unique: boolean;
-  required: boolean;
-  shortdesc?: string;
-  longdesc?: string;
-  type: string;
-  default?: string;
-}
+import type { OcfAgentWithMetadata, ParamEntry, ParsedOcfAgent, ResourceAgentsByProvider } from './types';
 
 function generateReactorConfigString(config: DRBDReactorConfigValues): string {
   return Object.entries(config)
@@ -78,53 +70,7 @@ function generateMetadataString(metadata: Record<string, string | number | boole
     .join('\n');
 }
 
-interface ResourceAgent {
-  name: string;
-  version?: string;
-  shortdesc?: string;
-  longdesc?: string;
-  parameters: Parameter[];
-}
-
-interface ResourceAgentsByProvider {
-  providers: Record<string, ResourceAgent[]>;
-}
-
-interface OcfAgentWithMetadata {
-  position: {
-    section: string;
-    array_index: number | null;
-    key: string;
-    index: number;
-  };
-  item: {
-    original: string;
-    is_ocf: boolean;
-    ocf_agent: {
-      original: string;
-      provider: string;
-      agent_type: string;
-      instance_name: string;
-      params: Array<{ key: string; value: string }>;
-    } | null;
-  };
-  metadata: ResourceAgent | null;
-  instanceId: number;
-}
-
-interface ParsedOcfAgent {
-  provider: string;
-  agent_type: string;
-  instance_name: string;
-  params: Array<{ key: string; value: string }>;
-}
-
-interface ParamEntry {
-  key: string;
-  value: string;
-}
-
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 // Helper functions to convert between ParamEntry[] and Record<string, string>
 function paramsToRecord(params: ParamEntry[]): Record<string, string> {
@@ -235,13 +181,9 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
   {
     profile,
     tomlContent,
-    hideTitle,
     onSave,
-    onCancel,
     mode = 'edit',
     externalForm,
-    resources = [],
-    services = [],
     onAgentsChange,
     onDirtyChange,
     showPreview: externalShowPreview,
@@ -304,8 +246,6 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
   } | null>(null);
 
   // Original TOML content and resource name
-  const [_originalToml, setOriginalToml] = useState<string>('');
-  const [_resourceName, setResourceName] = useState<string>('');
 
   // Form values for live preview
   const [, forceUpdate] = useState({});
@@ -905,7 +845,6 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
             // Convert merged Record back to ParamEntry[], preserving order from original
             // For keys that exist in original, keep their order
             // For new keys from changedValue, append them
-            const _originalParamsMap = new Map(agent.item.ocf_agent.params?.map((p) => [p.key, p.value]) || []);
             const mergedParams: ParamEntry[] = [];
 
             // First, add all original params (with potentially updated values)
@@ -1431,7 +1370,6 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
             </Space>
           }
           style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
-          bodyStyle={{ flex: 1, overflow: 'hidden' }}
           items={[
             {
               key: 'services',

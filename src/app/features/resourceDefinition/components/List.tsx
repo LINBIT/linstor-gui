@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Form, Space, Table, Tag, Dropdown } from 'antd';
 import { Input } from '@app/components/Input';
 import { RegexFilterHint } from '@app/components/RegexFilterHint';
@@ -14,7 +14,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { MoreOutlined } from '@ant-design/icons';
 
-import PropertyForm from '@app/components/PropertyForm';
+import PropertyForm, { PropertyFormRef } from '@app/components/PropertyForm';
 import {
   getResourceDefinition,
   getResourceDefinitionCount,
@@ -33,7 +33,8 @@ import { Popconfirm } from '@app/components/Popconfirm';
 export const List = () => {
   const [current, setCurrent] = useState<ResourceDefinition>();
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const [propertyModalOpen, setPropertyModalOpen] = useState(false);
+  // PropertyForm opens through its ref; the old openStatus prop never existed on it.
+  const propertyFormRef = useRef<PropertyFormRef>(null);
   const [resizeModalOpen, setResizeModalOpen] = useState(false);
   const [initialProps, setInitialProps] = useState<Record<string, unknown>>();
   const navigate = useNavigate();
@@ -229,7 +230,6 @@ export const List = () => {
                   label: t('common:property'),
                   onClick: () => {
                     setCurrent(record);
-                    setPropertyModalOpen(true);
 
                     const currentData = omit(
                       record.props ?? {},
@@ -238,7 +238,7 @@ export const List = () => {
                       'DrbdOptions/auto-verify-alg',
                     );
                     setInitialProps(currentData);
-                    setPropertyModalOpen(true);
+                    propertyFormRef.current?.openModal();
                   },
                 },
               ],
@@ -322,11 +322,10 @@ export const List = () => {
       />
 
       <PropertyForm
+        ref={propertyFormRef}
         initialVal={initialProps}
-        openStatus={propertyModalOpen}
         type="resource-definition"
         handleSubmit={(data) => updateMutation.mutate(data)}
-        handleClose={() => setPropertyModalOpen(!propertyModalOpen)}
       />
       <ResizeVolumeModal
         open={resizeModalOpen}

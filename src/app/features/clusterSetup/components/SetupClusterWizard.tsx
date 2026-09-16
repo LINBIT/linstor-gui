@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@app/components/Button';
 import { createNode } from '@app/features/node/api';
 import { createPhysicalStorage, createStoragePool } from '@app/features/storagePool';
+import type { CreatePhysicalStorageRequestBody } from '@app/features/storagePool/types';
 import { createResourceGroup, updateResourceGroup } from '@app/features/resourceGroup';
 import { ResourceGroupStep, type ResourceGroupStepHandle, type ResourceGroupPlan } from './ResourceGroupStep';
 import { HASetupGuide } from './HASetupGuide';
@@ -243,12 +244,13 @@ export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = ({ open, on
       }
       try {
         if (poolMode === 'new-device') {
+          // The schema marks raid_level and external_locking required; the controller defaults them.
           await createPhysicalStorage(row.node, {
             provider_kind: row.provider_kind,
             device_paths: [row.source.trim()],
             pool_name: row.name.trim(),
             with_storage_pool: { name: row.name.trim() },
-          });
+          } as CreatePhysicalStorageRequestBody);
         } else {
           const body: Record<string, unknown> = {
             storage_pool_name: row.name.trim(),

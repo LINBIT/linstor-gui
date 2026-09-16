@@ -487,15 +487,6 @@ export const StoragePoolInfo: React.FC = () => {
     setHoveredNode(node);
   };
 
-  const getLegendGroupIndexes = (seriesIndex: number): number[] => {
-    const targetSeries = chartData.series[seriesIndex];
-    if (!targetSeries) {
-      return [];
-    }
-
-    return chartData.series.flatMap((seriesItem, index) => (seriesItem.group === targetSeries.group ? [index] : []));
-  };
-
   const handleChartContainerMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     if ((event.target as HTMLElement | null)?.closest('.storage-pool-node-tooltip')) {
       clearHoveredNodeTimer();
@@ -724,7 +715,9 @@ export const StoragePoolInfo: React.FC = () => {
 
     scheduleHoverableNodesUpdate();
     window.addEventListener('resize', scheduleHoverableNodesUpdate);
-    resizeObserver?.observe(container);
+    if (container) {
+      resizeObserver?.observe(container);
+    }
 
     return () => {
       if (hoverableNodesFrameRef.current !== null) {

@@ -4,7 +4,6 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React from 'react';
 import { logger } from '@app/utils/logger';
 import { useMutation } from '@tanstack/react-query';
 import { Form } from 'antd';

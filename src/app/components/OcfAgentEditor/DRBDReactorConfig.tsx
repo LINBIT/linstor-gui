@@ -141,8 +141,7 @@ export const DRBDReactorConfig: React.FC<DRBDReactorConfigProps> = ({ initialVal
     const filteredValues: DRBDReactorConfigValues = {};
     ALL_FIELDS.forEach((field) => {
       if (visibleFields.has(field.name)) {
-        // @ts-expect-error key access on partial type
-        filteredValues[field.name] = allValues[field.name];
+        (filteredValues as Record<string, unknown>)[field.name] = allValues[field.name];
       }
     });
     onValuesChange(filteredValues);
@@ -166,7 +165,6 @@ export const DRBDReactorConfig: React.FC<DRBDReactorConfigProps> = ({ initialVal
         const filteredValues: DRBDReactorConfigValues = {};
         ALL_FIELDS.forEach((f) => {
           if (newVisible.has(f.name)) {
-            // @ts-expect-error key access on partial type
             filteredValues[f.name] = newValues[f.name];
           }
         });
@@ -194,7 +192,6 @@ export const DRBDReactorConfig: React.FC<DRBDReactorConfigProps> = ({ initialVal
     const filteredValues: DRBDReactorConfigValues = {};
     ALL_FIELDS.forEach((field) => {
       if (newVisible.has(field.name)) {
-        // @ts-expect-error key access on partial type
         filteredValues[field.name] = newValues[field.name];
       }
     });

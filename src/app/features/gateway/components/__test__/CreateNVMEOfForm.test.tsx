@@ -17,16 +17,8 @@ vi.mock('react-router-dom', () => ({
   Route: ({ children }: any) => <>{children}</>,
 }));
 
-// Track callbacks globally
-let globalOnSuccess: any = null;
-let globalOnError: any = null;
-
 vi.mock('@tanstack/react-query', () => ({
   useMutation: vi.fn(({ mutationFn, onSuccess, onError }: any) => {
-    // Store callbacks globally for tests to access
-    if (onSuccess) globalOnSuccess = onSuccess;
-    if (onError) globalOnError = onError;
-
     return {
       mutate: vi.fn((variables: any) => {
         // Simulate async mutation
@@ -57,11 +49,6 @@ vi.mock('@tanstack/react-query', () => ({
   },
   QueryClientProvider: ({ children }: any) => <>{children}</>,
 }));
-
-// Helper to trigger onSuccess for tests
-const triggerOnSuccess = () => {
-  if (globalOnSuccess) globalOnSuccess({}, {}, undefined);
-};
 
 vi.mock('@app/features/resourceGroup', () => ({
   useResourceGroups: vi.fn(() => ({ data: [] })),
@@ -133,8 +120,6 @@ import { CreateNVMEOfForm } from '../CreateNVMEOfForm';
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useResourceGroups } from '@app/features/resourceGroup';
-import { createNVMEExport } from '@app/features/gateway/api';
-import { notify } from '@app/utils/toast';
 
 describe('CreateNVMEOfForm Component', () => {
   let mockNavigate: any;

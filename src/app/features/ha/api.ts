@@ -7,6 +7,7 @@
 import { get, put, post, del } from '../requests';
 import { logger } from '@app/utils/logger';
 import type { components } from '@app/apis/schema';
+import type { ExternalFile } from '@app/features/files/types';
 
 const getHAResourceDefinitions = () => {
   return get('/v1/resource-definitions', {
@@ -41,11 +42,12 @@ const createFile = (filePath: string, content: string) => {
         extFileName: encodeURIComponent(filePath),
       },
     },
+    // The schema marks alt_suffixes required; LINSTOR treats a missing list as none.
     body: {
       path: filePath,
       content,
       ...(isReactorConfig && { alt_suffixes: ['.disabled'] }),
-    },
+    } as ExternalFile,
   });
 };
 

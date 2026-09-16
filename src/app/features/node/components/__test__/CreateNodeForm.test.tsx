@@ -59,7 +59,6 @@ import { createNode, getNodes, updateNetwork, updateNode } from '../../api';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { fullySuccess } from '@app/features/requests';
 import { capitalize } from '@app/utils/stringUtils';
-import { useNavigate, useParams } from 'react-router-dom';
 
 // Mock data
 const mockNodeData = {
@@ -87,8 +86,6 @@ describe('CreateNodeForm Component Logic', () => {
   let mockUpdateNode: any;
   let mockUseQuery: any;
   let mockUseMutation: any;
-  let mockFullySuccess: any;
-  let mockCapitalize: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -101,8 +98,6 @@ describe('CreateNodeForm Component Logic', () => {
 
     mockUseQuery = vi.mocked(useQuery);
     mockUseMutation = vi.mocked(useMutation);
-    mockFullySuccess = vi.mocked(fullySuccess);
-    mockCapitalize = vi.mocked(capitalize);
 
     // Setup default mock implementations
     mockCreateNode.mockResolvedValue({ success: true });
@@ -235,7 +230,7 @@ describe('CreateNodeForm Component Logic', () => {
     });
 
     it('should capitalize node type display names', () => {
-      const result = vi.mocked(capitalize)('satellite');
+      vi.mocked(capitalize)('satellite');
       expect(capitalize).toHaveBeenCalledWith('satellite');
     });
   });

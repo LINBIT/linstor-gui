@@ -72,7 +72,6 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { useSelector } from 'react-redux';
 import { omit } from '@app/utils/object';
 import { uniqId } from '@app/utils/stringUtils';
-import { useLocation } from 'react-router-dom';
 
 // Mock data
 const mockNodes = {
@@ -184,8 +183,8 @@ describe('List Component Logic', () => {
       const activeInterface = node1.net_interfaces.find((iface) => iface.is_active);
 
       expect(activeInterface).toBeDefined();
-      expect(activeInterface.address).toBe('192.168.1.100');
-      expect(activeInterface.satellite_port).toBe(3366);
+      expect(activeInterface?.address).toBe('192.168.1.100');
+      expect(activeInterface?.satellite_port).toBe(3366);
     });
 
     it('should distinguish between connected and offline nodes', () => {
@@ -240,7 +239,7 @@ describe('List Component Logic', () => {
       };
 
       expect(initialProps.name).toBe(expectedProps.name);
-      expect(initialProps.prop1).toBe(expectedProps.prop1);
+      expect((initialProps as Record<string, unknown>).prop1).toBe(expectedProps.prop1);
     });
   });
 
@@ -307,7 +306,7 @@ describe('List Component Logic', () => {
 
   describe('Mode-based Navigation', () => {
     it('should generate correct paths for GUI mode', () => {
-      const mode = 'GUI';
+      const mode: string = 'GUI';
       const nodeName = 'test-node';
 
       const createPath = mode === 'HCI' ? '/hci/inventory/nodes/create' : '/inventory/nodes/create';

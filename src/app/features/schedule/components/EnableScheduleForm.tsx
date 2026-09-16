@@ -6,6 +6,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { BackupSchedule, enableSchedule, getScheduleList } from '@app/features/schedule';
 import { getRemoteList } from '@app/features/remote';
+import type { RemoteListResponse } from '@app/features/remote/types';
 import { getResources } from '@app/features/resource';
 import _ from 'lodash';
 import { getResourceGroups } from '@app/features/resourceGroup';
@@ -37,9 +38,10 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
 
   const { data: remoteList, isLoading: isRemoteLoading } = useQuery(['getRemoteListOption'], getRemoteList, {
     select: (data) => {
-      const s3Remotes = data?.data?.s3_remotes?.map((item: { remote_name?: string }) => item.remote_name) || [];
-      const linstorRemotes =
-        data?.data?.linstor_remotes?.map((item: { remote_name?: string }) => item.remote_name) || [];
+      // The OpenAPI schema types this as an array; the controller answers an object.
+      const remotes = data?.data as unknown as RemoteListResponse | undefined;
+      const s3Remotes = remotes?.s3_remotes?.map((item: { remote_name?: string }) => item.remote_name) || [];
+      const linstorRemotes = remotes?.linstor_remotes?.map((item: { remote_name?: string }) => item.remote_name) || [];
       return [...s3Remotes, ...linstorRemotes];
     },
     onError: (error) => {

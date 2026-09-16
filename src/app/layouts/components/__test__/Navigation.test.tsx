@@ -1,451 +1,190 @@
+// SPDX-License-Identifier: GPL-3.0
+//
+// Copyright (c) 2024 LINBIT
+//
+// Author: Liang Li <liang.li@linbit.com>
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook } from '@testing-library/react';
-import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// Mock dependencies
-vi.mock('react-router-dom', () => ({
-  Link: ({ children, to }: { children: React.ReactNode; to: string }) => (
-    <a href={to} data-testid="link">
-      {children}
-    </a>
-  ),
-  useLocation: () => ({
-    pathname: '/dashboard',
-  }),
+import Navigation from '../Navigation';
+import { getControllerVersion } from '@app/features/node/api';
+
+vi.mock('@app/features/node/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@app/features/node/api')>()),
+  getControllerVersion: vi.fn(),
 }));
 
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-  }),
-}));
+const mockedVersion = vi.mocked(getControllerVersion);
 
-vi.mock('antd', () => ({
-  Menu: ({ children, items, selectedKeys }: { children?: React.ReactNode; items: any[]; selectedKeys: string[] }) => (
-    <div data-testid="menu" data-selected-keys={JSON.stringify(selectedKeys)} data-items-count={items.length}>
-      {children}
-    </div>
-  ),
-}));
+const version = (restApi: string) => ({ data: { rest_api_version: restApi } }) as never;
 
-vi.mock('@ant-design/icons', () => ({
-  CloudServerOutlined: () => <div data-testid="cloud-server-icon" />,
-  ContainerOutlined: () => <div data-testid="container-icon" />,
-  DatabaseOutlined: () => <div data-testid="database-icon" />,
-  DesktopOutlined: () => <div data-testid="desktop-icon" />,
-  FieldTimeOutlined: () => <div data-testid="field-time-icon" />,
-  FileProtectOutlined: () => <div data-testid="file-protect-icon" />,
-  FileOutlined: () => <div data-testid="file-icon" />,
-  InfoCircleOutlined: () => <div data-testid="info-circle-icon" />,
-  KeyOutlined: () => <div data-testid="key-icon" />,
-  NodeIndexOutlined: () => <div data-testid="node-index-icon" />,
-  PieChartOutlined: () => <div data-testid="pie-chart-icon" />,
-  SafetyOutlined: () => <div data-testid="safety-icon" />,
-  SettingOutlined: () => <div data-testid="setting-icon" />,
-  UserOutlined: () => <div data-testid="user-icon" />,
-  WarningOutlined: () => <div data-testid="warning-icon" />,
-}));
+type Props = React.ComponentProps<typeof Navigation>;
 
-vi.mock('react-icons/lu', () => ({
-  LuDatabaseBackup: () => <div data-testid="database-backup-icon" />,
-}));
+const renderNav = (path = '/', props: Props = {}) => {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+    logger: { log: () => undefined, warn: () => undefined, error: () => undefined },
+  });
+  return render(
+    <QueryClientProvider client={client}>
+      <MemoryRouter initialEntries={[path]}>
+        <Navigation {...props} />
+      </MemoryRouter>
+    </QueryClientProvider>,
+  );
+};
 
-vi.mock('react-icons/ri', () => ({
-  RiDashboard2Line: () => <div data-testid="dashboard-icon" />,
-}));
+const link = (name: string) => screen.getByRole('link', { name });
+const openGroup = (title: string) => fireEvent.click(screen.getByText(title));
+const waitForVersion = () => waitFor(() => expect(mockedVersion).toHaveBeenCalled());
 
-vi.mock('react-icons/md', () => ({
-  MdOutlineStorage: () => <div data-testid="storage-icon" />,
-}));
-
-vi.mock('react-icons/bs', () => ({
-  BsHddRack: () => <div data-testid="hdd-rack-icon" />,
-  BsNvme: () => <div data-testid="nvme-icon" />,
-}));
-
-vi.mock('react-inlinesvg', () => ({
-  default: ({ src, width, height }: { src: string; width: string; height: string }) => (
-    <div data-testid="svg" data-src={src} data-width={width} data-height={height} />
-  ),
-}));
-
-vi.mock('@app/assets/nfs.svg', () => ({ default: 'nfs.svg' }));
-
-describe('Navigation Component', () => {
+describe('Navigation', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
+    mockedVersion.mockResolvedValue(version('1.30.0'));
   });
 
-  describe('getItem Helper Function', () => {
-    const getItem = (
-      label: React.ReactNode,
-      key: React.Key,
-      icon?: React.ReactNode,
-      children?: any[],
-      type?: 'group',
-    ) => {
-      return {
-        key,
-        icon,
-        children,
-        label,
-        type,
-      };
-    };
+  it('renders the normal-mode menu with settings when authentication is off', async () => {
+    renderNav('/', { authenticationEnabled: false });
+    await waitForVersion();
 
-    it('should create menu item with all properties', () => {
-      const item = getItem('Test Label', 'test-key', <div>icon</div>, [], 'group');
+    expect(link('Dashboard')).toHaveAttribute('href', '/');
+    expect(link('Snapshots')).toHaveAttribute('href', '/snapshot');
+    expect(link('Error Reports')).toHaveAttribute('href', '/error-reports');
+    expect(link('Settings')).toHaveAttribute('href', '/settings');
+    expect(screen.getByText('Inventory')).toBeInTheDocument();
+    expect(screen.getByText('Storage Configuration')).toBeInTheDocument();
+    expect(screen.getByText('Backup / DR')).toBeInTheDocument();
+    expect(screen.getByText('High Availability')).toBeInTheDocument();
+    expect(screen.getByText('Authentication')).toBeInTheDocument();
+    expect(screen.queryByText('Gateway')).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Grafana' })).toBeNull();
 
-      expect(item).toEqual({
-        key: 'test-key',
-        icon: <div>icon</div>,
-        children: [],
-        label: 'Test Label',
-        type: 'group',
-      });
-    });
+    openGroup('Inventory');
+    expect(await screen.findByRole('link', { name: 'Nodes' })).toHaveAttribute('href', '/inventory/nodes');
+    expect(link('Controller')).toHaveAttribute('href', '/inventory/controller');
+    expect(link('Storage Pools')).toHaveAttribute('href', '/inventory/storage-pools');
 
-    it('should create menu item with minimal properties', () => {
-      const item = getItem('Simple Label', 'simple-key');
-
-      expect(item).toEqual({
-        key: 'simple-key',
-        icon: undefined,
-        children: undefined,
-        label: 'Simple Label',
-        type: undefined,
-      });
-    });
+    openGroup('Authentication');
+    expect(await screen.findByRole('link', { name: 'Users' })).toHaveAttribute('href', '/users');
+    expect(link('Auth Tokens')).toHaveAttribute('href', '/auth-tokens');
   });
 
-  describe('VSAN Mode Navigation Items', () => {
-    it('should generate correct VSAN menu items', () => {
-      const vsanModeFromSetting = true;
+  it('hides settings and users from non-admins when authentication is on', async () => {
+    renderNav('/', { authenticationEnabled: true, isAdmin: false });
+    await waitForVersion();
 
-      const expectedItems = [
-        { key: '/vsan/dashboard', label: 'Dashboard' },
-        { key: '/vsan/physical-storage', label: 'Physical Storage' },
-        { key: '/vsan/resource-groups', label: 'Resource Groups' },
-        { key: '/vsan/iscsi', label: 'iSCSI' },
-        { key: '/vsan/nvmeof', label: 'NVMe-oF' },
-        { key: '/vsan/nfs', label: 'NFS' },
-        { key: '/vsan/error-reports', label: 'Error Reports' },
-        { key: '/vsan/users', label: 'Users' },
-        { key: '/vsan/about', label: 'About' },
-      ];
-
-      expect(vsanModeFromSetting).toBe(true);
-      expect(expectedItems).toHaveLength(9);
-      expect(expectedItems[0].key).toBe('/vsan/dashboard');
-      expect(expectedItems[8].key).toBe('/vsan/about');
-    });
+    expect(screen.queryByRole('link', { name: 'Settings' })).toBeNull();
+    expect(screen.queryByText('Authentication')).toBeNull();
   });
 
-  describe('HCI Mode Navigation Items', () => {
-    it('should generate basic HCI menu items', () => {
-      const hciModeFromSetting = true;
+  it('shows settings and users to admins when authentication is on', async () => {
+    renderNav('/', { authenticationEnabled: true, isAdmin: true });
+    await waitForVersion();
 
-      const basicHciItems = [
-        { key: '/hci/dashboard', label: 'dashboard' },
-        { key: '/hci/inventory', label: 'inventory', hasChildren: true },
-        { key: '/hci/storage-configuration', label: 'software_defined', hasChildren: true },
-        { key: '/hci/backup-and-dr', label: 'backup&dr', hasChildren: true },
-        { key: '/hci/snapshot', label: 'snapshot' },
-        { key: '/hci/error-reports', label: 'error_reports' },
-      ];
-
-      expect(hciModeFromSetting).toBe(true);
-      expect(basicHciItems).toHaveLength(6);
-      expect(basicHciItems[0].key).toBe('/hci/dashboard');
-    });
-
-    it('should include inventory children correctly', () => {
-      const inventoryChildren = [
-        { key: '/hci/inventory/nodes', label: 'node' },
-        { key: '/hci/inventory/controller', label: 'controller' },
-        { key: '/hci/inventory/storage-pools', label: 'storage_pools' },
-      ];
-
-      expect(inventoryChildren).toHaveLength(3);
-      expect(inventoryChildren[0].key).toBe('/hci/inventory/nodes');
-      expect(inventoryChildren[2].key).toBe('/hci/inventory/storage-pools');
-    });
-
-    it('should include storage configuration children correctly', () => {
-      const storageChildren = [
-        { key: '/hci/storage-configuration/resource-groups', label: 'resource_groups' },
-        { key: '/hci/storage-configuration/resource-overview', label: 'resource_overview' },
-      ];
-
-      expect(storageChildren).toHaveLength(2);
-      expect(storageChildren[0].key).toBe('/hci/storage-configuration/resource-groups');
-      expect(storageChildren[1].key).toBe('/hci/storage-configuration/resource-overview');
-    });
-
-    it('should include backup and DR children correctly', () => {
-      const backupChildren = [
-        { key: '/hci/remote/list', label: 'remotes' },
-        { key: '/hci/schedule/list-by-resource', label: 'schedule_list' },
-      ];
-
-      expect(backupChildren).toHaveLength(2);
-      expect(backupChildren[0].key).toBe('/hci/remote/list');
-      expect(backupChildren[1].key).toBe('/hci/schedule/list-by-resource');
-    });
+    expect(link('Settings')).toBeInTheDocument();
+    expect(screen.getByText('Authentication')).toBeInTheDocument();
   });
 
-  describe('Normal Mode Navigation Items', () => {
-    it('should generate basic normal menu items', () => {
-      const normalItems = [
-        { key: '/', label: 'dashboard' },
-        { key: '/inventory', label: 'inventory', hasChildren: true },
-        { key: '/storage-configuration', label: 'software_defined', hasChildren: true },
-        { key: '/backup-and-dr', label: 'backup&dr', hasChildren: true },
-        { key: '/snapshot', label: 'snapshot' },
-        { key: '/error-reports', label: 'error_reports' },
-      ];
-
-      expect(normalItems).toHaveLength(6);
-      expect(normalItems[0].key).toBe('/');
+  it('adds Grafana and Gateway entries when they are configured and available', async () => {
+    renderNav('/', {
+      grafanaConfig: { baseUrl: 'https://grafana.test' } as never,
+      KVS: { gatewayEnabled: true },
+      gatewayAvailable: true,
     });
+    await waitForVersion();
+
+    expect(link('Grafana')).toHaveAttribute('href', '/grafana');
+    openGroup('Gateway');
+    expect(await screen.findByRole('link', { name: 'NFS' })).toHaveAttribute('href', '/gateway/nfs');
+    expect(link('iSCSI')).toHaveAttribute('href', '/gateway/iscsi');
+    expect(link('NVMe-oF')).toHaveAttribute('href', '/gateway/nvme-of');
   });
 
-  describe('Conditional Menu Items', () => {
-    it('should include Grafana item when grafana is configured', () => {
-      const grafanaConfig = { baseUrl: 'http://grafana.example.com' };
-      const shouldIncludeGrafana = !!grafanaConfig?.baseUrl;
-
-      const grafanaItem = shouldIncludeGrafana ? [{ key: '/grafana', label: 'Grafana' }] : [];
-
-      expect(shouldIncludeGrafana).toBe(true);
-      expect(grafanaItem).toHaveLength(1);
-      expect(grafanaItem[0].key).toBe('/grafana');
-    });
-
-    it('should exclude Grafana item when grafana is not configured', () => {
-      const grafanaConfig = null as { baseUrl?: string } | null;
-      const shouldIncludeGrafana = !!grafanaConfig?.baseUrl;
-
-      const grafanaItem = shouldIncludeGrafana ? [{ key: '/grafana', label: 'Grafana' }] : [];
-
-      expect(shouldIncludeGrafana).toBe(false);
-      expect(grafanaItem).toHaveLength(0);
-    });
-
-    it('should include Gateway items when enabled and available', () => {
-      const KVS = { gatewayEnabled: true };
-      const gatewayAvailable = true;
-
-      const shouldIncludeGateway = KVS?.gatewayEnabled && gatewayAvailable;
-
-      const gatewayItems = shouldIncludeGateway
-        ? [
-            {
-              key: '/gateway',
-              label: 'Gateway',
-              children: [
-                { key: '/gateway/nfs', label: 'NFS' },
-                { key: '/gateway/iscsi', label: 'iSCSI' },
-                { key: '/gateway/nvme-of', label: 'NVMe-oF' },
-              ],
-            },
-          ]
-        : [];
-
-      expect(shouldIncludeGateway).toBe(true);
-      expect(gatewayItems).toHaveLength(1);
-      expect(gatewayItems[0].children).toHaveLength(3);
-    });
-
-    it('should exclude Gateway items when disabled or unavailable', () => {
-      const testCases = [
-        { KVS: { gatewayEnabled: false }, gatewayAvailable: true, expected: false },
-        { KVS: { gatewayEnabled: true }, gatewayAvailable: false, expected: false },
-        { KVS: { gatewayEnabled: false }, gatewayAvailable: false, expected: false },
-      ];
-
-      testCases.forEach(({ KVS, gatewayAvailable, expected }) => {
-        const shouldIncludeGateway = KVS?.gatewayEnabled && gatewayAvailable;
-        expect(shouldIncludeGateway).toBe(expected);
-      });
-    });
-
-    it('should include settings and users for admin or when auth disabled', () => {
-      const testCases = [
-        { authenticationEnabled: false, isAdmin: false, expected: true },
-        { authenticationEnabled: true, isAdmin: true, expected: true },
-        { authenticationEnabled: true, isAdmin: false, expected: false },
-      ];
-
-      testCases.forEach(({ authenticationEnabled, isAdmin, expected }) => {
-        const shouldIncludeSettingsUsers = !authenticationEnabled || isAdmin;
-        expect(shouldIncludeSettingsUsers).toBe(expected);
-      });
-    });
+  it('keeps the gateway hidden when it is enabled but not reachable', async () => {
+    renderNav('/', { KVS: { gatewayEnabled: true }, gatewayAvailable: false });
+    await waitForVersion();
+    expect(screen.queryByText('Gateway')).toBeNull();
   });
 
-  describe('Menu Selection Logic', () => {
-    it('should determine selected menu from location pathname', () => {
-      const items = [
-        { key: '/dashboard', children: undefined },
-        { key: '/inventory', children: [{ key: '/inventory/nodes' }, { key: '/inventory/controller' }] },
-      ];
+  it('hides the version-gated entries on an old controller', async () => {
+    mockedVersion.mockResolvedValue(version('1.20.0'));
+    renderNav('/', { authenticationEnabled: false });
 
-      const testCases = [
-        { pathname: '/dashboard', expectedKey: '/dashboard' },
-        { pathname: '/inventory/nodes', expectedKey: '/inventory/nodes' },
-      ];
-
-      testCases.forEach(({ pathname, expectedKey }) => {
-        const currentMenu = items.find(
-          (e) => e?.key === pathname || (e as any)?.children?.find((c: any) => c.key === pathname),
-        ) as any;
-
-        let selectedMenu;
-        if (currentMenu?.children) {
-          selectedMenu = currentMenu.children.find((c: any) => c.key === pathname)?.key;
-        } else {
-          selectedMenu = currentMenu?.key;
-        }
-
-        expect(selectedMenu).toBe(expectedKey);
-      });
-    });
-
-    it('should handle parent menu selection when child is active', () => {
-      const items = [{ key: '/inventory', children: [{ key: '/inventory/nodes' }, { key: '/inventory/controller' }] }];
-
-      const pathname = '/inventory/nodes';
-      const currentMenu = items.find(
-        (e) => e?.key === pathname || (e as any)?.children?.find((c: any) => c.key === pathname),
-      ) as any;
-
-      expect(currentMenu.key).toBe('/inventory');
-      expect(currentMenu.children.find((c: any) => c.key === pathname)).toBeTruthy();
-    });
+    await waitFor(() => expect(screen.queryByText('High Availability')).toBeNull());
+    openGroup('Authentication');
+    expect(await screen.findByRole('link', { name: 'Users' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Auth Tokens' })).toBeNull();
   });
 
-  describe('useMemo Dependencies', () => {
-    it('should recalculate items when dependencies change', () => {
-      const dependencies = [
-        'grafanaConfig',
-        'KVS?.gatewayEnabled',
-        'authenticationEnabled',
-        'gatewayAvailable',
-        'isAdmin',
-        't',
-        'vsanModeFromSetting',
-        'hciModeFromSetting',
-      ];
+  it('shows the gated entries optimistically while the version is unknown', () => {
+    mockedVersion.mockReturnValue(new Promise(() => undefined) as never);
+    renderNav('/', { authenticationEnabled: false });
 
-      expect(dependencies).toHaveLength(8);
-      expect(dependencies).toContain('grafanaConfig');
-      expect(dependencies).toContain('vsanModeFromSetting');
-      expect(dependencies).toContain('hciModeFromSetting');
-      expect(dependencies).toContain('authenticationEnabled');
-    });
+    expect(screen.getByText('High Availability')).toBeInTheDocument();
   });
 
-  describe('Route Path Logic', () => {
-    it('should use correct paths for VSAN mode', () => {
-      const vsanPaths = [
-        '/vsan/dashboard',
-        '/vsan/physical-storage',
-        '/vsan/resource-groups',
-        '/vsan/iscsi',
-        '/vsan/nvmeof',
-        '/vsan/nfs',
-        '/vsan/error-reports',
-        '/vsan/users',
-        '/vsan/about',
-      ];
+  it('opens the group of the current route and selects its entry', async () => {
+    renderNav('/inventory/nodes');
 
-      vsanPaths.forEach((path) => {
-        expect(path).toMatch(/^\/vsan\//);
-      });
-    });
-
-    it('should use correct paths for HCI mode', () => {
-      const hciPaths = [
-        '/hci/dashboard',
-        '/hci/inventory/nodes',
-        '/hci/storage-configuration/resource-groups',
-        '/hci/remote/list',
-        '/hci/snapshot',
-        '/hci/error-reports',
-        '/hci/authentication',
-        '/hci/users',
-        '/hci/settings',
-        '/hci/gateway/nfs',
-        '/hci/grafana',
-      ];
-
-      hciPaths.forEach((path) => {
-        expect(path).toMatch(/^\/hci\//);
-      });
-    });
-
-    it('should use correct paths for normal mode', () => {
-      const normalPaths = [
-        '/',
-        '/inventory/nodes',
-        '/storage-configuration/resource-groups',
-        '/remote/list',
-        '/high-availability',
-        '/reactor',
-        '/files',
-        '/snapshot',
-        '/error-reports',
-        '/authentication',
-        '/users',
-        '/auth-tokens',
-        '/settings',
-        '/gateway/nfs',
-        '/grafana',
-      ];
-
-      normalPaths.forEach((path) => {
-        expect(path).toMatch(/^\//) || expect(path).toBe('/');
-      });
-    });
+    const nodes = await screen.findByRole('link', { name: 'Nodes' });
+    expect(nodes.closest('.ant-menu-item')).toHaveClass('ant-menu-item-selected');
+    expect(screen.getByText('Inventory').closest('.ant-menu-submenu')).toHaveClass('ant-menu-submenu-open');
   });
 
-  describe('Icon Assignment Logic', () => {
-    it('should assign correct icons to menu items', () => {
-      const iconMappings = [
-        { key: 'dashboard', icon: 'PieChartOutlined' },
-        { key: 'inventory', icon: 'DesktopOutlined' },
-        { key: 'software_defined', icon: 'DatabaseOutlined' },
-        { key: 'backup&dr', icon: 'LuDatabaseBackup' },
-        { key: 'high_availability', icon: 'SafetyOutlined' },
-        { key: 'snapshot', icon: 'FileProtectOutlined' },
-        { key: 'error_reports', icon: 'WarningOutlined' },
-        { key: 'authentication', icon: 'KeyOutlined' },
-        { key: 'settings', icon: 'SettingOutlined' },
-      ];
+  it('selects a top-level route without opening any group', async () => {
+    renderNav('/snapshot');
+    await waitForVersion();
 
-      iconMappings.forEach(({ key, icon }) => {
-        expect(key).toBeTruthy();
-        expect(icon).toBeTruthy();
-      });
-    });
+    expect(link('Snapshots').closest('.ant-menu-item')).toHaveClass('ant-menu-item-selected');
+    expect(document.querySelector('.ant-menu-submenu-open')).toBeNull();
   });
 
-  describe('Component State Logic', () => {
-    it('should initialize selectedMenu with default value', () => {
-      const defaultSelectedMenu = '/dashboard';
-      expect(defaultSelectedMenu).toBe('/dashboard');
-    });
+  it('does not expand the current group while the sidebar is collapsed', async () => {
+    const { container } = renderNav('/inventory/nodes', { isNavOpen: true });
+    await waitForVersion();
 
-    it('should update selectedMenu based on location changes', () => {
-      let selectedMenu = '/dashboard';
-      const setSelectedMenu = (newValue: string) => {
-        selectedMenu = newValue;
-      };
+    expect(container.querySelector('.ant-menu-inline-collapsed')).not.toBeNull();
+    expect(document.querySelector('.ant-menu-submenu-open')).toBeNull();
+  });
 
-      expect(selectedMenu).toBe('/dashboard');
-      setSelectedMenu('/inventory/nodes');
-      expect(selectedMenu).toBe('/inventory/nodes');
+  it('renders the VSAN menu in VSAN mode', async () => {
+    renderNav('/vsan/dashboard', { vsanModeFromSetting: true });
+    await waitForVersion();
+
+    expect(link('Dashboard')).toHaveAttribute('href', '/vsan/dashboard');
+    expect(link('Physical Storage')).toHaveAttribute('href', '/vsan/physical-storage');
+    expect(link('iSCSI')).toHaveAttribute('href', '/vsan/iscsi');
+    expect(link('NVMe-oF')).toHaveAttribute('href', '/vsan/nvmeof');
+    expect(link('NFS')).toHaveAttribute('href', '/vsan/nfs');
+    expect(link('Users')).toHaveAttribute('href', '/vsan/users');
+    expect(link('About')).toHaveAttribute('href', '/vsan/about');
+    expect(screen.queryByText('Inventory')).toBeNull();
+  });
+
+  it('renders the HCI menu with prefixed routes and no HA group', async () => {
+    renderNav('/hci/dashboard', {
+      hciModeFromSetting: true,
+      authenticationEnabled: false,
+      grafanaConfig: { baseUrl: 'https://grafana.test' } as never,
+      KVS: { gatewayEnabled: true },
+      gatewayAvailable: true,
     });
+    await waitForVersion();
+
+    expect(link('Dashboard')).toHaveAttribute('href', '/hci/dashboard');
+    expect(link('Snapshots')).toHaveAttribute('href', '/hci/snapshot');
+    expect(link('Files')).toHaveAttribute('href', '/hci/files');
+    expect(link('Grafana')).toHaveAttribute('href', '/hci/grafana');
+    expect(link('Settings')).toHaveAttribute('href', '/hci/settings');
+    expect(screen.queryByText('High Availability')).toBeNull();
+
+    openGroup('Inventory');
+    expect(await screen.findByRole('link', { name: 'Nodes' })).toHaveAttribute('href', '/hci/inventory/nodes');
+    openGroup('Gateway');
+    expect(await screen.findByRole('link', { name: 'NFS' })).toHaveAttribute('href', '/hci/gateway/nfs');
   });
 });

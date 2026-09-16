@@ -31,6 +31,7 @@ interface ResourceGroup {
 type FormType = {
   name: string;
   resource_group: string;
+  service_ip_prefix: string;
   service_ip: string;
   export_path: string;
   file_system: string;
@@ -61,8 +62,6 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
   const [form] = Form.useForm<FormType>();
   const [api, contextHolder] = notification.useNotification();
   const { data: ipPrefixes } = useNodeNetWorkInterface();
-  const [mask, setMask] = useState(0);
-  const [prefix, setPrefix] = useState();
   const [createFormModal, setCreateFormModal] = useState(false);
 
   const { data: resourceGroupsFromVSAN } = useQuery({
@@ -70,7 +69,6 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
     queryFn: () => getResourceGroups(),
   });
 
-  const service_ip = Form.useWatch('service_ip', form);
   const gross_size = Form.useWatch('gross_size', form);
   const resource_group = Form.useWatch('resource_group', form);
 
@@ -130,7 +128,8 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
     try {
       const values = await form?.validateFields();
 
-      const service_ip_str = prefix + service_ip + '/' + mask;
+      const mask = ipPrefixes?.find((e: NetworkAddress) => e.prefix === values.service_ip_prefix)?.mask ?? 0;
+      const service_ip_str = values.service_ip_prefix + values.service_ip + '/' + mask;
       const nqn = 'nqn.' + values.time + '.' + values.domain + ':nvme:' + values.nqn;
 
       const volumes = [
@@ -270,36 +269,27 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
 
             <Form.Item
               label={t('iscsi:service_ips')}
-              name="service_ip"
               required
-              rules={[
-                {
-                  required: true,
-                  message: 'IP address is required!',
-                },
-              ]}
               tooltip="This is the IP address under which the iSCSI target will be reachable. This must be an address within one of the hosts subnets.
             The service IP is a newly assigned address and should not already belong to a host."
             >
               <Space>
-                <Select
-                  options={ipServiceOptions}
-                  onChange={(val, option) => {
-                    setPrefix(val);
-                    if (option && typeof option === 'object' && 'mask' in option) {
-                      setMask((option as IPServiceOption).mask);
-                    }
-                  }}
-                  style={{ minWidth: 140 }}
-                  placeholder="192.168.1."
-                />
-                <Input placeholder="0" />
+                <Form.Item
+                  name="service_ip_prefix"
+                  noStyle
+                  rules={[{ required: true, message: 'IP prefix is required!' }]}
+                >
+                  <Select options={ipServiceOptions} style={{ minWidth: 140 }} placeholder="192.168.1." />
+                </Form.Item>
+                <Form.Item name="service_ip" noStyle rules={[{ required: true, message: 'IP address is required!' }]}>
+                  <Input placeholder="0" />
+                </Form.Item>
               </Space>
             </Form.Item>
 
             <Form.Item label={t('common:size')}>
               <Space>
-                <Form.Item name="size" required>
+                <Form.Item name="size" rules={[{ required: true, message: 'Size is required!' }]}>
                   {gross_size ? <SizeInput disabled={gross_size} /> : <SizeInput />}
                 </Form.Item>
                 <Form.Item name="gross_size" valuePropName="checked">

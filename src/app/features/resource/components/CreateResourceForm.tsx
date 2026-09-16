@@ -221,6 +221,7 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
         allocate_method: 'auto',
         place_count: 2,
         ...initialValues,
+        ...(isEdit ? { node: nodeFromURL } : {}),
       }}
       onFinish={onFinish}
     >
@@ -255,7 +256,11 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
         </Form.Item>
       )}
 
-      {allocate_method === 'manual' && (
+      {/* Edit only ever changes the pool of one placed resource, so it uses
+          the manual layout with the node pinned to the one from the route.
+          It used to render no editable field at all: the radio that switches
+          to manual is hidden in edit mode. */}
+      {(allocate_method === 'manual' || isEdit) && (
         <>
           <Form.Item
             label={t('common:node')}
@@ -265,6 +270,7 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
           >
             <Select
               allowClear
+              disabled={isEdit}
               placeholder={t('error_report:please_select_node')}
               options={nodes
                 ?.filter((node) => !nodesHaveSelectedResource?.includes(node.name))

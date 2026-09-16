@@ -6,7 +6,6 @@
 
 import PageBasic from '@app/components/PageBasic';
 import { useTranslation } from 'react-i18next';
-import React from 'react';
 import { ResourceGroupList } from '@app/features/vsan';
 
 export const ResourceGroup = () => {

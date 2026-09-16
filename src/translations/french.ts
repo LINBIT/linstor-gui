@@ -129,6 +129,7 @@ const fr = {
     deploy: 'Déployer',
     submit: 'Soumettre',
     cancel: 'Annuler',
+    ok: 'OK',
     snapshot: 'Instantané',
     success: 'Succès',
     reset: 'Réinitialiser',

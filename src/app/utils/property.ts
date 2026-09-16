@@ -25,20 +25,25 @@ function normalizeYesNoValue(value: unknown, fallback?: boolean): 'yes' | 'no' {
   return fallback ? 'yes' : 'no';
 }
 
-export function handlePropsToFormOption(key: string, prop = {}): FormItem[] {
+export function handlePropsToFormOption(key: string, prop: Record<string, unknown> = {}): FormItem[] {
   if (!key || key === '') {
     return [];
   }
 
-  let propsArr = [...properties.objects[key]];
+  const propertyObjects = properties.objects as Record<string, string[]>;
+  const drbdObjects = drbdOptions.objects as Record<string, string[]>;
+  let propsArr = [...(propertyObjects[key] ?? [])];
 
-  if (drbdOptions.objects[key]) {
-    propsArr = [...propsArr, ...drbdOptions.objects[key]];
+  if (drbdObjects[key]) {
+    propsArr = [...propsArr, ...drbdObjects[key]];
   }
 
   // Build a map of unique form field names to property data
   // This handles cases where multiple properties have the same key value
-  const allProps = { ...properties.properties, ...drbdOptions.properties };
+  // The property catalogs are large heterogeneous JSON; they are read dynamically below.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const allProps: Record<string, any> = { ...properties.properties, ...drbdOptions.properties };
+  const drbdProperties = drbdOptions.properties as Record<string, unknown>;
   const uniqueFieldMap = new Map<
     string,
     { propName: string; data: (typeof allProps)[string]; field: string; source: 'property' | 'drbd' }
@@ -47,7 +52,7 @@ export function handlePropsToFormOption(key: string, prop = {}): FormItem[] {
   for (const propName of propsArr) {
     if (allProps[propName]) {
       const data = allProps[propName];
-      const source = drbdOptions.properties[propName] ? 'drbd' : 'property';
+      const source = drbdProperties[propName] ? 'drbd' : 'property';
       let field: string;
       if (Array.isArray(data.key)) {
         field = data.key
@@ -69,7 +74,7 @@ export function handlePropsToFormOption(key: string, prop = {}): FormItem[] {
     const field = item.field;
     const source = item.source;
 
-    const value = prop[field];
+    const value = prop[field] as FormItem['defaultValue'];
     const hide = typeof value === 'undefined'; // if this prop has value then display it as initial value
     const title = field || camelCase(key, { pascalCase: true });
 

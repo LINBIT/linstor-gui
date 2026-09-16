@@ -37,6 +37,6 @@ export type InputNumberProps = AntInputNumberProps;
  * Drop-in replacement for antd's InputNumber with the brand color scheme
  * (brand primary) applied to hover/focus states and the stepper handles.
  */
-export const InputNumber = StyledInputNumber as typeof AntInputNumber;
+export const InputNumber = StyledInputNumber as unknown as typeof AntInputNumber;
 
 export default InputNumber;

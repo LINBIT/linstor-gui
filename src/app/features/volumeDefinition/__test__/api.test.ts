@@ -79,7 +79,7 @@ describe('volumeDefinition api', () => {
   });
 
   it('auto-places under the resource with the body', async () => {
-    const body = { select_filter: { place_count: 2 } };
+    const body = { select_filter: { place_count: 2 } } as Parameters<typeof autoPlace>[1];
     await autoPlace('r1', body);
     expect(post).toHaveBeenCalledWith('/v1/resource-definitions/{resource}/autoplace', {
       params: { path: { resource: 'r1' } },
@@ -100,7 +100,7 @@ describe('volumeDefinition api', () => {
   });
 
   it('passes the transport result and rejection through', async () => {
-    await expect(createVolumeDefinition('r1', {})).resolves.toBe(ok);
+    await expect(createVolumeDefinition('r1', {} as Parameters<typeof createVolumeDefinition>[1])).resolves.toBe(ok);
     const boom = new Error('network');
     vi.mocked(del).mockRejectedValue(boom);
     await expect(deleteVolumeDefinition('r1', 0)).rejects.toBe(boom);

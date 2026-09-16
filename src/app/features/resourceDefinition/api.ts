@@ -9,6 +9,7 @@ import { del, get, post, put } from '../requests';
 import {
   CreateResourceDefinitionRequestBody,
   CreateVolumeDefinitionRequestBody,
+  AutoPlaceRequest,
   AutoPlaceRequestBody,
   ResourceDefinitionListQuery,
   UpdateResourceDefinitionRequestBody,
@@ -44,7 +45,7 @@ const autoPlace = (resource: string, body: AutoPlaceRequestBody) => {
         resource,
       },
     },
-    body,
+    body: body as AutoPlaceRequest,
   });
 };
 

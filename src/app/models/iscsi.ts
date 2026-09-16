@@ -49,14 +49,6 @@ export const iscsi = createModel<RootModel>()({
       const res = await service.get('/api/v2/iscsi');
       const data = res.data ?? [];
 
-      const iscsiList = [];
-
-      for (const item of data) {
-        for (const volume of item.volumes ?? []) {
-          iscsiList.push({ ...item, LUN: volume.number });
-        }
-      }
-
       dispatch.iscsi.setISCSIList({
         total: data.length,
         list: data,

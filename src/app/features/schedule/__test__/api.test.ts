@@ -106,7 +106,8 @@ describe('schedule api', () => {
   });
 
   it('passes the transport result and rejection through', async () => {
-    await expect(createSchedule({ schedule_name: 'x', full_cron: '* * * * *' })).resolves.toBe(ok);
+    const body = { schedule_name: 'x', full_cron: '* * * * *' } as Parameters<typeof createSchedule>[0];
+    await expect(createSchedule(body)).resolves.toBe(ok);
     const boom = new Error('network');
     vi.mocked(del).mockRejectedValue(boom);
     await expect(deleteSchedule('x')).rejects.toBe(boom);

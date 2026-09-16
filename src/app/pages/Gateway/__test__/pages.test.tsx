@@ -72,7 +72,7 @@ describe('Gateway Pages Logic', () => {
       };
 
       // Simulate useEffect calling getList
-      mockUseEffect.mockImplementation((fn) => fn());
+      mockUseEffect.mockImplementation((fn: () => void) => fn());
 
       // Simulate the effect dependency pattern
       const effectCallback = () => {
@@ -177,7 +177,7 @@ describe('Gateway Pages Logic', () => {
         iscsi: { getList: vi.fn() },
       };
 
-      mockUseEffect.mockImplementation((fn) => fn());
+      mockUseEffect.mockImplementation((fn: () => void) => fn());
 
       const effectCallback = () => {
         mockDispatch.iscsi.getList({});
@@ -278,7 +278,7 @@ describe('Gateway Pages Logic', () => {
         nfs: { getList: vi.fn() },
       };
 
-      mockUseEffect.mockImplementation((fn) => fn());
+      mockUseEffect.mockImplementation((fn: () => void) => fn());
 
       const effectCallback = () => {
         mockDispatch.nfs.getList();

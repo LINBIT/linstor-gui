@@ -128,6 +128,7 @@ const ru = {
     deploy: 'Развернуть',
     submit: 'Отправить',
     cancel: 'Отмена',
+    ok: 'ОК',
     snapshot: 'Снимок',
     success: 'Успех',
     reset: 'Сброс',

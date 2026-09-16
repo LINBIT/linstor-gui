@@ -6,7 +6,6 @@
 
 import PageBasic from '@app/components/PageBasic';
 import { useTranslation } from 'react-i18next';
-import React from 'react';
 import { StyledUL } from './styled';
 import { PhysicalStorageList } from '@app/features/vsan';
 

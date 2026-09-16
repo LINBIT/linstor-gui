@@ -119,8 +119,6 @@ import { CreateNFSForm } from '../CreateNFSForm';
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useResourceGroups } from '@app/features/resourceGroup';
-import { createNFSExport } from '@app/features/gateway/api';
-import { notify } from '@app/utils/toast';
 
 describe('CreateNFSForm Component', () => {
   let mockNavigate: any;

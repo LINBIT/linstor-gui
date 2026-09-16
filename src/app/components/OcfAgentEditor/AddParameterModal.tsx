@@ -5,49 +5,7 @@ import { Button } from '@app/components/Button';
 
 const { Text } = Typography;
 
-interface Parameter {
-  name: string;
-  unique: boolean;
-  required: boolean;
-  shortdesc?: string;
-  longdesc?: string;
-  type: string;
-  default?: string;
-}
-
-interface ResourceAgent {
-  name: string;
-  version?: string;
-  shortdesc?: string;
-  longdesc?: string;
-  parameters: Parameter[];
-}
-
-interface ResourceAgentsByProvider {
-  providers: Record<string, ResourceAgent[]>;
-}
-
-interface OcfAgentWithMetadata {
-  position: {
-    section: string;
-    array_index: number | null;
-    key: string;
-    index: number;
-  };
-  item: {
-    original: string;
-    is_ocf: boolean;
-    ocf_agent: {
-      original: string;
-      provider: string;
-      agent_type: string;
-      instance_name: string;
-      params: Array<{ key: string; value: string }>;
-    } | null;
-  };
-  metadata: ResourceAgent | null;
-  instanceId: number;
-}
+import type { OcfAgentWithMetadata, ResourceAgentsByProvider } from './types';
 
 interface AddParameterModalProps {
   visible: boolean;

@@ -53,7 +53,7 @@ export const ResizeVolumeModal: React.FC<ResizeVolumeModalProps> = ({ open, onCl
 
   useEffect(() => {
     if (open && volumeDefinitions?.data) {
-      const initialValues = {};
+      const initialValues: Record<string, unknown> = {};
       volumeDefinitions.data.forEach((vol) => {
         const { value, unit } = bestUnit(vol.size_kib ?? 0);
         initialValues[`vol_${vol.volume_number}_size`] = value;
@@ -112,7 +112,7 @@ export const ResizeVolumeModal: React.FC<ResizeVolumeModalProps> = ({ open, onCl
         <Button key="cancel" type="secondary" onClick={onClose}>
           {t('common:cancel')}
         </Button>,
-        <Button key="submit" type="primary" loading={mutation.isPending} onClick={handleOk}>
+        <Button key="submit" type="primary" loading={mutation.isLoading} onClick={handleOk}>
           {t('common:ok')}
         </Button>,
       ]}

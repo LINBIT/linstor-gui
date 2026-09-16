@@ -4,12 +4,12 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Space, Table, Tag, Dropdown, Modal, Spin, message } from 'antd';
 import { Select } from '@app/components/Select';
 import { Input } from '@app/components/Input';
 import type { TableProps } from 'antd';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { EyeOutlined, MoreOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
@@ -26,7 +26,6 @@ import {
 } from '../';
 import { getFile } from '../api';
 import { uniqId } from '@app/utils/stringUtils';
-import { BRAND_COLOR } from '@app/const/color';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { Switch } from '@app/components/Switch';
 
@@ -64,14 +63,6 @@ export const List = () => {
   }, [resourceDefinitions?.data, selectedFilePath]);
 
   const queryClient = useQueryClient();
-
-  // Check if this file is already deployed to any resource
-  const deployedResource = useMemo(() => {
-    if (!resourceDefinitions?.data || !selectedFilePath) return null;
-    const fileKey = `files${selectedFilePath}`;
-    const rd = resourceDefinitions.data.find((r: { props?: Record<string, string> }) => r.props?.[fileKey]);
-    return rd?.name || null;
-  }, [resourceDefinitions?.data, selectedFilePath]);
 
   const deleteMutation = useDeleteFile();
   const deployMutation = useDeployFile();
@@ -122,9 +113,9 @@ export const List = () => {
             setSelectedResource(null);
             queryClient.invalidateQueries({ queryKey: ['resourceDefinitions'] });
           },
-          onError: (error: { message?: string }) => {
+          onError: (error: unknown) => {
             // Check if it's already deployed error
-            const errorMsg = error?.message || '';
+            const errorMsg = (error as { message?: string } | undefined)?.message || '';
             if (errorMsg.includes('already') || errorMsg.includes('exists')) {
               message.error(t('already_deployed'));
             } else {

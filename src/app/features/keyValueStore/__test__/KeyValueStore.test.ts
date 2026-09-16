@@ -28,7 +28,7 @@ describe('KeyValueStore', () => {
       vi.mocked(api.getKVStore).mockResolvedValue({
         data: mockData,
         response: {} as Response,
-      });
+      } as never);
 
       const result = await kvStore.list();
 
@@ -40,7 +40,7 @@ describe('KeyValueStore', () => {
       vi.mocked(api.getKVStore).mockResolvedValue({
         data: undefined,
         response: {} as Response,
-      });
+      } as never);
 
       await expect(kvStore.list()).rejects.toThrow('Failed to list key value stores.');
     });
@@ -123,7 +123,7 @@ describe('KeyValueStore', () => {
       vi.mocked(api.createOrModifyKVInstance).mockResolvedValue({
         data: [{ ret_code: 1, message: 'Success' }],
         response: {} as Response,
-      });
+      } as never);
 
       await kvStore.create('newInstance', mockStore);
 
@@ -138,7 +138,7 @@ describe('KeyValueStore', () => {
       vi.mocked(api.createOrModifyKVInstance).mockResolvedValue({
         data: [{ ret_code: 1, message: 'Success' }],
         response: {} as Response,
-      });
+      } as never);
 
       await kvStore.create('existingInstance', mockStore);
 
@@ -153,7 +153,7 @@ describe('KeyValueStore', () => {
       vi.mocked(api.createOrModifyKVInstance).mockResolvedValue({
         data: undefined,
         response: {} as Response,
-      });
+      } as never);
 
       await expect(kvStore.create('instance')).rejects.toThrow('Failed to create key value store instance');
     });
@@ -165,7 +165,7 @@ describe('KeyValueStore', () => {
       vi.mocked(api.getKVInstance).mockResolvedValue({
         data: mockData,
         response: {} as Response,
-      });
+      } as never);
 
       const result = await kvStore.get('test');
 
@@ -177,7 +177,7 @@ describe('KeyValueStore', () => {
       vi.mocked(api.getKVInstance).mockResolvedValue({
         data: undefined,
         response: {} as Response,
-      });
+      } as never);
 
       await expect(kvStore.get('test')).rejects.toThrow('Failed to get key value store test ');
     });
@@ -206,7 +206,7 @@ describe('KeyValueStore', () => {
       vi.mocked(api.createOrModifyKVInstance).mockResolvedValue({
         data: mockResponse,
         response: {} as Response,
-      });
+      } as never);
 
       const result = await kvStore.modify('test', mockStore);
 
@@ -219,7 +219,7 @@ describe('KeyValueStore', () => {
       vi.mocked(api.createOrModifyKVInstance).mockResolvedValue({
         data: undefined,
         response: {} as Response,
-      });
+      } as never);
 
       await expect(kvStore.modify('test', mockStore)).rejects.toThrow('Failed to modify key value store test');
     });
@@ -230,7 +230,7 @@ describe('KeyValueStore', () => {
       vi.mocked(api.deleteKVInstance).mockResolvedValue({
         data: [{ ret_code: 1, message: 'Success' }],
         response: {} as Response,
-      });
+      } as never);
 
       await kvStore.delete('test');
 
@@ -241,7 +241,7 @@ describe('KeyValueStore', () => {
       vi.mocked(api.deleteKVInstance).mockResolvedValue({
         data: undefined,
         response: {} as Response,
-      });
+      } as never);
 
       await expect(kvStore.delete('test')).rejects.toThrow('Failed to delete key value store test');
     });

@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { logger } from '@app/utils/logger';
 import { Tabs } from 'antd';
 import type { TabsProps } from 'antd';

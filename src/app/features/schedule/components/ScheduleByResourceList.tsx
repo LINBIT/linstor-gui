@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { logger } from '@app/utils/logger';
 import { Form, Table, message, Space, Dropdown, Tooltip, Tag } from 'antd';
 import { Input } from '@app/components/Input';

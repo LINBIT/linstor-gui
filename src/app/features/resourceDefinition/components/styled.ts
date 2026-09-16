@@ -4,6 +4,4 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import styled from '@emotion/styled';
-
 export { SearchForm } from '@app/components/SearchForm';

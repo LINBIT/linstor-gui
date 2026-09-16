@@ -76,9 +76,9 @@ type InputComponent = React.ForwardRefExoticComponent<InputProps & React.RefAttr
 };
 
 const Input = StyledInput as unknown as InputComponent;
-Input.TextArea = StyledTextArea as InputComponent['TextArea'];
-Input.Password = StyledPassword as InputComponent['Password'];
-Input.Search = StyledSearch as InputComponent['Search'];
+Input.TextArea = StyledTextArea as unknown as InputComponent['TextArea'];
+Input.Password = StyledPassword as unknown as InputComponent['Password'];
+Input.Search = StyledSearch as unknown as InputComponent['Search'];
 Input.Group = AntInput.Group;
 
 export { Input };

@@ -8,7 +8,6 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import withCustomColumns from '../index';
-import React from 'react';
 
 // Mock window.matchMedia for Ant Design components
 Object.defineProperty(window, 'matchMedia', {

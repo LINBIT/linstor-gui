@@ -519,7 +519,7 @@ describe('Create Forms Logic', () => {
     });
 
     it('should use default error message when error has no message', () => {
-      const err = { code: 'ERROR' };
+      const err: { code: string; message?: string } = { code: 'ERROR' };
       let message = 'Create failed';
 
       if (err.message) {

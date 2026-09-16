@@ -179,7 +179,7 @@ export const List = () => {
     setSelectedRowKeys([]);
   };
 
-  const platformColumn: TableProps<NodeDataType>['columns'][number] = {
+  const platformColumn: NonNullable<TableProps<NodeDataType>['columns']>[number] = {
     title: t('node:platform'),
     key: 'platform',
     dataIndex: 'platform',

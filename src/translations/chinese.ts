@@ -130,6 +130,7 @@ const zh = {
     submit: '提交',
     submitted_processing: '已提交，正在处理中…',
     cancel: '取消',
+    ok: '确定',
     close: '关闭',
     reset: '重置',
     name: '名称',

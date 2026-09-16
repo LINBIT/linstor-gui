@@ -36,9 +36,22 @@ import { uniqId } from '@app/utils/stringUtils';
 import { LiaToolsSolid } from 'react-icons/lia';
 import { Popconfirm } from '@app/components/Popconfirm';
 
+// The generated catalog is a union of dozens of shapes; only these fields are read here.
+interface DrbdOptionInfo {
+  name: string;
+  key: string;
+  type: string;
+  drbd_res_file_section: string;
+  default?: unknown;
+  values?: Array<string | number>;
+  min?: unknown;
+  max?: unknown;
+  unit?: unknown;
+}
+
 const drbdOptionsByKey = Object.fromEntries(
   Object.entries(drbdOptions.properties).map(([name, opt]) => [opt.key, { name, ...opt }]),
-);
+) as Record<string, DrbdOptionInfo>;
 
 function getDrbdOptionTooltip(propKey: string): string | undefined {
   const opt = drbdOptionsByKey[propKey];

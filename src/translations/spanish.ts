@@ -128,6 +128,7 @@ const es = {
     deploy: 'Desplegar',
     submit: 'Enviar',
     cancel: 'Cancelar',
+    ok: 'Aceptar',
     snapshot: 'Instantánea',
     success: 'Éxito',
     reset: 'Restablecer',

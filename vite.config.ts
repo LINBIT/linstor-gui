@@ -6,6 +6,7 @@
 
 /// <reference types="vitest" />
 import { defineConfig, loadEnv } from 'vite';
+import { configDefaults } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
@@ -212,6 +213,8 @@ export default defineConfig(({ mode }) => {
       // src/translations lives outside src/app but carries its own coverage
       // test, so the pattern is src/** rather than src/app/**.
       include: ['src/**/__test__/**/*.{ts,tsx}', 'src/**/*.test.{ts,tsx}', 'src/**/*.spec.{ts,tsx}'],
+      // Shared helpers next to the suites are not suites themselves.
+      exclude: [...configDefaults.exclude, '**/__test__/helpers.{ts,tsx}'],
       coverage: {
         enabled: isCoverageMode,
         provider: 'v8',
@@ -229,6 +232,7 @@ export default defineConfig(({ mode }) => {
           '**/dist/**',
           'src/app/apis/**/*',
           'src/translations/**/*',
+          '**/__test__/**',
         ],
       },
       reporters: isCoverageMode ? ['default', 'junit'] : ['default'],

@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Card, DatePicker, Dropdown, Form, Modal, Space, Table, Tag, Typography, message } from 'antd';
 import { Input } from '@app/components/Input';
 import type { ColumnsType } from 'antd/es/table';

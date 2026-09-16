@@ -12,7 +12,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { Card, Form, Space, Tag, Tooltip, Typography } from 'antd';
 import { Input } from '@app/components/Input';
 import { InputNumber } from '@app/components/InputNumber';
-import type { OcfAgentWithMetadata, ParamEntry, ResourceAgent } from '@/api/ha-profiles';
+import type { OcfAgentWithMetadata, ParamEntry, ResourceAgent } from './types';
 import { Button } from '@app/components/Button';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { Switch } from '@app/components/Switch';
@@ -293,7 +293,7 @@ export function SortableAgentItem({
                 if (!param) return null;
 
                 const fieldName = ['agents', index, 'params', param.name];
-                const currentValue = getParamValue(ocfAgent.params, param.name);
+                const currentValue = getParamValue(ocfAgent?.params, param.name);
                 const initialValue =
                   param.type === 'boolean' && typeof currentValue === 'boolean'
                     ? currentValue
@@ -316,12 +316,12 @@ export function SortableAgentItem({
                           },
                         ]}
                         valuePropName={param.type === 'boolean' ? 'checked' : undefined}
-                        getValueFrom={
+                        normalize={
                           param.type === 'boolean' ? (value: boolean) => (value ? 'true' : 'false') : undefined
                         }
                         getValueProps={
                           param.type === 'boolean'
-                            ? (value: string) => ({
+                            ? (value: string | boolean) => ({
                                 checked: value === 'true' || value === '1' || value === 'yes' || value === true,
                               })
                             : undefined
@@ -371,12 +371,12 @@ export function SortableAgentItem({
                           },
                         ]}
                         valuePropName={param.type === 'boolean' ? 'checked' : undefined}
-                        getValueFrom={
+                        normalize={
                           param.type === 'boolean' ? (value: boolean) => (value ? 'true' : 'false') : undefined
                         }
                         getValueProps={
                           param.type === 'boolean'
-                            ? (value: string) => ({
+                            ? (value: string | boolean) => ({
                                 checked: value === 'true' || value === '1' || value === 'yes' || value === true,
                               })
                             : undefined

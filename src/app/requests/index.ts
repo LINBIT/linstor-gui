@@ -21,22 +21,23 @@ const service = axios.create({
   timeout: 1000 * 60 * 10, // request timeout
 });
 
-const handleError = (statsCode, res) => {
+const handleError = (statsCode: number, res: unknown) => {
   let errorMsg = 'Error';
   switch (statsCode) {
     case 400: {
-      errorMsg = i18n.t(res.msg, res.res || {});
+      const payload = (res ?? {}) as { msg?: string; res?: Record<string, unknown> };
+      errorMsg = String(i18n.t(payload.msg ?? '', payload.res || {}));
       break;
     }
     case 500: {
       if (Array.isArray(res)) {
-        const errorObj = res[res.length - 1] || {};
-        errorMsg = errorObj['message'];
-        if (errorObj['details']) {
-          errorMsg += '.' + errorObj['details'];
+        const errorObj = (res[res.length - 1] || {}) as { message?: string; details?: string };
+        errorMsg = errorObj.message ?? errorMsg;
+        if (errorObj.details) {
+          errorMsg += '.' + errorObj.details;
         }
       } else {
-        errorMsg = i18n.t('systemError');
+        errorMsg = String(i18n.t('systemError'));
       }
       break;
     }

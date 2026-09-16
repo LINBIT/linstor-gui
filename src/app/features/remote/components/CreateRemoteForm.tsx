@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { logger } from '@app/utils/logger';
 import { useMutation } from '@tanstack/react-query';
 import { Form, Modal, message } from 'antd';
@@ -56,7 +56,7 @@ const CreateRemoteForm = ({ refetch }: CreateRemoteFormProps) => {
 
     try {
       if (remote_type === 's3_remotes') {
-        const res: any = await createS3RemoteMutation.mutateAsync(rest);
+        const res: any = await createS3RemoteMutation.mutateAsync(rest as S3RemoteCreateRequestBody);
 
         if (res.error && Array.isArray(res.error)) {
           messageApi.error(res.error.map((e: any) => e.message).join(', '));
