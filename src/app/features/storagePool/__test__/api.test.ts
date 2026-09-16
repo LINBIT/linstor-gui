@@ -61,6 +61,10 @@ describe('storagePool api', () => {
       raid_level: 'JBOD' as const,
       device_paths: ['/dev/sdb'],
       pool_name: 'vg0',
+      sed: false,
+      vdo_enable: false,
+      vdo_slab_size_kib: 0,
+      vdo_logical_size_kib: 0,
     };
     await createPhysicalStorage('node-1', body);
     expect(post).toHaveBeenCalledWith('/v1/physical-storage/{node}', { params: { path: { node: 'node-1' } }, body });
