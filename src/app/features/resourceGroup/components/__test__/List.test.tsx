@@ -162,14 +162,15 @@ describe('resource group List', () => {
     expect(screen.getByText('Aux/team: storage')).toBeInTheDocument();
   });
 
-  it('links "+ Add" to the create page, under /hci in HCI mode', async () => {
-    const { unmount } = renderList();
+  it('links "+ Add" to the create page', async () => {
+    renderList();
     expect((await screen.findByText('+ Add')).closest('a')).toHaveAttribute(
       'href',
       '/storage-configuration/resource-groups/create',
     );
-    unmount();
+  });
 
+  it('links "+ Add" under /hci in HCI mode', async () => {
     uiMode = 'HCI';
     renderList();
     expect((await screen.findByText('+ Add')).closest('a')).toHaveAttribute(

@@ -194,14 +194,15 @@ describe('snapshot List', () => {
     expect(options.map((o) => o.textContent)).toEqual(['res-a', 'res-b']);
   });
 
-  it('reset clears the query and returns to the list route of the current mode', async () => {
-    const { unmount } = renderList('/snapshot?nodes=node-1');
+  it('reset clears the query and returns to the list route', async () => {
+    renderList('/snapshot?nodes=node-1');
     await screen.findByText('snap-old');
     fireEvent.click(screen.getByRole('button', { name: 'Reset' }));
     await waitFor(() => expect(getSnapshots).toHaveBeenLastCalledWith({}));
     expect(navigate).toHaveBeenCalledWith('/snapshot');
-    unmount();
+  });
 
+  it('reset returns to the HCI list route in HCI mode', async () => {
     uiMode = 'HCI';
     renderList();
     await screen.findByText('snap-old');

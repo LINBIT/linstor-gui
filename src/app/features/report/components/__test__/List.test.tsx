@@ -118,16 +118,23 @@ describe('error report List', () => {
     expect(getErrorReports).toHaveBeenCalledWith({});
   });
 
-  it('links into the mode-specific routes for VSAN and HCI', async () => {
+  it('links into the HCI routes in HCI mode', async () => {
     uiMode = 'HCI';
-    const { unmount } = renderList();
-    expect((await screen.findByText('AAAA-000001')).closest('a')).toHaveAttribute('href', '/hci/error-reports/AAAA-000001');
+    renderList();
+    expect((await screen.findByText('AAAA-000001')).closest('a')).toHaveAttribute(
+      'href',
+      '/hci/error-reports/AAAA-000001',
+    );
     expect(screen.getByText('node-1').closest('a')).toHaveAttribute('href', '/hci/nodes/node-1');
-    unmount();
+  });
 
+  it('links into the VSAN routes in VSAN mode', async () => {
     uiMode = 'VSAN';
     renderList();
-    expect((await screen.findByText('AAAA-000001')).closest('a')).toHaveAttribute('href', '/vsan/error-reports/AAAA-000001');
+    expect((await screen.findByText('AAAA-000001')).closest('a')).toHaveAttribute(
+      'href',
+      '/vsan/error-reports/AAAA-000001',
+    );
     expect(screen.getByText('node-1').closest('a')).toHaveAttribute('href', '/vsan/nodes/node-1');
   });
 

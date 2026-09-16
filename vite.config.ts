@@ -200,6 +200,11 @@ export default defineConfig(({ mode, command }) => {
     test: {
       globals: true,
       environment: 'jsdom',
+      // The shared CI runner is roughly ten times slower than a laptop: a
+      // single render of an antd page with a Table and a DatePicker takes
+      // 1.5-4 s there, so the 5 s default tripped on tests that are fine
+      // locally. The limit is a hang guard, not a performance target.
+      testTimeout: 20000,
       setupFiles: './src/setupTests.ts',
       css: true,
       // src/translations lives outside src/app but carries its own coverage

@@ -215,13 +215,14 @@ describe('ScheduleByResourceList', () => {
     expect(await screen.findAllByText('Enabled')).toHaveLength(2);
   });
 
-  it('the Schedules button goes to the definitions list of the current mode', async () => {
-    const { unmount } = renderList();
+  it('the Schedules button goes to the definitions list', async () => {
+    renderList();
     await screen.findByText('res-active');
     fireEvent.click(screen.getByRole('button', { name: 'Schedules' }));
     expect(navigate).toHaveBeenCalledWith('/schedule/list');
-    unmount();
+  });
 
+  it('the Schedules button goes to the HCI definitions list in HCI mode', async () => {
     uiMode = 'HCI';
     renderList();
     await screen.findByText('res-active');
