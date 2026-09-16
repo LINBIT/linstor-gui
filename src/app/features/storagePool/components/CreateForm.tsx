@@ -141,19 +141,12 @@ const CreateForm = () => {
         vdo_logical_size_kib: vdo_logical_size_kib ?? 0,
       };
 
-      const promiseArr = [];
-
-      if (Array.isArray(node)) {
-        node.forEach((e) => {
-          promiseArr.push(createStoragePoolWithPhysicalStorage.mutate({ node: e, ...body }));
-        });
-      } else {
-        promiseArr.push(createStoragePoolWithPhysicalStorage.mutate({ node, ...body }));
-      }
-
-      Promise.all(promiseArr).then(() => {
-        backToStoragePoolList();
-      });
+      // mutate() returns void, so Promise.all over it resolved at once and the
+      // page left before the controller had answered; wait for the requests.
+      const targets = Array.isArray(node) ? node : [node];
+      Promise.all(targets.map((e) => createStoragePoolWithPhysicalStorage.mutateAsync({ node: e, ...body })))
+        .then(() => backToStoragePoolList())
+        .catch(() => undefined);
     }
 
     if (create_type === 'existing') {
