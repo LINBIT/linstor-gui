@@ -138,7 +138,6 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
 
   useEffect(() => {
     dispatch.setting.getSettings();
-    dispatch.setting.getGatewayStatus();
 
     message.config({
       maxCount: 3,

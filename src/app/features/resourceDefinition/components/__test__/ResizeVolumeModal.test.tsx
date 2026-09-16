@@ -61,8 +61,8 @@ describe('ResizeVolumeModal', () => {
     renderModal();
 
     expect(dialog()).toHaveTextContent('Resize rd1');
-    await waitFor(() => expect(sizes()).toHaveLength(3));
-    expect(sizes().map((input) => input.value)).toEqual(['1', '2', '100']);
+    // The values arrive one effect after the inputs, so wait for them too.
+    await waitFor(() => expect(sizes().map((input) => input.value)).toEqual(['1', '2', '100']));
     expect(units()).toEqual(['GiB', 'MiB', 'KiB']);
     expect(within(dialog()).getByText('Volume 0')).toBeInTheDocument();
   });

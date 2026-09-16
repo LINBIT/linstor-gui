@@ -156,11 +156,15 @@ describe('setting model', () => {
       expect(settingsApi.getProps).not.toHaveBeenCalled();
     });
 
-    it('derives the mode and the gateway host from the props', async () => {
+    it('derives the mode and the gateway host from the props, then probes the gateway', async () => {
+      vi.mocked(service.get).mockResolvedValue({ data: { status: 'ok' } } as never);
       settingsApi.getProps.mockResolvedValue({ vsanMode: true, gatewayEnabled: true, gatewayHost: 'http://gw:1' });
       await store.dispatch.setting.getSettings();
       expect(store.getState().setting.mode).toBe(UIMode.VSAN);
       expect(localStorage.getItem('GATEWAY_HOST')).toBe('http://gw:1');
+      // The probe runs after the host is stored, never before.
+      expect(service.get).toHaveBeenCalledWith('/api/v2/status');
+      await vi.waitFor(() => expect(store.getState().setting.gatewayAvailable).toBe(true));
 
       settingsApi.getProps.mockResolvedValue({ gatewayEnabled: true, gatewayHost: '' });
       await store.dispatch.setting.getSettings();
@@ -170,6 +174,7 @@ describe('setting model', () => {
       settingsApi.getProps.mockResolvedValue({ gatewayEnabled: false });
       await store.dispatch.setting.getSettings();
       expect(localStorage.getItem('GATEWAY_HOST')).toBeNull();
+      expect(store.getState().setting.gatewayAvailable).toBe(false);
     });
 
     it('rebuilds a custom logo from its chunks, or takes the URL', async () => {

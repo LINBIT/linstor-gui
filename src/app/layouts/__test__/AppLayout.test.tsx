@@ -128,7 +128,8 @@ describe('AppLayout', () => {
     expect(screen.queryByTestId('login')).toBeNull();
     expect(hoisted.dispatch.auth.checkLoginStatus).toHaveBeenCalledTimes(1);
     expect(hoisted.dispatch.setting.getSettings).toHaveBeenCalledTimes(1);
-    expect(hoisted.dispatch.setting.getGatewayStatus).toHaveBeenCalledTimes(1);
+    // The gateway is probed by getSettings once the host is known, not by the layout.
+    expect(hoisted.dispatch.setting.getGatewayStatus).not.toHaveBeenCalled();
     expect(hoisted.dispatch.setting.initSettingStore).toHaveBeenCalledWith(UIMode.NORMAL);
     expect(hoisted.dispatch.setting.setMode).toHaveBeenCalledWith(UIMode.NORMAL);
     expect(hoisted.dispatch.setting.getMyLinbitStatus).not.toHaveBeenCalled();

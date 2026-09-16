@@ -263,8 +263,12 @@ export const setting = createModel<RootModel>()({
           } else {
             window.localStorage.setItem(GATEWAY_HOST, defaultGatewayHost);
           }
+          // Probe only once the host is known; a probe before that goes to the
+          // controller, which answers 404.
+          void dispatch.setting.getGatewayStatus();
         } else {
           window.localStorage.removeItem(GATEWAY_HOST);
+          dispatch.setting.setGatewayAvailable(false);
         }
         // put logo string together
         if (props.customLogoEnabled) {
