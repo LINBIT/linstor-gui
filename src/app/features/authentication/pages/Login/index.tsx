@@ -4,7 +4,6 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert } from 'antd';
 import { AuthForm } from '@app/features/authentication';

@@ -140,14 +140,21 @@ export interface Node {
   service_ip: string;
   online?: boolean;
   has_linstor_controller?: boolean;
+  /** HCI mode only: the node runs the CloudStack management DB / the NFS share. */
+  has_cloudstack_db?: boolean;
+  has_cloudstack_nfs?: boolean;
   standby?: boolean;
-  upgradeProgress?: UpgradeProgress;
+  updating?: boolean;
+  /** HCI mode only: merged in from the CloudStack node list. */
+  num_vms?: number;
+  upgradeProgress?: UpgradeProgress | null;
 }
 
 export interface UpgradeProgress {
   maxSteps: number;
   curStep: number;
   label?: string;
+  message?: string;
 }
 
 export interface PhysicalStoragePoolRequest {
@@ -169,4 +176,26 @@ export interface ErrorMessage {
   detail: string;
   explanation: string;
   report: string;
+}
+
+/** What GET /linstor/resource-groups answers; `ResourceGroup` above is the create body. */
+export interface VsanResourceGroup {
+  name: string;
+  max_volume_size: number;
+  select_filter?: {
+    place_count: number;
+    storage_pool: string;
+  };
+}
+
+/** What GET /linstor/storage-pools answers. */
+export interface VsanStoragePool {
+  name: string;
+  providerKind: string;
+  capacities: Record<string, number>;
+}
+
+export interface CloudStackNode {
+  name: string;
+  num_vms: number;
 }

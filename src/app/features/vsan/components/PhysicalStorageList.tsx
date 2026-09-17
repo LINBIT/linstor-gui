@@ -5,8 +5,9 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { useQuery } from '@tanstack/react-query';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { getStoragePool } from '../api';
+import type { VsanStoragePool } from '../types';
 
 import { Table } from 'antd';
 import type { TableProps } from 'antd';
@@ -34,7 +35,7 @@ export const PhysicalStorageList = () => {
 
   const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
 
-  const handleExpand = (expanded, record) => {
+  const handleExpand = (expanded: boolean, record: VsanStoragePool) => {
     setExpandedRowKeys(expanded ? [record.name] : []);
   };
 

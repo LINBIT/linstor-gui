@@ -4,7 +4,6 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Form } from 'antd';
 import { Input } from '@app/components/Input';
@@ -132,7 +131,7 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
 
     if (values.allocate_method === 'manual') {
       const IS_DRBD_DISKLESS = values.storage_pool === 'DRBD_DISKLESS';
-      const props = IS_DRBD_DISKLESS ? {} : { StorPoolName: values.storage_pool };
+      const props: Record<string, string> = IS_DRBD_DISKLESS ? {} : { StorPoolName: values.storage_pool };
 
       const resourceData = {
         resource: {

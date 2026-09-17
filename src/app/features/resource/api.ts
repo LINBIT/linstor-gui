@@ -8,6 +8,7 @@ import { del, get, post, put } from '../requests';
 import {
   CreateResourceDefinitionRequestBody,
   CreateVolumeDefinitionRequestBody,
+  AutoPlaceRequest,
   AutoPlaceRequestBody,
   ResourceModifyRequestBody,
   ResourceCreateRequestBody,
@@ -38,7 +39,7 @@ const autoPlace = (resource: string, body: AutoPlaceRequestBody) => {
         resource,
       },
     },
-    body,
+    body: body as AutoPlaceRequest,
   });
 };
 
@@ -149,16 +150,9 @@ const createResourceOnNode = (resource: string, node: string, drbdDiskless: bool
     resource: {
       name: resource,
       node_name: node,
+      ...(drbdDiskless ? { flags: ['DRBD_DISKLESS'] } : storagePool ? { props: { StorPoolName: storagePool } } : {}),
     },
   };
-
-  if (drbdDiskless) {
-    resourceData.resource.flags = ['DRBD_DISKLESS'];
-  } else if (storagePool) {
-    resourceData.resource.props = {
-      StorPoolName: storagePool,
-    };
-  }
 
   return resourceCreateOnNode(resource, node, resourceData);
 };
@@ -171,9 +165,9 @@ const makeResourceAvailable = (resource: string, node: string, diskful: boolean)
         node,
       },
     },
-    body: {
-      diskful,
-    },
+    // The schema marks auto_manage_dual_primary required; the controller defaults
+    // it, so the payload stays as it was.
+    body: { diskful } as { diskful: boolean; auto_manage_dual_primary: boolean },
   });
 };
 

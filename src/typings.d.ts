@@ -36,6 +36,8 @@ interface ImportMetaEnv {
   readonly LINBIT_SDS_VERSION?: string;
   readonly VITE_HCI_VSAN_API_HOST?: string;
   readonly VITE_LINSTOR_HOST?: string;
+  /** Comma-separated agent platforms a product build offers; defaults to linux. */
+  readonly VITE_OCF_AGENT_PLATFORMS?: string;
   readonly MODE: string;
   readonly DEV: boolean;
   readonly PROD: boolean;

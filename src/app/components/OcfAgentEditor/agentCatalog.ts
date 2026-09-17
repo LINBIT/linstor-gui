@@ -88,8 +88,8 @@ const tag = (source: RawSource, platform: AgentPlatform): CatalogAgent[] =>
  * resolved to before Windows agents joined the catalog.
  */
 export const agentList: CatalogAgent[] = [
-  ...tag(linuxAgents as RawSource, 'linux'),
-  ...tag(windowsAgents as RawSource, 'windows'),
+  ...tag(linuxAgents as unknown as RawSource, 'linux'),
+  ...tag(windowsAgents as unknown as RawSource, 'windows'),
 ];
 
 /** The same agents grouped by provider, which is how metadata is looked up. */

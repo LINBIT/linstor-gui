@@ -5,10 +5,31 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import service from '@app/requests';
-import { ISCSIResource, NFSResource, NVMEOFResource, ResourceGroup } from './types';
+
+/** What the physical-storage-pool endpoint takes: the request with its sets flattened. */
+type PhysicalStoragePoolRequestBody = Omit<PhysicalStoragePoolRequest, 'diskPaths' | 'nodes'> & {
+  diskPaths: Record<string, string[]>;
+  nodes: string[];
+};
+import {
+  CloudStackNode,
+  Disk,
+  ISCSIResource,
+  ISCSITarget,
+  NetworkAddress,
+  NFSExport,
+  NFSResource,
+  Node,
+  NVMEOFResource,
+  NVMeTarget,
+  PhysicalStoragePoolRequest,
+  ResourceGroup,
+  VsanResourceGroup,
+  VsanStoragePool,
+} from './types';
 
 const getNodesFromVSAN = () => {
-  return service.get('/api/frontend/v1/nodes?source=linstor');
+  return service.get<Node[]>('/api/frontend/v1/nodes?source=linstor');
 };
 
 const setNodeStandBy = (hostname: string, standby: boolean) => {
@@ -25,19 +46,19 @@ const setNodeMaintenance = (hostname: string, maintenance: boolean) => {
 };
 
 const getNVMeoFTarget = () => {
-  return service.get('/api/frontend/v1/nvme');
+  return service.get<NVMeTarget[]>('/api/frontend/v1/nvme');
 };
 
 const getNFSExport = () => {
-  return service.get('/api/frontend/v1/nfs');
+  return service.get<NFSExport[]>('/api/frontend/v1/nfs');
 };
 
 const getISCSITarget = () => {
-  return service.get('/api/frontend/v1/iscsi/targets');
+  return service.get<ISCSITarget[]>('/api/frontend/v1/iscsi/targets');
 };
 
 const getNetWorkInterfaces = () => {
-  return service.get('/api/frontend/v1/system/interfaces');
+  return service.get<{ prefixes: NetworkAddress[] }>('/api/frontend/v1/system/interfaces');
 };
 
 const createNFSExport = (data: NFSResource) => {
@@ -53,7 +74,7 @@ const createNVMEExport = (data: NVMEOFResource) => {
 };
 
 const getResourceGroups = () => {
-  return service.get('/api/frontend/v1/linstor/resource-groups');
+  return service.get<VsanResourceGroup[]>('/api/frontend/v1/linstor/resource-groups');
 };
 
 const deleteNVMeExport = (nqn: string) => {
@@ -61,11 +82,11 @@ const deleteNVMeExport = (nqn: string) => {
 };
 
 const getPhysicalStorage = () => {
-  return service.get('/api/frontend/v1/physical-storage');
+  return service.get<Disk[]>('/api/frontend/v1/physical-storage');
 };
 
 const getStoragePool = () => {
-  return service.get('/api/frontend/v1/linstor/storage-pools');
+  return service.get<VsanStoragePool[]>('/api/frontend/v1/linstor/storage-pools');
 };
 
 const createResourceGroup = (data: ResourceGroup) => {
@@ -88,12 +109,12 @@ const resizeTarget = (resource: string, data: { size: number }) => {
   return service.put(`/api/frontend/v1/linstor/resource/${resource}/resize`, data);
 };
 
-const createPool = (data) => {
+const createPool = (data: PhysicalStoragePoolRequestBody) => {
   return service.post('/api/frontend/v1/linstor/physical-storage-pools', data);
 };
 
 const getCloudStackNodes = () => {
-  return service.get('/api/frontend/v1/cloudstack/nodes');
+  return service.get<CloudStackNode[]>('/api/frontend/v1/cloudstack/nodes');
 };
 
 export {

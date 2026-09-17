@@ -18,10 +18,11 @@ import { useDispatch } from 'react-redux';
 import { USER_LOCAL_STORAGE_KEY, DEFAULT_ADMIN_USER_NAME } from '@app/const/settings';
 import { useTranslation } from 'react-i18next';
 
+/** What the form below actually submits; the previous shape was an antd demo leftover. */
 interface Values {
-  title: string;
-  description: string;
-  modifier: string;
+  currentPassword?: string;
+  newPassword: string;
+  confirmPassword?: string;
 }
 
 interface ChangePasswordFormProps {
@@ -135,7 +136,7 @@ const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordPr
   const dispatch = useDispatch<Dispatch>();
   const { t } = useTranslation('users');
 
-  const onCreate = async (values) => {
+  const onCreate = async (values: Values) => {
     logger.debug('ChangePassword submitted, admin mode:', admin);
 
     let res = null;

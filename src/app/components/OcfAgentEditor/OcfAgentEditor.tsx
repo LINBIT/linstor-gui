@@ -480,7 +480,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
   const loadParsedAgents = useCallback(async () => {
     // In create mode, load from form
     if (mode === 'create') {
-      const ocfAgents = form.getFieldValue('ocf_agents') || [];
+      const ocfAgents: any[] = form.getFieldValue('ocf_agents') || [];
       if (ocfAgents.length > 0) {
         // Convert form data to parsed agents format
         let instanceIdCounter = 0;
@@ -859,24 +859,12 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
 
             // Then add any new params from changedValue
             for (const [key, value] of Object.entries(mergedParamsRecord)) {
-              mergedParams.push({ key, value });
+              mergedParams.push({ key, value: String(value) });
             }
 
-            // Update ocf_agent
-            newAgent.item = {
-              ...agent.item,
-              ocf_agent: {
-                ...agent.item.ocf_agent,
-                params: mergedParams,
-              },
-            };
-
-            // CRITICAL: Also update the 'original' field to match the new params
-            // Regenerate the OCF string with updated params
+            // Regenerate the OCF string so `original` matches the new params, and
+            // build the item once so ocf_agent is never spread from a nullable field.
             const ocfAgent = agent.item.ocf_agent;
-            newAgent.item.original = `ocf:${ocfAgent.provider}:${ocfAgent.agent_type} ${ocfAgent.instance_name}`;
-
-            // Add parameters to the original string (using mergedParamsRecord)
             const paramStr = mergedParams
               .filter(({ value }) => value !== undefined && value !== '')
               .map(({ key, value }) => {
@@ -887,14 +875,18 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
               })
               .join(' ');
 
-            if (paramStr) {
-              newAgent.item.original += ` ${paramStr}`;
-            }
+            const original =
+              `ocf:${ocfAgent.provider}:${ocfAgent.agent_type} ${ocfAgent.instance_name}` +
+              (paramStr ? ` ${paramStr}` : '');
 
-            // Also update the ocf_agent.original field
-            newAgent.item.ocf_agent = {
-              ...newAgent.item.ocf_agent,
-              original: newAgent.item.original,
+            newAgent.item = {
+              ...agent.item,
+              original,
+              ocf_agent: {
+                ...ocfAgent,
+                params: mergedParams,
+                original,
+              },
             };
           }
           // For systemd units

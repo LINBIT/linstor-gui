@@ -74,7 +74,7 @@ describe('UserAuthAPI', () => {
   describe('register', () => {
     it('should successfully register a new user', async () => {
       const user = { username: 'testuser', password: 'testpass' };
-      mockKvStore.getProperty.mockResolvedValue(null);
+      mockKvStore.getProperty.mockResolvedValue(undefined);
       mockKvStore.setProperty.mockResolvedValue();
 
       const result = await userAuthAPI.register(user);
@@ -96,7 +96,7 @@ describe('UserAuthAPI', () => {
 
     it('should encrypt the password before storing', async () => {
       const user = { username: 'testuser', password: 'testpass' };
-      mockKvStore.getProperty.mockResolvedValue(null);
+      mockKvStore.getProperty.mockResolvedValue(undefined);
       mockKvStore.setProperty.mockResolvedValue();
 
       await userAuthAPI.register(user);
@@ -136,7 +136,7 @@ describe('UserAuthAPI', () => {
 
     it('should fail login for non-existent user', async () => {
       const user = { username: 'nonexistent', password: 'testpass' };
-      mockKvStore.getProperty.mockResolvedValue(null);
+      mockKvStore.getProperty.mockResolvedValue(undefined);
 
       const result = await userAuthAPI.login(user);
 
@@ -191,7 +191,7 @@ describe('UserAuthAPI', () => {
       const oldPassword = 'oldpass';
       const newPassword = 'newpass';
 
-      mockKvStore.getProperty.mockResolvedValue(null);
+      mockKvStore.getProperty.mockResolvedValue(undefined);
 
       const result = await userAuthAPI.changePassword(username, oldPassword, newPassword);
 
@@ -210,7 +210,7 @@ describe('UserAuthAPI', () => {
     });
 
     it('should return false for non-existent user', async () => {
-      mockKvStore.getProperty.mockResolvedValue(null);
+      mockKvStore.getProperty.mockResolvedValue(undefined);
 
       const result = await userAuthAPI.userExists('nonexistent');
 
@@ -306,7 +306,7 @@ describe('UserAuthAPI', () => {
       // Store exists
       mockKvStore.instanceExists.mockResolvedValue(true);
       // Admin user doesn't exist
-      mockKvStore.getProperty.mockResolvedValueOnce(null);
+      mockKvStore.getProperty.mockResolvedValueOnce(undefined);
       const registerSpy = vi.spyOn(userAuthAPI, 'register').mockResolvedValue(true);
 
       await userAuthAPI.initUserStore();
@@ -334,9 +334,9 @@ describe('UserAuthAPI', () => {
       mockKvStore.instanceExists.mockResolvedValue(true);
       // Admin doesn't exist
       mockKvStore.getProperty
-        .mockResolvedValueOnce(null) // admin check returns null
-        .mockResolvedValueOnce(null) // register checks if admin exists
-        .mockResolvedValue(); // setProperty succeeds
+        .mockResolvedValueOnce(undefined) // admin check returns null
+        .mockResolvedValueOnce(undefined) // register checks if admin exists
+        .mockResolvedValue(undefined); // setProperty succeeds
 
       mockKvStore.setProperty.mockResolvedValue();
       const registerSpy = vi.spyOn(userAuthAPI, 'register').mockResolvedValue(true);
@@ -358,7 +358,7 @@ describe('UserAuthAPI', () => {
       const user = { username: 'testuser', password };
 
       // Register user (which encrypts password)
-      mockKvStore.getProperty.mockResolvedValueOnce(null);
+      mockKvStore.getProperty.mockResolvedValueOnce(undefined);
       mockKvStore.setProperty.mockResolvedValue();
       await userAuthAPI.register(user);
 
@@ -386,7 +386,7 @@ describe('UserAuthAPI', () => {
     });
 
     it('should return false when admin does not exist', async () => {
-      mockKvStore.getProperty.mockResolvedValue(null);
+      mockKvStore.getProperty.mockResolvedValue(undefined);
 
       const result = await userAuthAPI.hasAdminUser();
 

@@ -6,25 +6,16 @@
 
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import React from 'react';
 import { deleteResourceGroup, getResourceGroups } from '../api';
 
 import { Table, notification } from 'antd';
 import type { TableProps } from 'antd';
 import { DEFAULT_SP } from '@app/const/type';
 import { CreateResourceGroup } from './CreateResourceGroup';
-import { ErrorMessage } from '@app/features/vsan';
+import { ErrorMessage, VsanResourceGroup } from '@app/features/vsan';
 import { ActionSection } from './styled';
 import { Button } from '@app/components/Button';
 import { Popconfirm } from '@app/components/Popconfirm';
-
-interface DataType {
-  name: string;
-  select_filter: {
-    place_count: number;
-    storage_pool: string;
-  };
-}
 
 export const ResourceGroupList = () => {
   const { t } = useTranslation();
@@ -52,7 +43,7 @@ export const ResourceGroupList = () => {
     },
   });
 
-  const columns: TableProps<DataType>['columns'] = [
+  const columns: TableProps<VsanResourceGroup>['columns'] = [
     {
       title: 'Name',
       dataIndex: 'name',
@@ -63,7 +54,7 @@ export const ResourceGroupList = () => {
       dataIndex: 'select_filter',
       key: 'storage_pool',
       render: (select_filter) => {
-        return <div>{select_filter.storage_pool}</div>;
+        return <div>{select_filter?.storage_pool}</div>;
       },
     },
     {
@@ -71,7 +62,7 @@ export const ResourceGroupList = () => {
       dataIndex: 'select_filter',
       key: 'place_count',
       render: (select_filter) => {
-        return <div>{select_filter.place_count}</div>;
+        return <div>{select_filter?.place_count}</div>;
       },
     },
     {

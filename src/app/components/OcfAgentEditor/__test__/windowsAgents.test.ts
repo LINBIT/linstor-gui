@@ -152,7 +152,7 @@ describe('windows_agents.ts', () => {
   it('carries unique and default, which the repo JSON conversion drops', () => {
     // Reading the meta-data XML rather than ocf2json.py output is the whole
     // reason these exist here; losing them again should fail loudly.
-    const params = generated.flatMap((agent) => agent.parameters);
+    const params = generated.flatMap((agent) => [...agent.parameters]);
     expect(params.length).toBeGreaterThan(0);
     for (const param of params) {
       expect(param).toHaveProperty('unique');

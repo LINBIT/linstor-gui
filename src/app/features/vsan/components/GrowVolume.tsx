@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { logger } from '@app/utils/logger';
 import { Form, Modal, Space, notification } from 'antd';
 import { Button } from '@app/components/Button';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { clusterPrivateVolumeSizeKib } from '../const';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { getResourceGroups, resizeTarget } from '../api';

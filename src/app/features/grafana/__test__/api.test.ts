@@ -7,9 +7,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const clientGet = vi.fn();
-const axiosCreate = vi.fn(() => ({ get: clientGet }));
+// Typed with its config so the assertions below can read mock.calls[n][0].
+const axiosCreate = vi.fn((_config?: { headers?: Record<string, string> }) => ({ get: clientGet }));
 vi.mock('axios', () => ({
-  default: { create: (...args: unknown[]) => axiosCreate(...args) },
+  default: { create: (config?: { headers?: Record<string, string> }) => axiosCreate(config) },
 }));
 vi.mock('@app/utils/logger', () => ({
   logger: { debug: vi.fn(), warn: vi.fn(), error: vi.fn() },
@@ -45,7 +46,7 @@ describe('grafana api', () => {
     });
 
     await searchDashboards({ baseUrl: 'http://g' });
-    const headers = (axiosCreate.mock.calls[1][0] as { headers: Record<string, string> }).headers;
+    const headers = axiosCreate.mock.calls[1][0]?.headers;
     expect(headers).not.toHaveProperty('Authorization');
   });
 

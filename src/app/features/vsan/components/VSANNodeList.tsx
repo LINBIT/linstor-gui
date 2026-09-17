@@ -17,43 +17,13 @@ import { compareIPv4 } from '@app/utils/ip';
 import { InfoCircleOutlined, SettingOutlined } from '@ant-design/icons';
 import { ActionContainer, UpdateStatus } from './styled';
 import { BRAND_COLOR, ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
-import { ErrorMessage } from '../types';
+import { CloudStackNode, ErrorMessage, Node } from '../types';
 import { RootState } from '@app/store';
 import { useSelector } from 'react-redux';
 import { UIMode } from '@app/models/setting';
 import { Button } from '@app/components/Button';
 import { Switch } from '@app/components/Switch';
 import { Popconfirm } from '@app/components/Popconfirm';
-
-interface DataType {
-  hostname: string;
-  service_ip: string;
-  online: boolean;
-  standby: boolean;
-  has_linstor_controller: boolean;
-  has_cloudstack_db?: boolean;
-  has_cloudstack_nfs?: boolean;
-  upgradeProgress: { maxSteps: number; curStep: number; label: string; message?: string } | null;
-  updating?: boolean;
-  num_vms?: number;
-}
-
-interface VSANNode {
-  hostname: string;
-  service_ip: string;
-  online: boolean;
-  standby: boolean;
-  has_linstor_controller: boolean;
-  has_cloudstack_db?: boolean;
-  has_cloudstack_nfs?: boolean;
-  upgradeProgress: { maxSteps: number; curStep: number; label: string; message?: string } | null;
-  updating?: boolean;
-}
-
-interface CloudStackNode {
-  name: string;
-  num_vms: number;
-}
 
 const IS_DEV = import.meta.env.MODE === 'development';
 
@@ -276,7 +246,7 @@ export const VSANNodeList = () => {
       return vsanNodes;
     }
 
-    return vsanNodes.map((node: VSANNode) => {
+    return vsanNodes.map((node: Node) => {
       const cloudNode: CloudStackNode | undefined = cloudNodes.find((cn: CloudStackNode) => cn.name === node.hostname);
       return {
         ...node,
@@ -285,7 +255,7 @@ export const VSANNodeList = () => {
     });
   }, [nodesFromVSAN?.data?.data, cloudStackNodes?.data?.data, isHCI]);
 
-  const columns: ColumnsType<DataType> = [
+  const columns: ColumnsType<Node> = [
     {
       title: 'Node Name',
       dataIndex: 'hostname',
@@ -339,7 +309,7 @@ export const VSANNodeList = () => {
       dataIndex: 'address',
       key: 'online',
       render: (_, record) => {
-        let color = SUCCESS_COLOR;
+        let color: string = SUCCESS_COLOR;
         let statusText = 'Online';
 
         if (record.online) {
@@ -412,7 +382,7 @@ export const VSANNodeList = () => {
             ? `${updateProcess?.label}  ${updateProcess?.curStep} of ${updateProcess?.maxSteps}`
             : updateProcess?.label;
 
-        let color =
+        let color: string =
           updateProcess?.label === 'Downloading' || updateProcess?.label === 'Installing' ? BRAND_COLOR : SUCCESS_COLOR;
 
         if (updateProcess?.label === 'Error') {

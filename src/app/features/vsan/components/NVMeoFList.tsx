@@ -6,7 +6,6 @@
 
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import React from 'react';
 import { deleteNVMeExport, getNVMeoFTarget } from '../api';
 
 import { notification, Space, Table, Tag } from 'antd';
@@ -174,7 +173,7 @@ export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
       <Table
         bordered={false}
         columns={columns}
-        dataSource={handleTargetData(data?.data) ?? []}
+        dataSource={handleTargetData(data?.data ?? [])}
         loading={isLoading}
         pagination={false}
       />

@@ -35,13 +35,13 @@ const mockResourceDefinition = {
   props: {
     'Aux/test': 'value',
   },
-};
+} as unknown as Parameters<typeof createResourceDefinition>[0];
 
 const mockVolumeDefinition = {
   volume_number: 0,
   size_kib: 1048576,
   props: {},
-};
+} as unknown as Parameters<typeof createVolumeDefinition>[1];
 
 const mockAutoPlaceRequest = {
   diskless_on_remaining: false,
@@ -55,7 +55,7 @@ const mockResourceCreate = {
   node_name: 'test-node',
   layer_list: ['STORAGE', 'DRBD'],
   props: {},
-};
+} as unknown as Parameters<typeof resourceCreateOnNode>[2];
 
 const mockResourceModify = {
   override_props: {
@@ -143,7 +143,7 @@ describe('Resource API Functions', () => {
         resource_definition_name: 'minimal-resource',
       };
 
-      await createResourceDefinition(minimalResource);
+      await createResourceDefinition(minimalResource as unknown as Parameters<typeof createResourceDefinition>[0]);
 
       expect(mockPost).toHaveBeenCalledWith('/v1/resource-definitions', {
         body: minimalResource,
@@ -160,7 +160,7 @@ describe('Resource API Functions', () => {
         },
       };
 
-      await createResourceDefinition(complexResource);
+      await createResourceDefinition(complexResource as unknown as Parameters<typeof createResourceDefinition>[0]);
 
       expect(mockPost).toHaveBeenCalledWith('/v1/resource-definitions', {
         body: complexResource,
@@ -198,7 +198,10 @@ describe('Resource API Functions', () => {
         },
       };
 
-      await createVolumeDefinition('encrypted-resource', encryptedVolume);
+      await createVolumeDefinition(
+        'encrypted-resource',
+        encryptedVolume as unknown as Parameters<typeof createVolumeDefinition>[1],
+      );
 
       expect(mockPost).toHaveBeenCalledWith('/v1/resource-definitions/{resource}/volume-definitions', {
         params: {
@@ -287,7 +290,11 @@ describe('Resource API Functions', () => {
         },
       };
 
-      await resourceCreateOnNode('layered-resource', 'layered-node', layeredResource);
+      await resourceCreateOnNode(
+        'layered-resource',
+        'layered-node',
+        layeredResource as unknown as Parameters<typeof resourceCreateOnNode>[2],
+      );
 
       expect(mockPost).toHaveBeenCalledWith('/v1/resource-definitions/{resource}/resources/{node}', {
         params: {
@@ -335,7 +342,7 @@ describe('Resource API Functions', () => {
 
       const result = await deleteResource('non-existent', 'test-node');
 
-      expect(result.data[0].ret_code).toBe(4);
+      expect(result.data?.[0].ret_code).toBe(4);
     });
   });
 
@@ -457,7 +464,7 @@ describe('Resource API Functions', () => {
       const result = await getResourceCount();
 
       expect(result).toEqual(mockResourceCount);
-      expect(result.data.count).toBe(5);
+      expect(result.data?.count).toBe(5);
     });
 
     it('should handle empty resource count', async () => {
@@ -465,7 +472,7 @@ describe('Resource API Functions', () => {
 
       const result = await getResourceCount();
 
-      expect(result.data.count).toBe(0);
+      expect(result.data?.count).toBe(0);
     });
   });
 
@@ -501,7 +508,7 @@ describe('Resource API Functions', () => {
 
       expect(result).toEqual(mockResourceData);
       expect(result.data).toHaveLength(1);
-      expect(result.data[0].name).toBe('test-resource');
+      expect(result.data?.[0].name).toBe('test-resource');
     });
 
     it('should handle filtered resource queries', async () => {
@@ -604,8 +611,8 @@ describe('Resource API Functions', () => {
       const result = await createResourceDefinition(mockResourceDefinition);
 
       expect(result.data).toHaveLength(2);
-      expect(result.data[0].ret_code).toBe(0);
-      expect(result.data[1].ret_code).toBe(1);
+      expect(result.data?.[0].ret_code).toBe(0);
+      expect(result.data?.[1].ret_code).toBe(1);
     });
   });
 });

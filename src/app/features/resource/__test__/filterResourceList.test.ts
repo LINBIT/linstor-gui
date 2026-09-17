@@ -5,10 +5,10 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { describe, it, expect } from 'vitest';
-import { filterResourceList } from '../components/filterResourceList';
+import { filterResourceList, type ResourceItem } from '../components/filterResourceList';
 
 // Mock data for testing
-const mockResourceList = [
+const mockResourceList: ResourceItem[] = [
   {
     name: 'database-prod',
     resource_group_name: 'production',

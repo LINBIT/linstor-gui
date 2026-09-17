@@ -260,7 +260,7 @@ describe('VSAN API', () => {
       };
       vi.mocked(service.post).mockReturnValue(mockResponse as any);
 
-      const result = vsanApi.createPool(mockData);
+      const result = vsanApi.createPool(mockData as Parameters<typeof vsanApi.createPool>[0]);
 
       expect(service.post).toHaveBeenCalledWith('/api/frontend/v1/linstor/physical-storage-pools', mockData);
       expect(result).toBe(mockResponse);
@@ -321,7 +321,7 @@ describe('VSAN API', () => {
       const mockData = {};
       vi.mocked(service.post).mockReturnValue(mockResponse as any);
 
-      const result = vsanApi.createPool(mockData);
+      const result = vsanApi.createPool(mockData as Parameters<typeof vsanApi.createPool>[0]);
 
       expect(service.post).toHaveBeenCalledWith('/api/frontend/v1/linstor/physical-storage-pools', mockData);
       expect(result).toBe(mockResponse);

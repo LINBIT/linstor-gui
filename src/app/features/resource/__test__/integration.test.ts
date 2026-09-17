@@ -24,7 +24,13 @@ vi.mock('@app/utils/resource', () => ({
 // Import after mocks
 import { get, post, put, del } from '@app/features/requests';
 import { getResources, resourceCreateOnNode, resourceModify, resourceMigration, deleteResource } from '../api';
+
 import { getFaultyResources } from '@app/utils/resource';
+
+/** The bodies below are deliberately partial: these tests assert the URL and the
+ *  pass-through, not that a fixture satisfies the generated request schema. */
+const createOnNode = (resource: string, node: string, body: unknown) =>
+  resourceCreateOnNode(resource, node, body as Parameters<typeof resourceCreateOnNode>[2]);
 
 // Mock data for comprehensive resource scenarios
 const mockCompleteResources = {
@@ -373,7 +379,7 @@ describe('Resource Integration Tests', () => {
         },
       };
 
-      await resourceCreateOnNode('database-primary', 'db-node-1', createResourceData);
+      await createOnNode('database-primary', 'db-node-1', createResourceData);
 
       expect(mockPost).toHaveBeenCalledWith('/v1/resource-definitions/{resource}/resources/{node}', {
         params: {
@@ -395,7 +401,7 @@ describe('Resource Integration Tests', () => {
         },
       };
 
-      await resourceCreateOnNode('database-primary', 'db-node-2', secondaryResourceData);
+      await createOnNode('database-primary', 'db-node-2', secondaryResourceData);
 
       expect(mockPost).toHaveBeenCalledWith('/v1/resource-definitions/{resource}/resources/{node}', {
         params: {
@@ -418,7 +424,7 @@ describe('Resource Integration Tests', () => {
         },
       };
 
-      await resourceCreateOnNode('database-primary', 'web-node-1', disklessResourceData);
+      await createOnNode('database-primary', 'web-node-1', disklessResourceData);
 
       // 4. Verify all resources are created
       expect(mockPost).toHaveBeenCalledTimes(3);
@@ -518,7 +524,7 @@ describe('Resource Integration Tests', () => {
       });
 
       // 2. Identify faulty resources
-      const faultyResources = mockGetFaultyResources(mockCompleteResources.data);
+      mockGetFaultyResources(mockCompleteResources.data);
       expect(mockGetFaultyResources).toHaveBeenCalledWith(mockCompleteResources.data);
 
       // 3. Delete faulty resource
@@ -543,7 +549,7 @@ describe('Resource Integration Tests', () => {
         },
       };
 
-      await resourceCreateOnNode('recovered-resource', 'recovery-node', recoveryResourceData);
+      await createOnNode('recovered-resource', 'recovery-node', recoveryResourceData);
 
       expect(mockPost).toHaveBeenCalledWith('/v1/resource-definitions/{resource}/resources/{node}', {
         params: {
@@ -638,7 +644,7 @@ describe('Resource Integration Tests', () => {
         },
       };
 
-      await resourceCreateOnNode('multi-volume-db', 'multi-volume-node', multiVolumeResourceData);
+      await createOnNode('multi-volume-db', 'multi-volume-node', multiVolumeResourceData);
 
       // Modify each volume independently
       const volumes = [0, 1, 2];
@@ -679,7 +685,7 @@ describe('Resource Integration Tests', () => {
             },
           };
 
-          await resourceCreateOnNode(resourceName, nodeName, bulkResourceData);
+          await createOnNode(resourceName, nodeName, bulkResourceData);
         }
       }
 
@@ -725,11 +731,11 @@ describe('Resource Integration Tests', () => {
       // Simulate concurrent operations
       const concurrentOperations = [
         // Create operations
-        resourceCreateOnNode('concurrent-resource-1', 'node-1', {
+        createOnNode('concurrent-resource-1', 'node-1', {
           node_name: 'node-1',
           layer_list: ['STORAGE', 'DRBD'],
         }),
-        resourceCreateOnNode('concurrent-resource-2', 'node-2', {
+        createOnNode('concurrent-resource-2', 'node-2', {
           node_name: 'node-2',
           layer_list: ['STORAGE', 'DRBD'],
         }),
@@ -775,7 +781,7 @@ describe('Resource Integration Tests', () => {
 
       for (const { resource, node } of operations) {
         try {
-          const result = await resourceCreateOnNode(resource, node, {
+          const result = await createOnNode(resource, node, {
             node_name: node,
             layer_list: ['STORAGE'],
           });
@@ -798,7 +804,7 @@ describe('Resource Integration Tests', () => {
         await getResources();
       } catch (error) {
         expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Network timeout');
+        expect((error as Error).message).toBe('Network timeout');
       }
 
       expect(mockGet).toHaveBeenCalledTimes(1);
@@ -833,13 +839,13 @@ describe('Resource Integration Tests', () => {
 
       mockPost.mockResolvedValue(constraintViolationResponse);
 
-      const result = await resourceCreateOnNode('existing-resource', 'node-1', {
+      const result = await createOnNode('existing-resource', 'node-1', {
         node_name: 'node-1',
         layer_list: ['STORAGE'],
       });
 
-      expect(result.data[0].ret_code).toBe(4);
-      expect(result.data[0].message).toContain('already exists');
+      expect(result.data?.[0].ret_code).toBe(4);
+      expect(result.data?.[0].message).toContain('already exists');
     });
 
     it('should handle complex migration scenarios', async () => {
@@ -864,8 +870,8 @@ describe('Resource Integration Tests', () => {
 
       const result = await resourceMigration(migrationData);
 
-      expect(result.data[0].ret_code).toBe(16);
-      expect(result.data[0].message).toContain('insufficient space');
+      expect(result.data?.[0].ret_code).toBe(16);
+      expect(result.data?.[0].message).toContain('insufficient space');
 
       // Verify retry with different target node
       mockPut.mockResolvedValue(mockSuccessResponse);
@@ -878,7 +884,7 @@ describe('Resource Integration Tests', () => {
 
       const retryResult = await resourceMigration(retryMigrationData);
 
-      expect(retryResult.data[0].ret_code).toBe(0);
+      expect(retryResult.data?.[0].ret_code).toBe(0);
       expect(mockPut).toHaveBeenCalledTimes(2);
     });
   });
@@ -898,7 +904,7 @@ describe('Resource Integration Tests', () => {
         },
       };
 
-      await resourceCreateOnNode('monitored-resource', 'monitored-node', trackedResourceData);
+      await createOnNode('monitored-resource', 'monitored-node', trackedResourceData);
 
       // Later modification with tracking
       const modificationTimestamp = new Date().toISOString();
@@ -942,7 +948,7 @@ describe('Resource Integration Tests', () => {
         cached: false,
       };
 
-      await getResources(healthQuery);
+      await getResources(healthQuery as Parameters<typeof getResources>[0]);
 
       expect(mockGet).toHaveBeenCalledWith('/v1/view/resources', {
         params: {

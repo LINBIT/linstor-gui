@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { logger } from '@app/utils/logger';
 import PageBasic from '@app/components/PageBasic';
 import { Dispatch, RootState } from '@app/store';
@@ -63,7 +63,7 @@ export const UserManagement = () => {
       logger.debug(error);
       notify(t('users:authentication_update_failed'), { type: 'error' });
     },
-    onSuccess: (data, newProps) => {
+    onSuccess: (_data, newProps) => {
       const message = newProps ? t('users:authentication_enabled') : t('users:authentication_disabled');
       notify(message, {
         type: 'success',

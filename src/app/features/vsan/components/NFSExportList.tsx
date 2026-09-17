@@ -193,7 +193,7 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
     return res;
   };
 
-  const listData = handleTargetData(data?.data) ?? [];
+  const listData = handleTargetData(data?.data ?? []);
 
   return (
     <div>

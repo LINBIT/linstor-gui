@@ -62,6 +62,10 @@ vi.mock('../../hooks/useFaultyResources', () => ({
 
 const mockUseFaultyResources = vi.mocked(useFaultyResources);
 
+/** The component reads only `data` and `isLoading` off the query result. */
+const mockQuery = (value: { data?: unknown; isLoading: boolean }) =>
+  mockUseFaultyResources.mockReturnValue(value as unknown as ReturnType<typeof useFaultyResources>);
+
 const createQueryClient = () =>
   new QueryClient({
     defaultOptions: {
@@ -86,7 +90,7 @@ describe('FaultyList', () => {
 
   describe('Basic Rendering', () => {
     it('should render faulty resources title', () => {
-      mockUseFaultyResources.mockReturnValue({
+      mockQuery({
         data: [],
         isLoading: false,
         error: null,
@@ -98,7 +102,7 @@ describe('FaultyList', () => {
     });
 
     it('should show empty message when no faulty resources', () => {
-      mockUseFaultyResources.mockReturnValue({
+      mockQuery({
         data: [],
         isLoading: false,
         error: null,
@@ -110,7 +114,7 @@ describe('FaultyList', () => {
     });
 
     it('should show empty message when resources is null', () => {
-      mockUseFaultyResources.mockReturnValue({
+      mockQuery({
         data: null,
         isLoading: false,
         error: null,
@@ -122,7 +126,7 @@ describe('FaultyList', () => {
     });
 
     it('should show empty message when resources is undefined', () => {
-      mockUseFaultyResources.mockReturnValue({
+      mockQuery({
         data: undefined,
         isLoading: false,
         error: null,
@@ -165,7 +169,7 @@ describe('FaultyList', () => {
     ];
 
     it('should render table when faulty resources exist', () => {
-      mockUseFaultyResources.mockReturnValue({
+      mockQuery({
         data: mockFaultyResources,
         isLoading: false,
         error: null,
@@ -178,7 +182,7 @@ describe('FaultyList', () => {
     });
 
     it('should render correct table headers', () => {
-      mockUseFaultyResources.mockReturnValue({
+      mockQuery({
         data: mockFaultyResources,
         isLoading: false,
         error: null,
@@ -195,7 +199,7 @@ describe('FaultyList', () => {
     });
 
     it('should render resource data in table rows', () => {
-      mockUseFaultyResources.mockReturnValue({
+      mockQuery({
         data: mockFaultyResources,
         isLoading: false,
         error: null,
@@ -212,7 +216,7 @@ describe('FaultyList', () => {
 
   describe('Loading State', () => {
     it('should show loading state in table', () => {
-      mockUseFaultyResources.mockReturnValue({
+      mockQuery({
         data: [],
         isLoading: true,
         error: null,
@@ -234,7 +238,7 @@ describe('FaultyList', () => {
         },
       ];
 
-      mockUseFaultyResources.mockReturnValue({
+      mockQuery({
         data: mockFaultyResources,
         isLoading: true,
       });
@@ -257,7 +261,7 @@ describe('FaultyList', () => {
         },
       ];
 
-      mockUseFaultyResources.mockReturnValue({
+      mockQuery({
         data: mockFaultyResources,
         isLoading: false,
       });
@@ -280,7 +284,7 @@ describe('FaultyList', () => {
         },
       ];
 
-      mockUseFaultyResources.mockReturnValue({
+      mockQuery({
         data: mockFaultyResources,
         isLoading: false,
       });
@@ -305,7 +309,7 @@ describe('FaultyList', () => {
         },
       ];
 
-      mockUseFaultyResources.mockReturnValue({
+      mockQuery({
         data: mockFaultyResources,
         isLoading: false,
       });
@@ -326,7 +330,7 @@ describe('FaultyList', () => {
         },
       ];
 
-      mockUseFaultyResources.mockReturnValue({
+      mockQuery({
         data: mockFaultyResources,
         isLoading: false,
       });
@@ -351,7 +355,7 @@ describe('FaultyList', () => {
         },
       ];
 
-      mockUseFaultyResources.mockReturnValue({
+      mockQuery({
         data: mockFaultyResources,
         isLoading: false,
       });
@@ -378,7 +382,7 @@ describe('FaultyList', () => {
         },
       ];
 
-      mockUseFaultyResources.mockReturnValue({
+      mockQuery({
         data: mockFaultyResources,
         isLoading: false,
       });
@@ -405,7 +409,7 @@ describe('FaultyList', () => {
         },
       ];
 
-      mockUseFaultyResources.mockReturnValue({
+      mockQuery({
         data: mockFaultyResources,
         isLoading: false,
       });
@@ -433,7 +437,7 @@ describe('FaultyList', () => {
         },
       ];
 
-      mockUseFaultyResources.mockReturnValue({
+      mockQuery({
         data: mockFaultyResources,
         isLoading: false,
       });
@@ -446,7 +450,7 @@ describe('FaultyList', () => {
 
   describe('Translation Keys', () => {
     it('should use correct translation keys', () => {
-      mockUseFaultyResources.mockReturnValue({
+      mockQuery({
         data: [],
         isLoading: false,
       });

@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { logger } from '@app/utils/logger';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -141,13 +141,12 @@ export const CreateResourceGroup = ({ refetch }: CreateResourceGroupProps) => {
             <Select
               allowClear
               placeholder={t('iscsi:please_select_resource_group')}
-              options={storagePool?.data
-                ?.filter((e) => e.name !== DEFAULT_SP)
-                ?.concat({ name: '---any---' })
-                ?.map((e) => ({
-                  label: e.name,
-                  value: e.name,
-                }))}
+              options={[
+                ...(storagePool?.data ?? [])
+                  .filter((e) => e.name !== DEFAULT_SP)
+                  .map((e) => ({ label: e.name, value: e.name })),
+                { label: '---any---', value: '---any---' },
+              ]}
             />
           </Form.Item>
 

@@ -5,10 +5,10 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { describe, it, expect } from 'vitest';
-import { filterResourceList } from '../filterResourceList';
+import { filterResourceList, type ResourceItem } from '../filterResourceList';
 
 describe('filterResourceList', () => {
-  const mockResources = [
+  const mockResources: ResourceItem[] = [
     {
       name: 'resource-1',
       resource_group_name: 'group-a',
@@ -153,7 +153,7 @@ describe('filterResourceList', () => {
     });
 
     it('should handle resources without props', () => {
-      const resourcesWithoutProps = [{ name: 'no-props-resource', resource_group_name: 'group-a' }];
+      const resourcesWithoutProps: ResourceItem[] = [{ name: 'no-props-resource', resource_group_name: 'group-a' }];
       const result = filterResourceList(resourcesWithoutProps as any, undefined, 'no-props');
       expect(result).toHaveLength(1);
     });
@@ -192,7 +192,7 @@ describe('filterResourceList', () => {
 
   describe('Edge Cases', () => {
     it('should handle resources with missing name property', () => {
-      const resourcesWithMissingName = [
+      const resourcesWithMissingName: ResourceItem[] = [
         { resource_group_name: 'group-a', props: {} },
         { name: 'valid-resource', resource_group_name: 'group-a', props: {} },
       ];
@@ -232,7 +232,7 @@ describe('filterResourceList', () => {
     });
 
     it('should handle special characters in search key', () => {
-      const resourceWithSpecialChars = [
+      const resourceWithSpecialChars: ResourceItem[] = [
         {
           name: 'resource-with-special-chars',
           resource_group_name: 'group-a',

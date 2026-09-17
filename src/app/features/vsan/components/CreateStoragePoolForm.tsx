@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { logger } from '@app/utils/logger';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -35,7 +35,12 @@ interface DataType {
   key: string;
   size: string;
   type: string;
+  /** hostname -> device path, built from the disk entries below. */
+  nodeDevices: Record<string, string>;
 }
+
+/** What the wrapped Checkbox hands its onChange. */
+type CheckboxEvent = { target: { checked: boolean } };
 
 type FormType = {
   poolName: string;
@@ -53,7 +58,7 @@ const getMaxInstances = (nodes: { [node: string]: DiskNode[] }): number => {
   return max;
 };
 
-const getDiskEntries = (disks: Disk[], nodes: Node[]): DiskEntry[] => {
+const getDiskEntries = (disks: Disk[] | undefined, nodes: Node[] | undefined): DiskEntry[] => {
   if (!nodes || !disks) {
     return [];
   }
@@ -114,7 +119,7 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
   const add_to_existing = Form.useWatch('add_to_existing', form);
   const entries = getDiskEntries(disks?.data, nodes?.data);
 
-  const handleRowChange = (row, event) => {
+  const handleRowChange = (row: number, event: CheckboxEvent) => {
     nodes?.data.forEach((n, col) => {
       if (n.hostname in entries[row].nodeDevices) {
         handleChange(row, col, event);
@@ -122,9 +127,13 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
     });
   };
 
-  const handleChange = (row, col, event) => {
-    const nodeName = nodes?.data?.[col].hostname;
-    const disk = entries[row].nodeDevices[nodeName];
+  const handleChange = (row: number, col: number, event: CheckboxEvent) => {
+    const nodeName = nodes?.data?.[col]?.hostname;
+    const disk = nodeName ? entries[row].nodeDevices[nodeName] : undefined;
+
+    if (!nodeName || !disk) {
+      return;
+    }
 
     onCheckedChanged({ nodeName, disk, checked: event.target.checked });
 
@@ -150,7 +159,7 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
     });
     if (row in checkboxStates) {
       if (checkboxStates[row].length < max) return false;
-      for (let i = 0; i < nodes?.data?.length; i++) {
+      for (let i = 0; i < (nodes?.data?.length ?? 0); i++) {
         if (checkboxStates[row][i] || !ids.includes(i)) {
           res = true;
         } else {
@@ -169,11 +178,11 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
     return false;
   };
 
-  const columns: TableProps<DataType>['columns'] = [
+  const baseColumns: NonNullable<TableProps<DataType>['columns']> = [
     {
       title: '',
       key: 'name',
-      render: (text, record) => {
+      render: (_, record) => {
         return (
           <span>
             {record.size} {record.type}
@@ -184,7 +193,7 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
     {
       title: 'All',
       key: 'all',
-      render: (text, record) => (
+      render: (_, record) => (
         <Checkbox
           onChange={(evt) => {
             handleRowChange(Number(record.key), evt);
@@ -193,34 +202,36 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
         />
       ),
     },
-  ].concat(
-    nodes?.data?.map((n, index) => {
-      return {
-        title: n.hostname,
-        dataIndex: 'name',
-        key: 'name',
-        render: (text, d) => (
-          <Tooltip
-            title={
-              n.hostname in d.nodeDevices
-                ? d.nodeDevices[n.hostname].startsWith('/dev/')
-                  ? d.nodeDevices[n.hostname] + ' on ' + n.hostname
-                  : '/dev/' + d.nodeDevices[n.hostname] + ' on ' + n.hostname
-                : undefined
-            }
-          >
-            <Checkbox
-              disabled={!(n.hostname in d.nodeDevices)}
-              onChange={(evt) => {
-                handleChange(Number(d.key), index, evt);
-              }}
-              checked={getCheckboxState(Number(d.key), index)}
-            />
-          </Tooltip>
-        ),
-      };
-    }) ?? [],
-  );
+  ];
+
+  const nodeColumns: NonNullable<TableProps<DataType>['columns']> = (nodes?.data ?? []).map((n, index) => {
+    return {
+      title: n.hostname,
+      dataIndex: 'name',
+      key: n.hostname,
+      render: (_, d) => (
+        <Tooltip
+          title={
+            n.hostname in d.nodeDevices
+              ? d.nodeDevices[n.hostname].startsWith('/dev/')
+                ? d.nodeDevices[n.hostname] + ' on ' + n.hostname
+                : '/dev/' + d.nodeDevices[n.hostname] + ' on ' + n.hostname
+              : undefined
+          }
+        >
+          <Checkbox
+            disabled={!(n.hostname in d.nodeDevices)}
+            onChange={(evt) => {
+              handleChange(Number(d.key), index, evt);
+            }}
+            checked={getCheckboxState(Number(d.key), index)}
+          />
+        </Tooltip>
+      ),
+    };
+  });
+
+  const columns = [...baseColumns, ...nodeColumns];
 
   const onCheckedChanged = (ev: PhysicalStorageChangeEvent) => {
     const req = { ...physicalStoragePoolRequest };

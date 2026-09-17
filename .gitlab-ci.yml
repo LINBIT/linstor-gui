@@ -85,16 +85,15 @@ generate-agents-windows:
       - 'src/app/components/OcfAgentEditor/windows_agents.ts'
     expire_in: '30 days'
 
-# Kept apart from `test` and allowed to fail until the backlog is gone: the
-# script used to run plain `tsc --noEmit` against the solution tsconfig, which
-# checks no files, so ~550 errors accumulated unseen (#429). Once that count
-# reaches zero, drop allow_failure so the job gates again.
+# Gates the pipeline. It used to run plain `tsc --noEmit` against the solution
+# tsconfig, which checks no files, so ~550 errors had accumulated unseen (#429);
+# the job ran with allow_failure while that backlog was burned down. It is at
+# zero now, so a new type error breaks the build.
 type-check:
   stage: test
   rules:
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
     - if: $CI_COMMIT_BRANCH == "main"
-  allow_failure: true
   before_script:
     - npm ci
   script:

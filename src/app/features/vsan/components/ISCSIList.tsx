@@ -6,7 +6,6 @@
 
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import React from 'react';
 import { Space, Table, Tag, notification } from 'antd';
 import type { TableProps } from 'antd';
 
@@ -184,7 +183,7 @@ export const ISCSIList = ({ complex }: ISCSIListProp) => {
       <Table
         bordered={false}
         columns={columns}
-        dataSource={handleTargetData(data?.data) ?? []}
+        dataSource={handleTargetData(data?.data ?? [])}
         loading={isLoading}
         pagination={false}
       />

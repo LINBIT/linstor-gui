@@ -91,38 +91,6 @@ const ExpandableSubTable: React.FC<ExpandableSubTableProps> = ({ volumes, column
   );
 };
 
-type SyncFlow = {
-  direction: 'in' | 'out';
-  percent: number | null;
-  peers: string[];
-};
-
-const getSyncFlow = (record: any): SyncFlow | null => {
-  const diskState = record?.state?.disk_state;
-  const ACTIVE_FLOW_STATES = new Set(['SyncTarget', 'SyncSource', 'Inconsistent', 'Outdated']);
-  if (!diskState || !ACTIVE_FLOW_STATES.has(diskState)) {
-    return null;
-  }
-
-  const replicationStates = record?.state?.replication_states ?? {};
-  const peerEntries = Object.entries(replicationStates) as Array<
-    [string, { replication_state?: string; done_percentage?: number } | undefined]
-  >;
-
-  const matchingPeers = peerEntries.filter(([, state]) => state?.replication_state === diskState);
-  const peers = matchingPeers.map(([peer]) => peer);
-  const percentages = matchingPeers
-    .map(([, state]) => state?.done_percentage)
-    .filter((value): value is number => typeof value === 'number');
-
-  return {
-    direction: diskState === 'SyncTarget' ? 'in' : 'out',
-    // Use the slowest in-progress peer to represent overall sync progress.
-    percent: percentages.length > 0 ? Math.min(...percentages) : null,
-    peers,
-  };
-};
-
 const TAG_COLORS = [
   '#FFCC9C',
   '#EEEEEE',
@@ -372,12 +340,6 @@ export const OverviewList = () => {
   useEffect(() => {
     setResourceDefinitionList(mergedResourceDefinitionList);
   }, [mergedResourceDefinitionList]);
-
-  const hasSyncingVolume = useMemo(() => {
-    return Boolean(
-      resourceDefinitionList?.some((rd: any) => rd?.volumes?.some((volume: any) => getSyncFlow(volume) !== null)),
-    );
-  }, [resourceDefinitionList]);
 
   const isLoading = rdLoading || rvLoading;
   const refetch = useCallback(() => {
@@ -724,7 +686,7 @@ export const OverviewList = () => {
   }, [t]);
 
   const expandableRender = (record: any) => {
-    const subTableColumns = [
+    const subTableColumns: NonNullable<TableProps<any>['columns']> = [
       {
         title: t('common:node'),
         key: 'node_name',
@@ -783,7 +745,7 @@ export const OverviewList = () => {
         title: t('common:state'),
         key: 'state',
         dataIndex: 'state',
-        render: (state, record) => {
+        render: (_, record) => {
           const isPrimaryNode = record?.node_name?.toLowerCase() === record?.primary_node?.toLowerCase();
           const stateStr = getResourceState(record.resource, record.volume_number);
           const isInconsistent = stateStr?.includes('Inconsistent');

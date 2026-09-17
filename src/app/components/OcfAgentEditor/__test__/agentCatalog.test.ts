@@ -19,7 +19,7 @@ import {
   filterAgentsByPlatform,
 } from '../agentCatalog';
 
-const countOf = (source: { providers: Record<string, unknown[]> }) =>
+const countOf = (source: { providers: Record<string, readonly unknown[]> }) =>
   Object.values(source.providers).reduce((total, agents) => total + agents.length, 0);
 
 describe('agentCatalog', () => {

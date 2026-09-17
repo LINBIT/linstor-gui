@@ -1,4 +1,4 @@
-interface ResourceItem {
+export interface ResourceItem {
   name?: string;
   resource_group_name?: string;
   props?: Record<string, string>;
