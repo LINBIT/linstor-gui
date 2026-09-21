@@ -288,7 +288,9 @@ const NodeDetail: React.FC = () => {
             handleSetActiveNetWorkInterface={handleUpdateNetWorkInterface}
           />
 
-          <CreateForm node={nodeInfo?.[0].name} refetch={refetch} />
+          {/* nodeInfo?.[0].name threw once the list came back empty: the `?.`
+              guards the list, not its first entry. */}
+          <CreateForm node={nodeData?.name} refetch={refetch} />
         </Card>
 
         <div className="flex gap-4">
