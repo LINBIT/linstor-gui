@@ -5,354 +5,374 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// Mock modules
-vi.mock('../../api', () => ({
-  getNodes: vi.fn(),
-  getNodeCount: vi.fn(),
-  deleteNode: vi.fn(),
-  updateNode: vi.fn(),
-  lostNode: vi.fn(),
+import { List } from '../List';
+import { getNodes, getNodeCount, deleteNode, lostNode, updateNode, getControllerVersion } from '../../api';
+import { UIMode } from '@app/models/setting';
+
+const hoisted = vi.hoisted(() => ({
+  navigate: vi.fn(),
+  mode: { value: 'NORMAL' as string },
+  propertyForm: { open: vi.fn(), submit: undefined as ((data: unknown) => void) | undefined },
 }));
 
-vi.mock('@app/utils/stringUtils', () => ({
-  uniqId: vi.fn(() => 'mock-id'),
-}));
-
-vi.mock('@app/utils/object', () => ({
-  omit: vi.fn((obj, key) => {
-    const { [key]: _, ...rest } = obj;
-    return rest;
-  }),
-}));
-
-vi.mock('@app/components/PropertyForm', () => ({
-  default: vi.fn(),
-}));
-
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-  }),
-}));
-
-vi.mock('react-router-dom', () => ({
-  useNavigate: () => vi.fn(),
-  useLocation: () => ({ search: '', pathname: '/inventory/nodes' }),
-}));
-
-vi.mock('@tanstack/react-query', () => ({
-  useQuery: vi.fn(),
-  useMutation: vi.fn(),
-}));
-
-vi.mock('@rematch/core', () => ({
-  init: vi.fn(),
+vi.mock('react-router-dom', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('react-router-dom')>()),
+  useNavigate: () => hoisted.navigate,
 }));
 
 vi.mock('react-redux', () => ({
-  useSelector: vi.fn(),
+  useSelector: (selector: (s: unknown) => unknown) => selector({ setting: { mode: hoisted.mode.value } }),
 }));
 
-vi.mock('antd', () => ({
-  Button: vi.fn(),
-  Form: { useForm: () => [{ setFieldValue: vi.fn(), getFieldsValue: vi.fn(), resetFields: vi.fn() }] },
-  Space: vi.fn(),
-  Table: vi.fn(),
-  Tag: vi.fn(),
-  Popconfirm: vi.fn(),
-  Input: vi.fn(),
-  Dropdown: vi.fn(),
-  Tooltip: vi.fn(),
+vi.mock('../../api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../api')>()),
+  getNodes: vi.fn(),
+  getNodeCount: vi.fn(),
+  deleteNode: vi.fn(),
+  lostNode: vi.fn(),
+  updateNode: vi.fn(),
+  getControllerVersion: vi.fn(),
 }));
 
-// Import mocked modules
-import { getNodes, getNodeCount, deleteNode, updateNode, lostNode } from '../../api';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { useSelector } from 'react-redux';
-import { omit } from '@app/utils/object';
-import { uniqId } from '@app/utils/stringUtils';
-
-// Mock data
-const mockNodes = {
-  data: [
-    {
-      uuid: 'node-1',
-      name: 'test-node-1',
-      type: 'Satellite',
-      connection_status: 'CONNECTED',
-      net_interfaces: [
-        {
-          is_active: true,
-          address: '192.168.1.100',
-          satellite_port: 3366,
-        },
-      ],
-      props: {
-        prop1: 'value1',
-        CurStltConnName: 'should-be-omitted',
+// The property editor has its own suite; here it only has to expose the
+// imperative handle the list drives and the payload it submits.
+vi.mock('@app/components/PropertyForm', async () => {
+  const react = await import('react');
+  return {
+    default: react.forwardRef(
+      (
+        { initialVal, handleSubmit }: { initialVal?: Record<string, unknown>; handleSubmit: (d: unknown) => void },
+        ref,
+      ) => {
+        react.useImperativeHandle(ref, () => ({ openModal: hoisted.propertyForm.open }));
+        hoisted.propertyForm.submit = handleSubmit;
+        return <div data-testid="property-form" data-initial={JSON.stringify(initialVal ?? null)} />;
       },
-    },
-    {
-      uuid: 'node-2',
-      name: 'test-node-2',
-      type: 'Controller',
-      connection_status: 'OFFLINE',
-      net_interfaces: [
-        {
-          is_active: true,
-          address: '192.168.1.101',
-          satellite_port: 3367,
-        },
-      ],
-      props: {},
-    },
-  ],
-};
+    ),
+  };
+});
 
-const mockStats = {
-  data: {
-    count: 2,
+const nodes = [
+  {
+    uuid: 'u1',
+    name: 'gui01',
+    type: 'SATELLITE',
+    platform: 'LINUX',
+    os_variant: 'Ubuntu',
+    connection_status: 'ONLINE',
+    net_interfaces: [
+      { name: 'backup', address: '10.0.1.1', satellite_port: 3367, is_active: false },
+      { name: 'default', address: '10.0.0.1', satellite_port: 3366, is_active: true },
+    ],
+    props: { 'Aux/owner': 'team-a', CurStltConnName: 'default' },
   },
+  {
+    uuid: 'u2',
+    name: 'gui02',
+    type: 'COMBINED',
+    platform: 'WINDOWS',
+    os_variant: 'Server 2022',
+    connection_status: 'OFFLINE',
+    net_interfaces: [{ name: 'default', address: '10.0.0.2', satellite_port: 3366, is_active: true }],
+    props: {},
+  },
+];
+
+const renderList = (search = '') => {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    logger: { log: () => undefined, warn: () => undefined, error: () => undefined },
+  });
+  return render(
+    <QueryClientProvider client={client}>
+      <MemoryRouter initialEntries={[`/inventory/nodes${search}`]}>
+        <List />
+      </MemoryRouter>
+    </QueryClientProvider>,
+  );
 };
 
-describe('List Component Logic', () => {
-  let mockGetNodes: any;
-  let mockGetNodeCount: any;
-  let mockDeleteNode: any;
-  let mockUpdateNode: any;
-  let mockLostNode: any;
-  let mockUseQuery: any;
-  let mockUseMutation: any;
-  let mockUseSelector: any;
+const rows = (container: HTMLElement) =>
+  Array.from(container.querySelectorAll('.ant-table-tbody tr.ant-table-row')) as HTMLElement[];
 
+const rowOf = (container: HTMLElement, name: string) => {
+  const row = rows(container).find((tr) => tr.textContent?.includes(name));
+  expect(row).toBeDefined();
+  return row as HTMLElement;
+};
+
+const selectRow = (container: HTMLElement, name: string) =>
+  fireEvent.click(within(rowOf(container, name)).getByRole('checkbox'));
+
+/** Open the per-row action dropdown and return its (portalled) menu. */
+const openRowMenu = async (container: HTMLElement, name: string) => {
+  fireEvent.mouseEnter(within(rowOf(container, name)).getByRole('button'));
+  fireEvent.click(within(rowOf(container, name)).getByRole('button'));
+  return waitFor(() => {
+    const menus = Array.from(document.querySelectorAll('.ant-dropdown:not(.ant-dropdown-hidden) ul.ant-dropdown-menu'));
+    expect(menus.length).toBeGreaterThan(0);
+    return menus[menus.length - 1] as HTMLElement;
+  });
+};
+
+const confirmPopconfirm = async () => {
+  const yes = await screen.findAllByRole('button', { name: 'Yes' });
+  fireEvent.click(yes[yes.length - 1]);
+};
+
+describe('node List', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    hoisted.mode.value = UIMode.NORMAL;
+    vi.mocked(getNodes).mockResolvedValue({ data: nodes } as never);
+    vi.mocked(getNodeCount).mockResolvedValue({ data: { count: 2 } } as never);
+    vi.mocked(getControllerVersion).mockResolvedValue({ data: { rest_api_version: '1.28.0' } } as never);
+    vi.mocked(deleteNode).mockResolvedValue({ data: [] } as never);
+    vi.mocked(lostNode).mockResolvedValue({ data: [] } as never);
+    vi.mocked(updateNode).mockResolvedValue({ data: [] } as never);
+  });
 
-    // Get mocked functions
-    mockGetNodes = vi.mocked(getNodes);
-    mockGetNodeCount = vi.mocked(getNodeCount);
-    mockDeleteNode = vi.mocked(deleteNode);
-    mockUpdateNode = vi.mocked(updateNode);
-    mockLostNode = vi.mocked(lostNode);
+  it('asks for the first page and lists what comes back', async () => {
+    const { container } = renderList();
 
-    mockUseQuery = vi.mocked(useQuery);
-    mockUseMutation = vi.mocked(useMutation);
-    mockUseSelector = vi.mocked(useSelector);
+    await waitFor(() => expect(rows(container)).toHaveLength(2));
+    expect(getNodes).toHaveBeenCalledWith({ limit: 10, offset: 0, nodes: undefined });
 
-    // Setup default mock implementations
-    mockGetNodes.mockResolvedValue(mockNodes);
-    mockGetNodeCount.mockResolvedValue(mockStats);
-    mockDeleteNode.mockResolvedValue({ success: true });
-    mockUpdateNode.mockResolvedValue({ success: true });
-    mockLostNode.mockResolvedValue({ success: true });
+    const first = rowOf(container, 'gui01');
+    // The address and port come from the ACTIVE interface, not the first one.
+    expect(first).toHaveTextContent('10.0.0.1');
+    expect(first).toHaveTextContent('3366');
+    expect(first).toHaveTextContent('ONLINE');
+    expect(within(first).getByRole('link', { name: 'gui01' })).toHaveAttribute('href', '/inventory/nodes/gui01');
+  });
 
-    mockUseSelector.mockReturnValue({ mode: 'GUI' });
-    mockUseQuery.mockReturnValue({
-      data: mockNodes,
-      refetch: vi.fn(),
-      isLoading: false,
+  it('links into the HCI node pages in HCI mode', async () => {
+    hoisted.mode.value = UIMode.HCI;
+    const { container } = renderList();
+
+    await waitFor(() => expect(rows(container)).toHaveLength(2));
+    expect(within(rowOf(container, 'gui01')).getByRole('link', { name: 'gui01' })).toHaveAttribute(
+      'href',
+      '/hci/inventory/nodes/gui01',
+    );
+    expect(screen.getByRole('link', { name: /Add/ })).toHaveAttribute('href', '/hci/inventory/nodes/create');
+  });
+
+  it('shows the platform column only on a controller new enough to report it', async () => {
+    const { container } = renderList();
+    await waitFor(() => expect(rows(container)).toHaveLength(2));
+
+    expect(screen.getByRole('columnheader', { name: 'Platform' })).toBeInTheDocument();
+    expect(rowOf(container, 'gui01')).toHaveTextContent('LINUX');
+    expect(rowOf(container, 'gui02')).toHaveTextContent('WINDOWS');
+  });
+
+  it('prints an unrecognised platform as-is', async () => {
+    vi.mocked(getNodes).mockResolvedValue({
+      data: [{ ...nodes[0], platform: 'FREEBSD' }],
+    } as never);
+    const { container } = renderList();
+
+    await waitFor(() => expect(rows(container)).toHaveLength(1));
+    expect(rowOf(container, 'gui01')).toHaveTextContent('FREEBSD');
+  });
+
+  it('sorts by name, tolerating a node the controller did not name', async () => {
+    vi.mocked(getNodes).mockResolvedValue({
+      data: [nodes[1], nodes[0], { ...nodes[0], uuid: 'u3', name: undefined }],
+    } as never);
+    const { container } = renderList();
+    await waitFor(() => expect(rows(container)).toHaveLength(3));
+
+    fireEvent.click(screen.getByRole('columnheader', { name: /Name/ }));
+    await waitFor(() => {
+      const names = rows(container).map((tr) => tr.querySelector('a')?.textContent ?? '');
+      expect(names.slice(0, 2)).toEqual(['gui01', 'gui02']);
     });
-    mockUseMutation.mockReturnValue({
-      mutate: vi.fn(),
-      isLoading: false,
+
+    fireEvent.click(screen.getByRole('columnheader', { name: /Name/ }));
+    await waitFor(() => {
+      const names = rows(container)
+        .map((tr) => tr.querySelector('a')?.textContent ?? '')
+        .filter(Boolean);
+      expect(names).toEqual(['gui02', 'gui01']);
     });
   });
 
-  describe('API Integration', () => {
-    it('should call getNodes with correct query parameters', async () => {
-      await mockGetNodes({ limit: 10, offset: 0 });
-      expect(mockGetNodes).toHaveBeenCalledWith({ limit: 10, offset: 0 });
-    });
+  it('drops the platform column on a controller older than 1.28.0', async () => {
+    vi.mocked(getControllerVersion).mockResolvedValue({ data: { rest_api_version: '1.27.9' } } as never);
+    const { container } = renderList();
 
-    it('should call getNodeCount for statistics', async () => {
-      await mockGetNodeCount();
-      expect(mockGetNodeCount).toHaveBeenCalled();
+    await waitFor(() => expect(rows(container)).toHaveLength(2));
+    await waitFor(() => expect(screen.queryByRole('columnheader', { name: 'Platform' })).toBeNull());
+  });
+
+  it('seeds the filter from the URL', async () => {
+    renderList('?nodes=gui01');
+
+    await waitFor(() => expect(getNodes).toHaveBeenCalledWith({ limit: 10, offset: 0, nodes: ['gui01'] }));
+    expect(screen.getByPlaceholderText('Name')).toHaveValue('gui01');
+  });
+
+  it('searches by name and puts the filter in the URL', async () => {
+    const { container } = renderList();
+    await waitFor(() => expect(rows(container)).toHaveLength(2));
+
+    fireEvent.change(screen.getByPlaceholderText('Name'), { target: { value: 'gui02' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Search' }));
+
+    await waitFor(() => expect(getNodes).toHaveBeenCalledWith({ limit: 10, offset: 0, nodes: ['gui02'] }));
+    expect(hoisted.navigate).toHaveBeenCalledWith('/inventory/nodes?nodes=gui02');
+  });
+
+  it('clears the filter and the URL on reset', async () => {
+    const { container } = renderList('?nodes=gui01');
+    await waitFor(() => expect(rows(container)).toHaveLength(2));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reset' }));
+
+    await waitFor(() => expect(getNodes).toHaveBeenLastCalledWith({}));
+    expect(hoisted.navigate).toHaveBeenCalledWith('/inventory/nodes');
+  });
+
+  it('turns a page into an offset and keeps the pager on that page', async () => {
+    vi.mocked(getNodeCount).mockResolvedValue({ data: { count: 25 } } as never);
+    const { container } = renderList();
+    await waitFor(() => expect(rows(container)).toHaveLength(2));
+
+    fireEvent.click(screen.getByRole('listitem', { name: '2' }));
+
+    await waitFor(() => expect(getNodes).toHaveBeenLastCalledWith({ limit: 10, offset: 10, nodes: undefined }));
+    // offset counts items, so the pager has to divide by the page size.
+    expect(container.querySelector('.ant-pagination-item-active')?.textContent).toBe('2');
+  });
+
+  it('keeps the bulk actions disabled until rows are selected', async () => {
+    const { container } = renderList();
+    await waitFor(() => expect(rows(container)).toHaveLength(2));
+
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Lost' })).toBeDisabled();
+  });
+
+  it('only offers Lost when every selected node is offline', async () => {
+    const { container } = renderList();
+    await waitFor(() => expect(rows(container)).toHaveLength(2));
+
+    selectRow(container, 'gui02');
+    expect(screen.getByRole('button', { name: 'Lost' })).toBeEnabled();
+
+    // gui01 is ONLINE, so the pair cannot be lost.
+    selectRow(container, 'gui01');
+    expect(screen.getByRole('button', { name: 'Lost' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeEnabled();
+  });
+
+  it('deletes every selected node and drops the selection', async () => {
+    const { container } = renderList();
+    await waitFor(() => expect(rows(container)).toHaveLength(2));
+
+    selectRow(container, 'gui01');
+    selectRow(container, 'gui02');
+    fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    await confirmPopconfirm();
+
+    await waitFor(() => expect(deleteNode).toHaveBeenCalledTimes(2));
+    expect(deleteNode).toHaveBeenCalledWith('gui01');
+    expect(deleteNode).toHaveBeenCalledWith('gui02');
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Delete' })).toBeDisabled());
+  });
+
+  it('loses the selected offline node', async () => {
+    const { container } = renderList();
+    await waitFor(() => expect(rows(container)).toHaveLength(2));
+
+    selectRow(container, 'gui02');
+    fireEvent.click(screen.getByRole('button', { name: 'Lost' }));
+    await confirmPopconfirm();
+
+    await waitFor(() => expect(lostNode).toHaveBeenCalledWith('gui02'));
+    expect(deleteNode).not.toHaveBeenCalled();
+  });
+
+  it('navigates from the row menu to the detail and edit pages', async () => {
+    const { container } = renderList();
+    await waitFor(() => expect(rows(container)).toHaveLength(2));
+
+    let menu = await openRowMenu(container, 'gui01');
+    fireEvent.click(within(menu).getByText('View'));
+    expect(hoisted.navigate).toHaveBeenCalledWith('/inventory/nodes/gui01');
+
+    menu = await openRowMenu(container, 'gui01');
+    fireEvent.click(within(menu).getByText('Edit'));
+    expect(hoisted.navigate).toHaveBeenCalledWith('/inventory/nodes/edit/gui01');
+  });
+
+  it('deletes a single node from its row menu', async () => {
+    const { container } = renderList();
+    await waitFor(() => expect(rows(container)).toHaveLength(2));
+
+    const menu = await openRowMenu(container, 'gui02');
+    fireEvent.click(within(menu).getByText('Delete'));
+    await confirmPopconfirm();
+
+    await waitFor(() => expect(deleteNode).toHaveBeenCalledWith('gui02'));
+  });
+
+  it('loses a single node from its row menu', async () => {
+    const { container } = renderList();
+    await waitFor(() => expect(rows(container)).toHaveLength(2));
+
+    const menu = await openRowMenu(container, 'gui02');
+    fireEvent.click(within(menu).getByText('Lost'));
+    await confirmPopconfirm();
+
+    await waitFor(() => expect(lostNode).toHaveBeenCalledWith('gui02'));
+  });
+
+  it('opens the property editor on the row, without the connection-name prop', async () => {
+    const { container } = renderList();
+    await waitFor(() => expect(rows(container)).toHaveLength(2));
+
+    const menu = await openRowMenu(container, 'gui01');
+    fireEvent.click(within(menu).getByText('Properties'));
+
+    await waitFor(() => expect(hoisted.propertyForm.open).toHaveBeenCalled());
+    // CurStltConnName is the controller's own bookkeeping, not an editable prop.
+    expect(JSON.parse(screen.getByTestId('property-form').dataset.initial as string)).toEqual({
+      'Aux/owner': 'team-a',
+      name: 'gui01',
     });
   });
 
-  describe('Data Processing', () => {
-    it('should process node data correctly', () => {
-      expect(mockNodes.data).toHaveLength(2);
-      expect(mockNodes.data[0].name).toBe('test-node-1');
-      expect(mockNodes.data[1].name).toBe('test-node-2');
-    });
+  it('saves edited properties against the node the menu was opened on', async () => {
+    const { container } = renderList();
+    await waitFor(() => expect(rows(container)).toHaveLength(2));
 
-    it('should identify active network interfaces', () => {
-      const node1 = mockNodes.data[0];
-      const activeInterface = node1.net_interfaces.find((iface) => iface.is_active);
+    const menu = await openRowMenu(container, 'gui02');
+    fireEvent.click(within(menu).getByText('Properties'));
+    await waitFor(() => expect(hoisted.propertyForm.open).toHaveBeenCalled());
 
-      expect(activeInterface).toBeDefined();
-      expect(activeInterface?.address).toBe('192.168.1.100');
-      expect(activeInterface?.satellite_port).toBe(3366);
-    });
+    hoisted.propertyForm.submit?.({ override_props: { 'Aux/owner': 'team-b' } });
 
-    it('should distinguish between connected and offline nodes', () => {
-      const connectedNode = mockNodes.data[0];
-      const offlineNode = mockNodes.data[1];
-
-      expect(connectedNode.connection_status).toBe('CONNECTED');
-      expect(offlineNode.connection_status).toBe('OFFLINE');
-    });
+    await waitFor(() =>
+      expect(updateNode).toHaveBeenCalledWith({
+        node: 'gui02',
+        body: { override_props: { 'Aux/owner': 'team-b' } },
+      }),
+    );
   });
 
-  describe('Node Selection Logic', () => {
-    it('should identify nodes suitable for lost operation', () => {
-      const offlineNodes = mockNodes.data.filter(
-        (node) => node.connection_status !== 'CONNECTED' && node.connection_status !== 'ONLINE',
-      );
+  it('shows an empty table rather than failing when the controller answers nothing', async () => {
+    vi.mocked(getNodes).mockResolvedValue({ data: undefined } as never);
+    const { container } = renderList();
 
-      expect(offlineNodes).toHaveLength(1);
-      expect(offlineNodes[0].uuid).toBe('node-2');
-    });
-
-    it('should identify all nodes for bulk operations', () => {
-      const allNodeUuids = mockNodes.data.map((node) => node.uuid);
-
-      expect(allNodeUuids).toContain('node-1');
-      expect(allNodeUuids).toContain('node-2');
-      expect(allNodeUuids).toHaveLength(2);
-    });
-  });
-
-  describe('Property Handling', () => {
-    it('should omit CurStltConnName from node properties', () => {
-      const node = mockNodes.data[0];
-
-      omit(node.props, 'CurStltConnName');
-
-      expect(omit).toHaveBeenCalledWith(node.props, 'CurStltConnName');
-    });
-
-    it('should prepare properties for property form', () => {
-      const node = mockNodes.data[0];
-      const expectedProps = {
-        prop1: 'value1',
-        name: 'test-node-1',
-      };
-
-      // Simulate the property preparation logic
-      const processedProps = omit(node.props, 'CurStltConnName');
-      const initialProps = {
-        ...processedProps,
-        name: node.name,
-      };
-
-      expect(initialProps.name).toBe(expectedProps.name);
-      expect((initialProps as Record<string, unknown>).prop1).toBe(expectedProps.prop1);
-    });
-  });
-
-  describe('Mutation Operations', () => {
-    it('should setup delete mutation correctly', async () => {
-      await mockDeleteNode('test-node');
-      expect(mockDeleteNode).toHaveBeenCalledWith('test-node');
-    });
-
-    it('should setup lost mutation correctly', async () => {
-      await mockLostNode('test-node');
-      expect(mockLostNode).toHaveBeenCalledWith('test-node');
-    });
-
-    it('should setup update mutation correctly', async () => {
-      const testData = { node: 'test-node', body: { property: 'value' } };
-      await mockUpdateNode(testData);
-      expect(mockUpdateNode).toHaveBeenCalledWith(testData);
-    });
-  });
-
-  describe('Search Query Processing', () => {
-    it('should process URL search parameters correctly', () => {
-      const searchParams = new URLSearchParams('?nodes=test-node-1,test-node-2');
-      const nodes = searchParams.get('nodes')?.split(',');
-
-      expect(nodes).toEqual(['test-node-1', 'test-node-2']);
-    });
-
-    it('should handle empty search parameters', () => {
-      const searchParams = new URLSearchParams('');
-      const nodes = searchParams.get('nodes')?.split(',');
-
-      expect(nodes).toBeUndefined();
-    });
-  });
-
-  describe('Bulk Operations Logic', () => {
-    it('should process bulk delete operation', () => {
-      const selectedKeys = ['node-1', 'node-2'];
-      const nodeData = mockNodes.data;
-
-      selectedKeys.forEach((key) => {
-        const node = nodeData.find((e) => e.uuid === key);
-        if (node?.name) {
-          // Simulate the bulk delete logic
-          expect(node.name).toBeDefined();
-        }
-      });
-    });
-
-    it('should process bulk lost operation', () => {
-      const selectedKeys = ['node-2']; // Only offline node
-      const nodeData = mockNodes.data;
-
-      const validNodes = selectedKeys.filter((key) => {
-        const node = nodeData.find((e) => e.uuid === key);
-        return node?.connection_status !== 'CONNECTED' && node?.connection_status !== 'ONLINE';
-      });
-
-      expect(validNodes).toHaveLength(1);
-    });
-  });
-
-  describe('Mode-based Navigation', () => {
-    it('should generate correct paths for GUI mode', () => {
-      const mode: string = 'GUI';
-      const nodeName = 'test-node';
-
-      const createPath = mode === 'HCI' ? '/hci/inventory/nodes/create' : '/inventory/nodes/create';
-      const detailPath = mode === 'HCI' ? `/hci/inventory/nodes/${nodeName}` : `/inventory/nodes/${nodeName}`;
-      const editPath = mode === 'HCI' ? `/hci/inventory/nodes/edit/${nodeName}` : `/inventory/nodes/edit/${nodeName}`;
-
-      expect(createPath).toBe('/inventory/nodes/create');
-      expect(detailPath).toBe('/inventory/nodes/test-node');
-      expect(editPath).toBe('/inventory/nodes/edit/test-node');
-    });
-
-    it('should generate correct paths for HCI mode', () => {
-      const mode = 'HCI';
-      const nodeName = 'test-node';
-
-      const createPath = mode === 'HCI' ? '/hci/inventory/nodes/create' : '/inventory/nodes/create';
-      const detailPath = mode === 'HCI' ? `/hci/inventory/nodes/${nodeName}` : `/inventory/nodes/${nodeName}`;
-      const editPath = mode === 'HCI' ? `/hci/inventory/nodes/edit/${nodeName}` : `/inventory/nodes/edit/${nodeName}`;
-
-      expect(createPath).toBe('/hci/inventory/nodes/create');
-      expect(detailPath).toBe('/hci/inventory/nodes/test-node');
-      expect(editPath).toBe('/hci/inventory/nodes/edit/test-node');
-    });
-  });
-
-  describe('Utility Functions', () => {
-    it('should generate unique IDs for table rows', () => {
-      const id = uniqId();
-      expect(id).toBe('mock-id');
-      expect(uniqId).toHaveBeenCalled();
-    });
-
-    it('should handle pagination calculations', () => {
-      const query = { limit: 10, offset: 0 };
-      const page = 2;
-      const pageSize = 10;
-
-      const newOffset = (page - 1) * pageSize;
-      const expectedQuery = {
-        ...query,
-        limit: pageSize,
-        offset: newOffset,
-      };
-
-      expect(expectedQuery.offset).toBe(10);
-      expect(expectedQuery.limit).toBe(10);
-    });
+    await waitFor(() => expect(getNodes).toHaveBeenCalled());
+    expect(rows(container)).toHaveLength(0);
+    expect(container.querySelector('.ant-empty')).not.toBeNull();
   });
 });

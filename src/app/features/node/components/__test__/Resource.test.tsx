@@ -311,6 +311,17 @@ describe('Resource Component', () => {
     });
   });
 
+  describe('Data labels', () => {
+    it('renders each slice as a percentage with one decimal', () => {
+      render(<Resource data={[{ type: 'in use', value: 1 }]} />);
+
+      const { formatter } = mockChartRender.mock.calls[0][0].options.dataLabels;
+
+      expect(formatter(33.333)).toBe('33.3%');
+      expect(formatter(100)).toBe('100.0%');
+    });
+  });
+
   describe('Type Safety', () => {
     it('should handle DataItem type correctly', () => {
       const typedData: Array<{ type: string; value: number }> = [{ type: 'Typed', value: 42 }];

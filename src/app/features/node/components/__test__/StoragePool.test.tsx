@@ -7,6 +7,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { StoragePool } from '../StoragePool';
+import { formatBytes } from '@app/utils/size';
 
 // Mock react-apexcharts
 const mockChartRender = vi.fn();
@@ -521,6 +522,24 @@ describe('StoragePool Component', () => {
           ],
         }),
       );
+    });
+  });
+
+  describe('Axis labels', () => {
+    it('renders the capacity axis in human units', () => {
+      render(
+        <StoragePool
+          data={[
+            { storagePool: 'pool-a', type: 'Used', value: 1024 },
+            { storagePool: 'pool-a', type: 'Total', value: 4096 },
+          ]}
+        />,
+      );
+
+      const { formatter } = mockChartRender.mock.calls[0][0].options.yaxis.labels;
+
+      expect(formatter(0)).toBe(formatBytes(0));
+      expect(formatter(1024)).toBe(formatBytes(1024));
     });
   });
 });

@@ -107,7 +107,10 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
         updateNodeMutation.mutateAsync({ node, body: { node_type: values.type } }),
       ]);
 
-      if (fullySuccess(updateNodeNetworkMutationRes.data && updateNodeMutationRes.data)) {
+      // `a && b` on two arrays yields b, so the old single call only ever
+      // checked the node update: a rejected interface update went unnoticed
+      // and the user was sent back as if it had worked.
+      if (fullySuccess(updateNodeNetworkMutationRes.data) && fullySuccess(updateNodeMutationRes.data)) {
         navigate(-1);
       }
 

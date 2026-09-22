@@ -433,7 +433,9 @@ export const List = () => {
           total: stats?.data?.count ?? 0,
           showSizeChanger: true,
           showTotal: (total) => t('common:total_items', { total }),
-          defaultCurrent: (query?.offset ?? 0) + 1,
+          // offset counts items, not pages; the page number has to be divided
+          // out of it, the way features/storagePool's list already does.
+          current: Math.floor((query?.offset ?? 0) / (query?.limit ?? 10)) + 1,
           pageSize: query?.limit,
           onChange(page, pageSize) {
             setQuery({

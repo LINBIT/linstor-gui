@@ -5,342 +5,207 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-vi.mock('../../api', () => ({
-  createNode: vi.fn(),
-  getNodes: vi.fn(),
-  updateNetwork: vi.fn(),
-  updateNode: vi.fn(),
-}));
-
-vi.mock('@app/features/requests', () => ({
-  fullySuccess: vi.fn(() => true),
-}));
-
-vi.mock('@app/utils/stringUtils', () => ({
-  capitalize: vi.fn((str) => str.charAt(0).toUpperCase() + str.slice(1)),
-}));
-
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-  }),
-}));
-
-vi.mock('react-router-dom', () => ({
-  useNavigate: () => vi.fn(),
-  useParams: () => ({}),
-}));
-
-vi.mock('@tanstack/react-query', () => ({
-  useQuery: vi.fn(),
-  useMutation: vi.fn(),
-}));
-
-vi.mock('antd', () => ({
-  Form: {
-    useForm: () => [{ setFieldsValue: vi.fn(), getFieldsValue: vi.fn(), resetFields: vi.fn() }],
-    Item: vi.fn(),
-  },
-  Input: vi.fn(),
-  Select: vi.fn(),
-  Button: vi.fn(),
-  Modal: vi.fn(),
-  Table: vi.fn(),
-  Tag: vi.fn(),
-  Popconfirm: vi.fn(),
-  Dropdown: vi.fn(),
-  Tooltip: vi.fn(),
-  Space: vi.fn(),
-}));
-
-// Import mocked modules
+import { CreateNodeForm } from '../CreateNodeForm';
 import { createNode, getNodes, updateNetwork, updateNode } from '../../api';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { fullySuccess } from '@app/features/requests';
-import { capitalize } from '@app/utils/stringUtils';
 
-// Mock data
-const mockNodeData = {
-  data: [
-    {
-      name: 'test-node',
-      type: 'satellite',
-      net_interfaces: [
-        {
-          name: 'default',
-          address: '192.168.1.100',
-          satellite_port: 3366,
-          is_active: true,
-          satellite_encryption_type: 'PLAIN',
-        },
-      ],
-    },
+const hoisted = vi.hoisted(() => ({ navigate: vi.fn(), params: { node: undefined as string | undefined } }));
+
+vi.mock('react-router-dom', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('react-router-dom')>()),
+  useNavigate: () => hoisted.navigate,
+  useParams: () => hoisted.params,
+}));
+
+vi.mock('../../api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../api')>()),
+  getNodes: vi.fn(),
+  createNode: vi.fn(),
+  updateNode: vi.fn(),
+  updateNetwork: vi.fn(),
+}));
+
+const ok = { data: [{ ret_code: 1, message: 'ok' }] };
+const failed = { data: [{ ret_code: -1, message: 'nope' }] };
+
+const existingNode = {
+  name: 'gui01',
+  type: 'SATELLITE',
+  net_interfaces: [
+    { name: 'default', address: '10.0.0.1', satellite_port: 3366, is_active: true },
+    { name: 'backup', address: '10.0.1.1', satellite_port: 3367, is_active: false },
   ],
 };
 
-describe('CreateNodeForm Component Logic', () => {
-  let mockCreateNode: any;
-  let mockGetNodes: any;
-  let mockUpdateNetwork: any;
-  let mockUpdateNode: any;
-  let mockUseQuery: any;
-  let mockUseMutation: any;
+const renderForm = (editing = false) => {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    logger: { log: () => undefined, warn: () => undefined, error: () => undefined },
+  });
+  return render(
+    <QueryClientProvider client={client}>
+      <MemoryRouter>
+        <CreateNodeForm editing={editing} />
+      </MemoryRouter>
+    </QueryClientProvider>,
+  );
+};
 
+const field = (label: string) => screen.getByLabelText(new RegExp(label));
+const submit = () => fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+const fillCreateForm = () => {
+  fireEvent.change(field('^Name$'), { target: { value: 'gui04' } });
+  fireEvent.change(field('^IP$'), { target: { value: '10.0.0.4' } });
+};
+
+describe('CreateNodeForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-
-    // Get mocked functions
-    mockCreateNode = vi.mocked(createNode);
-    mockGetNodes = vi.mocked(getNodes);
-    mockUpdateNetwork = vi.mocked(updateNetwork);
-    mockUpdateNode = vi.mocked(updateNode);
-
-    mockUseQuery = vi.mocked(useQuery);
-    mockUseMutation = vi.mocked(useMutation);
-
-    // Setup default mock implementations
-    mockCreateNode.mockResolvedValue({ success: true });
-    mockGetNodes.mockResolvedValue(mockNodeData);
-    mockUpdateNetwork.mockResolvedValue({ data: { success: true } });
-    mockUpdateNode.mockResolvedValue({ data: { success: true } });
-
-    mockUseQuery.mockReturnValue({
-      data: mockNodeData,
-      isLoading: false,
-      error: null,
-    });
-    mockUseMutation.mockReturnValue({
-      mutate: vi.fn(),
-      mutateAsync: vi.fn(),
-      isLoading: false,
-    });
+    hoisted.params.node = undefined;
+    vi.mocked(getNodes).mockResolvedValue({ data: [existingNode] } as never);
+    vi.mocked(createNode).mockResolvedValue(ok as never);
+    vi.mocked(updateNode).mockResolvedValue(ok as never);
+    vi.mocked(updateNetwork).mockResolvedValue(ok as never);
   });
 
-  describe('API Integration', () => {
-    it('should call createNode with correct parameters', async () => {
-      const testNodeData = {
-        name: 'new-node',
-        type: 'satellite',
+  it('opens on the usual defaults for a new node', () => {
+    renderForm();
+
+    expect(field('^Name$')).toHaveValue('');
+    expect(field('^Name$')).toBeEnabled();
+    expect(field('^Port$')).toHaveValue(3366);
+    expect(screen.getByTitle('Satellite')).toBeInTheDocument();
+    expect(getNodes).not.toHaveBeenCalled();
+  });
+
+  it('creates a node with a single active PLAIN interface', async () => {
+    renderForm();
+    fillCreateForm();
+    submit();
+
+    await waitFor(() =>
+      expect(createNode).toHaveBeenCalledWith({
+        name: 'gui04',
+        type: 'Satellite',
         net_interfaces: [
           {
             name: 'default',
-            address: '192.168.1.200',
+            address: '10.0.0.4',
             satellite_port: 3366,
-            is_active: true,
             satellite_encryption_type: 'PLAIN',
+            is_active: true,
           },
         ],
-      };
+      }),
+    );
+    await waitFor(() => expect(hoisted.navigate).toHaveBeenCalledWith(-1));
+  });
 
-      await mockCreateNode(testNodeData);
-      expect(mockCreateNode).toHaveBeenCalledWith(testNodeData);
-    });
+  it('sends the node type that was picked', async () => {
+    const { container } = renderForm();
+    fillCreateForm();
 
-    it('should call getNodes to fetch existing nodes', async () => {
-      await mockGetNodes();
-      expect(mockGetNodes).toHaveBeenCalled();
-    });
+    fireEvent.mouseDown(container.querySelector('.ant-select-selector') as HTMLElement);
+    fireEvent.click(await screen.findByTitle('Combined'));
+    submit();
 
-    it('should call updateNode for editing existing node', async () => {
-      const updateData = {
-        node: 'test-node',
-        body: {
-          type: 'controller',
-        },
-      };
+    await waitFor(() => expect(createNode).toHaveBeenCalledWith(expect.objectContaining({ type: 'Combined' })));
+  });
 
-      await mockUpdateNode(updateData);
-      expect(mockUpdateNode).toHaveBeenCalledWith(updateData);
-    });
+  it('refuses to submit without a name or an address', async () => {
+    renderForm();
+    submit();
 
-    it('should call updateNetwork for network interface updates', async () => {
-      const networkData = {
-        node: 'test-node',
+    expect(await screen.findByText('Node name is required!')).toBeInTheDocument();
+    expect(screen.getByText('IP address is required!')).toBeInTheDocument();
+    expect(createNode).not.toHaveBeenCalled();
+  });
+
+  it('refuses an address that is not an IP and a port outside the range', async () => {
+    renderForm();
+    fireEvent.change(field('^Name$'), { target: { value: 'gui04' } });
+    fireEvent.change(field('^IP$'), { target: { value: 'not-an-ip' } });
+    fireEvent.change(field('^Port$'), { target: { value: '70000' } });
+    submit();
+
+    expect(await screen.findByText('Please input valid IP address')).toBeInTheDocument();
+    expect(screen.getByText('Please input valid port, 0-65535')).toBeInTheDocument();
+    expect(createNode).not.toHaveBeenCalled();
+  });
+
+  it('goes back without creating anything on cancel', () => {
+    renderForm();
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(hoisted.navigate).toHaveBeenCalledWith(-1);
+    expect(createNode).not.toHaveBeenCalled();
+  });
+
+  it('loads the node under edit and locks its name', async () => {
+    hoisted.params.node = 'gui01';
+    renderForm(true);
+
+    await waitFor(() => expect(field('^Name$')).toHaveValue('gui01'));
+    expect(getNodes).toHaveBeenCalledWith({ nodes: ['gui01'] });
+    // Renaming a node is not something the controller supports.
+    expect(field('^Name$')).toBeDisabled();
+    expect(field('^IP$')).toHaveValue('10.0.0.1');
+    expect(field('^Port$')).toHaveValue(3366);
+    // The API answers SATELLITE; the select offers Satellite.
+    expect(screen.getByTitle('Satellite')).toBeInTheDocument();
+  });
+
+  it('updates the active interface and the node type together', async () => {
+    hoisted.params.node = 'gui01';
+    renderForm(true);
+    await waitFor(() => expect(field('^IP$')).toHaveValue('10.0.0.1'));
+
+    fireEvent.change(field('^IP$'), { target: { value: '10.0.0.9' } });
+    submit();
+
+    await waitFor(() =>
+      expect(updateNetwork).toHaveBeenCalledWith({
+        node: 'gui01',
+        // The inactive "backup" interface is left alone.
         netinterface: 'default',
         body: {
-          address: '192.168.1.201',
-          satellite_port: 3367,
+          name: 'default',
+          address: '10.0.0.9',
+          satellite_port: 3366,
+          is_active: true,
         },
-      };
-
-      await mockUpdateNetwork(networkData);
-      expect(mockUpdateNetwork).toHaveBeenCalledWith(networkData);
-    });
+      }),
+    );
+    expect(updateNode).toHaveBeenCalledWith({ node: 'gui01', body: { node_type: 'Satellite' } });
+    await waitFor(() => expect(hoisted.navigate).toHaveBeenCalledWith(-1));
+    expect(createNode).not.toHaveBeenCalled();
   });
 
-  describe('Data Processing', () => {
-    it('should process node data correctly', () => {
-      const node = mockNodeData.data[0];
-      expect(node.name).toBe('test-node');
-      expect(node.type).toBe('satellite');
-      expect(node.net_interfaces).toHaveLength(1);
-    });
+  it('stays on the form when the update is rejected', async () => {
+    hoisted.params.node = 'gui01';
+    vi.mocked(updateNode).mockResolvedValue(failed as never);
+    renderForm(true);
+    await waitFor(() => expect(field('^IP$')).toHaveValue('10.0.0.1'));
 
-    it('should handle network interface data', () => {
-      const node = mockNodeData.data[0];
-      const netInterface = node.net_interfaces[0];
+    submit();
 
-      expect(netInterface.name).toBe('default');
-      expect(netInterface.address).toBe('192.168.1.100');
-      expect(netInterface.satellite_port).toBe(3366);
-      expect(netInterface.is_active).toBe(true);
-      expect(netInterface.satellite_encryption_type).toBe('PLAIN');
-    });
-
-    it('should validate IP address format', () => {
-      const validIP = '192.168.1.100';
-      const invalidIP = '999.999.999.999';
-
-      // Simple IP validation logic
-      const isValidIP = (ip: string) => {
-        const parts = ip.split('.');
-        return (
-          parts.length === 4 &&
-          parts.every((part) => {
-            const num = parseInt(part, 10);
-            return num >= 0 && num <= 255;
-          })
-        );
-      };
-
-      expect(isValidIP(validIP)).toBe(true);
-      expect(isValidIP(invalidIP)).toBe(false);
-    });
-
-    it('should validate port numbers', () => {
-      const validPort = 3366;
-      const invalidPort = 70000;
-
-      const isValidPort = (port: number) => port >= 1 && port <= 65535;
-
-      expect(isValidPort(validPort)).toBe(true);
-      expect(isValidPort(invalidPort)).toBe(false);
-    });
+    await waitFor(() => expect(updateNode).toHaveBeenCalled());
+    expect(hoisted.navigate).not.toHaveBeenCalled();
   });
 
-  describe('Node Type Processing', () => {
-    it('should handle different node types', () => {
-      const nodeTypes = ['satellite', 'controller', 'combined'];
+  it('stays on the form when the interface update is rejected', async () => {
+    hoisted.params.node = 'gui01';
+    vi.mocked(updateNetwork).mockResolvedValue(failed as never);
+    renderForm(true);
+    await waitFor(() => expect(field('^IP$')).toHaveValue('10.0.0.1'));
 
-      nodeTypes.forEach((type) => {
-        const node = { ...mockNodeData.data[0], type };
-        expect(node.type).toBe(type);
-      });
-    });
+    submit();
 
-    it('should capitalize node type display names', () => {
-      vi.mocked(capitalize)('satellite');
-      expect(capitalize).toHaveBeenCalledWith('satellite');
-    });
-  });
-
-  describe('Form Validation Logic', () => {
-    it('should validate required fields', () => {
-      const formData = {
-        name: '',
-        type: 'satellite',
-        default_ip: '192.168.1.100',
-        default_port: 3366,
-      };
-
-      const hasRequiredFields = !!(formData.name && formData.type && formData.default_ip && formData.default_port);
-      expect(hasRequiredFields).toBe(false);
-
-      formData.name = 'test-node';
-      const hasAllFields = !!(formData.name && formData.type && formData.default_ip && formData.default_port);
-      expect(hasAllFields).toBe(true);
-    });
-
-    it('should prepare form data for submission', () => {
-      const formValues = {
-        name: 'new-node',
-        type: 'satellite',
-        default_ip: '192.168.1.200',
-        default_port: 3366,
-        encryption_type: 'PLAIN',
-      };
-
-      const submissionData = {
-        name: formValues.name,
-        type: formValues.type.toUpperCase(),
-        net_interfaces: [
-          {
-            name: 'default',
-            address: formValues.default_ip,
-            satellite_port: formValues.default_port,
-            is_active: true,
-            satellite_encryption_type: formValues.encryption_type,
-          },
-        ],
-      };
-
-      expect(submissionData.name).toBe('new-node');
-      expect(submissionData.type).toBe('SATELLITE');
-      expect(submissionData.net_interfaces[0].address).toBe('192.168.1.200');
-    });
-  });
-
-  describe('Edit Mode Logic', () => {
-    it('should determine edit mode based on params', () => {
-      // Test create mode
-      const createModeParams = {
-        node: null,
-      };
-      const isCreateMode = !createModeParams.node;
-      expect(isCreateMode).toBe(true);
-
-      // Test edit mode
-      const editModeParams = { node: 'test-node' };
-      const isEditMode = !!editModeParams.node;
-      expect(isEditMode).toBe(true);
-    });
-
-    it('should populate form with existing node data in edit mode', () => {
-      const existingNode = mockNodeData.data[0];
-      const initialValues = {
-        name: existingNode.name,
-        type: existingNode.type,
-        default_ip: existingNode.net_interfaces[0].address,
-        default_port: existingNode.net_interfaces[0].satellite_port,
-        encryption_type: existingNode.net_interfaces[0].satellite_encryption_type,
-      };
-
-      expect(initialValues.name).toBe('test-node');
-      expect(initialValues.type).toBe('satellite');
-      expect(initialValues.default_ip).toBe('192.168.1.100');
-      expect(initialValues.default_port).toBe(3366);
-      expect(initialValues.encryption_type).toBe('PLAIN');
-    });
-  });
-
-  describe('Success Handling', () => {
-    it('should handle successful node creation', () => {
-      const response = [{ ret_code: 0, message: 'Success' }];
-      fullySuccess(response);
-
-      expect(fullySuccess).toHaveBeenCalledWith(response);
-    });
-
-    it('should navigate after successful operation', () => {
-      // Test the navigation logic without calling React hooks
-      const mockNavigateFn = vi.fn();
-      mockNavigateFn(-1);
-      expect(mockNavigateFn).toHaveBeenCalledWith(-1);
-    });
-  });
-
-  describe('Mutation Operations', () => {
-    it('should setup create mutation correctly', async () => {
-      const testData = { name: 'test-node', type: 'satellite' };
-      await mockCreateNode(testData);
-      expect(mockCreateNode).toHaveBeenCalledWith(testData);
-    });
-
-    it('should setup update mutation correctly', async () => {
-      const testData = { node: 'test-node', body: { type: 'controller' } };
-      await mockUpdateNode(testData);
-      expect(mockUpdateNode).toHaveBeenCalledWith(testData);
-    });
+    await waitFor(() => expect(updateNetwork).toHaveBeenCalled());
+    expect(hoisted.navigate).not.toHaveBeenCalled();
   });
 });
