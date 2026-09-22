@@ -193,4 +193,104 @@ describe('Settings ControllerAuth tab', () => {
 
     expect(window.localStorage.getItem('LINSTOR_CONTROLLER_AUTH_TOKEN')).toBeNull();
   });
+
+  it('discards a token entered and then cancelled', async () => {
+    mockGet.mockResolvedValueOnce({ data: { 'Auth/TokenAuthenticationEnabled': 'true' } });
+    render(<ControllerAuth />);
+
+    const open = await screen.findByRole('button', { name: 'settings:controller_auth_enter_token' });
+    fireEvent.click(open);
+    fireEvent.change(screen.getByPlaceholderText('settings:controller_auth_token_placeholder'), {
+      target: { value: 'discarded-token' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'common:cancel' }));
+
+    await waitFor(() => {
+      expect((document.querySelector('.ant-modal-wrap') as HTMLElement).style.display).toBe('none');
+    });
+    expect(window.localStorage.getItem('LINSTOR_CONTROLLER_AUTH_TOKEN')).toBeNull();
+
+    // Reopening must not offer the discarded token back.
+    fireEvent.click(open);
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText('settings:controller_auth_token_placeholder')).toHaveValue('');
+    });
+  });
+
+  it('reports a failed initialization and keeps offering it', async () => {
+    mockGet.mockResolvedValueOnce({ data: {} });
+    mockPost.mockRejectedValueOnce(new Error('controller unreachable'));
+
+    render(<ControllerAuth />);
+    fireEvent.click(screen.getByRole('button', { name: 'settings:controller_auth_initialize' }));
+
+    await waitFor(() => expect(errorMessage).toHaveBeenCalledWith('controller unreachable'));
+    expect(screen.getByRole('button', { name: 'settings:controller_auth_initialize' })).toBeEnabled();
+    expect(window.localStorage.getItem('LINSTOR_CONTROLLER_AUTH_TOKEN')).toBeNull();
+  });
+
+  it('reports a failed disable and leaves the local token alone', async () => {
+    window.localStorage.setItem('LINSTOR_CONTROLLER_AUTH_TOKEN', 'existing-token');
+    mockGet.mockResolvedValueOnce({ data: { 'Auth/TokenAuthenticationEnabled': 'true' } });
+    mockPost.mockRejectedValueOnce(new Error('property is read-only'));
+
+    render(<ControllerAuth />);
+    fireEvent.click(await screen.findByRole('button', { name: 'settings:controller_auth_disable' }));
+    await waitFor(() => {
+      expect(screen.getAllByRole('button', { name: 'settings:controller_auth_disable' }).length).toBeGreaterThan(1);
+    });
+    const buttons = screen.getAllByRole('button', { name: 'settings:controller_auth_disable' });
+    fireEvent.click(buttons[buttons.length - 1]);
+
+    await waitFor(() => expect(errorMessage).toHaveBeenCalledWith('property is read-only'));
+    expect(window.localStorage.getItem('LINSTOR_CONTROLLER_AUTH_TOKEN')).toBe('existing-token');
+    expect(screen.getByText('settings:controller_auth_already_initialized')).toBeInTheDocument();
+  });
+
+  it('falls back to offering initialization when the properties probe fails', async () => {
+    mockGet.mockRejectedValueOnce(new Error('404'));
+
+    render(<ControllerAuth />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'settings:controller_auth_initialize' })).toBeInTheDocument();
+    });
+    expect(screen.queryByText('settings:controller_auth_already_initialized')).not.toBeInTheDocument();
+  });
+
+  it('hands the fresh token to the HTTPS origin through the URL', async () => {
+    const assign = vi.fn();
+    vi.spyOn(window, 'location', 'get').mockReturnValue({
+      ...window.location,
+      assign,
+    } as unknown as Location);
+
+    mockGet.mockResolvedValueOnce({ data: {} });
+    mockPost.mockResolvedValueOnce({ data: [{ obj_refs: { token: 'init-token' } }] });
+
+    render(<ControllerAuth />);
+    fireEvent.click(screen.getByRole('button', { name: 'settings:controller_auth_initialize' }));
+    await waitFor(() => expect(successMessage).toHaveBeenCalled());
+
+    fireEvent.click(screen.getByRole('button', { name: 'settings:controller_auth_open_https' }));
+
+    // localStorage is origin-scoped, so the token travels in the query string.
+    expect(assign).toHaveBeenCalledWith('https://192.168.123.200:3371/ui/#/?ctoken=init-token');
+  });
+
+  it('stays on the HTTP page when asked to', async () => {
+    mockGet.mockResolvedValueOnce({ data: {} });
+    mockPost.mockResolvedValueOnce({ data: [{ obj_refs: { token: 'init-token' } }] });
+
+    render(<ControllerAuth />);
+    fireEvent.click(screen.getByRole('button', { name: 'settings:controller_auth_initialize' }));
+    await waitFor(() => expect(successMessage).toHaveBeenCalled());
+
+    fireEvent.click(screen.getByRole('button', { name: 'settings:controller_auth_stay_here' }));
+
+    // A closed antd modal stays in the DOM, hidden.
+    await waitFor(() => {
+      expect((document.querySelector('.ant-modal-wrap') as HTMLElement).style.display).toBe('none');
+    });
+  });
 });

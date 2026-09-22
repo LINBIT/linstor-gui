@@ -371,7 +371,9 @@ const Dashboard: React.FC = () => {
                 label={t('settings:dashboard_url')}
                 name="dashboardUrl"
                 rules={[{ required: true, message: t('settings:please_enter_dashboard_url') }]}
-                help={t('settings:dashboard_url_help')}
+                // `help` would replace the "required" message, so the hint goes
+                // in `extra`, which renders alongside it.
+                extra={t('settings:dashboard_url_help')}
               >
                 <Input
                   placeholder="http://192.168.123.117:3000/d/rYdddlPWk/node-exporter-full?orgId=1&refresh=1m"
@@ -464,7 +466,8 @@ const Dashboard: React.FC = () => {
                     label={t('settings:drbd_dashboard_url')}
                     name="drbdUrl"
                     rules={[{ required: true, message: t('settings:please_enter_drbd_dashboard_url') }]}
-                    help={t('settings:drbd_url_help')}
+                    // Same as above: `help` would hide the "required" message.
+                    extra={t('settings:drbd_url_help')}
                   >
                     <Input
                       placeholder="http://192.168.123.117:3000/d/f_tZtVlMz/drbd?orgId=1&refresh=30s"

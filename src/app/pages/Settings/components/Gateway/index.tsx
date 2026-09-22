@@ -191,7 +191,10 @@ const Gateway: React.FC = () => {
                       },
                     },
                   ]}
-                  help={
+                  // `help` would replace the validator's message, so the hint
+                  // about the default host goes in `extra`, which renders
+                  // alongside it.
+                  extra={
                     customHost ? (
                       <div style={{ marginTop: '1em', marginBottom: '1em' }}>
                         {t('settings:default')}: {OriginHost}
