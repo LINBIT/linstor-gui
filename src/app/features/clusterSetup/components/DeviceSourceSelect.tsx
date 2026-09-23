@@ -15,6 +15,8 @@ import { formatBytes } from '@app/utils/size';
 export type DeviceSourceMode = 'new-device' | 'existing';
 
 interface Props {
+  /** Passed down by Form.Item; forwarded so the field's label points at the control. */
+  id?: string;
   mode: DeviceSourceMode;
   node?: string;
   value?: string;
@@ -22,7 +24,7 @@ interface Props {
   placeholder?: string;
 }
 
-export const DeviceSourceSelect: React.FC<Props> = ({ mode, node, value, onChange, placeholder }) => {
+export const DeviceSourceSelect: React.FC<Props> = ({ id, mode, node, value, onChange, placeholder }) => {
   const { data } = useQuery({
     queryKey: ['physicalStorage', node],
     queryFn: () => getPhysicalStoragePoolByNode({ node: node! }),
@@ -44,6 +46,7 @@ export const DeviceSourceSelect: React.FC<Props> = ({ mode, node, value, onChang
       });
     return (
       <Select
+        id={id}
         allowClear
         placeholder={placeholder ?? 'Select a block device'}
         options={options}
@@ -61,6 +64,7 @@ export const DeviceSourceSelect: React.FC<Props> = ({ mode, node, value, onChang
   // dropdown rather than a chip-style tags Select.
   return (
     <AutoComplete
+      id={id}
       value={value}
       onChange={(v?: string) => onChange?.(v ?? '')}
       placeholder={placeholder ?? 'VG / thin pool (e.g. vg1/pool1)'}

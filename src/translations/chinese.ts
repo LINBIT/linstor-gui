@@ -377,6 +377,7 @@ const zh = {
     partial_pool_success: '{{ok}} / {{total}} 个存储池创建成功。',
     pools_created: '已创建 {{count}} 个存储池。',
     all_done: '集群初始化完成',
+    finished_with_errors: '集群初始化已完成，但有部分失败',
     done_description: '节点和存储池都已注册，现在可以去其它页面创建资源、管理复制了。',
     dismiss: '忽略',
     step_resource_group: '资源组',

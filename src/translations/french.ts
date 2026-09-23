@@ -1176,6 +1176,7 @@ org_role = Viewer`,
     partial_pool_success: '{{ok}} pools de stockage sur {{total}} créés.',
     pools_created: '{{count}} pool(s) de stockage créé(s).',
     all_done: 'Cluster configuré avec succès',
+    finished_with_errors: 'Configuration du cluster terminée avec des erreurs',
     done_description:
       "Vos nœuds et pools de stockage sont enregistrés. Vous pouvez désormais créer des ressources et gérer la réplication depuis le reste de l'interface.",
     dismiss: 'Masquer',

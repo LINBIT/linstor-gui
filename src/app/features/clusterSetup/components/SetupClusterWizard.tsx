@@ -75,6 +75,25 @@ const errMsg = (err: unknown): string => {
   return (err as Error)?.message ?? String(err);
 };
 
+type ApiCallRcEntry = { ret_code?: number; message?: string };
+
+/**
+ * Why a controller call failed, or undefined when it did not. openapi-fetch
+ * never throws on an HTTP error: it resolves with the body in `error` and no
+ * `data`, so a rejected request looks like a quiet success unless `error` is
+ * checked. A 2xx answer can still carry a negative ret_code.
+ */
+const apiFailure = (res: unknown): string | undefined => {
+  const { data, error } = (res ?? {}) as { data?: unknown; error?: unknown };
+  const entries = [data, error].filter(Array.isArray).flat() as ApiCallRcEntry[];
+  const failed = entries.find((entry) => (entry?.ret_code ?? 0) < 0);
+  if (failed) return failed.message || 'Failed';
+  if (error !== undefined) {
+    return typeof error === 'string' ? error : (error as { message?: string })?.message || 'Operation failed';
+  }
+  return undefined;
+};
+
 export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = ({ open, onClose, onCompleted }) => {
   const { t } = useTranslation(['clusterSetup', 'common']);
   const [nodeForm] = Form.useForm<{ nodes: NodeRow[] }>();
@@ -212,17 +231,10 @@ export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = ({ open, on
             },
           ],
         });
-        const data = (res as unknown as { data?: Array<{ ret_code?: number; message?: string }> }).data;
-        const failed = Array.isArray(data) && data.some((entry) => (entry?.ret_code ?? 0) < 0);
-        if (failed) {
-          nOutcomes.push({
-            name: row.name,
-            status: 'error',
-            message: data!.find((e) => (e?.ret_code ?? 0) < 0)?.message ?? 'Failed',
-          });
-        } else {
-          nOutcomes.push({ name: row.name, status: 'success' });
-        }
+        const failure = apiFailure(res);
+        nOutcomes.push(
+          failure ? { name: row.name, status: 'error', message: failure } : { name: row.name, status: 'success' },
+        );
       } catch (err) {
         nOutcomes.push({ name: row.name, status: 'error', message: errMsg(err) });
       }
@@ -243,9 +255,10 @@ export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = ({ open, on
         continue;
       }
       try {
+        let res: unknown;
         if (poolMode === 'new-device') {
           // The schema marks raid_level and external_locking required; the controller defaults them.
-          await createPhysicalStorage(row.node, {
+          res = await createPhysicalStorage(row.node, {
             provider_kind: row.provider_kind,
             device_paths: [row.source.trim()],
             pool_name: row.name.trim(),
@@ -262,9 +275,14 @@ export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = ({ open, on
           } else if (row.provider_kind === 'ZFS' || row.provider_kind === 'ZFS_THIN') {
             body.props = { 'StorDriver/ZPool': row.source.trim() };
           }
-          await createStoragePool(row.node, body as never);
+          res = await createStoragePool(row.node, body as never);
         }
-        pOutcomes.push({ node: row.node, pool: row.name, status: 'success' });
+        const failure = apiFailure(res);
+        pOutcomes.push(
+          failure
+            ? { node: row.node, pool: row.name, status: 'error', message: failure }
+            : { node: row.node, pool: row.name, status: 'success' },
+        );
       } catch (err) {
         pOutcomes.push({ node: row.node, pool: row.name, status: 'error', message: errMsg(err) });
       }
@@ -273,14 +291,18 @@ export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = ({ open, on
 
     if (rgPlan) {
       try {
-        await createResourceGroup({ name: rgPlan.name, select_filter: rgPlan.select_filter } as never);
+        let failure = apiFailure(
+          await createResourceGroup({ name: rgPlan.name, select_filter: rgPlan.select_filter } as never),
+        );
         // The resource-group create endpoint ignores `props` in its body, so
         // the DRBD options (preset or custom) must be applied via a follow-up
-        // modify with `override_props`.
-        if (Object.keys(rgPlan.props).length > 0) {
-          await updateResourceGroup(rgPlan.name, { override_props: rgPlan.props } as never);
+        // modify with `override_props` — once the group exists.
+        if (!failure && Object.keys(rgPlan.props).length > 0) {
+          failure = apiFailure(await updateResourceGroup(rgPlan.name, { override_props: rgPlan.props } as never));
         }
-        setRgOutcome({ name: rgPlan.name, status: 'created' });
+        setRgOutcome(
+          failure ? { name: rgPlan.name, status: 'error', message: failure } : { name: rgPlan.name, status: 'created' },
+        );
       } catch (err) {
         setRgOutcome({ name: rgPlan.name, status: 'error', message: errMsg(err) });
       }
@@ -292,6 +314,11 @@ export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = ({ open, on
     // the per-item outcomes (especially partial failures) before the Dashboard
     // refetches and dismisses the wizard.
   };
+
+  const anyFailed =
+    nodeOutcomes.some((o) => o.status === 'error') ||
+    poolOutcomes.some((o) => o.status !== 'success') ||
+    rgOutcome?.status === 'error';
 
   // Close after a create run: let the Dashboard re-check the cluster (which
   // hides the setup card) only once the user dismisses the outcome summary.
@@ -553,8 +580,14 @@ export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = ({ open, on
 
       {step === 3 && created && (
         <div style={{ padding: '8px 0' }}>
-          <Typography.Title level={4}>{t('clusterSetup:all_done')}</Typography.Title>
-          <Typography.Paragraph type="secondary">{t('clusterSetup:done_description')}</Typography.Paragraph>
+          {anyFailed ? (
+            <Typography.Title level={4}>{t('clusterSetup:finished_with_errors')}</Typography.Title>
+          ) : (
+            <>
+              <Typography.Title level={4}>{t('clusterSetup:all_done')}</Typography.Title>
+              <Typography.Paragraph type="secondary">{t('clusterSetup:done_description')}</Typography.Paragraph>
+            </>
+          )}
           {nodeOutcomes.length > 0 && (
             <div style={{ marginTop: 12 }}>
               <Typography.Text strong>{t('clusterSetup:step_nodes')}</Typography.Text>

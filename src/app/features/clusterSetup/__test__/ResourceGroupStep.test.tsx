@@ -72,4 +72,41 @@ describe('ResourceGroupStep', () => {
     render(<ResourceGroupStep ref={ref} nodeCount={3} />);
     await expect(ref.current!.validateAndGet()).rejects.toBeTruthy();
   });
+
+  it('collects hand-edited property rows and drops blank keys', async () => {
+    const ref = React.createRef<ResourceGroupStepHandle>();
+    render(<ResourceGroupStep ref={ref} nodeCount={3} />);
+    fireEvent.change(screen.getByLabelText(/Resource group name/i), { target: { value: 'custom' } });
+
+    fireEvent.click(screen.getByRole('button', { name: /Add property/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Add property/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Add property/ }));
+    const keys = screen.getAllByPlaceholderText('Property');
+    const values = screen.getAllByPlaceholderText('Value');
+    fireEvent.change(keys[0], { target: { value: ' DrbdOptions/Net/protocol ' } });
+    fireEvent.change(values[0], { target: { value: ' C ' } });
+    fireEvent.change(keys[1], { target: { value: 'Aux/doomed' } });
+    // The third row is left without a key and must not reach the controller.
+    fireEvent.change(values[2], { target: { value: 'orphan' } });
+
+    // Remove the second row.
+    fireEvent.click(screen.getAllByRole('button', { name: /Delete/ })[1]);
+    expect(screen.getAllByPlaceholderText('Property')).toHaveLength(2);
+
+    const plan = await ref.current!.validateAndGet();
+    expect(plan).toEqual({
+      name: 'custom',
+      select_filter: { place_count: 2 },
+      props: { 'DrbdOptions/Net/protocol': 'C' },
+    });
+  });
+
+  it('sends no place count when the field is cleared', async () => {
+    const ref = React.createRef<ResourceGroupStepHandle>();
+    render(<ResourceGroupStep ref={ref} nodeCount={3} />);
+    fireEvent.change(screen.getByLabelText(/Resource group name/i), { target: { value: 'rg' } });
+    fireEvent.change(screen.getByLabelText(/Place count/i), { target: { value: '' } });
+
+    await waitFor(async () => expect((await ref.current!.validateAndGet()).select_filter).toEqual({}));
+  });
 });

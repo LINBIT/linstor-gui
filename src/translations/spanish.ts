@@ -1170,6 +1170,7 @@ org_role = Viewer`,
     partial_pool_success: 'Se crearon {{ok}} de {{total}} pools de almacenamiento.',
     pools_created: '{{count}} pool(s) de almacenamiento creado(s).',
     all_done: 'Clúster configurado correctamente',
+    finished_with_errors: 'Configuración del clúster finalizada con errores',
     done_description:
       'Sus nodos y pools de almacenamiento están registrados. Ya puede crear recursos y gestionar la replicación desde el resto de la interfaz.',
     dismiss: 'Descartar',

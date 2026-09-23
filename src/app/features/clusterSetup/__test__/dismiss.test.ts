@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { CLUSTER_SETUP_DISMISSED_KEY, getDismissed, setDismissed } from '../dismiss';
 
@@ -26,5 +26,21 @@ describe('clusterSetup dismiss helpers', () => {
     setDismissed(false);
     expect(window.localStorage.getItem(CLUSTER_SETUP_DISMISSED_KEY)).toBeNull();
     expect(getDismissed()).toBe(false);
+  });
+
+  it('treats unavailable storage as not dismissed, and ignores writes to it', () => {
+    // Some privacy modes throw on any localStorage access.
+    const get = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('SecurityError');
+    });
+    const set = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('SecurityError');
+    });
+
+    expect(getDismissed()).toBe(false);
+    expect(() => setDismissed(true)).not.toThrow();
+
+    get.mockRestore();
+    set.mockRestore();
   });
 });

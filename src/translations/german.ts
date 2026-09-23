@@ -1182,6 +1182,7 @@ org_role = Viewer`,
     partial_pool_success: '{{ok}} von {{total}} Speicherpools erstellt.',
     pools_created: '{{count}} Speicherpool(s) erstellt.',
     all_done: 'Cluster erfolgreich eingerichtet',
+    finished_with_errors: 'Cluster-Einrichtung mit Fehlern abgeschlossen',
     done_description:
       'Ihre Knoten und Speicherpools sind registriert. Sie können nun im restlichen GUI Ressourcen anlegen und die Replikation verwalten.',
     dismiss: 'Ausblenden',

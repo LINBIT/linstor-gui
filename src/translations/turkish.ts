@@ -1164,6 +1164,7 @@ org_role = Viewer`,
     partial_pool_success: '{{total}} depolama havuzunun {{ok}} tanesi oluşturuldu.',
     pools_created: '{{count}} depolama havuzu oluşturuldu.',
     all_done: 'Küme başarıyla kuruldu',
+    finished_with_errors: 'Küme kurulumu hatalarla tamamlandı',
     done_description:
       'Düğümleriniz ve depolama havuzlarınız kaydedildi. Artık arayüzün geri kalanından kaynak oluşturabilir ve çoğaltmayı yönetebilirsiniz.',
     dismiss: 'Kapat',

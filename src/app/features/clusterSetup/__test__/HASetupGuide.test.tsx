@@ -134,4 +134,15 @@ describe('HASetupGuide', () => {
     openGuide();
     expect(screen.getByText(/must be one of the candidates/i)).toBeInTheDocument();
   });
+
+  it('says so when the browser refuses the clipboard', async () => {
+    // Plain HTTP pages have no clipboard access in most browsers.
+    vi.mocked(navigator.clipboard.writeText).mockRejectedValue(new DOMException('denied'));
+    renderGuide({ nodes: ['n1', 'n2', 'n3'] });
+    openGuide();
+
+    fireEvent.click(screen.getByRole('button', { name: /Copy command/i }));
+
+    expect(await screen.findByText('Copy failed — select the command text and copy it manually')).toBeInTheDocument();
+  });
 });

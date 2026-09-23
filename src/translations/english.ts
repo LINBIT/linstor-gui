@@ -339,6 +339,7 @@ const en = {
     partial_pool_success: '{{ok}} of {{total}} storage pools created.',
     pools_created: '{{count}} storage pool(s) created.',
     all_done: 'Cluster set up successfully',
+    finished_with_errors: 'Cluster setup finished with errors',
     done_description:
       'Your nodes and storage pools are registered. You can now create resources and manage replication from the rest of the GUI.',
     dismiss: 'Dismiss',

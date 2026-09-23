@@ -1161,6 +1161,7 @@ org_role = Viewer`,
     partial_pool_success: '{{total}} 個中 {{ok}} 個のストレージプールを作成しました。',
     pools_created: '{{count}} 個のストレージプールを作成しました。',
     all_done: 'クラスターの設定が完了しました',
+    finished_with_errors: 'クラスターの設定は完了しましたが、一部でエラーが発生しました',
     done_description:
       'ノードとストレージプールが登録されました。以降は GUI の他の画面からリソースの作成やレプリケーションの管理が行えます。',
     dismiss: '閉じる',
