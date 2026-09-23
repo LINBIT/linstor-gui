@@ -187,4 +187,15 @@ describe('SpawnForm', () => {
     await expectModalClosed();
     expect(spawnResourceGroup).not.toHaveBeenCalled();
   });
+
+  it('opens from its dropdown entry and closes from the dialog corner', async () => {
+    renderSpawn({ resource_group: 'rg-a', isInDropdown: true });
+
+    fireEvent.click(screen.getByText('Spawn'));
+    await screen.findByPlaceholderText('Please input resource name');
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+
+    await expectModalClosed();
+    expect(spawnResourceGroup).not.toHaveBeenCalled();
+  });
 });

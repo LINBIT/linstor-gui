@@ -62,4 +62,15 @@ describe('SpawnForm', () => {
     await expectModalClosed();
     expect(autoPlace).not.toHaveBeenCalled();
   });
+
+  it('closes from the dialog corner as well', async () => {
+    renderWithClient(<SpawnForm resource="rd1" />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Spawn' }));
+    const dialog = await screen.findByRole('dialog');
+    fireEvent.click(within(dialog.closest('.ant-modal') as HTMLElement).getByRole('button', { name: 'Close' }));
+
+    await expectModalClosed();
+    expect(autoPlace).not.toHaveBeenCalled();
+  });
 });

@@ -192,4 +192,59 @@ describe('resourceDefinition CreateForm', () => {
     expect(createResourceDefinition).not.toHaveBeenCalled();
     await waitFor(() => expect(hoisted.navigate).toHaveBeenCalledWith(-1));
   });
+
+  it('stays on the edit form when the controller rejects the change', async () => {
+    vi.mocked(updateResourceDefinition).mockResolvedValue(failed as never);
+    renderWithClient(<CreateForm isEdit initialValues={{ name: 'rd1', resource_group_name: 'rg1' }} />);
+
+    submit();
+
+    await waitFor(() => expect(updateResourceDefinition).toHaveBeenCalled());
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(hoisted.navigate).not.toHaveBeenCalled();
+  });
+
+  it('stays on the edit form when the request itself fails', async () => {
+    vi.mocked(updateResourceDefinition).mockRejectedValue(new Error('Failed to fetch'));
+    renderWithClient(<CreateForm isEdit initialValues={{ name: 'rd1', resource_group_name: 'rg1' }} />);
+
+    submit();
+
+    await waitFor(() => expect(updateResourceDefinition).toHaveBeenCalled());
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(hoisted.navigate).not.toHaveBeenCalled();
+  });
+
+  it('leaves the page when the controller answers the placement with an error', async () => {
+    // The definition and its volume exist by then; the error toast comes from
+    // the request layer, and the new definition is on the list to retry from.
+    vi.mocked(autoPlace).mockResolvedValue(failed as never);
+    renderWithClient(<CreateForm />);
+
+    fireEvent.change(nameInput(), { target: { value: 'rd9' } });
+    fireEvent.click(screen.getByRole('switch'));
+    fireEvent.change(screen.getByPlaceholderText('Please input size'), { target: { value: '1' } });
+    submit();
+
+    await waitFor(() => expect(autoPlace).toHaveBeenCalled());
+    await waitFor(() => expect(hoisted.navigate).toHaveBeenCalledWith(-1));
+  });
+
+  it('places without a volume when the size is zero', async () => {
+    renderWithClient(<CreateForm />);
+
+    fireEvent.change(nameInput(), { target: { value: 'rd9' } });
+    fireEvent.click(screen.getByRole('switch'));
+    fireEvent.change(screen.getByPlaceholderText('Please input size'), { target: { value: '0' } });
+    submit();
+
+    await waitFor(() =>
+      expect(autoPlace).toHaveBeenCalledWith('rd9', {
+        diskless_on_remaining: undefined,
+        select_filter: { place_count: 2 },
+      }),
+    );
+    expect(createVolumeDefinition).not.toHaveBeenCalled();
+    await waitFor(() => expect(hoisted.navigate).toHaveBeenCalledWith(-1));
+  });
 });

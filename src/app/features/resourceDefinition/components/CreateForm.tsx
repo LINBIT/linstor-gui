@@ -117,7 +117,9 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
           resource_group: values.resource_group_name,
         });
 
-        if (res.data) {
+        // A 2xx answer can still carry a negative ret_code; only leave the
+        // page when the controller accepted every part of the change.
+        if (fullySuccess(res.data)) {
           backToList();
         }
       } catch (error) {

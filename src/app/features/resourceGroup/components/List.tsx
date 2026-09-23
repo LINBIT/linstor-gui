@@ -265,11 +265,14 @@ export const List = () => {
           const displayKey = key;
 
           if (key === 'storage_pool_list' && Array.isArray(value) && value.length > 0) {
-            const storagePoolsParam = value.join(',');
+            // One storage_pools param per pool: the controller does not split a
+            // comma-joined value, so "a,b" matched no pool and the link opened
+            // an empty list.
+            const storagePoolsParam = new URLSearchParams(value.map((pool) => ['storage_pools', String(pool)]));
             const url =
               mode === UIMode.HCI
-                ? `/hci/inventory/storage-pools?storage_pools=${storagePoolsParam}`
-                : `/inventory/storage-pools?storage_pools=${storagePoolsParam}`;
+                ? `/hci/inventory/storage-pools?${storagePoolsParam}`
+                : `/inventory/storage-pools?${storagePoolsParam}`;
 
             return (
               <div key={index}>
@@ -500,7 +503,9 @@ export const List = () => {
           total: stats?.data?.count ?? 0,
           showSizeChanger: true,
           showTotal: (total) => t('common:total_items', { total }),
-          defaultCurrent: (query?.offset ?? 0) + 1,
+          // offset counts items, not pages; same shape as the node and storage
+          // pool lists.
+          current: Math.floor((query?.offset ?? 0) / (query?.limit ?? 10)) + 1,
           pageSize: query?.limit,
           onChange(page, pageSize) {
             setQuery({

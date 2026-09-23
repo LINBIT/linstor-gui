@@ -193,6 +193,26 @@ describe('storage pool List', () => {
     });
   });
 
+  it('keeps several pools from a link apart, as the controller needs them', async () => {
+    renderList('/inventory/storage-pools?storage_pools=pool-a&storage_pools=pool-b');
+    await screen.findByText('pool-lvm');
+
+    expect(getStoragePool).toHaveBeenCalledWith({ limit: 10, offset: 0, storage_pools: ['pool-a', 'pool-b'] });
+    expect(screen.getByPlaceholderText('Storage Pool Name')).toHaveValue('pool-a, pool-b');
+  });
+
+  it('searches the linked pools again, not their joined display text', async () => {
+    renderList('/inventory/storage-pools?storage_pools=pool-a&storage_pools=pool-b');
+    await screen.findByText('pool-lvm');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Search' }));
+
+    await waitFor(() =>
+      expect(navigate).toHaveBeenCalledWith('/inventory/storage-pools?storage_pools=pool-a&storage_pools=pool-b'),
+    );
+    expect(getStoragePool).not.toHaveBeenCalledWith(expect.objectContaining({ storage_pools: 'pool-a, pool-b' }));
+  });
+
   it('reset clears the query and returns to the list route', async () => {
     renderList('/inventory/storage-pools?nodes=node-1');
     await screen.findByText('pool-lvm');

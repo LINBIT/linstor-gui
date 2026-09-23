@@ -137,7 +137,9 @@ describe('resource group List', () => {
     const row = (await screen.findByText('rg-alpha')).closest('tr') as HTMLElement;
 
     const poolLink = within(row).getByText('pool-a, pool-b').closest('a');
-    expect(poolLink).toHaveAttribute('href', '/inventory/storage-pools?storage_pools=pool-a,pool-b');
+    // One param per pool: the controller matches each value as a whole name, so
+    // a comma-joined "pool-a,pool-b" found nothing.
+    expect(poolLink).toHaveAttribute('href', '/inventory/storage-pools?storage_pools=pool-a&storage_pools=pool-b');
     expect(within(row).getByText(/layer_stack:/)).toHaveTextContent('layer_stack: DRBD, STORAGE');
     // place_count has its own column; empty arrays and strings are noise.
     expect(within(row).queryByText(/place_count:/)).not.toBeInTheDocument();
@@ -262,6 +264,96 @@ describe('resource group List', () => {
         override_props: { 'DrbdOptions/Net/protocol': 'C', 'Aux/team': 'storage' },
       }),
     );
+  });
+
+  it('explains each DRBD option in its tooltip, in the terms of its type', async () => {
+    vi.mocked(getResourceGroups).mockResolvedValue({
+      data: [
+        {
+          name: 'rg-drbd',
+          select_filter: { place_count: 3 },
+          props: {
+            'DrbdOptions/Disk/disk-barrier': 'no',
+            'DrbdOptions/Disk/on-io-error': 'detach',
+            'DrbdOptions/Disk/al-extents': '6007',
+            'Aux/team': 'storage',
+          },
+        },
+      ],
+    } as never);
+    renderList();
+    await screen.findByText('rg-drbd');
+
+    const tooltipFor = async (tag: string) => {
+      fireEvent.mouseEnter(screen.getByText(tag));
+      return waitFor(() => {
+        const shown = Array.from(document.querySelectorAll('.ant-tooltip:not(.ant-tooltip-hidden)')).find((el) =>
+          el.textContent?.startsWith(tag),
+        );
+        expect(shown).toBeDefined();
+        return shown?.textContent ?? '';
+      });
+    };
+
+    expect(await tooltipFor('DrbdOptions/Disk/disk-barrier: no')).toContain('Type: boolean, Default: false');
+    expect(await tooltipFor('DrbdOptions/Disk/on-io-error: detach')).toContain(
+      'Possible values: pass_on, call-local-io-error, detach',
+    );
+    expect(await tooltipFor('DrbdOptions/Disk/al-extents: 6007')).toContain('Range: 67 ~ 65534, Default: 1237');
+    // Not a DRBD option: the tooltip only repeats the pair.
+    expect(await tooltipFor('Aux/team: storage')).toBe('Aux/team: storage');
+  });
+
+  it('flattens list and object values in the filter and the properties', async () => {
+    vi.mocked(getResourceGroups).mockResolvedValue({
+      data: [
+        {
+          name: 'rg-shapes',
+          select_filter: {
+            place_count: 2,
+            replicas_on_same: ['Aux/site'],
+            x_custom: { zone: 'a' },
+            diskless_on_remaining: false,
+          },
+          props: { 'Aux/list': ['a', 'b'], 'Aux/obj': { k: 1 } } as never,
+        },
+      ],
+    } as never);
+    renderList();
+    const row = (await screen.findByText('rg-shapes')).closest('tr') as HTMLElement;
+
+    expect(row).toHaveTextContent('replicas_on_same: Aux/site');
+    expect(row).toHaveTextContent('x_custom: {"zone":"a"}');
+    expect(row).toHaveTextContent('diskless_on_remaining: false');
+    expect(within(row).getByText('Aux/list: a, b')).toBeInTheDocument();
+    expect(within(row).getByText('Aux/obj: {"k":1}')).toBeInTheDocument();
+  });
+
+  it('sorts by name', async () => {
+    renderList();
+    await screen.findByText('rg-alpha');
+    const names = () =>
+      Array.from(document.querySelectorAll('.ant-table-tbody tr.ant-table-row')).map(
+        (tr) => tr.querySelector('td:nth-child(2)')?.textContent,
+      );
+
+    fireEvent.click(document.querySelector('th.ant-table-column-has-sorters') as HTMLElement);
+    await waitFor(() => expect(names()).toEqual(['rg-alpha', 'rg-beta']));
+    fireEvent.click(document.querySelector('th.ant-table-column-has-sorters') as HTMLElement);
+    await waitFor(() => expect(names()).toEqual(['rg-beta', 'rg-alpha']));
+  });
+
+  it('turns a page into an offset and keeps the pager on that page', async () => {
+    renderList();
+    await screen.findByText('rg-alpha');
+
+    fireEvent.click(screen.getByRole('listitem', { name: '3' }));
+
+    await waitFor(() =>
+      expect(getResourceGroups).toHaveBeenLastCalledWith({ limit: 10, offset: 20, resource_groups: undefined }),
+    );
+    // offset counts items; the pager shows the page they fall on.
+    expect(document.querySelector('.ant-pagination-item-active')?.textContent).toBe('3');
   });
 
   it('shows an empty table when the api returns nothing', async () => {

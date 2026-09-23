@@ -78,4 +78,29 @@ describe('AddVolumeGroupForm', () => {
     expect(screen.getByText('Add Volume Group — rg-a')).toBeInTheDocument();
     expect(refetch).not.toHaveBeenCalled();
   });
+
+  it('opens from its dropdown entry and closes again on cancel', async () => {
+    renderForm({ isInDropdown: true });
+
+    fireEvent.click(screen.getByText('Add Volume Group'));
+    await screen.findByText('Add Volume Group — rg-a');
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    await waitFor(() => {
+      const wrap = document.querySelector('.ant-modal-wrap') as HTMLElement | null;
+      expect(!wrap || wrap.style.display === 'none').toBe(true);
+    });
+    expect(addVolumeToResourceGroup).not.toHaveBeenCalled();
+  });
+
+  it('closes from the dialog corner as well', async () => {
+    renderForm();
+    await open();
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+
+    await waitFor(() => {
+      const wrap = document.querySelector('.ant-modal-wrap') as HTMLElement | null;
+      expect(!wrap || wrap.style.display === 'none').toBe(true);
+    });
+  });
 });

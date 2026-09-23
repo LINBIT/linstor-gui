@@ -228,4 +228,33 @@ describe('resourceDefinition List', () => {
       }),
     );
   });
+
+  it('sorts by name and by resource group', async () => {
+    vi.mocked(getResourceDefinition).mockResolvedValue({
+      data: [
+        definitions[1],
+        definitions[0],
+        { ...definitions[0], uuid: 'u3', name: undefined, resource_group_name: undefined },
+      ],
+    } as never);
+    const { container } = renderWithClient(<List />, '/storage-configuration/resource-definitions');
+    await waitFor(() => expect(tableRows(container)).toHaveLength(3));
+
+    const column = (index: number) =>
+      tableRows(container)
+        .map((tr) => tr.querySelectorAll('td')[index]?.textContent ?? '')
+        .filter(Boolean);
+    const header = (title: string) =>
+      Array.from(container.querySelectorAll('th.ant-table-column-has-sorters')).find((th) =>
+        th.textContent?.includes(title),
+      ) as HTMLElement;
+
+    fireEvent.click(header('Name'));
+    await waitFor(() => expect(column(1).slice(0, 2)).toEqual(['rd1', 'rd2']));
+
+    fireEvent.click(header('Resource Group'));
+    // The definition without a group sorts first, as an empty name.
+    await waitFor(() => expect(column(2)).toEqual(['rg1', 'rg2']));
+    expect(tableRows(container)[0].querySelectorAll('td')[1]?.textContent).toBe('');
+  });
 });

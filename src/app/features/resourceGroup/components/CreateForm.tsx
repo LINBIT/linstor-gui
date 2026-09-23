@@ -36,6 +36,7 @@ import { LabelContainer, TooltipContainer, TooltipLabelContainer } from './style
 import { useTranslation } from 'react-i18next';
 import { Checkbox } from '@app/components/Checkbox';
 import { Switch } from '@app/components/Switch';
+import type { components } from '@app/apis/schema';
 
 type FormType = {
   name: string;
@@ -60,7 +61,19 @@ type FormType = {
 /**
  * options of layers
  */
-const layerList = ['cache', 'storage', 'drbd', 'nvme', 'luks', 'writechache', 'openflex', 'exos'];
+// Every layer the controller accepts (the schema's LayerType), lower-cased the
+// way the form sends them. Typed so a misspelt entry fails to compile: the list
+// used to offer "writechache", "openflex" and "exos", which the controller
+// rejects as invalid layer kinds, and to miss "bcache".
+const layerList: Lowercase<components['schemas']['LayerType']>[] = [
+  'cache',
+  'storage',
+  'drbd',
+  'nvme',
+  'luks',
+  'writecache',
+  'bcache',
+];
 /**
  * options of providers
  */

@@ -159,6 +159,69 @@ describe('resource group CreateForm', () => {
     expect(screen.queryByText('Replicas On Same')).not.toBeInTheDocument();
   });
 
+  const layerSelect = () => {
+    const item = Array.from(document.querySelectorAll('.ant-form-item')).find((el) =>
+      el.querySelector('label')?.textContent?.includes('LINSTOR Layers'),
+    ) as HTMLElement;
+    return item.querySelector('[role="combobox"]') as HTMLElement;
+  };
+
+  it('offers exactly the layers the controller accepts', async () => {
+    renderForm();
+    fireEvent.mouseDown(layerSelect());
+
+    const options = await screen.findAllByText(/./, { selector: '.ant-select-item-option-content' });
+    // "writechache", "openflex" and "exos" used to be offered; the controller
+    // rejects all three as invalid layer kinds. "bcache" was missing.
+    expect(options.map((o) => o.textContent).filter((t) => !t?.startsWith('pool-'))).toEqual([
+      'cache',
+      'storage',
+      'drbd',
+      'nvme',
+      'luks',
+      'writecache',
+      'bcache',
+    ]);
+  });
+
+  it('sends the writecache layer under the name the controller knows', async () => {
+    renderForm();
+    typeName('rg-wc');
+    fireEvent.mouseDown(layerSelect());
+    fireEvent.click(await screen.findByText('writecache', { selector: '.ant-select-item-option-content' }));
+    submit();
+
+    await waitFor(() => expect(createResourceGroup).toHaveBeenCalled());
+    expect(vi.mocked(createResourceGroup).mock.calls[0][0].select_filter?.layer_stack).toEqual(['writecache']);
+  });
+
+  it('reminds about the kernel module when DRBD joins the layer stack', async () => {
+    renderForm();
+    fireEvent.mouseDown(layerSelect());
+    fireEvent.click(await screen.findByText('drbd', { selector: '.ant-select-item-option-content' }));
+
+    expect(
+      await screen.findByText('Please make sure you have drbd-kmod installed on the nodes you wish to use DRBD on'),
+    ).toBeInTheDocument();
+  });
+
+  it('still goes back when spawning after the create fails outright', async () => {
+    // The group and its volume group exist by then; the list is where to retry.
+    vi.mocked(spawnResourceGroup).mockRejectedValue(new Error('Failed to fetch'));
+    renderForm();
+    typeName('rg-spawn');
+    fireEvent.click(screen.getByRole('switch'));
+    fireEvent.change(await screen.findByPlaceholderText('Please input resource definition group name'), {
+      target: { value: 'res-1' },
+    });
+    const [, size] = screen.getAllByRole('spinbutton');
+    fireEvent.change(size, { target: { value: '2' } });
+    submit();
+
+    await waitFor(() => expect(spawnResourceGroup).toHaveBeenCalled());
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith(-1));
+  });
+
   describe('edit mode', () => {
     const existing = {
       name: 'rg-edit',

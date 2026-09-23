@@ -129,4 +129,14 @@ describe('ResizeVolumeModal', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(updateVolumeDefinition).not.toHaveBeenCalled();
   });
+
+  it('shows an empty volume as zero KiB', async () => {
+    vi.mocked(getVolumeDefinitionListByResource).mockResolvedValue({
+      data: [{ volume_number: 0, size_kib: 0 }],
+    } as never);
+    renderModal();
+
+    await waitFor(() => expect(sizes().map((input) => input.value)).toEqual(['0']));
+    expect(units()).toEqual(['KiB']);
+  });
 });

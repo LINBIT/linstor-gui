@@ -53,11 +53,13 @@ export const List = () => {
       queryO['nodes'] = [nodes];
     }
 
-    const storage_pools = query.get('storage_pools');
+    // A link may name several pools (one param each); keep them apart, since
+    // the controller matches each value as a whole name.
+    const storage_pools = query.getAll('storage_pools').filter(Boolean);
 
-    if (storage_pools) {
-      form.setFieldValue('storage_pools', storage_pools);
-      queryO['storage_pools'] = [storage_pools];
+    if (storage_pools.length > 0) {
+      form.setFieldValue('storage_pools', storage_pools.join(', '));
+      queryO['storage_pools'] = storage_pools;
     }
 
     return {
@@ -164,9 +166,13 @@ export const List = () => {
       newQuery.nodes = values.nodes;
       queryS.set('nodes', values.nodes);
     }
-    if (values.storage_pools) {
+    if (values.storage_pools && values.storage_pools !== (query?.storage_pools ?? []).join(', ')) {
       newQuery.storage_pools = values.storage_pools;
       queryS.set('storage_pools', values.storage_pools);
+    } else if (values.storage_pools) {
+      // The field still shows the pools a link filtered on; search them again
+      // as they were rather than as one "a, b" name.
+      newQuery.storage_pools?.forEach((pool) => queryS.append('storage_pools', pool));
     }
 
     setQuery(newQuery);
