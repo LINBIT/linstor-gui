@@ -454,6 +454,40 @@ describe('OcfAgentEditor', () => {
       );
     });
 
+    it('loads OCF agents the outer form already holds, params given as a record', async () => {
+      const onAgentsChange = vi.fn();
+      const Seeded = () => {
+        const [form] = Form.useForm();
+        form.setFieldValue('ocf_agents', [
+          {
+            type: 'ocf',
+            provider: 'heartbeat',
+            agent_type: 'Filesystem',
+            instance_name: 'fs_data',
+            params: { device: '/dev/drbd1000', directory: '/srv/data' },
+          },
+        ]);
+        return <OcfAgentEditor mode="create" externalForm={form} onSave={vi.fn()} onAgentsChange={onAgentsChange} />;
+      };
+      const { container } = render(<Seeded />);
+
+      // A record of params used to reach paramsToRecord as-is and throw.
+      await waitForItems(container, 1);
+      // Written back as the entry list this editor always writes.
+      await waitFor(() =>
+        expect(onAgentsChange).toHaveBeenLastCalledWith([
+          {
+            name: 'ocf:heartbeat:Filesystem',
+            instance_name: 'fs_data',
+            params: [
+              { key: 'device', value: '/dev/drbd1000' },
+              { key: 'directory', value: '/srv/data' },
+            ],
+          },
+        ]),
+      );
+    });
+
     it('refuses to save without a resource and syncs OCF agents to the outer form', async () => {
       const { container, onSave, onAgentsChange } = renderCreate();
       await screen.findByText('No OCF agents found in start array');

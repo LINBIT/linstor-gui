@@ -166,7 +166,7 @@ export const List = () => {
       <br />
 
       <Table
-        columns={columns as any}
+        columns={columns}
         dataSource={filteredData ?? []}
         pagination={{
           total: filteredData?.length ?? 0,

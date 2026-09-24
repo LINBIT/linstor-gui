@@ -47,6 +47,7 @@ const StyledCheckbox = styled(AntCheckbox)`
   }
 `;
 
+// value and onChange come typed from the antd props this extends.
 export interface CheckboxProps extends Omit<AntCheckboxProps, 'checked' | 'defaultChecked'> {
   /** Whether the checkbox is checked */
   checked?: boolean;
@@ -54,8 +55,6 @@ export interface CheckboxProps extends Omit<AntCheckboxProps, 'checked' | 'defau
   defaultChecked?: boolean;
   /** Whether the checkbox is disabled */
   disabled?: boolean;
-  /** Change callback */
-  onChange?: (e: any) => void;
   /** Checkbox content */
   children?: React.ReactNode;
   /** Indeterminate state */
@@ -68,8 +67,6 @@ export interface CheckboxProps extends Omit<AntCheckboxProps, 'checked' | 'defau
   style?: React.CSSProperties;
   /** HTML id */
   id?: string;
-  /** HTML value attribute */
-  value?: any;
 }
 
 /**

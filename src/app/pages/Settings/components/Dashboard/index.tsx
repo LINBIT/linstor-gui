@@ -128,6 +128,24 @@ const DEFAULT_DRBD_PANELS = {
   drbdReadRatePanelId: 29,
 };
 
+/** The stored Grafana config, flattened the way the two forms below read it. */
+interface GrafanaFormSettings {
+  enable: boolean;
+  dashboardUrl: string;
+  dashboardUid: string;
+  panelIdCpu?: number;
+  panelIdMemory?: number;
+  panelIdNetwork?: number;
+  panelIdDisk?: number;
+  panelIdDiskIops?: number;
+  panelIdIoUsage?: number;
+  drbdEnable: boolean;
+  drbdUrl: string;
+  drbdUid: string;
+  drbdWriteRatePanelId: number;
+  drbdReadRatePanelId: number;
+}
+
 const Dashboard: React.FC = () => {
   const [isEnabled, setIsEnabled] = useState(false);
   const [isDrbdEnabled, setIsDrbdEnabled] = useState(false);
@@ -143,11 +161,11 @@ const Dashboard: React.FC = () => {
   const grafanaConfig = useSelector((state: RootState) => state?.setting?.grafanaConfig);
 
   const grafanaSettings = useMemo(() => {
-    let settings: any = {
+    // Unset panel IDs fall back to DEFAULT_PANELS where the form is filled.
+    let settings: GrafanaFormSettings = {
       enable: false,
       dashboardUrl: '',
       dashboardUid: '',
-      ...DEFAULT_PANELS,
       drbdEnable: false,
       drbdUrl: '',
       drbdUid: '',
@@ -247,7 +265,7 @@ const Dashboard: React.FC = () => {
         drbdReadRatePanelId: DEFAULT_DRBD_PANELS.drbdReadRatePanelId,
       });
     }
-  }, [grafanaSettings, drbdForm]);
+  }, [grafanaSettings, form, drbdForm]);
 
   const handleEnableChange = useCallback((checked: boolean) => {
     setIsEnabled(checked);

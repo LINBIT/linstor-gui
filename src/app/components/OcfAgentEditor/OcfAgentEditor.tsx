@@ -81,8 +81,55 @@ function paramsToRecord(params: ParamEntry[]): Record<string, string> {
   return record;
 }
 
-function _recordToParams(record: Record<string, string>): ParamEntry[] {
-  return Object.entries(record).map(([key, value]) => ({ key, value }));
+function recordToParams(record: Record<string, string>): ParamEntry[] {
+  return Object.entries(record).map(([key, value]) => ({ key, value: String(value) }));
+}
+
+/**
+ * An entry of the `ocf_agents` field a create-mode host form carries. params
+ * arrive as a record, or as the entry list this editor writes back.
+ */
+interface OcfAgentFormEntry {
+  type?: 'ocf' | 'mount' | 'service';
+  provider?: string;
+  agent_type?: string;
+  instance_name?: string;
+  params?: Record<string, string> | ParamEntry[];
+  value?: string;
+}
+
+/** What syncToParentForm writes to the host form's `ocf_agents`. */
+interface OcfAgentFormOutput {
+  name: string;
+  instance_name: string;
+  params: ParamEntry[];
+}
+
+const toParamEntries = (params: OcfAgentFormEntry['params']): ParamEntry[] =>
+  Array.isArray(params) ? params : recordToParams(params ?? {});
+
+/** One agent's slice of the editor form. */
+interface AgentFormValue {
+  params?: Record<string, string>;
+  original?: string;
+}
+
+/**
+ * The parts of a drbd-reactor TOML file the editor reads. smol-toml returns an
+ * untyped table, so this is asserted, not checked.
+ */
+interface ReactorResourceSection {
+  start?: string[];
+  stop?: string[];
+  [key: string]: unknown;
+}
+interface ReactorToml {
+  start?: string[];
+  promoter?: PromoterSection | PromoterSection[];
+}
+interface PromoterSection {
+  metadata?: Record<string, string | number | boolean>;
+  resources?: Record<string, ReactorResourceSection>;
 }
 
 function parseOcfString(original: string): {
@@ -164,7 +211,7 @@ interface OcfAgentEditorProps {
   externalForm?: FormInstance; // External form for create mode
   resources?: { name: string }[]; // Available resources for create mode
   services?: string[]; // Available services for create mode
-  onAgentsChange?: (agents: any[]) => void; // Callback when agents change
+  onAgentsChange?: (agents: OcfAgentFormOutput[]) => void; // Callback when agents change
   onDirtyChange?: (isDirty: boolean) => void; // Callback when dirty state changes
 
   // Preview control
@@ -240,9 +287,9 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
 
   // Initial state for dirty check
   const [initialState, setInitialState] = useState<{
-    parsedAgents: any[];
-    reactorConfig: any;
-    metadataConfig: any;
+    parsedAgents: { original: string; instanceId: number }[];
+    reactorConfig: DRBDReactorConfigValues;
+    metadataConfig: Record<string, string | number | boolean>;
   } | null>(null);
 
   // Original TOML content and resource name
@@ -366,7 +413,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
   const applyTomlContent = useCallback(
     (content: string, resourceNameOverride?: string) => {
       try {
-        const parsedToml = parse(content) as any;
+        const parsedToml = parse(content) as ReactorToml;
         let startArray: string[] = [];
         let initialMetadata = {};
         let initialReactor = {};
@@ -395,7 +442,8 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
                 startArray = resourceConfig.start;
               }
 
-              const { start, stop, ...otherConfig } = resourceConfig;
+              // start/stop are edited as agents; everything else is reactor config.
+              const { start: _start, stop: _stop, ...otherConfig } = resourceConfig;
               initialReactor = otherConfig;
               setReactorConfig(otherConfig);
               break;
@@ -414,7 +462,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
 
           if (parsed.is_ocf && parsed.provider && parsed.agent_type && parsed.instance_name) {
             const { provider, agent_type, instance_name, params } = parsed;
-            const paramsList = _recordToParams(params || {});
+            const paramsList = recordToParams(params || {});
 
             return {
               position: { section: 'resources', array_index: null, key: 'start', index: instanceIdCounter },
@@ -480,21 +528,24 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
   const loadParsedAgents = useCallback(async () => {
     // In create mode, load from form
     if (mode === 'create') {
-      const ocfAgents: any[] = form.getFieldValue('ocf_agents') || [];
+      const ocfAgents: OcfAgentFormEntry[] = form.getFieldValue('ocf_agents') || [];
       if (ocfAgents.length > 0) {
         // Convert form data to parsed agents format
         let instanceIdCounter = 0;
-        const agentsWithIds = ocfAgents.map((agentData: any) => {
+        const agentsWithIds = ocfAgents.map((agentData): OcfAgentWithMetadata => {
           // Check if it's OCF agent or plain systemd unit
           if (agentData.type === 'ocf') {
             // OCF agent
-            const { provider, agent_type, instance_name, params } = agentData;
+            const { provider = '', agent_type = '', instance_name = '' } = agentData;
+            // Everything downstream reads params as an entry list; a record
+            // handed over as-is used to crash the first render.
+            const params = toParamEntries(agentData.params);
             const original = `ocf:${provider}:${agent_type} ${instance_name}`;
 
             // Build param string
-            const paramStr = Object.entries(params || {})
-              .filter(([_, value]) => value !== undefined && value !== '')
-              .map(([key, value]) => {
+            const paramStr = params
+              .filter(({ value }) => value !== undefined && value !== '')
+              .map(({ key, value }) => {
                 if (String(value).includes(' ') || String(value).includes(',') || String(value) === '') {
                   return `${key}='${value}'`;
                 }
@@ -519,7 +570,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
                   provider,
                   agent_type,
                   instance_name,
-                  params: params || {},
+                  params,
                 },
               },
               metadata: null, // Will load later
@@ -635,9 +686,9 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
     if (mode === 'create' && externalForm) {
       // Convert parsedAgents back to ocf_agents format (backend expects)
       const ocfAgents = parsedAgents
-        .filter((agentWithMeta: any) => agentWithMeta.item.is_ocf && agentWithMeta.item.ocf_agent)
-        .map((agentWithMeta: any) => {
-          const ocfAgent = agentWithMeta.item.ocf_agent;
+        .filter((agentWithMeta) => agentWithMeta.item.is_ocf && agentWithMeta.item.ocf_agent)
+        .map((agentWithMeta): OcfAgentFormOutput => {
+          const ocfAgent = agentWithMeta.item.ocf_agent!;
           return {
             name: `ocf:${ocfAgent.provider}:${ocfAgent.agent_type}`,
             instance_name: ocfAgent.instance_name,
@@ -799,7 +850,11 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
   };
 
   // Sync form changes to parsedAgents immediately
-  const handleFormValuesChange = (changedValues: any, _allValues: any) => {
+  const handleFormValuesChange = (changedValues: {
+    resource_name?: string;
+    // antd reports a changed list entry as a sparse array, or keyed by index.
+    agents?: (AgentFormValue | undefined)[] | Record<string, AgentFormValue | undefined>;
+  }) => {
     if (changedValues.resource_name && mode === 'create') {
       form.setFieldValue('file_path', changedValues.resource_name);
     }
@@ -813,7 +868,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
 
       if (Array.isArray(changedAgents)) {
         // Array format: find first non-undefined element
-        idx = changedAgents.findIndex((item: any) => item && (item.params || item.original !== undefined));
+        idx = changedAgents.findIndex((item) => item && (item.params || item.original !== undefined));
         changedValue = idx >= 0 ? changedAgents[idx] : null;
       } else {
         // Object format: find numeric key
@@ -924,7 +979,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
 
     // Update form
     const currentValues = form.getFieldsValue();
-    const newAgentsData = (currentValues.agents || []).filter((_: any, i: number) => i !== index);
+    const newAgentsData = (currentValues.agents || []).filter((_: unknown, i: number) => i !== index);
     form.setFieldValue('agents', newAgentsData);
 
     // No need to update addedParams - it uses stable keys (position.index)
@@ -938,7 +993,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
   // stableKey parameter is the instanceId
   const handleRemoveParam = (stableKey: number, paramName: string) => {
     // Find agent by instanceId
-    const arrayIndex = parsedAgents.findIndex((a: any) => a.instanceId === stableKey);
+    const arrayIndex = parsedAgents.findIndex((a) => a.instanceId === stableKey);
     if (arrayIndex === -1) return;
 
     const agent = parsedAgents[arrayIndex];
@@ -1006,7 +1061,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
 
     const stableKey = currentAgentIndex;
     // Find agent by instanceId
-    const arrayIndex = parsedAgents.findIndex((a: any) => a.instanceId === stableKey);
+    const arrayIndex = parsedAgents.findIndex((a) => a.instanceId === stableKey);
     if (arrayIndex === -1) return;
 
     const agent = parsedAgents[arrayIndex];
@@ -1126,7 +1181,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
       },
       metadata: agentMetadata,
       instanceId,
-    } as any;
+    };
 
     const newAgents = [...parsedAgents, newAgent];
     setParsedAgents(newAgents);

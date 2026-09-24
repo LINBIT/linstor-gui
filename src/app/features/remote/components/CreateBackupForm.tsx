@@ -6,6 +6,7 @@
 
 import { useState } from 'react';
 import { logger } from '@app/utils/logger';
+import { apiErrorMessage } from '@app/features/requests';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Form, Modal, message } from 'antd';
 import { Select } from '@app/components/Select';
@@ -54,10 +55,10 @@ const CreateBackupForm = ({ refetch }: CreateBackupFormProps) => {
 
   const onFinish = async (values: FormType) => {
     try {
-      const res: any = await createBackupMutation.mutateAsync(values);
+      const error = apiErrorMessage(await createBackupMutation.mutateAsync(values));
 
-      if (res.error && Array.isArray(res.error)) {
-        messageApi.error(res.error.map((e: any) => e.message).join(', '));
+      if (error !== undefined) {
+        messageApi.error(error);
       }
     } catch (error) {
       logger.error('create backup error', error);

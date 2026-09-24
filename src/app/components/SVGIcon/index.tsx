@@ -4,4 +4,13 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-export * from './icons';
+export {
+  ConnectedIcon,
+  DisconnectedIcon,
+  FaultyResourceIcon,
+  LockIcon,
+  LogIcon,
+  UnlockedIcon,
+  UserIcon,
+  DotsIcon,
+} from './icons';

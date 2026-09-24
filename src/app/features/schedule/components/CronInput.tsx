@@ -21,6 +21,20 @@ interface CronInputProps {
   onChange?: (value: string) => void; // callback when value changes
 }
 
+// Validate cron expression
+const validateCronExpression = (expression: string): string | null => {
+  if (!expression.trim()) {
+    return 'Cron expression cannot be empty';
+  }
+
+  try {
+    cronParser.parse(expression);
+    return null;
+  } catch {
+    return 'Invalid cron expression. Please check the format.';
+  }
+};
+
 const CronInput: React.FC<CronInputProps> = ({ value = '0 0 * * *', onChange }) => {
   const { t } = useTranslation();
   const [values, dispatchValues] = useCronReducer(value);
@@ -30,26 +44,12 @@ const CronInput: React.FC<CronInputProps> = ({ value = '0 0 * * *', onChange }) 
   const [previewExecutions, setPreviewExecutions] = useState<string[]>([]);
   // Error handling
   const [error, setError] = useState<CronError>(undefined);
-  // Input validation error
-  const [inputError, setInputError] = useState<string | null>(null);
+  // Input validation error; the initial value is checked once, up front.
+  const [inputError, setInputError] = useState<string | null>(() => validateCronExpression(value));
 
   // Update the cron value when it changes in the modal
   const handleCronChange = (newValue: string) => {
     setTempCronValue(newValue);
-  };
-
-  // Validate cron expression
-  const validateCronExpression = (expression: string): string | null => {
-    if (!expression.trim()) {
-      return 'Cron expression cannot be empty';
-    }
-
-    try {
-      cronParser.parse(expression);
-      return null;
-    } catch {
-      return 'Invalid cron expression. Please check the format.';
-    }
   };
 
   // Update the input value when it changes in the input field
@@ -126,12 +126,6 @@ const CronInput: React.FC<CronInputProps> = ({ value = '0 0 * * *', onChange }) 
       setPreviewExecutions(['Invalid Cron Expression']);
     }
   }, [tempCronValue]);
-
-  // Validate initial value
-  useEffect(() => {
-    const error = validateCronExpression(values.inputValue);
-    setInputError(error);
-  }, []);
 
   return (
     <div className="cron-input-container">

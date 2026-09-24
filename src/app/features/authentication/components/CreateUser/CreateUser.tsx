@@ -15,10 +15,11 @@ import { Dispatch } from '@app/store';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
+/** What the form below submits; the previous shape was an antd demo leftover. */
 interface Values {
-  title: string;
-  description: string;
-  modifier: string;
+  username: string;
+  password: string;
+  password_validate?: string;
 }
 
 interface CreateUserFormProps {
@@ -116,7 +117,7 @@ const CreateUser = ({ disabled }: CreateUserProp) => {
   const dispatch = useDispatch<Dispatch>();
   const { t } = useTranslation('users');
 
-  const onCreate = (values: any) => {
+  const onCreate = (values: Values) => {
     dispatch.auth.register(values);
 
     setOpen(false);

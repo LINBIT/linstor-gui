@@ -111,8 +111,8 @@ vi.mock('@app/components/SizeInput', () => ({
 }));
 
 // Import mocks first
-import '../__mocks__';
-import { resetFormValues, captureValue } from '../__mocks__';
+import './helpers';
+import { resetFormValues, captureValue } from './helpers';
 
 // Import after mocking
 import { CreateNFSForm } from '../CreateNFSForm';

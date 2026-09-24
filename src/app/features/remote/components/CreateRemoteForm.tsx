@@ -6,6 +6,7 @@
 
 import { useState } from 'react';
 import { logger } from '@app/utils/logger';
+import { apiErrorMessage } from '@app/features/requests';
 import { useMutation } from '@tanstack/react-query';
 import { Form, Modal, message } from 'antd';
 import { Input } from '@app/components/Input';
@@ -56,16 +57,16 @@ const CreateRemoteForm = ({ refetch }: CreateRemoteFormProps) => {
 
     try {
       if (remote_type === 's3_remotes') {
-        const res: any = await createS3RemoteMutation.mutateAsync(rest as S3RemoteCreateRequestBody);
+        const error = apiErrorMessage(await createS3RemoteMutation.mutateAsync(rest as S3RemoteCreateRequestBody));
 
-        if (res.error && Array.isArray(res.error)) {
-          messageApi.error(res.error.map((e: any) => e.message).join(', '));
+        if (error !== undefined) {
+          messageApi.error(error);
         }
       } else if (remote_type === 'linstor_remotes') {
-        const res: any = await createLINSTORRemoteMutation.mutateAsync(rest);
+        const error = apiErrorMessage(await createLINSTORRemoteMutation.mutateAsync(rest));
 
-        if (res.error && Array.isArray(res.error)) {
-          messageApi.error(res.error.map((e: any) => e.message).join(', '));
+        if (error !== undefined) {
+          messageApi.error(error);
         }
       }
     } catch (error) {

@@ -163,7 +163,7 @@ export const ScheduleByResourceList = () => {
     ];
 
     const detailData: ScheduleDetails[] = resourceDetailData
-      ? (Array.isArray(resourceDetailData) ? resourceDetailData : [resourceDetailData]).map((item: any) => ({
+      ? (Array.isArray(resourceDetailData) ? resourceDetailData : [resourceDetailData]).map((item) => ({
           remote_name: item.remote_name || '',
           schedule_name: item.schedule_name || '',
           rsc_dfn: item.rsc_dfn,
@@ -371,7 +371,7 @@ export const ScheduleByResourceList = () => {
       <br />
 
       <Table
-        columns={columns as any}
+        columns={columns}
         dataSource={filteredData ?? []}
         pagination={{
           total: filteredData?.length ?? 0,

@@ -112,8 +112,7 @@ export const List = () => {
 
   const updateMutation = useMutation({
     mutationKey: ['updateResourceDefinition'],
-    mutationFn: (data: UpdateResourceDefinitionRequestBody) =>
-      updateResourceDefinition(current?.name ?? '', data as any),
+    mutationFn: (data: UpdateResourceDefinitionRequestBody) => updateResourceDefinition(current?.name ?? '', data),
     onSuccess: () => {
       refetch();
     },

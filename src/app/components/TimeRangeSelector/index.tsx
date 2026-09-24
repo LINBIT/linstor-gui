@@ -31,7 +31,7 @@ const Container = styled.div`
 `;
 
 // Time range options similar to Grafana's default
-export const TIME_RANGE_OPTIONS = [
+const TIME_RANGE_OPTIONS = [
   { label: 'Last 5 minutes', value: 'now-5m' },
   { label: 'Last 15 minutes', value: 'now-15m' },
   { label: 'Last 30 minutes', value: 'now-30m' },

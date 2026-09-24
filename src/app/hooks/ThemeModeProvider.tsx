@@ -4,20 +4,10 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { createContext, useContext, useEffect, useState, PropsWithChildren } from 'react';
+import React, { useEffect, useState, PropsWithChildren } from 'react';
 
 import { getStoredThemeMode, setThemeMode, ThemeMode } from '@app/const/themeTokens';
-
-interface ThemeModeContextProps {
-  mode: ThemeMode;
-  setMode: (mode: ThemeMode) => void;
-}
-
-// Default keeps provider-less renders (tests) on the light theme.
-const ThemeModeContext = createContext<ThemeModeContextProps>({
-  mode: 'light',
-  setMode: () => undefined,
-});
+import { ThemeModeContext } from './useThemeMode';
 
 /**
  * Holds the light/dark mode as React state so consumers (antd ConfigProvider,
@@ -33,5 +23,3 @@ export const ThemeModeProvider: React.FC<PropsWithChildren> = ({ children }) => 
 
   return <ThemeModeContext.Provider value={{ mode, setMode }}>{children}</ThemeModeContext.Provider>;
 };
-
-export const useThemeMode = () => useContext(ThemeModeContext);

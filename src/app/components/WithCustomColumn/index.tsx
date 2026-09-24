@@ -48,7 +48,7 @@ const ResetButton = styled(Button)`
 `;
 
 const withCustomColumns = <P extends object>(
-  WrappedComponent: React.ComponentType<P & { columns: CustomColumn[]; dataSource: Record<string, any>[] }>,
+  WrappedComponent: React.ComponentType<P & { columns: CustomColumn[]; dataSource: Record<string, unknown>[] }>,
 ) => {
   const WithCustomColumns: React.FC<P & WithCustomColumnsProps> = ({
     initialColumns,

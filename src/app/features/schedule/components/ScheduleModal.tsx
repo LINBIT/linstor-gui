@@ -56,7 +56,8 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
   // Mutation for modifying a schedule
   const modifyMutation = useMutation(
     (values: Schedule) => {
-      const { schedule_name, ...restValues } = values;
+      // The name is the path parameter, not part of the modify body.
+      const { schedule_name: _scheduleName, ...restValues } = values;
       if (!schedule || !schedule.schedule_name) {
         throw new Error('Schedule or schedule_name is undefined');
       }

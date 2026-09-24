@@ -25,12 +25,15 @@ export const MetadataEditor: React.FC<MetadataEditorProps> = ({ initialValues, o
     form.setFieldsValue({ metadata: fields });
   }, [initialValues, form]);
 
-  const handleValuesChange = (_: any, allValues: any) => {
+  const handleValuesChange = (
+    _: unknown,
+    allValues: { metadata?: ({ key: string; value: string | number | boolean } | undefined)[] },
+  ) => {
     isInternalUpdate.current = true;
     // Transform array back to object
     const metadataObj: Record<string, string | number | boolean> = {};
     if (allValues.metadata) {
-      allValues.metadata.forEach((item: { key: string; value: any }) => {
+      allValues.metadata.forEach((item) => {
         if (item && item.key) {
           metadataObj[item.key] = item.value;
         }

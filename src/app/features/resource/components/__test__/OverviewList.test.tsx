@@ -460,6 +460,18 @@ describe('resource OverviewList', () => {
       );
     });
 
+    it('offers no volume-definition properties for a definition without volumes', async () => {
+      renderList();
+      await screen.findByText('res-empty');
+      const menu = await openMenuIn(rowOf('res-empty'));
+
+      // Reading volumeDefinitions[0] of it used to throw a TypeError on click.
+      const item = within(menu).getByText('Volume Definition Properties').closest('li') as HTMLElement;
+      expect(item).toHaveClass('ant-dropdown-menu-item-disabled');
+      fireEvent.click(item);
+      expect(screen.queryByTestId('property-form-volume-definition')).toBeNull();
+    });
+
     it('deletes the definition after confirm', async () => {
       renderList();
       await screen.findByText('res-b');

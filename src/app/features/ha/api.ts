@@ -14,7 +14,7 @@ const getHAResourceDefinitions = () => {
     params: {
       query: {
         with_volume_definitions: true,
-      } as any,
+      },
     },
   });
 };
@@ -67,8 +67,8 @@ const getResources = (resourceName?: string) => {
     params: resourceName
       ? {
           query: {
-            resources: resourceName,
-          } as any,
+            resources: [resourceName],
+          },
         }
       : undefined,
   });

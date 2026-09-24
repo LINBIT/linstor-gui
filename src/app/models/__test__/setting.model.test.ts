@@ -289,14 +289,17 @@ describe('setting model', () => {
     it('creates the namespace on first save, updates it afterwards, and mirrors the config into state', async () => {
       kv.instanceExists.mockResolvedValue(false);
       await expect(store.dispatch.setting.saveGrafanaConfig(config)).resolves.toBe(true);
+      // Key-value store values are strings, sent as such.
       expect(kv.create).toHaveBeenCalledWith(GRAFANA_NS, {
         override_props: expect.objectContaining({
-          enable: true,
+          enable: 'true',
           dashboardUid: 'uid',
-          panelIdCpu: 1,
-          drbdWriteRatePanelId: 28,
+          panelIdCpu: '1',
+          drbdWriteRatePanelId: '28',
         }),
       });
+      // Panel IDs the form left unset are not sent at all.
+      expect(kv.create.mock.calls[0][1].override_props).not.toHaveProperty('panelIdNetwork');
       expect(store.getState().setting.grafanaConfig).toMatchObject({
         enable: true,
         baseUrl: 'http://grafana:3000',
@@ -307,7 +310,7 @@ describe('setting model', () => {
       kv.instanceExists.mockResolvedValue(true);
       await store.dispatch.setting.saveGrafanaConfig({ ...config, enable: false });
       expect(api.put).toHaveBeenCalledWith(`/v1/key-value-store/${GRAFANA_NS}`, {
-        override_props: expect.objectContaining({ enable: false }),
+        override_props: expect.objectContaining({ enable: 'false' }),
       });
       expect(store.getState().setting.grafanaConfig).toBeNull();
     });

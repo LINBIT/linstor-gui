@@ -101,7 +101,8 @@ describe('ha api', () => {
 
   it('reads the resources view for one resource, or all', async () => {
     await getResources('ha-mysql');
-    expect(get).toHaveBeenCalledWith('/v1/view/resources', { params: { query: { resources: 'ha-mysql' } } });
+    // An array, as the schema has it; on the wire it is still resources=ha-mysql.
+    expect(get).toHaveBeenCalledWith('/v1/view/resources', { params: { query: { resources: ['ha-mysql'] } } });
     await getResources();
     expect(get).toHaveBeenLastCalledWith('/v1/view/resources', { params: undefined });
   });

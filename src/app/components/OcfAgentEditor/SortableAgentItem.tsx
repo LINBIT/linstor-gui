@@ -12,7 +12,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { Card, Form, Space, Tag, Tooltip, Typography } from 'antd';
 import { Input } from '@app/components/Input';
 import { InputNumber } from '@app/components/InputNumber';
-import type { OcfAgentWithMetadata, ParamEntry, ResourceAgent } from './types';
+import type { OcfAgentWithMetadata, Parameter, ParamEntry, ResourceAgent } from './types';
 import { Button } from '@app/components/Button';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { Switch } from '@app/components/Switch';
@@ -61,7 +61,7 @@ export function SortableAgentItem({
   const { t } = useTranslation();
   // Get instanceId for stable key lookup
   // Fallback to array index if instanceId not set
-  const stableKey = (agentWithMeta as any).instanceId ?? index;
+  const stableKey = agentWithMeta.instanceId ?? index;
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
 
   const style = {
@@ -72,7 +72,7 @@ export function SortableAgentItem({
 
   const { item } = agentWithMeta;
   // Use instanceId for stable panel key across reorders
-  const instanceId = (agentWithMeta as any).instanceId ?? index;
+  const instanceId = agentWithMeta.instanceId ?? index;
   const panelKey = `agent-${instanceId}`;
   const isExpanded = expandedKeys.has(panelKey);
 
@@ -101,7 +101,7 @@ export function SortableAgentItem({
     );
   };
 
-  const renderParamLabel = (param: any) => (
+  const renderParamLabel = (param: Parameter) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
       <span style={{ fontSize: '13px', color: '#333' }}>{param.name}</span>
       {(param.longdesc || param.shortdesc) && (
@@ -114,7 +114,7 @@ export function SortableAgentItem({
     </div>
   );
 
-  const renderParamControl = (param: any) => {
+  const renderParamControl = (param: Parameter) => {
     switch (param.type) {
       case 'integer':
         return <InputNumber style={{ width: '100%' }} />;

@@ -46,7 +46,9 @@ export const auth = createModel<RootModel>()({
       // Filter out admin user and system fields
       return {
         ...state,
-        users: payload.filter((user) => user !== DEFAULT_ADMIN_USER_NAME && !SYSTEM_FIELDS.includes(user as any)),
+        users: payload.filter(
+          (user) => user !== DEFAULT_ADMIN_USER_NAME && !(SYSTEM_FIELDS as readonly string[]).includes(user),
+        ),
       };
     },
     setNeedsPasswordChange(state, payload: boolean) {

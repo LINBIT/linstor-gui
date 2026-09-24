@@ -188,7 +188,7 @@ export const List = () => {
 
   const updateMutation = useMutation({
     mutationKey: ['updateResourceGroup'],
-    mutationFn: (data: UpdateResourceGroupRequestBody) => updateResourceGroup(current?.name ?? '', data as any),
+    mutationFn: (data: UpdateResourceGroupRequestBody) => updateResourceGroup(current?.name ?? '', data),
     onSuccess: () => {
       refetch();
     },

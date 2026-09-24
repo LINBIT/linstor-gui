@@ -1,5 +1,5 @@
 interface Connection {
-  connected: boolean;
+  connected?: boolean;
   message?: string;
 }
 
@@ -11,25 +11,27 @@ interface Volume {
   };
   data_v1?: {
     layer_data_list?: Array<{
-      type: string;
+      type?: string;
     }>;
     state?: {
       disk_state?: string;
     };
   };
   layer_data_list?: Array<{
-    type: string;
+    type?: string;
     data?: unknown;
   }>;
+  // ApiCallRc entries as the REST API sends them: plain data, error when negative.
   reports?: Array<{
-    is_error: () => boolean;
+    ret_code?: number;
   }>;
 }
 
+// Optional like the API's ResourceWithVolumes, which is what gets passed in.
 export interface Resource {
-  name: string;
-  node_name: string;
-  flags: string[];
+  name?: string;
+  node_name?: string;
+  flags?: string[];
   volumes?: Volume[];
   layer_data?: {
     drbd_resource?: {
@@ -37,7 +39,7 @@ export interface Resource {
     };
   };
   layer_object?: {
-    type: string;
+    type?: string;
     drbd?: {
       connections?: Record<string, Connection>;
     };
@@ -65,7 +67,9 @@ export function isFaultyResource(resource: Resource): boolean {
         break;
       }
 
-      if (volume?.reports?.some((report) => report.is_error())) {
+      // The reports are JSON, not linstor-client ApiCallResponse objects: the
+      // is_error() this used to call does not exist and threw on the first report.
+      if (volume?.reports?.some((report) => (report.ret_code ?? 0) < 0)) {
         hasBadVolumeState = true;
         break;
       }

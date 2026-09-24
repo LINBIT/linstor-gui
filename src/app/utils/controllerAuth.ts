@@ -138,8 +138,8 @@ export const createControllerAuthRequiredError = (
 export const isControllerAuthRequiredError = (error: unknown): error is ControllerAuthRequiredError => {
   return Boolean(
     error &&
-      typeof error === 'object' &&
-      'isControllerAuthRequired' in error &&
-      (error as ControllerAuthRequiredError).isControllerAuthRequired,
+    typeof error === 'object' &&
+    'isControllerAuthRequired' in error &&
+    (error as ControllerAuthRequiredError).isControllerAuthRequired,
   );
 };

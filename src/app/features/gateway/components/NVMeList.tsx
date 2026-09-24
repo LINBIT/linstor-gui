@@ -16,7 +16,7 @@ import { SearchForm } from '@app/components/SearchForm';
 import { SupportStatus } from '@app/components/SupportStatus';
 import { formatBytes } from '@app/utils/size';
 
-import { NVMEOFResource } from '../types';
+import { ExpandIconProps, NVMEOFResource } from '../types';
 import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';
 import { SizeInput } from '@app/components/SizeInput';
@@ -314,8 +314,8 @@ export const NVMeList = ({
   };
 
   // Custom expand icon
-  const expandIcon = ({ expanded, onExpand, record }: any) => {
-    const hasVolumes = record.volumes && record.volumes.filter((v: any) => v?.number > 0).length > 0;
+  const expandIcon = ({ expanded, onExpand, record }: ExpandIconProps<NVMEOFResource>) => {
+    const hasVolumes = (record.volumes ?? []).some((v) => (v?.number ?? 0) > 0);
 
     if (!hasVolumes) {
       return <span style={{ width: 24, display: 'inline-block' }} />;

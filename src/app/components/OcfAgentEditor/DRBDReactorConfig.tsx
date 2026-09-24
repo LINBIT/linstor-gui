@@ -29,7 +29,7 @@ interface FieldDefinition {
   tooltip: string;
   type: 'select' | 'input' | 'switch' | 'number' | 'tags';
   options?: string[]; // For select type
-  default?: any;
+  default?: string | number | boolean | string[];
 }
 
 const ALL_FIELDS: FieldDefinition[] = [
@@ -136,7 +136,7 @@ export const DRBDReactorConfig: React.FC<DRBDReactorConfigProps> = ({ initialVal
     form.setFieldsValue(initialValues);
   }, [initialValues, form]);
 
-  const handleValuesChange = (_: any, allValues: DRBDReactorConfigValues) => {
+  const handleValuesChange = (_: unknown, allValues: DRBDReactorConfigValues) => {
     // Only pass values for visible fields
     const filteredValues: DRBDReactorConfigValues = {};
     ALL_FIELDS.forEach((field) => {

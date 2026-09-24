@@ -17,7 +17,7 @@ import { SearchForm } from '@app/components/SearchForm';
 import { SupportStatus } from '@app/components/SupportStatus';
 import { formatBytes } from '@app/utils/size';
 
-import { NFSResource } from '../types';
+import { ExpandIconProps, NFSResource } from '../types';
 import { ExportBasePath } from '../const';
 
 type NFSListProps = {
@@ -286,12 +286,12 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart, onCreate,
       item.volumes
         ?.filter((v) => v?.number !== undefined && v.number > 0)
         ?.map((volume) => {
-          const exportPathSuffix = (volume as any)?.export_path || '';
+          const exportPathSuffix = volume.export_path || '';
           return {
             key: `${item.name}-${volume.number}`,
             number: volume.number!,
             size_kib: volume.size_kib,
-            file_system: (volume as any)?.file_system,
+            file_system: volume.file_system,
             export_path: exportPathSuffix,
             full_export_path: `${ExportBasePath}/${item.name}${exportPathSuffix}`,
             state: item.status?.volumes?.find((v) => v.number === volume.number)?.state,
@@ -326,8 +326,8 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart, onCreate,
   };
 
   // Custom expand icon
-  const expandIcon = ({ expanded, onExpand, record }: any) => {
-    const hasVolumes = record.volumes && record.volumes.filter((v: any) => v?.number > 0).length > 0;
+  const expandIcon = ({ expanded, onExpand, record }: ExpandIconProps<NFSResource>) => {
+    const hasVolumes = (record.volumes ?? []).some((v) => (v?.number ?? 0) > 0);
 
     if (!hasVolumes) {
       return <span style={{ width: 24, display: 'inline-block' }} />;

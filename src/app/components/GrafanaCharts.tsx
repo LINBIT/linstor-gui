@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { logger } from '@app/utils/logger';
 import { Card, Row, Col, Empty } from 'antd';
@@ -47,26 +47,29 @@ const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
   logger.debug('GrafanaCharts render:', { grafanaConfig, hostname });
 
   // Helper function to generate Grafana solo panel URL
-  const generateGrafanaSoloUrl = (panelId: number, includeHostname = false) => {
-    if (!grafanaConfig?.baseUrl || !grafanaConfig?.dashboardUid) return '';
+  const generateGrafanaSoloUrl = useCallback(
+    (panelId: number, includeHostname = false) => {
+      if (!grafanaConfig?.baseUrl || !grafanaConfig?.dashboardUid) return '';
 
-    const params = new URLSearchParams({
-      panelId: String(panelId),
-      viewPanel: `panel-${panelId}`,
-      from: timeRange,
-      to: 'now',
-      // Follow the GUI theme; being part of the src, a switch reloads the panel.
-      theme: mode,
-      refresh: '10s',
-      timezone: 'browser',
-    });
+      const params = new URLSearchParams({
+        panelId: String(panelId),
+        viewPanel: `panel-${panelId}`,
+        from: timeRange,
+        to: 'now',
+        // Follow the GUI theme; being part of the src, a switch reloads the panel.
+        theme: mode,
+        refresh: '10s',
+        timezone: 'browser',
+      });
 
-    if (includeHostname) {
-      params.append('var-node', hostname);
-    }
+      if (includeHostname) {
+        params.append('var-node', hostname);
+      }
 
-    return `${grafanaConfig.baseUrl}/d-solo/${grafanaConfig.dashboardUid}/_?${params.toString()}`;
-  };
+      return `${grafanaConfig.baseUrl}/d-solo/${grafanaConfig.dashboardUid}/_?${params.toString()}`;
+    },
+    [grafanaConfig?.baseUrl, grafanaConfig?.dashboardUid, timeRange, mode, hostname],
+  );
 
   // Generate iframe URLs for preloading only if Grafana is enabled
   const iframeUrls = useMemo(() => {
@@ -87,8 +90,7 @@ const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
     grafanaConfig?.baseUrl,
     grafanaConfig?.dashboardUid,
     grafanaConfig?.panelIds,
-    timeRange,
-    mode,
+    generateGrafanaSoloUrl,
   ]);
 
   // Preload iframe URLs only if Grafana is enabled

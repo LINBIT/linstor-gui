@@ -32,8 +32,9 @@ interface Volume {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data?: any;
   }>;
+  // As the REST API sends them: plain ApiCallRc data, an error when negative.
   reports?: Array<{
-    is_error: () => boolean;
+    ret_code?: number;
   }>;
 }
 
@@ -447,11 +448,7 @@ describe('resource utils', () => {
               layer_data_list: [{ type: 'DRBD' }],
               state: { disk_state: 'UpToDate' },
             },
-            reports: [
-              {
-                is_error: () => true,
-              },
-            ],
+            reports: [{ ret_code: -4611686018427387904 }],
           },
         ],
       };
@@ -547,11 +544,7 @@ describe('resource utils', () => {
               layer_data_list: [{ type: 'DRBD' }],
               state: { disk_state: 'UpToDate' },
             },
-            reports: [
-              {
-                is_error: () => false,
-              },
-            ],
+            reports: [{ ret_code: 1 }],
           },
         ],
         layer_data: {

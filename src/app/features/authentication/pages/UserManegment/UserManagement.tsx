@@ -14,7 +14,7 @@ import bg from '@app/assets/user_bg.svg';
 import { BG, MainContent, StyledSection } from './styled';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { ChangePassword, CreateUser } from '../../components';
-import { settingAPI } from '@app/features/settings';
+import { settingAPI, type SettingsProps } from '@app/features/settings';
 import { notify } from '@app/utils/toast';
 import { useMutation } from '@tanstack/react-query';
 import { authAPI } from '@app/features/authentication';
@@ -42,7 +42,7 @@ export const UserManagement = () => {
       window.localStorage.removeItem('linstorname');
 
       // Build props object, only including needsPasswordChange if we're enabling
-      const props: any = {
+      const props: Partial<SettingsProps> = {
         authenticationEnabled: enable,
         hideDefaultCredential: false,
       };

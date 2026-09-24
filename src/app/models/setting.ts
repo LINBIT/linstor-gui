@@ -19,6 +19,19 @@ import { GRAFANA_KEY_VALUE_STORE_KEY, USER_LOCAL_STORAGE_KEY, DEFAULT_ADMIN_USER
 
 const defaultGatewayHost = window.location.protocol + '//' + window.location.hostname + ':8337/';
 
+/** What the Grafana settings form hands to saveGrafanaConfig; unset fields get defaults. */
+export interface GrafanaConfigInput {
+  enable?: boolean;
+  dashboardUrl?: string;
+  dashboardUid?: string;
+  panelIds?: GrafanaConfig['panelIds'];
+  drbdEnable?: boolean;
+  drbdUrl?: string;
+  drbdUid?: string;
+  drbdWriteRatePanelId?: number;
+  drbdReadRatePanelId?: number;
+}
+
 export interface GrafanaConfig {
   enable: boolean;
   baseUrl: string;
@@ -470,7 +483,7 @@ export const setting = createModel<RootModel>()({
       window.location.reload();
     },
 
-    async saveGrafanaConfig(config: any) {
+    async saveGrafanaConfig(config: GrafanaConfigInput) {
       try {
         // Save to dedicated __grafana__ui__settings namespace
         const grafanaConfig = {
@@ -491,18 +504,26 @@ export const setting = createModel<RootModel>()({
           drbdReadRatePanelId: config.drbdReadRatePanelId || 29,
         };
 
+        // Key-value store props are strings. The controller would coerce
+        // true / 28 itself; unset panel IDs are left out, as JSON drops them.
+        const overrideProps = Object.fromEntries(
+          Object.entries(grafanaConfig)
+            .filter(([, value]) => value !== undefined)
+            .map(([key, value]) => [key, String(value)]),
+        );
+
         // Check if namespace exists, if not create it first
         const namespaceExists = await kvStore.instanceExists(GRAFANA_KEY_VALUE_STORE_KEY);
 
         if (!namespaceExists) {
           // Create the namespace with initial config
           await kvStore.create(GRAFANA_KEY_VALUE_STORE_KEY, {
-            override_props: grafanaConfig,
+            override_props: overrideProps,
           });
         } else {
           // Update existing namespace
           await service.put(`/v1/key-value-store/${GRAFANA_KEY_VALUE_STORE_KEY}`, {
-            override_props: grafanaConfig,
+            override_props: overrideProps,
           });
         }
 

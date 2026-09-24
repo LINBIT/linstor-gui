@@ -32,8 +32,21 @@ type RemoteQuery = {
   type?: string | null;
 };
 
+/**
+ * A row of the table: a remote of any kind (so every kind's fields are
+ * optional), tagged with its kind and, for S3, its backup count.
+ */
+type RemoteRow = Partial<
+  NonNullable<RemoteListResponse['s3_remotes']>[number] &
+    NonNullable<RemoteListResponse['linstor_remotes']>[number] &
+    NonNullable<RemoteListResponse['ebs_remotes']>[number]
+> & {
+  type: string;
+  backup_count: number;
+};
+
 export const List = () => {
-  const [dataList, setDataList] = useState<any[]>();
+  const [dataList, setDataList] = useState<RemoteRow[]>();
 
   const navigate = useNavigate();
   const [form] = Form.useForm();
@@ -185,22 +198,12 @@ export const List = () => {
     deleteRemoteMutation.mutate(remote_name);
   };
 
-  // Define row type including backup_count
-  interface ExtendedRemote {
-    remote_name: string;
-    type: string;
-    region: string;
-    endpoint: string;
-    bucket: string;
-    url?: string;
-    backup_count: number;
-  }
-  const columns: ColumnsType<ExtendedRemote> = [
+  const columns: ColumnsType<RemoteRow> = [
     {
       title: t('remote:name'),
       key: 'remote_name',
       dataIndex: 'remote_name',
-      sorter: (a, b) => a.remote_name.localeCompare(b.remote_name),
+      sorter: (a, b) => (a.remote_name ?? '').localeCompare(b.remote_name ?? ''),
       showSorterTooltip: false,
     },
     {

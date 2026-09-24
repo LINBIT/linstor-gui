@@ -21,7 +21,7 @@ interface Values {
 interface CollectionCreateFormProps {
   open: boolean;
   onCreate: (values: Values) => void;
-  migrationInfo: any;
+  migrationInfo: { resource: string; node: string };
   onCancel: () => void;
 }
 

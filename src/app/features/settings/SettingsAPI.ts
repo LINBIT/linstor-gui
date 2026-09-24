@@ -170,9 +170,9 @@ export class SettingsAPI {
       try {
         const deserializedValue = this.deserializeValue(field, value);
         if (deserializedValue !== undefined) {
-          (result[field] as any) = deserializedValue;
+          (result as Record<string, unknown>)[field] = deserializedValue;
         }
-      } catch (error) {
+      } catch {
         // Skip unknown fields for backward compatibility
         logger.warn(`Skipping unknown field: ${key}`);
       }

@@ -156,6 +156,7 @@ const StyledRadioGroup = styled(AntRadio.Group)`
   }
 `;
 
+// value, onChange and options come typed from the antd props these extend.
 export interface RadioProps extends Omit<AntRadioProps, 'checked' | 'defaultChecked'> {
   /** Whether the radio is checked */
   checked?: boolean;
@@ -163,8 +164,6 @@ export interface RadioProps extends Omit<AntRadioProps, 'checked' | 'defaultChec
   defaultChecked?: boolean;
   /** Whether the radio is disabled */
   disabled?: boolean;
-  /** Change callback */
-  onChange?: (e: any) => void;
   /** Radio content */
   children?: React.ReactNode;
   /** Auto focus */
@@ -173,21 +172,11 @@ export interface RadioProps extends Omit<AntRadioProps, 'checked' | 'defaultChec
   className?: string;
   /** Custom style */
   style?: React.CSSProperties;
-  /** HTML value attribute */
-  value?: any;
 }
 
 export interface RadioGroupProps extends AntRadioGroupProps {
-  /** Current selected value */
-  value?: any;
-  /** Default selected value */
-  defaultValue?: any;
   /** Whether the radio group is disabled */
   disabled?: boolean;
-  /** Change callback */
-  onChange?: (e: any) => void;
-  /** Options for radio group */
-  options?: Array<{ label: React.ReactNode; value: any; disabled?: boolean }>;
   /** Radio group children */
   children?: React.ReactNode;
   /** Additional className */

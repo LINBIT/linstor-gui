@@ -63,7 +63,7 @@ export const StoragePool = ({ data }: StoragePoolProp) => {
   const nodeTotalColorPair = getNodeTotalColorPair();
 
   // Build series for each storage pool
-  const series: any[] = [];
+  const series: { name: string; data: number[] }[] = [];
   const colorsArray: string[] = [];
 
   // Create a series for each storage pool

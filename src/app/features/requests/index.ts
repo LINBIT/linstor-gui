@@ -145,6 +145,20 @@ const partiallySuccess = (res?: APICALLRCLIST) => {
   return res.some((item) => item.ret_code < 0) && res.some((item) => item.ret_code > 0);
 };
 
+/**
+ * The messages of an error response, joined; undefined when there is none.
+ * openapi-fetch does not throw on an HTTP error, it puts the body in `error`.
+ */
+const apiErrorMessage = (res?: { error?: unknown }): string | undefined => {
+  if (!Array.isArray(res?.error)) {
+    return undefined;
+  }
+  return (res.error as { message?: string }[])
+    .map((e) => e?.message)
+    .filter(Boolean)
+    .join(', ');
+};
+
 const linstorHost = typeof window !== 'undefined' ? window.localStorage.getItem('LINSTOR_HOST') : '';
 const { GET, POST, DELETE, PUT, PATCH, HEAD, TRACE, OPTIONS } = createClient<paths>({
   baseUrl: linstorHost || '/',
@@ -168,6 +182,7 @@ export {
   OPTIONS as options,
   fullySuccess,
   partiallySuccess,
+  apiErrorMessage,
 };
 
 export type { APICALLRC, APICALLRCLIST };

@@ -45,7 +45,7 @@ const RestoreFrom: React.FC<RestoreFromProps> = ({ sourceResource, sourceSnapsho
       if (!targetResource) return;
 
       // Check if the target resource exists in the list
-      const existingResource = resourceList?.data?.find((r: any) => r.name === targetResource);
+      const existingResource = resourceList?.data?.find((r) => r.name === targetResource);
 
       if (!existingResource) {
         // Create new resource definition if it doesn't exist
@@ -107,7 +107,7 @@ const RestoreFrom: React.FC<RestoreFromProps> = ({ sourceResource, sourceSnapsho
           placeholder={t('snapshot:select_target', 'Select target resource')}
           value={targetResource}
           onChange={handleTargetResourceChange}
-          options={uniqBy(resourceList?.data, 'name')?.map((r: any) => ({ label: r.name, value: r.name }))}
+          options={uniqBy(resourceList?.data, 'name')?.map((r) => ({ label: r.name, value: r.name }))}
           allowClear
           showSearch
           mode="tags"

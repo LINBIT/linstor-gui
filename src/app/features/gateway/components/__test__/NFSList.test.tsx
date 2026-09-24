@@ -51,7 +51,7 @@ vi.mock('@app/components/Link', () => ({
 }));
 
 // Import mocks first
-import '../__mocks__';
+import './helpers';
 
 // Import after mocking
 import { NFSList } from '../NFSList';

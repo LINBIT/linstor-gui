@@ -13,7 +13,7 @@
     "dev:mock": "VITE_LINSTOR_API_HOST=http://127.0.0.1:3478 vite",
     "prebuild": "npm run clean",
     "build": "vite build",
-    "eslint": "eslint --ext .tsx,.js ./src/",
+    "eslint": "eslint --max-warnings 0 --ext .tsx,.js ./src/",
     "lint": "npm run eslint",
     "format": "prettier --write --list-different './src/**/*.{ts,tsx,js,jsx,css}' '!src/app/apis/**'",
     "type-check": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json",

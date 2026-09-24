@@ -34,7 +34,7 @@ export const DeviceSourceSelect: React.FC<Props> = ({ id, mode, node, value, onC
   if (mode === 'new-device') {
     const options = (data?.data ?? [])
       .filter(
-        (entry: any): entry is { device: string; size?: number } =>
+        (entry): entry is typeof entry & { device: string } =>
           typeof entry?.device === 'string' && entry.device.length > 0,
       )
       .map((entry) => {

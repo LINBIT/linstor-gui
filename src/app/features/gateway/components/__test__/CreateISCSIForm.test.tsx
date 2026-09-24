@@ -110,8 +110,8 @@ vi.mock('@app/components/SizeInput', () => ({
 }));
 
 // Import mocks first
-import '../__mocks__';
-import { resetFormValues } from '../__mocks__';
+import './helpers';
+import { resetFormValues } from './helpers';
 
 // Import after mocking
 import { CreateISCSIForm } from '../CreateISCSIForm';

@@ -134,6 +134,10 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
     if (location.search) {
       navigate(location.pathname, { replace: true });
     }
+    // On navigation to another page only. The lists write their filters into
+    // the current page's query string, which a search dependency would strip
+    // again at once; updateUIMode is a new function on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
   useEffect(() => {

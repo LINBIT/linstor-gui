@@ -14,7 +14,7 @@ export const useFaultyResources = () => {
     queryKey: ['getFaultyResources'],
     queryFn: async () => {
       const all = await getResources();
-      const faulty = getFaultyResources(all?.data ?? ([] as any));
+      const faulty = getFaultyResources(all?.data ?? []);
       return faulty;
     },
     refetchOnWindowFocus: true,

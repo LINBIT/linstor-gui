@@ -2,14 +2,14 @@ export interface ResourceItem {
   name?: string;
   resource_group_name?: string;
   props?: Record<string, string>;
-  [key: string]: any;
 }
 
-export function filterResourceList(
-  list: ResourceItem[] | undefined,
+// Generic so callers get their own row type back, not just these three fields.
+export function filterResourceList<T extends ResourceItem>(
+  list: T[] | undefined,
   resourceGroup: string | undefined,
   searchKey: string | undefined,
-): ResourceItem[] {
+): T[] {
   if (!list) return [];
 
   let filtered = [...list];
