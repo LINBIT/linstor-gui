@@ -4,18 +4,26 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Form, Space, Table, Tag, DatePicker, Dropdown, Tooltip } from 'antd';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
 import { Link } from '@app/components/Link';
 import type { TableProps } from 'antd';
+import type { SortOrder } from 'antd/es/table/interface';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { deleteReport, deleteReportBulk, getErrorReports } from '../api';
-import { ErrorReport, ErrorReportDeleteRangeRequest, GetErrorReportRequestQuery } from '../types';
+import { deleteReport, deleteReportBulk, getErrorReportPage, getErrorReports } from '../api';
+import {
+  ErrorReport,
+  ErrorReportDeleteRangeRequest,
+  ErrorReportPageQuery,
+  ErrorReportSortField,
+  GetErrorReportRequestQuery,
+} from '../types';
 import { formatTime } from '@app/utils/time';
 import dayjs from 'dayjs';
 import { useNodes } from '@app/features/node';
+import { useLinstorVersion, MIN_API_VERSION } from '@app/hooks';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';
@@ -41,12 +49,26 @@ const getId = (report: ErrorReport) => {
   return report?.filename?.replace('ErrorReport-', '').replace('.log', '') || '';
 };
 
+type Filters = { node?: string; since?: number; to?: number };
+type Sort = { sort_by: ErrorReportSortField; sort_order: 'asc' | 'desc' };
+
+const DEFAULT_PAGE_SIZE = 10;
+const DEFAULT_SORT: Sort = { sort_by: 'error_time', sort_order: 'desc' };
+
+// Table column key -> the field the controller sorts by.
+const SORT_FIELDS: Record<string, ErrorReportSortField> = {
+  id: 'filename',
+  time: 'error_time',
+  node_name: 'node_name',
+  module: 'module',
+  exception_message: 'exception_message',
+};
+
 export const List = () => {
   const [form] = Form.useForm();
   const { t } = useTranslation(['error_report', 'common']);
 
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const [displayData, setDisplayData] = useState<ErrorReport[]>([]);
   const nodes = useNodes();
 
   const navigate = useNavigate();
@@ -57,39 +79,94 @@ export const List = () => {
     hciModeFromSetting: state.setting.mode === UIMode.HCI,
   }));
 
-  // `node` is filtered by the backend; the time range is filtered client-side on
-  // `error_time` because the LINSTOR backend's since/to filter does not align with
-  // the error_time the list displays and sorts by (it returns empty for valid ranges).
-  const [query, setQuery] = useState<GetErrorReportRequestQuery>(() => {
+  // From REST 1.30.0 the controller pages, sorts and filters the merged reports
+  // of all nodes itself. Older controllers can only hand over every report, so
+  // the browser does it — including the time range, because they compared
+  // since/to against a local-time stamp that did not line up with error_time.
+  const { isFetched: versionFetched, hasMinVersion } = useLinstorVersion();
+  const serverPaging = versionFetched && hasMinVersion(MIN_API_VERSION.ERROR_REPORT_PAGING);
+
+  const [filters, setFilters] = useState<Filters>(() => {
     const params = new URLSearchParams(location.search);
     const node = params.get('node') ?? undefined;
+    const since = params.get('since');
+    const to = params.get('to');
+    const initial: Filters = {};
 
     if (node) {
       form.setFieldValue('node', node);
-      return { node };
+      initial.node = node;
     }
-
-    return {};
-  });
-
-  const [timeRange, setTimeRange] = useState<{ since?: number; to?: number }>(() => {
-    const params = new URLSearchParams(location.search);
-    const since = params.get('since');
-    const to = params.get('to');
-
     if (since && to) {
       form.setFieldValue('range', [dayjs(Number(since)), dayjs(Number(to))]);
-      return { since: Number(since), to: Number(to) };
+      initial.since = Number(since);
+      initial.to = Number(to);
     }
 
-    return {};
+    return initial;
   });
 
-  const module = Form.useWatch('module', form);
+  const module = Form.useWatch('module', form) as ErrorReportPageQuery['module'] | undefined;
 
-  const { data, refetch, isLoading } = useQuery(['getErrors', query], () => {
-    return getErrorReports(query);
+  const [page, setPage] = useState({ current: 1, pageSize: DEFAULT_PAGE_SIZE });
+  const [sort, setSort] = useState<Sort>(DEFAULT_SORT);
+
+  const firstPage = () => setPage((prev) => (prev.current === 1 ? prev : { ...prev, current: 1 }));
+
+  // A new module narrows the result, so the current page may no longer exist.
+  useEffect(() => {
+    setPage((prev) => (prev.current === 1 ? prev : { ...prev, current: 1 }));
+  }, [module]);
+
+  const legacyQuery: GetErrorReportRequestQuery = filters.node ? { node: filters.node } : {};
+  const legacy = useQuery(['getErrors', legacyQuery], () => getErrorReports(legacyQuery), {
+    // Wait for the version, or every visit would first pull the full list.
+    enabled: versionFetched && !serverPaging,
   });
+
+  const pageQuery: ErrorReportPageQuery = {
+    ...(filters.node && { node: [filters.node] }),
+    ...(module && { module }),
+    ...(filters.since != null && filters.to != null && { since: filters.since, to: filters.to }),
+    limit: page.pageSize,
+    offset: (page.current - 1) * page.pageSize,
+    sort_by: sort.sort_by,
+    sort_order: sort.sort_order,
+  };
+  const paged = useQuery(['viewErrorReports', pageQuery], () => getErrorReportPage(pageQuery), {
+    enabled: serverPaging,
+    keepPreviousData: true,
+  });
+
+  // The controller leaves `items` out of an empty page.
+  const pageItems = paged.data?.data?.items ?? [];
+  const pageTotal = paged.data?.data?.total ?? 0;
+
+  // Deleting the last reports of the last page leaves it empty: go to the page
+  // that is now last instead of showing nothing.
+  useEffect(() => {
+    if (!serverPaging || !paged.data?.data) return;
+    if (pageItems.length === 0 && pageTotal > 0) {
+      setPage((prev) => (prev.current > 1 ? { ...prev, current: Math.ceil(pageTotal / prev.pageSize) } : prev));
+    }
+  }, [serverPaging, paged.data, pageItems.length, pageTotal]);
+
+  const legacyData = useMemo(() => {
+    let rows = [...(legacy.data?.data ?? [])].reverse();
+
+    if (module) {
+      rows = rows.filter((e) => e.module === module);
+    }
+
+    const { since, to } = filters;
+    if (since != null && to != null) {
+      rows = rows.filter((e) => e.error_time >= since && e.error_time <= to);
+    }
+
+    return rows;
+  }, [legacy.data?.data, module, filters]);
+
+  const refetch = () => (serverPaging ? paged.refetch() : legacy.refetch());
 
   const deleteErrorMutation = useMutation({
     mutationFn: (id: string) => deleteReport(id),
@@ -101,74 +178,59 @@ export const List = () => {
   const deleteErrorBulkMutation = useMutation({
     mutationFn: (query: ErrorReportDeleteRangeRequest) => deleteReportBulk(query),
     onSuccess: () => {
+      // The deleted reports must not stay selected, or Delete stays enabled for
+      // reports that no longer exist.
+      setSelectedRowKeys([]);
       refetch();
     },
   });
 
-  useEffect(() => {
-    let displayData = data?.data?.map((item) => ({ ...item, id: getId(item) })).reverse() ?? [];
-
-    if (module) {
-      displayData = displayData.filter((e) => e.module === module);
-    }
-
-    const { since, to } = timeRange;
-    if (since != null && to != null) {
-      displayData = displayData.filter((e) => e.error_time >= since && e.error_time <= to);
-    }
-
-    setDisplayData(displayData);
-  }, [module, data?.data, timeRange]);
-
-  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
-    setSelectedRowKeys(newSelectedRowKeys);
-  };
-
   const rowSelection = {
     selectedRowKeys,
-    onChange: onSelectChange,
+    onChange: (newSelectedRowKeys: React.Key[]) => setSelectedRowKeys(newSelectedRowKeys),
+    // Keep the selection of other pages when paging on the controller.
+    preserveSelectedRowKeys: true,
   };
 
   const hasSelected = selectedRowKeys.length > 0;
 
   const handleSearch = () => {
     const values = form.getFieldsValue();
-    const newQuery: GetErrorReportRequestQuery = {};
-    const newTimeRange: { since?: number; to?: number } = {};
+    const next: Filters = {};
 
     if (values.node) {
-      newQuery.node = values.node;
+      next.node = values.node;
     }
 
     if (values.range) {
       // The picker is date-only, so cover the full span: start of the first day to
       // end of the last day. This makes selecting a single day match that whole day.
-      newTimeRange.since = dayjs(values.range[0]).startOf('day').valueOf();
-      newTimeRange.to = dayjs(values.range[1]).endOf('day').valueOf();
+      next.since = dayjs(values.range[0]).startOf('day').valueOf();
+      next.to = dayjs(values.range[1]).endOf('day').valueOf();
     }
 
     const params = new URLSearchParams();
 
-    if (newQuery.node) {
-      params.set('node', newQuery.node);
+    if (next.node) {
+      params.set('node', next.node);
     }
-    if (newTimeRange.since) {
-      params.set('since', newTimeRange.since.toString());
+    if (next.since) {
+      params.set('since', next.since.toString());
     }
-    if (newTimeRange.to) {
-      params.set('to', newTimeRange.to.toString());
+    if (next.to) {
+      params.set('to', next.to.toString());
     }
 
     navigate(`${location.pathname}?${params.toString()}`);
 
-    setQuery(newQuery);
-    setTimeRange(newTimeRange);
+    setFilters(next);
+    firstPage();
   };
 
   const handleReset = () => {
     form.resetFields();
-    setQuery({});
-    setTimeRange({});
+    setFilters({});
+    firstPage();
     navigate(location.pathname);
   };
 
@@ -176,7 +238,6 @@ export const List = () => {
     deleteErrorMutation.mutate(id);
   };
 
-  // handle click on view button
   const handleView = (id: string) => {
     const url = vsanModeFromSetting
       ? `/vsan/error-reports/${id}`
@@ -186,12 +247,39 @@ export const List = () => {
     navigate(url);
   };
 
+  // Sorting on the controller: which column is sorted, and how, is state here.
+  const serverSorter = (key: string): Partial<NonNullable<TableProps<ErrorReport>['columns']>[number]> => {
+    if (!serverPaging) return {};
+    const sorted = SORT_FIELDS[key] === sort.sort_by;
+    const sortOrder: SortOrder = sorted ? (sort.sort_order === 'asc' ? 'ascend' : 'descend') : null;
+    return { sorter: true, sortOrder, showSorterTooltip: false };
+  };
+
+  const handleTableChange: TableProps<ErrorReport>['onChange'] = (pagination, _filters, sorter) => {
+    if (!serverPaging) return;
+
+    const column = Array.isArray(sorter) ? sorter[0] : sorter;
+    const field = column?.order ? SORT_FIELDS[String(column.columnKey)] : undefined;
+    // Clearing a column's sort falls back to newest first.
+    const nextSort: Sort = field
+      ? { sort_by: field, sort_order: column.order === 'ascend' ? 'asc' : 'desc' }
+      : DEFAULT_SORT;
+    const sortChanged = nextSort.sort_by !== sort.sort_by || nextSort.sort_order !== sort.sort_order;
+    const pageSize = pagination.pageSize ?? DEFAULT_PAGE_SIZE;
+
+    setSort(nextSort);
+    // A new order or page size makes the old page number meaningless.
+    setPage({
+      current: sortChanged || pageSize !== page.pageSize ? 1 : (pagination.current ?? 1),
+      pageSize,
+    });
+  };
+
   const columns: TableProps<ErrorReport>['columns'] = [
     {
       title: t('error_report:id'),
       key: 'id',
-      dataIndex: 'id',
-      render: (id, record) => {
+      render: (_, record) => {
         const reportId = getId(record);
         const url = vsanModeFromSetting
           ? `/vsan/error-reports/${reportId}`
@@ -199,16 +287,22 @@ export const List = () => {
             ? `/hci/error-reports/${reportId}`
             : `/error-reports/${reportId}`;
 
-        return <Link to={url}>{id}</Link>;
+        return <Link to={url}>{reportId}</Link>;
       },
+      ...serverSorter('id'),
     },
     {
       title: t('error_report:time'),
       key: 'time',
       render: (_, record) => <span>{formatTime(record.error_time)}</span>,
-      defaultSortOrder: 'descend',
-      sorter: (a, b) => a.error_time - b.error_time,
-      showSorterTooltip: false,
+      ...(serverPaging
+        ? // Starts out newest first, so the first click goes to oldest first.
+          { ...serverSorter('time'), sortDirections: ['descend', 'ascend'] as SortOrder[] }
+        : {
+            defaultSortOrder: 'descend' as const,
+            sorter: (a: ErrorReport, b: ErrorReport) => a.error_time - b.error_time,
+            showSorterTooltip: false,
+          }),
     },
     {
       title: t('common:node'),
@@ -221,12 +315,14 @@ export const List = () => {
 
         return <Link to={nodeUrl}>{node_name}</Link>;
       },
+      ...serverSorter('node_name'),
     },
     {
       title: t('error_report:module'),
       key: 'module',
       dataIndex: 'module',
       render: (_, { module }) => <Tag color={module === 'SATELLITE' ? 'cyan' : 'geekblue'}>{module}</Tag>,
+      ...serverSorter('module'),
     },
     {
       title: t('error_report:content'),
@@ -238,6 +334,7 @@ export const List = () => {
           <Tag color="red">{exception}</Tag>
         </div>
       ),
+      ...serverSorter('exception_message'),
     },
     {
       title: () => (
@@ -304,6 +401,8 @@ export const List = () => {
       value: 'CONTROLLER',
     },
   ];
+
+  const showTotal = (total: number) => t('common:total_items', { total });
 
   return (
     <>
@@ -383,14 +482,16 @@ export const List = () => {
 
       <Table
         columns={columns}
-        dataSource={displayData}
+        dataSource={serverPaging ? pageItems : legacyData}
         rowSelection={rowSelection}
         rowKey={(item) => item?.filename || ''}
-        pagination={{
-          showSizeChanger: true,
-          showTotal: (total) => t('common:total_items', { total }),
-        }}
-        loading={isLoading}
+        onChange={handleTableChange}
+        pagination={
+          serverPaging
+            ? { current: page.current, pageSize: page.pageSize, total: pageTotal, showSizeChanger: true, showTotal }
+            : { showSizeChanger: true, showTotal }
+        }
+        loading={!versionFetched || (serverPaging ? paged.isFetching : legacy.isLoading)}
         scroll={{ x: 'max-content' }}
       />
     </>

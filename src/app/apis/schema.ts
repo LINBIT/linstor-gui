@@ -4910,6 +4910,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/view/error-reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * list one page of the globally sorted error reports
+         * @description Lists error reports of all or the given nodes as a pagination envelope: the reports of all
+         *     queried nodes are merged, sorted by the requested field and reduced to the requested page.
+         *     `total` is the number of matching reports across all queried nodes, ignoring limit/offset.
+         *     Reports of unreachable satellites are not part of `total`/`items`.
+         */
+        get: operations["viewErrorReports"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/stats/resources": {
         parameters: {
             query?: never;
@@ -7423,6 +7446,29 @@ export interface components {
              * @description Origin line number
              */
             origin_line?: number;
+        };
+        ErrorReportPage: {
+            /**
+             * Format: int64
+             * @description Total number of matching error reports across all queried nodes, ignoring limit/offset
+             */
+            total: number;
+            /**
+             * Format: int32
+             * @description Maximum number of error reports per page
+             */
+            limit: number;
+            /**
+             * Format: int64
+             * @description Number of error reports of the sorted result that were skipped
+             */
+            offset: number;
+            /** @description Field the error reports are sorted by */
+            sort_by?: string;
+            /** @description Sort order, either asc or desc */
+            sort_order?: string;
+            /** @description The error reports of the requested page */
+            items: components["schemas"]["ErrorReport"][];
         };
         ErrorReportDelete: {
             /**
@@ -12317,6 +12363,47 @@ export interface operations {
                     "application/json": components["schemas"]["Snapshot"][];
                 };
             };
+            500: components["responses"]["OperationFailed"];
+        };
+    };
+    viewErrorReports: {
+        parameters: {
+            query?: {
+                /** @description Only show error reports of the given nodes */
+                node?: string[];
+                /** @description Unix epoch milliseconds */
+                since?: components["parameters"]["Since"];
+                /** @description Unix timestamp to the ending interval */
+                to?: number;
+                /** @description Include error report text in response. */
+                withContent?: boolean;
+                /** @description Only show error reports of this module */
+                module?: "CONTROLLER" | "SATELLITE";
+                /** @description Maximum number of error reports per page */
+                limit?: number;
+                /** @description Number of error reports of the sorted result to skip */
+                offset?: number;
+                /** @description Field to sort the error reports by */
+                sort_by?: "error_time" | "node_name" | "module" | "exception" | "exception_message" | "origin_file" | "filename" | "version" | "peer";
+                /** @description Sort order */
+                sort_order?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description one page of error reports */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorReportPage"];
+                };
+            };
+            400: components["responses"]["InvalidInput"];
             500: components["responses"]["OperationFailed"];
         };
     };

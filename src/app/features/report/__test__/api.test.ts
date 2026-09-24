@@ -13,7 +13,7 @@ vi.mock('../../requests', () => ({
 }));
 
 import { get, del, patch } from '../../requests';
-import { getErrorReports, getErrorReportById, deleteReport, deleteReportBulk } from '../api';
+import { getErrorReports, getErrorReportPage, getErrorReportById, deleteReport, deleteReportBulk } from '../api';
 
 const ok = { data: [{ ret_code: 1 }] };
 
@@ -28,6 +28,19 @@ describe('report api', () => {
   it('lists error reports with the query', async () => {
     await getErrorReports({ node: 'node-1' });
     expect(get).toHaveBeenCalledWith('/v1/error-reports', { params: { query: { node: 'node-1' } } });
+  });
+
+  it('asks the paged view for one sorted page', async () => {
+    const query = {
+      node: ['node-1', 'node-2'],
+      module: 'SATELLITE' as const,
+      limit: 20,
+      offset: 40,
+      sort_by: 'node_name' as const,
+      sort_order: 'asc' as const,
+    };
+    await getErrorReportPage(query);
+    expect(get).toHaveBeenCalledWith('/v1/view/error-reports', { params: { query } });
   });
 
   it('reads one report by id', async () => {

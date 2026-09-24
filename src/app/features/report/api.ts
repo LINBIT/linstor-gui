@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { get, del, patch } from '../requests';
-import { ErrorReportDeleteRangeRequest, GetErrorReportRequestQuery } from './types';
+import { ErrorReportDeleteRangeRequest, ErrorReportPageQuery, GetErrorReportRequestQuery } from './types';
 
 const deleteReport = (reportid: string) => {
   return del('/v1/error-reports/{reportid}', {
@@ -42,4 +42,13 @@ const getErrorReports = (query: GetErrorReportRequestQuery) => {
   });
 };
 
-export { getErrorReports, getErrorReportById, deleteReport, deleteReportBulk };
+/** One page of the reports of all queried nodes, merged and sorted on the controller (REST 1.30.0). */
+const getErrorReportPage = (query: ErrorReportPageQuery) => {
+  return get('/v1/view/error-reports', {
+    params: {
+      query,
+    },
+  });
+};
+
+export { getErrorReports, getErrorReportPage, getErrorReportById, deleteReport, deleteReportBulk };
