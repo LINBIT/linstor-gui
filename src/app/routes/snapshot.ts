@@ -4,7 +4,9 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import List from '@app/pages/Snapshot';
+import { lazy } from 'react';
+
+const List = lazy(() => import('@app/pages/Snapshot'));
 
 const snapshot = [
   {

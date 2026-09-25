@@ -17,7 +17,7 @@ import { ChangePassword, CreateUser } from '../../components';
 import { settingAPI, type SettingsProps } from '@app/features/settings';
 import { notify } from '@app/utils/toast';
 import { useMutation } from '@tanstack/react-query';
-import { authAPI } from '@app/features/authentication';
+import authAPI from '../../api';
 import { useIsAdmin } from '@app/hooks';
 import { useTranslation } from 'react-i18next';
 import { Switch } from '@app/components/Switch';

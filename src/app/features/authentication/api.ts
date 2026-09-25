@@ -8,7 +8,10 @@ import { USER_LOCAL_STORAGE_KEY, DEFAULT_ADMIN_USER_NAME, DEFAULT_ADMIN_USER_PAS
 import { logger } from '@app/utils/logger';
 import { KV_NAMESPACES } from '@app/const/kvstore';
 import { KeyValueStoreType, kvStore } from '@app/features/keyValueStore';
-import CryptoJS from 'crypto-js';
+
+// Only needed when a password is stored or checked, so keep it out of the
+// first load.
+const loadCryptoJS = () => import('crypto-js').then((m) => m.default);
 
 export interface UserAuth {
   username: string;
@@ -174,6 +177,7 @@ export class UserAuthAPI {
   // }
 
   private async encrypt(password: string): Promise<string> {
+    const CryptoJS = await loadCryptoJS();
     return CryptoJS.AES.encrypt(password, this.key).toString();
 
     // const srcs = CryptoJS.enc.Utf8.parse(password);
@@ -186,6 +190,7 @@ export class UserAuthAPI {
   }
 
   private async decrypt(encryptedPassword: string): Promise<string> {
+    const CryptoJS = await loadCryptoJS();
     try {
       const decrypted = CryptoJS.AES.decrypt(encryptedPassword, this.key);
       const result = decrypted.toString(CryptoJS.enc.Utf8);

@@ -4,12 +4,14 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import ISCSIList from '@app/pages/Gateway/iscsi';
-import ISCSICreate from '@app/pages/Gateway/iscsi/Create';
-import NFSList from '@app/pages/Gateway/nfs';
-import NFSCreate from '@app/pages/Gateway/nfs/Create';
-import NvmeList from '@app/pages/Gateway/nvme';
-import NvmeCreate from '@app/pages/Gateway/nvme/Create';
+import { lazy } from 'react';
+
+const ISCSIList = lazy(() => import('@app/pages/Gateway/iscsi'));
+const ISCSICreate = lazy(() => import('@app/pages/Gateway/iscsi/Create'));
+const NFSList = lazy(() => import('@app/pages/Gateway/nfs'));
+const NFSCreate = lazy(() => import('@app/pages/Gateway/nfs/Create'));
+const NvmeList = lazy(() => import('@app/pages/Gateway/nvme'));
+const NvmeCreate = lazy(() => import('@app/pages/Gateway/nvme/Create'));
 
 const gateway = [
   {

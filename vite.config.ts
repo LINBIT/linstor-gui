@@ -84,40 +84,10 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: 'dist',
       assetsDir: '.',
-      rollupOptions: {
-        output: {
-          // vite 8's bundler only accepts the function form of manualChunks
-          // (the object form was removed). Each entry maps a chunk name to the
-          // node_modules packages that belong in it.
-          manualChunks: (id) => {
-            if (!id.includes('node_modules')) return undefined;
-            const groups: Record<string, string[]> = {
-              // React core
-              react: ['react', 'react-dom'],
-              // Routing
-              router: ['react-router-dom'],
-              // Internationalization
-              i18n: ['react-i18next', 'i18next'],
-              // State management
-              query: ['@tanstack/react-query'],
-              redux: ['@rematch/core', '@rematch/loading', 'react-redux'],
-              // UI libraries
-              antd: ['antd', '@ant-design/icons'],
-              emotion: ['@emotion/react', '@emotion/styled'],
-              // Chart libraries
-              charts: ['apexcharts', 'react-apexcharts'],
-              // Utility libraries
-              utils: ['lodash', 'dayjs', 'axios', 'crypto-js', 'camelcase'],
-              // OpenAPI related
-              openapi: ['openapi-fetch'],
-            };
-            for (const [name, pkgs] of Object.entries(groups)) {
-              if (pkgs.some((pkg) => id.includes(`node_modules/${pkg}/`))) return name;
-            }
-            return undefined;
-          },
-        },
-      },
+      // No manualChunks: grouping libraries into fixed vendor chunks made any
+      // first-load import of one module (e.g. a prop-types helper) pull its
+      // whole group — apexcharts, every antd component — into the entry.
+      // Pages are lazy (routes/), so the bundler's own split is the smaller one.
       sourcemap: false, // Disable sourcemaps in production
       cssCodeSplit: true,
       minify: 'terser',

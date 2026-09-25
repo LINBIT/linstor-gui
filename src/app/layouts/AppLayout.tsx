@@ -14,7 +14,8 @@ import SVG from 'react-inlinesvg';
 import { useTranslation } from 'react-i18next';
 
 import { Dispatch, RootState } from '@app/store';
-import { ChangePassword, Login } from '@app/features/authentication';
+import { ChangePassword } from '@app/features/authentication/components/ChangePassword/ChangePassword';
+import { Login } from '@app/features/authentication/pages/Login';
 import { useUIModeStorage } from '@app/hooks';
 import { Mode } from '@app/hooks/useUIModeStorage';
 import { UIMode as SettingUIMode } from '@app/models/setting'; // import SettingUIMode enum

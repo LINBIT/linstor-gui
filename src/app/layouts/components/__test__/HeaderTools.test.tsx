@@ -35,7 +35,7 @@ vi.mock('@app/features/resource/hooks/useFaultyResources', () => ({
   useFaultyResources: () => ({ data: hoisted.faulty }),
 }));
 
-vi.mock('@app/features/authentication', () => ({
+vi.mock('@app/features/authentication/components/ChangePassword/ChangePassword', () => ({
   ChangePassword: () => <span>Change password</span>,
 }));
 

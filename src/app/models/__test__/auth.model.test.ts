@@ -22,7 +22,7 @@ const authAPI = vi.hoisted(() => ({
   getUsers: vi.fn(),
   resetAuthenticationSystem: vi.fn(),
 }));
-vi.mock('@app/features/authentication', () => ({ authAPI }));
+vi.mock('@app/features/authentication/api', () => ({ default: authAPI }));
 
 const settingAPI = vi.hoisted(() => ({ getProps: vi.fn() }));
 vi.mock('@app/features/settings', () => ({ settingAPI }));

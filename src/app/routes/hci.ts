@@ -4,38 +4,40 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import NodeList from '@app/pages/Inventory/Nodes';
-import NodeDetail from '@app/pages/Inventory/Nodes/detail';
-import NodeCreate from '@app/pages/Inventory/Nodes/create';
-import NodeEdit from '@app/pages/Inventory/Nodes/edit';
-import StoragePoolList from '@app/pages/Inventory/StoragePools';
-import StoragePoolCreate from '@app/pages/Inventory/StoragePools/create';
-import StoragePoolEdit from '@app/pages/Inventory/StoragePools/edit';
-import ResourceGroupList from '@app/pages/SoftwareDefined/ResourceGroups';
-import ResourceGroupEdit from '@app/pages/SoftwareDefined/ResourceGroups/edit';
-import ResourceGroupCreate from '@app/pages/SoftwareDefined/ResourceGroups/create';
-import ResourceCreate from '@app/pages/SoftwareDefined/Resources/create';
-import ResourceEdit from '@app/pages/SoftwareDefined/Resources/edit';
-import RemoteList from '@app/pages/Backup/Remote/RemoteList';
-import ScheduleList from '@app/pages/Backup/ScheduleList';
-import ScheduleResource from '@app/pages/Backup/ScheduleList/ScheduleByResourceist';
-import BackupList from '@app/pages/Backup/Remote/BackupList';
-import ErrorReportList from '@app/pages/ErrorReport/index';
-import ErrorReportDetail from '@app/pages/ErrorReport/Detail';
-import { GrafanaDashboard } from '@app/pages/Grafana';
-import { Controller } from '@app/pages/Inventory/Controller';
-import { UserManagement } from '@app/features/authentication';
-import GeneralSettings from '@app/pages/Settings';
-import ResourceOverview from '@app/pages/SoftwareDefined/Resources/overview';
-import ResourceDefinitionCreate from '@app/pages/SoftwareDefined/ResourceDefinitions/create';
-import List from '@app/pages/Snapshot';
-import ISCSIList from '@app/pages/Gateway/iscsi';
-import ISCSICreate from '@app/pages/Gateway/iscsi/Create';
-import NFSList from '@app/pages/Gateway/nfs';
-import NFSCreate from '@app/pages/Gateway/nfs/Create';
-import NvmeList from '@app/pages/Gateway/nvme';
-import NvmeCreate from '@app/pages/Gateway/nvme/Create';
-import { HCIDashboard } from '@app/features/hci';
+import { lazy } from 'react';
+
+const NodeList = lazy(() => import('@app/pages/Inventory/Nodes'));
+const NodeDetail = lazy(() => import('@app/pages/Inventory/Nodes/detail'));
+const NodeCreate = lazy(() => import('@app/pages/Inventory/Nodes/create'));
+const NodeEdit = lazy(() => import('@app/pages/Inventory/Nodes/edit'));
+const StoragePoolList = lazy(() => import('@app/pages/Inventory/StoragePools'));
+const StoragePoolCreate = lazy(() => import('@app/pages/Inventory/StoragePools/create'));
+const StoragePoolEdit = lazy(() => import('@app/pages/Inventory/StoragePools/edit'));
+const ResourceGroupList = lazy(() => import('@app/pages/SoftwareDefined/ResourceGroups'));
+const ResourceGroupEdit = lazy(() => import('@app/pages/SoftwareDefined/ResourceGroups/edit'));
+const ResourceGroupCreate = lazy(() => import('@app/pages/SoftwareDefined/ResourceGroups/create'));
+const ResourceCreate = lazy(() => import('@app/pages/SoftwareDefined/Resources/create'));
+const ResourceEdit = lazy(() => import('@app/pages/SoftwareDefined/Resources/edit'));
+const RemoteList = lazy(() => import('@app/pages/Backup/Remote/RemoteList'));
+const ScheduleList = lazy(() => import('@app/pages/Backup/ScheduleList'));
+const ScheduleResource = lazy(() => import('@app/pages/Backup/ScheduleList/ScheduleByResourceist'));
+const BackupList = lazy(() => import('@app/pages/Backup/Remote/BackupList'));
+const ErrorReportList = lazy(() => import('@app/pages/ErrorReport/index'));
+const ErrorReportDetail = lazy(() => import('@app/pages/ErrorReport/Detail'));
+const GrafanaDashboard = lazy(() => import('@app/pages/Grafana').then((m) => ({ default: m.GrafanaDashboard })));
+const Controller = lazy(() => import('@app/pages/Inventory/Controller').then((m) => ({ default: m.Controller })));
+const UserManagement = lazy(() => import('@app/features/authentication').then((m) => ({ default: m.UserManagement })));
+const GeneralSettings = lazy(() => import('@app/pages/Settings'));
+const ResourceOverview = lazy(() => import('@app/pages/SoftwareDefined/Resources/overview'));
+const ResourceDefinitionCreate = lazy(() => import('@app/pages/SoftwareDefined/ResourceDefinitions/create'));
+const List = lazy(() => import('@app/pages/Snapshot'));
+const ISCSIList = lazy(() => import('@app/pages/Gateway/iscsi'));
+const ISCSICreate = lazy(() => import('@app/pages/Gateway/iscsi/Create'));
+const NFSList = lazy(() => import('@app/pages/Gateway/nfs'));
+const NFSCreate = lazy(() => import('@app/pages/Gateway/nfs/Create'));
+const NvmeList = lazy(() => import('@app/pages/Gateway/nvme'));
+const NvmeCreate = lazy(() => import('@app/pages/Gateway/nvme/Create'));
+const HCIDashboard = lazy(() => import('@app/features/hci').then((m) => ({ default: m.HCIDashboard })));
 
 const hci = [
   {

@@ -6,7 +6,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { Alert } from 'antd';
-import { AuthForm } from '@app/features/authentication';
+import { AuthForm } from '../../components/AuthForm/AuthForm';
 import logo from '@app/assets/login-logo.svg';
 import loginBg from '@app/assets/login-bg.svg';
 import { useKVStore } from '@app/hooks';

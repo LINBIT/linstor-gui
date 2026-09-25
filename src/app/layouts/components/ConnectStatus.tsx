@@ -12,7 +12,7 @@ import { Tooltip } from 'antd';
 import './ConnectStatus.css';
 
 import { useQuery } from '@tanstack/react-query';
-import { getControllerConfig } from '@app/features/node';
+import { getControllerConfig } from '@app/features/node/api';
 import { ConnectedIcon, DisconnectedIcon } from '@app/components/SVGIcon';
 
 const ConnectStatus: React.FC = () => {

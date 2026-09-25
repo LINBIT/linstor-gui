@@ -43,8 +43,11 @@ vi.mock('react-redux', () => ({
   useSelector: (selector: (s: unknown) => unknown) => selector(hoisted.state),
 }));
 
-vi.mock('@app/features/authentication', () => ({
+vi.mock('@app/features/authentication/pages/Login', () => ({
   Login: ({ redirectTo }: { redirectTo?: string }) => <div data-testid="login">{redirectTo}</div>,
+}));
+
+vi.mock('@app/features/authentication/components/ChangePassword/ChangePassword', () => ({
   ChangePassword: () => <div data-testid="change-password" />,
 }));
 

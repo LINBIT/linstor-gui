@@ -7,7 +7,7 @@
 import { createModel } from '@rematch/core';
 import { logger } from '@app/utils/logger';
 import { RootModel } from '.';
-import { authAPI } from '@app/features/authentication';
+import authAPI from '@app/features/authentication/api';
 import { USER_LOCAL_STORAGE_KEY, DEFAULT_ADMIN_USER_NAME, DEFAULT_ADMIN_USER_PASS } from '@app/const/settings';
 import { settingAPI } from '@app/features/settings';
 

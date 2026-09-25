@@ -1,14 +1,18 @@
-import { UserManagement } from '@app/features/authentication';
-import ErrorReportList from '@app/pages/ErrorReport';
-import ErrorReportDetail from '@app/pages/ErrorReport/Detail';
-import NodeDetail from '@app/pages/Inventory/Nodes/detail';
-import { About } from '@app/pages/VSAN/About';
-import { ISCSI } from '@app/pages/VSAN/ISCSI';
-import { NFS } from '@app/pages/VSAN/NFS';
-import { NVMeoF } from '@app/pages/VSAN/NVMeoF';
-import { PhysicalStorage } from '@app/pages/VSAN/PhysicalStorage';
-import { ResourceGroup } from '@app/pages/VSAN/ResourceGroup';
-import { Dashboard as VSANDashboard } from '@app/pages/VSAN/Dashboard';
+import { lazy } from 'react';
+
+const UserManagement = lazy(() => import('@app/features/authentication').then((m) => ({ default: m.UserManagement })));
+const ErrorReportList = lazy(() => import('@app/pages/ErrorReport'));
+const ErrorReportDetail = lazy(() => import('@app/pages/ErrorReport/Detail'));
+const NodeDetail = lazy(() => import('@app/pages/Inventory/Nodes/detail'));
+const About = lazy(() => import('@app/pages/VSAN/About').then((m) => ({ default: m.About })));
+const ISCSI = lazy(() => import('@app/pages/VSAN/ISCSI').then((m) => ({ default: m.ISCSI })));
+const NFS = lazy(() => import('@app/pages/VSAN/NFS').then((m) => ({ default: m.NFS })));
+const NVMeoF = lazy(() => import('@app/pages/VSAN/NVMeoF').then((m) => ({ default: m.NVMeoF })));
+const PhysicalStorage = lazy(() =>
+  import('@app/pages/VSAN/PhysicalStorage').then((m) => ({ default: m.PhysicalStorage })),
+);
+const ResourceGroup = lazy(() => import('@app/pages/VSAN/ResourceGroup').then((m) => ({ default: m.ResourceGroup })));
+const VSANDashboard = lazy(() => import('@app/pages/VSAN/Dashboard').then((m) => ({ default: m.Dashboard })));
 
 const vsan = [
   {

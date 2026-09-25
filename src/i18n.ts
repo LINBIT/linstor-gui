@@ -7,10 +7,11 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-import translations from './translations';
+import en from './translations/english';
 
+// Only English is bundled; translations/loaders.ts fetches the others.
 i18n.use(initReactI18next).init({
-  resources: translations,
+  resources: { en },
   lng: 'en',
   fallbackLng: 'en',
   interpolation: {

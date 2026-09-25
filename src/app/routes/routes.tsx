@@ -4,7 +4,8 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
+import { Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
@@ -18,12 +19,18 @@ import { UIMode } from '@app/models/setting';
 import { flattenedRoutes, adminRoutes, IAppRoute } from './route-config';
 import vsan from './vsan';
 import hci from './hci';
-import ConfigEditor from '@app/pages/HA/ConfigEditor';
+
+const ConfigEditor = lazy(() => import('@app/pages/HA/ConfigEditor'));
 
 // Component to handle setting document title and rendering the component
 const RouteWithTitleUpdates = ({ component: Component, title, ...rest }: IAppRoute) => {
   useDocumentTitle(title);
-  return <Component {...rest} />;
+  // Pages are lazy chunks; the layout stays put while one is fetched.
+  return (
+    <Suspense fallback={<Spin className="flex justify-center py-16 w-full" />}>
+      <Component {...rest} />
+    </Suspense>
+  );
 };
 
 const AppRoutes = (): React.ReactElement => {

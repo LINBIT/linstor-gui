@@ -4,8 +4,10 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import FilesList from '@app/pages/Files';
-import CreateFile from '@app/pages/Files/create';
+import { lazy } from 'react';
+
+const FilesList = lazy(() => import('@app/pages/Files'));
+const CreateFile = lazy(() => import('@app/pages/Files/create'));
 
 const files = [
   {

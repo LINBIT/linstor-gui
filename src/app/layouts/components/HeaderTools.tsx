@@ -13,11 +13,11 @@ import { useDispatch } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
 
 import { Dispatch } from '@app/store';
-import { ChangePassword } from '@app/features/authentication';
+import { ChangePassword } from '@app/features/authentication/components/ChangePassword/ChangePassword';
 import { Mode } from '@app/hooks/useUIModeStorage';
 import { DEFAULT_ADMIN_USER_NAME } from '@app/const/settings';
 import { BRAND_COLOR } from '@app/const/color';
-import { getControllerVersion } from '@app/features/node';
+import { getControllerVersion } from '@app/features/node/api';
 import { useFaultyResources } from '@app/features/resource/hooks/useFaultyResources';
 import { compareVersions } from '@app/utils/version';
 

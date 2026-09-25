@@ -9,6 +9,8 @@ import { Dropdown, MenuProps } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
+import { changeLanguage } from '../../../translations/loaders';
+
 import './LngSelector.css';
 
 const items = [
@@ -30,14 +32,14 @@ const LngSelector: React.FC = () => {
     if (savedLangKey) {
       const item = items.find((item) => item.key === savedLangKey);
       if (item) {
-        i18n.changeLanguage(savedLangKey);
+        void changeLanguage(i18n, savedLangKey);
         setSelected(item.short);
       }
     }
   }, [i18n]);
 
   const handleLanguageChange = (lang: { key: string; text: string; short: string }) => {
-    i18n.changeLanguage(lang.key);
+    void changeLanguage(i18n, lang.key);
     setSelected(lang.short);
     localStorage.setItem('selectedLanguageKey', lang.key);
   };
