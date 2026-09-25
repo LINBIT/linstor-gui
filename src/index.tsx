@@ -31,4 +31,7 @@ void setupDevTools().finally(() => {
       <App />
     </QueryClientProvider>,
   );
+  // The boot splash is otherwise hidden only by the main stylesheet; if that
+  // one request fails, the splash would cover a fully working app forever.
+  document.getElementById('app-loading')?.remove();
 });
