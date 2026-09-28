@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom';
+import { configure } from '@testing-library/react';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import translations from './translations';
@@ -13,6 +14,13 @@ if (!i18n.isInitialized) {
     interpolation: { escapeValue: false },
   });
 }
+
+// findBy*/waitFor give up after 1 s by default. The shared CI runner is about
+// ten times slower than a laptop (see testTimeout in vite.config.ts): antd's
+// async form validation or a list refetch there regularly outlasts 1 s, which
+// failed assertions that pass locally. Like testTimeout, this is a hang guard,
+// not a performance target.
+configure({ asyncUtilTimeout: 5000 });
 
 // Set timezone to UTC for consistent test results across different machines
 // This ensures that time-related tests produce the same results regardless of
