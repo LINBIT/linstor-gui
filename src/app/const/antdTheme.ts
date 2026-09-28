@@ -85,6 +85,12 @@ export const antdTheme: ThemeConfig = {
       // own; app.css covers that one.
       optionSelectedColor: tokens.color.brand.onPrimary,
     },
+    // A primary FloatButton (back-to-top) is filled with the peach
+    // colorPrimary but draws its icon in colorTextLightSolid (white), which
+    // nearly vanishes on it; brand fills take the dark `text/on-brand`.
+    FloatButton: {
+      colorTextLightSolid: tokens.color.brand.onPrimary,
+    },
     DatePicker: {
       activeBorderColor: tokens.color.brand.primary,
       hoverBorderColor: tokens.color.brand.primary,
