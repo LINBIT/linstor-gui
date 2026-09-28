@@ -10,7 +10,7 @@ import { Form, Upload, message } from 'antd';
 import { Input } from '@app/components/Input';
 import { Switch } from '@app/components/Switch';
 import SVG from 'react-inlinesvg';
-import isSvg from 'is-svg';
+import { isSvg } from '@app/utils/isSvg';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Dispatch, RootState } from '@app/store';

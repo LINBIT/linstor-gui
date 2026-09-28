@@ -7,7 +7,7 @@
 import { KV_NAMESPACES } from '@app/const/kvstore';
 import { logger } from '@app/utils/logger';
 import { DEFAULT_ADMIN_USER_NAME, DEFAULT_ADMIN_USER_PASS } from '@app/const/settings';
-import { authAPI } from '../authentication';
+import authAPI from '../authentication/api';
 import { KeyValueStoreType, kvStore } from '../keyValueStore';
 import { UIMode } from '@app/models/setting'; // import UIMode enum
 

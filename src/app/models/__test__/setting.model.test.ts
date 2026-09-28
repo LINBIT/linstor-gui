@@ -16,7 +16,6 @@ vi.mock('@app/requests', () => ({
   default: { get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() },
 }));
 vi.mock('@app/utils/toast', () => ({ notify: vi.fn() }));
-vi.mock('is-svg', () => ({ default: (s: string) => s.trim().startsWith('<svg') }));
 
 const settingsApi = vi.hoisted(() => ({
   instanceExists: vi.fn(),

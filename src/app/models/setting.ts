@@ -8,7 +8,7 @@ import service from '@app/requests';
 import { logger } from '@app/utils/logger';
 import { notify } from '@app/utils/toast';
 import { createModel } from '@rematch/core';
-import isSvg from 'is-svg';
+import { isSvg } from '@app/utils/isSvg';
 import { RootModel } from '.';
 
 import { settingAPI, SettingsAPI, SettingsProps } from '@app/features/settings';

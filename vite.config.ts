@@ -9,7 +9,6 @@ import { defineConfig, loadEnv } from 'vite';
 import { configDefaults } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
-import tsconfigPaths from 'vite-tsconfig-paths';
 import { resolve } from 'path';
 
 // https://vitejs.dev/config/
@@ -30,12 +29,12 @@ export default defineConfig(({ mode }) => {
   const isCoverageMode = process.argv.includes('--coverage');
 
   return {
-    plugins: [react(), tailwindcss(), tsconfigPaths()],
+    plugins: [react(), tailwindcss()],
 
     resolve: {
       extensions: ['.js', '.ts', '.tsx', '.jsx'],
       alias: {
-        '@app': resolve(__dirname, './src/app'),
+        '@app': resolve(import.meta.dirname, './src/app'),
       },
     },
 
@@ -89,11 +88,26 @@ export default defineConfig(({ mode }) => {
       // whole group — apexcharts, every antd component — into the entry.
       // Pages are lazy (routes/), so the bundler's own split is the smaller one.
       sourcemap: false, // Disable sourcemaps in production
+      // Two lazy chunks sit between 500 and 600 kB and cannot be split
+      // further: apexcharts on its own, and the OCF agent catalog data behind
+      // the reactor editor. Anything else crossing 500 kB should still warn,
+      // so the limit only covers those two.
+      chunkSizeWarningLimit: 600,
       cssCodeSplit: true,
-      minify: 'terser',
-      terserOptions: {
-        compress: {
-          drop_console: true,
+      // Vite's default oxc minifier; terser took 95% of the build time.
+      rolldownOptions: {
+        // Our own modules only matter for their exports, so an unused export
+        // of a feature barrel (e.g. node's chart components behind useNodes)
+        // no longer drags apexcharts into every page. i18n.ts initialises on
+        // import; CSS and node_modules keep the default.
+        treeshake: {
+          moduleSideEffects: [
+            { test: /\/src\/i18n\.ts$/, sideEffects: true },
+            { test: /\/src\/.*\.tsx?$/, sideEffects: false },
+          ],
+        },
+        output: {
+          minify: { compress: { dropConsole: true } },
         },
       },
     },

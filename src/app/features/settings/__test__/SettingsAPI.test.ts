@@ -15,8 +15,8 @@ vi.mock('@app/const/kvstore', () => ({
   },
 }));
 
-vi.mock('@app/features/authentication', () => ({
-  authAPI: {
+vi.mock('@app/features/authentication/api', () => ({
+  default: {
     usersInstance: 'test-users-instance',
     initUserStore: vi.fn(),
   },
@@ -43,7 +43,7 @@ vi.mock('@app/models/setting', () => ({
 // Import after mocks
 import { SettingsAPI, SETTINGS_FIELDS } from '../SettingsAPI';
 import { kvStore } from '@app/features/keyValueStore';
-import { authAPI } from '@app/features/authentication';
+import authAPI from '@app/features/authentication/api';
 import { UIMode } from '@app/models/setting';
 
 // Mock data

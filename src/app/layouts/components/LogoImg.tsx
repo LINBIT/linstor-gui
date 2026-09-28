@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import SVG from 'react-inlinesvg';
 import { isUrl } from '@app/utils/stringUtils';
-import isSvg from 'is-svg';
+import { isSvg } from '@app/utils/isSvg';
 import logoOnDark from '@app/assets/brand-dark.svg';
 import logoOnLight from '@app/assets/brand-light.svg';
 import { UIMode } from '@app/models/setting';
