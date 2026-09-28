@@ -120,8 +120,7 @@ describe('RestoreFrom', () => {
     await waitFor(() => expect(restoreButton()).toBeEnabled());
     fireEvent.click(restoreButton());
 
-    expect(await screen.findByText('Failed to create resource definition')).toBeInTheDocument();
-    expect(await screen.findByText('Restore failed')).toBeInTheDocument();
+    expect(await screen.findByText('Restore failed: exists')).toBeInTheDocument();
     expect(restoreVolumeDefinition).not.toHaveBeenCalled();
     expect(restoreSnapshot).not.toHaveBeenCalled();
     expect(onSuccess).not.toHaveBeenCalled();
@@ -134,7 +133,23 @@ describe('RestoreFrom', () => {
     await waitFor(() => expect(getResources).toHaveBeenCalled());
     await chooseExisting('res-b');
     fireEvent.click(restoreButton());
-    expect(await screen.findByText('Restore failed')).toBeInTheDocument();
+    expect(await screen.findByText('Restore failed: busy')).toBeInTheDocument();
+    expect(onSuccess).not.toHaveBeenCalled();
+  });
+
+  it('treats an error reply as a failure, not as a restore (openapi-fetch does not throw)', async () => {
+    vi.mocked(createResourceDefinition).mockResolvedValue({
+      error: [{ ret_code: -1, message: 'name taken' }],
+    } as never);
+    const onSuccess = vi.fn();
+    renderRestore({ onSuccess });
+    await waitFor(() => expect(getResources).toHaveBeenCalled());
+    typeNew('res-taken');
+    await waitFor(() => expect(restoreButton()).toBeEnabled());
+    fireEvent.click(restoreButton());
+    expect(await screen.findByText('Restore failed: name taken')).toBeInTheDocument();
+    expect(restoreVolumeDefinition).not.toHaveBeenCalled();
+    expect(restoreSnapshot).not.toHaveBeenCalled();
     expect(onSuccess).not.toHaveBeenCalled();
   });
 

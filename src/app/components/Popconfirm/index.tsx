@@ -34,7 +34,8 @@ export interface PopconfirmProps {
   icon?: React.ReactNode;
   disabled?: boolean;
   placement?: PopoverProps['placement'];
-  onConfirm?: (e?: React.MouseEvent<HTMLElement>) => void | Promise<void>;
+  // Awaited so the confirm button spins until the action is done; the result is ignored.
+  onConfirm?: (e?: React.MouseEvent<HTMLElement>) => unknown;
   onCancel?: (e?: React.MouseEvent<HTMLElement>) => void;
   getPopupContainer?: PopoverProps['getPopupContainer'];
   overlayClassName?: string;

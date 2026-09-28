@@ -6,6 +6,11 @@
 
 const ru = {
   common: {
+    n_more_in_log: '(ещё {{count}} в журнале)',
+    bulk_delete_done: 'Удалено {{done}} из {{total}}',
+    bulk_delete_failed: 'Удалено {{done}} из {{total}}; {{name}}: ошибка: {{error}}',
+    deleted_name: '{{name}} удалён',
+    delete_failed: 'Не удалось удалить {{name}}: {{error}}',
     // DRBD Reactor / OCF agent editor
     preview: 'Предпросмотр',
     paste: 'Вставить',

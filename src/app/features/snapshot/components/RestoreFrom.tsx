@@ -16,6 +16,10 @@ import { uniqBy } from 'lodash';
 import { getResources } from '@app/features/resource/api';
 import { createResourceDefinition } from '@app/features/resourceDefinition/api';
 import { restoreSnapshot, restoreVolumeDefinition } from '../api';
+import { withQuietToasts } from '@app/utils/toast';
+import { deleteError as replyError } from '@app/hooks/useDeleteAction';
+
+const RESTORE_MESSAGE_KEY = 'snapshot-restore';
 
 interface RestoreFromProps {
   sourceResource: string; // Source resource name (passed from parent)
@@ -39,53 +43,49 @@ const RestoreFrom: React.FC<RestoreFromProps> = ({ sourceResource, sourceSnapsho
     setTargetResource(resourceName);
   };
 
-  // Restore snapshot mutation
+  // Restore snapshot mutation. Up to three requests make one restore: their
+  // replies are kept quiet and one progress message (same key) walks through
+  // the steps and ends as the outcome. openapi-fetch resolves on HTTP errors,
+  // so every step is checked and a failed one stops the restore.
   const restoreMutation = useMutation({
-    mutationFn: async () => {
-      if (!targetResource) return;
+    mutationFn: () =>
+      withQuietToasts(async () => {
+        if (!targetResource) return;
 
-      // Check if the target resource exists in the list
-      const existingResource = resourceList?.data?.find((r) => r.name === targetResource);
+        const step = async (progress: string, call: () => Promise<unknown>) => {
+          message.loading({ content: progress, key: RESTORE_MESSAGE_KEY, duration: 0 });
+          const error = replyError(await call());
+          if (error) {
+            throw new Error(error);
+          }
+        };
 
-      if (!existingResource) {
-        // Create new resource definition if it doesn't exist
-        logger.debug('Creating new resource definition:', targetResource);
-        message.loading(t('snapshot:creating_resource', 'Creating resource definition...'), 0);
-
-        try {
-          await createResourceDefinition({
-            resource_definition: {
-              name: targetResource,
-            },
-          });
-          message.destroy(); // Clear loading message
-          message.success(t('snapshot:resource_created', 'Resource definition created successfully'));
-
-          // Restore volume definition for the new resource
-          message.loading(t('snapshot:restoring_volume_definition', 'Restoring volume definition...'), 0);
-          await restoreVolumeDefinition(sourceResource, sourceSnapshot, { to_resource: targetResource });
-          message.destroy(); // Clear loading message
-          message.success(t('snapshot:volume_definition_restored', 'Volume definition restored successfully'));
-        } catch (error) {
-          message.destroy(); // Clear loading message
-          message.error(t('snapshot:resource_creation_failed', 'Failed to create resource definition'));
-          throw error; // Re-throw to stop the restore process
+        const existingResource = resourceList?.data?.find((r) => r.name === targetResource);
+        if (!existingResource) {
+          logger.debug('Creating new resource definition:', targetResource);
+          await step(t('snapshot:creating_resource', 'Creating resource definition...'), () =>
+            createResourceDefinition({ resource_definition: { name: targetResource } }),
+          );
+          await step(t('snapshot:restoring_volume_definition', 'Restoring volume definition...'), () =>
+            restoreVolumeDefinition(sourceResource, sourceSnapshot, { to_resource: targetResource }),
+          );
         }
-      }
-
-      // Restore snapshot to the target resource
-      message.loading(t('snapshot:restoring', 'Restoring snapshot...'), 0);
-      await restoreSnapshot(sourceResource, sourceSnapshot, { to_resource: targetResource });
-      message.destroy(); // Clear loading message
-    },
+        await step(t('snapshot:restoring', 'Restoring snapshot...'), () =>
+          restoreSnapshot(sourceResource, sourceSnapshot, { to_resource: targetResource }),
+        );
+      }),
     onSuccess: () => {
-      message.success(t('snapshot:restore_success', 'Restore succeeded'));
+      message.success({ content: t('snapshot:restore_success', 'Restore succeeded'), key: RESTORE_MESSAGE_KEY });
       form.resetFields();
       setTargetResource(undefined);
       if (onSuccess) onSuccess();
     },
-    onError: () => {
-      message.error(t('snapshot:restore_failed', 'Restore failed'));
+    onError: (error: Error) => {
+      message.error({
+        content: `${t('snapshot:restore_failed', 'Restore failed')}: ${error.message}`,
+        key: RESTORE_MESSAGE_KEY,
+        duration: 10,
+      });
     },
   });
 

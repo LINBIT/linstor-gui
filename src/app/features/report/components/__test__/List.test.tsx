@@ -201,6 +201,20 @@ describe('error report List before REST 1.30.0 (everything in the browser)', () 
     fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
     await waitFor(() => expect(deleteReport).toHaveBeenCalledWith('AAAA-000001'));
     await waitFor(() => expect(getErrorReports).toHaveBeenCalledTimes(2));
+    expect(deleteReport).toHaveBeenCalledTimes(1);
+  });
+
+  it('a single delete drops the report from the selection', async () => {
+    renderList();
+    await screen.findByText('AAAA-000001');
+    fireEvent.click(within(rowOf('AAAA-000001')).getByRole('checkbox'));
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeEnabled();
+
+    const menu = await openRowMenu('AAAA-000001');
+    fireEvent.click(within(menu).getByText('Delete'));
+    fireEvent.click(await screen.findByRole('button', { name: 'Yes' }));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Delete' })).toBeDisabled());
+    expect(getErrorReports).toHaveBeenCalledTimes(2);
   });
 
   it('bulk delete needs a selection and sends the bare ids', async () => {
@@ -218,6 +232,41 @@ describe('error report List before REST 1.30.0 (everything in the browser)', () 
 
     await waitFor(() => expect(deleteReportBulk).toHaveBeenCalledWith({ ids: ['BBBB-000002', 'AAAA-000001'] }));
     await waitFor(() => expect(getErrorReports).toHaveBeenCalledTimes(2));
+  });
+
+  it('bulk delete is one request and one refetch, with the rows marked while it runs', async () => {
+    let finish!: (v: unknown) => void;
+    vi.mocked(deleteReportBulk).mockReturnValue(new Promise((resolve) => (finish = resolve)) as never);
+    renderList();
+    await screen.findByText('AAAA-000001');
+    const [, first, second] = screen.getAllByRole('checkbox');
+    fireEvent.click(first);
+    fireEvent.click(second);
+    fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Yes' }));
+
+    await waitFor(() => expect(rowOf('AAAA-000001')).toHaveClass('opacity-50'));
+    expect(rowOf('BBBB-000002')).toHaveClass('opacity-50');
+
+    finish({ data: [{ ret_code: 1 }] });
+    await waitFor(() => expect(rowOf('AAAA-000001')).not.toHaveClass('opacity-50'));
+    expect(deleteReportBulk).toHaveBeenCalledTimes(1);
+    expect(deleteReport).not.toHaveBeenCalled();
+    expect(getErrorReports).toHaveBeenCalledTimes(2);
+    // The selection is cleared once the refresh has finished.
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Delete' })).toBeDisabled());
+  });
+
+  it('keeps the selection when the bulk delete fails', async () => {
+    vi.mocked(deleteReportBulk).mockResolvedValue({ error: [{ ret_code: -1, message: 'nope' }] } as never);
+    renderList();
+    await screen.findByText('AAAA-000001');
+    fireEvent.click(within(rowOf('AAAA-000001')).getByRole('checkbox'));
+    fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Yes' }));
+    await waitFor(() => expect(getErrorReports).toHaveBeenCalledTimes(2));
+    // Enabled again once the refresh finished, with the selection kept.
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Delete' })).toBeEnabled());
   });
 
   it('shows an empty table when there are no reports', async () => {

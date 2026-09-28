@@ -6,6 +6,11 @@
 
 const de = {
   common: {
+    n_more_in_log: '(+{{count}} weitere im Protokoll)',
+    bulk_delete_done: '{{done}} von {{total}} gelöscht',
+    bulk_delete_failed: '{{done}} von {{total}} gelöscht; {{name}} fehlgeschlagen: {{error}}',
+    deleted_name: '{{name}} gelöscht',
+    delete_failed: '{{name}} konnte nicht gelöscht werden: {{error}}',
     // DRBD Reactor / OCF agent editor
     preview: 'Vorschau',
     paste: 'Einfügen',

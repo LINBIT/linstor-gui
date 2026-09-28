@@ -73,36 +73,10 @@ export const nvme = createModel<RootModel>()({
       }
     },
     // Delete Nvme
-    async deleteNvme(payload: string, state) {
-      try {
-        dispatch.nvme.setNvmeList({
-          total: state.nvme.total - 1,
-          list: state.nvme.list.map((item) => {
-            if (item.nqn === payload) {
-              return {
-                ...item,
-                deleting: true,
-              };
-            }
-            return item;
-          }),
-        });
-        const res = await service.delete(`/api/v2/nvme-of/${payload}`);
-
-        if (res.status === 200) {
-          notify('Deleted Successfully', {
-            type: 'success',
-          });
-        }
-      } catch (error) {
-        logger.debug(error, 'error');
-        notify(String((error as Error)?.message || 'An error occurred'), {
-          type: 'error',
-        });
-      } finally {
-        // Always refresh the list, even if there was an error
-        dispatch.nvme.getList();
-      }
+    // The list's shared delete flow shows progress, reports the outcome and
+    // reloads, so this only issues the request and lets a failure propagate.
+    async deleteNvme(payload: string) {
+      return service.delete(`/api/v2/nvme-of/${payload}`);
     },
     // start Nvme
     async startNvme(payload: string, state) {

@@ -287,6 +287,21 @@ describe('node List', () => {
     await waitFor(() => expect(screen.getByRole('button', { name: 'Delete' })).toBeDisabled());
   });
 
+  it('refetches the list once after a bulk delete of two nodes', async () => {
+    const { container } = renderList();
+    await waitFor(() => expect(rows(container)).toHaveLength(2));
+    const before = vi.mocked(getNodes).mock.calls.length;
+
+    selectRow(container, 'gui01');
+    selectRow(container, 'gui02');
+    fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    await confirmPopconfirm();
+
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Delete' })).toBeDisabled());
+    expect(deleteNode).toHaveBeenCalledTimes(2);
+    expect(getNodes).toHaveBeenCalledTimes(before + 1);
+  });
+
   it('loses the selected offline node', async () => {
     const { container } = renderList();
     await waitFor(() => expect(rows(container)).toHaveLength(2));
@@ -321,6 +336,20 @@ describe('node List', () => {
     await confirmPopconfirm();
 
     await waitFor(() => expect(deleteNode).toHaveBeenCalledWith('gui02'));
+  });
+
+  it('refetches the list once after a single delete', async () => {
+    const { container } = renderList();
+    await waitFor(() => expect(rows(container)).toHaveLength(2));
+    const before = vi.mocked(getNodes).mock.calls.length;
+
+    const menu = await openRowMenu(container, 'gui02');
+    fireEvent.click(within(menu).getByText('Delete'));
+    await confirmPopconfirm();
+
+    await waitFor(() => expect(getNodes).toHaveBeenCalledTimes(before + 1));
+    expect(deleteNode).toHaveBeenCalledTimes(1);
+    expect(deleteNode).toHaveBeenCalledWith('gui02');
   });
 
   it('loses a single node from its row menu', async () => {

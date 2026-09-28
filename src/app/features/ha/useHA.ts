@@ -22,6 +22,7 @@ import {
   undeployFile,
 } from './api';
 import type { DrbdReactorStatus, ExecResponse } from './api';
+import { deleteError } from '@app/hooks/useDeleteAction';
 
 export interface HAResourceDefinition {
   name: string;
@@ -217,12 +218,32 @@ export const useManageHA = () => {
   });
 };
 
+/**
+ * Undeploys the reactor config from the resource definition, then deletes the
+ * external file. openapi-fetch resolves (not rejects) on an HTTP error, so each
+ * step is checked: a failed undeploy must not go on to delete the file, and a
+ * failure throws so callers never report it as deleted.
+ */
+export const deleteHAConfig = async (resourceName: string, filePath: string) => {
+  const undeployed = await undeployFile(resourceName, filePath);
+  const undeployError = deleteError(undeployed);
+  if (undeployError) {
+    throw new Error(undeployError);
+  }
+  const deleted = await deleteFile(filePath);
+  const fileError = deleteError(deleted);
+  if (fileError) {
+    throw new Error(fileError);
+  }
+  return deleted;
+};
+
 // Hook for deleting HA file
 export const useDeleteHA = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ resourceName, filePath }: { resourceName: string; filePath: string }) =>
-      undeployFile(resourceName, filePath).then(() => deleteFile(filePath)),
+      deleteHAConfig(resourceName, filePath),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] });
       queryClient.invalidateQueries({ queryKey: ['ha-all-resource-definitions'] });

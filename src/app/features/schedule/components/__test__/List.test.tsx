@@ -89,7 +89,9 @@ describe('schedule List', () => {
     expect(screen.getByText('Total 1 items')).toBeInTheDocument();
   });
 
-  it('deletes only after the confirm, then reports and refetches', async () => {
+  it('deletes only after the confirm, marks the row while in flight, then refetches once', async () => {
+    let finish!: (v: unknown) => void;
+    vi.mocked(deleteSchedule).mockReturnValue(new Promise((resolve) => (finish = resolve)) as never);
     renderList();
     await screen.findByText('nightly');
     const menu = await openRowMenu('nightly');
@@ -99,19 +101,22 @@ describe('schedule List', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
     await waitFor(() => expect(deleteSchedule).toHaveBeenCalledWith('nightly'));
-    expect(await screen.findByText('Schedule deleted successfully')).toBeInTheDocument();
+    await waitFor(() => expect(rowOf('nightly')).toHaveClass('opacity-50'));
+
+    finish({ data: [{ ret_code: 1 }] });
     await waitFor(() => expect(getScheduleList).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(rowOf('nightly')).not.toHaveClass('opacity-50'));
+    expect(deleteSchedule).toHaveBeenCalledTimes(1);
   });
 
-  it('reports a failed delete', async () => {
+  it('reports a delete that threw', async () => {
     vi.mocked(deleteSchedule).mockRejectedValue(new Error('in use'));
     renderList();
     await screen.findByText('nightly');
     const menu = await openRowMenu('nightly');
     fireEvent.click(within(menu).getByText('Delete'));
     fireEvent.click(await screen.findByRole('button', { name: 'Yes' }));
-    expect(await screen.findByText('Delete failed: Error: in use')).toBeInTheDocument();
-    expect(getScheduleList).toHaveBeenCalledTimes(1);
+    expect(await screen.findByText('Failed to delete nightly: in use')).toBeInTheDocument();
   });
 
   it('opens the edit dialog for the row from its menu', async () => {

@@ -31,6 +31,7 @@ import { List } from '../BackUpList';
 // finished_timestamp is in ms; TZ is pinned to UTC in setupTests.
 const backups = {
   'res-a_20231114': {
+    id: 'res-a_20231114',
     origin_rsc: 'res-a',
     origin_snap: 'back_20231114_221320',
     finished_time: '20231114_221320',
@@ -39,6 +40,7 @@ const backups = {
     shipping: false,
   },
   'res-a_20231115': {
+    id: 'res-a_20231115',
     origin_rsc: 'res-a',
     origin_snap: 'back_20231115_000000',
     finished_time: '20231115_000000',
@@ -47,6 +49,7 @@ const backups = {
     shipping: false,
   },
   'res-b_now': {
+    id: 'res-b_now',
     origin_rsc: 'res-b',
     origin_snap: 'back_shipping',
     finished_time: '',
@@ -141,6 +144,23 @@ describe('backup List', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
     await waitFor(() => expect(deleteBackup).toHaveBeenCalledWith('s3-a', { timestamp: '20231114_221320' }));
     await waitFor(() => expect(getBackup).toHaveBeenCalledTimes(2));
+    expect(deleteBackup).toHaveBeenCalledTimes(1);
+  });
+
+  it('marks only the deleted row while its delete is in flight', async () => {
+    let finish!: (v: unknown) => void;
+    vi.mocked(deleteBackup).mockReturnValue(new Promise((resolve) => (finish = resolve)) as never);
+    renderList();
+    await screen.findByText('back_20231114_221320');
+    const menu = await openRowMenu('back_20231114_221320');
+    fireEvent.click(within(menu).getByText('Delete'));
+    fireEvent.click(await screen.findByRole('button', { name: 'Yes' }));
+    await waitFor(() => expect(rowOf('back_20231114_221320')).toHaveClass('opacity-50'));
+    expect(rowOf('back_20231115_000000')).not.toHaveClass('opacity-50');
+
+    finish({ data: [{ ret_code: 1 }] });
+    await waitFor(() => expect(rowOf('back_20231114_221320')).not.toHaveClass('opacity-50'));
+    expect(getBackup).toHaveBeenCalledTimes(2);
   });
 
   it('shows an empty table when the remote holds no backups', async () => {

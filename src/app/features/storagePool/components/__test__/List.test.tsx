@@ -251,6 +251,7 @@ describe('storage pool List', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
     await waitFor(() => expect(deleteStoragePoolV2).toHaveBeenCalledWith({ node: 'node-3', storagepool: 'pool-zfs' }));
     await waitFor(() => expect(getStoragePool).toHaveBeenCalledTimes(listCallsBefore + 1));
+    expect(deleteStoragePoolV2).toHaveBeenCalledTimes(1);
   });
 
   it('bulk delete needs a selection, confirms, then deletes each selected pool', async () => {
@@ -262,11 +263,15 @@ describe('storage pool List', () => {
     fireEvent.click(lvmBox);
     fireEvent.click(zfsBox);
     expect(bulk).toBeEnabled();
+    const listCallsBefore = vi.mocked(getStoragePool).mock.calls.length;
     fireEvent.click(bulk);
     fireEvent.click(await screen.findByRole('button', { name: 'Yes' }));
     await waitFor(() => expect(deleteStoragePoolV2).toHaveBeenCalledTimes(2));
     expect(deleteStoragePoolV2).toHaveBeenCalledWith({ node: 'node-1', storagepool: 'pool-lvm' });
     expect(deleteStoragePoolV2).toHaveBeenCalledWith({ node: 'node-3', storagepool: 'pool-zfs' });
+    // One refresh for the whole batch, then the selection is gone.
+    await waitFor(() => expect(bulk).toBeDisabled());
+    expect(getStoragePool).toHaveBeenCalledTimes(listCallsBefore + 1);
   });
 
   it('the property form submits to the pool it was opened for', async () => {

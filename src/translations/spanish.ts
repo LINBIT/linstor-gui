@@ -6,6 +6,11 @@
 
 const es = {
   common: {
+    n_more_in_log: '(+{{count}} más en el registro)',
+    bulk_delete_done: 'Eliminados {{done}} de {{total}}',
+    bulk_delete_failed: 'Eliminados {{done}} de {{total}}; {{name}} falló: {{error}}',
+    deleted_name: '{{name}} eliminado',
+    delete_failed: 'No se pudo eliminar {{name}}: {{error}}',
     // DRBD Reactor / OCF agent editor
     preview: 'Vista previa',
     paste: 'Pegar',

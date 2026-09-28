@@ -5,14 +5,13 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { useState } from 'react';
-import { logger } from '@app/utils/logger';
 import { Form, Space, Table, Dropdown, Tooltip } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
 import { Link } from '@app/components/Link';
 import type { ColumnsType } from 'antd/es/table';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { MoreOutlined } from '@ant-design/icons';
@@ -26,6 +25,7 @@ import { UIMode } from '@app/models/setting';
 import { RootState } from '@app/store';
 import { useSelector } from 'react-redux';
 import { Popconfirm } from '@app/components/Popconfirm';
+import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
 
 type RemoteQuery = {
   name?: string | null;
@@ -182,21 +182,12 @@ export const List = () => {
     navigate(location.pathname);
   };
 
-  const deleteRemoteMutation = useMutation({
-    mutationFn: async (remote_name: string) => {
-      try {
-        await deleteRemote(remote_name);
-
-        refetch();
-      } catch (error) {
-        logger.debug(error);
-      }
-    },
+  const del = useDeleteAction<RemoteRow>({
+    remove: (remote) => deleteRemote(remote.remote_name ?? ''),
+    keyOf: (remote) => remote.remote_name ?? '',
+    nameOf: (remote) => remote.remote_name ?? '',
+    refresh: () => refetch(),
   });
-
-  const handleDelete = async (remote_name: string) => {
-    deleteRemoteMutation.mutate(remote_name);
-  };
 
   const columns: ColumnsType<RemoteRow> = [
     {
@@ -271,12 +262,7 @@ export const List = () => {
                   {
                     key: 'delete',
                     label: (
-                      <Popconfirm
-                        title={t('remote:delete_remote_object')}
-                        onConfirm={() => {
-                          handleDelete(record.remote_name);
-                        }}
-                      >
+                      <Popconfirm title={t('remote:delete_remote_object')} onConfirm={() => del.run([record])}>
                         {t('common:delete')}
                       </Popconfirm>
                     ),
@@ -361,6 +347,7 @@ export const List = () => {
           showTotal: (total) => t('common:total_items', { total }),
         }}
         loading={isLoading}
+        rowClassName={(record) => (del.isDeleting(record.remote_name ?? '') ? deletingRowClass : '')}
       />
     </>
   );

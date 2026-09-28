@@ -34,9 +34,7 @@ const List: React.FunctionComponent = () => {
     navigate(`/gateway/nfs/create`);
   };
 
-  const handleDelete = (iqn: string) => {
-    dispatch.nfs.deleteNFS(iqn);
-  };
+  const handleDelete = (iqn: string) => dispatch.nfs.deleteNFS(iqn);
 
   const handleStart = (iqn: string) => {
     dispatch.nfs.startNFS(iqn);
@@ -52,6 +50,7 @@ const List: React.FunctionComponent = () => {
         onCreate={createNFS}
         list={list as NFSResource[]}
         handleDelete={handleDelete}
+        onDeleted={() => dispatch.nfs.getList()}
         handleStart={handleStart}
         handleStop={handleStop}
         loading={loading}

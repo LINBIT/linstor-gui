@@ -355,9 +355,12 @@ describe('resource OverviewList', () => {
       expect(await screen.findByText('Are you sure to delete this resource?')).toBeInTheDocument();
       expect(deleteResource).not.toHaveBeenCalled();
       const before = vi.mocked(getResources).mock.calls.length;
+      const rdBefore = vi.mocked(getResourceDefinition).mock.calls.length;
       await confirmYes();
       await waitFor(() => expect(deleteResource).toHaveBeenCalledWith('res-a', 'node-1'));
       await waitFor(() => expect(vi.mocked(getResources).mock.calls.length).toBeGreaterThan(before));
+      await waitFor(() => expect(getResourceDefinition).toHaveBeenCalledTimes(rdBefore + 1));
+      expect(deleteResource).toHaveBeenCalledTimes(1);
     });
 
     it('migrates the disk to another node', async () => {
@@ -479,8 +482,27 @@ describe('resource OverviewList', () => {
       fireEvent.click(within(menu).getByText('Delete'));
       expect(await screen.findByText('Are you sure to delete this resource definitions?')).toBeInTheDocument();
       expect(deleteResourceDefinition).not.toHaveBeenCalled();
+      const before = vi.mocked(getResourceDefinition).mock.calls.length;
       await confirmYes();
       await waitFor(() => expect(deleteResourceDefinition).toHaveBeenCalledWith('res-b'));
+      await waitFor(() => expect(getResourceDefinition).toHaveBeenCalledTimes(before + 1));
+      expect(deleteResourceDefinition).toHaveBeenCalledTimes(1);
+    });
+
+    it('greys out the definition row while its delete is in flight', async () => {
+      let finish: (v: unknown) => void = () => {};
+      vi.mocked(deleteResourceDefinition).mockReturnValue(new Promise((resolve) => (finish = resolve)) as never);
+      renderList();
+      await screen.findByText('res-b');
+      const menu = await openMenuIn(rowOf('res-b'));
+      fireEvent.click(within(menu).getByText('Delete'));
+      await confirmYes();
+
+      await waitFor(() => expect(rowOf('res-b')).toHaveClass('opacity-50'));
+      expect(rowOf('res-a')).not.toHaveClass('opacity-50');
+
+      finish(ok);
+      await waitFor(() => expect(rowOf('res-b')).not.toHaveClass('opacity-50'));
     });
   });
 

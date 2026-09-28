@@ -46,6 +46,7 @@ vi.mock('@app/features/authentication/api', () => ({
 }));
 vi.mock('@app/utils/toast', () => ({
   notify: vi.fn(),
+  withQuietToasts: (fn: () => unknown) => fn(),
 }));
 
 import { settingAPI } from '@app/features/settings';
@@ -140,6 +141,33 @@ describe('UserManagement', () => {
     expect(dispatch.auth.deleteUser).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
     await waitFor(() => expect(dispatch.auth.deleteUser).toHaveBeenCalledWith('bob'));
+  });
+
+  it('marks the user while the delete runs and reports it, since the fetch proxy stays quiet for the KV store', async () => {
+    let finish!: () => void;
+    dispatch.auth.deleteUser.mockReturnValue(new Promise<void>((resolve) => (finish = resolve)));
+    state = { users: ['admin', 'carol'], authenticationEnabled: true };
+    renderPage();
+    const carol = screen.getByText('carol').closest('.ant-list-item') as HTMLElement;
+    fireEvent.click(within(carol).getByRole('button', { name: 'Delete user' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Yes' }));
+    await waitFor(() => expect(carol).toHaveClass('opacity-50'));
+    expect(screen.getByText('admin').closest('.ant-list-item')).not.toHaveClass('opacity-50');
+
+    finish();
+    await waitFor(() => expect(carol).not.toHaveClass('opacity-50'));
+    expect(await screen.findByText('Deleted carol')).toBeInTheDocument();
+    expect(dispatch.auth.deleteUser).toHaveBeenCalledTimes(1);
+  });
+
+  it('reports a failed user delete', async () => {
+    dispatch.auth.deleteUser.mockRejectedValue(new Error('kv down'));
+    state = { users: ['admin', 'bob'], authenticationEnabled: true };
+    renderPage();
+    const bob = screen.getByText('bob').closest('.ant-list-item') as HTMLElement;
+    fireEvent.click(within(bob).getByRole('button', { name: 'Delete user' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Yes' }));
+    expect(await screen.findByText('Failed to delete bob: kv down')).toBeInTheDocument();
   });
 
   it('a non-admin with authentication on can look but not touch', () => {

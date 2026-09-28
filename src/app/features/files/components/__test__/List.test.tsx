@@ -192,6 +192,23 @@ describe('files List', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
     await waitFor(() => expect(deleteFile).toHaveBeenCalledWith(CONF));
     await waitFor(() => expect(getFiles).toHaveBeenCalledTimes(2));
+    expect(deleteFile).toHaveBeenCalledTimes(1);
+  });
+
+  it('marks only the deleted row while its delete is in flight', async () => {
+    let finish!: (v: unknown) => void;
+    vi.mocked(deleteFile).mockReturnValue(new Promise((resolve) => (finish = resolve)) as never);
+    renderList();
+    await screen.findByText(MOUNT);
+    const menu = await openRowMenu(CONF);
+    fireEvent.click(within(menu).getByText('Delete'));
+    fireEvent.click(await screen.findByRole('button', { name: 'Yes' }));
+    await waitFor(() => expect(rowOf(CONF)).toHaveClass('opacity-50'));
+    expect(rowOf(MOUNT)).not.toHaveClass('opacity-50');
+
+    finish({ data: [{ ret_code: 1 }] });
+    await waitFor(() => expect(rowOf(CONF)).not.toHaveClass('opacity-50'));
+    expect(getFiles).toHaveBeenCalledTimes(2);
   });
 
   it('shows an empty table when there are no files', async () => {

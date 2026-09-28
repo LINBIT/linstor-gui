@@ -36,13 +36,8 @@ vi.mock('@app/features/storagePool', () => ({
   getStoragePool: vi.fn(),
 }));
 
-vi.mock('@app/utils/toast', () => ({
-  notifyMessages: vi.fn(),
-}));
-
 import { createSnapshot } from '../../api';
 import { getStoragePool } from '@app/features/storagePool';
-import { notifyMessages } from '@app/utils/toast';
 import { CreateSnapshotForm } from '../CreateForm';
 
 const renderForm = (refetch = vi.fn()) => {
@@ -122,7 +117,7 @@ describe('CreateSnapshotForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
     await waitFor(() => expect(createSnapshot).toHaveBeenCalledWith('res-a', { name: 'snap-1', nodes: ['node-1'] }));
-    await waitFor(() => expect(notifyMessages).toHaveBeenCalledWith([{ ret_code: 1, message: 'created' }]));
+    // The reply is toasted by the fetch proxy, not by the form.
     await waitFor(() => expect(refetch).toHaveBeenCalled());
   });
 

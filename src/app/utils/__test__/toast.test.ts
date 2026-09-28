@@ -13,6 +13,8 @@ import {
   notifyMessages,
   ApiLogManager,
   logManager,
+  toastsAreQuiet,
+  withQuietToasts,
   type LogItem,
 } from '../toast';
 import { components } from '@app/apis/schema';
@@ -115,29 +117,36 @@ describe('toast utils', () => {
       expect(message.error).not.toHaveBeenCalled();
     });
 
-    it('should show error messages for items with negative ret_code', () => {
+    it('shows one error toast: the first error, the rest counted', () => {
       const list = [
         { message: 'Error 1', ret_code: -1 },
         { message: 'Error 2', ret_code: -2 },
         { message: 'Success', ret_code: 1 },
       ];
       notifyMessages(list);
-      expect(message.error).toHaveBeenCalledTimes(2);
-      expect(message.error).toHaveBeenCalledWith('Error 1');
-      expect(message.error).toHaveBeenCalledWith('Error 2');
+      expect(message.error).toHaveBeenCalledTimes(1);
+      expect(message.error).toHaveBeenCalledWith(
+        expect.objectContaining({ content: 'Error 1 (+1 more in the log)', duration: 10 }),
+      );
       expect(message.success).not.toHaveBeenCalled();
     });
 
-    it('should show success messages when no errors present', () => {
+    it('shows one success toast with the concluding (last) message', () => {
       const list = [
         { message: 'Success 1', ret_code: 1 },
         { message: 'Success 2', ret_code: 2 },
       ];
       notifyMessages(list);
-      expect(message.success).toHaveBeenCalledTimes(2);
-      expect(message.success).toHaveBeenCalledWith('Success 1');
-      expect(message.success).toHaveBeenCalledWith('Success 2');
+      expect(message.success).toHaveBeenCalledTimes(1);
+      expect(message.success).toHaveBeenCalledWith(
+        expect.objectContaining({ content: 'Success 2 (+1 more in the log)' }),
+      );
       expect(message.error).not.toHaveBeenCalled();
+    });
+
+    it('shows a lone message without a counter', () => {
+      notifyMessages([{ message: 'Only', ret_code: 1 }]);
+      expect(message.success).toHaveBeenCalledWith(expect.objectContaining({ content: 'Only' }));
     });
   });
 
@@ -167,7 +176,66 @@ describe('toast utils', () => {
           { message: 'Error', ret_code: -1 },
         ],
         'test-url',
+        true,
       );
+    });
+
+    it('logs without toasting when asked not to notify', () => {
+      handleAPICallRes([{ message: 'Quiet', ret_code: 1 }], 'test-url', false);
+      expect(mockSessionStorage.setItem).toHaveBeenCalled();
+      expect(message.success).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('one toast per reply', () => {
+    it('toasts a multi-entry reply once', () => {
+      handleAPICallRes(
+        [
+          { message: 'RD x marked for deletion', ret_code: 1 },
+          { message: 'Deleted x on n1', ret_code: 1 },
+          { message: 'RD x deleted', ret_code: 1 },
+        ],
+        '/v1/resource-definitions/x',
+      );
+      expect(message.success).toHaveBeenCalledTimes(1);
+      expect(message.success).toHaveBeenCalledWith(
+        expect.objectContaining({ content: 'RD x deleted (+2 more in the log)' }),
+      );
+    });
+
+    it('lets errors win and no longer pins them forever', () => {
+      handleAPICallRes(
+        [
+          { message: 'fine', ret_code: 1 },
+          { message: 'boom', ret_code: -4611686018427387000 },
+        ],
+        '/v1/x',
+      );
+      expect(message.success).not.toHaveBeenCalled();
+      expect(message.error).toHaveBeenCalledWith(expect.objectContaining({ content: 'boom', duration: 10 }));
+    });
+  });
+
+  describe('withQuietToasts', () => {
+    it('is quiet only while the action runs, even if it throws', async () => {
+      expect(toastsAreQuiet()).toBe(false);
+      await withQuietToasts(async () => {
+        expect(toastsAreQuiet()).toBe(true);
+      });
+      await expect(
+        withQuietToasts(async () => {
+          throw new Error('x');
+        }),
+      ).rejects.toThrow('x');
+      expect(toastsAreQuiet()).toBe(false);
+    });
+
+    it('nests', async () => {
+      await withQuietToasts(async () => {
+        await withQuietToasts(async () => undefined);
+        expect(toastsAreQuiet()).toBe(true);
+      });
+      expect(toastsAreQuiet()).toBe(false);
     });
   });
 });

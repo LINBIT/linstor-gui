@@ -9,7 +9,7 @@ import { Form, Table, Space, Dropdown, Tooltip, Modal } from 'antd';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
 import type { TableProps } from 'antd';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { CheckCircleFilled, CloseCircleFilled, MoreOutlined } from '@ant-design/icons';
 import { LiaToolsSolid } from 'react-icons/lia';
@@ -31,6 +31,7 @@ import { RootState } from '@app/store';
 import { useSelector } from 'react-redux';
 import { UIMode } from '@app/models/setting';
 import { Popconfirm } from '@app/components/Popconfirm';
+import { useDeleteAction, deletingRowClass } from '@app/hooks/useDeleteAction';
 
 export const List = () => {
   const [form] = Form.useForm();
@@ -102,12 +103,11 @@ export const List = () => {
     return getSnapshots(query);
   });
 
-  const deleteMutation = useMutation({
-    mutationKey: ['deleteSnapshot'],
-    mutationFn: (data: { resource: string; snapshot: string }) => deleteSnapshot(data.resource, data.snapshot),
-    onSuccess: () => {
-      refetch();
-    },
+  const del = useDeleteAction<SnapshotType>({
+    remove: (snap) => deleteSnapshot(snap.resource_name ?? '', snap.name ?? ''),
+    keyOf: (snap) => snap.uuid || '',
+    nameOf: (snap) => `${snap.resource_name ?? ''}/${snap.name ?? ''}`,
+    refresh: () => refetch(),
   });
 
   // Handle rollback modal open
@@ -178,16 +178,9 @@ export const List = () => {
     navigate(new_url);
   };
 
-  const handleDeleteBulk = () => {
-    selectedRowKeys.forEach((ele) => {
-      const record = snapshotList?.data?.find((e) => e.uuid === ele);
-      if (!record) {
-        return;
-      }
-
-      deleteMutation.mutate({ resource: record.resource_name ?? '', snapshot: record.name ?? '' });
-    });
-
+  const handleDeleteBulk = async () => {
+    const selected = (snapshotList?.data ?? []).filter((snap) => selectedRowKeys.includes(snap.uuid || ''));
+    await del.run(selected);
     setSelectedRowKeys([]);
   };
 
@@ -337,7 +330,7 @@ export const List = () => {
                     <span
                       style={{ cursor: 'pointer' }}
                       onClick={() => {
-                        deleteMutation.mutate({ resource: record.resource_name ?? '', snapshot: record.name ?? '' });
+                        void del.run([record]);
                       }}
                     >
                       {t('common:delete')}
@@ -411,7 +404,7 @@ export const List = () => {
                 onConfirm={handleDeleteBulk}
                 disabled={!hasSelected}
               >
-                <Button type="primary" danger disabled={!hasSelected}>
+                <Button type="primary" danger disabled={!hasSelected} loading={del.busy}>
                   {t('common:delete')}
                 </Button>
               </Popconfirm>
@@ -426,6 +419,7 @@ export const List = () => {
         dataSource={snapshotList?.data ?? []}
         rowSelection={rowSelection}
         rowKey={(item) => item?.uuid || ''}
+        rowClassName={(item) => (del.isDeleting(item.uuid || '') ? deletingRowClass : '')}
         pagination={{
           showSizeChanger: true,
           showTotal: (total) => t('common:total_items', { total }),

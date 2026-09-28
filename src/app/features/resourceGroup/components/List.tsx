@@ -35,6 +35,7 @@ import { AddVolumeGroupForm } from './AddVolumeGroupForm';
 import { uniqId } from '@app/utils/stringUtils';
 import { LiaToolsSolid } from 'react-icons/lia';
 import { Popconfirm } from '@app/components/Popconfirm';
+import { useDeleteAction, deletingRowClass } from '@app/hooks/useDeleteAction';
 
 // The generated catalog is a union of dozens of shapes; only these fields are read here.
 interface DrbdOptionInfo {
@@ -178,12 +179,11 @@ export const List = () => {
     onChange: onSelectChange,
   };
 
-  const deleteMutation = useMutation({
-    mutationKey: ['deleteResourceGroup'],
-    mutationFn: (resource: string) => deleteResourceGroup(resource),
-    onSuccess: () => {
-      refetch();
-    },
+  const del = useDeleteAction<CreateResourceGroupRequestBody>({
+    remove: (rg) => deleteResourceGroup(rg.name ?? ''),
+    keyOf: (rg) => rg.name ?? '',
+    nameOf: (rg) => rg.name ?? '',
+    refresh: () => refetch(),
   });
 
   const updateMutation = useMutation({
@@ -196,14 +196,10 @@ export const List = () => {
 
   const hasSelected = selectedRowKeys.length > 0;
 
-  const handleDeleteBulk = () => {
-    selectedRowKeys.forEach((ele) => {
-      const resource = resourceGroups?.data?.find((e) => e.name === ele)?.name;
-
-      if (resource) {
-        deleteMutation.mutate(resource);
-      }
-    });
+  const handleDeleteBulk = async () => {
+    const selected = (resourceGroups?.data ?? []).filter((rg) => rg.name && selectedRowKeys.includes(rg.name));
+    await del.run(selected);
+    setSelectedRowKeys([]);
   };
 
   const edit = (resource_group?: string) => {
@@ -420,9 +416,7 @@ export const List = () => {
                       key="delete"
                       title={t('resource_group:delete_resource_group')}
                       description={t('resource_group:are_you_sure_delete_resource_group')}
-                      onConfirm={() => {
-                        deleteMutation.mutate(record.name || '');
-                      }}
+                      onConfirm={() => del.run([record])}
                     >
                       {t('common:delete')}
                     </Popconfirm>
@@ -472,7 +466,7 @@ export const List = () => {
                 description={t('resource_group:are_you_sure_delete_selected_resource')}
                 onConfirm={handleDeleteBulk}
               >
-                <Button danger disabled={!hasSelected}>
+                <Button danger disabled={!hasSelected} loading={del.busy}>
                   {t('common:delete')}
                 </Button>
               </Popconfirm>
@@ -499,6 +493,7 @@ export const List = () => {
         dataSource={resourceGroups?.data ?? []}
         rowSelection={rowSelection}
         rowKey={(item) => item?.name ?? uniqId()}
+        rowClassName={(item) => (del.isDeleting(item.name ?? '') ? deletingRowClass : '')}
         pagination={{
           total: stats?.data?.count ?? 0,
           showSizeChanger: true,

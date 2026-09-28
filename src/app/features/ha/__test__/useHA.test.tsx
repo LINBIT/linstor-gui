@@ -139,6 +139,20 @@ describe('ha hooks', () => {
     expect(deleteFile).not.toHaveBeenCalled();
   });
 
+  it('useDeleteHA stops on an undeploy that answers with an error body', async () => {
+    // openapi-fetch resolves on HTTP errors; the failure is in `error`.
+    vi.mocked(undeployFile).mockResolvedValue({
+      error: [{ ret_code: -1, message: 'resource is in use' }],
+    } as unknown as Awaited<ReturnType<typeof undeployFile>>);
+    const { result } = renderHook(() => useDeleteHA(), { wrapper: wrapperFor(makeClient()) });
+    let failure: unknown;
+    await act(async () => {
+      await result.current.mutateAsync({ resourceName: 'ha-mysql', filePath: '/x' }).catch((e) => (failure = e));
+    });
+    expect(deleteFile).not.toHaveBeenCalled();
+    expect((failure as Error).message).toBe('resource is in use');
+  });
+
   it('useCreateFile and useEvictDrbdReactor forward their arguments and refresh', async () => {
     const client = makeClient();
     const invalidate = vi.spyOn(client, 'invalidateQueries');

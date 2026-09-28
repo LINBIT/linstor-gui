@@ -17,17 +17,17 @@ import Button from '@app/components/Button';
 import { Link } from '@app/components/Link';
 import {
   useFiles,
-  useDeleteFile,
   useDeployFile,
   useUndeployFile,
   useCreateOrUpdateFile,
   useResourceDefinitions,
   ExternalFile,
 } from '../';
-import { getFile } from '../api';
+import { deleteFile, getFile } from '../api';
 import { uniqId } from '@app/utils/stringUtils';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { Switch } from '@app/components/Switch';
+import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
 
 const DRBD_REACTOR_CONFIG_PREFIX = '/etc/drbd-reactor.d/';
 
@@ -64,7 +64,6 @@ export const List = () => {
 
   const queryClient = useQueryClient();
 
-  const deleteMutation = useDeleteFile();
   const deployMutation = useDeployFile();
   const undeployMutation = useUndeployFile();
   const createOrUpdateMutation = useCreateOrUpdateFile();
@@ -79,13 +78,12 @@ export const List = () => {
     return list.filter((file) => !file.path?.startsWith(DRBD_REACTOR_CONFIG_PREFIX));
   }, [files?.data, showReactorFiles]);
 
-  const handleDelete = (extFileName: string) => {
-    deleteMutation.mutate(extFileName, {
-      onSuccess: () => {
-        refetch();
-      },
-    });
-  };
+  const del = useDeleteAction<ExternalFile>({
+    remove: (file) => deleteFile(file.path ?? ''),
+    keyOf: (file) => file.path ?? '',
+    nameOf: (file) => file.path ?? '',
+    refresh: () => refetch(),
+  });
 
   const handleViewContent = (record: ExternalFile) => {
     if (record.path) {
@@ -286,11 +284,7 @@ export const List = () => {
                         title={t('delete_confirm')}
                         okText={t('common:yes')}
                         cancelText={t('common:no')}
-                        onConfirm={() => {
-                          if (record.path) {
-                            handleDelete(record.path);
-                          }
-                        }}
+                        onConfirm={() => (record.path ? del.run([record]) : undefined)}
                       >
                         <div className="w-full text-red-600">{t('common:delete')}</div>
                       </Popconfirm>
@@ -333,7 +327,8 @@ export const List = () => {
         columns={columns}
         dataSource={filteredFiles}
         rowKey={(item) => item.path ?? uniqId()}
-        loading={isLoading || deleteMutation.isLoading}
+        loading={isLoading}
+        rowClassName={(record) => (record.path && del.isDeleting(record.path) ? deletingRowClass : '')}
         pagination={{
           total: filteredFiles.length,
           showTotal: (total) => t('common:total_items', { total }),

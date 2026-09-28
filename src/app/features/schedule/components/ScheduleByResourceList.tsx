@@ -26,6 +26,7 @@ import { useSelector } from 'react-redux';
 import { UIMode } from '@app/models/setting';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { Checkbox } from '@app/components/Checkbox';
+import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
 
 export const ScheduleByResourceList = () => {
   const { t } = useTranslation(['schedule', 'common']);
@@ -87,19 +88,14 @@ export const ScheduleByResourceList = () => {
     },
   });
 
-  const deleteScheduleMutation = useMutation({
-    mutationFn: async (record: ScheduleByResource) => {
-      try {
-        await deleteBackupSchedule(record.remote_name, record.schedule_name, {
-          rsc_dfn_name: record.rsc_name,
-        });
-        message.success(t('schedule:schedule_deleted_success'));
-        refetch();
-      } catch (error) {
-        logger.error('Delete schedule error:', error);
-        message.error(t('schedule:schedule_delete_failed'));
-      }
-    },
+  const del = useDeleteAction<ScheduleByResource>({
+    remove: (record) =>
+      deleteBackupSchedule(record.remote_name, record.schedule_name, {
+        rsc_dfn_name: record.rsc_name,
+      }),
+    keyOf: (record) => record.rsc_name,
+    nameOf: (record) => `${record.schedule_name} (${record.rsc_name})`,
+    refresh: () => refetch(),
   });
 
   const { data: resourceDetailData, isLoading: detailLoading } = useQuery({
@@ -305,7 +301,7 @@ export const ScheduleByResourceList = () => {
                       <Popconfirm
                         title={t('schedule:delete_schedule_confirm')}
                         description={t('schedule:delete_schedule_warning')}
-                        onConfirm={() => deleteScheduleMutation.mutate(record)}
+                        onConfirm={() => del.run([record])}
                       >
                         {t('common:delete')}
                       </Popconfirm>
@@ -380,6 +376,7 @@ export const ScheduleByResourceList = () => {
         }}
         loading={isLoading}
         rowKey={(record) => record.rsc_name}
+        rowClassName={(record) => (del.isDeleting(record.rsc_name) ? deletingRowClass : '')}
         expandable={{
           expandedRowRender,
           onExpand: handleExpand,

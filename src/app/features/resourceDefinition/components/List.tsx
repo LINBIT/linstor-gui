@@ -29,6 +29,7 @@ import { uniqId } from '@app/utils/stringUtils';
 import { omit } from '@app/utils/object';
 import { useTranslation } from 'react-i18next';
 import { Popconfirm } from '@app/components/Popconfirm';
+import { useDeleteAction, deletingRowClass } from '@app/hooks/useDeleteAction';
 
 export const List = () => {
   const [current, setCurrent] = useState<ResourceDefinition>();
@@ -102,12 +103,11 @@ export const List = () => {
     onChange: onSelectChange,
   };
 
-  const deleteMutation = useMutation({
-    mutationKey: ['deleteResourceDefinition'],
-    mutationFn: (resource: string) => deleteResourceDefinition(resource),
-    onSuccess: () => {
-      refetch();
-    },
+  const del = useDeleteAction<ResourceDefinition>({
+    remove: (rd) => deleteResourceDefinition(rd.name ?? ''),
+    keyOf: (rd) => rd.uuid ?? rd.name ?? '',
+    nameOf: (rd) => rd.name ?? '',
+    refresh: () => refetch(),
   });
 
   const updateMutation = useMutation({
@@ -120,14 +120,12 @@ export const List = () => {
 
   const hasSelected = selectedRowKeys.length > 0;
 
-  const handleDeleteBulk = () => {
-    selectedRowKeys.forEach((ele) => {
-      const resource = resourceDefinition?.data?.find((e) => e.uuid === ele)?.name;
-
-      if (resource) {
-        deleteMutation.mutate(resource);
-      }
-    });
+  const handleDeleteBulk = async () => {
+    const selected = (resourceDefinition?.data ?? []).filter(
+      (rd) => rd.name && selectedRowKeys.includes(rd.uuid ?? ''),
+    );
+    await del.run(selected);
+    setSelectedRowKeys([]);
   };
 
   const edit = (resourceDefinitionName?: string) => {
@@ -199,9 +197,7 @@ export const List = () => {
             key="delete"
             title={t('resource:delete_resource_definition')}
             description={t('resource_definition:are_you_sure_delete_resource_definition')}
-            onConfirm={() => {
-              deleteMutation.mutate(record.name || '');
-            }}
+            onConfirm={() => del.run([record])}
           >
             <Button danger>{t('common:delete')}</Button>
           </Popconfirm>
@@ -285,7 +281,9 @@ export const List = () => {
                   description={t('resource_definition:are_you_sure_delete_selected_resource')}
                   onConfirm={handleDeleteBulk}
                 >
-                  <Button danger>{t('common:delete')}</Button>
+                  <Button danger loading={del.busy}>
+                    {t('common:delete')}
+                  </Button>
                 </Popconfirm>
               )}
             </Space>
@@ -304,6 +302,7 @@ export const List = () => {
         dataSource={resourceDefinition?.data ?? []}
         rowSelection={rowSelection}
         rowKey={(item) => item?.uuid ?? uniqId()}
+        rowClassName={(item) => (del.isDeleting(item.uuid ?? item.name ?? '') ? deletingRowClass : '')}
         pagination={{
           total: stats?.data?.count ?? 0,
           showSizeChanger: true,

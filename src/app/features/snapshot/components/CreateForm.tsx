@@ -14,7 +14,6 @@ import { uniqBy } from 'lodash';
 import { useTranslation } from 'react-i18next';
 
 import { useNodes } from '@app/features/node';
-import { notifyMessages } from '@app/utils/toast';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { getStoragePool } from '@app/features/storagePool';
 
@@ -68,11 +67,8 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
       const { resource_name, ...rest } = data;
       return createSnapshot(resource_name || '', rest);
     },
-    onSuccess: (data) => {
-      if (data?.data && Array.isArray(data?.data)) {
-        notifyMessages(data.data);
-      }
-
+    // The fetch proxy toasts the reply (one summary per request).
+    onSuccess: () => {
       setTimeout(() => {
         setOpen(false);
         refetch();

@@ -30,6 +30,7 @@ import { RootState } from '@app/store';
 import { UIMode } from '@app/models/setting';
 import { compareVersions } from '@app/utils/version';
 import { Popconfirm } from '@app/components/Popconfirm';
+import { useDeleteAction, deletingRowClass } from '@app/hooks/useDeleteAction';
 
 export const List = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -119,12 +120,11 @@ export const List = () => {
     onChange: onSelectChange,
   };
 
-  const deleteMutation = useMutation({
-    mutationKey: ['deleteNode'],
-    mutationFn: (node: string) => deleteNode(node),
-    onSuccess: () => {
-      refetch();
-    },
+  const del = useDeleteAction<NodeDataType>({
+    remove: (node) => deleteNode(node.name ?? ''),
+    keyOf: (node) => node.uuid ?? node.name ?? '',
+    nameOf: (node) => node.name ?? '',
+    refresh: () => refetch(),
   });
 
   const lostMutation = useMutation({
@@ -157,14 +157,9 @@ export const List = () => {
       return node?.connection_status !== 'CONNECTED' && node?.connection_status !== 'ONLINE';
     });
 
-  const handleDeleteBulk = () => {
-    selectedRowKeys.forEach((ele) => {
-      const node = nodes?.data?.find((e) => e.uuid === ele);
-      if (node?.name) {
-        deleteMutation.mutate(node?.name);
-      }
-    });
-
+  const handleDeleteBulk = async () => {
+    const selected = (nodes?.data ?? []).filter((node) => node.name && selectedRowKeys.includes(node.uuid ?? ''));
+    await del.run(selected);
     setSelectedRowKeys([]);
   };
 
@@ -325,9 +320,7 @@ export const List = () => {
                       key="delete"
                       title={t('node:delete_node')}
                       description={t('node:are_you_sure_delete_node')}
-                      onConfirm={() => {
-                        deleteMutation.mutate(record.name || '');
-                      }}
+                      onConfirm={() => del.run([record])}
                     >
                       <div className="w-full text-red-600">{t('common:delete')}</div>
                     </Popconfirm>
@@ -395,7 +388,7 @@ export const List = () => {
                 onConfirm={handleDeleteBulk}
                 disabled={!hasSelected}
               >
-                <Button danger disabled={!hasSelected}>
+                <Button danger disabled={!hasSelected} loading={del.busy}>
                   {t('common:delete')}
                 </Button>
               </Popconfirm>
@@ -429,6 +422,7 @@ export const List = () => {
         dataSource={nodes?.data ?? []}
         rowSelection={rowSelection}
         rowKey={(item) => item?.uuid ?? uniqId()}
+        rowClassName={(item) => (del.isDeleting(item.uuid ?? item.name ?? '') ? deletingRowClass : '')}
         pagination={{
           total: stats?.data?.count ?? 0,
           showSizeChanger: true,

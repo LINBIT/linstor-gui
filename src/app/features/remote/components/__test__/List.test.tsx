@@ -166,6 +166,23 @@ describe('remote List', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
     await waitFor(() => expect(deleteRemote).toHaveBeenCalledWith('s3-a'));
     await waitFor(() => expect(getRemoteList).toHaveBeenCalledTimes(2));
+    expect(deleteRemote).toHaveBeenCalledTimes(1);
+  });
+
+  it('marks the row as deleting until the delete and refetch are done', async () => {
+    let finish!: (v: unknown) => void;
+    vi.mocked(deleteRemote).mockReturnValue(new Promise((resolve) => (finish = resolve)) as never);
+    renderList();
+    await screen.findByText('s3-a');
+    const menu = await openRowMenu('s3-a');
+    fireEvent.click(within(menu).getByText('Delete'));
+    fireEvent.click(await screen.findByRole('button', { name: 'Yes' }));
+    await waitFor(() => expect(rowOf('s3-a')).toHaveClass('opacity-50'));
+    expect(rowOf('lin-b')).not.toHaveClass('opacity-50');
+
+    finish({ data: [{ ret_code: 1 }] });
+    await waitFor(() => expect(rowOf('s3-a')).not.toHaveClass('opacity-50'));
+    expect(getRemoteList).toHaveBeenCalledTimes(2);
   });
 
   it('shows an empty table when there are no remotes', async () => {

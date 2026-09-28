@@ -6,7 +6,7 @@
 
 import createClient from 'openapi-fetch';
 import { paths } from '@app/apis/schema';
-import { handleAPICallRes } from '@app/utils/toast';
+import { handleAPICallRes, toastsAreQuiet } from '@app/utils/toast';
 import { components } from '@app/apis/schema';
 import {
   createControllerAuthRequiredError,
@@ -84,6 +84,9 @@ window.fetch = new Proxy(window.fetch, {
       return Promise.reject(error);
     }
 
+    // Decided when the request goes out: the reply is parsed asynchronously,
+    // possibly after the action that asked for quiet has already finished.
+    const notify = !toastsAreQuiet();
     const temp = target.apply(that, nextArgs);
     temp.then((res) => {
       if (res.status === 401 && isControllerRequestUrl(requestUrl)) {
@@ -96,11 +99,9 @@ window.fetch = new Proxy(window.fetch, {
             .clone()
             .json()
             .then((data) => {
-              // add a rule for not calling handleAPICallRes when url includes some strings
-              const excludeList = ['key-value-store', 'snapshots'];
-
-              if (!excludeList.some((item) => res.url?.includes(item))) {
-                handleAPICallRes(data, res.url);
+              // The GUI's own key-value-store writes are not user actions.
+              if (!res.url?.includes('key-value-store')) {
+                handleAPICallRes(data, res.url, notify);
               }
             });
         } catch {
@@ -117,7 +118,7 @@ window.fetch = new Proxy(window.fetch, {
             .json()
             .then((err) => {
               // handle error, notice that res.json() returns a promise
-              handleAPICallRes(err, res.url);
+              handleAPICallRes(err, res.url, notify);
             });
         } catch {
           return res;

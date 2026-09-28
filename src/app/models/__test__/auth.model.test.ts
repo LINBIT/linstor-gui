@@ -149,6 +149,28 @@ describe('auth model', () => {
     expect(localStorage.getItem(KEY)).toBeNull();
   });
 
+  it('deleteUser resolves only after the user list is reloaded', async () => {
+    authAPI.deleteUser.mockResolvedValue(undefined);
+    let finish!: (users: string[]) => void;
+    authAPI.getUsers.mockReturnValue(new Promise<string[]>((resolve) => (finish = resolve)));
+    let resolved = false;
+    const deleting = dispatchOf(store)
+      .auth.deleteUser('carol')
+      .then(() => (resolved = true));
+    await vi.waitFor(() => expect(authAPI.getUsers).toHaveBeenCalledTimes(1));
+    expect(resolved).toBe(false);
+
+    finish(['bob']);
+    await deleting;
+    expect(authState(store).users).toEqual(['bob']);
+  });
+
+  it('deleteUser rejects when the store refuses, without reloading', async () => {
+    authAPI.deleteUser.mockRejectedValue(new Error('kv down'));
+    await expect(dispatchOf(store).auth.deleteUser('carol')).rejects.toThrow('kv down');
+    expect(authAPI.getUsers).not.toHaveBeenCalled();
+  });
+
   it('changePassword and updatePassword clear the prompt on success only', async () => {
     dispatchOf(store).auth.setNeedsPasswordChange(true);
     authAPI.changePassword.mockResolvedValue(false);

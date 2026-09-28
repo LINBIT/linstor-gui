@@ -11,15 +11,9 @@ import { Button } from '@app/components/Button';
 import { Link } from '@app/components/Link';
 import type { TableProps } from 'antd';
 import type { SortOrder } from 'antd/es/table/interface';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { deleteReport, deleteReportBulk, getErrorReportPage, getErrorReports } from '../api';
-import {
-  ErrorReport,
-  ErrorReportDeleteRangeRequest,
-  ErrorReportPageQuery,
-  ErrorReportSortField,
-  GetErrorReportRequestQuery,
-} from '../types';
+import { ErrorReport, ErrorReportPageQuery, ErrorReportSortField, GetErrorReportRequestQuery } from '../types';
 import { formatTime } from '@app/utils/time';
 import dayjs from 'dayjs';
 import { useNodes } from '@app/features/node';
@@ -34,6 +28,7 @@ import DownloadSOS from './DownloadSOS';
 import { useTranslation } from 'react-i18next';
 import { UIMode } from '@app/models/setting';
 import { Popconfirm } from '@app/components/Popconfirm';
+import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
 
 const { RangePicker } = DatePicker;
 
@@ -45,8 +40,10 @@ const SearchItem = styled.div`
   gap: 16px;
 `;
 
+const idOf = (filename: string) => filename.replace('ErrorReport-', '').replace('.log', '');
+
 const getId = (report: ErrorReport) => {
-  return report?.filename?.replace('ErrorReport-', '').replace('.log', '') || '';
+  return idOf(report?.filename || '');
 };
 
 type Filters = { node?: string; since?: number; to?: number };
@@ -168,21 +165,20 @@ export const List = () => {
 
   const refetch = () => (serverPaging ? paged.refetch() : legacy.refetch());
 
-  const deleteErrorMutation = useMutation({
-    mutationFn: (id: string) => deleteReport(id),
-    onSuccess: () => {
-      refetch();
-    },
+  const del = useDeleteAction<ErrorReport>({
+    remove: (report) => deleteReport(getId(report)),
+    keyOf: (report) => report.filename || '',
+    nameOf: getId,
+    refresh: refetch,
   });
 
-  const deleteErrorBulkMutation = useMutation({
-    mutationFn: (query: ErrorReportDeleteRangeRequest) => deleteReportBulk(query),
-    onSuccess: () => {
-      // The deleted reports must not stay selected, or Delete stays enabled for
-      // reports that no longer exist.
-      setSelectedRowKeys([]);
-      refetch();
-    },
+  // The controller deletes a selection in one request, so the whole selection
+  // goes through the hook as a single item: one reply, one toast, one refresh.
+  const bulkDel = useDeleteAction<string[]>({
+    remove: (filenames) => deleteReportBulk({ ids: filenames.map(idOf) }),
+    keyOf: (filenames) => filenames.join('\n'),
+    nameOf: (filenames) => filenames.map(idOf).join(', '),
+    refresh: refetch,
   });
 
   const rowSelection = {
@@ -234,8 +230,14 @@ export const List = () => {
     navigate(location.pathname);
   };
 
-  const handleDelete = (id: string) => {
-    deleteErrorMutation.mutate(id);
+  // Deleted reports must not stay selected, or Delete stays enabled for reports
+  // that no longer exist.
+  const unselect = (filenames: string[]) =>
+    setSelectedRowKeys((prev) => prev.filter((key) => !filenames.includes(String(key))));
+
+  const handleDelete = async (report: ErrorReport) => {
+    const { done } = await del.run([report]);
+    unselect(done.map((r) => r.filename || ''));
   };
 
   const handleView = (id: string) => {
@@ -365,9 +367,7 @@ export const List = () => {
                       key="delete"
                       title={t('error_report:delete_error_report')}
                       description={t('error_report:are_you_sure_delete_error_report')}
-                      onConfirm={() => {
-                        handleDelete(getId(record));
-                      }}
+                      onConfirm={() => handleDelete(record)}
                     >
                       {t('common:delete')}
                     </Popconfirm>
@@ -383,13 +383,16 @@ export const List = () => {
     },
   ];
 
-  const handleDeleteBulk = () => {
-    const ids = selectedRowKeys.map((item) => (item as string).replace('ErrorReport-', '').replace('.log', ''));
-
-    deleteErrorBulkMutation.mutate({
-      ids,
-    });
+  const handleDeleteBulk = async () => {
+    const filenames = selectedRowKeys.map(String);
+    const { done } = await bulkDel.run([filenames]);
+    if (done.length) {
+      unselect(filenames);
+    }
   };
+
+  const isDeleting = (report: ErrorReport) =>
+    del.isDeleting(report.filename || '') || (bulkDel.busy && selectedRowKeys.includes(report.filename || ''));
 
   const modules = [
     {
@@ -467,7 +470,7 @@ export const List = () => {
                 onConfirm={handleDeleteBulk}
                 disabled={!hasSelected}
               >
-                <Button danger disabled={!hasSelected}>
+                <Button danger disabled={!hasSelected} loading={bulkDel.busy}>
                   {t('common:delete')}
                 </Button>
               </Popconfirm>
@@ -485,6 +488,7 @@ export const List = () => {
         dataSource={serverPaging ? pageItems : legacyData}
         rowSelection={rowSelection}
         rowKey={(item) => item?.filename || ''}
+        rowClassName={(record) => (isDeleting(record) ? deletingRowClass : '')}
         onChange={handleTableChange}
         pagination={
           serverPaging

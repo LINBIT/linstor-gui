@@ -74,36 +74,10 @@ export const nfs = createModel<RootModel>()({
       }
     },
     // Delete NFS
-    async deleteNFS(payload: string, state) {
-      try {
-        dispatch.nfs.setNFSList({
-          total: state.nfs.total - 1,
-          list: state.nfs.list.map((item) => {
-            if (item.name === payload) {
-              return {
-                ...item,
-                deleting: true,
-              };
-            }
-            return item;
-          }),
-        });
-        const res = await service.delete(`/api/v2/nfs/${payload}`);
-
-        if (res.status === 200) {
-          notify('Deleted Successfully', {
-            type: 'success',
-          });
-        }
-      } catch (error) {
-        logger.debug(error, 'error');
-        notify(String((error as Error)?.message || 'An error occurred'), {
-          type: 'error',
-        });
-      } finally {
-        // Always refresh the list, even if there was an error
-        dispatch.nfs.getList();
-      }
+    // The list's shared delete flow shows progress, reports the outcome and
+    // reloads, so this only issues the request and lets a failure propagate.
+    async deleteNFS(payload: string) {
+      return service.delete(`/api/v2/nfs/${payload}`);
     },
     // start NFS
     async startNFS(payload: string, state) {

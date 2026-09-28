@@ -185,24 +185,36 @@ describe('ScheduleByResourceList', () => {
     expect(await screen.findByText('Schedule enabled successfully')).toBeInTheDocument();
   });
 
-  it('deletes the resource schedule after confirm, and reports a failure', async () => {
+  it('deletes the resource schedule after confirm and refetches once, leaving the toast to the fetch proxy', async () => {
+    let finish!: (v: unknown) => void;
+    vi.mocked(deleteBackupSchedule).mockReturnValue(new Promise((resolve) => (finish = resolve)) as never);
     renderList();
     await screen.findByText('res-active');
-    let menu = await openRowMenu('res-active');
+    const menu = await openRowMenu('res-active');
     fireEvent.click(within(menu).getByText('Delete'));
     expect(await screen.findByText('This action cannot be undone!')).toBeInTheDocument();
     await confirmYes();
     await waitFor(() =>
       expect(deleteBackupSchedule).toHaveBeenCalledWith('s3-a', 'nightly', { rsc_dfn_name: 'res-active' }),
     );
-    expect(await screen.findByText('Schedule deleted successfully')).toBeInTheDocument();
+    // The row is marked as deleting while the request is in flight.
+    await waitFor(() => expect(rowOf('res-active')).toHaveClass('opacity-50'));
 
+    finish({ data: [{ ret_code: 1 }] });
+    await waitFor(() => expect(getScheduleByResource).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(rowOf('res-active')).not.toHaveClass('opacity-50'));
+    expect(deleteBackupSchedule).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText('Schedule deleted successfully')).not.toBeInTheDocument();
+  });
+
+  it('reports a delete that threw', async () => {
     vi.mocked(deleteBackupSchedule).mockRejectedValue(new Error('busy'));
-    fireEvent.mouseLeave(within(rowOf('res-active')).getByRole('button', { name: 'more' }));
-    menu = await openRowMenu('res-off');
+    renderList();
+    await screen.findByText('res-off');
+    const menu = await openRowMenu('res-off');
     fireEvent.click(within(menu).getByText('Delete'));
     await confirmYes();
-    expect(await screen.findByText('Failed to delete schedule')).toBeInTheDocument();
+    expect(await screen.findByText('Failed to delete nightly (res-off): busy')).toBeInTheDocument();
   });
 
   it('expanding a row loads its details and marks what is enabled', async () => {

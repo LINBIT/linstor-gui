@@ -59,6 +59,7 @@ import { UIMode } from '@app/models/setting';
 import { getResourceState } from '@app/utils/resource';
 import { SyncFlowOverlay } from './SyncFlowOverlay';
 import { Popconfirm } from '@app/components/Popconfirm';
+import { useDeleteAction, deletingRowClass } from '@app/hooks/useDeleteAction';
 
 /** One row of a definition's volume sub-table: a deployed volume joined with its resource and definition. */
 type OverviewVolume = VolumeType & {
@@ -85,13 +86,14 @@ type SubTableColumns = NonNullable<TableProps<OverviewVolume>['columns']>;
 interface ExpandableSubTableProps {
   volumes: OverviewVolume[];
   columns: SubTableColumns;
+  isDeleting: (row: OverviewVolume) => boolean;
 }
 
 // Permanent left gutter that hosts the SyncFlowOverlay's arrows. Kept at a
 // fixed width regardless of sync state so the table layout never jumps.
 const SYNC_LANE_WIDTH = 96;
 
-const ExpandableSubTable: React.FC<ExpandableSubTableProps> = ({ volumes, columns }) => {
+const ExpandableSubTable: React.FC<ExpandableSubTableProps> = ({ volumes, columns, isDeleting }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   return (
@@ -104,7 +106,9 @@ const ExpandableSubTable: React.FC<ExpandableSubTableProps> = ({ volumes, column
         rowKey={(item) => `${item?.node_name}:${item?.volume_number ?? 0}`}
         rowClassName={(row) => {
           const isPrimaryNode = row?.node_name?.toLowerCase() === row?.primary_node?.toLowerCase();
-          return isPrimaryNode ? 'ant-table-row-primary' : '';
+          return [isPrimaryNode ? 'ant-table-row-primary' : '', isDeleting(row) ? deletingRowClass : '']
+            .filter(Boolean)
+            .join(' ');
         }}
         pagination={false}
         scroll={{ x: 'max-content' }}
@@ -368,12 +372,16 @@ export const OverviewList = () => {
     },
   });
 
-  const deleteResourceMutation = useMutation({
-    mutationKey: ['deleteResource'],
-    mutationFn: ({ resource, node }: { resource: string; node: string }) => deleteResource(resource, node),
-    onSuccess: () => {
-      refetch();
-    },
+  // Awaitable twin of refetch, so a delete keeps its row busy until both lists have reloaded.
+  const reloadAll = () => Promise.all([refetchResourceDefinitions(), refetchResourcesView()]);
+
+  const resourceKey = (vol: OverviewVolume) => `${vol.resource_name ?? ''}@${vol.node_name ?? ''}`;
+
+  const delResource = useDeleteAction<OverviewVolume>({
+    remove: (vol) => deleteResource(vol.resource_name ?? '', vol.node_name ?? ''),
+    keyOf: resourceKey,
+    nameOf: (vol) => `${vol.resource_name ?? ''} on ${vol.node_name ?? ''}`,
+    refresh: reloadAll,
   });
 
   const updateResourceMutation = useMutation({
@@ -406,12 +414,11 @@ export const OverviewList = () => {
     },
   });
 
-  const deleteMutation = useMutation({
-    mutationKey: ['deleteResourceDefinition'],
-    mutationFn: (resource: string) => deleteResourceDefinition(resource),
-    onSuccess: () => {
-      refetch();
-    },
+  const delDefinition = useDeleteAction<OverviewRow>({
+    remove: (rd) => deleteResourceDefinition(rd.name ?? ''),
+    keyOf: (rd) => rd.name ?? '',
+    nameOf: (rd) => rd.name ?? '',
+    refresh: reloadAll,
   });
 
   const handleReset = () => {
@@ -608,9 +615,7 @@ export const OverviewList = () => {
                       key="delete"
                       title={t('resource:delete_resource_definition')}
                       description={t('resource:are_you_sure_delete_resource')}
-                      onConfirm={() => {
-                        deleteMutation.mutate(record.name ?? '');
-                      }}
+                      onConfirm={() => delDefinition.run([record])}
                     >
                       <div className="w-full text-red-600">{t('common:delete')}</div>
                     </Popconfirm>
@@ -837,12 +842,7 @@ export const OverviewList = () => {
                           key="delete"
                           title={t('resource:delete_resource')}
                           description={t('resource:are_you_sure_delete_resource_2')}
-                          onConfirm={() => {
-                            deleteResourceMutation.mutate({
-                              resource: record.resource_name ?? '',
-                              node: record.node_name ?? '',
-                            });
-                          }}
+                          onConfirm={() => delResource.run([record])}
                         >
                           <div className="w-full text-red-600">{t('common:delete')}</div>
                         </Popconfirm>
@@ -861,7 +861,13 @@ export const OverviewList = () => {
       },
     ];
 
-    return <ExpandableSubTable volumes={record.volumes ?? []} columns={subTableColumns} />;
+    return (
+      <ExpandableSubTable
+        volumes={record.volumes ?? []}
+        columns={subTableColumns}
+        isDeleting={(vol) => delResource.isDeleting(resourceKey(vol))}
+      />
+    );
   };
 
   return (
@@ -968,6 +974,7 @@ export const OverviewList = () => {
         }}
         dataSource={filteredList}
         rowKey={(item) => item?.name ?? uniqId()}
+        rowClassName={(item) => (delDefinition.isDeleting(item.name ?? '') ? deletingRowClass : '')}
         pagination={tablePagination}
         onChange={handlePaginationChange}
         scroll={{ x: 'max-content' }}

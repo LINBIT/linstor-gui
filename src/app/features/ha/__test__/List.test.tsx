@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { message } from 'antd';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -337,7 +338,23 @@ describe('DRBD Reactor List', () => {
     fireEvent.click(await confirmDialogButton('Delete'));
     await waitFor(() => expect(deleteFile).toHaveBeenCalledWith(MYSQL_PATH));
     expect(undeployFile).toHaveBeenCalledWith('ha-mysql', MYSQL_PATH);
-    expect(await screen.findByText('HA configuration for "ha-mysql" deleted successfully')).toBeInTheDocument();
+    expect(await screen.findByText('Deleted ha-mysql')).toBeInTheDocument();
+  });
+
+  it('a failed undeploy keeps the file and is reported as a failure, not as deleted', async () => {
+    // antd's message container is global; drop the previous test's toasts.
+    act(() => message.destroy());
+    vi.mocked(undeployFile).mockResolvedValue({
+      error: [{ ret_code: -1, message: 'resource is in use' }],
+    } as never);
+    renderList();
+    await screen.findByText('ha-mysql');
+    const menu = await openRowMenu('ha-mysql');
+    fireEvent.click(within(menu).getByText('Delete'));
+    fireEvent.click(await confirmDialogButton('Delete'));
+    expect(await screen.findByText('Failed to delete ha-mysql: resource is in use')).toBeInTheDocument();
+    expect(deleteFile).not.toHaveBeenCalled();
+    expect(screen.queryByText('Deleted ha-mysql')).not.toBeInTheDocument();
   });
 
   it('shows an empty table when nothing is HA-managed', async () => {

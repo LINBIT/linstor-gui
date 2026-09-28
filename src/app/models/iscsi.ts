@@ -74,35 +74,10 @@ export const iscsi = createModel<RootModel>()({
       }
     },
     // Delete ISCSI
-    async deleteISCSI(payload: string, state) {
-      try {
-        dispatch.iscsi.setISCSIList({
-          total: state.iscsi.total - 1,
-          list: state.iscsi.list.map((item) => {
-            if (item.iqn === payload) {
-              return {
-                ...item,
-                deleting: true,
-              };
-            }
-            return item;
-          }),
-        });
-        const res = await service.delete(`/api/v2/iscsi/${payload}`);
-        if (res.status === 200) {
-          notify('Deleted Successfully', {
-            type: 'success',
-          });
-        }
-      } catch (error) {
-        logger.debug(error, 'error');
-        notify(String((error as Error)?.message || 'An error occurred'), {
-          type: 'error',
-        });
-      } finally {
-        // Always refresh the list, even if there was an error
-        dispatch.iscsi.getList();
-      }
+    // The list's shared delete flow shows progress, reports the outcome and
+    // reloads, so this only issues the request and lets a failure propagate.
+    async deleteISCSI(payload: string) {
+      return service.delete(`/api/v2/iscsi/${payload}`);
     },
     // start ISCSI
     async startISCSI(payload: string, state) {

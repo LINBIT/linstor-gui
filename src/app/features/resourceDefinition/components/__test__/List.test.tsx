@@ -143,6 +143,7 @@ describe('resourceDefinition List', () => {
 
     await waitFor(() => expect(deleteResourceDefinition).toHaveBeenCalledWith('rd1'));
     await waitFor(() => expect(getResourceDefinition).toHaveBeenCalledTimes(2));
+    expect(deleteResourceDefinition).toHaveBeenCalledTimes(1);
   });
 
   it('deletes the selected definitions in bulk', async () => {
@@ -160,6 +161,13 @@ describe('resourceDefinition List', () => {
     await waitFor(() => expect(deleteResourceDefinition).toHaveBeenCalledTimes(2));
     expect(deleteResourceDefinition).toHaveBeenCalledWith('rd1');
     expect(deleteResourceDefinition).toHaveBeenCalledWith('rd2');
+    // One reload for the whole batch, then the selection (and the bulk button) is gone.
+    await waitFor(() =>
+      expect(
+        within(container.querySelector('form') as HTMLElement).queryByRole('button', { name: 'Delete' }),
+      ).toBeNull(),
+    );
+    expect(getResourceDefinition).toHaveBeenCalledTimes(2);
   });
 
   it('spawns a definition with the entered placement', async () => {

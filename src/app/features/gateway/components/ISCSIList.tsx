@@ -21,10 +21,13 @@ import { RootState } from '@app/store';
 import { SizeInput } from '@app/components/SizeInput';
 import { useTranslation } from 'react-i18next';
 import { formatBytes } from '@app/utils/size';
+import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
 
 type ISCSIListProps = {
   list: ISCSIResource[];
-  handleDelete: (iqn: string) => void;
+  handleDelete: (iqn: string) => Promise<unknown>;
+  /** Reloads the list once a delete (or a bulk delete) finished. */
+  onDeleted?: () => unknown;
   handleStart: (iqn: string) => void;
   handleStop: (iqn: string) => void;
   handleDeleteVolume: (iqn: string, lun: number) => void;
@@ -34,7 +37,6 @@ type ISCSIListProps = {
 };
 
 type ISCSIOperationStatus = {
-  deleting?: boolean;
   starting?: boolean;
   stopping?: boolean;
 };
@@ -54,6 +56,7 @@ type VolumeData = {
 export const ISCSIList = ({
   list,
   handleDelete,
+  onDeleted,
   handleStop,
   handleStart,
   handleAddVolume,
@@ -66,6 +69,15 @@ export const ISCSIList = ({
   const [LUN, setLUN] = useState(0);
   const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  // Gateway calls go through axios, not the fetch proxy, so the hook toasts
+  // single deletes as well.
+  const del = useDeleteAction<string>({
+    remove: (id) => handleDelete(id),
+    keyOf: (id) => id,
+    nameOf: (id) => id,
+    refresh: onDeleted,
+    toastSingle: true,
+  });
   const [nameFilter, setNameFilter] = useState('');
   const { t } = useTranslation(['common', 'iscsi']);
 
@@ -93,10 +105,8 @@ export const ISCSIList = ({
 
   const hasSelected = selectedRowKeys.length > 0;
 
-  const handleDeleteBulk = () => {
-    selectedRowKeys.forEach((key) => {
-      handleDelete(String(key));
-    });
+  const handleDeleteBulk = async () => {
+    await del.run(selectedRowKeys.map(String));
     setSelectedRowKeys([]);
   };
 
@@ -200,11 +210,7 @@ export const ISCSIList = ({
                       <Popconfirm
                         key="delete"
                         title={t('iscsi:are_you_sure_delete_target')}
-                        onConfirm={() => {
-                          if (record.iqn) {
-                            handleDelete(record.iqn);
-                          }
-                        }}
+                        onConfirm={() => (record.iqn ? del.run([record.iqn]) : undefined)}
                       >
                         <div className="w-full text-red-600">{t('common:delete')}</div>
                       </Popconfirm>
@@ -368,7 +374,7 @@ export const ISCSIList = ({
                 onConfirm={handleDeleteBulk}
                 disabled={!hasSelected}
               >
-                <Button danger disabled={!hasSelected}>
+                <Button danger disabled={!hasSelected} loading={del.busy}>
                   {t('common:delete')}
                 </Button>
               </Popconfirm>
@@ -389,6 +395,7 @@ export const ISCSIList = ({
         columns={columns}
         dataSource={filteredList}
         rowKey="iqn"
+        rowClassName={(record) => (del.isDeleting(record.iqn ?? '') ? deletingRowClass : '')}
         scroll={{ x: 960 }}
         loading={loading}
         rowSelection={{

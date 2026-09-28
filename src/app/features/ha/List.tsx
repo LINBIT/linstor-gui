@@ -19,7 +19,7 @@ import {
   useResources,
   useDrbdReactorStatus,
   useEvictDrbdReactor,
-  useDeleteHA,
+  deleteHAConfig,
   useUnmanageHA,
   useManageHA,
   useAllResourceDefinitions,
@@ -33,6 +33,8 @@ import styled from '@emotion/styled';
 import { LiaToolsSolid } from 'react-icons/lia';
 import { useNodes } from '@app/features/node/hooks/useNode';
 import { getEvictOutcome } from './evict';
+import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
+import { withQuietToasts } from '@app/utils/toast';
 import type { DrbdReactorStatus } from './api';
 
 const { Text } = Typography;
@@ -67,6 +69,10 @@ interface HARecord {
     }>;
   }>;
 }
+
+/** The resource's deployed drbd-reactor config files (external-file props). */
+const reactorConfigFiles = (record: HARecord) =>
+  Object.keys(record.props || {}).filter((key) => key.startsWith('files/etc/drbd-reactor.d/'));
 
 const decodeExecText = (text?: string | null): string => {
   if (!text) return '';
@@ -372,8 +378,24 @@ export const List = () => {
   // Evict mutation
   const evictMutation = useEvictDrbdReactor();
 
-  // Delete / Unmanage mutations
-  const deleteMutation = useDeleteHA();
+  // Delete goes through the shared delete flow (in-flight row, one outcome
+  // toast). It is two requests, undeploy then file delete, so their replies are
+  // kept quiet and the hook reports the pair once.
+  const [deleteTarget, setDeleteTarget] = useState<HARecord | null>(null);
+  const haDelete = useDeleteAction<HARecord>({
+    keyOf: (record) => record.uuid,
+    nameOf: (record) => record.name,
+    toastSingle: true,
+    remove: (record) => {
+      const [configFile] = reactorConfigFiles(record);
+      return withQuietToasts(() => deleteHAConfig(record.name, configFile.replace('files', '')));
+    },
+    refresh: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] }),
+        queryClient.invalidateQueries({ queryKey: ['ha-all-resource-definitions'] }),
+      ]),
+  });
   const unmanageMutation = useUnmanageHA();
 
   // Manage mutation
@@ -755,9 +777,7 @@ export const List = () => {
       fixed: 'right',
       align: 'center',
       render: (_, record) => {
-        const configFiles = Object.keys(record.props || {}).filter((key) =>
-          key.startsWith('files/etc/drbd-reactor.d/'),
-        );
+        const configFiles = reactorConfigFiles(record);
         const editPath =
           configFiles.length > 0 ? `/reactor/edit/${record.name}?filePath=${encodeURIComponent(configFiles[0])}` : '';
 
@@ -881,42 +901,11 @@ export const List = () => {
             label: <span className="text-red-600">{t('common:delete')}</span>,
             icon: <DeleteOutlined className="text-red-600" />,
             onClick: () => {
-              const modal = Modal.confirm({
-                title: t('common:delete'),
-                content: `Are you sure you want to delete "${record.name}"? This will remove the HA configuration file from all nodes.`,
-                footer: (
-                  <div className="flex justify-end gap-2 mt-4">
-                    <Button onClick={() => modal.destroy()}>{t('common:cancel')}</Button>
-                    <Button
-                      type="primary"
-                      danger
-                      loading={deleteMutation.isLoading}
-                      onClick={() => {
-                        if (configFiles.length > 0) {
-                          const filePath = configFiles[0].replace('files', '');
-                          deleteMutation.mutate(
-                            { resourceName: record.name, filePath },
-                            {
-                              onSuccess: () => {
-                                message.success(`HA configuration for "${record.name}" deleted successfully`);
-                                modal.destroy();
-                              },
-                              onError: (err) => {
-                                message.error(`Failed to delete: ${err}`);
-                              },
-                            },
-                          );
-                        } else {
-                          message.warning('No configuration file found to delete');
-                          modal.destroy();
-                        }
-                      }}
-                    >
-                      {t('common:delete')}
-                    </Button>
-                  </div>
-                ),
-              });
+              if (configFiles.length > 0) {
+                setDeleteTarget(record);
+              } else {
+                message.warning('No configuration file found to delete');
+              }
             },
           },
         ];
@@ -981,7 +970,42 @@ export const List = () => {
           <Button onClick={() => setManageModalVisible(true)}>Manage ({unmanagedFiles.length} unmanaged)</Button>
         </div>
       )}
-      <Table columns={columns} dataSource={data} rowKey="uuid" loading={isLoading} pagination={false} />
+      <Table
+        columns={columns}
+        dataSource={data}
+        rowKey="uuid"
+        loading={isLoading}
+        pagination={false}
+        rowClassName={(record) => (haDelete.isDeleting(record.uuid) ? deletingRowClass : '')}
+      />
+      <Modal
+        title={t('common:delete')}
+        open={!!deleteTarget}
+        onCancel={() => !haDelete.busy && setDeleteTarget(null)}
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button onClick={() => setDeleteTarget(null)} disabled={haDelete.busy}>
+              {t('common:cancel')}
+            </Button>
+            <Button
+              type="primary"
+              danger
+              loading={haDelete.busy}
+              onClick={async () => {
+                if (deleteTarget) {
+                  await haDelete.run([deleteTarget]);
+                }
+                setDeleteTarget(null);
+              }}
+            >
+              {t('common:delete')}
+            </Button>
+          </div>
+        }
+      >
+        {deleteTarget &&
+          `Are you sure you want to delete "${deleteTarget.name}"? This will remove the HA configuration file from all nodes.`}
+      </Modal>
       <FileContentModal filePath={viewFilePath} visible={viewModalVisible} onClose={() => setViewModalVisible(false)} />
       <Modal
         title={t('ha:manage_ha_configuration')}

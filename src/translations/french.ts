@@ -6,6 +6,11 @@
 
 const fr = {
   common: {
+    n_more_in_log: '(+{{count}} autres dans le journal)',
+    bulk_delete_done: '{{done}} sur {{total}} supprimé(s)',
+    bulk_delete_failed: '{{done}} sur {{total}} supprimé(s) ; échec pour {{name}} : {{error}}',
+    deleted_name: '{{name}} supprimé',
+    delete_failed: 'Échec de la suppression de {{name}} : {{error}}',
     // DRBD Reactor / OCF agent editor
     preview: 'Aperçu',
     paste: 'Coller',

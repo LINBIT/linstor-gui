@@ -23,6 +23,8 @@ import { useTranslation } from 'react-i18next';
 import { Switch } from '@app/components/Switch';
 import { Button } from '@app/components/Button';
 import { Popconfirm } from '@app/components/Popconfirm';
+import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
+import { withQuietToasts } from '@app/utils/toast';
 
 export const UserManagement = () => {
   const dispatch = useDispatch<Dispatch>();
@@ -77,6 +79,18 @@ export const UserManagement = () => {
 
   const [checked, setChecked] = useState(false);
 
+  // The effect reloads the user list itself, and the key-value-store reply is
+  // not toasted by the fetch proxy, so the hook reports the outcome.
+  // The user store is a key-value-store write: the proxy stays silent on its
+  // success but would toast an HTTP error next to the hook's own, so the hook
+  // alone reports the outcome.
+  const del = useDeleteAction<string>({
+    remove: (username) => withQuietToasts(() => dispatch.auth.deleteUser(username)),
+    keyOf: (username) => username,
+    nameOf: (username) => username,
+    toastSingle: true,
+  });
+
   useEffect(() => {
     if (authenticationEnabled) {
       dispatch.auth.getUsers();
@@ -126,6 +140,7 @@ export const UserManagement = () => {
                 dataSource={users.map((user) => ({ title: user }))}
                 renderItem={(user, index) => (
                   <List.Item
+                    className={del.isDeleting(user.title) ? deletingRowClass : undefined}
                     actions={[
                       <ChangePassword key="change" admin user={user.title} disabled={!isAdmin} />,
 
@@ -136,9 +151,7 @@ export const UserManagement = () => {
                         okText={t('users:yes')}
                         cancelText={t('users:no')}
                         icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
-                        onConfirm={() => {
-                          dispatch.auth.deleteUser(user.title);
-                        }}
+                        onConfirm={() => del.run([user.title])}
                       >
                         <Button danger disabled={!isAdmin}>
                           {t('users:delete_user')}

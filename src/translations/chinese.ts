@@ -6,6 +6,12 @@
 
 const zh = {
   common: {
+    // One toast per action (utils/toast.ts, hooks/useDeleteAction.ts)
+    n_more_in_log: '（另有 {{count}} 条，见日志）',
+    bulk_delete_done: '已删除 {{done}}/{{total}} 个',
+    bulk_delete_failed: '已删除 {{done}}/{{total}} 个；{{name}} 删除失败：{{error}}',
+    deleted_name: '已删除 {{name}}',
+    delete_failed: '删除 {{name}} 失败：{{error}}',
     // DRBD Reactor / OCF agent editor
     preview: '预览',
     paste: '粘贴',

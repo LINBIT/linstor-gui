@@ -6,6 +6,11 @@
 
 const ja = {
   common: {
+    n_more_in_log: '（ほか {{count}} 件はログを参照）',
+    bulk_delete_done: '{{total}} 件中 {{done}} 件を削除しました',
+    bulk_delete_failed: '{{total}} 件中 {{done}} 件を削除しました。{{name}} は失敗しました: {{error}}',
+    deleted_name: '{{name}} を削除しました',
+    delete_failed: '{{name}} を削除できませんでした: {{error}}',
     // DRBD Reactor / OCF agent editor
     preview: 'プレビュー',
     paste: '貼り付け',

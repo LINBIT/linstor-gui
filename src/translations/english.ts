@@ -6,6 +6,12 @@
 
 const en = {
   common: {
+    // One toast per action (utils/toast.ts, hooks/useDeleteAction.ts)
+    n_more_in_log: '(+{{count}} more in the log)',
+    bulk_delete_done: 'Deleted {{done}} of {{total}}',
+    bulk_delete_failed: 'Deleted {{done}} of {{total}}; {{name}} failed: {{error}}',
+    deleted_name: 'Deleted {{name}}',
+    delete_failed: 'Failed to delete {{name}}: {{error}}',
     // DRBD Reactor / OCF agent editor
     preview: 'Preview',
     paste: 'Paste',

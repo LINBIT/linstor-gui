@@ -33,6 +33,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';
 import { UIMode } from '@app/models/setting';
 import { Popconfirm } from '@app/components/Popconfirm';
+import { useDeleteAction, deletingRowClass } from '@app/hooks/useDeleteAction';
 
 export const List = () => {
   const [form] = Form.useForm();
@@ -138,13 +139,11 @@ export const List = () => {
     }));
   }, [show_default]);
 
-  const deleteMutation = useMutation({
-    mutationFn: ({ node, storagepool }: { node: string; storagepool: string }) => {
-      return deleteStoragePoolV2({ node, storagepool });
-    },
-    onSuccess: () => {
-      refetch();
-    },
+  const del = useDeleteAction<StoragePool>({
+    remove: (sp) => deleteStoragePoolV2({ node: sp.node_name ?? '', storagepool: sp.storage_pool_name }),
+    keyOf: (sp) => sp.uuid || '',
+    nameOf: (sp) => `${sp.node_name ?? ''}/${sp.storage_pool_name}`,
+    refresh: () => refetch(),
   });
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
@@ -188,22 +187,10 @@ export const List = () => {
     navigate(mode === UIMode.HCI ? '/hci/inventory/storage-pools' : '/inventory/storage-pools');
   };
 
-  const handleDelete = (node: string, storagepool: string) => {
-    deleteMutation.mutate({ node, storagepool });
-  };
-
-  const handleDeleteBulk = () => {
-    selectedRowKeys.forEach((ele) => {
-      const currentSP = storagePoolListDisplay?.find((e) => e.uuid === ele);
-
-      const node = currentSP?.node_name ?? '';
-      const storagepool = currentSP?.storage_pool_name ?? '';
-
-      deleteMutation.mutate({
-        node,
-        storagepool,
-      });
-    });
+  const handleDeleteBulk = async () => {
+    const selected = (storagePoolListDisplay ?? []).filter((sp) => selectedRowKeys.includes(sp.uuid || ''));
+    await del.run(selected);
+    setSelectedRowKeys([]);
   };
 
   const providerKindColorMap = {
@@ -322,7 +309,7 @@ export const List = () => {
                       key="delete"
                       title={t('storage_pool:delete_storage_pool')}
                       description={t('storage_pool:are_you_sure_delete_storage_pool')}
-                      onConfirm={() => handleDelete(record.node_name ?? '', record.storage_pool_name)}
+                      onConfirm={() => del.run([record])}
                     >
                       <div className="w-full text-red-600">{t('common:delete')}</div>
                     </Popconfirm>
@@ -401,7 +388,7 @@ export const List = () => {
                 onConfirm={handleDeleteBulk}
                 disabled={!hasSelected}
               >
-                <Button danger disabled={!hasSelected} className="!font-semibold">
+                <Button danger disabled={!hasSelected} loading={del.busy} className="!font-semibold">
                   {t('common:delete')}
                 </Button>
               </Popconfirm>
@@ -424,6 +411,7 @@ export const List = () => {
         dataSource={storagePoolListDisplay ?? []}
         rowSelection={rowSelection}
         rowKey={(item) => item?.uuid || ''}
+        rowClassName={(item) => (del.isDeleting(item.uuid || '') ? deletingRowClass : '')}
         pagination={{
           total: show_default
             ? (stats?.data?.count ?? 0)

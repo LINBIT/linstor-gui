@@ -216,6 +216,7 @@ describe('snapshot List', () => {
     fireEvent.click(within(menu).getByText('Delete'));
     await waitFor(() => expect(deleteSnapshot).toHaveBeenCalledWith('res-a', 'snap-old'));
     await waitFor(() => expect(getSnapshots).toHaveBeenCalledTimes(2));
+    expect(deleteSnapshot).toHaveBeenCalledTimes(1);
   });
 
   it('bulk delete needs a selection, confirms, then deletes each and clears the selection', async () => {
@@ -235,6 +236,8 @@ describe('snapshot List', () => {
     expect(deleteSnapshot).toHaveBeenCalledWith('res-a', 'snap-old');
     expect(deleteSnapshot).toHaveBeenCalledWith('res-b', 'snap-b');
     await waitFor(() => expect(screen.getByRole('button', { name: 'Delete' })).toBeDisabled());
+    // One refetch for the whole batch.
+    expect(getSnapshots).toHaveBeenCalledTimes(2);
   });
 
   it('only the newest snapshot of a resource can be rolled back', async () => {

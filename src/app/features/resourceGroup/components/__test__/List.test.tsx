@@ -230,6 +230,7 @@ describe('resource group List', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
     await waitFor(() => expect(deleteResourceGroup).toHaveBeenCalledWith('rg-alpha'));
     await waitFor(() => expect(getResourceGroups).toHaveBeenCalledTimes(2));
+    expect(deleteResourceGroup).toHaveBeenCalledTimes(1);
   });
 
   it('bulk delete is disabled until a row is selected, then deletes each selected group', async () => {
@@ -250,6 +251,9 @@ describe('resource group List', () => {
     await waitFor(() => expect(deleteResourceGroup).toHaveBeenCalledTimes(2));
     expect(deleteResourceGroup).toHaveBeenCalledWith('rg-alpha');
     expect(deleteResourceGroup).toHaveBeenCalledWith('rg-beta');
+    // One refresh for the whole batch, then the selection is cleared.
+    await waitFor(() => expect(bulkDelete).toBeDisabled());
+    expect(getResourceGroups).toHaveBeenCalledTimes(2);
   });
 
   it('opens the property form for the row and submits the change to that group', async () => {

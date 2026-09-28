@@ -6,6 +6,11 @@
 
 const tr = {
   common: {
+    n_more_in_log: '(günlükte +{{count}} tane daha)',
+    bulk_delete_done: '{{total}} öğeden {{done}} tanesi silindi',
+    bulk_delete_failed: '{{total}} öğeden {{done}} tanesi silindi; {{name}} başarısız: {{error}}',
+    deleted_name: '{{name}} silindi',
+    delete_failed: '{{name}} silinemedi: {{error}}',
     // DRBD Reactor / OCF agent editor
     preview: 'Önizleme',
     paste: 'Yapıştır',

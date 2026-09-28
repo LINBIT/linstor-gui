@@ -5,12 +5,11 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { useState } from 'react';
-import { logger } from '@app/utils/logger';
 import { Form, Space, Table, Dropdown, Tooltip } from 'antd';
 import { Input } from '@app/components/Input';
 import { Button } from '@app/components/Button';
 import type { TableProps } from 'antd';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CheckCircleFilled, CloseCircleFilled, MoreOutlined } from '@ant-design/icons';
@@ -21,6 +20,7 @@ import { SearchForm } from './styled';
 import { formatTime } from '@app/utils/time';
 import { CreateBackupForm } from './CreateBackupForm';
 import { Popconfirm } from '@app/components/Popconfirm';
+import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
 
 type RemoteQuery = {
   origin_rsc?: string | null;
@@ -119,32 +119,14 @@ export const List = () => {
     navigate(location.pathname);
   };
 
-  const deleteRemoteMutation = useMutation({
-    mutationFn: async (timestamp: string) => {
-      try {
-        await deleteBackup(remote_name ?? '', {
-          timestamp,
-        });
-
-        refetch();
-      } catch (error) {
-        logger.debug(error);
-      }
-    },
+  const del = useDeleteAction<BackupItem>({
+    remove: (backup) => deleteBackup(remote_name ?? '', { timestamp: backup.finished_time }),
+    keyOf: (backup) => backup.id,
+    nameOf: (backup) => backup.origin_snap,
+    refresh: () => refetch(),
   });
 
-  const handleDelete = async (timestamp: string) => {
-    deleteRemoteMutation.mutate(timestamp);
-  };
-
-  const columns: TableProps<{
-    origin_rsc: string;
-    origin_snap: string;
-    finished_timestamp: number;
-    success: boolean;
-    finished_time: string;
-    shipping: boolean;
-  }>['columns'] = [
+  const columns: TableProps<BackupItem>['columns'] = [
     {
       title: <span>Resource</span>,
       key: 'resource',
@@ -224,12 +206,7 @@ export const List = () => {
                   {
                     key: 'delete',
                     label: (
-                      <Popconfirm
-                        title={t('remote:delete_backup')}
-                        onConfirm={() => {
-                          handleDelete(record.finished_time);
-                        }}
-                      >
+                      <Popconfirm title={t('remote:delete_backup')} onConfirm={() => del.run([record])}>
                         {t('common:delete')}
                       </Popconfirm>
                     ),
@@ -293,6 +270,7 @@ export const List = () => {
           showTotal: (total) => t('common:total_items', { total }),
         }}
         loading={isLoading}
+        rowClassName={(record) => (del.isDeleting(record.id) ? deletingRowClass : '')}
       />
     </>
   );

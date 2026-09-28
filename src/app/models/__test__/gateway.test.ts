@@ -79,25 +79,26 @@ describe('gateway models', () => {
       expect(notify).toHaveBeenCalledWith('rg missing', { type: 'error' });
     });
 
-    it('deleteNFS marks the row as deleting, deletes, then reloads the list even on failure', async () => {
-      api.get.mockResolvedValue({ data: [{ name: 'nfs-a' }, { name: 'nfs-b' }] });
-      await store.dispatch.nfs.getList();
-      const seen: unknown[] = [];
-      const unsubscribe = store.subscribe(() => seen.push(store.getState().nfs));
-
+    it('deleteNFS only issues the request and lets a failure reach the caller', async () => {
+      // Progress, the outcome toast and the reload belong to the list's shared
+      // delete flow (useDeleteAction), not to the model.
+      api.delete.mockResolvedValue({ status: 200 });
       await store.dispatch.nfs.deleteNFS('nfs-a');
-      unsubscribe();
-
-      // The optimistic flag is written before the request goes out.
-      expect(seen).toContainEqual({ total: 1, list: [{ name: 'nfs-a', deleting: true }, { name: 'nfs-b' }] });
       expect(api.delete).toHaveBeenCalledWith('/api/v2/nfs/nfs-a');
-      expect(notify).toHaveBeenCalledWith('Deleted Successfully', { type: 'success' });
-      expect(api.get).toHaveBeenCalledTimes(2);
+      expect(notify).not.toHaveBeenCalled();
+      expect(api.get).not.toHaveBeenCalled();
 
+      api.delete.mockRejectedValue({ message: 'export busy' });
+      await expect(store.dispatch.nfs.deleteNFS('nfs-b')).rejects.toEqual({ message: 'export busy' });
+    });
+
+    it('startNFS reports a failure and reloads', async () => {
+      api.get.mockResolvedValue({ data: [{ name: 'nfs-b' }] });
+      await store.dispatch.nfs.getList();
       api.post.mockRejectedValue(new Error('busy'));
       await store.dispatch.nfs.startNFS('nfs-b');
       expect(notify).toHaveBeenCalledWith('busy', { type: 'error' });
-      expect(api.get).toHaveBeenCalledTimes(3);
+      expect(api.get).toHaveBeenCalledTimes(2);
     });
 
     it('start and stop hit their endpoints and flag the row meanwhile', async () => {
@@ -150,8 +151,9 @@ describe('gateway models', () => {
 
       await store.dispatch.iscsi.deleteLUN(['iqn.a', 3]);
       expect(api.delete).toHaveBeenCalledWith('/api/v2/iscsi/iqn.a/3');
-      // Every mutation reloads the list.
-      expect(api.get).toHaveBeenCalledTimes(5);
+      // Every mutation but the export delete reloads the list; that one is
+      // reloaded by the list's delete flow.
+      expect(api.get).toHaveBeenCalledTimes(4);
     });
 
     it('a failed LUN change is reported and still reloads', async () => {
@@ -174,11 +176,7 @@ describe('gateway models', () => {
     it('the mutations map onto the nvme-of endpoints and key rows by nqn', async () => {
       api.get.mockResolvedValue({ data: [{ nqn: 'nqn.a', volumes: [{ number: 1 }] }] });
       await store.dispatch.nvme.getList();
-      const seen: unknown[] = [];
-      const unsubscribe = store.subscribe(() => seen.push(store.getState().nvme));
       await store.dispatch.nvme.deleteNvme('nqn.a');
-      unsubscribe();
-      expect(seen.some((s) => JSON.stringify(s).includes('"deleting":true'))).toBe(true);
       expect(api.delete).toHaveBeenCalledWith('/api/v2/nvme-of/nqn.a');
 
       api.post.mockResolvedValueOnce({ status: 201 });

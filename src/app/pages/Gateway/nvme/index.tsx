@@ -34,9 +34,7 @@ const List = () => {
     navigate(`/gateway/nvme-of/create`);
   };
 
-  const handleDelete = (nqn: string) => {
-    dispatch.nvme.deleteNvme(nqn);
-  };
+  const handleDelete = (nqn: string) => dispatch.nvme.deleteNvme(nqn);
 
   const handleStart = (nqn: string) => {
     dispatch.nvme.startNvme(nqn);
@@ -64,6 +62,7 @@ const List = () => {
         onCreate={createNVMeOf}
         list={list as unknown as NVMEOFResource[]}
         handleDelete={handleDelete}
+        onDeleted={() => dispatch.nvme.getList()}
         handleStart={handleStart}
         handleStop={handleStop}
         handleDeleteVolume={handleDeleteVolume}

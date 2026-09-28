@@ -19,10 +19,13 @@ import { formatBytes } from '@app/utils/size';
 
 import { ExpandIconProps, NFSResource } from '../types';
 import { ExportBasePath } from '../const';
+import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
 
 type NFSListProps = {
   list: NFSResource[];
-  handleDelete: (name: string) => void;
+  handleDelete: (name: string) => Promise<unknown>;
+  /** Reloads the list once a delete (or a bulk delete) finished. */
+  onDeleted?: () => unknown;
   handleStart: (name: string) => void;
   handleStop: (name: string) => void;
   onCreate?: () => void;
@@ -30,7 +33,6 @@ type NFSListProps = {
 };
 
 type NFSOperationStatus = {
-  deleting?: boolean;
   starting?: boolean;
   stopping?: boolean;
 };
@@ -45,9 +47,26 @@ type VolumeData = {
   state?: string;
 };
 
-export const NFSList = ({ list, handleDelete, handleStop, handleStart, onCreate, loading = false }: NFSListProps) => {
+export const NFSList = ({
+  list,
+  handleDelete,
+  handleStop,
+  handleStart,
+  onCreate,
+  onDeleted,
+  loading = false,
+}: NFSListProps) => {
   const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  // Gateway calls go through axios, not the fetch proxy, so the hook toasts
+  // single deletes as well.
+  const del = useDeleteAction<string>({
+    remove: (id) => handleDelete(id),
+    keyOf: (id) => id,
+    nameOf: (id) => id,
+    refresh: onDeleted,
+    toastSingle: true,
+  });
   const [nameFilter, setNameFilter] = useState('');
   const [initialized, setInitialized] = useState(false);
   const [form] = Form.useForm<{ name: string }>();
@@ -81,10 +100,8 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart, onCreate,
 
   const hasSelected = selectedRowKeys.length > 0;
 
-  const handleDeleteBulk = () => {
-    selectedRowKeys.forEach((key) => {
-      handleDelete(String(key));
-    });
+  const handleDeleteBulk = async () => {
+    await del.run(selectedRowKeys.map(String));
     setSelectedRowKeys([]);
   };
 
@@ -212,11 +229,7 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart, onCreate,
                       <Popconfirm
                         key="delete"
                         title={t('nfs:are_you_sure_delete_export')}
-                        onConfirm={() => {
-                          if (record.name) {
-                            handleDelete(record.name);
-                          }
-                        }}
+                        onConfirm={() => (record.name ? del.run([record.name]) : undefined)}
                       >
                         <div className="w-full text-red-600">{t('common:delete')}</div>
                       </Popconfirm>
@@ -371,7 +384,7 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart, onCreate,
                 onConfirm={handleDeleteBulk}
                 disabled={!hasSelected}
               >
-                <Button danger disabled={!hasSelected}>
+                <Button danger disabled={!hasSelected} loading={del.busy}>
                   {t('common:delete')}
                 </Button>
               </Popconfirm>
@@ -396,6 +409,7 @@ export const NFSList = ({ list, handleDelete, handleStop, handleStart, onCreate,
         loading={loading}
         scroll={{ x: 960 }}
         rowKey="name"
+        rowClassName={(record) => (del.isDeleting(record.name ?? '') ? deletingRowClass : '')}
         rowSelection={{
           selectedRowKeys,
           onChange: setSelectedRowKeys,

@@ -33,9 +33,7 @@ const List: React.FunctionComponent = () => {
     navigate(`/gateway/iscsi/create`);
   };
 
-  const handleDelete = (iqn: string) => {
-    dispatch.iscsi.deleteISCSI(iqn);
-  };
+  const handleDelete = (iqn: string) => dispatch.iscsi.deleteISCSI(iqn);
 
   const handleStart = (iqn: string) => {
     dispatch.iscsi.startISCSI(iqn);
@@ -63,6 +61,7 @@ const List: React.FunctionComponent = () => {
         onCreate={createISCSI}
         list={list as ISCSIResource[]}
         handleDelete={handleDelete}
+        onDeleted={() => dispatch.iscsi.getList()}
         handleStart={handleStart}
         handleStop={handleStop}
         handleDeleteVolume={handleDeleteVolume}

@@ -6,6 +6,7 @@
 
 import { components } from '@app/apis/schema';
 import { message } from 'antd';
+import i18n from 'i18next';
 
 const handleLinstorMessage = (e: { message: string; ret_code: number }) => {
   return { title: e.message, type: e.ret_code > 0 ? 'success' : 'error' };
@@ -32,6 +33,58 @@ const notify = (
 
 type APICALLRC = components['schemas']['ApiCallRc'];
 type APICALLRCLIST = components['schemas']['ApiCallRcList'];
+
+// Errors stay long enough to read, but no longer pin themselves to the screen.
+const ERROR_TOAST_SECONDS = 10;
+
+type RcEntry = { message: string; ret_code: number };
+
+/**
+ * One toast for one LINSTOR reply. A reply carries one ApiCallRc entry per
+ * step (per node, per volume...), and toasting each of them buried the
+ * outcome under a burst the user could not read; every entry still goes to
+ * the log sidebar. Errors win: the first one is shown, the rest counted.
+ * Otherwise the last entry is shown, since LINSTOR ends with the conclusion
+ * ("... deleted", "... ready").
+ */
+const toastSummary = (entries: RcEntry[], onClick?: () => void): void => {
+  const relevant = entries.filter((e) => e.ret_code);
+  if (!relevant.length) {
+    return;
+  }
+  const errors = relevant.filter((e) => e.ret_code < 0);
+  const shown = errors.length ? errors[0] : relevant[relevant.length - 1];
+  const rest = (errors.length || relevant.length) - 1;
+  const content =
+    rest > 0 ? `${shown.message} ${i18n.t('common:n_more_in_log', { count: rest })}` : String(shown.message);
+
+  if (errors.length) {
+    message.error({ content, duration: ERROR_TOAST_SECONDS, onClick: onClick ?? (() => message.destroy()) });
+  } else {
+    message.success({ content, onClick });
+  }
+};
+
+// While > 0, replies are logged but not toasted: an action that makes several
+// requests reports one outcome itself instead. See withQuietToasts.
+let quietDepth = 0;
+
+const toastsAreQuiet = (): boolean => quietDepth > 0;
+
+/**
+ * Runs an action whose requests should not toast on their own, because the
+ * action shows its own summary (bulk delete, multi-step restore). The fetch
+ * proxy checks this when a request is sent, so replies that are parsed after
+ * the action finished are still kept quiet.
+ */
+const withQuietToasts = async <T>(action: () => Promise<T>): Promise<T> => {
+  quietDepth += 1;
+  try {
+    return await action();
+  } finally {
+    quietDepth -= 1;
+  }
+};
 
 interface LogItem {
   key: string;
@@ -91,7 +144,7 @@ class ApiLogManager {
     this.handleAPICallRes([newLog]);
   }
 
-  addBulkLogs(results: APICALLRCLIST, url: string): void {
+  addBulkLogs(results: APICALLRCLIST, url: string, notify = true): void {
     const timestamp = Date.now();
     const logs = this.getStoredLogs();
     const newLogs: LogItem[] = results.map((result) => ({
@@ -102,7 +155,9 @@ class ApiLogManager {
       read: false,
     }));
     this.setStoredLogs([...logs, ...newLogs]);
-    this.handleAPICallRes(newLogs);
+    if (notify) {
+      this.handleAPICallRes(newLogs);
+    }
   }
 
   public getLogs(url?: string): LogItem[] {
@@ -179,30 +234,17 @@ class ApiLogManager {
     if (!logs) {
       return;
     }
-    for (const log of logs) {
-      if (log.result.ret_code > 0) {
-        message.success({
-          content: String(log.result.message),
-          onClick: () => {
-            this.markAsRead(log.key);
-          },
-        });
-      } else {
-        message.error({
-          content: String(log.result.message),
-          duration: 0,
-          onClick: () => {
-            message.destroy();
-          },
-        });
-      }
-    }
+    const keys = logs.map((log) => log.key);
+    toastSummary(
+      logs.map((log) => log.result),
+      () => keys.forEach((key) => this.markAsRead(key)),
+    );
   }
 }
 
 const logManager = ApiLogManager.getInstance();
 
-const handleAPICallRes = (callRes: APICALLRCLIST, url: string) => {
+const handleAPICallRes = (callRes: APICALLRCLIST, url: string, notify = true) => {
   if (!callRes || !callRes.length) {
     return;
   }
@@ -213,26 +255,25 @@ const handleAPICallRes = (callRes: APICALLRCLIST, url: string) => {
     return;
   }
 
-  logManager.addBulkLogs(normalRes, url);
+  logManager.addBulkLogs(normalRes, url, notify);
 };
 
-const notifyMessages = (list: { message: string; ret_code: number }[]): void => {
+const notifyMessages = (list: RcEntry[]): void => {
   if (!list) {
     return;
   }
-  const hasError = list.some((e) => e.ret_code < 0);
-  if (hasError) {
-    const errorMessages = list.filter((e) => e.ret_code < 0);
-
-    for (const item of errorMessages) {
-      message.error(String(item.message));
-    }
-  } else {
-    for (const item of list) {
-      message.success(String(item.message));
-    }
-  }
+  toastSummary(list);
 };
 
-export { notifyMessages, notify, handleLinstorMessage, handleAPICallRes, ApiLogManager, logManager };
+export {
+  notifyMessages,
+  notify,
+  handleLinstorMessage,
+  handleAPICallRes,
+  ApiLogManager,
+  logManager,
+  toastSummary,
+  toastsAreQuiet,
+  withQuietToasts,
+};
 export type { LogItem };

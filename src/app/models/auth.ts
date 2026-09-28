@@ -117,7 +117,8 @@ export const auth = createModel<RootModel>()({
         dispatch.auth.setUsername(null);
         localStorage.removeItem(USER_LOCAL_STORAGE_KEY);
       }
-      dispatch.auth.getUsers();
+      // Awaited so the caller's deleting state lasts until the list is reloaded.
+      await dispatch.auth.getUsers();
     },
 
     async resetPassword({ user, newPassword }) {

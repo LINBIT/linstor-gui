@@ -5,11 +5,10 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { useState } from 'react';
-import { logger } from '@app/utils/logger';
-import { Form, Space, Table, message, Dropdown, Tooltip } from 'antd';
+import { Form, Space, Table, Dropdown, Tooltip } from 'antd';
 import { Input } from '@app/components/Input';
 import type { TableProps } from 'antd';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { MoreOutlined } from '@ant-design/icons';
 import { LiaToolsSolid } from 'react-icons/lia';
@@ -18,6 +17,7 @@ import { deleteSchedule, getScheduleList } from '../api';
 import { SearchForm } from './styled';
 import ScheduleModal from './ScheduleModal';
 import { Popconfirm } from '@app/components/Popconfirm';
+import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
 
 export const List = () => {
   const [form] = Form.useForm();
@@ -37,22 +37,12 @@ export const List = () => {
     },
   });
 
-  const deleteScheduleMutation = useMutation({
-    mutationFn: async (schedule_name: string) => {
-      try {
-        await deleteSchedule(schedule_name);
-        message.success('Schedule deleted successfully');
-        refetch();
-      } catch (error) {
-        message.error('Delete failed: ' + error);
-        logger.debug(error);
-      }
-    },
+  const del = useDeleteAction<{ schedule_name: string }>({
+    remove: (schedule) => deleteSchedule(schedule.schedule_name),
+    keyOf: (schedule) => schedule.schedule_name,
+    nameOf: (schedule) => schedule.schedule_name,
+    refresh: () => refetch(),
   });
-
-  const handleDelete = async (schedule_name: string) => {
-    deleteScheduleMutation.mutate(schedule_name);
-  };
 
   const filteredData = (dataList ?? [])?.filter((item) =>
     item.schedule_name.toLowerCase().includes(searchName.toLowerCase()),
@@ -128,12 +118,7 @@ export const List = () => {
                   {
                     key: 'delete',
                     label: (
-                      <Popconfirm
-                        title={t('schedule:delete_schedule')}
-                        onConfirm={() => {
-                          handleDelete(record.schedule_name);
-                        }}
-                      >
+                      <Popconfirm title={t('schedule:delete_schedule')} onConfirm={() => del.run([record])}>
                         {t('common:delete')}
                       </Popconfirm>
                     ),
@@ -174,6 +159,7 @@ export const List = () => {
           showTotal: (total) => t('common:total_items', { total }),
         }}
         loading={isLoading}
+        rowClassName={(record) => (del.isDeleting(record.schedule_name) ? deletingRowClass : '')}
       />
     </>
   );
