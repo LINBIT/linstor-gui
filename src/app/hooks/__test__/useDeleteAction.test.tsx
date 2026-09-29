@@ -44,6 +44,18 @@ describe('replyError', () => {
     expect(replyError({ error: { message: 'plain' } })).toBe('plain');
     expect(replyError(undefined)).toBeUndefined();
   });
+
+  it('keeps only the failures of an error reply that also lists what worked', () => {
+    // A 403 from a deploy that one satellite refused, as LINSTOR sends it.
+    const partial = {
+      error: [
+        { ret_code: 36962307, message: "(n1) Resource 'r' [DRBD] adjusted." },
+        { ret_code: 38797315, message: "Deployed /etc/x.toml on resource 'r' on 'n1'" },
+        { ret_code: -4611686018390163034, message: '(n3) The path /etc/x.toml does not have a whitelisted parent.' },
+      ],
+    };
+    expect(replyError(partial)).toBe('(n3) The path /etc/x.toml does not have a whitelisted parent.');
+  });
 });
 
 describe('useDeleteAction', () => {

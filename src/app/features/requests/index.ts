@@ -93,39 +93,23 @@ window.fetch = new Proxy(window.fetch, {
         emitControllerAuthRequired();
       }
 
-      if (res.ok) {
-        try {
-          res
-            .clone()
-            .json()
-            .then((data) => {
-              // The GUI's own key-value-store writes are not user actions.
-              if (!res.url?.includes('key-value-store')) {
-                handleAPICallRes(data, res.url, notify);
-              }
-            });
-        } catch {
-          return res;
-        }
-
-        return res;
+      // 401 is the auth gate's; every other error status carries an ApiCallRc
+      // list too (403 for a refused external file, 409, 500...), and a
+      // status left out here fails without a word.
+      if (res.status === 401) {
+        return;
       }
-      // After completion of request
-      if (res.status === 400 || res.status === 500 || res.status === 404) {
-        try {
-          res
-            .clone()
-            .json()
-            .then((err) => {
-              // handle error, notice that res.json() returns a promise
-              handleAPICallRes(err, res.url, notify);
-            });
-        } catch {
-          return res;
-        }
-
-        return res;
-      }
+      res
+        .clone()
+        .json()
+        .then((data) => {
+          // The GUI's own key-value-store writes are not user actions.
+          if (!(res.ok && res.url?.includes('key-value-store'))) {
+            handleAPICallRes(data, res.url, notify);
+          }
+        })
+        // Not JSON (an empty 204, an HTML error page): nothing to report.
+        .catch(() => undefined);
     });
 
     return temp;

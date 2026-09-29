@@ -39,8 +39,11 @@ export const replyError = (res: unknown): string | undefined => {
   if (res && typeof res === 'object' && 'error' in res && (res as { error?: unknown }).error) {
     const err = (res as { error: unknown }).error;
     if (Array.isArray(err)) {
+      // An error reply still lists the steps that worked ("... adjusted.",
+      // "Deployed ... on 'n1'"); only the failures say what went wrong.
+      const failures = rcFailures(err);
       return (
-        err
+        (failures.length ? failures : err)
           .map((e) => (e as RcLike)?.message)
           .filter(Boolean)
           .join(', ') || 'error'
