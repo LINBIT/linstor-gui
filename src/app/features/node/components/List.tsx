@@ -44,20 +44,15 @@ export const List = () => {
 
   const { t } = useTranslation(['node', 'common']);
 
-  const [query, setQuery] = useState<NodeListQuery>(() => {
-    const query = new URLSearchParams(location.search);
-    const nodes = query.get('nodes')?.split(',');
+  // A node filter from the URL (?nodes=a,b) fills the search field through the
+  // form's initialValues: the form does not exist yet while state initialises.
+  const [nodesFromUrl] = useState(() => new URLSearchParams(location.search).get('nodes')?.split(','));
 
-    if (nodes) {
-      form.setFieldValue('name', nodes);
-    }
-
-    return {
-      limit: 10,
-      offset: 0,
-      nodes,
-    };
-  });
+  const [query, setQuery] = useState<NodeListQuery>(() => ({
+    limit: 10,
+    offset: 0,
+    nodes: nodesFromUrl,
+  }));
 
   const mode = useUIMode();
 
@@ -357,6 +352,7 @@ export const List = () => {
           layout="inline"
           initialValues={{
             show_default: true,
+            name: nodesFromUrl,
           }}
         >
           <Form.Item name="name" label={t('common:name')}>

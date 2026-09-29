@@ -143,7 +143,7 @@ export const ISCSIList = ({ complex }: ISCSIListProp) => {
           const temp = t.status.volumes
             ?.filter((l) => l.number !== 0)
             .map((l) => ({
-              key: t.iqn,
+              key: `${t.iqn}-${l.number}`,
               iqn: t.iqn,
               lun: l.number,
               node: t?.status?.primary ?? '-',

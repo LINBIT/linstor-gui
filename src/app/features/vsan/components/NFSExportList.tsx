@@ -209,7 +209,14 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
           </ActionSection>
         </>
       )}
-      <Table bordered={false} columns={columns} dataSource={listData} loading={isLoading} pagination={false} />
+      <Table
+        rowKey="name"
+        bordered={false}
+        columns={columns}
+        dataSource={listData}
+        loading={isLoading}
+        pagination={false}
+      />
     </div>
   );
 };

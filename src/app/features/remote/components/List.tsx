@@ -336,6 +336,7 @@ export const List = () => {
       <br />
 
       <Table
+        rowKey="remote_name"
         columns={columns}
         dataSource={dataList ?? []}
         pagination={{

@@ -147,24 +147,29 @@ export interface ButtonProps extends Omit<AntButtonProps, 'type'> {
 
 /**
  * Custom Button component
- * Supports primary and secondary types, styles reference node list page's search and add buttons
+ * Supports primary and secondary types, styles reference node list page's search and add buttons.
+ * Forwards its ref: as the child of a Dropdown/Popover/Tooltip the trigger
+ * needs the DOM node, and without a ref antd falls back to findDOMNode.
  */
-export const Button: React.FC<ButtonProps> = ({
-  type = 'secondary',
-  loading = false,
-  size = 'middle',
-  disabled = false,
-  onClick,
-  children,
-  htmlType = 'button',
-  danger = false,
-  ghost = false,
-  icon,
-  shape = 'default',
-  block = false,
-  className,
-  ...restProps
-}) => {
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  {
+    type = 'secondary',
+    loading = false,
+    size = 'middle',
+    disabled = false,
+    onClick,
+    children,
+    htmlType = 'button',
+    danger = false,
+    ghost = false,
+    icon,
+    shape = 'default',
+    block = false,
+    className,
+    ...restProps
+  },
+  ref,
+) {
   // Map to Ant Design button type; text/link/dashed pass through so they keep
   // their native (borderless / link-colored / dashed) rendering.
   const getAntButtonType = (): AntButtonProps['type'] => {
@@ -178,6 +183,7 @@ export const Button: React.FC<ButtonProps> = ({
 
   return (
     <StyledButton
+      ref={ref}
       buttontype={type}
       isdanger={danger}
       type={getAntButtonType()}
@@ -197,6 +203,6 @@ export const Button: React.FC<ButtonProps> = ({
       {children}
     </StyledButton>
   );
-};
+});
 
 export default Button;

@@ -138,7 +138,7 @@ export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
           const temp = t.status.volumes
             ?.filter((l) => l.number !== 0)
             .map((l) => ({
-              key: t.nqn,
+              key: `${t.nqn}-${l.number}`,
               nqn: t.nqn,
               lun: l.number,
               node: t?.status?.primary ?? '-',

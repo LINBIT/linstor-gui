@@ -262,6 +262,7 @@ export const List = () => {
       <br />
 
       <Table
+        rowKey="id"
         columns={columns}
         dataSource={dataList ?? []}
         pagination={{

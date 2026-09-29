@@ -467,6 +467,7 @@ export const VSANNodeList = () => {
       </ActionContainer>
 
       <Table
+        rowKey="hostname"
         columns={columns}
         dataSource={mergedNodesData}
         loading={nodesFromVSAN.isLoading || (isHCI && cloudStackNodes.isLoading)}
@@ -496,12 +497,14 @@ export const VSANNodeList = () => {
         onCancel={() => setIntervalModal(false)}
       >
         <span>Refresh Interval</span>:{' '}
-        <InputNumber
-          addonAfter="seconds"
-          defaultValue={refetchInterval ?? 60}
-          value={tempIntervalVal}
-          onChange={(val) => setTempIntervalVal(val)}
-        />
+        <Space.Compact>
+          <InputNumber
+            defaultValue={refetchInterval ?? 60}
+            value={tempIntervalVal}
+            onChange={(val) => setTempIntervalVal(val)}
+          />
+          <Space.Addon>seconds</Space.Addon>
+        </Space.Compact>
       </Modal>
     </div>
   );

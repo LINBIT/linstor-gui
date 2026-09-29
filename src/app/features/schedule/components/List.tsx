@@ -151,6 +151,7 @@ export const List = () => {
       <br />
 
       <Table
+        rowKey="schedule_name"
         columns={columns}
         dataSource={filteredData ?? []}
         pagination={{

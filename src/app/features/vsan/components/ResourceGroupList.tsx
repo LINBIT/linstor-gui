@@ -98,6 +98,7 @@ export const ResourceGroupList = () => {
         <CreateResourceGroup refetch={refetch} />
       </ActionSection>
       <Table
+        rowKey="name"
         bordered={false}
         columns={columns}
         dataSource={data?.data?.filter((item) => item.name !== DEFAULT_SP) ?? []}

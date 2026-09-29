@@ -404,7 +404,7 @@ export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = ({ open, on
             {(fields, { add, remove }) => (
               <>
                 <Table
-                  rowKey={(_, idx) => String(idx)}
+                  rowKey="key"
                   pagination={false}
                   size="small"
                   dataSource={fields}
