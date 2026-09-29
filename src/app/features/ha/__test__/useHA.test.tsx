@@ -42,6 +42,9 @@ import {
   useDrbdReactorStatus,
   useDeleteHA,
   useCreateFile,
+  useDeployFile,
+  useManageHA,
+  useUnmanageHA,
   useEvictDrbdReactor,
 } from '../useHA';
 
@@ -166,5 +169,43 @@ describe('ha hooks', () => {
     expect(createFile).toHaveBeenCalledWith('/etc/drbd-reactor.d/a.toml', 'YQ==');
     expect(evictDrbdReactor).toHaveBeenCalledWith(['node-a'], 'a', true);
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['drbd-reactor-status'] });
+  });
+
+  it('create, deploy, manage and unmanage reject a refused request instead of reporting success', async () => {
+    // A satellite without the directory in allowExtFiles answers 403 with an ApiCallRc list.
+    const refused = {
+      error: [{ ret_code: -1, message: 'The path /etc/drbd-reactor.d/a.toml does not have a whitelisted parent' }],
+    } as never;
+    for (const fn of [createFile, deployFile, undeployFile]) {
+      vi.mocked(fn).mockResolvedValue(refused);
+    }
+    const { result } = renderHook(
+      () => ({ create: useCreateFile(), deploy: useDeployFile(), manage: useManageHA(), unmanage: useUnmanageHA() }),
+      { wrapper: wrapperFor(makeClient()) },
+    );
+    const args = { resourceName: 'a', filePath: '/etc/drbd-reactor.d/a.toml' };
+    const failures: string[] = [];
+    await act(async () => {
+      for (const run of [
+        () => result.current.create.mutateAsync({ filePath: args.filePath, content: 'YQ==' }),
+        () => result.current.deploy.mutateAsync(args),
+        () => result.current.manage.mutateAsync(args),
+        () => result.current.unmanage.mutateAsync(args),
+      ]) {
+        await run().catch((e: Error) => failures.push(e.message));
+      }
+    });
+    expect(failures).toHaveLength(4);
+    expect(failures[0]).toMatch(/whitelisted parent/);
+  });
+
+  it('a created file refreshes the file list, which decides what is unmanaged', async () => {
+    const client = makeClient();
+    const invalidate = vi.spyOn(client, 'invalidateQueries');
+    const { result } = renderHook(() => useCreateFile(), { wrapper: wrapperFor(client) });
+    await act(async () => {
+      await result.current.mutateAsync({ filePath: '/etc/drbd-reactor.d/a.toml', content: 'YQ==' });
+    });
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['linstor-files'] });
   });
 });

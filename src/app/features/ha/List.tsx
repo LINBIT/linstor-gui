@@ -378,32 +378,45 @@ export const List = () => {
   // Evict mutation
   const evictMutation = useEvictDrbdReactor();
 
+  // Disable/Enable mutations
+  const disableMutation = useDisableDrbdReactor();
+  const enableMutation = useEnableDrbdReactor();
+
   // Delete goes through the shared delete flow (in-flight row, one outcome
   // toast). It is two requests, undeploy then file delete, so their replies are
-  // kept quiet and the hook reports the pair once.
+  // kept quiet and the hook reports the pair once. drbd-reactor leaves a
+  // promoter's services running when its config disappears (the resource stays
+  // Primary, a VIP stays up), so a running configuration is stopped first, as
+  // Stop does on the active node; if that fails nothing is deleted.
   const [deleteTarget, setDeleteTarget] = useState<HARecord | null>(null);
   const haDelete = useDeleteAction<HARecord>({
     keyOf: (record) => record.uuid,
     nameOf: (record) => record.name,
     toastSingle: true,
-    remove: (record) => {
+    remove: async (record) => {
       const [configFile] = reactorConfigFiles(record);
+      const activeNode = getPrimaryNode(record.name);
+      const configName = getConfigName(record);
+      if (activeNode && configName) {
+        const [stopped] = await disableMutation.mutateAsync({ nodes: [activeNode], config: configName, now: true });
+        if (stopped && stopped.exit_code !== 0) {
+          throw new Error(decodeExecText(stopped.stderr_utf8) || `exit code ${stopped.exit_code}`);
+        }
+      }
       return withQuietToasts(() => deleteHAConfig(record.name, configFile.replace('files', '')));
     },
     refresh: () =>
       Promise.all([
         queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] }),
         queryClient.invalidateQueries({ queryKey: ['ha-all-resource-definitions'] }),
+        queryClient.invalidateQueries({ queryKey: ['linstor-files'] }),
+        queryClient.invalidateQueries({ queryKey: ['drbd-reactor-status'] }),
       ]),
   });
   const unmanageMutation = useUnmanageHA();
 
   // Manage mutation
   const manageMutation = useManageHA();
-
-  // Disable/Enable mutations
-  const disableMutation = useDisableDrbdReactor();
-  const enableMutation = useEnableDrbdReactor();
 
   // Detect evict completion once the source node no longer reports the resource as active.
   useEffect(() => {
@@ -881,7 +894,7 @@ export const List = () => {
                               modal.destroy();
                             },
                             onError: (err) => {
-                              message.error(`Failed to unmanage: ${err}`);
+                              message.error(`Failed to unmanage: ${err instanceof Error ? err.message : err}`);
                               modal.destroy();
                             },
                           },
@@ -957,7 +970,7 @@ export const List = () => {
           setManageResource(undefined);
         },
         onError: (err) => {
-          message.error(`Failed to manage: ${err}`);
+          message.error(`Failed to manage: ${err instanceof Error ? err.message : err}`);
         },
       },
     );
@@ -1004,7 +1017,7 @@ export const List = () => {
         }
       >
         {deleteTarget &&
-          `Are you sure you want to delete "${deleteTarget.name}"? This will remove the HA configuration file from all nodes.`}
+          `Are you sure you want to delete "${deleteTarget.name}"? Its services are stopped and the HA configuration file is removed from all nodes.`}
       </Modal>
       <FileContentModal filePath={viewFilePath} visible={viewModalVisible} onClose={() => setViewModalVisible(false)} />
       <Modal

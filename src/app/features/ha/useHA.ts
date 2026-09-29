@@ -23,6 +23,20 @@ import {
 } from './api';
 import type { DrbdReactorStatus, ExecResponse } from './api';
 import { replyError } from '@app/hooks/useDeleteAction';
+import { withQuietToasts } from '@app/utils/toast';
+
+/**
+ * openapi-fetch resolves on an HTTP error, so a mutation built on it would
+ * report success for a refused request. This makes the refusal a rejection.
+ */
+const orThrow = async <T>(request: Promise<T>): Promise<T> => {
+  const res = await request;
+  const error = replyError(res);
+  if (error) {
+    throw new Error(error);
+  }
+  return res;
+};
 
 export interface HAResourceDefinition {
   name: string;
@@ -114,10 +128,12 @@ export const useFileContent = (filePath: string) => {
 export const useCreateFile = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ filePath, content }: { filePath: string; content: string }) => createFile(filePath, content),
+    mutationFn: ({ filePath, content }: { filePath: string; content: string }) =>
+      orThrow(createFile(filePath, content)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] });
       queryClient.invalidateQueries({ queryKey: ['ha-all-resource-definitions'] });
+      queryClient.invalidateQueries({ queryKey: ['linstor-files'] });
     },
   });
 };
@@ -126,7 +142,7 @@ export const useDeployFile = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ resourceName, filePath }: { resourceName: string; filePath: string }) =>
-      deployFile(resourceName, filePath),
+      orThrow(deployFile(resourceName, filePath)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] });
     },
@@ -192,12 +208,13 @@ export const useRestartDrbdReactor = () => {
   });
 };
 
-// Hook for unmanaging HA config (undeploy from resource definition, keep file in LINSTOR and on disk)
+// Hook for unmanaging HA config (undeploy from resource definition, keep file in LINSTOR and on disk).
+// Quiet: the caller reports the outcome.
 export const useUnmanageHA = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ resourceName, filePath }: { resourceName: string; filePath: string }) =>
-      undeployFile(resourceName, filePath),
+      withQuietToasts(() => orThrow(undeployFile(resourceName, filePath))),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] });
       queryClient.invalidateQueries({ queryKey: ['ha-all-resource-definitions'] });
@@ -205,12 +222,12 @@ export const useUnmanageHA = () => {
   });
 };
 
-// Hook for managing HA config (deploy file to resource definition)
+// Hook for managing HA config (deploy file to resource definition). Quiet: the caller reports the outcome.
 export const useManageHA = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ resourceName, filePath }: { resourceName: string; filePath: string }) =>
-      deployFile(resourceName, filePath),
+      withQuietToasts(() => orThrow(deployFile(resourceName, filePath))),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] });
       queryClient.invalidateQueries({ queryKey: ['ha-all-resource-definitions'] });
@@ -247,6 +264,7 @@ export const useDeleteHA = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] });
       queryClient.invalidateQueries({ queryKey: ['ha-all-resource-definitions'] });
+      queryClient.invalidateQueries({ queryKey: ['linstor-files'] });
     },
   });
 };

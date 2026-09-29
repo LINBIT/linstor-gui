@@ -8,12 +8,13 @@ import { useState, useEffect, useRef } from 'react';
 import { logger } from '@app/utils/logger';
 import { useTranslation } from 'react-i18next';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { Typography, Spin, Card, Modal } from 'antd';
+import { Typography, Spin, Card, Modal, message } from 'antd';
 
 import PageBasic from '@app/components/PageBasic';
 import { Button } from '@app/components/Button';
 import { OcfAgentEditor, OcfAgentEditorRef } from '@app/components/OcfAgentEditor';
 import { useFileContent, useHA, useCreateFile, useDeployFile } from '@app/features/ha/useHA';
+import { withQuietToasts } from '@app/utils/toast';
 
 const { Text } = Typography;
 
@@ -94,16 +95,25 @@ const ConfigEditor = () => {
         targetPath = '/' + targetPath;
       }
 
+      // Writing the file and deploying it are one action: their replies stay
+      // quiet and one message reports the outcome. A refused step (the
+      // mutations reject on an error reply) keeps the editor open.
+      const path = targetPath;
       try {
-        await createFileAsync({ filePath: targetPath, content: btoa(content) });
-
-        if (isCreate) {
-          await deployFileAsync({ resourceName, filePath: targetPath });
-        }
-
+        await withQuietToasts(async () => {
+          await createFileAsync({ filePath: path, content: btoa(content) });
+          if (isCreate) {
+            await deployFileAsync({ resourceName, filePath: path });
+          }
+        });
+        message.success(t('common:operation_success'));
         handleCancel();
       } catch (e) {
         logger.error('Failed to save/deploy:', e);
+        message.error({
+          content: t('common:failed_to_save', { message: e instanceof Error ? e.message : String(e) }),
+          duration: 10,
+        });
       }
     }
   };

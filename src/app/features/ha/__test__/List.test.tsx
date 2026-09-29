@@ -325,20 +325,42 @@ describe('DRBD Reactor List', () => {
     expect(await screen.findByText('"ha-mysql" is no longer managed by LINSTOR')).toBeInTheDocument();
   });
 
-  it('delete undeploys and then removes the file', async () => {
+  it('delete stops the running services, undeploys and then removes the file', async () => {
     renderList();
     await screen.findByText('ha-mysql');
+    await within(rowOf('ha-mysql')).findByText('Running');
     const menu = await openRowMenu('ha-mysql');
     fireEvent.click(within(menu).getByText('Delete'));
     expect(
       await screen.findByText(
-        'Are you sure you want to delete "ha-mysql"? This will remove the HA configuration file from all nodes.',
+        'Are you sure you want to delete "ha-mysql"? Its services are stopped and the HA configuration file is removed from all nodes.',
       ),
     ).toBeInTheDocument();
     fireEvent.click(await confirmDialogButton('Delete'));
     await waitFor(() => expect(deleteFile).toHaveBeenCalledWith(MYSQL_PATH));
+    // drbd-reactor keeps a promoter's services running when its config goes away.
+    expect(disableDrbdReactor).toHaveBeenCalledWith(['node-a'], 'mysql', true);
+    expect(vi.mocked(disableDrbdReactor).mock.invocationCallOrder[0]).toBeLessThan(
+      vi.mocked(undeployFile).mock.invocationCallOrder[0],
+    );
     expect(undeployFile).toHaveBeenCalledWith('ha-mysql', MYSQL_PATH);
     expect(await screen.findByText('Deleted ha-mysql')).toBeInTheDocument();
+  });
+
+  it('a delete whose services cannot be stopped deletes nothing', async () => {
+    act(() => message.destroy());
+    vi.mocked(disableDrbdReactor).mockResolvedValue([
+      { node: 'node-a', exit_code: 1, stderr_utf8: 'target busy' },
+    ] as never);
+    renderList();
+    await screen.findByText('ha-mysql');
+    await within(rowOf('ha-mysql')).findByText('Running');
+    const menu = await openRowMenu('ha-mysql');
+    fireEvent.click(within(menu).getByText('Delete'));
+    fireEvent.click(await confirmDialogButton('Delete'));
+    expect(await screen.findByText(/Failed to delete ha-mysql/)).toBeInTheDocument();
+    expect(undeployFile).not.toHaveBeenCalled();
+    expect(deleteFile).not.toHaveBeenCalled();
   });
 
   it('a failed undeploy keeps the file and is reported as a failure, not as deleted', async () => {
