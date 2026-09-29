@@ -7,6 +7,7 @@ image: node:22
 
 stages:
   - test
+  - e2e
   - build
 
 # Rebuild the static OCF agent catalog from its three upstreams
@@ -127,7 +128,9 @@ test:
 # driven by Playwright; see playwright.config.ts. The image carries the
 # browsers and must match the @playwright/test version in package-lock.json.
 e2e:
-  stage: test
+  # A stage of its own: in the test stage it ran next to the unit tests on the
+  # same runner and both slowed down.
+  stage: e2e
   image: mcr.microsoft.com/playwright:v1.63.0-noble
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
