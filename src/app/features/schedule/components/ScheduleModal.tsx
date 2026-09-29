@@ -125,7 +125,7 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
         open={isModalVisible}
         onCancel={handleCancel}
         width={800}
-        destroyOnClose
+        destroyOnHidden
         footer={
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
             <Button type="secondary" onClick={handleCancel}>

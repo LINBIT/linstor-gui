@@ -101,7 +101,7 @@ const CreateRemoteForm = ({ refetch }: CreateRemoteFormProps) => {
             </Button>
           </div>
         }
-        destroyOnClose
+        destroyOnHidden
         maskClosable={false}
       >
         <Form<FormType>

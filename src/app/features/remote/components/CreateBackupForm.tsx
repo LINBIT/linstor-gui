@@ -88,7 +88,7 @@ const CreateBackupForm = ({ refetch }: CreateBackupFormProps) => {
             </Button>
           </div>
         }
-        destroyOnClose
+        destroyOnHidden
         maskClosable={false}
       >
         <Form<FormType>

@@ -144,9 +144,12 @@ const CreateISCSIForm = () => {
         ]}
       >
         <Space.Compact size="large">
-          <Input addonBefore="iqn." placeholder="yyyy-mm" onChange={(e) => setTime(e.target.value)} />
-          <Input addonBefore="." placeholder="com.company" onChange={(e) => setDomain(e.target.value)} />
-          <Input addonBefore=":" placeholder="unique-name" />
+          <Space.Addon>iqn.</Space.Addon>
+          <Input placeholder="yyyy-mm" onChange={(e) => setTime(e.target.value)} />
+          <Space.Addon>.</Space.Addon>
+          <Input placeholder="com.company" onChange={(e) => setDomain(e.target.value)} />
+          <Space.Addon>:</Space.Addon>
+          <Input placeholder="unique-name" />
         </Space.Compact>
       </Form.Item>
 

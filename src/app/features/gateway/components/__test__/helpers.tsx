@@ -214,6 +214,7 @@ vi.mock('antd', () => ({
   ),
   Space: Object.assign(({ children }: any) => <div data-testid="space">{children}</div>, {
     Compact: ({ children }: any) => <div data-testid="space-compact">{children}</div>,
+    Addon: ({ children }: any) => <span data-testid="space-addon">{children}</span>,
   }),
   Layout: Object.assign(
     ({ children, ...props }: any) => (
@@ -296,7 +297,19 @@ vi.mock('antd', () => ({
       Group: ({ children, ...props }: any) => <div {...props}>{children}</div>,
     },
   ),
-  Select: ({ options, onChange, value, ...props }: any) => (
+  // antd-only props are dropped: a <select> has no such attributes.
+  Select: ({
+    options,
+    onChange,
+    value,
+    allowClear,
+    showSearch,
+    filterOption,
+    optionFilterProp,
+    loading,
+    mode,
+    ...props
+  }: any) => (
     <select data-testid="select" value={value} onChange={(e) => onChange?.(e.target.value)} {...props}>
       {options?.map((opt: any) => (
         <option key={opt.value} value={opt.value}>
@@ -305,7 +318,7 @@ vi.mock('antd', () => ({
       ))}
     </select>
   ),
-  Checkbox: ({ checked, onChange, children, ...props }: any) => (
+  Checkbox: ({ checked, onChange, children, indeterminate, ...props }: any) => (
     <label>
       <input type="checkbox" checked={checked} onChange={onChange} {...props} />
       {children}

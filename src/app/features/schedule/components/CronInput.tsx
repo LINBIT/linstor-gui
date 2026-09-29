@@ -163,7 +163,7 @@ const CronInput: React.FC<CronInputProps> = ({ value = '0 0 * * *', onChange }) 
           </Space>
         }
         width={800}
-        destroyOnClose
+        destroyOnHidden
         height={600}
       >
         <div className="min-h-[100px]">

@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
-import { Input as AntInput, InputProps as AntInputProps, InputRef } from 'antd';
+import { Input as AntInput, InputProps as AntInputProps, InputRef, Space } from 'antd';
 import type { TextAreaProps } from 'antd/es/input';
 import type { SearchProps } from 'antd/es/input/Search';
 import type { PasswordProps } from 'antd/es/input/Password';
@@ -75,7 +75,32 @@ type InputComponent = React.ForwardRefExoticComponent<InputProps & React.RefAttr
   Group: typeof AntInput.Group;
 };
 
-const Input = StyledInput as unknown as InputComponent;
+/**
+ * antd 5 deprecates Input's addonBefore/addonAfter (removed in 6) in favour of
+ * Space.Compact with Space.Addon. Callers keep the props; the input is laid
+ * out the new way. Form.Item still binds value/onChange/id to the <input>, and
+ * style/className go to the wrapper as they did with antd's addon group.
+ */
+// Like the old addon: the text stays on one line (a path prefix must not wrap).
+const ADDON_STYLE: React.CSSProperties = { whiteSpace: 'nowrap' };
+
+const InputWithAddons = React.forwardRef<InputRef, InputProps>(
+  ({ addonBefore, addonAfter, style, className, ...props }, ref) => {
+    if (!addonBefore && !addonAfter) {
+      return <StyledInput ref={ref} style={style} className={className} {...props} />;
+    }
+    return (
+      <Space.Compact block style={style} className={className}>
+        {addonBefore && <Space.Addon style={ADDON_STYLE}>{addonBefore}</Space.Addon>}
+        <StyledInput ref={ref} {...props} />
+        {addonAfter && <Space.Addon style={ADDON_STYLE}>{addonAfter}</Space.Addon>}
+      </Space.Compact>
+    );
+  },
+);
+InputWithAddons.displayName = 'Input';
+
+const Input = InputWithAddons as unknown as InputComponent;
 Input.TextArea = StyledTextArea as unknown as InputComponent['TextArea'];
 Input.Password = StyledPassword as unknown as InputComponent['Password'];
 Input.Search = StyledSearch as unknown as InputComponent['Search'];

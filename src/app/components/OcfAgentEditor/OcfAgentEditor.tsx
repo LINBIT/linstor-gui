@@ -1439,12 +1439,14 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
                       </Space>
                     </div>
                   }
-                  bordered={false}
+                  variant="borderless"
                   style={{ height: '100%', boxShadow: 'none' }}
-                  bodyStyle={{
-                    padding: '16px',
-                    height: 'calc(100% - 57px)',
-                    overflow: 'auto',
+                  styles={{
+                    body: {
+                      padding: '16px',
+                      height: 'calc(100% - 57px)',
+                      overflow: 'auto',
+                    },
                   }}
                 >
                   {/* Main Form */}
@@ -1655,7 +1657,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
           onOk={handlePasteConfirm}
           onCancel={() => setPasteModalVisible(false)}
           width={800}
-          destroyOnClose
+          destroyOnHidden
         >
           <div style={{ marginBottom: 16 }}>
             <Text type="secondary">{t('common:paste_toml_hint')}</Text>

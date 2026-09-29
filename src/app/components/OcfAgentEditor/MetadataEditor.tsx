@@ -43,7 +43,7 @@ export const MetadataEditor: React.FC<MetadataEditorProps> = ({ initialValues, o
   };
 
   return (
-    <Card bordered={false} bodyStyle={{ padding: '24px' }}>
+    <Card variant="borderless" styles={{ body: { padding: '24px' } }}>
       <Form form={form} layout="vertical" onValuesChange={handleValuesChange} autoComplete="off">
         <Form.List name="metadata">
           {(fields, { add, remove }) => (

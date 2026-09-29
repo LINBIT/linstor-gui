@@ -298,7 +298,7 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
         <Modal
           key={JSON.stringify(initialVal)}
           title={t('common:property_editor')}
-          destroyOnClose
+          destroyOnHidden
           open={modalVisible}
           onCancel={handleModalClose}
           footer={

@@ -198,6 +198,7 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
         Example: nqn.2020-01.com.linbit:nvme:vmstorage"
             >
               <Space.Compact size="large">
+                <Space.Addon>nqn.</Space.Addon>
                 <Form.Item
                   name="time"
                   required
@@ -213,8 +214,9 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
                     },
                   ]}
                 >
-                  <Input addonBefore="nqn." placeholder="yyyy-mm" />
+                  <Input placeholder="yyyy-mm" />
                 </Form.Item>
+                <Space.Addon>.</Space.Addon>
                 <Form.Item
                   name="domain"
                   required
@@ -230,8 +232,9 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
                     },
                   ]}
                 >
-                  <Input addonBefore="." placeholder="com.company" />
+                  <Input placeholder="com.company" />
                 </Form.Item>
+                <Space.Addon>:nvme:</Space.Addon>
                 <Form.Item
                   name="nqn"
                   required
@@ -247,7 +250,7 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
                     },
                   ]}
                 >
-                  <Input addonBefore=":nvme:" placeholder="unique-name" />
+                  <Input placeholder="unique-name" />
                 </Form.Item>
               </Space.Compact>
             </Form.Item>

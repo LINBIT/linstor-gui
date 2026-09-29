@@ -229,7 +229,7 @@ export const DRBDReactorConfig: React.FC<DRBDReactorConfigProps> = ({ initialVal
   };
 
   return (
-    <Card bordered={false} bodyStyle={{ padding: '24px' }}>
+    <Card variant="borderless" styles={{ body: { padding: '24px' } }}>
       <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
         {ALL_FIELDS.map((field) => {
           if (!visibleFields.has(field.name)) return null;

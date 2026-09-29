@@ -106,7 +106,7 @@ export const ResizeVolumeModal: React.FC<ResizeVolumeModalProps> = ({ open, onCl
     <Modal
       title={`${t('common:resize')} ${resourceName}`}
       open={open}
-      destroyOnClose
+      destroyOnHidden
       onCancel={onClose}
       footer={[
         <Button key="cancel" type="secondary" onClick={onClose}>

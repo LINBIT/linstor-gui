@@ -185,6 +185,7 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
           >
             <Form.Item label="IQN" required>
               <Space.Compact size="large">
+                <Space.Addon>iqn.</Space.Addon>
                 <Form.Item
                   name="time"
                   required
@@ -200,8 +201,9 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
                     },
                   ]}
                 >
-                  <Input addonBefore="iqn." placeholder="yyyy-mm" />
+                  <Input placeholder="yyyy-mm" />
                 </Form.Item>
+                <Space.Addon>.</Space.Addon>
                 <Form.Item
                   name="domain"
                   required
@@ -217,8 +219,9 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
                     },
                   ]}
                 >
-                  <Input addonBefore="." placeholder="com.company" />
+                  <Input placeholder="com.company" />
                 </Form.Item>
+                <Space.Addon>:</Space.Addon>
                 <Form.Item
                   name="iqn"
                   required
@@ -234,7 +237,7 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
                     },
                   ]}
                 >
-                  <Input addonBefore=":" placeholder="unique-name" />
+                  <Input placeholder="unique-name" />
                 </Form.Item>
               </Space.Compact>
             </Form.Item>

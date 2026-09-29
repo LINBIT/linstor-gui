@@ -163,7 +163,7 @@ export function SortableAgentItem({
           border: `1px solid ${currentTheme === 'dark' ? '#334155' : '#e2e8f0'}`,
           cursor: 'grab',
         }}
-        bodyStyle={{ padding: 0 }}
+        styles={{ body: { padding: 0 } }}
       >
         {/* Header - always visible */}
         <div

@@ -38,7 +38,7 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onCreate, onCance
       width="min(80vw, 1000px)"
       centered
       onCancel={onCancel}
-      bodyStyle={{ padding: 0 }}
+      styles={{ body: { padding: 0 } }}
     >
       <Content>
         <BGImg src={changePasswordBG} alt="changePassword" />

@@ -149,7 +149,7 @@ export function AddAgentModal({
       open={visible}
       onCancel={handleCancel}
       width={800}
-      destroyOnClose
+      destroyOnHidden
       footer={[
         <Button key="cancel" onClick={handleCancel}>
           {t('common:cancel')}

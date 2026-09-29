@@ -287,8 +287,7 @@ const ResourceNodes: React.FC<ResourceNodesProps> = ({ resourceName, reactorStat
           <Tooltip
             title={nodeTooltipContent}
             key={resourceObj.node_name}
-            overlayStyle={{ maxWidth: 'none' }}
-            overlayInnerStyle={{ width: 'max-content', maxWidth: 'none', padding: 12 }}
+            styles={{ root: { maxWidth: 'none' }, body: { width: 'max-content', maxWidth: 'none', padding: 12 } }}
           >
             {tag}
           </Tooltip>
@@ -741,8 +740,7 @@ export const List = () => {
         return tooltipContent ? (
           <Tooltip
             title={tooltipContent}
-            overlayStyle={{ maxWidth: 'none' }}
-            overlayInnerStyle={{ width: 'max-content', maxWidth: 'none', padding: 12 }}
+            styles={{ root: { maxWidth: 'none' }, body: { width: 'max-content', maxWidth: 'none', padding: 12 } }}
           >
             {tag}
           </Tooltip>

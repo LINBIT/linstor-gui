@@ -68,19 +68,21 @@ export function AgentPreview({ parsedAgents, loading, currentTheme }: AgentPrevi
     >
       <Card
         title={<Text strong>{t('common:live_preview_toml')}</Text>}
-        bordered={false}
+        variant="borderless"
         style={{
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
           boxShadow: 'none',
         }}
-        bodyStyle={{
-          padding: '16px',
-          flex: 1,
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
+        styles={{
+          body: {
+            padding: '16px',
+            flex: 1,
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+          },
         }}
       >
         <Spin spinning={loading} tip={t('common:generating_preview')}>

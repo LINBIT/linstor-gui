@@ -124,9 +124,12 @@ const CreateNVMEOfForm = () => {
         Example: nqn.2020-01.com.linbit:nvme:vmstorage"
       >
         <Space.Compact size="large">
-          <Input addonBefore="nqn." placeholder="yyyy-mm" onChange={(e) => setTime(e.target.value)} />
-          <Input addonBefore="." placeholder="com.company" onChange={(e) => setDomain(e.target.value)} />
-          <Input addonBefore=":nvme:" placeholder="unique-name" />
+          <Space.Addon>nqn.</Space.Addon>
+          <Input placeholder="yyyy-mm" onChange={(e) => setTime(e.target.value)} />
+          <Space.Addon>.</Space.Addon>
+          <Input placeholder="com.company" onChange={(e) => setDomain(e.target.value)} />
+          <Space.Addon>:nvme:</Space.Addon>
+          <Input placeholder="unique-name" />
         </Space.Compact>
       </Form.Item>
       <Form.Item
