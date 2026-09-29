@@ -120,7 +120,9 @@ export const Popconfirm: React.FC<PopconfirmProps> = ({
       getPopupContainer={getPopupContainer}
       overlayClassName={overlayClassName}
     >
-      {children}
+      {/* Plain text is a dropdown menu label: its span stretches over the menu
+          item (app.css) so the whole item opens the confirmation. */}
+      {React.isValidElement(children) ? children : <span className="popconfirm-text-trigger">{children}</span>}
     </Popover>
   );
 };

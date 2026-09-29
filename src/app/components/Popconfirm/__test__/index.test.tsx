@@ -58,4 +58,22 @@ describe('Popconfirm', () => {
     fireEvent.click(screen.getByText('translated:common:yes'));
     expect(onConfirm).toHaveBeenCalledTimes(1);
   });
+
+  it('gives a plain-text trigger (a menu item label) a span that can cover the whole item', () => {
+    render(<Popconfirm title="Delete this?">Delete</Popconfirm>);
+    const trigger = screen.getByText('Delete');
+    expect(trigger).toHaveClass('popconfirm-text-trigger');
+    fireEvent.click(trigger);
+    expect(screen.getByText('Delete this?')).toBeInTheDocument();
+  });
+
+  it('leaves an element trigger as it is', () => {
+    render(
+      <Popconfirm title="Delete this?">
+        <button type="button">trigger</button>
+      </Popconfirm>,
+    );
+    expect(screen.getByText('trigger')).not.toHaveClass('popconfirm-text-trigger');
+    expect(screen.getByText('trigger').parentElement).not.toHaveClass('popconfirm-text-trigger');
+  });
 });

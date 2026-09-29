@@ -167,3 +167,12 @@ iframe {
 :root[data-theme='dark'] .logo-on-light {
   display: none;
 }
+
+/* A Popconfirm used as a dropdown menu item's label: its trigger covers the
+ * item's padding too, so a click anywhere on the item asks for confirmation,
+ * not only a click on the text. */
+.ant-dropdown-menu-title-content > .popconfirm-text-trigger {
+  display: block;
+  margin: -5px -12px;
+  padding: 5px 12px;
+}

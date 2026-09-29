@@ -46,7 +46,7 @@ const chooseExisting = async (name: string) => {
   fireEvent.click(await screen.findByText(name, { selector: '.ant-select-item-option-content' }));
 };
 
-// Tags mode: typing a name that is not an option and pressing Enter adds it.
+// Typing a name that is not one of the suggestions targets a new resource.
 const typeNew = (name: string) => {
   const input = screen.getByRole('combobox');
   fireEvent.change(input, { target: { value: name } });
@@ -71,6 +71,15 @@ describe('RestoreFrom', () => {
     expect(restoreButton()).toBeDisabled();
     await waitFor(() => expect(getResources).toHaveBeenCalled());
     await chooseExisting('res-b');
+    expect(restoreButton()).toBeEnabled();
+  });
+
+  it('picking the same suggestion again keeps it chosen', async () => {
+    renderRestore();
+    await waitFor(() => expect(getResources).toHaveBeenCalled());
+    await chooseExisting('res-b');
+    await chooseExisting('res-b');
+    expect(screen.getByRole('combobox')).toHaveValue('res-b');
     expect(restoreButton()).toBeEnabled();
   });
 

@@ -7,8 +7,7 @@
 // RestoreFrom component: select target resource to restore snapshot to
 import React, { useState } from 'react';
 import { logger } from '@app/utils/logger';
-import { Form, message, Space } from 'antd';
-import { Select } from '@app/components/Select';
+import { AutoComplete, Form, message, Space } from 'antd';
 import { Button } from '@app/components/Button';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -31,17 +30,14 @@ interface RestoreFromProps {
 const RestoreFrom: React.FC<RestoreFromProps> = ({ sourceResource, sourceSnapshot, onSuccess, onCancel }) => {
   const { t } = useTranslation(['common', 'snapshot']);
   const [form] = Form.useForm();
-  const [targetResource, setTargetResource] = useState<string | undefined>();
+  // Free text with the existing resources as suggestions: a name that is not
+  // one of them is created. (A tags-mode Select toggled the choice off when
+  // its option was picked again.)
+  const [targetInput, setTargetInput] = useState('');
+  const targetResource = targetInput.trim() || undefined;
 
   // Fetch resource list for target dropdown
-  const { data: resourceList, isLoading: resourceLoading } = useQuery(['getResources'], () => getResources());
-
-  // Handle target resource change
-  const handleTargetResourceChange = (value: string | string[]) => {
-    // For tags mode, value could be an array, but we only want the first/last value
-    const resourceName = Array.isArray(value) ? value[value.length - 1] : value;
-    setTargetResource(resourceName);
-  };
+  const { data: resourceList } = useQuery(['getResources'], () => getResources());
 
   // Restore snapshot mutation. Up to three requests make one restore: their
   // replies are kept quiet and one progress message (same key) walks through
@@ -77,7 +73,7 @@ const RestoreFrom: React.FC<RestoreFromProps> = ({ sourceResource, sourceSnapsho
     onSuccess: () => {
       message.success({ content: t('snapshot:restore_success', 'Restore succeeded'), key: RESTORE_MESSAGE_KEY });
       form.resetFields();
-      setTargetResource(undefined);
+      setTargetInput('');
       if (onSuccess) onSuccess();
     },
     onError: (error: Error) => {
@@ -101,20 +97,18 @@ const RestoreFrom: React.FC<RestoreFromProps> = ({ sourceResource, sourceSnapsho
       </Form.Item>
 
       <Form.Item label={t('snapshot:target_resource', 'Target Resource')} required>
-        <Select
+        <AutoComplete
           style={{ width: '100%' }}
-          loading={resourceLoading}
           placeholder={t('snapshot:select_target', 'Select target resource')}
-          value={targetResource}
-          onChange={handleTargetResourceChange}
-          options={uniqBy(resourceList?.data, 'name')?.map((r) => ({ label: r.name, value: r.name }))}
+          value={targetInput}
+          onChange={setTargetInput}
+          options={uniqBy(resourceList?.data, 'name')?.map((r) => ({ label: r.name, value: r.name ?? '' }))}
           allowClear
-          showSearch
-          mode="tags"
-          maxTagCount={1}
-          optionFilterProp="label"
-          filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
-          notFoundContent={null}
+          filterOption={(input, option) =>
+            String(option?.label ?? '')
+              .toLowerCase()
+              .includes(input.toLowerCase())
+          }
         />
         <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
           {t('snapshot:new_resource_tip', 'If you enter a new resource name, it will be created automatically')}
