@@ -60,6 +60,7 @@ describe('Settings ControllerAuth tab', () => {
     expect(screen.queryByRole('button', { name: 'settings:controller_auth_enter_token' })).not.toBeInTheDocument();
     expect(screen.queryByText('settings:controller_auth_description')).not.toBeInTheDocument();
     expect(screen.getByText('settings:controller_auth_https_switch_title')).toBeInTheDocument();
+    expect(screen.getByText('settings:controller_auth_storage_title')).toBeInTheDocument();
     expect(screen.getByText(/https:\/\/192.168.123.200:3371/)).toBeInTheDocument();
     expect(screen.queryByText('settings:controller_auth_save')).not.toBeInTheDocument();
     expect(screen.queryByText('settings:controller_auth_clear')).not.toBeInTheDocument();
@@ -103,6 +104,9 @@ describe('Settings ControllerAuth tab', () => {
     });
 
     expect(screen.queryByRole('button', { name: 'settings:controller_auth_initialize' })).not.toBeInTheDocument();
+    // What initialising would do is no longer relevant.
+    expect(screen.queryByText('settings:controller_auth_storage_title')).not.toBeInTheDocument();
+    expect(screen.queryByText('settings:controller_auth_https_switch_title')).not.toBeInTheDocument();
     // Manual token entry remains available.
     expect(screen.getByRole('button', { name: 'settings:controller_auth_enter_token' })).toBeInTheDocument();
   });

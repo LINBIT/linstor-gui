@@ -212,12 +212,15 @@ const ControllerAuth: React.FC = () => {
 
       <Card>
         <FormContainer>
-          <Alert
-            type="info"
-            showIcon
-            message={t('settings:controller_auth_storage_title')}
-            description={t('settings:controller_auth_storage_description')}
-          />
+          {/* Explains what initialising does; once done, the tag below says so. */}
+          {tokenAuthEnabled !== true && (
+            <Alert
+              type="info"
+              showIcon
+              message={t('settings:controller_auth_storage_title')}
+              description={t('settings:controller_auth_storage_description')}
+            />
+          )}
 
           {tokenAuthEnabled !== true && (
             <Alert
