@@ -126,7 +126,8 @@ describe('AuthTokens page', () => {
       expect(mockGet).toHaveBeenCalledWith('/v1/controller/auth/token');
     });
 
-    expect(screen.getByText('gui-ha-lab')).toBeInTheDocument();
+    // The request going out is not the table rendering its answer.
+    expect(await screen.findByText('gui-ha-lab')).toBeInTheDocument();
     expect(screen.getByText('reinti')).toBeInTheDocument();
     expect(screen.queryByText('satellite:gui01')).not.toBeInTheDocument();
     expect(screen.getByText('2026-04-13 00:50:23')).toBeInTheDocument();

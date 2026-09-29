@@ -1,5 +1,7 @@
 import '@testing-library/jest-dom';
-import { configure } from '@testing-library/react';
+import { afterEach } from 'vitest';
+import { act, configure } from '@testing-library/react';
+import { message, notification } from 'antd';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import translations from './translations';
@@ -21,6 +23,18 @@ if (!i18n.isInitialized) {
 // failed assertions that pass locally. Like testTimeout, this is a hang guard,
 // not a performance target.
 configure({ asyncUtilTimeout: 5000 });
+
+// antd toasts close themselves on a timer. One still pending when a test file
+// ends fires after jsdom is torn down and fails the whole run with
+// "ReferenceError: window is not defined", although every test passed. Close
+// them after each test. (A test file that mocks antd gets its mock; this is the
+// real instance, which then simply has nothing to close.)
+afterEach(() => {
+  act(() => {
+    message.destroy();
+    notification.destroy();
+  });
+});
 
 // Set timezone to UTC for consistent test results across different machines
 // This ensures that time-related tests produce the same results regardless of
