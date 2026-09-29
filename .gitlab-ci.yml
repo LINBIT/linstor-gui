@@ -92,8 +92,10 @@ generate-agents-windows:
 type-check:
   stage: test
   rules:
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
+    # Every MR, whatever it targets (an MR stacked on another one included).
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_TAG
   before_script:
     - npm ci
   script:
@@ -102,8 +104,10 @@ type-check:
 test:
   stage: test
   rules:
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
+    # Every MR, whatever it targets (an MR stacked on another one included).
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_TAG
   before_script:
     - npm ci
   script:
@@ -125,8 +129,10 @@ test:
 build:
   stage: build
   rules:
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
+    # Every MR, whatever it targets (an MR stacked on another one included).
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_TAG
   interruptible: true
   before_script:
     - git init build-helpers -q -b unused
@@ -137,9 +143,17 @@ build:
     - node -v
     - echo "npm version:"
     - npm -v
-    - VERSION="0.0.0.$CI_COMMIT_SHORT_SHA"
     - install /dev/null /usr/local/bin/lbvers.py # disable version checking
-    - build-helpers/dummy-release.sh linstor-gui $VERSION 1 linstor-gui.spec
+    # A release tag (vX.Y.Z) builds X.Y.Z: its commit carries the matching
+    # debian/changelog and spec entries. Anything else is a 0.0.0.<sha>
+    # snapshot with a generated changelog entry.
+    - |
+      if [ -n "$CI_COMMIT_TAG" ]; then
+        VERSION="${CI_COMMIT_TAG#v}"
+      else
+        VERSION="0.0.0.$CI_COMMIT_SHORT_SHA"
+        build-helpers/dummy-release.sh linstor-gui $VERSION 1 linstor-gui.spec
+      fi
     - make VERSION="$VERSION" debrelease
   artifacts:
     paths:
@@ -152,8 +166,10 @@ build:
 deploy:
   stage: build
   rules:
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
+    # Packages are built from main and from release tags only: an MR's build
+    # job already proves the tarball builds, uploading it helps nobody.
     - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_TAG
   image: $LINBIT_DOCKER_REGISTRY/build-helpers:$BUILD_HELPERS_VERSION
   needs:
     - build
@@ -165,7 +181,8 @@ deploy:
     # the retired Nexus).
     - curl -sSfL https://pulp.at.linbit.com/pulp/content/file/lbbuild/lbbuildctl-latest -o /usr/local/bin/lbbuildctl
     - chmod +x /usr/local/bin/lbbuildctl
-    - VERSION="0.0.0.$CI_COMMIT_SHORT_SHA"
+    - |
+      if [ -n "$CI_COMMIT_TAG" ]; then VERSION="${CI_COMMIT_TAG#v}"; else VERSION="0.0.0.$CI_COMMIT_SHORT_SHA"; fi
     - pulp file content upload --repository lbbuild-upstream
       --file linstor-gui-$VERSION.tar.gz
       --relative-path linstor-gui-$VERSION.tar.gz
