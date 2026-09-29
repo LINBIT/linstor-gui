@@ -4,9 +4,11 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('../../requests', () => ({
+vi.mock('../../requests', async (importOriginal) => ({
+  // The real unwrap: the exec calls rely on it to turn an error reply into a throw.
+  unwrap: (await importOriginal<typeof import('../../requests')>()).unwrap,
   get: vi.fn(),
   put: vi.fn(),
   post: vi.fn(),
@@ -38,10 +40,6 @@ const TOML = '/etc/drbd-reactor.d/mysql.toml';
 const TOML_ENC = encodeURIComponent(TOML);
 const ok = { data: [{ ret_code: 1 }] };
 
-// The drbd-reactorctl calls do not go through openapi-fetch; they POST to the
-// controller's exec endpoint with plain fetch.
-const fetchMock = vi.fn();
-
 describe('ha api', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -49,14 +47,6 @@ describe('ha api', () => {
     vi.mocked(put).mockResolvedValue(ok as never);
     vi.mocked(post).mockResolvedValue(ok as never);
     vi.mocked(del).mockResolvedValue(ok as never);
-    vi.stubGlobal('fetch', fetchMock);
-    localStorage.setItem('LINSTOR_HOST', 'http://ctrl:3370');
-    fetchMock.mockResolvedValue({ ok: true, json: async () => [] });
-  });
-
-  afterEach(() => {
-    vi.unstubAllGlobals();
-    localStorage.removeItem('LINSTOR_HOST');
   });
 
   it('lists resource definitions with their volume definitions', async () => {
@@ -108,19 +98,16 @@ describe('ha api', () => {
   });
 
   describe('drbd-reactorctl exec', () => {
-    it('posts to the controller host from localStorage with the nodes', async () => {
+    const exec = (path: string) => `/v1/nodes/exec/drbd-reactorctl/${path}`;
+
+    it('posts the nodes to the status endpoint through the typed client', async () => {
       await getDrbdReactorStatus(['node-a', 'node-b']);
-      expect(fetchMock).toHaveBeenCalledWith('http://ctrl:3370/v1/nodes/exec/drbd-reactorctl/status', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nodes: ['node-a', 'node-b'] }),
-      });
+      expect(post).toHaveBeenCalledWith(exec('status'), { body: { nodes: ['node-a', 'node-b'], wait: false } });
     });
 
     it("parses each node's JSON status and skips failed or unparsable nodes", async () => {
-      fetchMock.mockResolvedValue({
-        ok: true,
-        json: async () => [
+      vi.mocked(post).mockResolvedValue({
+        data: [
           {
             node: 'node-a',
             exit_code: 0,
@@ -129,7 +116,7 @@ describe('ha api', () => {
           { node: 'node-b', exit_code: 1, stdout_utf8: '', stderr_utf8: 'no reactor' },
           { node: 'node-c', exit_code: 0, stdout_utf8: 'not json' },
         ],
-      });
+      } as never);
       const status = await getDrbdReactorStatus(['node-a', 'node-b', 'node-c']);
       expect(Object.keys(status)).toEqual(['node-a']);
       expect(status['node-a'].promoter?.[0].drbd_resource).toBe('r');
@@ -143,28 +130,21 @@ describe('ha api', () => {
       await enableDrbdReactor(['node-a', 'node-b'], 'mysql');
       await restartDrbdReactor(['node-a'], 'mysql');
 
-      const calls = fetchMock.mock.calls.map(([url, init]) => [
-        (url as string).replace('http://ctrl:3370/v1/nodes/exec/drbd-reactorctl/', ''),
-        JSON.parse((init as RequestInit).body as string),
-      ]);
-      expect(calls).toEqual([
-        ['evict', { nodes: ['node-a'], resource: 'mysql', wait: true }],
-        ['disable', { nodes: ['node-b'], config: 'mysql', now: false }],
-        ['disable', { nodes: ['node-a'], config: 'mysql', now: true }],
-        ['enable', { nodes: ['node-a', 'node-b'], config: 'mysql' }],
-        ['restart', { nodes: ['node-a'], config: 'mysql' }],
+      expect(vi.mocked(post).mock.calls).toEqual([
+        [exec('evict'), { body: { nodes: ['node-a'], resource: 'mysql', wait: true } }],
+        [exec('disable'), { body: { nodes: ['node-b'], config: 'mysql', now: false } }],
+        [exec('disable'), { body: { nodes: ['node-a'], config: 'mysql', now: true } }],
+        [exec('enable'), { body: { nodes: ['node-a', 'node-b'], config: 'mysql', now: false } }],
+        [exec('restart'), { body: { nodes: ['node-a'], config: 'mysql', now: false } }],
       ]);
     });
 
-    it('turns a non-2xx answer into an error', async () => {
-      fetchMock.mockResolvedValue({ ok: false, status: 500, statusText: 'Internal Server Error' });
-      await expect(evictDrbdReactor(['node-a'], 'mysql')).rejects.toThrow('Request failed: 500 Internal Server Error');
-    });
-
-    it('falls back to a relative URL without a stored host', async () => {
-      localStorage.removeItem('LINSTOR_HOST');
-      await enableDrbdReactor(['node-a'], 'mysql');
-      expect(fetchMock.mock.calls[0][0]).toBe('/v1/nodes/exec/drbd-reactorctl/enable');
+    it('turns an error reply into an error', async () => {
+      vi.mocked(post).mockResolvedValue({
+        error: [{ ret_code: -1, message: 'node-a is offline' }],
+        response: { ok: false, status: 500 },
+      } as never);
+      await expect(evictDrbdReactor(['node-a'], 'mysql')).rejects.toThrow('node-a is offline');
     });
   });
 });

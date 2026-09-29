@@ -5,7 +5,6 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { del, get, post, put } from '@app/features/requests';
-import service from '@app/requests';
 
 import {
   NodeListQuery,
@@ -36,7 +35,7 @@ const getNodeCount = () => {
 };
 
 const getSpaceReport = () => {
-  return service.get('/v1/space-report');
+  return get('/v1/space-report');
 };
 
 const createNode = (body: NodeCreateRequestBody) => {

@@ -4,7 +4,8 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import service from '@app/requests';
+import { unwrap } from '@app/features/requests';
+import { createOrModifyKVInstance } from '@app/features/keyValueStore/api';
 import { logger } from '@app/utils/logger';
 import { isSvg } from '@app/utils/isSvg';
 import { kvStore } from '@app/features/keyValueStore';
@@ -84,7 +85,7 @@ const loadGrafanaConfig = async (): Promise<GrafanaConfig | null> => {
   }
   if (Object.keys(urlsToUpdate).length > 0) {
     try {
-      await service.put(`/v1/key-value-store/${GRAFANA_KEY_VALUE_STORE_KEY}`, { override_props: urlsToUpdate });
+      await unwrap(createOrModifyKVInstance(GRAFANA_KEY_VALUE_STORE_KEY, { override_props: urlsToUpdate }));
     } catch (e) {
       // The derived URLs are still used for this session.
       logger.error('Failed to save auto-generated URLs:', e);
@@ -133,8 +134,13 @@ export const loadGuiSettings = async (): Promise<GuiSettings | null> => {
   return { KVS, logo, grafanaConfig };
 };
 
+// The key-value store keeps strings; true is stored as "true" either way.
 export const saveSettingKeys = (props: Record<string, number | string | boolean>) =>
-  service.put(`/v1/key-value-store/${SETTING_KEY}`, { override_props: props });
+  unwrap(
+    createOrModifyKVInstance(SETTING_KEY, {
+      override_props: Object.fromEntries(Object.entries(props).map(([key, value]) => [key, String(value)])),
+    }),
+  );
 
 /** Writes the Grafana form; the key-value store only takes strings, unset panel IDs are left out. */
 export const saveGrafanaConfig = async (config: GrafanaConfigInput): Promise<void> => {
@@ -160,7 +166,7 @@ export const saveGrafanaConfig = async (config: GrafanaConfigInput): Promise<voi
       .map(([key, value]) => [key, String(value)]),
   );
   if (await kvStore.instanceExists(GRAFANA_KEY_VALUE_STORE_KEY)) {
-    await service.put(`/v1/key-value-store/${GRAFANA_KEY_VALUE_STORE_KEY}`, { override_props: overrideProps });
+    await unwrap(createOrModifyKVInstance(GRAFANA_KEY_VALUE_STORE_KEY, { override_props: overrideProps }));
   } else {
     await kvStore.create(GRAFANA_KEY_VALUE_STORE_KEY, { override_props: overrideProps });
   }

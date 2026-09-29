@@ -8,9 +8,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // The loaders and writers against mocked axios, settings api and key-value store.
 
-vi.mock('@app/requests', () => ({
-  default: { get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() },
-}));
+const kvWrite = vi.hoisted(() => vi.fn());
+vi.mock('@app/features/keyValueStore/api', () => ({ createOrModifyKVInstance: kvWrite }));
 
 const settingsApi = vi.hoisted(() => ({ instanceExists: vi.fn(), getProps: vi.fn(), setProps: vi.fn() }));
 vi.mock('@app/features/settings/SettingsAPI', () => ({
@@ -21,12 +20,10 @@ vi.mock('@app/features/settings/SettingsAPI', () => ({
 const kv = vi.hoisted(() => ({ instanceExists: vi.fn(), get: vi.fn(), create: vi.fn() }));
 vi.mock('@app/features/keyValueStore', () => ({ kvStore: kv }));
 
-import service from '@app/requests';
 import { loadGuiSettings, modeOf, saveGrafanaConfig, saveLogo, saveSettingKeys } from '../guiSettings';
 import { UIMode } from '../types';
 
 const GRAFANA_NS = '__grafana__ui__settings';
-const api = vi.mocked(service);
 
 describe('guiSettings', () => {
   beforeEach(() => {
@@ -34,6 +31,7 @@ describe('guiSettings', () => {
     settingsApi.instanceExists.mockResolvedValue(true);
     settingsApi.getProps.mockResolvedValue({});
     kv.instanceExists.mockResolvedValue(false);
+    kvWrite.mockResolvedValue({ data: [] });
   });
 
   it('modeOf reads the mutually exclusive mode flags', () => {
@@ -81,7 +79,7 @@ describe('guiSettings', () => {
       });
       const loaded = await loadGuiSettings();
 
-      expect(api.put).toHaveBeenCalledWith(`/v1/key-value-store/${GRAFANA_NS}`, {
+      expect(kvWrite).toHaveBeenCalledWith(GRAFANA_NS, {
         override_props: {
           dashboardUrl: 'http://localhost:3000/d/node-uid/node-exporter-full?orgId=1&refresh=1m',
           drbdUrl: 'http://localhost:3000/d/drbd-uid/drbd?orgId=1&refresh=30s',
@@ -102,7 +100,7 @@ describe('guiSettings', () => {
       kv.instanceExists.mockResolvedValue(true);
       kv.get.mockResolvedValue({ props: { enable: 'true', dashboardUrl: 'https://grafana.example/d/x' } });
       const loaded = await loadGuiSettings();
-      expect(api.put).not.toHaveBeenCalled();
+      expect(kvWrite).not.toHaveBeenCalled();
       expect(loaded?.grafanaConfig?.baseUrl).toBe('https://grafana.example');
     });
 
@@ -127,11 +125,19 @@ describe('guiSettings', () => {
     });
   });
 
-  it('saveSettingKeys writes to the settings namespace', async () => {
-    await saveSettingKeys({ gatewayEnabled: true });
-    expect(api.put).toHaveBeenCalledWith('/v1/key-value-store/__gui__settings', {
-      override_props: { gatewayEnabled: true },
+  it('saveSettingKeys writes to the settings namespace, as the strings the store keeps', async () => {
+    await saveSettingKeys({ gatewayEnabled: true, retries: 3 });
+    expect(kvWrite).toHaveBeenCalledWith('__gui__settings', {
+      override_props: { gatewayEnabled: 'true', retries: '3' },
     });
+  });
+
+  it('saveSettingKeys fails when the controller refuses the write', async () => {
+    kvWrite.mockResolvedValue({
+      error: [{ ret_code: -1, message: 'read only' }],
+      response: { ok: false, status: 500 },
+    });
+    await expect(saveSettingKeys({ gatewayEnabled: true })).rejects.toThrow('read only');
   });
 
   describe('saveGrafanaConfig', () => {
@@ -162,7 +168,7 @@ describe('guiSettings', () => {
       kv.instanceExists.mockResolvedValue(true);
       await saveGrafanaConfig(config);
       expect(kv.create).not.toHaveBeenCalled();
-      expect(api.put).toHaveBeenCalledWith(`/v1/key-value-store/${GRAFANA_NS}`, {
+      expect(kvWrite).toHaveBeenCalledWith(GRAFANA_NS, {
         override_props: expect.objectContaining({ enable: 'true' }),
       });
     });

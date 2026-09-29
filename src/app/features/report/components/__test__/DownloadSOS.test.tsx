@@ -8,11 +8,12 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-vi.mock('@app/requests', () => ({
-  default: { get: vi.fn() },
+vi.mock('@app/features/requests', async (importOriginal) => ({
+  unwrap: (await importOriginal<typeof import('@app/features/requests')>()).unwrap,
+  get: vi.fn(),
 }));
 
-import service from '@app/requests';
+import { get } from '@app/features/requests';
 import DownloadSOS from '../DownloadSOS';
 
 const renderButton = () => {
@@ -37,7 +38,7 @@ describe('DownloadSOS', () => {
     // jsdom has no object URLs.
     Object.defineProperty(window.URL, 'createObjectURL', { value: createObjectURL, configurable: true });
     Object.defineProperty(window.URL, 'revokeObjectURL', { value: revokeObjectURL, configurable: true });
-    vi.mocked(service.get).mockResolvedValue({ data: new Uint8Array([1, 2, 3]) } as never);
+    vi.mocked(get).mockResolvedValue({ data: new Blob([new Uint8Array([1, 2, 3])]) } as never);
   });
 
   afterEach(() => {
@@ -47,14 +48,14 @@ describe('DownloadSOS', () => {
   it('does nothing until clicked', () => {
     renderButton();
     expect(screen.getByRole('button', { name: 'Download SOS Report' })).toBeInTheDocument();
-    expect(service.get).not.toHaveBeenCalled();
+    expect(get).not.toHaveBeenCalled();
   });
 
   it('fetches the archive as a blob and hands it to the browser as a timestamped tar.gz', async () => {
     renderButton();
     fireEvent.click(screen.getByRole('button', { name: 'Download SOS Report' }));
 
-    await waitFor(() => expect(service.get).toHaveBeenCalledWith('/v1/sos-report/download', { responseType: 'blob' }));
+    await waitFor(() => expect(get).toHaveBeenCalledWith('/v1/sos-report/download', { parseAs: 'blob' }));
     await waitFor(() => expect(click).toHaveBeenCalledTimes(1));
 
     const link = click.mock.instances[0] as HTMLAnchorElement;
@@ -66,11 +67,12 @@ describe('DownloadSOS', () => {
   });
 
   it('re-enables the button when the download fails', async () => {
-    vi.mocked(service.get).mockRejectedValue(new Error('offline'));
+    // openapi-fetch resolves on an HTTP error; the download must still fail.
+    vi.mocked(get).mockResolvedValue({ error: 'offline', response: { ok: false, status: 503 } } as never);
     renderButton();
     const button = screen.getByRole('button', { name: 'Download SOS Report' });
     fireEvent.click(button);
-    await waitFor(() => expect(service.get).toHaveBeenCalled());
+    await waitFor(() => expect(get).toHaveBeenCalled());
     await waitFor(() => expect(button.querySelector('.ant-btn-loading-icon')).toBeNull());
     expect(click).not.toHaveBeenCalled();
   });

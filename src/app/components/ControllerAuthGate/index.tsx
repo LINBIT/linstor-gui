@@ -10,7 +10,7 @@ import { Alert, Card, Form, Spin, Typography } from 'antd';
 import { Input } from '@app/components/Input';
 
 import { Button } from '@app/components/Button';
-import service from '@app/requests';
+import { ApiError, get, unwrap } from '@app/features/requests';
 import {
   CONTROLLER_AUTH_REQUIRED_EVENT,
   clearControllerAuthToken,
@@ -24,11 +24,15 @@ import { MIN_API_VERSION } from '@app/hooks';
 
 const TOKEN_AUTH_PROPERTY = 'Auth/TokenAuthenticationEnabled';
 
-// The gate blocks the entire app while it probes, so its requests must not
-// inherit the shared client's ten-minute timeout (src/app/requests/index.ts):
-// a controller that accepts the connection but never answers would leave the
-// user on a spinner for that long. Individual LINSTOR operations can
-// legitimately take minutes, so only these two probes are shortened.
+/** The controller wants a (valid) token: a 401 reply, or a request held back for lack of one. */
+const isAuthFailure = (error: unknown) =>
+  isControllerAuthRequiredError(error) || (error instanceof ApiError && error.status === 401);
+
+// The gate blocks the entire app while it probes, and the API client sets no
+// timeout at all: a controller that accepts the connection but never answers
+// would leave the user on a spinner indefinitely. Individual LINSTOR
+// operations can legitimately take minutes, so only these two probes are
+// bounded.
 //
 // On timeout the catch blocks below fall through to `authorized`, which is
 // deliberate: the app loads, each page surfaces its own error, and the user
@@ -103,10 +107,12 @@ const ControllerAuthGate = ({ children }: ControllerAuthGateProps) => {
         // token for everything.
         let restApiVersion: string | undefined;
         try {
-          const versionRes = await service.get('/v1/controller/version', { timeout: PROBE_TIMEOUT_MS });
-          restApiVersion = versionRes.data?.rest_api_version;
+          const version = await unwrap(
+            get('/v1/controller/version', { signal: AbortSignal.timeout(PROBE_TIMEOUT_MS) }),
+          );
+          restApiVersion = version?.rest_api_version;
         } catch (error) {
-          if (isControllerAuthRequiredError(error)) {
+          if (isAuthFailure(error)) {
             promptForToken(invalidTokenMessage);
             return;
           }
@@ -124,8 +130,10 @@ const ControllerAuthGate = ({ children }: ControllerAuthGateProps) => {
         // Step 3: only require a token when the controller has actually opted
         // into it via Auth/TokenAuthenticationEnabled.
         try {
-          const propsRes = await service.get('/v1/controller/properties', { timeout: PROBE_TIMEOUT_MS });
-          const tokenAuthEnabled = propsRes.data?.[TOKEN_AUTH_PROPERTY] === 'true';
+          const props = await unwrap(
+            get('/v1/controller/properties', { signal: AbortSignal.timeout(PROBE_TIMEOUT_MS) }),
+          );
+          const tokenAuthEnabled = props?.[TOKEN_AUTH_PROPERTY] === 'true';
 
           if (!tokenAuthEnabled) {
             setState('authorized');
@@ -140,7 +148,7 @@ const ControllerAuthGate = ({ children }: ControllerAuthGateProps) => {
           setControllerAuthRequired(true);
           setState('authorized');
         } catch (error) {
-          if (isControllerAuthRequiredError(error)) {
+          if (isAuthFailure(error)) {
             promptForToken(invalidTokenMessage);
             return;
           }

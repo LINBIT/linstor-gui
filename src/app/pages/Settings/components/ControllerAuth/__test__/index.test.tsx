@@ -21,11 +21,10 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('@app/requests', () => ({
-  default: {
-    get: (...args: unknown[]) => mockGet(...args),
-    post: (...args: unknown[]) => mockPost(...args),
-  },
+vi.mock('@app/features/requests', async (importOriginal) => ({
+  unwrap: (await importOriginal<typeof import('@app/features/requests')>()).unwrap,
+  get: (...args: unknown[]) => mockGet(...args),
+  post: (...args: unknown[]) => mockPost(...args),
 }));
 
 vi.mock('antd', async () => {
@@ -82,8 +81,7 @@ describe('Settings ControllerAuth tab', () => {
     });
 
     expect(mockPost).toHaveBeenCalledWith('/v1/controller/auth/initialize-token-auth', {
-      only_satellites: false,
-      description: 'linstor-gui',
+      body: { only_satellites: false, description: 'linstor-gui', no_https: false },
     });
     expect(mockGet).toHaveBeenCalledWith('/v1/controller/properties');
     expect(window.localStorage.getItem('LINSTOR_CONTROLLER_AUTH_TOKEN')).toBe('init-token');
@@ -136,7 +134,7 @@ describe('Settings ControllerAuth tab', () => {
     });
 
     expect(mockPost).toHaveBeenCalledWith('/v1/controller/properties', {
-      delete_props: ['Auth/TokenAuthenticationEnabled'],
+      body: { delete_props: ['Auth/TokenAuthenticationEnabled'] },
     });
     expect(window.localStorage.getItem('LINSTOR_CONTROLLER_AUTH_TOKEN')).toBeNull();
     expect(window.localStorage.getItem('LINSTOR_CONTROLLER_AUTH_REQUIRED')).toBeNull();

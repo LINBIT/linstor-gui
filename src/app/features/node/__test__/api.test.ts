@@ -8,13 +8,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import * as api from '../api';
 import { get, post, put, del } from '@app/features/requests';
-import service from '@app/requests';
-
 vi.mock('@app/features/requests');
-
-vi.mock('@app/requests', () => ({
-  default: { get: vi.fn() },
-}));
 
 describe('node API', () => {
   beforeEach(() => {
@@ -39,11 +33,10 @@ describe('node API', () => {
     expect(get).toHaveBeenCalledWith(url);
   });
 
-  it('reads the space report off the raw service, not the typed client', () => {
+  it('reads the space report through the typed client', () => {
     api.getSpaceReport();
 
-    expect(service.get).toHaveBeenCalledWith('/v1/space-report');
-    expect(get).not.toHaveBeenCalled();
+    expect(get).toHaveBeenCalledWith('/v1/space-report');
   });
 
   it('creates a node from the body alone', () => {

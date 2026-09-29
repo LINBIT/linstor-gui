@@ -13,7 +13,8 @@ import { useTranslation } from 'react-i18next';
 
 import Button from '@app/components/Button';
 import { Popconfirm } from '@app/components/Popconfirm';
-import service from '@app/requests';
+import { get, post, unwrap } from '@app/features/requests';
+import { withQuietToasts } from '@app/utils/toast';
 import { clearControllerAuthToken, setControllerAuthRequired, setControllerAuthToken } from '@app/utils/controllerAuth';
 
 const { Title } = Typography;
@@ -71,9 +72,9 @@ const ControllerAuth: React.FC = () => {
 
     const checkTokenAuthState = async () => {
       try {
-        const response = await service.get<Record<string, string>>('/v1/controller/properties');
+        const props = await unwrap(get('/v1/controller/properties'));
         if (cancelled) return;
-        setTokenAuthEnabled(response.data?.[TOKEN_AUTH_PROPERTY] === 'true');
+        setTokenAuthEnabled(props?.[TOKEN_AUTH_PROPERTY] === 'true');
       } catch {
         if (cancelled) return;
         // Couldn't read properties (older controller, network error, etc.) —
@@ -118,13 +119,14 @@ const ControllerAuth: React.FC = () => {
     setInitializingTokenAuth(true);
 
     try {
-      const response = await service.post('/v1/controller/auth/initialize-token-auth', {
-        only_satellites: false,
-        description: 'linstor-gui',
-      });
+      const reply = (await unwrap(
+        post('/v1/controller/auth/initialize-token-auth', {
+          body: { only_satellites: false, description: 'linstor-gui', no_https: false },
+        }),
+      )) as ApiCallRcEntry[] | undefined;
 
-      const token = extractTokenFromInitResponse(response.data);
-      const alreadyEnabled = isAlreadyEnabledResponse(response.data);
+      const token = extractTokenFromInitResponse(reply);
+      const alreadyEnabled = isAlreadyEnabledResponse(reply);
 
       if (!token) {
         setControllerAuthRequired(true);
@@ -158,9 +160,10 @@ const ControllerAuth: React.FC = () => {
       // property. The controller only honors deletion live (matching linstor's
       // own disable-token-auth, which deletes the property); merely setting it to
       // "false" does NOT lift enforcement on the running controller.
-      await service.post('/v1/controller/properties', {
-        delete_props: [TOKEN_AUTH_PROPERTY],
-      });
+      // The page reports the outcome itself.
+      await withQuietToasts(() =>
+        unwrap(post('/v1/controller/properties', { body: { delete_props: [TOKEN_AUTH_PROPERTY] } })),
+      );
 
       setControllerAuthRequired(false);
       clearControllerAuthToken();

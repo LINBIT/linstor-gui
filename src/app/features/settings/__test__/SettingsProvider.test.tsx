@@ -8,13 +8,16 @@ import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import { act, render, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// The provider on a real QueryClient; axios, the settings api, the key-value
-// store, the user api and the toast are replaced.
+// The provider on a real QueryClient; axios (gateway/VSAN), the settings
+// writes, the settings api, the key-value store, the user api and the toast
+// are replaced.
 
 vi.mock('@app/requests', () => ({
   default: { get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() },
 }));
 vi.mock('@app/utils/toast', () => ({ notify: vi.fn() }));
+const kvWrite = vi.hoisted(() => vi.fn());
+vi.mock('@app/features/keyValueStore/api', () => ({ createOrModifyKVInstance: kvWrite }));
 
 const settingsApi = vi.hoisted(() => ({
   instanceExists: vi.fn(),
@@ -72,7 +75,7 @@ describe('SettingsProvider', () => {
     settingsApi.getProps.mockResolvedValue({});
     kv.instanceExists.mockResolvedValue(false);
     vi.mocked(service.get).mockResolvedValue({ data: {} } as never);
-    vi.mocked(service.put).mockResolvedValue({ status: 200 } as never);
+    kvWrite.mockResolvedValue({ data: [] });
   });
 
   it('refuses to work outside the provider', () => {
@@ -168,10 +171,10 @@ describe('SettingsProvider', () => {
       const { settings, loaded } = setup();
       await loaded();
       await act(() => settings().setGatewayMode({ gatewayEnabled: true, customHost: true, host: 'http://gw:2' }));
-      expect(service.put).toHaveBeenCalledWith('/v1/key-value-store/__gui__settings', {
-        override_props: { gatewayEnabled: true, gatewayCustomHost: true },
+      expect(kvWrite).toHaveBeenCalledWith('__gui__settings', {
+        override_props: { gatewayEnabled: 'true', gatewayCustomHost: 'true' },
       });
-      expect(service.put).toHaveBeenCalledWith('/v1/key-value-store/__gui__settings', {
+      expect(kvWrite).toHaveBeenCalledWith('__gui__settings', {
         override_props: { gatewayHost: 'http://gw:2' },
       });
       expect(notify).toHaveBeenCalledWith(expect.stringContaining('not available'), { type: 'warning' });
@@ -184,15 +187,15 @@ describe('SettingsProvider', () => {
       await act(() =>
         settings().setGatewayMode({ gatewayEnabled: false, customHost: false, host: '', showToast: true }),
       );
-      expect(service.put).toHaveBeenCalledWith('/v1/key-value-store/__gui__settings', {
-        override_props: { gatewayHost: '', gatewayCustomHost: false },
+      expect(kvWrite).toHaveBeenCalledWith('__gui__settings', {
+        override_props: { gatewayHost: '', gatewayCustomHost: 'false' },
       });
       expect(notify).toHaveBeenCalledWith('LINSTOR-Gateway disabled!', { type: 'success' });
       expect(notify).toHaveBeenCalledWith('LINSTOR-Gateway configuration has been reset.', { type: 'success' });
     });
 
     it('a failed write is reported as a connection problem', async () => {
-      vi.mocked(service.put).mockRejectedValue(new Error('down'));
+      kvWrite.mockRejectedValue(new Error('down'));
       vi.spyOn(console, 'error').mockImplementation(() => undefined);
       const { settings, loaded } = setup();
       await loaded();

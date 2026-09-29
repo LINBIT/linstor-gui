@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Button } from '@app/components/Button';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
-import service from '@app/requests';
+import { get, unwrap } from '@app/features/requests';
 
 const generateFileName = () => {
   const timestamp = dayjs().format('YYYY-MM-DD_HH-mm-ss');
@@ -17,10 +17,8 @@ const generateFileName = () => {
 };
 
 const downloadFile = async () => {
-  const response = await service.get('/v1/sos-report/download', {
-    responseType: 'blob',
-  });
-  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const blob = await unwrap(get('/v1/sos-report/download', { parseAs: 'blob' }));
+  const url = window.URL.createObjectURL(blob as Blob);
   const link = document.createElement('a');
   link.href = url;
   link.setAttribute('download', generateFileName());

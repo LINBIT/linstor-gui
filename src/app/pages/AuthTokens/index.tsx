@@ -16,7 +16,7 @@ import type { Dayjs } from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 
 import Button from '@app/components/Button';
-import service from '@app/requests';
+import { del, get, post, put, unwrap } from '@app/features/requests';
 import type { components } from '@app/apis/schema';
 import { useLinstorVersion, MIN_API_VERSION } from '@app/hooks';
 import { Popconfirm } from '@app/components/Popconfirm';
@@ -74,9 +74,9 @@ const AuthTokens = () => {
 
     const checkTokenAuthState = async () => {
       try {
-        const response = await service.get<Record<string, string>>('/v1/controller/properties');
+        const props = await unwrap(get('/v1/controller/properties'));
         if (cancelled) return;
-        setTokenAuthEnabled(response.data?.[TOKEN_AUTH_PROPERTY] === 'true');
+        setTokenAuthEnabled(props?.[TOKEN_AUTH_PROPERTY] === 'true');
       } catch {
         if (cancelled) return;
         setTokenAuthEnabled(false);
@@ -94,8 +94,8 @@ const AuthTokens = () => {
     setLoading(true);
 
     try {
-      const response = await service.get<AuthTokenListResponse>('/v1/controller/auth/token');
-      setAllTokens(response.data?.list ?? []);
+      const response = (await unwrap(get('/v1/controller/auth/token'))) as AuthTokenListResponse | undefined;
+      setAllTokens(response?.list ?? []);
     } catch (error) {
       message.error((error as Error)?.message || t('authToken:load_failed'));
     } finally {
@@ -121,13 +121,17 @@ const AuthTokens = () => {
     setCreating(true);
 
     try {
-      const response = await service.post<ApiCallRcEntry[]>('/v1/controller/auth/token', {
-        description: values.description.trim(),
-        ...(values.ip_filter?.trim() ? { ip_filter: values.ip_filter.trim() } : {}),
-        ...(values.expires_at ? { expires_at: values.expires_at.utc().toISOString() } : {}),
-      });
+      const reply = (await unwrap(
+        post('/v1/controller/auth/token', {
+          body: {
+            description: values.description.trim(),
+            ...(values.ip_filter?.trim() ? { ip_filter: values.ip_filter.trim() } : {}),
+            ...(values.expires_at ? { expires_at: values.expires_at.utc().toISOString() } : {}),
+          },
+        }),
+      )) as ApiCallRcEntry[] | undefined;
 
-      const token = extractToken(response.data);
+      const token = extractToken(reply);
 
       if (!token) {
         throw new Error(t('authToken:create_missing_token'));
@@ -149,7 +153,12 @@ const AuthTokens = () => {
     setUpdatingTokenId(token.id);
 
     try {
-      await service.put(`/v1/controller/auth/token/${token.id}`, { is_active: isActive });
+      await unwrap(
+        put('/v1/controller/auth/token/{authtokenid}', {
+          params: { path: { authtokenid: token.id } },
+          body: { is_active: isActive },
+        }),
+      );
       message.success(isActive ? t('authToken:enable_success') : t('authToken:disable_success'));
       await fetchTokens();
     } catch (error) {
@@ -163,7 +172,7 @@ const AuthTokens = () => {
     setDeletingTokenId(token.id);
 
     try {
-      await service.delete(`/v1/controller/auth/token/${token.id}`);
+      await unwrap(del('/v1/controller/auth/token/{authtokenid}', { params: { path: { authtokenid: token.id } } }));
       message.success(t('authToken:delete_success'));
       await fetchTokens();
     } catch (error) {

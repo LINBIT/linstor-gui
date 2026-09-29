@@ -22,21 +22,8 @@ import {
   undeployFile,
 } from './api';
 import type { DrbdReactorStatus, ExecResponse } from './api';
-import { replyError } from '@app/hooks/useDeleteAction';
+import { replyError, unwrap } from '@app/features/requests';
 import { withQuietToasts } from '@app/utils/toast';
-
-/**
- * openapi-fetch resolves on an HTTP error, so a mutation built on it would
- * report success for a refused request. This makes the refusal a rejection.
- */
-const orThrow = async <T>(request: Promise<T>): Promise<T> => {
-  const res = await request;
-  const error = replyError(res);
-  if (error) {
-    throw new Error(error);
-  }
-  return res;
-};
 
 export interface HAResourceDefinition {
   name: string;
@@ -128,8 +115,7 @@ export const useFileContent = (filePath: string) => {
 export const useCreateFile = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ filePath, content }: { filePath: string; content: string }) =>
-      orThrow(createFile(filePath, content)),
+    mutationFn: ({ filePath, content }: { filePath: string; content: string }) => unwrap(createFile(filePath, content)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] });
       queryClient.invalidateQueries({ queryKey: ['ha-all-resource-definitions'] });
@@ -142,7 +128,7 @@ export const useDeployFile = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ resourceName, filePath }: { resourceName: string; filePath: string }) =>
-      orThrow(deployFile(resourceName, filePath)),
+      unwrap(deployFile(resourceName, filePath)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] });
     },
@@ -214,7 +200,7 @@ export const useUnmanageHA = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ resourceName, filePath }: { resourceName: string; filePath: string }) =>
-      withQuietToasts(() => orThrow(undeployFile(resourceName, filePath))),
+      withQuietToasts(() => unwrap(undeployFile(resourceName, filePath))),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] });
       queryClient.invalidateQueries({ queryKey: ['ha-all-resource-definitions'] });
@@ -227,7 +213,7 @@ export const useManageHA = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ resourceName, filePath }: { resourceName: string; filePath: string }) =>
-      withQuietToasts(() => orThrow(deployFile(resourceName, filePath))),
+      withQuietToasts(() => unwrap(deployFile(resourceName, filePath))),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] });
       queryClient.invalidateQueries({ queryKey: ['ha-all-resource-definitions'] });

@@ -17,11 +17,10 @@ import {
 
 const mockGet = vi.fn();
 
-vi.mock('@app/requests', () => ({
-  default: {
-    get: (...args: unknown[]) => mockGet(...args),
-  },
-}));
+vi.mock('@app/features/requests', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@app/features/requests')>();
+  return { unwrap: actual.unwrap, ApiError: actual.ApiError, get: (...args: unknown[]) => mockGet(...args) };
+});
 
 describe('ControllerAuthGate', () => {
   beforeEach(() => {
@@ -44,9 +43,10 @@ describe('ControllerAuthGate', () => {
   });
 
   it('probes with a short timeout so a stalled controller cannot hang the whole app', async () => {
-    // The gate blocks every route while it probes. Inheriting the shared
-    // client's ten-minute timeout meant a controller that accepts the
-    // connection but never answers left the user on a spinner for that long.
+    // The gate blocks every route while it probes, and the API client has no
+    // timeout: a controller that accepts the connection but never answers
+    // would leave the user on a spinner indefinitely.
+    const timeout = vi.spyOn(AbortSignal, 'timeout');
     mockGet.mockResolvedValueOnce({ data: { rest_api_version: '1.28.0' } });
     mockGet.mockResolvedValueOnce({ data: {} });
 
@@ -61,10 +61,13 @@ describe('ControllerAuthGate', () => {
     });
 
     for (const call of mockGet.mock.calls) {
-      const config = call[1] as { timeout?: number } | undefined;
-      expect(config?.timeout).toBeDefined();
-      expect(config!.timeout).toBeLessThanOrEqual(30_000);
+      expect((call[1] as { signal?: AbortSignal } | undefined)?.signal).toBeInstanceOf(AbortSignal);
     }
+    expect(timeout).toHaveBeenCalledTimes(mockGet.mock.calls.length);
+    for (const [ms] of timeout.mock.calls) {
+      expect(ms).toBeLessThanOrEqual(30_000);
+    }
+    timeout.mockRestore();
   });
 
   it('renders children without checking properties when the controller is older than 1.28.0', async () => {
@@ -83,7 +86,7 @@ describe('ControllerAuthGate', () => {
     expect(mockGet).toHaveBeenCalledTimes(1);
     expect(mockGet).toHaveBeenCalledWith(
       '/v1/controller/version',
-      expect.objectContaining({ timeout: expect.any(Number) }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
   });
 
@@ -105,13 +108,27 @@ describe('ControllerAuthGate', () => {
     expect(mockGet).toHaveBeenNthCalledWith(
       2,
       '/v1/controller/properties',
-      expect.objectContaining({ timeout: expect.any(Number) }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
   });
 
   it('shows the token prompt when version is recent and token authentication is enabled', async () => {
     mockGet.mockResolvedValueOnce({ data: { rest_api_version: '1.28.0' } });
     mockGet.mockResolvedValueOnce({ data: { 'Auth/TokenAuthenticationEnabled': 'true' } });
+
+    render(
+      <ControllerAuthGate>
+        <div>protected content</div>
+      </ControllerAuthGate>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Controller Token Required')).toBeInTheDocument();
+    });
+  });
+
+  it('shows the token prompt when the controller answers 401', async () => {
+    mockGet.mockResolvedValueOnce({ error: {}, response: { ok: false, status: 401 } });
 
     render(
       <ControllerAuthGate>
@@ -184,7 +201,7 @@ describe('ControllerAuthGate', () => {
 
     expect(mockGet).toHaveBeenCalledWith(
       '/v1/controller/version',
-      expect.objectContaining({ timeout: expect.any(Number) }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
     expect(isControllerAuthRequired()).toBe(false);
   });

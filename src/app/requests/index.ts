@@ -4,15 +4,12 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
+// The HTTP client for the services next to the controller: LINSTOR Gateway
+// (/api/v2) and the VSAN/HCI frontend (/api/frontend/v1). The LINSTOR
+// controller itself is only reached through the typed client in
+// @app/features/requests, which carries its auth and reply handling.
 import axios from 'axios';
 import { i18n } from '../../i18n';
-import {
-  createControllerAuthRequiredError,
-  emitControllerAuthRequired,
-  getControllerAuthHeaderValue,
-  isControllerAuthRequired,
-  isControllerRequestUrl,
-} from '@app/utils/controllerAuth';
 
 // create an axios instance
 const linstorHost = typeof window !== 'undefined' ? window.localStorage.getItem('LINSTOR_HOST') : '';
@@ -64,40 +61,6 @@ service.interceptors.request.use((req) => {
     }
   }
 
-  if (isControllerRequestUrl(req.url)) {
-    const controllerAuthHeader = getControllerAuthHeaderValue();
-    const existingAuthorization =
-      (req.headers as { Authorization?: string; authorization?: string; get?: (name: string) => string | undefined })
-        ?.Authorization ??
-      (req.headers as { Authorization?: string; authorization?: string; get?: (name: string) => string | undefined })
-        ?.authorization ??
-      (typeof (
-        req.headers as { Authorization?: string; authorization?: string; get?: (name: string) => string | undefined }
-      )?.get === 'function'
-        ? (
-            req.headers as {
-              Authorization?: string;
-              authorization?: string;
-              get?: (name: string) => string | undefined;
-            }
-          ).get?.('Authorization')
-        : undefined);
-
-    if (!controllerAuthHeader && !existingAuthorization && isControllerAuthRequired()) {
-      emitControllerAuthRequired();
-      return Promise.reject(createControllerAuthRequiredError());
-    }
-
-    if (controllerAuthHeader && !existingAuthorization) {
-      if (req.headers && typeof (req.headers as { set?: (name: string, value: string) => void }).set === 'function') {
-        (req.headers as { set: (name: string, value: string) => void }).set('Authorization', controllerAuthHeader);
-      } else {
-        req.headers = req.headers ?? {};
-        (req.headers as { Authorization?: string }).Authorization = controllerAuthHeader;
-      }
-    }
-  }
-
   return req;
 });
 
@@ -125,14 +88,7 @@ service.interceptors.response.use(
       return response;
     }
   },
-  (error) => {
-    if (error?.response?.status === 401 && isControllerRequestUrl(error?.config?.url)) {
-      emitControllerAuthRequired();
-      return Promise.reject(createControllerAuthRequiredError());
-    }
-
-    return Promise.reject(error?.response?.data ?? error);
-  },
+  (error) => Promise.reject(error?.response?.data ?? error),
 );
 
 export default service;

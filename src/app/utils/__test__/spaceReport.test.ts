@@ -9,10 +9,8 @@ import { getSpaceReport, SPACE_TRACKING_UNAVAILABLE_MSG } from '../spaceReport';
 
 const mockGet = vi.fn();
 
-vi.mock('@app/requests', () => ({
-  default: {
-    get: (...args: unknown[]) => mockGet(...args),
-  },
+vi.mock('@app/features/node/api', () => ({
+  getSpaceReport: (...args: unknown[]) => mockGet(...args),
 }));
 
 describe('getSpaceReport', () => {
@@ -30,7 +28,7 @@ describe('getSpaceReport', () => {
       const result = await getSpaceReport();
 
       expect(result).toBe(mockReportText);
-      expect(mockGet).toHaveBeenCalledWith('/v1/space-report');
+      expect(mockGet).toHaveBeenCalled();
     });
 
     it('should return SPACE_TRACKING_UNAVAILABLE_MSG when service is unavailable', async () => {
@@ -62,7 +60,8 @@ describe('getSpaceReport', () => {
 
       const result = await getSpaceReport();
 
-      expect(result).toBeUndefined();
+      // react-query treats undefined query data as an error; no text reads as no report.
+      expect(result).toBeNull();
     });
 
     it('should handle response with null reportText', async () => {

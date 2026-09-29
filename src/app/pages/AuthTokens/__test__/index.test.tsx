@@ -36,13 +36,12 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('@app/requests', () => ({
-  default: {
-    get: (...args: unknown[]) => mockGet(...args),
-    post: (...args: unknown[]) => mockPost(...args),
-    put: (...args: unknown[]) => mockPut(...args),
-    delete: (...args: unknown[]) => mockDelete(...args),
-  },
+vi.mock('@app/features/requests', async (importOriginal) => ({
+  unwrap: (await importOriginal<typeof import('@app/features/requests')>()).unwrap,
+  get: (...args: unknown[]) => mockGet(...args),
+  post: (...args: unknown[]) => mockPost(...args),
+  put: (...args: unknown[]) => mockPut(...args),
+  del: (...args: unknown[]) => mockDelete(...args),
 }));
 
 vi.mock('@app/hooks', () => ({
@@ -139,7 +138,7 @@ describe('AuthTokens page', () => {
     mockGet.mockResolvedValueOnce({
       data: { 'Auth/TokenAuthenticationEnabled': 'true' },
     });
-    mockGet.mockRejectedValueOnce(new Error('boom'));
+    mockGet.mockResolvedValueOnce({ error: [{ ret_code: -1, message: 'boom' }], response: { ok: false, status: 500 } });
 
     renderPage();
 
@@ -180,7 +179,7 @@ describe('AuthTokens page', () => {
     fireEvent.click(screen.getByRole('button', { name: 'common:create' }));
 
     await waitFor(() => {
-      expect(mockPost).toHaveBeenCalledWith('/v1/controller/auth/token', { description: 'new-token' });
+      expect(mockPost).toHaveBeenCalledWith('/v1/controller/auth/token', { body: { description: 'new-token' } });
     });
 
     // antd's autoSize TextArea renders a hidden measurement mirror with the

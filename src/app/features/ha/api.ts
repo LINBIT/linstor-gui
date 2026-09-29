@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { get, put, post, del } from '../requests';
+import { get, put, post, del, unwrap } from '../requests';
 import { logger } from '@app/utils/logger';
 import type { components } from '@app/apis/schema';
 import type { ExternalFile } from '@app/features/files/types';
@@ -105,25 +105,11 @@ interface DrbdReactorStatus {
   }>;
 }
 
-const getLinstorBaseUrl = (): string =>
-  typeof window !== 'undefined' ? localStorage.getItem('LINSTOR_HOST') || '' : '';
-
-const execPost = async (path: string, body: unknown): Promise<unknown> => {
-  const url = `${getLinstorBaseUrl()}${path}`;
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  if (!response.ok) {
-    throw new Error(`Request failed: ${response.status} ${response.statusText}`);
-  }
-  return response.json();
-};
-
 // Get DRBD Reactor status from nodes
 const getDrbdReactorStatus = async (nodes: string[]): Promise<Record<string, DrbdReactorStatus>> => {
-  const results = (await execPost('/v1/nodes/exec/drbd-reactorctl/status', { nodes })) as ExecResponse[];
+  const results: ExecResponse[] = await unwrap(
+    post('/v1/nodes/exec/drbd-reactorctl/status', { body: { nodes, wait: false } }),
+  );
   const statusMap: Record<string, DrbdReactorStatus> = {};
 
   for (const result of results) {
@@ -140,24 +126,20 @@ const getDrbdReactorStatus = async (nodes: string[]): Promise<Record<string, Drb
 };
 
 // Evict DRBD Reactor resource on nodes
-const evictDrbdReactor = async (nodes: string[], resource?: string, wait = false): Promise<ExecResponse[]> => {
-  return execPost('/v1/nodes/exec/drbd-reactorctl/evict', { nodes, resource, wait }) as Promise<ExecResponse[]>;
-};
+const evictDrbdReactor = (nodes: string[], resource?: string, wait = false): Promise<ExecResponse[]> =>
+  unwrap(post('/v1/nodes/exec/drbd-reactorctl/evict', { body: { nodes, resource, wait } }));
 
 // Disable DRBD Reactor plugin on nodes
-const disableDrbdReactor = async (nodes: string[], config: string, now = false): Promise<ExecResponse[]> => {
-  return execPost('/v1/nodes/exec/drbd-reactorctl/disable', { nodes, config, now }) as Promise<ExecResponse[]>;
-};
+const disableDrbdReactor = (nodes: string[], config: string, now = false): Promise<ExecResponse[]> =>
+  unwrap(post('/v1/nodes/exec/drbd-reactorctl/disable', { body: { nodes, config, now } }));
 
 // Enable DRBD Reactor plugin on nodes
-const enableDrbdReactor = async (nodes: string[], config: string): Promise<ExecResponse[]> => {
-  return execPost('/v1/nodes/exec/drbd-reactorctl/enable', { nodes, config }) as Promise<ExecResponse[]>;
-};
+const enableDrbdReactor = (nodes: string[], config: string): Promise<ExecResponse[]> =>
+  unwrap(post('/v1/nodes/exec/drbd-reactorctl/enable', { body: { nodes, config, now: false } }));
 
 // Restart DRBD Reactor plugin on nodes
-const restartDrbdReactor = async (nodes: string[], config: string): Promise<ExecResponse[]> => {
-  return execPost('/v1/nodes/exec/drbd-reactorctl/restart', { nodes, config }) as Promise<ExecResponse[]>;
-};
+const restartDrbdReactor = (nodes: string[], config: string): Promise<ExecResponse[]> =>
+  unwrap(post('/v1/nodes/exec/drbd-reactorctl/restart', { body: { nodes, config, now: false } }));
 
 // Delete external file from LINSTOR
 const deleteFile = (filePath: string) => {

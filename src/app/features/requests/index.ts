@@ -13,108 +13,76 @@ import {
   emitControllerAuthRequired,
   getControllerAuthToken,
   isControllerAuthRequired,
-  isControllerRequestUrl,
   withControllerAuthHeaders,
 } from '@app/utils/controllerAuth';
+
+import { replyError } from './reply';
 
 type APICALLRC = components['schemas']['ApiCallRc'];
 type APICALLRCLIST = components['schemas']['ApiCallRcList'];
 
-const mergeHeaders = (input: RequestInfo | URL, init?: RequestInit) => {
-  const headers = new Headers(input instanceof Request ? input.headers : undefined);
+/** Controller endpoints the published REST spec does not describe yet. */
+interface UnlistedPaths {
+  '/v1/space-report': {
+    get: {
+      responses: { 200: { content: { 'application/json': { reportText?: string } } } };
+    };
+  };
+}
 
-  if (init?.headers) {
-    const initHeaders = new Headers(init.headers);
-    initHeaders.forEach((value, key) => {
-      headers.set(key, value);
-    });
+// Replies under these paths carry tokens (initialize-token-auth, token
+// creation); they never reach the log sidebar, which lives in sessionStorage,
+// nor a toast.
+const SECRET_REPLY_PATHS = ['/v1/controller/auth/'];
+
+/**
+ * Logs a reply to the sidebar and, unless the action asked for quiet, toasts
+ * it once. 401 belongs to the auth gate; every other error status carries an
+ * ApiCallRc list too (403 for a refused external file, 409, 500...).
+ */
+const reportReply = (url: string, res: Response, notify: boolean): void => {
+  // A download (SOS report tarball) is not a reply to report; cloning it would
+  // only hold the whole file in memory twice.
+  if (res.status === 401 || !res.headers.get('Content-Type')?.includes('json')) {
+    return;
   }
-
-  return headers;
+  if (SECRET_REPLY_PATHS.some((path) => new URL(url, window.location.href).pathname.includes(path))) {
+    return;
+  }
+  res
+    .clone()
+    .json()
+    .then((data) => {
+      // The GUI's own key-value-store writes are not user actions.
+      if (!(res.ok && url.includes('key-value-store'))) {
+        handleAPICallRes(data, url, notify);
+      }
+    })
+    // Not JSON (an empty 204, an HTML error page): nothing to report.
+    .catch(() => undefined);
 };
 
-const attachControllerAuthToFetchArgs = (args: Parameters<typeof window.fetch>) => {
-  const [input, init] = args;
-  const requestUrl = input instanceof Request ? input.url : input.toString();
-
-  if (!isControllerRequestUrl(requestUrl)) {
-    return {
-      requestUrl,
-      nextArgs: args,
-    };
-  }
-
-  const mergedHeaders = mergeHeaders(input, init);
-
-  if (isControllerAuthRequired() && !getControllerAuthToken() && !mergedHeaders.has('Authorization')) {
+/**
+ * The one fetch every controller request goes through: it adds the auth
+ * token, hands a 401 to the auth gate and reports the reply. It belongs to
+ * the client below; window.fetch stays untouched.
+ */
+const linstorFetch = async (request: Request): Promise<Response> => {
+  const headers = withControllerAuthHeaders(request.headers);
+  if (isControllerAuthRequired() && !getControllerAuthToken() && !headers.has('Authorization')) {
+    emitControllerAuthRequired();
     throw createControllerAuthRequiredError();
   }
-
-  if (input instanceof Request) {
-    return {
-      requestUrl,
-      nextArgs: [new Request(input, { ...init, headers: withControllerAuthHeaders(mergedHeaders) })] as Parameters<
-        typeof window.fetch
-      >,
-    };
+  // Decided when the request goes out: the reply is parsed asynchronously,
+  // possibly after the action that asked for quiet has already finished.
+  const notify = !toastsAreQuiet();
+  const res = await fetch(new Request(request, { headers }));
+  if (res.status === 401) {
+    emitControllerAuthRequired();
   }
-
-  return {
-    requestUrl,
-    nextArgs: [input, { ...init, headers: withControllerAuthHeaders(init?.headers) }] as Parameters<
-      typeof window.fetch
-    >,
-  };
+  reportReply(request.url, res, notify);
+  return res;
 };
-
-window.fetch = new Proxy(window.fetch, {
-  apply: function (target, that, args) {
-    let requestUrl: string;
-    let nextArgs: Parameters<typeof window.fetch>;
-
-    try {
-      ({ requestUrl, nextArgs } = attachControllerAuthToFetchArgs(args as Parameters<typeof window.fetch>));
-    } catch (error) {
-      const rawUrl = args?.[0] instanceof Request ? args[0].url : args?.[0]?.toString?.();
-
-      if (isControllerRequestUrl(rawUrl)) {
-        emitControllerAuthRequired();
-      }
-
-      return Promise.reject(error);
-    }
-
-    // Decided when the request goes out: the reply is parsed asynchronously,
-    // possibly after the action that asked for quiet has already finished.
-    const notify = !toastsAreQuiet();
-    const temp = target.apply(that, nextArgs);
-    temp.then((res) => {
-      if (res.status === 401 && isControllerRequestUrl(requestUrl)) {
-        emitControllerAuthRequired();
-      }
-
-      // 401 is the auth gate's; every other error status carries an ApiCallRc
-      // list too (403 for a refused external file, 409, 500...), and a
-      // status left out here fails without a word.
-      if (res.status === 401) {
-        return;
-      }
-      res
-        .clone()
-        .json()
-        .then((data) => {
-          // The GUI's own key-value-store writes are not user actions.
-          if (!(res.ok && res.url?.includes('key-value-store'))) {
-            handleAPICallRes(data, res.url, notify);
-          }
-        })
-        // Not JSON (an empty 204, an HTML error page): nothing to report.
-        .catch(() => undefined);
-    });
-
-    return temp;
-  },
-});
 
 const fullySuccess = (res?: APICALLRCLIST) => {
   if (!res) {
@@ -144,10 +112,37 @@ const apiErrorMessage = (res?: { error?: unknown }): string | undefined => {
     .join(', ');
 };
 
+/** A controller reply that was an HTTP error. */
+class ApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+    readonly body: unknown,
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
+/**
+ * The data of a reply, or an ApiError for an HTTP error. openapi-fetch resolves
+ * either way (the failure sits in `error`), which is easy to forget and then a
+ * refusal reads as success; code that wants throw-on-failure unwraps.
+ */
+const unwrap = async <T>(request: Promise<{ data?: T; error?: unknown; response?: Response }>): Promise<T> => {
+  const res = await request;
+  const failed = res.response ? !res.response.ok : Boolean(res.error);
+  if (failed) {
+    const status = res.response?.status ?? 0;
+    throw new ApiError(replyError(res) || `HTTP ${status}`, status, res.error);
+  }
+  return res.data as T;
+};
+
 const linstorHost = typeof window !== 'undefined' ? window.localStorage.getItem('LINSTOR_HOST') : '';
-const { GET, POST, DELETE, PUT, PATCH, HEAD, TRACE, OPTIONS } = createClient<paths>({
+const { GET, POST, DELETE, PUT, PATCH, HEAD, TRACE, OPTIONS } = createClient<paths & UnlistedPaths>({
   baseUrl: linstorHost || '/',
-  fetch: window.fetch,
+  fetch: linstorFetch,
   querySerializer: {
     array: {
       style: 'form',
@@ -168,6 +163,9 @@ export {
   fullySuccess,
   partiallySuccess,
   apiErrorMessage,
+  unwrap,
+  ApiError,
+  replyError,
 };
 
 export type { APICALLRC, APICALLRCLIST };
