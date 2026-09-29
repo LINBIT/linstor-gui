@@ -62,6 +62,19 @@ describe('RollbackSnapshotForm', () => {
     await waitFor(() => expect(rollbackSnapshot).toHaveBeenCalledWith('res-a', 'snap-1'));
     await waitFor(() => expect(onSuccess).toHaveBeenCalled());
     expect(onClose).toHaveBeenCalled();
+    // The reply has no entry that says so; the dialog does.
+    expect(await screen.findByText('Operation Successful')).toBeInTheDocument();
+  });
+
+  it('stays open on a refusal in the reply body, which openapi-fetch resolves with', async () => {
+    vi.mocked(rollbackSnapshot).mockResolvedValue({
+      error: [{ ret_code: -1, message: "Resource 'res-a' is in use" }],
+    } as never);
+    const { onClose, onSuccess } = renderForm();
+    fireEvent.click(screen.getByRole('button', { name: 'Rollback' }));
+    expect(await screen.findByText("Failed: Resource 'res-a' is in use")).toBeInTheDocument();
+    expect(onSuccess).not.toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
   });
 
   it('stays open and re-enables the button when the rollback fails', async () => {

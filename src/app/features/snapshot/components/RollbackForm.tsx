@@ -5,11 +5,13 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Modal, Typography, Space } from 'antd';
+import { Modal, Typography, Space, message } from 'antd';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { Button } from '@app/components/Button';
+import { replyError } from '@app/hooks/useDeleteAction';
+import { withQuietToasts } from '@app/utils/toast';
 
 import { rollbackSnapshot } from '../api';
 
@@ -42,17 +44,29 @@ export const RollbackSnapshotForm: React.FC<RollbackSnapshotFormProps> = ({
   const { t } = useTranslation(['common', 'snapshot']);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Create mutation for rollback operation
+  // A rollback reply is a whole sequence (safety snapshot, resources torn
+  // down and restored, safety snapshot deleted) without one entry that says
+  // "rolled back", so the reply stays quiet and the outcome is reported here.
+  // openapi-fetch resolves on an HTTP error; a refusal must not close the
+  // dialog as if it had worked.
   const rollbackMutation = useMutation({
     mutationKey: ['rollbackSnapshot', resource, snapshot],
-    mutationFn: () => rollbackSnapshot(resource, snapshot),
+    mutationFn: () =>
+      withQuietToasts(async () => {
+        const error = replyError(await rollbackSnapshot(resource, snapshot));
+        if (error) {
+          throw new Error(error);
+        }
+      }),
     onSuccess: () => {
       setIsProcessing(false);
+      message.success(t('common:operation_success'));
       onSuccess();
       onClose();
     },
-    onError: () => {
+    onError: (error: Error) => {
       setIsProcessing(false);
+      message.error({ content: `${t('common:failed')}: ${error.message}`, duration: 10 });
     },
   });
 

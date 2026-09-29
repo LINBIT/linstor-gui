@@ -24,6 +24,8 @@ vi.mock('antd', () => ({
   message: {
     success: vi.fn(),
     error: vi.fn(),
+    warning: vi.fn(),
+    info: vi.fn(),
     destroy: vi.fn(),
   },
 }));
@@ -76,9 +78,11 @@ describe('toast utils', () => {
       expect(message.success).not.toHaveBeenCalled();
     });
 
-    it('should not call any message method for other types', () => {
+    it('shows warnings and infos too, e.g. that linstor-gateway is not installed', () => {
       notify('Info message', { type: 'info' });
       notify('Warning message', { type: 'warning' });
+      expect(message.info).toHaveBeenCalledWith('Info message');
+      expect(message.warning).toHaveBeenCalledWith('Warning message');
       expect(message.success).not.toHaveBeenCalled();
       expect(message.error).not.toHaveBeenCalled();
     });
@@ -142,6 +146,56 @@ describe('toast utils', () => {
         expect.objectContaining({ content: 'Success 2 (+1 more in the log)' }),
       );
       expect(message.error).not.toHaveBeenCalled();
+    });
+
+    // Replies recorded from LINSTOR 1.99 (codes are ApiConsts: op | object | outcome).
+    it('headlines a snapshot with its registration, not the trailing "Resumed IO"', () => {
+      notifyMessages([
+        { message: "New snapshot 'snap2' of resource 'r' registered.", ret_code: 17563649 },
+        { message: "(n3) Skipping processing unknown snapshot 'snap2' of resource 'r'", ret_code: 17563648 },
+        { message: "Suspended IO of '[r]' on 'n1' for snapshot", ret_code: 17563651 },
+        {
+          message: "(n1) Snapshot [LVM-Thin] with name 'snap2' of resource 'r', volume number 0 created",
+          ret_code: 17563649,
+        },
+        { message: "Took snapshot of '[r]' on 'n1'", ret_code: 17563651 },
+        { message: "(n1) Resource 'r' [DRBD] adjusted.", ret_code: 20185091 },
+        { message: "Resumed IO of '[r]' on 'n1' after snapshot", ret_code: 17563651 },
+      ]);
+      expect(message.success).toHaveBeenCalledWith(
+        expect.objectContaining({ content: "New snapshot 'snap2' of resource 'r' registered. (+6 more in the log)" }),
+      );
+    });
+
+    it('headlines a new node with "registered", not the later "authenticated"', () => {
+      notifyMessages([
+        { message: "New node 'n1' registered.", ret_code: 20709377 },
+        { message: "Node 'n1' authenticated", ret_code: 20709385 },
+      ]);
+      expect(message.success).toHaveBeenCalledWith(
+        expect.objectContaining({ content: "New node 'n1' registered. (+1 more in the log)" }),
+      );
+    });
+
+    it('prefers the controller over satellite echoes when nothing was created or deleted', () => {
+      notifyMessages([
+        { message: "Deployed /etc/x.toml on resource 'r'", ret_code: 38797315 },
+        { message: '(n1) Node changes applied.', ret_code: 38797315 },
+        { message: "(n1) Resource 'other' [DRBD] adjusted.", ret_code: 36962307 },
+      ]);
+      expect(message.success).toHaveBeenCalledWith(
+        expect.objectContaining({ content: "Deployed /etc/x.toml on resource 'r' (+2 more in the log)" }),
+      );
+    });
+
+    it('falls back to the last entry when every entry is a satellite echo', () => {
+      notifyMessages([
+        { message: '(n1) Node changes applied.', ret_code: 38797315 },
+        { message: "(n2) Resource 'r' [DRBD] adjusted.", ret_code: 36962307 },
+      ]);
+      expect(message.success).toHaveBeenCalledWith(
+        expect.objectContaining({ content: "(n2) Resource 'r' [DRBD] adjusted. (+1 more in the log)" }),
+      );
     });
 
     it('shows a lone message without a counter', () => {

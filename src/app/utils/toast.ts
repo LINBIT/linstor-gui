@@ -21,13 +21,19 @@ const notify = (
   if (!content) {
     return;
   }
-  // toast(content, {
-  //   ...options,
-  // });
-  if (options?.type === 'success') {
-    message.success(content);
-  } else if (options?.type === 'error') {
-    message.error(content);
+  switch (options?.type) {
+    case 'success':
+      message.success(content);
+      break;
+    case 'error':
+      message.error(content);
+      break;
+    case 'warning':
+      message.warning(content);
+      break;
+    case 'info':
+      message.info(content);
+      break;
   }
 };
 
@@ -39,13 +45,39 @@ const ERROR_TOAST_SECONDS = 10;
 
 type RcEntry = { message: string; ret_code: number };
 
+// ApiConsts: the low 15 bits of a ret_code are the outcome code.
+const RC_CODE_BITS = 0x7fff;
+const RC_CREATED = 1;
+const RC_DELETED = 2;
+
+// "(node-a) Resource 'r' [DRBD] adjusted." is a satellite reporting its part.
+const fromSatellite = (e: RcEntry): boolean => /^\(\S+\) /.test(e.message);
+
+// Success codes fit in 32 bits, so the bitwise mask reads them exactly.
+const isCreatedOrDeleted = (e: RcEntry): boolean => {
+  const code = e.ret_code & RC_CODE_BITS;
+  return code === RC_CREATED || code === RC_DELETED;
+};
+
+/**
+ * The entry that says what a successful reply did. Neither end of the list is
+ * reliable: a snapshot reply ends with "Resumed IO ...", a file deploy is all
+ * satellite echoes. The controller's own created/deleted entry is the
+ * conclusion ("New snapshot ... registered.", "Resource definition ...
+ * deleted."); without one, its last own entry; failing that, the last one.
+ */
+const successHeadline = (entries: RcEntry[]): RcEntry => {
+  const own = entries.filter((e) => !fromSatellite(e));
+  const outcome = [...own].reverse().find(isCreatedOrDeleted);
+  return outcome ?? own[own.length - 1] ?? entries[entries.length - 1];
+};
+
 /**
  * One toast for one LINSTOR reply. A reply carries one ApiCallRc entry per
  * step (per node, per volume...), and toasting each of them buried the
  * outcome under a burst the user could not read; every entry still goes to
  * the log sidebar. Errors win: the first one is shown, the rest counted.
- * Otherwise the last entry is shown, since LINSTOR ends with the conclusion
- * ("... deleted", "... ready").
+ * Otherwise the headline (see successHeadline) is shown.
  */
 const toastSummary = (entries: RcEntry[], onClick?: () => void): void => {
   const relevant = entries.filter((e) => e.ret_code);
@@ -53,7 +85,7 @@ const toastSummary = (entries: RcEntry[], onClick?: () => void): void => {
     return;
   }
   const errors = relevant.filter((e) => e.ret_code < 0);
-  const shown = errors.length ? errors[0] : relevant[relevant.length - 1];
+  const shown = errors.length ? errors[0] : successHeadline(relevant);
   const rest = (errors.length || relevant.length) - 1;
   const content =
     rest > 0 ? `${shown.message} ${i18n.t('common:n_more_in_log', { count: rest })}` : String(shown.message);
