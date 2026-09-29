@@ -68,8 +68,22 @@ describe('ChangePassword', () => {
       }),
     );
     expect(await screen.findByText('Password changed successfully')).toBeInTheDocument();
-    await waitFor(() => expect(ctx.settings.saveKey).toHaveBeenCalledWith({ needsPasswordChange: false }));
+    // admin/admin is gone, so the login page stops advertising it.
+    await waitFor(() =>
+      expect(ctx.settings.saveKey).toHaveBeenCalledWith({ needsPasswordChange: false, hideDefaultCredential: true }),
+    );
     expect(ctx.auth.setNeedsPasswordChange).toHaveBeenCalledWith(false);
+  });
+
+  it('an admin resetting the "admin" user also retires the default-credential hint', async () => {
+    render(<ChangePassword admin user="admin" />);
+    fireEvent.click(screen.getByRole('button', { name: 'Reset password' }));
+    await screen.findByLabelText('New password');
+    typePasswords(null, 'admin-new');
+    fireEvent.click(screen.getAllByRole('button', { name: 'Reset password' }).at(-1) as HTMLElement);
+    await waitFor(() =>
+      expect(ctx.settings.saveKey).toHaveBeenCalledWith({ needsPasswordChange: false, hideDefaultCredential: true }),
+    );
   });
 
   it('rejects a mismatched confirmation and a short password before submitting', async () => {

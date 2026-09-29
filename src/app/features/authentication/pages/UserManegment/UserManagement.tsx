@@ -14,7 +14,7 @@ import bg from '@app/assets/user_bg.svg';
 import { BG, MainContent, StyledSection } from './styled';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { ChangePassword, CreateUser } from '../../components';
-import { settingAPI, type SettingsProps } from '@app/features/settings';
+import { settingAPI } from '@app/features/settings';
 import { notify } from '@app/utils/toast';
 import { useMutation } from '@tanstack/react-query';
 import authAPI from '../../api';
@@ -42,23 +42,21 @@ export const UserManagement = () => {
     mutationFn: async (enable: boolean) => {
       window.localStorage.removeItem('linstorname');
 
-      // Build props object, only including needsPasswordChange if we're enabling
-      const props: Partial<SettingsProps> = {
-        authenticationEnabled: enable,
-        hideDefaultCredential: false,
-      };
-
-      // Only set needsPasswordChange for new authentication enables
-      if (enable) {
-        props.needsPasswordChange = true;
+      if (!enable) {
+        await settingAPI.setProps({ authenticationEnabled: false, hideDefaultCredential: false });
+        return;
       }
 
-      await settingAPI.setProps(props);
-
-      // Only initialize user store when enabling authentication
-      if (enable) {
-        return await authAPI.initUserStore();
-      }
+      // The user store outlives turning authentication off, so admin may
+      // already have a real password: admin/admin is advertised, and a change
+      // demanded, only while it still works.
+      await authAPI.initUserStore();
+      const defaultAdmin = await authAPI.hasDefaultAdminPassword();
+      await settingAPI.setProps({
+        authenticationEnabled: true,
+        hideDefaultCredential: !defaultAdmin,
+        needsPasswordChange: defaultAdmin,
+      });
     },
     onError: (error) => {
       logger.debug(error);

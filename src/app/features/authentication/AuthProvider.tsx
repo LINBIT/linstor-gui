@@ -21,6 +21,11 @@ import { AuthContext, USERS_QUERY_KEY, type AuthContextValue, type UserAuth } fr
  * which matters while the default password is still in use.
  */
 const promptPasswordChange = async (password?: string): Promise<boolean> => {
+  // Logged in with a real password: there is no default one left to change,
+  // whatever a stale flag says.
+  if (password !== undefined && password !== DEFAULT_ADMIN_USER_PASS) {
+    return false;
+  }
   try {
     const settings = await settingAPI.getProps();
     if (settings?.needsPasswordChange !== undefined) {

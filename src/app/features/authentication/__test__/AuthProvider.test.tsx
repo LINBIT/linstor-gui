@@ -109,12 +109,21 @@ describe('AuthProvider', () => {
       expect(settings.current?.refreshAdmin).toHaveBeenCalled();
     });
 
-    it('admin with the explicit flag is asked to change the password', async () => {
+    it('admin with the explicit flag is asked to change the default password', async () => {
       authAPI.login.mockResolvedValue(true);
       settingAPI.getProps.mockResolvedValue({ needsPasswordChange: true });
       const { auth } = setup();
-      await act(() => auth().login({ username: 'admin', password: 'anything' }));
+      await act(() => auth().login({ username: 'admin', password: 'admin' }));
       expect(auth()).toMatchObject({ isAdmin: true, needsPasswordChange: true });
+    });
+
+    it('a stale flag does not ask an admin who logged in with a real password', async () => {
+      // Authentication turned off and on again over an admin whose password had changed.
+      authAPI.login.mockResolvedValue(true);
+      settingAPI.getProps.mockResolvedValue({ needsPasswordChange: true });
+      const { auth } = setup();
+      await act(() => auth().login({ username: 'admin', password: 'E2eAdmin-1' }));
+      expect(auth()).toMatchObject({ isAdmin: true, needsPasswordChange: false });
     });
 
     it('admin with the flag cleared is not asked, even on the default password', async () => {

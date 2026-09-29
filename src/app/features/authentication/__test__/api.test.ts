@@ -109,6 +109,21 @@ describe('UserAuthAPI', () => {
     });
   });
 
+  describe('hasDefaultAdminPassword', () => {
+    it('is true only while admin still has the default password, and logs nobody in', async () => {
+      mockKvStore.getProperty.mockResolvedValue(CryptoJS.AES.encrypt('admin', '1234123412ABCDEF').toString());
+      expect(await userAuthAPI.hasDefaultAdminPassword()).toBe(true);
+      expect(mockKvStore.getProperty).toHaveBeenCalledWith(expect.any(String), 'admin');
+
+      mockKvStore.getProperty.mockResolvedValue(CryptoJS.AES.encrypt('E2eAdmin-1', '1234123412ABCDEF').toString());
+      expect(await userAuthAPI.hasDefaultAdminPassword()).toBe(false);
+
+      mockKvStore.getProperty.mockResolvedValue(undefined);
+      expect(await userAuthAPI.hasDefaultAdminPassword()).toBe(false);
+      expect(localStorageMock.setItem).not.toHaveBeenCalled();
+    });
+  });
+
   describe('login', () => {
     it('should successfully login with correct credentials', async () => {
       const user = { username: 'testuser', password: 'testpass' };

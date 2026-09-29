@@ -74,6 +74,22 @@ export class UserAuthAPI {
     return true;
   }
 
+  /**
+   * Whether admin/admin still logs in. A user store outlives turning
+   * authentication off and on, so its admin may have a real password by now.
+   */
+  public async hasDefaultAdminPassword(): Promise<boolean> {
+    const encryptedPassword = await this.store.getProperty(this.usersInstance, DEFAULT_ADMIN_USER_NAME);
+    if (!encryptedPassword) {
+      return false;
+    }
+    try {
+      return (await this.decrypt(encryptedPassword)) === DEFAULT_ADMIN_USER_PASS;
+    } catch {
+      return false;
+    }
+  }
+
   public async login(user: UserAuth): Promise<boolean> {
     const encryptedPassword = await this.store.getProperty(this.usersInstance, user.username);
     if (!encryptedPassword) {

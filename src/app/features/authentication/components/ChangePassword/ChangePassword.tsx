@@ -170,11 +170,14 @@ const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordPr
     if (res) {
       message.success(t('password_changed'));
 
-      // Clear needsPasswordChange flag in settings after successful password change
-      // Note: If password was changed, we always set needsPasswordChange to false regardless of checkbox
-      if (!admin && localStorage.getItem(USER_LOCAL_STORAGE_KEY) === DEFAULT_ADMIN_USER_NAME) {
+      // Once the admin user's password changed (their own change, or an admin
+      // resetting "admin"), admin/admin no longer works: the first-login flag
+      // goes, and so does the login page's "Default credential: admin/admin".
+      const changedUser = admin ? user || DEFAULT_ADMIN_USER_NAME : localStorage.getItem(USER_LOCAL_STORAGE_KEY);
+      if (changedUser === DEFAULT_ADMIN_USER_NAME) {
         await saveKey({
-          needsPasswordChange: false, // Set to false to indicate password has been changed
+          needsPasswordChange: false,
+          hideDefaultCredential: true,
         });
       }
       setNeedsPasswordChange(false);

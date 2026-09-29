@@ -43,7 +43,7 @@ vi.mock('@app/features/settings', () => ({
   settingAPI: { setProps: vi.fn() },
 }));
 vi.mock('@app/features/authentication/api', () => ({
-  default: { initUserStore: vi.fn() },
+  default: { initUserStore: vi.fn(), hasDefaultAdminPassword: vi.fn() },
   UserAuthAPI: class {},
 }));
 vi.mock('@app/utils/toast', () => ({
@@ -76,6 +76,7 @@ describe('UserManagement', () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     vi.mocked(settingAPI.setProps).mockResolvedValue(true);
     vi.mocked(authAPI.initUserStore).mockResolvedValue(undefined);
+    vi.mocked(authAPI.hasDefaultAdminPassword).mockResolvedValue(true);
   });
 
   afterEach(() => {
@@ -101,9 +102,22 @@ describe('UserManagement', () => {
         needsPasswordChange: true,
       }),
     );
-    await waitFor(() => expect(authAPI.initUserStore).toHaveBeenCalled());
+    expect(authAPI.initUserStore).toHaveBeenCalled();
     await waitFor(() =>
       expect(notify).toHaveBeenCalledWith('Authentication is now enabled successfully', { type: 'success' }),
+    );
+  });
+
+  it('re-enabling over an admin that already has a real password neither shows admin/admin nor forces a change', async () => {
+    vi.mocked(authAPI.hasDefaultAdminPassword).mockResolvedValue(false);
+    renderPage();
+    fireEvent.click(screen.getByRole('switch'));
+    await waitFor(() =>
+      expect(settingAPI.setProps).toHaveBeenCalledWith({
+        authenticationEnabled: true,
+        hideDefaultCredential: true,
+        needsPasswordChange: false,
+      }),
     );
   });
 
