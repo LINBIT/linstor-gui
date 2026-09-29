@@ -1,6 +1,6 @@
 PROG := linstor-gui
 DESTDIR =
-NODEVERSION = 20
+NODEVERSION = 22
 
 ifndef VERSION
 checkVERSION:

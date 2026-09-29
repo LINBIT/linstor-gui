@@ -1,6 +1,9 @@
 {
   "name": "linstor-gui",
   "version": "2.6.0",
+  "engines": {
+    "node": ">=22"
+  },
   "description": "Administration GUI for LINSTOR clusters.",
   "repository": "https://github.com/LINBIT/linstor-gui",
   "homepage": "https://linbit.com/linbit-gui/",
@@ -18,9 +21,9 @@
     "format": "prettier --write --list-different './src/**/*.{ts,tsx,js,jsx,css}' '!src/app/apis/**'",
     "type-check": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json",
     "clean": "rimraf dist",
-    "test": "vitest --run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest --coverage --run",
+    "test": "NODE_OPTIONS=--no-experimental-webstorage vitest --run",
+    "test:watch": "NODE_OPTIONS=--no-experimental-webstorage vitest",
+    "test:coverage": "NODE_OPTIONS=--no-experimental-webstorage vitest --coverage --run",
     "generate-api": "npm run generate-api:linstor && npm run generate-api:gateway",
     "generate-api:linstor": "openapi-typescript ./src/app/apis/Linstor-Linstor-1.30.0.yaml --output ./src/app/apis/schema.ts",
     "generate-api:gateway": "openapi-typescript ./src/app/apis/Linstor-linstor-gateway-2.0.0-resolved.yaml --output ./src/app/apis/gatewayschema.ts",
