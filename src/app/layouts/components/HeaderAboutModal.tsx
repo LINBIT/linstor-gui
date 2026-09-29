@@ -3,15 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { CloseOutlined } from '@ant-design/icons';
 import { Modal, Tooltip } from 'antd';
 import { Input } from '@app/components/Input';
-import { useSelector } from 'react-redux';
 
 import { Button } from '@app/components/Button';
 import brandImgOnLight from '@app/assets/brand-light.svg';
 import brandImgOnDark from '@app/assets/brand-dark.svg';
 import bgImg from '@app/assets/about-bg.svg';
 import { LINSTORVersionInfo } from './types';
-import { RootState } from '@app/store';
-import { UIMode } from '@app/models/setting';
+import { UIMode } from '@app/features/settings/types';
+import { useSettings } from '@app/features/settings/useSettings';
 import { DotsIcon } from '@app/components/SVGIcon';
 import { linbitSdsVersion, uiVersion } from './aboutVersion';
 
@@ -27,9 +26,7 @@ const HeaderAboutModal: React.FC<HeaderAboutModalProps> = ({ linstorVersion }) =
   });
   const { t } = useTranslation(['about', 'common']);
 
-  const { mode } = useSelector((state: RootState) => ({
-    mode: state.setting.mode,
-  }));
+  const { mode } = useSettings();
 
   const handleModalToggle = () => {
     setIsModalOpen(!isModalOpen);

@@ -11,7 +11,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Real antd and a real query client; only the transport, the router's
-// navigate and the redux UI mode are replaced.
+// navigate and the UI mode are replaced.
 
 vi.mock('../../api', () => ({
   getStoragePool: vi.fn(),
@@ -31,13 +31,10 @@ vi.mock('react-router-dom', async () => {
 });
 
 let uiMode = 'NORMAL';
-vi.mock('react-redux', () => ({
-  useSelector: (selector: (s: unknown) => unknown) => selector({ setting: { mode: uiMode } }),
+vi.mock('@app/features/settings/useSettings', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@app/features/settings/useSettings')>()),
+  useUIMode: () => uiMode,
 }));
-vi.mock('@app/models/setting', () => ({
-  UIMode: { NORMAL: 'NORMAL', VSAN: 'VSAN', HCI: 'HCI' },
-}));
-
 vi.mock('@app/components/PropertyForm', () => ({
   default: forwardRef(function PropertyFormMock(
     { handleSubmit, initialVal }: { handleSubmit: (d: unknown) => void; initialVal?: Record<string, unknown> },

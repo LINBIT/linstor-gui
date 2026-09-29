@@ -6,19 +6,19 @@
 
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
 import { Layout, message, FloatButton, Grid } from 'antd';
 import { VerticalAlignTopOutlined } from '@ant-design/icons';
 import { IoMenuOutline } from 'react-icons/io5';
 import SVG from 'react-inlinesvg';
 import { useTranslation } from 'react-i18next';
 
-import { Dispatch, RootState } from '@app/store';
 import { ChangePassword } from '@app/features/authentication/components/ChangePassword/ChangePassword';
 import { Login } from '@app/features/authentication/pages/Login';
 import { useUIModeStorage } from '@app/hooks';
 import { Mode } from '@app/hooks/useUIModeStorage';
-import { UIMode as SettingUIMode } from '@app/models/setting'; // import SettingUIMode enum
+import { UIMode as SettingUIMode } from '@app/features/settings/types'; // import SettingUIMode enum
+import { useSettings } from '@app/features/settings/useSettings';
+import { useAuth } from '@app/features/authentication/useAuth';
 import { useNav } from '@app/hooks';
 import Navigation from './components/Navigation';
 import HeaderTools from './components/HeaderTools';
@@ -58,7 +58,20 @@ const handleSupportClick = () => {
 const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: IAppLayout) => {
   const { t } = useTranslation(['about']);
   const { updateUIMode } = useUIModeStorage();
-  const dispatch = useDispatch<Dispatch>();
+  const {
+    KVS,
+    logo: logoSrc,
+    mode: modeFromSetting,
+    isAdmin,
+    gatewayAvailable,
+    evalMode: VSANEvalMode,
+    grafanaConfig,
+    setMode,
+    initSettingStore,
+    getMyLinbitStatus,
+  } = useSettings();
+  const authInfo = useAuth();
+  const { checkLoginStatus } = authInfo;
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -81,7 +94,7 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
     toggleNav();
     updateUIMode(mode);
     // update UI mode in store using SettingUIMode enum
-    dispatch.setting.setMode(mode as SettingUIMode);
+    setMode(mode as SettingUIMode);
     // navigate to the selected mode dashboard
     if (mode === 'VSAN') {
       navigate('/vsan/dashboard');
@@ -93,20 +106,8 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
   };
 
   useEffect(() => {
-    dispatch.auth.checkLoginStatus();
-  }, [dispatch.auth]);
-
-  const { KVS, authInfo, logoSrc, modeFromSetting, isAdmin, gatewayAvailable, VSANEvalMode, grafanaConfig } =
-    useSelector((state: RootState) => ({
-      KVS: state.setting.KVS,
-      authInfo: state.auth,
-      logoSrc: state.setting.logo,
-      modeFromSetting: state.setting.mode,
-      isAdmin: state.setting.isAdmin,
-      gatewayAvailable: state.setting.gatewayAvailable,
-      VSANEvalMode: state.setting.evalMode,
-      grafanaConfig: state.setting.grafanaConfig,
-    }));
+    checkLoginStatus();
+  }, [checkLoginStatus]);
 
   const vsanModeFromSetting = modeFromSetting === SettingUIMode.VSAN;
   const hciModeFromSetting = modeFromSetting === SettingUIMode.HCI;
@@ -117,18 +118,18 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
   useEffect(() => {
     // initialize store and UI mode based on URL prefix
     if (location.pathname.startsWith('/vsan')) {
-      dispatch.setting.initSettingStore(SettingUIMode.VSAN);
-      dispatch.setting.setMode(SettingUIMode.VSAN);
-      dispatch.setting.getMyLinbitStatus();
+      initSettingStore(SettingUIMode.VSAN);
+      setMode(SettingUIMode.VSAN);
+      getMyLinbitStatus();
       updateUIMode('VSAN');
     } else if (location.pathname.startsWith('/hci')) {
-      dispatch.setting.initSettingStore(SettingUIMode.HCI);
-      dispatch.setting.setMode(SettingUIMode.HCI);
-      dispatch.setting.getMyLinbitStatus();
+      initSettingStore(SettingUIMode.HCI);
+      setMode(SettingUIMode.HCI);
+      getMyLinbitStatus();
       updateUIMode('HCI');
     } else {
-      dispatch.setting.initSettingStore(SettingUIMode.NORMAL);
-      dispatch.setting.setMode(SettingUIMode.NORMAL);
+      initSettingStore(SettingUIMode.NORMAL);
+      setMode(SettingUIMode.NORMAL);
       updateUIMode('NORMAL');
     }
     // remove any query parameters
@@ -141,13 +142,12 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
+  // The settings load themselves when the SettingsProvider mounts.
   useEffect(() => {
-    dispatch.setting.getSettings();
-
     message.config({
       maxCount: 3,
     });
-  }, [dispatch.setting]);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {

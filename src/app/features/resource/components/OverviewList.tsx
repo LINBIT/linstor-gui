@@ -11,9 +11,8 @@ import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
 import { Link } from '@app/components/Link';
 import type { TableProps, TablePaginationConfig } from 'antd';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { uniqBy } from 'lodash';
 import { DownOutlined, LineChartOutlined, MoreOutlined, QuestionCircleOutlined } from '@ant-design/icons';
@@ -54,12 +53,13 @@ import { SearchForm } from './styled';
 import './OverviewList.css';
 import { filterResourceList } from './filterResourceList';
 import { PropertyFormRef } from '@app/components/PropertyForm';
-import { RootState } from '@app/store';
-import { UIMode } from '@app/models/setting';
+import { UIMode } from '@app/features/settings/types';
+import { useSettings } from '@app/features/settings/useSettings';
+import { createSnapshot } from '@app/features/snapshot/api';
 import { getResourceState } from '@app/utils/resource';
 import { SyncFlowOverlay } from './SyncFlowOverlay';
 import { Popconfirm } from '@app/components/Popconfirm';
-import { useDeleteAction, deletingRowClass } from '@app/hooks/useDeleteAction';
+import { useDeleteAction, deletingRowClass, replyError } from '@app/hooks/useDeleteAction';
 
 /** One row of a definition's volume sub-table: a deployed volume joined with its resource and definition. */
 type OverviewVolume = VolumeType & {
@@ -212,22 +212,23 @@ export const OverviewList = () => {
     };
   });
 
-  const dispatch = useDispatch();
-
-  const { mode, grafanaConfig } = useSelector((state: RootState) => ({
-    mode: state.setting.mode,
-    grafanaConfig: state.setting.grafanaConfig,
-  }));
+  const { mode, grafanaConfig } = useSettings();
 
   const migrateResourceMutation = useMutation({
     mutationFn: resourceMigration,
   });
 
+  const queryClient = useQueryClient();
+
+  // openapi-fetch reports a refused snapshot in `error` rather than throwing;
+  // the fetch proxy toasts it, and the dialog stays open to correct the name.
   const handleCreateSnapShot = async () => {
     if (currentResource && snapshotName != '') {
-      await dispatch.snapshot.createSnapshot({ resource: currentResource, name: snapshotName });
+      const res = await createSnapshot(currentResource, { name: snapshotName });
+      if (replyError(res)) return;
       setIsModalOpen(false);
       setSnapshotName('');
+      void queryClient.invalidateQueries({ queryKey: ['getSnapshots'] });
     }
   };
 

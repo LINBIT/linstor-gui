@@ -9,15 +9,14 @@ import { act, screen, fireEvent, waitFor } from '@testing-library/react';
 
 import Logo from '..';
 import { renderSettings } from '../../../__test__/helpers';
+import type { SettingsContextValue } from '@app/features/settings/useSettings';
+import { makeSettings } from '@app/__test__/helpers';
 
-const hoisted = vi.hoisted(() => ({
-  dispatch: { setting: { setLogo: vi.fn(), disableCustomLogo: vi.fn() } },
-  state: { setting: { logo: '', KVS: { customLogoEnabled: false } as Record<string, unknown> } },
-}));
+const settings = vi.hoisted(() => ({ current: undefined as SettingsContextValue | undefined }));
 
-vi.mock('react-redux', () => ({
-  useDispatch: () => hoisted.dispatch,
-  useSelector: (selector: (s: unknown) => unknown) => selector(hoisted.state),
+vi.mock('@app/features/settings/useSettings', async (orig) => ({
+  ...(await orig()),
+  useSettings: () => settings.current,
 }));
 
 // react-inlinesvg fetches the markup; the assertion is that it is asked to.
@@ -35,7 +34,7 @@ const save = () => fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 describe('Settings logo tab', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    hoisted.state.setting = { logo: '', KVS: { customLogoEnabled: false } };
+    settings.current = makeSettings({ logo: '', KVS: { customLogoEnabled: false } });
   });
 
   it('offers nothing but the switch until a custom logo is enabled', () => {
@@ -55,7 +54,7 @@ describe('Settings logo tab', () => {
   });
 
   it('prefills the URL from a stored logo that is a link', async () => {
-    hoisted.state.setting = { logo: 'https://linbit.com/logo.svg', KVS: { customLogoEnabled: true } };
+    settings.current = makeSettings({ logo: 'https://linbit.com/logo.svg', KVS: { customLogoEnabled: true } });
     renderSettings(<Logo />);
 
     await waitFor(() => expect(screen.getByRole('switch')).toBeChecked());
@@ -66,7 +65,7 @@ describe('Settings logo tab', () => {
   });
 
   it('renders a stored inline SVG instead of an image', async () => {
-    hoisted.state.setting = { logo: SVG_LOGO, KVS: { customLogoEnabled: true } };
+    settings.current = makeSettings({ logo: SVG_LOGO, KVS: { customLogoEnabled: true } });
     renderSettings(<Logo />);
 
     await waitFor(() => expect(screen.getByTestId('inline-svg')).toHaveAttribute('data-src', SVG_LOGO));
@@ -76,7 +75,7 @@ describe('Settings logo tab', () => {
   });
 
   it('shows no preview for a stored logo that is neither a URL nor an SVG', async () => {
-    hoisted.state.setting = { logo: 'not-a-logo', KVS: { customLogoEnabled: true } };
+    settings.current = makeSettings({ logo: 'not-a-logo', KVS: { customLogoEnabled: true } });
     const { container } = renderSettings(<Logo />);
 
     await waitFor(() => expect(screen.getByRole('switch')).toBeChecked());
@@ -95,24 +94,24 @@ describe('Settings logo tab', () => {
     save();
 
     await waitFor(() =>
-      expect(hoisted.dispatch.setting.setLogo).toHaveBeenCalledWith({
+      expect(settings.current!.setLogo).toHaveBeenCalledWith({
         logoSvg: '',
         logoUrl: 'https://linbit.com/logo.svg',
       }),
     );
-    expect(hoisted.dispatch.setting.disableCustomLogo).not.toHaveBeenCalled();
+    expect(settings.current!.disableCustomLogo).not.toHaveBeenCalled();
   });
 
   it('turning the switch off disables the custom logo rather than saving one', async () => {
-    hoisted.state.setting = { logo: 'https://linbit.com/logo.svg', KVS: { customLogoEnabled: true } };
+    settings.current = makeSettings({ logo: 'https://linbit.com/logo.svg', KVS: { customLogoEnabled: true } });
     renderSettings(<Logo />);
 
     await waitFor(() => expect(screen.getByRole('switch')).toBeChecked());
     fireEvent.click(screen.getByRole('switch'));
     save();
 
-    await waitFor(() => expect(hoisted.dispatch.setting.disableCustomLogo).toHaveBeenCalled());
-    expect(hoisted.dispatch.setting.setLogo).not.toHaveBeenCalled();
+    await waitFor(() => expect(settings.current!.disableCustomLogo).toHaveBeenCalled());
+    expect(settings.current!.setLogo).not.toHaveBeenCalled();
   });
 
   it('saves an uploaded SVG inline', async () => {
@@ -130,7 +129,7 @@ describe('Settings logo tab', () => {
     });
     save();
 
-    await waitFor(() => expect(hoisted.dispatch.setting.setLogo).toHaveBeenCalledWith({ logoSvg: SVG_LOGO }));
+    await waitFor(() => expect(settings.current!.setLogo).toHaveBeenCalledWith({ logoSvg: SVG_LOGO }));
   });
 
   it('refuses an SVG larger than 16 KiB', async () => {
@@ -142,6 +141,6 @@ describe('Settings logo tab', () => {
 
     expect(await screen.findAllByText('The logo file size should not exceed 16KB.')).not.toHaveLength(0);
     save();
-    await waitFor(() => expect(hoisted.dispatch.setting.setLogo).not.toHaveBeenCalled());
+    await waitFor(() => expect(settings.current!.setLogo).not.toHaveBeenCalled());
   });
 });

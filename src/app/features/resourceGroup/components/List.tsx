@@ -15,9 +15,8 @@ import { useMutation, useQueries, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { MoreOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
-import { RootState } from '@app/store';
-import { UIMode } from '@app/models/setting';
+import { UIMode } from '@app/features/settings/types';
+import { useUIMode } from '@app/features/settings/useSettings';
 
 import PropertyForm, { PropertyFormRef } from '@app/components/PropertyForm';
 import { drbdOptions } from '@app/utils/properties/drbdOptions';
@@ -86,9 +85,7 @@ export const List = () => {
   const location = useLocation();
   const [form] = Form.useForm();
 
-  const { mode } = useSelector((state: RootState) => ({
-    mode: state.setting.mode,
-  }));
+  const mode = useUIMode();
 
   const [query, setQuery] = useState<ResourceGroupListQuery>(() => {
     const query = new URLSearchParams(location.search);

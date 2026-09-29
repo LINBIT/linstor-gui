@@ -16,8 +16,6 @@ import { SearchForm } from '@app/components/SearchForm';
 import { SupportStatus } from '@app/components/SupportStatus';
 
 import { ExpandIconProps, ISCSIResource } from '../types';
-import { useSelector } from 'react-redux';
-import { RootState } from '@app/store';
 import { SizeInput } from '@app/components/SizeInput';
 import { useTranslation } from 'react-i18next';
 import { formatBytes } from '@app/utils/size';
@@ -32,6 +30,8 @@ type ISCSIListProps = {
   handleStop: (iqn: string) => void;
   handleDeleteVolume: (iqn: string, lun: number) => void;
   handleAddVolume: (iqn: string, LUN: number, size_kib: number) => void;
+  /** True while an added volume is being created. */
+  addingVolume?: boolean;
   onCreate?: () => void;
   loading?: boolean;
 };
@@ -61,6 +61,7 @@ export const ISCSIList = ({
   handleStart,
   handleAddVolume,
   handleDeleteVolume,
+  addingVolume = false,
   onCreate,
   loading = false,
 }: ISCSIListProps) => {
@@ -80,10 +81,6 @@ export const ISCSIList = ({
   });
   const [nameFilter, setNameFilter] = useState('');
   const { t } = useTranslation(['common', 'iscsi']);
-
-  const { addingVolume } = useSelector((state: RootState) => ({
-    addingVolume: state.loading.effects.iscsi.addLUN,
-  }));
 
   const [form] = Form.useForm<FormType>();
   const [searchForm] = Form.useForm<{ name: string }>();

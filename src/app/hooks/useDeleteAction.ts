@@ -35,7 +35,7 @@ const rcFailures = (list: unknown): RcLike[] =>
  * throw on HTTP errors), an ApiCallRc list with a negative ret_code, and an
  * axios response carrying such a list in `data`.
  */
-export const deleteError = (res: unknown): string | undefined => {
+export const replyError = (res: unknown): string | undefined => {
   if (res && typeof res === 'object' && 'error' in res && (res as { error?: unknown }).error) {
     const err = (res as { error: unknown }).error;
     if (Array.isArray(err)) {
@@ -62,7 +62,7 @@ export const deleteError = (res: unknown): string | undefined => {
 };
 
 export interface DeleteActionOptions<T> {
-  /** One delete; resolves with the API reply (see deleteError) or throws. */
+  /** One delete; resolves with the API reply (see replyError) or throws. */
   remove: (item: T) => Promise<unknown>;
   /** Row key, for the in-flight state. */
   keyOf: (item: T) => string;
@@ -109,7 +109,7 @@ export function useDeleteAction<T>(options: DeleteActionOptions<T>) {
 
     const deleteOne = async (item: T) => {
       try {
-        const error = deleteError(await remove(item));
+        const error = replyError(await remove(item));
         if (error) {
           result.failed.push({ item, error });
         } else {
@@ -119,7 +119,7 @@ export function useDeleteAction<T>(options: DeleteActionOptions<T>) {
         threw = true;
         // axios rejects with the response body ({ message } or an ApiCallRc
         // list), not an Error.
-        result.failed.push({ item, error: e instanceof Error ? e.message : (deleteError({ error: e }) ?? String(e)) });
+        result.failed.push({ item, error: e instanceof Error ? e.message : (replyError({ error: e }) ?? String(e)) });
       }
     };
 

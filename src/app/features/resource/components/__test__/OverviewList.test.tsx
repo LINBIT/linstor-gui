@@ -7,9 +7,12 @@
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { Modal } from 'antd';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+import { makeSettings } from '@app/__test__/helpers';
+import { UIMode, type GrafanaConfig } from '@app/features/settings/types';
 
 // The resource overview on real antd and a real query client. The two
 // transports (definitions, live resources view) and every cross-feature
@@ -76,16 +79,14 @@ vi.mock('react-router-dom', async () => {
   return { ...actual, useNavigate: () => navigate };
 });
 
-let uiMode = 'NORMAL';
+let uiMode = UIMode.NORMAL;
 let grafanaEnabled = false;
-const createSnapshot = vi.fn();
-vi.mock('react-redux', () => ({
-  useSelector: (selector: (s: unknown) => unknown) =>
-    selector({ setting: { mode: uiMode, grafanaConfig: { enable: grafanaEnabled } } }),
-  useDispatch: () => ({ snapshot: { createSnapshot } }),
+vi.mock('@app/features/settings/useSettings', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@app/features/settings/useSettings')>()),
+  useSettings: () => makeSettings({ mode: uiMode, grafanaConfig: { enable: grafanaEnabled } as GrafanaConfig }),
 }));
-vi.mock('@app/models/setting', () => ({
-  UIMode: { NORMAL: 'NORMAL', VSAN: 'VSAN', HCI: 'HCI' },
+vi.mock('@app/features/snapshot/api', () => ({
+  createSnapshot: vi.fn(),
 }));
 
 import {
@@ -102,6 +103,7 @@ import {
   updateResourceDefinition,
   updateVolumeDefinition,
 } from '@app/features/resourceDefinition';
+import { createSnapshot } from '@app/features/snapshot/api';
 import { OverviewList } from '../OverviewList';
 
 const GIB = 1024 * 1024;
@@ -211,7 +213,7 @@ const confirmYes = async () => fireEvent.click(await screen.findByRole('button',
 describe('resource OverviewList', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    uiMode = 'NORMAL';
+    uiMode = UIMode.NORMAL;
     grafanaEnabled = false;
     vi.mocked(getResourceDefinition).mockResolvedValue({ data: definitions } as never);
     vi.mocked(getResources).mockResolvedValue({ data: resourcesView } as never);
@@ -224,6 +226,7 @@ describe('resource OverviewList', () => {
       deleteResourceDefinition,
       updateResourceDefinition,
       updateVolumeDefinition,
+      createSnapshot,
     ]) {
       vi.mocked(fn).mockResolvedValue(ok as never);
     }
@@ -385,7 +388,7 @@ describe('resource OverviewList', () => {
       );
     });
 
-    it('creates a snapshot through the store', async () => {
+    it('creates a snapshot through the snapshot API', async () => {
       renderList();
       await screen.findByText('res-a');
       const expanded = await expandRow('res-a');
@@ -396,7 +399,28 @@ describe('resource OverviewList', () => {
         target: { value: 'snap-1' },
       });
       fireEvent.click(within(dialog).getByRole('button', { name: 'OK' }));
-      await waitFor(() => expect(createSnapshot).toHaveBeenCalledWith({ resource: 'res-a', name: 'snap-1' }));
+      await waitFor(() => expect(createSnapshot).toHaveBeenCalledWith('res-a', { name: 'snap-1' }));
+    });
+
+    it('keeps the snapshot dialog open with the name when the controller refuses it', async () => {
+      vi.mocked(createSnapshot).mockResolvedValue({
+        error: [{ ret_code: -1, message: 'snapshot name already in use' }],
+      } as never);
+      renderList();
+      await screen.findByText('res-a');
+      const expanded = await expandRow('res-a');
+      const menu = await openMenuIn(nodeRowIn(expanded, 'node-1'));
+      fireEvent.click(within(menu).getByText('Snapshot'));
+      const dialog = await screen.findByRole('dialog', { name: 'Create Snapshot' });
+      const input = within(dialog).getByPlaceholderText('Please input snapshot name here...');
+      fireEvent.change(input, { target: { value: 'snap-1' } });
+      fireEvent.click(within(dialog).getByRole('button', { name: 'OK' }));
+      await waitFor(() => expect(createSnapshot).toHaveBeenCalledTimes(1));
+      await act(async () => {
+        await Promise.resolve();
+      });
+      expect(screen.getByRole('dialog', { name: 'Create Snapshot' })).toBeVisible();
+      expect(input).toHaveValue('snap-1');
     });
 
     it('edits the resource properties of that node', async () => {
@@ -517,7 +541,7 @@ describe('resource OverviewList', () => {
     expect(screen.getByText('create-volume-definition')).toBeInTheDocument();
     unmount();
 
-    uiMode = 'HCI';
+    uiMode = UIMode.HCI;
     renderList();
     await screen.findByText('res-a');
     fireEvent.mouseEnter(screen.getByRole('button', { name: /Advanced/ }));

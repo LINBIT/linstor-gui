@@ -10,13 +10,14 @@ import { screen, fireEvent, waitFor } from '@testing-library/react';
 import GeneralSettings from '..';
 import { getControllerVersion } from '@app/features/node/api';
 import { renderSettings } from './helpers';
+import type { SettingsContextValue } from '@app/features/settings/useSettings';
+import { makeSettings } from '@app/__test__/helpers';
 
-const hoisted = vi.hoisted(() => ({
-  dispatch: { setting: { getSettings: vi.fn() } },
-}));
+const settings = vi.hoisted(() => ({ current: undefined as SettingsContextValue | undefined }));
 
-vi.mock('react-redux', () => ({
-  useDispatch: () => hoisted.dispatch,
+vi.mock('@app/features/settings/useSettings', async (orig) => ({
+  ...(await orig()),
+  useSettings: () => settings.current,
 }));
 
 vi.mock('@app/features/node/api', async (importOriginal) => ({
@@ -35,13 +36,14 @@ const tabLabels = () => Array.from(document.querySelectorAll('.ant-tabs-tab')).m
 describe('Settings page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    settings.current = makeSettings();
     vi.mocked(getControllerVersion).mockResolvedValue({ data: { rest_api_version: '1.28.0' } } as never);
   });
 
   it('loads the stored settings once on mount', async () => {
     renderSettings(<GeneralSettings />);
 
-    await waitFor(() => expect(hoisted.dispatch.setting.getSettings).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(settings.current!.refresh).toHaveBeenCalledTimes(1));
   });
 
   it('opens on the general tab', async () => {

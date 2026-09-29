@@ -32,19 +32,11 @@ vi.mock('@app/features/keyValueStore', () => ({
   },
 }));
 
-vi.mock('@app/models/setting', () => ({
-  UIMode: {
-    GUI: 'GUI',
-    HCI: 'HCI',
-    VSAN: 'VSAN',
-  },
-}));
-
 // Import after mocks
 import { SettingsAPI, SETTINGS_FIELDS } from '../SettingsAPI';
 import { kvStore } from '@app/features/keyValueStore';
 import authAPI from '@app/features/authentication/api';
-import { UIMode } from '@app/models/setting';
+import { UIMode } from '../types';
 
 // Mock data
 const mockSettingsProps = {

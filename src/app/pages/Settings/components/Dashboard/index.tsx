@@ -11,11 +11,10 @@ import { Input } from '@app/components/Input';
 import { InputNumber } from '@app/components/InputNumber';
 import { Switch } from '@app/components/Switch';
 import styled from '@emotion/styled';
-import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { CaretRightOutlined } from '@ant-design/icons';
 
-import { Dispatch, RootState } from '@app/store';
+import { useSettings } from '@app/features/settings/useSettings';
 import Button from '@app/components/Button';
 
 const { Text, Title } = Typography;
@@ -155,10 +154,7 @@ const Dashboard: React.FC = () => {
   const [drbdForm] = Form.useForm();
 
   const { t } = useTranslation(['common', 'settings']);
-  const dispatch = useDispatch<Dispatch>();
-
-  // Read grafana settings from Redux store's grafanaConfig
-  const grafanaConfig = useSelector((state: RootState) => state?.setting?.grafanaConfig);
+  const { grafanaConfig, saveGrafanaConfig } = useSettings();
 
   const grafanaSettings = useMemo(() => {
     // Unset panel IDs fall back to DEFAULT_PANELS where the form is filled.
@@ -172,7 +168,6 @@ const Dashboard: React.FC = () => {
       ...DEFAULT_DRBD_PANELS,
     };
 
-    // Use grafanaConfig from Redux state
     if (grafanaConfig) {
       settings = {
         enable: true,
@@ -345,12 +340,12 @@ const Dashboard: React.FC = () => {
       }
 
       // Save configuration to dedicated namespace
-      await dispatch.setting.saveGrafanaConfig(baseConfig);
+      await saveGrafanaConfig(baseConfig);
     } catch (error) {
       logger.error('Failed to save:', error);
-      // Error notification is already handled by the Redux action
+      // Error notification is already handled by saveGrafanaConfig
     }
-  }, [isEnabled, isDrbdEnabled, form, drbdForm, dispatch.setting, t]);
+  }, [isEnabled, isDrbdEnabled, form, drbdForm, saveGrafanaConfig, t]);
 
   return (
     <Wrapper>

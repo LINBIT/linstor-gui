@@ -12,7 +12,7 @@ import type { NetWorkInterface } from '@app/features/ip';
 import { getNetWorkInterfaceByNode } from '@app/features/ip';
 import { getNodes } from '@app/features/node/api';
 import { getResourceGroups } from '@app/features/resourceGroup';
-import { UIMode } from '@app/models/setting';
+import { UIMode } from '@app/features/settings/types';
 import { renderPage } from '../../../__test__/helpers';
 
 vi.mock('@app/features/ip', async (importOriginal) => ({
@@ -31,8 +31,9 @@ vi.mock('@app/features/resourceGroup', async (importOriginal) => ({
 }));
 
 const mode = vi.hoisted(() => ({ value: 'NORMAL' as string }));
-vi.mock('react-redux', () => ({
-  useSelector: (selector: (s: unknown) => unknown) => selector({ setting: { mode: mode.value } }),
+vi.mock('@app/features/settings/useSettings', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@app/features/settings/useSettings')>()),
+  useUIMode: () => mode.value,
 }));
 
 const item = { name: 'default', address: '10.0.0.1', satellite_port: 3366, is_active: true } as NetWorkInterface;

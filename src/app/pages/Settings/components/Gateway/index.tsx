@@ -9,9 +9,8 @@ import { Form, Card, Alert, Typography, Space, Spin } from 'antd';
 import { Input } from '@app/components/Input';
 import { Switch } from '@app/components/Switch';
 import styled from '@emotion/styled';
-import { useDispatch, useSelector } from 'react-redux';
 
-import { Dispatch, RootState } from '@app/store';
+import { useSettings } from '@app/features/settings/useSettings';
 import { CheckCircleOutlined, StopOutlined, LoadingOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import Button from '@app/components/Button';
@@ -73,7 +72,6 @@ const ButtonContainer = styled.div`
 const Gateway: React.FC = () => {
   const OriginHost = window.location.protocol + '//' + window.location.hostname + ':8337/';
 
-  const dispatch = useDispatch<Dispatch>();
   const [form] = Form.useForm<FormType>();
 
   const customHost = Form.useWatch('customHost', form);
@@ -81,28 +79,21 @@ const Gateway: React.FC = () => {
 
   const { t } = useTranslation(['common', 'settings']);
 
-  const { gatewayEnabled, gatewayHost, customHostFromSetting, gatewayAvailable, checkingStatus } = useSelector(
-    (state: RootState) => ({
-      gatewayEnabled: state?.setting?.KVS?.gatewayEnabled,
-      gatewayHost: state?.setting?.KVS?.gatewayHost,
-      customHostFromSetting: state?.setting?.KVS?.gatewayCustomHost,
-      gatewayAvailable: state.setting.gatewayAvailable,
-      checkingStatus: state.loading.effects.setting.getGatewayStatus,
-    }),
-  );
+  const { KVS, gatewayAvailable, checkingGateway: checkingStatus, getGatewayStatus, setGatewayMode } = useSettings();
+  const { gatewayEnabled, gatewayHost, gatewayCustomHost: customHostFromSetting } = KVS;
 
   useEffect(() => {
     if (customHost) {
-      dispatch.setting.getGatewayStatus(gatewayHost || OriginHost);
+      getGatewayStatus(gatewayHost || OriginHost);
     }
-  }, [OriginHost, customHost, dispatch.setting, gatewayHost]);
+  }, [OriginHost, customHost, getGatewayStatus, gatewayHost]);
 
   const onFinish = (values: FormType) => {
     if (values?.host?.[values.host.length - 1] !== '/') {
       values.host += '/';
     }
 
-    dispatch.setting.setGatewayMode({
+    setGatewayMode({
       gatewayEnabled: values.isChecked,
       customHost: values.customHost,
       host: values.host,
@@ -111,8 +102,8 @@ const Gateway: React.FC = () => {
   };
 
   useEffect(() => {
-    dispatch.setting.getGatewayStatus(gatewayHost || OriginHost);
-  }, [OriginHost, dispatch.setting, gatewayHost, isChecked]);
+    getGatewayStatus(gatewayHost || OriginHost);
+  }, [OriginHost, getGatewayStatus, gatewayHost, isChecked]);
 
   return (
     <Wrapper>
@@ -182,7 +173,7 @@ const Gateway: React.FC = () => {
                     {
                       validator: async (_, value) => {
                         if (!customHost) return Promise.resolve();
-                        const res = await dispatch.setting.getGatewayStatus(value);
+                        const res = await getGatewayStatus(value);
                         if (res) {
                           return Promise.resolve();
                         } else {
@@ -230,7 +221,7 @@ const Gateway: React.FC = () => {
                   <Form.Item style={{ marginBottom: '2em', marginTop: '1em' }}>
                     <div style={{ width: '20%' }}>
                       <Button
-                        onClick={() => dispatch.setting.getGatewayStatus(form.getFieldValue('host'))}
+                        onClick={() => getGatewayStatus(form.getFieldValue('host'))}
                         disabled={checkingStatus}
                         size="middle"
                         block

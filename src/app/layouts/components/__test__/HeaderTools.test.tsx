@@ -13,10 +13,14 @@ import HeaderTools from '../HeaderTools';
 import { getControllerVersion, getControllerConfig } from '@app/features/node/api';
 import { getPassphraseStatus } from '@app/features/settings/passphrase';
 import { DEFAULT_ADMIN_USER_NAME } from '@app/const/settings';
+import type { SettingsContextValue } from '@app/features/settings/useSettings';
+import type { AuthContextValue } from '@app/features/authentication/useAuth';
+import { makeAuth, makeSettings } from '@app/__test__/helpers';
 
 const hoisted = vi.hoisted(() => ({
-  logout: vi.fn(),
   faulty: [] as unknown[],
+  settings: undefined as SettingsContextValue | undefined,
+  auth: undefined as AuthContextValue | undefined,
 }));
 
 vi.mock('@app/features/node/api', async (importOriginal) => ({
@@ -39,9 +43,14 @@ vi.mock('@app/features/authentication/components/ChangePassword/ChangePassword',
   ChangePassword: () => <span>Change password</span>,
 }));
 
-vi.mock('react-redux', () => ({
-  useDispatch: () => ({ auth: { logout: hoisted.logout } }),
-  useSelector: (selector: (s: unknown) => unknown) => selector({ setting: { mode: 'NORMAL' } }),
+vi.mock('@app/features/settings/useSettings', async (orig) => ({
+  ...(await orig()),
+  useSettings: () => hoisted.settings,
+}));
+
+vi.mock('@app/features/authentication/useAuth', async (orig) => ({
+  ...(await orig()),
+  useAuth: () => hoisted.auth,
 }));
 
 const mockedVersion = vi.mocked(getControllerVersion);
@@ -95,6 +104,8 @@ describe('HeaderTools', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     hoisted.faulty = [];
+    hoisted.settings = makeSettings();
+    hoisted.auth = makeAuth();
     mockedVersion.mockResolvedValue({ data: { rest_api_version: '1.30.0' } } as never);
     mockedConfig.mockResolvedValue({ data: {} } as never);
     mockedPassphrase.mockResolvedValue({ data: { status: 'locked' } } as never);
@@ -170,7 +181,7 @@ describe('HeaderTools', () => {
     expect(visibleItems(menu)).toEqual(['User: bob', 'Change password', 'Logout']);
 
     fireEvent.click(screen.getByText('Logout'));
-    expect(hoisted.logout).toHaveBeenCalledTimes(1);
+    expect(hoisted.auth!.logout).toHaveBeenCalledTimes(1);
   });
 
   it('falls back to the default admin name and drops auth-only items when authentication is off', async () => {

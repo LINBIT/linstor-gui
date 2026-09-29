@@ -9,18 +9,20 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-const dispatch = {
-  auth: { getUsers: vi.fn(), deleteUser: vi.fn(), register: vi.fn(), resetPassword: vi.fn() },
-  setting: { saveKey: vi.fn() },
-};
+import { makeAuth, makeSettings } from '@app/__test__/helpers';
+
+const deleteUser = vi.fn();
+// The user list query, as the page sees it: the users only while it is enabled.
+const useUsers = vi.fn((enabled?: boolean) => ({ data: enabled ? state.users : undefined }));
 let state: { users: string[]; authenticationEnabled?: boolean } = { users: [] };
-vi.mock('react-redux', () => ({
-  useDispatch: () => dispatch,
-  useSelector: (selector: (s: unknown) => unknown) =>
-    selector({
-      auth: { users: state.users },
-      setting: { KVS: { authenticationEnabled: state.authenticationEnabled } },
-    }),
+vi.mock('@app/features/authentication/useAuth', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@app/features/authentication/useAuth')>()),
+  useAuth: () => makeAuth({ deleteUser }),
+  useUsers: (enabled?: boolean) => useUsers(enabled),
+}));
+vi.mock('@app/features/settings/useSettings', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@app/features/settings/useSettings')>()),
+  useSettings: () => makeSettings({ KVS: { authenticationEnabled: state.authenticationEnabled } }),
 }));
 
 let isAdmin = true;
@@ -86,7 +88,7 @@ describe('UserManagement', () => {
     expect(screen.getByText('Authentication & Users')).toBeInTheDocument();
     expect(screen.getByRole('switch')).not.toBeChecked();
     expect(screen.getByText('There are no users created yet.')).toBeInTheDocument();
-    expect(dispatch.auth.getUsers).not.toHaveBeenCalled();
+    expect(useUsers).not.toHaveBeenCalledWith(true);
   });
 
   it('enabling authentication writes the flags, initialises the user store and reports', async () => {
@@ -109,7 +111,7 @@ describe('UserManagement', () => {
     state = { users: ['admin'], authenticationEnabled: true };
     renderPage();
     expect(screen.getByRole('switch')).toBeChecked();
-    expect(dispatch.auth.getUsers).toHaveBeenCalled();
+    expect(useUsers).toHaveBeenCalledWith(true);
     fireEvent.click(screen.getByRole('switch'));
     await waitFor(() =>
       expect(settingAPI.setProps).toHaveBeenCalledWith({ authenticationEnabled: false, hideDefaultCredential: false }),
@@ -138,14 +140,14 @@ describe('UserManagement', () => {
 
     fireEvent.click(within(bob).getByRole('button', { name: 'Delete user' }));
     expect(await screen.findByText('Are you sure to delete this user?')).toBeInTheDocument();
-    expect(dispatch.auth.deleteUser).not.toHaveBeenCalled();
+    expect(deleteUser).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
-    await waitFor(() => expect(dispatch.auth.deleteUser).toHaveBeenCalledWith('bob'));
+    await waitFor(() => expect(deleteUser).toHaveBeenCalledWith('bob'));
   });
 
   it('marks the user while the delete runs and reports it, since the fetch proxy stays quiet for the KV store', async () => {
     let finish!: () => void;
-    dispatch.auth.deleteUser.mockReturnValue(new Promise<void>((resolve) => (finish = resolve)));
+    deleteUser.mockReturnValue(new Promise<void>((resolve) => (finish = resolve)));
     state = { users: ['admin', 'carol'], authenticationEnabled: true };
     renderPage();
     const carol = screen.getByText('carol').closest('.ant-list-item') as HTMLElement;
@@ -157,11 +159,11 @@ describe('UserManagement', () => {
     finish();
     await waitFor(() => expect(carol).not.toHaveClass('opacity-50'));
     expect(await screen.findByText('Deleted carol')).toBeInTheDocument();
-    expect(dispatch.auth.deleteUser).toHaveBeenCalledTimes(1);
+    expect(deleteUser).toHaveBeenCalledTimes(1);
   });
 
   it('reports a failed user delete', async () => {
-    dispatch.auth.deleteUser.mockRejectedValue(new Error('kv down'));
+    deleteUser.mockRejectedValue(new Error('kv down'));
     state = { users: ['admin', 'bob'], authenticationEnabled: true };
     renderPage();
     const bob = screen.getByText('bob').closest('.ant-list-item') as HTMLElement;

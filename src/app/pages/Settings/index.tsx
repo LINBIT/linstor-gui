@@ -8,11 +8,10 @@ import { useEffect } from 'react';
 import { logger } from '@app/utils/logger';
 import { Tabs } from 'antd';
 import type { TabsProps } from 'antd';
-import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import PageBasic from '@app/components/PageBasic';
-import { Dispatch } from '@app/store';
+import { useSettings } from '@app/features/settings/useSettings';
 import { useLinstorVersion, MIN_API_VERSION } from '@app/hooks';
 
 import Gateway from './components/Gateway';
@@ -22,7 +21,7 @@ import ControllerAuth from './components/ControllerAuth';
 
 const GeneralSettings = () => {
   const { t } = useTranslation(['common', 'settings']);
-  const dispatch = useDispatch<Dispatch>();
+  const { refresh } = useSettings();
   const { isFetched: versionFetched, hasMinVersion } = useLinstorVersion();
   // Optimistically show the controller-auth tab while the version is still
   // loading; once known, hide it on controllers older than 1.28.0.
@@ -60,8 +59,8 @@ const GeneralSettings = () => {
 
   useEffect(() => {
     // Check Settings from Linstor Key-Value-Store
-    dispatch.setting.getSettings();
-  }, [dispatch.setting]);
+    refresh();
+  }, [refresh]);
 
   return (
     <PageBasic title={t('common:settings')}>

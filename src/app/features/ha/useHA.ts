@@ -22,7 +22,7 @@ import {
   undeployFile,
 } from './api';
 import type { DrbdReactorStatus, ExecResponse } from './api';
-import { deleteError } from '@app/hooks/useDeleteAction';
+import { replyError } from '@app/hooks/useDeleteAction';
 
 export interface HAResourceDefinition {
   name: string;
@@ -226,12 +226,12 @@ export const useManageHA = () => {
  */
 export const deleteHAConfig = async (resourceName: string, filePath: string) => {
   const undeployed = await undeployFile(resourceName, filePath);
-  const undeployError = deleteError(undeployed);
+  const undeployError = replyError(undeployed);
   if (undeployError) {
     throw new Error(undeployError);
   }
   const deleted = await deleteFile(filePath);
-  const fileError = deleteError(deleted);
+  const fileError = replyError(deleted);
   if (fileError) {
     throw new Error(fileError);
   }

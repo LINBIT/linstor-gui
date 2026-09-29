@@ -7,14 +7,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
+import { makeAuth } from '@app/__test__/helpers';
+import { UIMode } from '@app/features/settings/types';
+
 const login = vi.fn();
-let uiMode = 'NORMAL';
-vi.mock('react-redux', () => ({
-  useDispatch: () => ({ auth: { login } }),
-  useSelector: (selector: (s: unknown) => unknown) => selector({ setting: { mode: uiMode } }),
+let uiMode = UIMode.NORMAL;
+vi.mock('@app/features/authentication/useAuth', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@app/features/authentication/useAuth')>()),
+  useAuth: () => makeAuth({ login }),
 }));
-vi.mock('@app/models/setting', () => ({
-  UIMode: { NORMAL: 'NORMAL', VSAN: 'VSAN', HCI: 'HCI' },
+vi.mock('@app/features/settings/useSettings', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@app/features/settings/useSettings')>()),
+  useUIMode: () => uiMode,
 }));
 const navigate = vi.fn();
 vi.mock('react-router-dom', () => ({
@@ -32,7 +36,7 @@ const submit = () => fireEvent.click(screen.getByRole('button', { name: 'Log in'
 describe('AuthForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    uiMode = 'NORMAL';
+    uiMode = UIMode.NORMAL;
     login.mockResolvedValue(true);
   });
 
@@ -56,7 +60,7 @@ describe('AuthForm', () => {
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('/'));
     unmount();
 
-    uiMode = 'HCI';
+    uiMode = UIMode.HCI;
     render(<AuthForm />);
     fill('admin', 'secret');
     submit();
@@ -64,7 +68,7 @@ describe('AuthForm', () => {
   });
 
   it('prefers an explicit redirect over the mode default, except for the root', async () => {
-    uiMode = 'VSAN';
+    uiMode = UIMode.VSAN;
     const { unmount } = render(<AuthForm redirectTo="/snapshot" />);
     fill('admin', 'secret');
     submit();

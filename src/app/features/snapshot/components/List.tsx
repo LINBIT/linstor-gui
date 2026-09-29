@@ -27,9 +27,8 @@ import { SearchForm } from './styled';
 import { CreateSnapshotForm } from './CreateForm';
 import { RollbackSnapshotForm } from './RollbackForm';
 import RestoreFrom from './RestoreFrom';
-import { RootState } from '@app/store';
-import { useSelector } from 'react-redux';
-import { UIMode } from '@app/models/setting';
+import { UIMode } from '@app/features/settings/types';
+import { useUIMode } from '@app/features/settings/useSettings';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { useDeleteAction, deletingRowClass } from '@app/hooks/useDeleteAction';
 
@@ -38,9 +37,7 @@ export const List = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { mode } = useSelector((state: RootState) => ({
-    mode: state.setting.mode,
-  }));
+  const mode = useUIMode();
 
   const { t } = useTranslation(['common', 'snapshot']);
 

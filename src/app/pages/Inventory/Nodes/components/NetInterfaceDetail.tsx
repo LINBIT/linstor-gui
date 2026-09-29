@@ -12,12 +12,11 @@ import { Link } from '@app/components/Link';
 import { getNetWorkInterfaceByNode, NetWorkInterface } from '@app/features/ip';
 import styled from '@emotion/styled';
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
 
 import { useNodes } from '@app/features/node';
 import { getResourceGroups } from '@app/features/resourceGroup';
-import { UIMode } from '@app/models/setting';
-import { RootState } from '@app/store';
+import { UIMode } from '@app/features/settings/types';
+import { useUIMode } from '@app/features/settings/useSettings';
 
 type NetInterfaceDetailProp = {
   item: NetWorkInterface;
@@ -44,9 +43,7 @@ export const NetInterfaceDetail = ({ item }: NetInterfaceDetailProp) => {
     queryFn: () => getResourceGroups({}),
   });
 
-  const { vsanModeFromSetting } = useSelector((state: RootState) => ({
-    vsanModeFromSetting: state.setting.mode === UIMode.VSAN,
-  }));
+  const vsanModeFromSetting = useUIMode() === UIMode.VSAN;
 
   const networkQueries = useQueries({
     queries:

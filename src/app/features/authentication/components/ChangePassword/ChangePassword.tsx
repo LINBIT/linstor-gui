@@ -13,8 +13,8 @@ import { Button } from '@app/components/Button';
 import changePassword from '@app/assets/changepassword.svg';
 import changePasswordBG from '@app/assets/changepassword-bg.svg';
 import { BGImg, Content, ImgIcon, MainSection } from './styled';
-import { Dispatch } from '@app/store';
-import { useDispatch } from 'react-redux';
+import { useAuth } from '@app/features/authentication/useAuth';
+import { useSettings } from '@app/features/settings/useSettings';
 import { USER_LOCAL_STORAGE_KEY, DEFAULT_ADMIN_USER_NAME } from '@app/const/settings';
 import { useTranslation } from 'react-i18next';
 
@@ -133,7 +133,9 @@ type ChangePasswordProps = {
 
 const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordProps) => {
   const [open, setOpen] = useState(!!defaultOpen);
-  const dispatch = useDispatch<Dispatch>();
+  const auth = useAuth();
+  const { login, resetPassword, updatePassword, setNeedsPasswordChange } = auth;
+  const { saveKey } = useSettings();
   const { t } = useTranslation('users');
 
   const onCreate = async (values: Values) => {
@@ -141,7 +143,7 @@ const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordPr
 
     let res = null;
     if (admin) {
-      res = await dispatch.auth.resetPassword({
+      res = await resetPassword({
         user: user || DEFAULT_ADMIN_USER_NAME,
         newPassword: values.newPassword,
       });
@@ -149,16 +151,16 @@ const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordPr
       // Check if this is a forced password change (first login scenario)
       if (defaultOpen) {
         // For forced password change after first login, skip old password verification
-        res = await dispatch.auth.updatePassword({
-          user: localStorage.getItem(USER_LOCAL_STORAGE_KEY),
+        res = await updatePassword({
+          user: localStorage.getItem(USER_LOCAL_STORAGE_KEY) ?? '',
           newPassword: values.newPassword,
         });
       } else {
         // For regular password changes, verify old password
-        res = await dispatch.auth.changePassword({
-          user: localStorage.getItem(USER_LOCAL_STORAGE_KEY),
+        res = await auth.changePassword({
+          user: localStorage.getItem(USER_LOCAL_STORAGE_KEY) ?? '',
           newPassword: values.newPassword,
-          oldPassword: values.currentPassword,
+          oldPassword: values.currentPassword ?? '',
         });
       }
     }
@@ -171,16 +173,16 @@ const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordPr
       // Clear needsPasswordChange flag in settings after successful password change
       // Note: If password was changed, we always set needsPasswordChange to false regardless of checkbox
       if (!admin && localStorage.getItem(USER_LOCAL_STORAGE_KEY) === DEFAULT_ADMIN_USER_NAME) {
-        await dispatch.setting.saveKey({
+        await saveKey({
           needsPasswordChange: false, // Set to false to indicate password has been changed
         });
       }
-      dispatch.auth.setNeedsPasswordChange(false);
+      setNeedsPasswordChange(false);
 
       if (!admin) {
         const username = localStorage.getItem(USER_LOCAL_STORAGE_KEY) ?? '';
         setTimeout(async () => {
-          await dispatch.auth.login({ username, password: values.newPassword });
+          await login({ username, password: values.newPassword });
           window.location.reload();
         }, 1000);
       }
@@ -206,18 +208,18 @@ const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordPr
       if (currentUser === DEFAULT_ADMIN_USER_NAME) {
         if (dontShowAgain) {
           // User checked "Don't show again" - permanently disable the prompt
-          dispatch.setting.saveKey({
+          saveKey({
             needsPasswordChange: false,
             hideDefaultCredential: true,
           });
         } else {
           // User just closed the modal - hide for this session only
-          dispatch.setting.saveKey({
+          saveKey({
             hideDefaultCredential: true,
           });
         }
         // Clear the in-memory flag so modal doesn't keep showing in this session
-        dispatch.auth.setNeedsPasswordChange(false);
+        setNeedsPasswordChange(false);
       }
     }
   };

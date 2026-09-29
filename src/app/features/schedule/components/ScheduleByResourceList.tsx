@@ -21,9 +21,8 @@ import { formatTimeUTC } from '@app/utils/time';
 import { ScheduleByResource, ScheduleDetails } from '../types';
 import { useNavigate } from 'react-router-dom';
 import EnableScheduleForm from './EnableScheduleForm';
-import { RootState } from '@app/store';
-import { useSelector } from 'react-redux';
-import { UIMode } from '@app/models/setting';
+import { UIMode } from '@app/features/settings/types';
+import { useUIMode } from '@app/features/settings/useSettings';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { Checkbox } from '@app/components/Checkbox';
 import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
@@ -36,9 +35,7 @@ export const ScheduleByResourceList = () => {
   const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
   const navigate = useNavigate();
 
-  const { mode } = useSelector((state: RootState) => ({
-    mode: state.setting.mode,
-  }));
+  const mode = useUIMode();
 
   const {
     data: dataList,

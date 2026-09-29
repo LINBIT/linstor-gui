@@ -4,68 +4,57 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-import { Dispatch, RootState } from '@app/store';
 import PageBasic from '@app/components/PageBasic';
 
 import { ISCSIList as ISCSIListV2, ISCSIResource } from '@app/features/gateway';
+import { useGatewayResources } from '@app/features/gateway/hooks/useGatewayResources';
+
+const iqnOf = (resource: ISCSIResource) => resource.iqn;
 
 const List: React.FunctionComponent = () => {
   const { t } = useTranslation(['iscsi', 'common']);
-  const dispatch = useDispatch<Dispatch>();
 
   const navigate = useNavigate();
 
-  const { list, loading } = useSelector((state: RootState) => ({
-    list: state.iscsi.list,
-    loading: state.loading.effects.iscsi.getList,
-  }));
-
-  useEffect(() => {
-    dispatch.iscsi.getList();
-  }, [dispatch.iscsi]);
+  const { list, loading, reload, start, stop, remove, addLUN, addingVolume, deleteLUN } =
+    useGatewayResources<ISCSIResource>('iscsi', iqnOf);
 
   const createISCSI = () => {
     navigate(`/gateway/iscsi/create`);
   };
 
-  const handleDelete = (iqn: string) => dispatch.iscsi.deleteISCSI(iqn);
-
   const handleStart = (iqn: string) => {
-    dispatch.iscsi.startISCSI(iqn);
+    start(iqn);
   };
 
   const handleStop = (iqn: string) => {
-    dispatch.iscsi.stopISCSI(iqn);
+    stop(iqn);
   };
 
   const handleDeleteVolume = (iqn: string, lun: number) => {
-    dispatch.iscsi.deleteLUN([iqn, lun]);
+    deleteLUN(iqn, lun);
   };
 
-  const handleAddVolume = (iqn: string, LUN: number, size_kib: number) => {
-    dispatch.iscsi.addLUN({
-      iqn,
-      LUN,
-      size_kib,
-    });
+  const handleAddVolume = (iqn: string, lun: number, sizeKib: number) => {
+    addLUN({ id: iqn, lun, sizeKib });
   };
 
   return (
     <PageBasic title={t('iscsi:list')}>
       <ISCSIListV2
         onCreate={createISCSI}
-        list={list as ISCSIResource[]}
-        handleDelete={handleDelete}
-        onDeleted={() => dispatch.iscsi.getList()}
+        list={list}
+        handleDelete={remove}
+        onDeleted={reload}
         handleStart={handleStart}
         handleStop={handleStop}
         handleDeleteVolume={handleDeleteVolume}
         handleAddVolume={handleAddVolume}
+        addingVolume={addingVolume}
         loading={loading}
       />
     </PageBasic>

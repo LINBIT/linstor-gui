@@ -6,17 +6,6 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { init } from '@rematch/core';
-
-// Mock setup - must be before imports
-vi.mock('react-redux', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('react-redux')>();
-  return {
-    ...actual,
-    useSelector: vi.fn(() => ({ addingVolume: false })),
-    useDispatch: vi.fn(() => vi.fn()),
-  };
-});
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -39,29 +28,6 @@ import './helpers';
 
 // Import after mocking
 import { ISCSIList } from '../ISCSIList';
-import { Provider } from 'react-redux';
-
-// Mock store
-const createMockStore = () => {
-  return init({
-    models: {
-      loading: {
-        state: {
-          effects: {
-            iscsi: {
-              addLUN: false,
-            },
-          },
-        },
-        reducers: {},
-      },
-      iscsi: {
-        state: { list: [] },
-        reducers: {},
-      },
-    },
-  });
-};
 
 const mockHandlers = {
   handleDelete: vi.fn(),
@@ -104,12 +70,7 @@ const mockISCSIList: any[] = [
 ];
 
 const renderComponent = (props = {}) => {
-  const store = createMockStore();
-  return render(
-    <Provider store={store}>
-      <ISCSIList list={mockISCSIList} {...mockHandlers} loading={false} {...props} />
-    </Provider>,
-  );
+  return render(<ISCSIList list={mockISCSIList} {...mockHandlers} loading={false} {...props} />);
 };
 
 describe('ISCSIList Component', () => {
@@ -251,6 +212,24 @@ describe('ISCSIList Component', () => {
       fireEvent.click(cancelButton);
 
       expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Adding volume state', () => {
+    it('shows the confirm button as loading while a volume is being added', () => {
+      renderComponent({ addingVolume: true });
+
+      fireEvent.click(screen.getAllByTestId('dropdown-item-add_volume')[0]);
+
+      expect(screen.getByRole('button', { name: /common:confirm/ })).toHaveAttribute('data-loading', 'true');
+    });
+
+    it('does not show the confirm button as loading by default', () => {
+      renderComponent();
+
+      fireEvent.click(screen.getAllByTestId('dropdown-item-add_volume')[0]);
+
+      expect(screen.getByRole('button', { name: /common:confirm/ })).not.toHaveAttribute('data-loading', 'true');
     });
   });
 

@@ -7,18 +7,21 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
-const dispatch = {
-  auth: {
-    changePassword: vi.fn(),
-    updatePassword: vi.fn(),
-    resetPassword: vi.fn(),
-    setNeedsPasswordChange: vi.fn(),
-    login: vi.fn(),
-  },
-  setting: { saveKey: vi.fn() },
-};
-vi.mock('react-redux', () => ({
-  useDispatch: () => dispatch,
+import { makeAuth, makeSettings } from '@app/__test__/helpers';
+import type { AuthContextValue } from '@app/features/authentication/useAuth';
+import type { SettingsContextValue } from '@app/features/settings/useSettings';
+
+const ctx = vi.hoisted(() => ({
+  auth: undefined as unknown as AuthContextValue,
+  settings: undefined as unknown as SettingsContextValue,
+}));
+vi.mock('@app/features/authentication/useAuth', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@app/features/authentication/useAuth')>()),
+  useAuth: () => ctx.auth,
+}));
+vi.mock('@app/features/settings/useSettings', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@app/features/settings/useSettings')>()),
+  useSettings: () => ctx.settings,
 }));
 
 import { ChangePassword } from '../ChangePassword/ChangePassword';
@@ -41,10 +44,8 @@ describe('ChangePassword', () => {
     // The success path schedules a re-login plus window.location.reload one
     // second later; keep that off the real clock.
     vi.useFakeTimers({ shouldAdvanceTime: true });
-    dispatch.auth.changePassword.mockResolvedValue(true);
-    dispatch.auth.updatePassword.mockResolvedValue(true);
-    dispatch.auth.resetPassword.mockResolvedValue(true);
-    dispatch.setting.saveKey.mockResolvedValue(undefined);
+    ctx.auth = makeAuth();
+    ctx.settings = makeSettings();
   });
 
   afterEach(() => {
@@ -60,18 +61,18 @@ describe('ChangePassword', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Change password' }));
 
     await waitFor(() =>
-      expect(dispatch.auth.changePassword).toHaveBeenCalledWith({
+      expect(ctx.auth.changePassword).toHaveBeenCalledWith({
         user: 'admin',
         newPassword: 'newer-pw',
         oldPassword: 'admin',
       }),
     );
     expect(await screen.findByText('Password changed successfully')).toBeInTheDocument();
-    await waitFor(() => expect(dispatch.setting.saveKey).toHaveBeenCalledWith({ needsPasswordChange: false }));
-    expect(dispatch.auth.setNeedsPasswordChange).toHaveBeenCalledWith(false);
+    await waitFor(() => expect(ctx.settings.saveKey).toHaveBeenCalledWith({ needsPasswordChange: false }));
+    expect(ctx.auth.setNeedsPasswordChange).toHaveBeenCalledWith(false);
   });
 
-  it('rejects a mismatched confirmation and a short password before dispatching', async () => {
+  it('rejects a mismatched confirmation and a short password before submitting', async () => {
     render(<ChangePassword />);
     fireEvent.click(screen.getByText('Change password'));
     await screen.findByLabelText('Current password');
@@ -82,18 +83,18 @@ describe('ChangePassword', () => {
     typePasswords(null, 'abcdef', 'abcdeg');
     fireEvent.click(screen.getByRole('button', { name: 'Change password' }));
     expect(await screen.findByText('The two passwords that you entered do not match!')).toBeInTheDocument();
-    expect(dispatch.auth.changePassword).not.toHaveBeenCalled();
+    expect(ctx.auth.changePassword).not.toHaveBeenCalled();
   });
 
   it('reports a refused change with a hint about the current password', async () => {
-    dispatch.auth.changePassword.mockResolvedValue(false);
+    vi.mocked(ctx.auth.changePassword).mockResolvedValue(false);
     render(<ChangePassword />);
     fireEvent.click(screen.getByText('Change password'));
     await screen.findByLabelText('Current password');
     typePasswords('wrong', 'newer-pw');
     fireEvent.click(screen.getByRole('button', { name: 'Change password' }));
     expect(await screen.findByText(/Password change failed/)).toBeInTheDocument();
-    expect(dispatch.setting.saveKey).not.toHaveBeenCalled();
+    expect(ctx.settings.saveKey).not.toHaveBeenCalled();
   });
 
   it('admin mode resets another user without asking for the current password', async () => {
@@ -103,12 +104,10 @@ describe('ChangePassword', () => {
     expect(screen.queryByLabelText('Current password')).not.toBeInTheDocument();
     typePasswords(null, 'bob-new');
     fireEvent.click(screen.getAllByRole('button', { name: 'Reset password' }).at(-1) as HTMLElement);
-    await waitFor(() =>
-      expect(dispatch.auth.resetPassword).toHaveBeenCalledWith({ user: 'bob', newPassword: 'bob-new' }),
-    );
+    await waitFor(() => expect(ctx.auth.resetPassword).toHaveBeenCalledWith({ user: 'bob', newPassword: 'bob-new' }));
     // Resetting someone else never touches the first-login flag.
-    expect(dispatch.setting.saveKey).not.toHaveBeenCalled();
-    expect(dispatch.auth.login).not.toHaveBeenCalled();
+    expect(ctx.settings.saveKey).not.toHaveBeenCalled();
+    expect(ctx.auth.login).not.toHaveBeenCalled();
   });
 
   it('the forced first-login change opens by itself and skips the old password', async () => {
@@ -120,7 +119,7 @@ describe('ChangePassword', () => {
     typePasswords(null, 'fresh-pw');
     fireEvent.click(screen.getByRole('button', { name: 'Change password' }));
     await waitFor(() =>
-      expect(dispatch.auth.updatePassword).toHaveBeenCalledWith({ user: 'admin', newPassword: 'fresh-pw' }),
+      expect(ctx.auth.updatePassword).toHaveBeenCalledWith({ user: 'admin', newPassword: 'fresh-pw' }),
     );
   });
 
@@ -128,8 +127,8 @@ describe('ChangePassword', () => {
     const { unmount } = render(<ChangePassword defaultOpen />);
     await screen.findByLabelText('New password');
     fireEvent.click(screen.getByRole('button', { name: 'Close' }));
-    await waitFor(() => expect(dispatch.setting.saveKey).toHaveBeenCalledWith({ hideDefaultCredential: true }));
-    expect(dispatch.auth.setNeedsPasswordChange).toHaveBeenCalledWith(false);
+    await waitFor(() => expect(ctx.settings.saveKey).toHaveBeenCalledWith({ hideDefaultCredential: true }));
+    expect(ctx.auth.setNeedsPasswordChange).toHaveBeenCalledWith(false);
     unmount();
     vi.clearAllMocks();
 
@@ -137,7 +136,7 @@ describe('ChangePassword', () => {
     await screen.findByLabelText('New password');
     fireEvent.click(screen.getByRole('button', { name: "Don't show this again" }));
     await waitFor(() =>
-      expect(dispatch.setting.saveKey).toHaveBeenCalledWith({
+      expect(ctx.settings.saveKey).toHaveBeenCalledWith({
         needsPasswordChange: false,
         hideDefaultCredential: true,
       }),
@@ -150,6 +149,6 @@ describe('ChangePassword', () => {
     await screen.findByLabelText('New password');
     fireEvent.click(screen.getByRole('button', { name: 'Close' }));
     await new Promise((r) => setTimeout(r, 20));
-    expect(dispatch.setting.saveKey).not.toHaveBeenCalled();
+    expect(ctx.settings.saveKey).not.toHaveBeenCalled();
   });
 });

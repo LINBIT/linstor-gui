@@ -4,69 +4,57 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useDispatch, useSelector } from 'react-redux';
 
-import { Dispatch, RootState } from '@app/store';
 import PageBasic from '@app/components/PageBasic';
 
 import { NVMeList as NVMeListV2 } from '@app/features/gateway';
 import type { NVMEOFResource } from '@app/features/gateway/types';
+import { useGatewayResources } from '@app/features/gateway/hooks/useGatewayResources';
 import { useNavigate } from 'react-router-dom';
+
+const nqnOf = (resource: NVMEOFResource) => resource.nqn;
 
 const List = () => {
   const { t } = useTranslation(['nvme', 'common']);
-  const dispatch = useDispatch<Dispatch>();
 
   const navigate = useNavigate();
 
-  const { list, loading } = useSelector((state: RootState) => ({
-    list: state.nvme.list,
-    loading: state.loading.effects.nvme.getList,
-  }));
-
-  useEffect(() => {
-    dispatch.nvme.getList();
-  }, [dispatch.nvme]);
+  const { list, loading, reload, start, stop, remove, addLUN, addingVolume, deleteLUN } =
+    useGatewayResources<NVMEOFResource>('nvme-of', nqnOf);
 
   const createNVMeOf = () => {
     navigate(`/gateway/nvme-of/create`);
   };
 
-  const handleDelete = (nqn: string) => dispatch.nvme.deleteNvme(nqn);
-
   const handleStart = (nqn: string) => {
-    dispatch.nvme.startNvme(nqn);
+    start(nqn);
   };
 
   const handleStop = (nqn: string) => {
-    dispatch.nvme.stopNvme(nqn);
+    stop(nqn);
   };
 
   const handleDeleteVolume = (nqn: string, lun: number) => {
-    dispatch.nvme.deleteLUN([nqn, lun]);
+    deleteLUN(nqn, lun);
   };
 
-  const handleAddVolume = (nqn: string, LUN: number, size_kib: number) => {
-    dispatch.nvme.addLUN({
-      nqn,
-      LUN,
-      size_kib,
-    });
+  const handleAddVolume = (nqn: string, lun: number, sizeKib: number) => {
+    addLUN({ id: nqn, lun, sizeKib });
   };
 
   return (
     <PageBasic title={t('nvme:list')}>
       <NVMeListV2
         onCreate={createNVMeOf}
-        list={list as unknown as NVMEOFResource[]}
-        handleDelete={handleDelete}
-        onDeleted={() => dispatch.nvme.getList()}
+        list={list}
+        handleDelete={remove}
+        onDeleted={reload}
         handleStart={handleStart}
         handleStop={handleStop}
         handleDeleteVolume={handleDeleteVolume}
         handleAddVolume={handleAddVolume}
+        addingVolume={addingVolume}
         loading={loading}
       />
     </PageBasic>

@@ -27,7 +27,7 @@ import { BsNvme } from 'react-icons/bs';
 import SVG from 'react-inlinesvg';
 
 import NFS from '@app/assets/nfs.svg';
-import { GrafanaConfig } from '@app/models/setting';
+import { GrafanaConfig } from '@app/features/settings/types';
 import { useLinstorVersion, MIN_API_VERSION } from '@app/hooks';
 
 import { SideMenu } from '../styled';

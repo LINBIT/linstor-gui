@@ -10,38 +10,33 @@ import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 
 import AppLayout from '../AppLayout';
 import { NavContext } from '@app/hooks/useNav';
-import { UIMode } from '@app/models/setting';
+import { UIMode, type SettingsProps } from '@app/features/settings/types';
+import type { SettingsContextValue } from '@app/features/settings/useSettings';
+import type { AuthContextValue } from '@app/features/authentication/useAuth';
+import { makeAuth, makeSettings } from '@app/__test__/helpers';
 
-const hoisted = vi.hoisted(() => {
-  const dispatch = {
-    auth: { checkLoginStatus: vi.fn() },
-    setting: {
-      initSettingStore: vi.fn(),
-      setMode: vi.fn(),
-      getMyLinbitStatus: vi.fn(),
-      getSettings: vi.fn(),
-      getGatewayStatus: vi.fn(),
-    },
-  };
-  const state = {
-    setting: {
-      KVS: { authenticationEnabled: false, vsanAvailable: false } as Record<string, unknown> | undefined,
-      logo: '',
-      mode: 'NORMAL',
-      isAdmin: false,
-      gatewayAvailable: false,
-      evalMode: false,
-      grafanaConfig: null,
-    },
-    auth: { isLoggedIn: false, isAdmin: false, needsPasswordChange: false, username: '' },
-  };
-  return { dispatch, state };
-});
-
-vi.mock('react-redux', () => ({
-  useDispatch: () => hoisted.dispatch,
-  useSelector: (selector: (s: unknown) => unknown) => selector(hoisted.state),
+const hoisted = vi.hoisted(() => ({
+  settings: undefined as SettingsContextValue | undefined,
+  auth: undefined as AuthContextValue | undefined,
 }));
+
+vi.mock('@app/features/settings/useSettings', async (orig) => ({
+  ...(await orig()),
+  useSettings: () => hoisted.settings,
+}));
+
+vi.mock('@app/features/authentication/useAuth', async (orig) => ({
+  ...(await orig()),
+  useAuth: () => hoisted.auth,
+}));
+
+const withKVS = (KVS: Partial<SettingsProps>, mode = UIMode.NORMAL) => {
+  hoisted.settings = makeSettings({ KVS, mode });
+};
+
+const loggedIn = (needsPasswordChange: boolean) => {
+  hoisted.auth = makeAuth({ isLoggedIn: true, isAdmin: true, needsPasswordChange, username: 'admin' });
+};
 
 vi.mock('@app/features/authentication/pages/Login', () => ({
   Login: ({ redirectTo }: { redirectTo?: string }) => <div data-testid="login">{redirectTo}</div>,
@@ -118,9 +113,8 @@ describe('AppLayout', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.removeItem('__gui__mode');
-    hoisted.state.setting.KVS = { authenticationEnabled: false, vsanAvailable: false };
-    hoisted.state.setting.mode = 'NORMAL';
-    hoisted.state.auth = { isLoggedIn: false, isAdmin: false, needsPasswordChange: false, username: '' };
+    withKVS({ authenticationEnabled: false, vsanAvailable: false });
+    hoisted.auth = makeAuth({ username: '' });
   });
 
   it('renders the page and boots the stores when authentication is off', () => {
@@ -129,19 +123,20 @@ describe('AppLayout', () => {
     expect(screen.getByTestId('page')).toBeInTheDocument();
     expect(screen.getByTestId('navigation')).toBeInTheDocument();
     expect(screen.queryByTestId('login')).toBeNull();
-    expect(hoisted.dispatch.auth.checkLoginStatus).toHaveBeenCalledTimes(1);
-    expect(hoisted.dispatch.setting.getSettings).toHaveBeenCalledTimes(1);
-    // The gateway is probed by getSettings once the host is known, not by the layout.
-    expect(hoisted.dispatch.setting.getGatewayStatus).not.toHaveBeenCalled();
-    expect(hoisted.dispatch.setting.initSettingStore).toHaveBeenCalledWith(UIMode.NORMAL);
-    expect(hoisted.dispatch.setting.setMode).toHaveBeenCalledWith(UIMode.NORMAL);
-    expect(hoisted.dispatch.setting.getMyLinbitStatus).not.toHaveBeenCalled();
+    expect(hoisted.auth!.checkLoginStatus).toHaveBeenCalledTimes(1);
+    // The provider loads the settings on mount; the layout does not load them again.
+    expect(hoisted.settings!.refresh).not.toHaveBeenCalled();
+    // The gateway is probed by the settings provider once the host is known, not by the layout.
+    expect(hoisted.settings!.getGatewayStatus).not.toHaveBeenCalled();
+    expect(hoisted.settings!.initSettingStore).toHaveBeenCalledWith(UIMode.NORMAL);
+    expect(hoisted.settings!.setMode).toHaveBeenCalledWith(UIMode.NORMAL);
+    expect(hoisted.settings!.getMyLinbitStatus).not.toHaveBeenCalled();
     expect(localStorage.getItem('__gui__mode')).toBe('NORMAL');
     expect(headerProps()).toMatchObject({ normalWithoutAuth: true, vsan: false, hci: false });
   });
 
   it('shows the login page with the return path when authentication is on and nobody is logged in', async () => {
-    hoisted.state.setting.KVS = { authenticationEnabled: true };
+    withKVS({ authenticationEnabled: true });
     renderLayout('/inventory/nodes?tab=1');
 
     // The layout drops the query string before the login page settles on its return path.
@@ -150,15 +145,15 @@ describe('AppLayout', () => {
   });
 
   it('sends the login page back to the root when it was reached directly', () => {
-    hoisted.state.setting.KVS = { authenticationEnabled: true };
+    withKVS({ authenticationEnabled: true });
     renderLayout('/login');
 
     expect(screen.getByTestId('login')).toHaveTextContent('/');
   });
 
   it('renders the page for a logged-in user and asks to change a default password', () => {
-    hoisted.state.setting.KVS = { authenticationEnabled: true };
-    hoisted.state.auth = { isLoggedIn: true, isAdmin: true, needsPasswordChange: true, username: 'admin' };
+    withKVS({ authenticationEnabled: true });
+    loggedIn(true);
     renderLayout('/');
 
     expect(screen.getByTestId('page')).toBeInTheDocument();
@@ -167,31 +162,31 @@ describe('AppLayout', () => {
   });
 
   it('does not ask a logged-in user with a fresh password to change it', () => {
-    hoisted.state.setting.KVS = { authenticationEnabled: true };
-    hoisted.state.auth = { isLoggedIn: true, isAdmin: true, needsPasswordChange: false, username: 'admin' };
+    withKVS({ authenticationEnabled: true });
+    loggedIn(false);
     renderLayout('/');
 
     expect(screen.queryByTestId('change-password')).toBeNull();
   });
 
   it('initialises the VSAN store from a VSAN route', () => {
-    hoisted.state.setting.mode = UIMode.VSAN;
+    withKVS({ authenticationEnabled: false, vsanAvailable: false }, UIMode.VSAN);
     renderLayout('/vsan/dashboard');
 
-    expect(hoisted.dispatch.setting.initSettingStore).toHaveBeenCalledWith(UIMode.VSAN);
-    expect(hoisted.dispatch.setting.setMode).toHaveBeenCalledWith(UIMode.VSAN);
-    expect(hoisted.dispatch.setting.getMyLinbitStatus).toHaveBeenCalledTimes(1);
+    expect(hoisted.settings!.initSettingStore).toHaveBeenCalledWith(UIMode.VSAN);
+    expect(hoisted.settings!.setMode).toHaveBeenCalledWith(UIMode.VSAN);
+    expect(hoisted.settings!.getMyLinbitStatus).toHaveBeenCalledTimes(1);
     expect(localStorage.getItem('__gui__mode')).toBe('VSAN');
     expect(headerProps()).toMatchObject({ vsan: true, hci: false });
   });
 
   it('initialises the HCI store from an HCI route', () => {
-    hoisted.state.setting.mode = UIMode.HCI;
+    withKVS({ authenticationEnabled: false, vsanAvailable: false }, UIMode.HCI);
     renderLayout('/hci/dashboard');
 
-    expect(hoisted.dispatch.setting.initSettingStore).toHaveBeenCalledWith(UIMode.HCI);
-    expect(hoisted.dispatch.setting.setMode).toHaveBeenCalledWith(UIMode.HCI);
-    expect(hoisted.dispatch.setting.getMyLinbitStatus).toHaveBeenCalledTimes(1);
+    expect(hoisted.settings!.initSettingStore).toHaveBeenCalledWith(UIMode.HCI);
+    expect(hoisted.settings!.setMode).toHaveBeenCalledWith(UIMode.HCI);
+    expect(hoisted.settings!.getMyLinbitStatus).toHaveBeenCalledTimes(1);
     expect(localStorage.getItem('__gui__mode')).toBe('HCI');
     expect(headerProps()).toMatchObject({ vsan: false, hci: true });
   });
@@ -214,9 +209,9 @@ describe('AppLayout', () => {
 
     fireEvent.click(screen.getByText('mode-vsan'));
     expect(toggleNav).toHaveBeenCalledTimes(1);
-    expect(hoisted.dispatch.setting.setMode).toHaveBeenLastCalledWith(UIMode.VSAN);
+    expect(hoisted.settings!.setMode).toHaveBeenLastCalledWith(UIMode.VSAN);
     await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/vsan/dashboard'));
-    expect(hoisted.dispatch.setting.getMyLinbitStatus).toHaveBeenCalled();
+    expect(hoisted.settings!.getMyLinbitStatus).toHaveBeenCalled();
 
     fireEvent.click(screen.getByText('mode-hci'));
     await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/hci/dashboard'));

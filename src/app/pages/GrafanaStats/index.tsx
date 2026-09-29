@@ -7,16 +7,15 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, Spin, Alert, Typography } from 'antd';
-import { useSelector } from 'react-redux';
 import styled from '@emotion/styled';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import Button from '@app/components/Button';
 import TimeRangeSelector from '@app/components/TimeRangeSelector';
 
-import { RootState } from '@app/store';
 import PageBasic from '@app/components/PageBasic';
 import { usePreloadIframes, useThemeMode } from '@app/hooks';
+import { useSettings } from '@app/features/settings/useSettings';
 
 const { Title } = Typography;
 
@@ -75,9 +74,7 @@ const GrafanaStats: React.FC = () => {
   // Get resource name from route params first, then fallback to query params
   const resourceName = routeResourceName || searchParams.get('resource') || '';
 
-  const { grafanaConfig } = useSelector((state: RootState) => ({
-    grafanaConfig: state.setting.grafanaConfig,
-  }));
+  const { grafanaConfig } = useSettings();
 
   const { mode } = useThemeMode();
 

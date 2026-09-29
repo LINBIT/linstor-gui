@@ -8,12 +8,15 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
 import HeaderAboutModal from '../HeaderAboutModal';
-import { UIMode } from '@app/models/setting';
+import { UIMode } from '@app/features/settings/types';
+import type { SettingsContextValue } from '@app/features/settings/useSettings';
+import { makeSettings } from '@app/__test__/helpers';
 
-const state = vi.hoisted(() => ({ mode: 'NORMAL' as string }));
+const settings = vi.hoisted(() => ({ current: undefined as SettingsContextValue | undefined }));
 
-vi.mock('react-redux', () => ({
-  useSelector: (selector: (s: unknown) => unknown) => selector({ setting: { mode: state.mode } }),
+vi.mock('@app/features/settings/useSettings', async (orig) => ({
+  ...(await orig()),
+  useSettings: () => settings.current,
 }));
 
 const openAbout = async () => {
@@ -25,7 +28,7 @@ const row = (label: string) => screen.getByText(label).parentElement as HTMLElem
 
 describe('HeaderAboutModal', () => {
   beforeEach(() => {
-    state.mode = UIMode.NORMAL;
+    settings.current = makeSettings({ mode: UIMode.NORMAL });
     vi.stubEnv('VITE_VERSION', '2.6.0');
     vi.stubEnv('LINBIT_SDS_VERSION', '1.0.1');
   });
@@ -65,7 +68,7 @@ describe('HeaderAboutModal', () => {
 
   it('lets a DEV build in HCI mode override the HCI host', async () => {
     vi.stubEnv('VITE_VERSION', '');
-    state.mode = UIMode.HCI;
+    settings.current = makeSettings({ mode: UIMode.HCI });
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     render(<HeaderAboutModal />);
     await openAbout();
@@ -85,7 +88,7 @@ describe('HeaderAboutModal', () => {
 
   it('closes the host dialog on cancel without saving', async () => {
     vi.stubEnv('VITE_VERSION', '');
-    state.mode = UIMode.HCI;
+    settings.current = makeSettings({ mode: UIMode.HCI });
     render(<HeaderAboutModal />);
     await openAbout();
 

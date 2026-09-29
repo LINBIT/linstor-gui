@@ -18,9 +18,8 @@ import { InfoCircleOutlined, SettingOutlined } from '@ant-design/icons';
 import { ActionContainer, UpdateStatus } from './styled';
 import { BRAND_COLOR, ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
 import { CloudStackNode, ErrorMessage, Node } from '../types';
-import { RootState } from '@app/store';
-import { useSelector } from 'react-redux';
-import { UIMode } from '@app/models/setting';
+import { UIMode } from '@app/features/settings/types';
+import { useUIMode } from '@app/features/settings/useSettings';
 import { Button } from '@app/components/Button';
 import { Switch } from '@app/components/Switch';
 import { Popconfirm } from '@app/components/Popconfirm';
@@ -35,9 +34,7 @@ export const VSANNodeList = () => {
   const [tempIntervalVal, setTempIntervalVal] = useState<number | null>(null);
   const [api, contextHolder] = notification.useNotification();
 
-  const { modeFromSetting } = useSelector((state: RootState) => ({
-    modeFromSetting: state.setting.mode,
-  }));
+  const modeFromSetting = useUIMode();
 
   const isVSAN = modeFromSetting === UIMode.VSAN;
   const isHCI = modeFromSetting === UIMode.HCI;

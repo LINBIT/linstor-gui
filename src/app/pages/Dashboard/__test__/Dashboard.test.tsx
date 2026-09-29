@@ -8,11 +8,9 @@ import React from 'react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
-import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 
 import Dashboard from '../Dashboard';
-import { store } from '@app/store';
 import { CLUSTER_SETUP_DISMISSED_KEY } from '@app/features/clusterSetup/dismiss';
 
 const mockGetNodes = vi.fn();
@@ -37,13 +35,11 @@ vi.mock('@app/features/clusterSetup/components/SetupClusterWizard', () => ({
 const renderDashboard = () => {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(
-    <Provider store={store}>
-      <QueryClientProvider client={client}>
-        <MemoryRouter>
-          <Dashboard />
-        </MemoryRouter>
-      </QueryClientProvider>
-    </Provider>,
+    <QueryClientProvider client={client}>
+      <MemoryRouter>
+        <Dashboard />
+      </MemoryRouter>
+    </QueryClientProvider>,
   );
 };
 

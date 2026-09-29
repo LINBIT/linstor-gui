@@ -8,7 +8,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
 import { message } from 'antd';
 
-import { deleteError, useDeleteAction, type DeleteActionOptions } from '../useDeleteAction';
+import { replyError, useDeleteAction, type DeleteActionOptions } from '../useDeleteAction';
 import { toastsAreQuiet } from '@app/utils/toast';
 
 vi.mock('antd', () => ({
@@ -34,15 +34,15 @@ const setup = (overrides: Partial<DeleteActionOptions<Item>> = {}) => {
   return { options, hook };
 };
 
-describe('deleteError', () => {
+describe('replyError', () => {
   it('reads openapi-fetch errors, ApiCallRc lists and axios bodies', () => {
-    expect(deleteError({ data: ok })).toBeUndefined();
-    expect(deleteError(ok)).toBeUndefined();
-    expect(deleteError({ error: [{ ret_code: -1, message: 'in use' }] })).toBe('in use');
-    expect(deleteError([{ ret_code: -5, message: 'nope' }, ...ok])).toBe('nope');
-    expect(deleteError({ data: [{ ret_code: -2, message: 'axios said no' }] })).toBe('axios said no');
-    expect(deleteError({ error: { message: 'plain' } })).toBe('plain');
-    expect(deleteError(undefined)).toBeUndefined();
+    expect(replyError({ data: ok })).toBeUndefined();
+    expect(replyError(ok)).toBeUndefined();
+    expect(replyError({ error: [{ ret_code: -1, message: 'in use' }] })).toBe('in use');
+    expect(replyError([{ ret_code: -5, message: 'nope' }, ...ok])).toBe('nope');
+    expect(replyError({ data: [{ ret_code: -2, message: 'axios said no' }] })).toBe('axios said no');
+    expect(replyError({ error: { message: 'plain' } })).toBe('plain');
+    expect(replyError(undefined)).toBeUndefined();
   });
 });
 

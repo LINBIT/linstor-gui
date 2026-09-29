@@ -9,14 +9,17 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
 import { LogoImg } from '../LogoImg';
-import { UIMode } from '@app/models/setting';
+import { UIMode } from '@app/features/settings/types';
+import type { SettingsContextValue } from '@app/features/settings/useSettings';
+import { makeSettings } from '@app/__test__/helpers';
 
-const state = vi.hoisted(() => ({ mode: 'NORMAL' as string }));
-const navigate = vi.hoisted(() => vi.fn());
+const settings = vi.hoisted(() => ({ current: undefined as SettingsContextValue | undefined }));
 
-vi.mock('react-redux', () => ({
-  useSelector: (selector: (s: unknown) => unknown) => selector({ setting: { mode: state.mode } }),
+vi.mock('@app/features/settings/useSettings', async (orig) => ({
+  ...(await orig()),
+  useSettings: () => settings.current,
 }));
+const navigate = vi.hoisted(() => vi.fn());
 
 vi.mock('react-router-dom', async (importOriginal) => ({
   ...(await importOriginal<typeof import('react-router-dom')>()),
@@ -35,7 +38,7 @@ const clickBrand = () => fireEvent.click(screen.getAllByAltText('LINBIT logo')[0
 describe('LogoImg', () => {
   beforeEach(() => {
     navigate.mockClear();
-    state.mode = UIMode.NORMAL;
+    settings.current = makeSettings({ mode: UIMode.NORMAL });
   });
 
   it('renders the light and dark brand marks and no custom logo by default', () => {
@@ -53,14 +56,14 @@ describe('LogoImg', () => {
   });
 
   it('navigates to the HCI dashboard in HCI mode', () => {
-    state.mode = UIMode.HCI;
+    settings.current = makeSettings({ mode: UIMode.HCI });
     renderLogo();
     clickBrand();
     expect(navigate).toHaveBeenLastCalledWith('/hci/dashboard');
   });
 
   it('navigates to the VSAN dashboard in VSAN mode', () => {
-    state.mode = UIMode.VSAN;
+    settings.current = makeSettings({ mode: UIMode.VSAN });
     renderLogo();
     clickBrand();
     expect(navigate).toHaveBeenLastCalledWith('/vsan/dashboard');

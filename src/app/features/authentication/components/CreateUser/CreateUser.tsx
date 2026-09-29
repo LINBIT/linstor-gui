@@ -11,8 +11,7 @@ import Button from '@app/components/Button';
 
 import changePasswordBG from '@app/assets/changepassword-bg.svg';
 import { BGImg, Content, MainSection, FormTitle, FormWrapper } from './styled';
-import { Dispatch } from '@app/store';
-import { useDispatch } from 'react-redux';
+import { useAuth } from '@app/features/authentication/useAuth';
 import { useTranslation } from 'react-i18next';
 
 /** What the form below submits; the previous shape was an antd demo leftover. */
@@ -114,11 +113,11 @@ type CreateUserProp = {
 
 const CreateUser = ({ disabled }: CreateUserProp) => {
   const [open, setOpen] = useState(false);
-  const dispatch = useDispatch<Dispatch>();
+  const { register } = useAuth();
   const { t } = useTranslation('users');
 
   const onCreate = (values: Values) => {
-    dispatch.auth.register(values);
+    register(values);
 
     setOpen(false);
   };

@@ -29,9 +29,8 @@ import { SearchForm } from './styled';
 import { useTranslation } from 'react-i18next';
 import { PropertyFormRef } from '@app/components/PropertyForm';
 import { LiaToolsSolid } from 'react-icons/lia';
-import { useSelector } from 'react-redux';
-import { RootState } from '@app/store';
-import { UIMode } from '@app/models/setting';
+import { UIMode } from '@app/features/settings/types';
+import { useUIMode } from '@app/features/settings/useSettings';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { useDeleteAction, deletingRowClass } from '@app/hooks/useDeleteAction';
 
@@ -41,9 +40,7 @@ export const List = () => {
   const location = useLocation();
   const { t } = useTranslation(['common', 'storage_pool']);
 
-  const { mode } = useSelector((state: RootState) => ({
-    mode: state.setting.mode,
-  }));
+  const mode = useUIMode();
   const [query, setQuery] = useState<GetStoragePoolQuery>(() => {
     const query = new URLSearchParams(location.search);
     const nodes = query.get('nodes');

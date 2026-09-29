@@ -9,16 +9,18 @@ import { screen, fireEvent, waitFor } from '@testing-library/react';
 
 import Dashboard from '..';
 import { renderSettings, switchByLabel } from '../../../__test__/helpers';
+import type { SettingsContextValue } from '@app/features/settings/useSettings';
+import type { GrafanaConfig } from '@app/features/settings/types';
+import { makeSettings } from '@app/__test__/helpers';
 
 const hoisted = vi.hoisted(() => ({
-  dispatch: { setting: { saveGrafanaConfig: vi.fn() } },
-  state: { setting: { grafanaConfig: null as Record<string, unknown> | null } },
+  settings: undefined as SettingsContextValue | undefined,
   errorMessage: vi.fn(),
 }));
 
-vi.mock('react-redux', () => ({
-  useDispatch: () => hoisted.dispatch,
-  useSelector: (selector: (s: unknown) => unknown) => selector(hoisted.state),
+vi.mock('@app/features/settings/useSettings', async (orig) => ({
+  ...(await orig()),
+  useSettings: () => hoisted.settings,
 }));
 
 vi.mock('antd', async (importOriginal) => {
@@ -42,8 +44,7 @@ const enableGrafana = async (container: HTMLElement) => {
 describe('Settings Grafana tab', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    hoisted.state.setting.grafanaConfig = null;
-    hoisted.dispatch.setting.saveGrafanaConfig.mockResolvedValue(undefined);
+    hoisted.settings = makeSettings({ grafanaConfig: null });
   });
 
   it('starts off, with nothing but the enable switch', () => {
@@ -58,7 +59,7 @@ describe('Settings Grafana tab', () => {
     save();
 
     await waitFor(() =>
-      expect(hoisted.dispatch.setting.saveGrafanaConfig).toHaveBeenCalledWith(
+      expect(hoisted.settings!.saveGrafanaConfig).toHaveBeenCalledWith(
         expect.objectContaining({ enable: false, drbdEnable: false, dashboardUrl: '', dashboardUid: '' }),
       ),
     );
@@ -72,7 +73,7 @@ describe('Settings Grafana tab', () => {
     save();
 
     await waitFor(() =>
-      expect(hoisted.dispatch.setting.saveGrafanaConfig).toHaveBeenCalledWith(
+      expect(hoisted.settings!.saveGrafanaConfig).toHaveBeenCalledWith(
         expect.objectContaining({
           enable: true,
           dashboardUrl: DASHBOARD_URL,
@@ -96,7 +97,7 @@ describe('Settings Grafana tab', () => {
         'Invalid dashboard URL format. Please enter a valid Grafana dashboard URL.',
       ),
     );
-    expect(hoisted.dispatch.setting.saveGrafanaConfig).not.toHaveBeenCalled();
+    expect(hoisted.settings!.saveGrafanaConfig).not.toHaveBeenCalled();
   });
 
   it('will not save an enabled dashboard with no URL at all', async () => {
@@ -108,7 +109,7 @@ describe('Settings Grafana tab', () => {
     expect(await screen.findByText('Please enter dashboard URL')).toBeInTheDocument();
     // The URL hint must not crowd the reason out.
     expect(screen.getByText(/Enter the full Grafana dashboard URL/)).toBeInTheDocument();
-    expect(hoisted.dispatch.setting.saveGrafanaConfig).not.toHaveBeenCalled();
+    expect(hoisted.settings!.saveGrafanaConfig).not.toHaveBeenCalled();
   });
 
   it('saves the panel IDs that were edited by hand', async () => {
@@ -123,7 +124,7 @@ describe('Settings Grafana tab', () => {
     save();
 
     await waitFor(() =>
-      expect(hoisted.dispatch.setting.saveGrafanaConfig).toHaveBeenCalledWith(
+      expect(hoisted.settings!.saveGrafanaConfig).toHaveBeenCalledWith(
         expect.objectContaining({ panelIds: { ...DEFAULT_PANELS, cpu: 101 } }),
       ),
     );
@@ -147,7 +148,7 @@ describe('Settings Grafana tab', () => {
     save();
 
     await waitFor(() =>
-      expect(hoisted.dispatch.setting.saveGrafanaConfig).toHaveBeenCalledWith(
+      expect(hoisted.settings!.saveGrafanaConfig).toHaveBeenCalledWith(
         expect.objectContaining({
           drbdEnable: true,
           drbdUrl: DRBD_URL,
@@ -175,7 +176,7 @@ describe('Settings Grafana tab', () => {
         'Invalid DRBD dashboard URL. Please check the format and try again.',
       ),
     );
-    expect(hoisted.dispatch.setting.saveGrafanaConfig).not.toHaveBeenCalled();
+    expect(hoisted.settings!.saveGrafanaConfig).not.toHaveBeenCalled();
   });
 
   it('turning Grafana off turns the DRBD dashboard off with it', async () => {
@@ -188,14 +189,14 @@ describe('Settings Grafana tab', () => {
     save();
 
     await waitFor(() =>
-      expect(hoisted.dispatch.setting.saveGrafanaConfig).toHaveBeenCalledWith(
+      expect(hoisted.settings!.saveGrafanaConfig).toHaveBeenCalledWith(
         expect.objectContaining({ enable: false, drbdEnable: false }),
       ),
     );
   });
 
   it('restores a stored config into both forms', async () => {
-    hoisted.state.setting.grafanaConfig = {
+    hoisted.settings!.grafanaConfig = {
       dashboardUrlTemplate: DASHBOARD_URL,
       dashboardUid: 'rYdddlPWk',
       panelIds: { ...DEFAULT_PANELS, cpu: 101 },
@@ -204,7 +205,7 @@ describe('Settings Grafana tab', () => {
       drbdUid: 'f_tZtVlMz',
       drbdWriteRatePanelId: 128,
       drbdReadRatePanelId: 129,
-    };
+    } as GrafanaConfig;
     const { container } = renderSettings(<Dashboard />);
 
     await waitFor(() => expect(switchByLabel(container, 'dashboard-mode')).toBeChecked());
@@ -220,12 +221,12 @@ describe('Settings Grafana tab', () => {
   });
 
   it('keeps going when saving fails', async () => {
-    hoisted.dispatch.setting.saveGrafanaConfig.mockRejectedValue(new Error('kvs down'));
+    vi.mocked(hoisted.settings!.saveGrafanaConfig).mockRejectedValue(new Error('kvs down'));
     renderSettings(<Dashboard />);
 
     save();
 
-    await waitFor(() => expect(hoisted.dispatch.setting.saveGrafanaConfig).toHaveBeenCalled());
+    await waitFor(() => expect(hoisted.settings!.saveGrafanaConfig).toHaveBeenCalled());
     expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
   });
 });

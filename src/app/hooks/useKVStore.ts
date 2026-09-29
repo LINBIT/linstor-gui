@@ -4,13 +4,10 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { RootState } from '@app/store';
-import { useSelector } from 'react-redux';
+import { useSettings } from '@app/features/settings/useSettings';
 
 const useKVStore = () => {
-  const KVS = useSelector((state: RootState) => ({
-    ...state.setting.KVS,
-  }));
+  const { KVS } = useSettings();
 
   return KVS;
 };

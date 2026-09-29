@@ -10,8 +10,7 @@ import { AuthForm } from '../../components/AuthForm/AuthForm';
 import logo from '@app/assets/login-logo.svg';
 import loginBg from '@app/assets/login-bg.svg';
 import { useKVStore } from '@app/hooks';
-import { useDispatch } from 'react-redux';
-import { Dispatch } from '@app/store';
+import { useSettings } from '@app/features/settings/useSettings';
 
 interface LoginProps {
   redirectTo?: string;
@@ -21,10 +20,10 @@ export const Login = ({ redirectTo }: LoginProps) => {
   const { t } = useTranslation();
   const store = useKVStore();
 
-  const dispatch = useDispatch<Dispatch>();
+  const { saveKey } = useSettings();
 
   const hideTip = () => {
-    dispatch.setting.saveKey({
+    saveKey({
       hideDefaultCredential: true,
     });
   };

@@ -6,7 +6,6 @@
 
 import * as React from 'react';
 import { HashRouter as Router } from 'react-router-dom';
-import { Provider } from 'react-redux';
 import { ConfigProvider } from 'antd';
 import locale from 'antd/locale/en_US';
 
@@ -19,8 +18,9 @@ import { setControllerAuthRequired, setControllerAuthToken } from '@app/utils/co
 import { useSpaceReportStatus } from '@app/hooks/useSpaceReportStatus';
 import GrafanaPreconnect from '@app/components/GrafanaPreconnect';
 import ControllerAuthGate from '@app/components/ControllerAuthGate';
+import { SettingsProvider } from '@app/features/settings/SettingsProvider';
+import { AuthProvider } from '@app/features/authentication/AuthProvider';
 
-import { store } from './store';
 import { NavProvider } from './NavContext';
 import { ThemeModeProvider, useThemeMode } from '@app/hooks';
 
@@ -74,7 +74,14 @@ const ThemedApp: React.FunctionComponent = () => {
     <ConfigProvider theme={getAntdTheme(mode)} locale={locale}>
       <NavProvider>
         <ControllerAuthGate>
-          <AuthenticatedApp />
+          {/* Inside the gate: the settings query must not go out before a
+              controller token is known, or it would only collect a 401. */}
+          <SettingsProvider>
+            <AuthProvider>
+              <GrafanaPreconnect />
+              <AuthenticatedApp />
+            </AuthProvider>
+          </SettingsProvider>
         </ControllerAuthGate>
       </NavProvider>
     </ConfigProvider>
@@ -83,14 +90,11 @@ const ThemedApp: React.FunctionComponent = () => {
 
 const App: React.FunctionComponent = () => {
   return (
-    <Provider store={store}>
-      <GrafanaPreconnect />
-      <Router>
-        <ThemeModeProvider>
-          <ThemedApp />
-        </ThemeModeProvider>
-      </Router>
-    </Provider>
+    <Router>
+      <ThemeModeProvider>
+        <ThemedApp />
+      </ThemeModeProvider>
+    </Router>
   );
 };
 

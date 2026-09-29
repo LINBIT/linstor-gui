@@ -8,11 +8,10 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { logger } from '@app/utils/logger';
 import { Card, Row, Col, Empty } from 'antd';
-import { useSelector } from 'react-redux';
-import { RootState } from '@app/store';
 import styled from '@emotion/styled';
 import { usePreloadIframes, useThemeMode } from '@app/hooks';
 import TimeRangeSelector from '@app/components/TimeRangeSelector';
+import { useSettings } from '@app/features/settings/useSettings';
 
 const ChartIframe = styled.iframe`
   width: 100%;
@@ -40,7 +39,7 @@ interface ChartPanel {
 
 const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
   const { t } = useTranslation();
-  const grafanaConfig = useSelector((state: RootState) => state.setting?.grafanaConfig);
+  const { grafanaConfig } = useSettings();
   const [timeRange, setTimeRange] = useState('now-1h');
   const { mode } = useThemeMode();
 

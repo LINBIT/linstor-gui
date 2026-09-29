@@ -19,14 +19,13 @@ import dayjs from 'dayjs';
 import { useNodes } from '@app/features/node';
 import { useLinstorVersion, MIN_API_VERSION } from '@app/hooks';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { RootState } from '@app/store';
 import styled from '@emotion/styled';
 import { MoreOutlined } from '@ant-design/icons';
 import { LiaToolsSolid } from 'react-icons/lia';
 import DownloadSOS from './DownloadSOS';
 import { useTranslation } from 'react-i18next';
-import { UIMode } from '@app/models/setting';
+import { UIMode } from '@app/features/settings/types';
+import { useUIMode } from '@app/features/settings/useSettings';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
 
@@ -71,10 +70,9 @@ export const List = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { vsanModeFromSetting, hciModeFromSetting } = useSelector((state: RootState) => ({
-    vsanModeFromSetting: state.setting.mode === UIMode.VSAN,
-    hciModeFromSetting: state.setting.mode === UIMode.HCI,
-  }));
+  const mode = useUIMode();
+  const vsanModeFromSetting = mode === UIMode.VSAN;
+  const hciModeFromSetting = mode === UIMode.HCI;
 
   // From REST 1.30.0 the controller pages, sorts and filters the merged reports
   // of all nodes itself. Older controllers can only hand over every report, so

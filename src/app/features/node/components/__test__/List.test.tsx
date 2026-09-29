@@ -11,7 +11,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { List } from '../List';
 import { getNodes, getNodeCount, deleteNode, lostNode, updateNode, getControllerVersion } from '../../api';
-import { UIMode } from '@app/models/setting';
+import { UIMode } from '@app/features/settings/types';
 
 const hoisted = vi.hoisted(() => ({
   navigate: vi.fn(),
@@ -24,8 +24,9 @@ vi.mock('react-router-dom', async (importOriginal) => ({
   useNavigate: () => hoisted.navigate,
 }));
 
-vi.mock('react-redux', () => ({
-  useSelector: (selector: (s: unknown) => unknown) => selector({ setting: { mode: hoisted.mode.value } }),
+vi.mock('@app/features/settings/useSettings', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@app/features/settings/useSettings')>()),
+  useUIMode: () => hoisted.mode.value,
 }));
 
 vi.mock('../../api', async (importOriginal) => ({

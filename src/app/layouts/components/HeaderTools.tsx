@@ -9,10 +9,9 @@ import { Dropdown, Tooltip } from 'antd';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { DeploymentUnitOutlined, DownOutlined } from '@ant-design/icons';
-import { useDispatch } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
 
-import { Dispatch } from '@app/store';
+import { useAuth } from '@app/features/authentication/useAuth';
 import { ChangePassword } from '@app/features/authentication/components/ChangePassword/ChangePassword';
 import { Mode } from '@app/hooks/useUIModeStorage';
 import { DEFAULT_ADMIN_USER_NAME } from '@app/const/settings';
@@ -62,7 +61,7 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
   hciModeFromSetting,
 }) => {
   const { t } = useTranslation(['menu', 'about']);
-  const dispatch = useDispatch<Dispatch>();
+  const { logout: signOut } = useAuth();
   const IS_DEV = import.meta.env.MODE === 'development';
 
   const { data: faultyResources } = useFaultyResources();
@@ -136,7 +135,7 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
             href="#"
             onClick={(e) => {
               e.preventDefault();
-              dispatch.auth.logout();
+              signOut();
             }}
             className="flex items-center"
           >

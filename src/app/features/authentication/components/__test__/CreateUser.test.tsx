@@ -7,9 +7,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
+import { makeAuth } from '@app/__test__/helpers';
+
 const register = vi.fn();
-vi.mock('react-redux', () => ({
-  useDispatch: () => ({ auth: { register } }),
+vi.mock('@app/features/authentication/useAuth', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@app/features/authentication/useAuth')>()),
+  useAuth: () => makeAuth({ register }),
 }));
 
 import { CreateUser } from '../CreateUser/CreateUser';

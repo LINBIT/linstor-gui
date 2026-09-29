@@ -4,12 +4,11 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { RootState } from '@app/store';
 import { logger } from '@app/utils/logger';
 import styled from '@emotion/styled';
-import { useSelector } from 'react-redux';
 
 import { useThemeMode } from '@app/hooks';
+import { useSettings } from '@app/features/settings/useSettings';
 
 const PageContainer = styled.div`
   width: 100%;
@@ -24,7 +23,7 @@ const IFramePage = styled.iframe`
 `;
 
 export const GrafanaDashboard = () => {
-  const grafanaConfig = useSelector((state: RootState) => state.setting?.grafanaConfig);
+  const { grafanaConfig } = useSettings();
   const { mode } = useThemeMode();
 
   logger.debug('GrafanaDashboard render:', { grafanaConfig });

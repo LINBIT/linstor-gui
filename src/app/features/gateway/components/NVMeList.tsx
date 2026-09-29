@@ -17,8 +17,6 @@ import { SupportStatus } from '@app/components/SupportStatus';
 import { formatBytes } from '@app/utils/size';
 
 import { ExpandIconProps, NVMEOFResource } from '../types';
-import { useSelector } from 'react-redux';
-import { RootState } from '@app/store';
 import { SizeInput } from '@app/components/SizeInput';
 import { useTranslation } from 'react-i18next';
 import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
@@ -32,6 +30,8 @@ type NVMeListProps = {
   handleStop: (nqn: string) => void;
   handleDeleteVolume: (nqn: string, lun: number) => void;
   handleAddVolume: (nqn: string, LUN: number, size_kib: number) => void;
+  /** True while an added volume is being created. */
+  addingVolume?: boolean;
   onCreate?: () => void;
   loading?: boolean;
 };
@@ -61,6 +61,7 @@ export const NVMeList = ({
   handleStart,
   handleAddVolume,
   handleDeleteVolume,
+  addingVolume = false,
   onCreate,
   loading = false,
 }: NVMeListProps) => {
@@ -80,10 +81,6 @@ export const NVMeList = ({
   });
   const [nameFilter, setNameFilter] = useState('');
   const { t } = useTranslation(['common', 'nvme']);
-
-  const { addingVolume } = useSelector((state: RootState) => ({
-    addingVolume: state.loading.effects.nvme.addLUN,
-  }));
 
   const [form] = Form.useForm<FormType>();
   const [searchForm] = Form.useForm<{ name: string }>();

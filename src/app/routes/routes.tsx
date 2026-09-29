@@ -9,12 +9,11 @@ import { Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { Dispatch, RootState } from '@app/store';
 
 import { NotFound } from '@app/pages/NotFound/NotFound';
 import { useDocumentTitle } from '@app/hooks';
-import { UIMode } from '@app/models/setting';
+import { UIMode } from '@app/features/settings/types';
+import { useSettings } from '@app/features/settings/useSettings';
 
 import { flattenedRoutes, adminRoutes, IAppRoute } from './route-config';
 import vsan from './vsan';
@@ -38,17 +37,10 @@ const AppRoutes = (): React.ReactElement => {
   const location = useLocation();
   const { t } = useTranslation();
 
-  const { KVS, vsanModeFromSettings, hciModeFromSettings, isAdmin, grafanaConfig } = useSelector(
-    (state: RootState) => ({
-      KVS: state.setting.KVS,
-      vsanModeFromSettings: state.setting.mode === UIMode.VSAN,
-      hciModeFromSettings: state.setting.mode === UIMode.HCI,
-      isAdmin: state.setting.isAdmin,
-      grafanaConfig: state.setting.grafanaConfig,
-    }),
-  );
+  const { KVS, mode, isAdmin, grafanaConfig } = useSettings();
+  const vsanModeFromSettings = mode === UIMode.VSAN;
+  const hciModeFromSettings = mode === UIMode.HCI;
 
-  const dispatch = useDispatch<Dispatch>();
   useEffect(() => {
     const gatewayEnabled = KVS?.gatewayEnabled;
     // Use grafanaConfig to determine if dashboard is enabled
@@ -85,7 +77,6 @@ const AppRoutes = (): React.ReactElement => {
       setDisplayedRoutes(filteredRoutes);
     }
   }, [
-    dispatch.setting,
     location,
     vsanModeFromSettings,
     hciModeFromSettings,

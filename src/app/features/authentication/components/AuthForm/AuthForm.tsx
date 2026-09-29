@@ -8,10 +8,10 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Form } from 'antd';
 import { Input } from '@app/components/Input';
-import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { Dispatch, RootState } from '@app/store';
-import { UIMode } from '@app/models/setting';
+import { UIMode } from '@app/features/settings/types';
+import { useUIMode } from '@app/features/settings/useSettings';
+import { useAuth } from '@app/features/authentication/useAuth';
 import { Button } from '@app/components/Button';
 
 type FormType = {
@@ -27,17 +27,16 @@ interface AuthFormProps {
 const AuthForm: React.FC<AuthFormProps> = ({ redirectTo }) => {
   const { t } = useTranslation();
   const [isError, setIsError] = useState(false);
-  const dispatch = useDispatch<Dispatch>();
+  const { login } = useAuth();
   const navigate = useNavigate();
-  const { hciModeFromSetting, vsanModeFromSetting } = useSelector((state: RootState) => ({
-    vsanModeFromSetting: state.setting.mode === UIMode.VSAN,
-    hciModeFromSetting: state.setting.mode === UIMode.HCI,
-  }));
+  const mode = useUIMode();
+  const vsanModeFromSetting = mode === UIMode.VSAN;
+  const hciModeFromSetting = mode === UIMode.HCI;
 
   const onFinish = async (values: FormType) => {
-    const res = await dispatch.auth.login({ username: values.username, password: values.password });
+    const res = await login({ username: values.username, password: values.password });
     if (res) {
-      // The login effect in auth model will handle needsPasswordChange based on hideDefaultCredential
+      // login() handles needsPasswordChange based on hideDefaultCredential
 
       // Use redirectTo if provided, otherwise use mode-based default routing
       if (redirectTo && redirectTo !== '/') {

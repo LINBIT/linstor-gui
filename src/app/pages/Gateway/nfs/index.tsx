@@ -4,53 +4,44 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useDispatch, useSelector } from 'react-redux';
 
-import { Dispatch, RootState } from '@app/store';
 import PageBasic from '@app/components/PageBasic';
 
 import { NFSList as NFSListV2 } from '@app/features/gateway';
 import { NFSResource } from '@app/features/gateway/types';
+import { useGatewayResources } from '@app/features/gateway/hooks/useGatewayResources';
 import { useNavigate } from 'react-router-dom';
+
+const nameOf = (resource: NFSResource) => resource.name;
 
 const List: React.FunctionComponent = () => {
   const { t } = useTranslation(['nfs', 'common']);
-  const dispatch = useDispatch<Dispatch>();
 
   const navigate = useNavigate();
 
-  const { list, loading } = useSelector((state: RootState) => ({
-    list: state.nfs.list,
-    loading: state.loading.effects.nfs.getList,
-  }));
-
-  useEffect(() => {
-    dispatch.nfs.getList();
-  }, [dispatch.nfs]);
+  const { list, loading, reload, start, stop, remove } = useGatewayResources<NFSResource>('nfs', nameOf);
 
   const createNFS = () => {
     navigate(`/gateway/nfs/create`);
   };
 
-  const handleDelete = (iqn: string) => dispatch.nfs.deleteNFS(iqn);
-
-  const handleStart = (iqn: string) => {
-    dispatch.nfs.startNFS(iqn);
+  const handleStart = (name: string) => {
+    start(name);
   };
 
-  const handleStop = (iqn: string) => {
-    dispatch.nfs.stopNFS(iqn);
+  const handleStop = (name: string) => {
+    stop(name);
   };
 
   return (
     <PageBasic title={t('nfs:list')}>
       <NFSListV2
         onCreate={createNFS}
-        list={list as NFSResource[]}
-        handleDelete={handleDelete}
-        onDeleted={() => dispatch.nfs.getList()}
+        list={list}
+        handleDelete={remove}
+        onDeleted={reload}
         handleStart={handleStart}
         handleStop={handleStop}
         loading={loading}

@@ -7,8 +7,8 @@
 import { useEffect, useState } from 'react';
 import { logger } from '@app/utils/logger';
 import PageBasic from '@app/components/PageBasic';
-import { Dispatch, RootState } from '@app/store';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAuth, useUsers } from '@app/features/authentication/useAuth';
+import { useSettings } from '@app/features/settings/useSettings';
 import { Avatar, List, Divider, Alert } from 'antd';
 import bg from '@app/assets/user_bg.svg';
 import { BG, MainContent, StyledSection } from './styled';
@@ -27,13 +27,12 @@ import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
 import { withQuietToasts } from '@app/utils/toast';
 
 export const UserManagement = () => {
-  const dispatch = useDispatch<Dispatch>();
-  const { users, KVS } = useSelector((state: RootState) => ({
-    users: state.auth.users,
-    KVS: state.setting.KVS,
-  }));
+  const { deleteUser } = useAuth();
+  const { KVS } = useSettings();
 
   const authenticationEnabled = KVS?.authenticationEnabled;
+  // Loaded only while authentication is on, as before.
+  const { data: users } = useUsers(Boolean(authenticationEnabled));
   const isAdmin = useIsAdmin();
   const { t } = useTranslation(['common', 'users']);
 
@@ -79,23 +78,17 @@ export const UserManagement = () => {
 
   const [checked, setChecked] = useState(false);
 
-  // The effect reloads the user list itself, and the key-value-store reply is
+  // deleteUser reloads the user list itself, and the key-value-store reply is
   // not toasted by the fetch proxy, so the hook reports the outcome.
   // The user store is a key-value-store write: the proxy stays silent on its
   // success but would toast an HTTP error next to the hook's own, so the hook
   // alone reports the outcome.
   const del = useDeleteAction<string>({
-    remove: (username) => withQuietToasts(() => dispatch.auth.deleteUser(username)),
+    remove: (username) => withQuietToasts(() => deleteUser(username)),
     keyOf: (username) => username,
     nameOf: (username) => username,
     toastSingle: true,
   });
-
-  useEffect(() => {
-    if (authenticationEnabled) {
-      dispatch.auth.getUsers();
-    }
-  }, [dispatch.auth, authenticationEnabled]);
 
   const handleToggleEnableAuthentication = (checked: boolean) => {
     setChecked(checked);

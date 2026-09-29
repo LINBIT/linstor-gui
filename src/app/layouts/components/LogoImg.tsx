@@ -5,9 +5,8 @@ import { isUrl } from '@app/utils/stringUtils';
 import { isSvg } from '@app/utils/isSvg';
 import logoOnDark from '@app/assets/brand-dark.svg';
 import logoOnLight from '@app/assets/brand-light.svg';
-import { UIMode } from '@app/models/setting';
-import { RootState } from '@app/store';
-import { useSelector } from 'react-redux';
+import { UIMode } from '@app/features/settings/types';
+import { useSettings } from '@app/features/settings/useSettings';
 
 interface LogoImgProps {
   logoSrc?: string;
@@ -27,9 +26,7 @@ const renderLogo = (logoSrc?: string) => {
 };
 
 export const LogoImg: React.FC<LogoImgProps> = ({ logoSrc }) => {
-  const { mode } = useSelector((state: RootState) => ({
-    mode: state.setting.mode,
-  }));
+  const { mode } = useSettings();
 
   const navigate = useNavigate();
 

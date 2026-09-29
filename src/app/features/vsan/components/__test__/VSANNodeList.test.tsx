@@ -9,7 +9,7 @@ import { screen, fireEvent, waitFor, within, act } from '@testing-library/react'
 
 import { VSANNodeList } from '../VSANNodeList';
 import { getNodesFromVSAN, getCloudStackNodes, setNodeStandBy, setNodeMaintenance } from '../../api';
-import { UIMode } from '@app/models/setting';
+import { UIMode } from '@app/features/settings/types';
 import { renderWithClient, confirmPopover, tableRows, rowByText, apiError } from './helpers';
 
 vi.mock('../../api', () => ({
@@ -21,8 +21,9 @@ vi.mock('../../api', () => ({
 
 const hoisted = vi.hoisted(() => ({ mode: 'VSAN' as string, navigate: vi.fn() }));
 
-vi.mock('react-redux', () => ({
-  useSelector: (selector: (s: unknown) => unknown) => selector({ setting: { mode: hoisted.mode } }),
+vi.mock('@app/features/settings/useSettings', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@app/features/settings/useSettings')>()),
+  useUIMode: () => hoisted.mode,
 }));
 
 vi.mock('react-router-dom', async (importOriginal) => ({

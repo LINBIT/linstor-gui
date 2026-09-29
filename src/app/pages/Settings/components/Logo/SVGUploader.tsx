@@ -11,9 +11,8 @@ import { Input } from '@app/components/Input';
 import { Switch } from '@app/components/Switch';
 import SVG from 'react-inlinesvg';
 import { isSvg } from '@app/utils/isSvg';
-import { useDispatch, useSelector } from 'react-redux';
 
-import { Dispatch, RootState } from '@app/store';
+import { useSettings } from '@app/features/settings/useSettings';
 import { isUrl } from '@app/utils/stringUtils';
 import { useTranslation } from 'react-i18next';
 import Button from '@app/components/Button';
@@ -28,27 +27,23 @@ export const SVGFileUpload: React.FunctionComponent = () => {
   const [form] = Form.useForm();
   const { t } = useTranslation(['common', 'settings']);
 
-  const { logoSrc, customLogoEnabled } = useSelector((state: RootState) => ({
-    logoSrc: state.setting.logo,
-    customLogoEnabled: state.setting.KVS?.customLogoEnabled,
-  }));
+  const { logo: logoSrc, KVS, disableCustomLogo, setLogo } = useSettings();
+  const customLogoEnabled = KVS?.customLogoEnabled;
 
   const customLogoEnabledFromForm = Form.useWatch(['customLogoEnabled'], form);
-
-  const dispatch = useDispatch<Dispatch>();
 
   const handleSave = () => {
     const values = form.getFieldsValue(['customLogoEnabled', 'URL']);
 
     if (!values.customLogoEnabled) {
-      dispatch.setting.disableCustomLogo();
+      disableCustomLogo();
     } else if (values.URL) {
-      dispatch.setting.setLogo({
+      setLogo({
         logoSvg: '',
         logoUrl: values.URL,
       });
     } else if (isSvg(value)) {
-      dispatch.setting.setLogo({
+      setLogo({
         logoSvg: value,
       });
     }

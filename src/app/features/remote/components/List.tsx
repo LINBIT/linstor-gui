@@ -21,9 +21,8 @@ import { deleteRemote, getRemoteList, getBackup } from '../api';
 import type { RemoteListResponse } from '../types';
 import { SearchForm } from './styled';
 import { CreateRemoteForm } from './CreateRemoteForm';
-import { UIMode } from '@app/models/setting';
-import { RootState } from '@app/store';
-import { useSelector } from 'react-redux';
+import { UIMode } from '@app/features/settings/types';
+import { useUIMode } from '@app/features/settings/useSettings';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
 
@@ -54,9 +53,7 @@ export const List = () => {
 
   const { t } = useTranslation(['remote', 'common']);
 
-  const { mode } = useSelector((state: RootState) => ({
-    mode: state.setting.mode,
-  }));
+  const mode = useUIMode();
 
   const [query, setQuery] = useState<RemoteQuery>(() => {
     const query = new URLSearchParams(location.search);

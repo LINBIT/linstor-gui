@@ -9,26 +9,14 @@ import { screen, fireEvent, waitFor } from '@testing-library/react';
 
 import Gateway from '..';
 import { renderSettings, switchByLabel } from '../../../__test__/helpers';
+import type { SettingsContextValue } from '@app/features/settings/useSettings';
+import { makeSettings } from '@app/__test__/helpers';
 
-const hoisted = vi.hoisted(() => ({
-  dispatch: {
-    setting: {
-      getGatewayStatus: vi.fn(),
-      setGatewayMode: vi.fn(),
-    },
-  },
-  state: {
-    setting: {
-      KVS: { gatewayEnabled: false, gatewayHost: '', gatewayCustomHost: false } as Record<string, unknown>,
-      gatewayAvailable: false,
-    },
-    loading: { effects: { setting: { getGatewayStatus: false } } },
-  },
-}));
+const settings = vi.hoisted(() => ({ current: undefined as SettingsContextValue | undefined }));
 
-vi.mock('react-redux', () => ({
-  useDispatch: () => hoisted.dispatch,
-  useSelector: (selector: (s: unknown) => unknown) => selector(hoisted.state),
+vi.mock('@app/features/settings/useSettings', async (orig) => ({
+  ...(await orig()),
+  useSettings: () => settings.current,
 }));
 
 // jsdom serves the page from localhost, so this is the host the form defaults to.
@@ -40,10 +28,10 @@ const save = () => fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 describe('Settings gateway tab', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    hoisted.state.setting.KVS = { gatewayEnabled: false, gatewayHost: '', gatewayCustomHost: false };
-    hoisted.state.setting.gatewayAvailable = false;
-    hoisted.state.loading.effects.setting.getGatewayStatus = false;
-    hoisted.dispatch.setting.getGatewayStatus.mockResolvedValue(true);
+    settings.current = makeSettings({
+      KVS: { gatewayEnabled: false, gatewayHost: '', gatewayCustomHost: false },
+      getGatewayStatus: vi.fn().mockResolvedValue(true),
+    });
   });
 
   it('shows nothing but the mode switch while the gateway is off', () => {
@@ -57,7 +45,7 @@ describe('Settings gateway tab', () => {
   it('probes the gateway on mount', async () => {
     renderSettings(<Gateway />);
 
-    await waitFor(() => expect(hoisted.dispatch.setting.getGatewayStatus).toHaveBeenCalledWith(ORIGIN_HOST));
+    await waitFor(() => expect(settings.current!.getGatewayStatus).toHaveBeenCalledWith(ORIGIN_HOST));
   });
 
   it('reveals the host form once the gateway is switched on', async () => {
@@ -86,7 +74,7 @@ describe('Settings gateway tab', () => {
 
     expect(await screen.findByText('Not Available')).toBeInTheDocument();
 
-    hoisted.state.setting.gatewayAvailable = true;
+    settings.current!.gatewayAvailable = true;
     const { container: reachable } = renderSettings(<Gateway />);
     fireEvent.click(switchByLabel(reachable, 'gateway-mode'));
 
@@ -104,7 +92,7 @@ describe('Settings gateway tab', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Test Connection' }));
 
     await waitFor(() =>
-      expect(hoisted.dispatch.setting.getGatewayStatus).toHaveBeenCalledWith('http://192.168.123.200:8337/'),
+      expect(settings.current!.getGatewayStatus).toHaveBeenCalledWith('http://192.168.123.200:8337/'),
     );
   });
 
@@ -118,7 +106,7 @@ describe('Settings gateway tab', () => {
     // The host field debounces validation by a second before the form submits.
     await waitFor(
       () =>
-        expect(hoisted.dispatch.setting.setGatewayMode).toHaveBeenCalledWith({
+        expect(settings.current!.setGatewayMode).toHaveBeenCalledWith({
           gatewayEnabled: true,
           customHost: false,
           host: ORIGIN_HOST,
@@ -138,14 +126,14 @@ describe('Settings gateway tab', () => {
     save();
 
     await waitFor(() =>
-      expect(hoisted.dispatch.setting.setGatewayMode).toHaveBeenCalledWith(
+      expect(settings.current!.setGatewayMode).toHaveBeenCalledWith(
         expect.objectContaining({ host: 'http://192.168.123.200:8337/', customHost: true }),
       ),
     );
   });
 
   it('refuses to save a custom host the gateway does not answer on', async () => {
-    hoisted.dispatch.setting.getGatewayStatus.mockResolvedValue(false);
+    vi.mocked(settings.current!.getGatewayStatus).mockResolvedValue(false);
     const { container } = renderSettings(<Gateway />);
     fireEvent.click(switchByLabel(container, 'gateway-mode'));
     await screen.findByRole('textbox');
@@ -159,11 +147,11 @@ describe('Settings gateway tab', () => {
     ).toBeInTheDocument();
     // The default-host hint must not crowd the reason out.
     expect(screen.getByText(`Default: ${ORIGIN_HOST}`)).toBeInTheDocument();
-    expect(hoisted.dispatch.setting.setGatewayMode).not.toHaveBeenCalled();
+    expect(settings.current!.setGatewayMode).not.toHaveBeenCalled();
   });
 
   it('locks Save and hides the badge while a probe is in flight', async () => {
-    hoisted.state.loading.effects.setting.getGatewayStatus = true;
+    settings.current!.checkingGateway = true;
     const { container } = renderSettings(<Gateway />);
     fireEvent.click(switchByLabel(container, 'gateway-mode'));
     await screen.findByRole('textbox');

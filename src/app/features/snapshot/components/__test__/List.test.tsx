@@ -52,13 +52,10 @@ vi.mock('react-router-dom', async () => {
 });
 
 let uiMode = 'NORMAL';
-vi.mock('react-redux', () => ({
-  useSelector: (selector: (s: unknown) => unknown) => selector({ setting: { mode: uiMode } }),
+vi.mock('@app/features/settings/useSettings', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@app/features/settings/useSettings')>()),
+  useUIMode: () => uiMode,
 }));
-vi.mock('@app/models/setting', () => ({
-  UIMode: { NORMAL: 'NORMAL', VSAN: 'VSAN', HCI: 'HCI' },
-}));
-
 import { getSnapshots, deleteSnapshot, rollbackSnapshot } from '../../api';
 import { getResources } from '@app/features/resource';
 import { List } from '../List';

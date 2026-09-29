@@ -11,7 +11,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // The page renders real antd (Table, Dropdown, Form) on top of a real
-// react-query client; only the transport, the router's navigate and the redux
+// react-query client; only the transport, the router's navigate and the
 // UI mode are replaced. That way the tests exercise the column renderers, the
 // dropdown actions and the confirm flows the way a user hits them.
 
@@ -30,12 +30,9 @@ vi.mock('react-router-dom', async () => {
 });
 
 let uiMode = 'NORMAL';
-vi.mock('react-redux', () => ({
-  useSelector: (selector: (s: unknown) => unknown) => selector({ setting: { mode: uiMode } }),
-}));
-
-vi.mock('@app/models/setting', () => ({
-  UIMode: { NORMAL: 'NORMAL', VSAN: 'VSAN', HCI: 'HCI' },
+vi.mock('@app/features/settings/useSettings', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@app/features/settings/useSettings')>()),
+  useUIMode: () => uiMode,
 }));
 
 // PropertyForm is a large modal of its own; here it only needs to open on

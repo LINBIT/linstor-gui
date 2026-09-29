@@ -25,9 +25,8 @@ import { NodeDataType, NodeListQuery, UpdateNodeRequestBody } from '../types';
 import { omit } from '@app/utils/object';
 import { LiaToolsSolid } from 'react-icons/lia';
 import { FaLinux, FaWindows } from 'react-icons/fa';
-import { useSelector } from 'react-redux';
-import { RootState } from '@app/store';
-import { UIMode } from '@app/models/setting';
+import { UIMode } from '@app/features/settings/types';
+import { useUIMode } from '@app/features/settings/useSettings';
 import { compareVersions } from '@app/utils/version';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { useDeleteAction, deletingRowClass } from '@app/hooks/useDeleteAction';
@@ -60,9 +59,7 @@ export const List = () => {
     };
   });
 
-  const { mode } = useSelector((state: RootState) => ({
-    mode: state.setting.mode,
-  }));
+  const mode = useUIMode();
 
   const { data: linstorVersion, isFetched: versionFetched } = useQuery({
     queryKey: ['linstorVersion'],

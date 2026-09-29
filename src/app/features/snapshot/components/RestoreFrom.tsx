@@ -17,7 +17,7 @@ import { getResources } from '@app/features/resource/api';
 import { createResourceDefinition } from '@app/features/resourceDefinition/api';
 import { restoreSnapshot, restoreVolumeDefinition } from '../api';
 import { withQuietToasts } from '@app/utils/toast';
-import { deleteError as replyError } from '@app/hooks/useDeleteAction';
+import { replyError } from '@app/hooks/useDeleteAction';
 
 const RESTORE_MESSAGE_KEY = 'snapshot-restore';
 
