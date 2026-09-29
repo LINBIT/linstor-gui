@@ -18,3 +18,6 @@ junit.xml
 .claude/
 CLAUDE.md
 .playwright-mcp/
+test-results/
+playwright-report/
+e2e-junit.xml

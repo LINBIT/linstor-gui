@@ -123,6 +123,29 @@ test:
         path: coverage/cobertura-coverage.xml
     expire_in: '30 days'
 
+# End-to-end: the built GUI (vite preview) against the API mock in e2e/mock,
+# driven by Playwright; see playwright.config.ts. The image carries the
+# browsers and must match the @playwright/test version in package-lock.json.
+e2e:
+  stage: test
+  image: mcr.microsoft.com/playwright:v1.63.0-noble
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
+  before_script:
+    - npm ci
+  script:
+    - npm run build
+    - npm run e2e
+  artifacts:
+    when: always
+    reports:
+      junit: e2e-junit.xml
+    paths:
+      - playwright-report/
+      - test-results/
+    expire_in: '14 days'
+
 # Build the release tarball with node, then hand it to the deploy job: the
 # upload moved from the retired Nexus to Pulp, and the pulp CLI lives in the
 # build-helpers image, not in node:22.

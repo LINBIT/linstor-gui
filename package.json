@@ -30,10 +30,14 @@
     "generate-agents": "node scripts/generate-ocf-agents.mjs --all --format ts --merge src/app/components/OcfAgentEditor/all_agents.ts --out src/app/components/OcfAgentEditor/all_agents.ts && prettier --write src/app/components/OcfAgentEditor/all_agents.ts",
     "generate-agents:windows": "node scripts/generate-windows-agents.mjs",
     "prepare": "husky",
-    "format:check": "prettier --check './src/**/*.{ts,tsx,js,jsx,css}'"
+    "format:check": "prettier --check './src/**/*.{ts,tsx,js,jsx,css}' './e2e/**/*.ts' playwright.config.ts",
+    "e2e": "playwright test",
+    "e2e:mock": "node e2e/mock/server.js",
+    "e2e:mock-spec": "node e2e/mock/scripts/generate-spec.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
+    "@playwright/test": "^1.63.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
@@ -62,7 +66,8 @@
     "typescript": "^5.4.5",
     "typescript-eslint": "^8.26.1",
     "vite": "^8.0.16",
-    "vitest": "^4.1.9"
+    "vitest": "^4.1.9",
+    "yaml": "^2.9.1"
   },
   "overrides": {
     "js-yaml": "^4.2.0"
