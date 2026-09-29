@@ -14,6 +14,7 @@ import { defineConfig, devices } from '@playwright/test';
 const SCENARIOS = [
   { name: 'default', mockPort: 43611, guiPort: 43621 },
   { name: 'empty', mockPort: 43612, guiPort: 43622 },
+  { name: 'workflows', mockPort: 43613, guiPort: 43623 },
 ];
 
 const CI = !!process.env.CI;
