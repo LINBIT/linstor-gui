@@ -83,7 +83,7 @@ describe('LogoImg', () => {
 
     expect(screen.getByText('|')).toBeInTheDocument();
     expect(screen.queryByAltText('logo')).toBeNull();
-    await waitFor(() => expect(container.querySelector('svg.max-h-14 circle')).not.toBeNull());
+    await waitFor(() => expect(container.querySelector('svg.h-6 circle')).not.toBeNull());
   });
 
   it('renders neither image nor svg for a value that is not a URL or SVG', async () => {
@@ -92,6 +92,6 @@ describe('LogoImg', () => {
     expect(screen.getByText('|')).toBeInTheDocument();
     await new Promise((resolve) => setTimeout(resolve, 20));
     expect(screen.queryByAltText('logo')).toBeNull();
-    expect(container.querySelector('svg.max-h-14')).toBeNull();
+    expect(container.querySelector('svg.h-6')).toBeNull();
   });
 });

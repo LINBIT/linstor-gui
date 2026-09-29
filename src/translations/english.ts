@@ -1012,7 +1012,7 @@ const en = {
     general: 'General',
     custom_logo: 'Custom Logo',
     custom_logo_description:
-      'You can select either a local SVG file or a remote URL. The URL can point to any image type. Please use a light-colored logo. A maximum space of 160x56 pixels is available for the logo.',
+      'You can select either a local SVG file or a remote URL. The URL can point to any image type. Please use a light-colored logo. It is shown at most 160x36 pixels, as tall as the LINBIT logo.',
     logo: 'Logo',
     url: 'URL',
     gateway: 'Gateway',

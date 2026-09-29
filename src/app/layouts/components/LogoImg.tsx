@@ -12,15 +12,19 @@ interface LogoImgProps {
   logoSrc?: string;
 }
 
+// As tall as the LINBIT wordmark next to it (w-28 / md:w-40 at 286x62), so a
+// logo that fills the allowed space does not tower over the brand.
+const CUSTOM_LOGO_CLASS = 'h-6 md:h-9 w-auto max-w-28 md:max-w-40';
+
 const renderLogo = (logoSrc?: string) => {
   if (!logoSrc) {
     return null;
   }
   if (isUrl(logoSrc) && !isSvg(logoSrc)) {
-    return <img src={logoSrc} alt="logo" className="max-h-14 max-w-40 object-contain" />;
+    return <img src={logoSrc} alt="logo" className={`${CUSTOM_LOGO_CLASS} object-contain`} />;
   }
   if (isSvg(logoSrc)) {
-    return <SVG src={logoSrc || ''} className="max-h-14 max-w-40" />;
+    return <SVG src={logoSrc || ''} className={CUSTOM_LOGO_CLASS} />;
   }
   return null;
 };
