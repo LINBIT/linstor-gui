@@ -1,0 +1,8 @@
+{
+  "name": "linstor-gui-mock",
+  "description": "Spec-driven mock LINSTOR REST API the end-to-end tests run against.",
+  "license": "GPL-3.0-or-later",
+  "private": true,
+  "type": "module",
+  "main": "server.js"
+}

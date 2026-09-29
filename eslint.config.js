@@ -6,7 +6,15 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['dist', 'src/app/apis', '**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}', '**/__test__/**', '**/__tests__/**'],
+    ignores: [
+      'dist',
+      'src/app/apis',
+      'e2e/mock',
+      '**/*.test.{ts,tsx}',
+      '**/*.spec.{ts,tsx}',
+      '**/__test__/**',
+      '**/__tests__/**',
+    ],
   },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
