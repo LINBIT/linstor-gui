@@ -10,14 +10,37 @@ import { configDefaults } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { resolve } from 'path';
+import { execSync } from 'child_process';
+import { readFileSync } from 'fs';
+
+/** `<package.json version>-<commit>`, what a build without VITE_VERSION shows. */
+const snapshotVersion = (): string => {
+  const { version } = JSON.parse(readFileSync(resolve(import.meta.dirname, 'package.json'), 'utf8'));
+  try {
+    const commit = execSync('git rev-parse --short=8 HEAD', { stdio: ['ignore', 'pipe', 'ignore'] })
+      .toString()
+      .trim();
+    return `${version}-${commit}`;
+  } catch {
+    // A source tarball has no .git; packaging passes VERSION anyway.
+    return version;
+  }
+};
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, command }) => {
   // Load env variables based on mode
   // VITE_* is the usual client-exposed set. LINBIT_SDS_VERSION is the one
   // unprefixed variable a product build (LINBIT SDS for Windows) sets in its
   // own make process; it shows up in the About panel when present.
   const env = loadEnv(mode, process.cwd(), ['VITE_', 'LINBIT_SDS_VERSION']);
+
+  // Packaging sets VITE_VERSION (make build VERSION=...). A build without it
+  // used to say "DEV" unless someone edited .env by hand; name the commit
+  // instead. The dev server and the tests keep "DEV".
+  if (command === 'build' && !env.VITE_VERSION?.trim()) {
+    process.env.VITE_VERSION = snapshotVersion();
+  }
 
   const HOST = env.VITE_HOST || '127.0.0.1';
   const PORT = Number(env.VITE_PORT) || 3373;
