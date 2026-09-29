@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { afterEach } from 'vitest';
+import { afterAll, afterEach } from 'vitest';
 import { act, configure } from '@testing-library/react';
 import { message, notification } from 'antd';
 import i18n from 'i18next';
@@ -34,6 +34,51 @@ afterEach(() => {
     message.destroy();
     notification.destroy();
   });
+});
+
+// Any other timer a test file leaves behind (a reload scheduled a second
+// later, a retry, a debounce) has the same problem: it fires after jsdom is gone
+// and fails the run with an error that points at no test. Track the real
+// timers and clear what is still pending once the file is done. Fake timers
+// (vi.useFakeTimers) replace these globals while active, so they are unaffected.
+const pendingTimers = new Set<ReturnType<typeof setTimeout>>();
+const realSetTimeout = globalThis.setTimeout;
+const realClearTimeout = globalThis.clearTimeout;
+const realSetInterval = globalThis.setInterval;
+const realClearInterval = globalThis.clearInterval;
+
+globalThis.setTimeout = Object.assign((callback: (...args: unknown[]) => void, delay?: number, ...args: unknown[]) => {
+  const id = realSetTimeout(
+    (...callbackArgs: unknown[]) => {
+      pendingTimers.delete(id);
+      callback(...callbackArgs);
+    },
+    delay,
+    ...args,
+  );
+  pendingTimers.add(id);
+  return id;
+}, realSetTimeout) as typeof setTimeout;
+globalThis.clearTimeout = ((id?: ReturnType<typeof setTimeout>) => {
+  if (id !== undefined) pendingTimers.delete(id);
+  realClearTimeout(id);
+}) as typeof clearTimeout;
+globalThis.setInterval = Object.assign((callback: (...args: unknown[]) => void, delay?: number, ...args: unknown[]) => {
+  const id = realSetInterval(callback, delay, ...args);
+  pendingTimers.add(id);
+  return id;
+}, realSetInterval) as typeof setInterval;
+globalThis.clearInterval = ((id?: ReturnType<typeof setInterval>) => {
+  if (id !== undefined) pendingTimers.delete(id);
+  realClearInterval(id);
+}) as typeof clearInterval;
+
+afterAll(() => {
+  pendingTimers.forEach((id) => {
+    realClearTimeout(id);
+    realClearInterval(id);
+  });
+  pendingTimers.clear();
 });
 
 // Set timezone to UTC for consistent test results across different machines
