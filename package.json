@@ -29,7 +29,8 @@
     "generate-api:gateway": "openapi-typescript ./src/app/apis/Linstor-linstor-gateway-2.0.0-resolved.yaml --output ./src/app/apis/gatewayschema.ts",
     "generate-agents": "node scripts/generate-ocf-agents.mjs --all --format ts --merge src/app/components/OcfAgentEditor/all_agents.ts --out src/app/components/OcfAgentEditor/all_agents.ts && prettier --write src/app/components/OcfAgentEditor/all_agents.ts",
     "generate-agents:windows": "node scripts/generate-windows-agents.mjs",
-    "prepare": "husky"
+    "prepare": "husky",
+    "format:check": "prettier --check './src/**/*.{ts,tsx,js,jsx,css}'"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
@@ -53,6 +54,7 @@
     "globals": "^16.0.0",
     "husky": "^9.1.7",
     "jsdom": "^26.1.0",
+    "lint-staged": "^16.4.0",
     "openapi-typescript": "^7.6.1",
     "prettier": "^3.2.5",
     "rimraf": "^6.0.1",
@@ -96,5 +98,12 @@
     "react-router-dom": "^7.3.0",
     "smol-toml": "^1.6.0",
     "vconsole": "^3.15.1"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --max-warnings 0 --no-warn-ignored",
+      "prettier --write"
+    ],
+    "*.css": "prettier --write"
   }
 }

@@ -1,40 +1,5 @@
-# Run style checks
-echo "🔍 Running style checks..."
-
-# 1. ESLint check
-echo "📋 Running ESLint..."
-npm run lint
-if [ $? -ne 0 ]; then
-  echo "❌ ESLint failed. Please fix the errors above."
-  exit 1
-fi
-
-# 2. Prettier auto-fix formatting
-echo "🎨 Running Prettier auto-fix..."
-staged_files=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx|css)$' | tr '\n' ' ')
-if [ -n "$staged_files" ]; then
-  npx prettier --write $staged_files
-  # Re-add the formatted files to staging
-  git add $staged_files
-  echo "✅ Prettier formatting applied and files re-staged."
-else
-  echo "📝 No staged files found that need Prettier formatting."
-fi
-
-# 3. TypeScript type check
-echo "📝 Running TypeScript type check..."
+# Only what is staged: lint-staged lints and formats the staged files (and
+# keeps unstaged hunks out of the commit), then the project must type-check.
+# The test suite runs in CI; run `npm test` yourself for a larger change.
+npx lint-staged
 npm run type-check
-if [ $? -ne 0 ]; then
-  echo "❌ TypeScript type check failed. Please fix the type errors above."
-  exit 1
-fi
-
-# 4. Run tests
-echo "🧪 Running tests..."
-npm run test:coverage
-if [ $? -ne 0 ]; then
-  echo "❌ Tests failed. Please fix the failing tests above."
-  exit 1
-fi
-
-echo "✅ All checks passed! Ready to commit."

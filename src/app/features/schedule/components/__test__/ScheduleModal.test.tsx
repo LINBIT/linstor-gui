@@ -100,9 +100,7 @@ describe('ScheduleModal', () => {
       submit();
 
       await waitFor(() =>
-        expect(createSchedule).toHaveBeenCalledWith(
-          expect.objectContaining({ on_failure: 'RETRY', max_retries: 2 }),
-        ),
+        expect(createSchedule).toHaveBeenCalledWith(expect.objectContaining({ on_failure: 'RETRY', max_retries: 2 })),
       );
     });
 
