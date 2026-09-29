@@ -164,7 +164,10 @@ export default defineConfig(({ mode, command }) => {
       // locally. The limit is a hang guard, not a performance target.
       testTimeout: 20000,
       setupFiles: './src/setupTests.ts',
-      css: true,
+      // No test reads computed styles (getComputedStyle is stubbed in
+      // setupTests); running the CSS/Tailwind pipeline for every test file
+      // only cost time (~12% of the run).
+      css: false,
       // src/translations lives outside src/app but carries its own coverage
       // test, so the pattern is src/** rather than src/app/**.
       include: ['src/**/__test__/**/*.{ts,tsx}', 'src/**/*.test.{ts,tsx}', 'src/**/*.spec.{ts,tsx}'],

@@ -81,6 +81,25 @@ afterAll(() => {
   pendingTimers.clear();
 });
 
+// act() warnings about a component inside antd / rc-* (toast holders, form
+// fields, animations) updating on its own timer after an interaction are not
+// something a test can wrap; they were ~1,500 of the log's warnings and hid
+// the rest. An act() warning whose updating component is our code, i.e. whose
+// first stack frame is not under node_modules, still gets through.
+const reportError = console.error;
+console.error = (...args: unknown[]) => {
+  const [format, , stack] = args;
+  if (
+    typeof format === 'string' &&
+    format.includes('not wrapped in act(') &&
+    typeof stack === 'string' &&
+    /^\s*at [^\n]*node_modules\//.test(stack.trimStart().split('\n')[0] ?? '')
+  ) {
+    return;
+  }
+  reportError(...args);
+};
+
 // Set timezone to UTC for consistent test results across different machines
 // This ensures that time-related tests produce the same results regardless of
 // the local timezone of the machine running the tests

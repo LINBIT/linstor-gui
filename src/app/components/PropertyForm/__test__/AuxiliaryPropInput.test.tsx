@@ -52,7 +52,8 @@ vi.mock('antd', () => ({
   // (which wraps this mocked antd Button in an emotion styled()), and emotion
   // passes its own className through props — it must not clobber the marker
   // classes the assertions look for.
-  Button: ({ children, onClick, danger, icon, shape, ...props }: MockButtonProps) => (
+  // antd-only props (loading, htmlType, ghost, block) are dropped: a <button> has no such attributes.
+  Button: ({ children, onClick, danger, icon, shape, loading, htmlType, ghost, block, ...props }: MockButtonProps) => (
     <button
       data-testid="delete-button"
       onClick={onClick}
