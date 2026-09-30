@@ -16,6 +16,7 @@ import TimeRangeSelector from '@app/components/TimeRangeSelector';
 import PageBasic from '@app/components/PageBasic';
 import { usePreloadIframes, useThemeMode } from '@app/hooks';
 import { useSettings } from '@app/features/settings/useSettings';
+import { cssVar } from '@app/const/themeTokens';
 
 const { Title } = Typography;
 
@@ -229,7 +230,7 @@ const GrafanaStats: React.FC = () => {
             alignItems: 'center',
             justifyContent: 'center',
             height: '100%',
-            color: '#999',
+            color: cssVar('text/muted'),
           }}
         >
           {t('settings:drbd_dashboard_not_configured')}

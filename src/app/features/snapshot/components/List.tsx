@@ -5,14 +5,13 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Form, Table, Space, Dropdown, Tooltip, Modal } from 'antd';
+import { Form, Table, Space, Dropdown, Modal } from 'antd';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
 import type { TableProps } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { CheckCircleFilled, CloseCircleFilled, MoreOutlined } from '@ant-design/icons';
-import { LiaToolsSolid } from 'react-icons/lia';
 import { uniqBy, groupBy } from 'lodash';
 import { useTranslation } from 'react-i18next';
 
@@ -31,6 +30,9 @@ import { UIMode } from '@app/features/settings/types';
 import { useUIMode } from '@app/features/settings/useSettings';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { useDeleteAction, deletingRowClass } from '@app/hooks/useDeleteAction';
+import { cssVar } from '@app/const/themeTokens';
+import { labelRowCheckbox } from '@app/utils/rowSelection';
+import { ActionColumnTitle } from '@app/components/ActionColumnTitle';
 
 export const List = () => {
   const [form] = Form.useForm();
@@ -150,6 +152,7 @@ export const List = () => {
   const rowSelection = {
     selectedRowKeys,
     onChange: onSelectChange,
+    getCheckboxProps: labelRowCheckbox((snapshot: SnapshotType) => `${snapshot.resource_name} ${snapshot.name}`),
   };
 
   const hasSelected = selectedRowKeys.length > 0;
@@ -274,13 +277,7 @@ export const List = () => {
       align: 'center',
     },
     {
-      title: () => (
-        <Tooltip title={t('common:action')}>
-          <span className="flex justify-center">
-            <LiaToolsSolid className="w-4 h-4" />
-          </span>
-        </Tooltip>
-      ),
+      title: () => <ActionColumnTitle />,
       key: 'action',
       width: 150,
       fixed: 'right',
@@ -297,7 +294,10 @@ export const List = () => {
                       style={{
                         cursor:
                           latestSnapshotMap[record.resource_name ?? ''] !== record.uuid ? 'not-allowed' : 'pointer',
-                        color: latestSnapshotMap[record.resource_name ?? ''] !== record.uuid ? '#999' : 'inherit',
+                        color:
+                          latestSnapshotMap[record.resource_name ?? ''] !== record.uuid
+                            ? cssVar('text/muted')
+                            : 'inherit',
                       }}
                       onClick={() => {
                         if (latestSnapshotMap[record.resource_name ?? ''] !== record.uuid) return;

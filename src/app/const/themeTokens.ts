@@ -40,7 +40,11 @@ export const themeTokens = {
   'text/primary': { light: '#000000', dark: '#f0f0f0' },
   'text/secondary': { light: '#3f3f3f', dark: '#eeeeee' },
   'text/nav': { light: '#111111', dark: '#e0e0e0' },
-  'text/muted': { light: '#888888', dark: '#808080' },
+  // Muted text still reads at 4.5:1 (WCAG AA) on bg/page and bg/surface.
+  'text/muted': { light: '#717171', dark: '#808080' },
+  // Link text: interactive/primary is a fill; as text on white it reads at
+  // only 3.1:1, so light mode takes its darker step.
+  'text/link': { light: '#317792', dark: '#5aaccc' },
   'text/on-dark': { light: '#ffffff', dark: '#ffffff' },
   /**
    * Label/icon color on top of brand (peach) fills. The fill stays light in

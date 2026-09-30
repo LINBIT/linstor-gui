@@ -8,6 +8,7 @@ import React from 'react';
 import { Link as RouterLink, LinkProps as RouterLinkProps } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { tokens } from '@app/const/color';
+import { cssVar } from '@app/const/themeTokens';
 
 const StyledLink = styled(RouterLink, {
   shouldForwardProp: (prop) => !prop.startsWith('$'),
@@ -88,7 +89,7 @@ const StyledLink = styled(RouterLink, {
 
     // Default link style
     return `
-      color: ${tokens.color.link.default} !important;
+      color: ${cssVar('text/link')} !important;
       font-weight: 500;
       padding: 0;
       background: transparent !important;

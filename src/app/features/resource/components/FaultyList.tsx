@@ -117,7 +117,7 @@ export const FaultyList = () => {
 
   return (
     <div className="border-2 border-[color:var(--border-subtle)] rounded px-[34px] py-[30px] mt-[20px]">
-      <h3 className="m-0 mb-4 text-[26px] font-semibold">{t('common:faulty_resource')}</h3>
+      <h2 className="m-0 mb-4 text-[26px] font-semibold">{t('common:faulty_resource')}</h2>
       {resources?.length ? (
         <Table<ResourceDataType>
           columns={columns}
@@ -127,7 +127,7 @@ export const FaultyList = () => {
           rowKey={(item) => item?.uuid || generateUUID()}
         />
       ) : (
-        <div className="mt-[20px] text-[#999]">{t('common:all_resources_are_healthy')}</div>
+        <div className="mt-[20px] text-[var(--text-muted)]">{t('common:all_resources_are_healthy')}</div>
       )}
     </div>
   );

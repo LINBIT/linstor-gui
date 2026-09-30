@@ -8,7 +8,7 @@ import { theme } from 'antd';
 import type { ThemeConfig } from 'antd';
 
 import { tokens } from './color';
-import type { ThemeMode } from './themeTokens';
+import { themeTokens, type ThemeMode } from './themeTokens';
 
 /**
  * antd theme derived from the design tokens.
@@ -29,12 +29,40 @@ export const getAntdTheme = (mode: ThemeMode): ThemeConfig => ({
   algorithm: mode === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm,
   token: {
     ...antdTheme.token,
+    colorLink: themeTokens['text/link'][mode],
     ...(mode === 'dark' && {
       colorBgBase: '#111111',
       colorTextBase: '#f0f0f0',
     }),
+    // Descriptions and empty states read at 4.5:1 (WCAG AA); antd's 45% black
+    // is 3.4:1. The dark algorithm's own value already passes.
+    ...(mode === 'light' && { colorTextDescription: 'rgba(0, 0, 0, 0.56)' }),
+  },
+  components: {
+    ...antdTheme.components,
+    ...(mode === 'light' && { Tag: { ...antdTheme.components?.Tag, ...LIGHT_TAG_TEXT } }),
   },
 });
+
+/**
+ * Tag text on its tinted background at 4.5:1 (WCAG AA). antd writes a preset
+ * tag in shade 7 of its palette and a status tag in the status color itself,
+ * both too light for these; they take the next shade that passes. Light mode
+ * only: the dark algorithm derives its own palette.
+ */
+const LIGHT_TAG_TEXT = {
+  volcano7: '#ad2102',
+  orange7: '#ad4e00',
+  gold7: '#874d00',
+  yellow7: '#876800',
+  lime7: '#3f6600',
+  green7: '#237804',
+  cyan7: '#006d75',
+  colorSuccess: '#237804',
+  colorInfo: '#003eb3',
+  colorWarning: '#874d00',
+  colorError: '#a8071a',
+};
 
 export const antdTheme: ThemeConfig = {
   token: {

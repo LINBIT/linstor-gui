@@ -28,6 +28,7 @@ import { uniqId } from '@app/utils/stringUtils';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { Switch } from '@app/components/Switch';
 import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
+import { cssVar } from '@app/const/themeTokens';
 
 const DRBD_REACTOR_CONFIG_PREFIX = '/etc/drbd-reactor.d/';
 
@@ -396,7 +397,7 @@ export const List = () => {
               {decodeContent(fileContent.data.content)}
             </pre>
           ) : (
-            <div style={{ padding: 16, textAlign: 'center', color: '#999' }}>{t('no_content')}</div>
+            <div style={{ padding: 16, textAlign: 'center', color: cssVar('text/muted') }}>{t('no_content')}</div>
           )}
         </Spin>
       </Modal>
