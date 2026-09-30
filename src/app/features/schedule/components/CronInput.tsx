@@ -8,7 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal, Space, Alert } from 'antd';
 import { Input } from '@app/components/Input';
-import cronParser from 'cron-parser';
+import { CronExpressionParser } from 'cron-parser';
 import { Cron, CronError } from 'react-js-cron';
 import { Button } from '@app/components/Button';
 
@@ -28,7 +28,7 @@ const validateCronExpression = (expression: string): string | null => {
   }
 
   try {
-    cronParser.parse(expression);
+    CronExpressionParser.parse(expression);
     return null;
   } catch {
     return 'Invalid cron expression. Please check the format.';
@@ -116,7 +116,7 @@ const CronInput: React.FC<CronInputProps> = ({ value = '0 0 * * *', onChange }) 
     if (!tempCronValue) return;
 
     try {
-      const interval = cronParser.parse(tempCronValue);
+      const interval = CronExpressionParser.parse(tempCronValue);
       const nextTimes = [];
       for (let i = 0; i < 5; i++) {
         nextTimes.push(interval.next().toString());
