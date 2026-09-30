@@ -34,6 +34,7 @@ vi.mock('@app/features/settings/useSettings', () => ({ useSettings: () => settin
 
 import { AuthProvider } from '../AuthProvider';
 import { useAuth, useUsers, type AuthContextValue } from '../useAuth';
+import { captureRenderError } from '@app/testing/console';
 
 const KEY = 'linstorname';
 
@@ -65,7 +66,7 @@ describe('AuthProvider', () => {
   });
 
   it('refuses to work outside the provider', () => {
-    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    captureRenderError();
     expect(() => renderHook(() => useAuth())).toThrow('useAuth must be used within an AuthProvider');
   });
 

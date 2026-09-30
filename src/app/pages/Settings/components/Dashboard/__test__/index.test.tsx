@@ -12,6 +12,7 @@ import { renderSettings, switchByLabel } from '../../../__test__/helpers';
 import type { SettingsContextValue } from '@app/features/settings/useSettings';
 import type { GrafanaConfig } from '@app/features/settings/types';
 import { makeSettings } from '@app/__test__/helpers';
+import { captureConsoleError } from '@app/testing/console';
 
 const hoisted = vi.hoisted(() => ({
   settings: undefined as SettingsContextValue | undefined,
@@ -222,11 +223,12 @@ describe('Settings Grafana tab', () => {
 
   it('keeps going when saving fails', async () => {
     vi.mocked(hoisted.settings!.saveGrafanaConfig).mockRejectedValue(new Error('kvs down'));
+    const errors = captureConsoleError();
     renderSettings(<Dashboard />);
 
     save();
 
-    await waitFor(() => expect(hoisted.settings!.saveGrafanaConfig).toHaveBeenCalled());
+    await waitFor(() => expect(errors).toHaveBeenCalledWith('Failed to save:', expect.any(Error)));
     expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
   });
 });

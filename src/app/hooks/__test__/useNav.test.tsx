@@ -8,6 +8,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import React, { useState } from 'react';
 import { useNav, NavContext, NavContextProps } from '../useNav';
+import { captureRenderError } from '@app/testing/console';
 
 // Mock Provider component for testing
 const MockNavProvider: React.FC<{ children: React.ReactNode; value?: NavContextProps }> = ({ children, value }) => {
@@ -103,18 +104,15 @@ describe('useNav', () => {
 
   describe('error handling', () => {
     it('should throw error when used outside of NavProvider', () => {
-      // Suppress console.error for this test
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      captureRenderError();
 
       expect(() => {
         render(<TestComponentWithoutProvider />);
       }).toThrow('useNav must be used within a NavProvider');
-
-      consoleSpy.mockRestore();
     });
 
     it('should throw error with correct message when context is undefined', () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      captureRenderError();
 
       expect(() => {
         render(
@@ -123,8 +121,6 @@ describe('useNav', () => {
           </NavContext.Provider>,
         );
       }).toThrow('useNav must be used within a NavProvider');
-
-      consoleSpy.mockRestore();
     });
   });
 

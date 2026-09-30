@@ -41,6 +41,7 @@ import { notify } from '@app/utils/toast';
 import { SettingsProvider } from '../SettingsProvider';
 import { useSettings, type SettingsContextValue } from '../useSettings';
 import { UIMode } from '../types';
+import { captureRenderError } from '@app/testing/console';
 
 const reload = vi.fn();
 
@@ -79,7 +80,7 @@ describe('SettingsProvider', () => {
   });
 
   it('refuses to work outside the provider', () => {
-    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    captureRenderError();
     expect(() => renderHook(() => useSettings())).toThrow('useSettings must be used within a SettingsProvider');
   });
 

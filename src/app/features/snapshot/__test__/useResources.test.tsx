@@ -15,6 +15,7 @@ vi.mock('../api', () => ({
 
 import { getAllResources } from '../api';
 import { useResources } from '../hooks/useResources';
+import { captureConsoleError } from '@app/testing/console';
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
@@ -37,9 +38,13 @@ describe('useResources', () => {
   });
 
   it('reports the error when the api rejects', async () => {
-    vi.mocked(getAllResources).mockRejectedValue(new Error('down'));
+    const failure = new Error('down');
+    vi.mocked(getAllResources).mockRejectedValue(failure);
+    // react-query logs a failed query itself.
+    const errors = captureConsoleError();
     const { result } = renderHook(() => useResources(), { wrapper });
-    await waitFor(() => expect(result.current.error).toBeTruthy());
+    await waitFor(() => expect(result.current.error).toBe(failure));
     expect(result.current.data).toBeUndefined();
+    expect(errors).toHaveBeenCalledWith(failure);
   });
 });

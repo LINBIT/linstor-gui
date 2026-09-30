@@ -10,6 +10,7 @@ import { kvStore } from '@app/features/keyValueStore';
 import { USER_LOCAL_STORAGE_KEY, DEFAULT_ADMIN_USER_NAME, DEFAULT_ADMIN_USER_PASS } from '@app/const/settings';
 import { KV_NAMESPACES } from '@app/const/kvstore';
 import { encryptPassword } from '../passwordCipher';
+import { captureConsoleError, captureConsoleWarn } from '@app/testing/console';
 
 // Mock the kvStore
 vi.mock('@app/features/keyValueStore', () => ({
@@ -194,11 +195,13 @@ describe('UserAuthAPI', () => {
       const encryptedOldPassword = encryptPassword('correctpass', '1234123412ABCDEF');
 
       mockKvStore.getProperty.mockResolvedValue(encryptedOldPassword);
+      const warnings = captureConsoleWarn();
 
       const result = await userAuthAPI.changePassword(username, oldPassword, newPassword);
 
       expect(result).toBe(false);
       expect(mockKvStore.setProperty).toHaveBeenCalledTimes(0);
+      expect(warnings).toHaveBeenCalledWith('Change password failed: old password mismatch');
     });
 
     it('should fail to change password for non-existent user', async () => {
@@ -207,10 +210,12 @@ describe('UserAuthAPI', () => {
       const newPassword = 'newpass';
 
       mockKvStore.getProperty.mockResolvedValue(undefined);
+      const errors = captureConsoleError();
 
       const result = await userAuthAPI.changePassword(username, oldPassword, newPassword);
 
       expect(result).toBe(false);
+      expect(errors).toHaveBeenCalledWith('Change password failed: User not found:', 'nonexistent');
     });
   });
 
@@ -439,10 +444,12 @@ describe('UserAuthAPI', () => {
     it('should handle decryption errors gracefully', async () => {
       const user = { username: 'testuser', password: 'testpass' };
       mockKvStore.getProperty.mockResolvedValue('invalid_encrypted_data');
+      const errors = captureConsoleError();
 
       const result = await userAuthAPI.login(user);
 
       expect(result).toBe(false);
+      expect(errors).toHaveBeenCalledWith('Failed to decrypt password:', expect.anything());
     });
   });
 });

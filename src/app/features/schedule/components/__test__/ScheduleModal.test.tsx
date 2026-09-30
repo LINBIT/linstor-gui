@@ -16,6 +16,7 @@ vi.mock('../../api', () => ({
 
 import { createSchedule, modifySchedule } from '../../api';
 import ScheduleModal from '../ScheduleModal';
+import { captureConsoleError } from '@app/testing/console';
 
 const ok = { data: [{ ret_code: 1 }] };
 
@@ -118,6 +119,7 @@ describe('ScheduleModal', () => {
 
     it('reports a failed create and stays open', async () => {
       vi.mocked(createSchedule).mockRejectedValue(new Error('exists'));
+      const errors = captureConsoleError();
       const refetch = renderModal();
       fireEvent.click(screen.getByRole('button', { name: '+ Add' }));
       await screen.findByText('Create Schedule');
@@ -127,6 +129,7 @@ describe('ScheduleModal', () => {
       expect(await screen.findByText('Failed to create schedule.')).toBeInTheDocument();
       expect(refetch).not.toHaveBeenCalled();
       expect(screen.getByText('Create Schedule')).toBeInTheDocument();
+      expect(errors).toHaveBeenCalledWith('Error creating schedule:', expect.any(Error));
     });
   });
 
@@ -175,11 +178,13 @@ describe('ScheduleModal', () => {
 
     it('reports a failed modify', async () => {
       vi.mocked(modifySchedule).mockRejectedValue(new Error('nope'));
+      const errors = captureConsoleError();
       renderModal({ schedule });
       fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
       await screen.findByText('Edit Schedule');
       submit();
       expect(await screen.findByText('Failed to modify schedule.')).toBeInTheDocument();
+      expect(errors).toHaveBeenCalledWith('Error modifying schedule:', expect.any(Error));
     });
   });
 });

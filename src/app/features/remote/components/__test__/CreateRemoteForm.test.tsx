@@ -15,6 +15,7 @@ vi.mock('../../api', () => ({
 
 import { createS3Remote, createLINSTORRemote } from '../../api';
 import { CreateRemoteForm } from '../CreateRemoteForm';
+import { captureConsoleError } from '@app/testing/console';
 
 const renderForm = () => {
   const client = new QueryClient({ logger: { log: () => {}, warn: () => {}, error: () => {} } });
@@ -142,6 +143,7 @@ describe('CreateRemoteForm', () => {
 
   it('reports a transport failure', async () => {
     vi.mocked(createLINSTORRemote).mockRejectedValue(new Error('offline'));
+    const errors = captureConsoleError();
     renderForm();
     await open();
     fireEvent.mouseDown(screen.getByRole('combobox'));
@@ -150,5 +152,6 @@ describe('CreateRemoteForm', () => {
     type('Please input url', 'http://x');
     submit();
     expect(await screen.findByText('Create remote error')).toBeInTheDocument();
+    expect(errors).toHaveBeenCalledWith('create remote error', expect.any(Error));
   });
 });

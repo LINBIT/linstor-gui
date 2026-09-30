@@ -369,16 +369,7 @@ describe('EnterPassphrase Component Logic', () => {
       expect(inputProps.type).toBe('password');
     });
 
-    it('should not log passphrase in production', () => {
-      const consoleSpy = vi.spyOn(console, 'log');
-      const passphrase = 'secret-passphrase';
-
-      // In the component, there's console.log('Save', passphrase)
-      // In production, this should be removed or conditional
-      console.log('Save', passphrase);
-
-      expect(consoleSpy).toHaveBeenCalledWith('Save', passphrase);
-      consoleSpy.mockRestore();
-    });
+    // That the passphrase never reaches the console is checked against the
+    // rendered component in EnterPassphrase.console.test.tsx.
   });
 });

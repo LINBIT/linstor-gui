@@ -8,6 +8,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NavProvider } from '../NavContext';
 import { useNav } from '@app/hooks';
+import { captureRenderError } from '@app/testing/console';
 
 // Mock the usePersistentMenuState hook
 const mockSetIsNavOpen = vi.fn();
@@ -232,14 +233,11 @@ describe('NavContext', () => {
         return <div data-testid="nav-state">{isNavOpen ? 'open' : 'closed'}</div>;
       };
 
-      // Mock console.error to avoid error output in tests
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      captureRenderError();
 
       expect(() => {
         render(<ComponentWithoutProvider />);
       }).toThrow('useNav must be used within a NavProvider');
-
-      consoleErrorSpy.mockRestore();
     });
 
     it('should provide correct isNavOpen value', () => {

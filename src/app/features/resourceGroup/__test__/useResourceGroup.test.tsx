@@ -16,6 +16,7 @@ vi.mock('../api', () => ({
 import { getResourceGroups } from '../api';
 import { useResourceGroups } from '../hooks/useResourceGroup';
 import { DefaultResourceGroup } from '../const';
+import { captureConsoleError } from '@app/testing/console';
 
 const groups = [{ name: DefaultResourceGroup }, { name: 'rg-a' }, { name: 'rg-b' }];
 
@@ -51,9 +52,13 @@ describe('useResourceGroups', () => {
   });
 
   it('surfaces the error and no data when the api rejects', async () => {
-    vi.mocked(getResourceGroups).mockRejectedValue(new Error('down'));
+    const failure = new Error('down');
+    vi.mocked(getResourceGroups).mockRejectedValue(failure);
+    // react-query logs a failed query itself.
+    const errors = captureConsoleError();
     const { result } = renderHook(() => useResourceGroups({}), { wrapper });
-    await waitFor(() => expect(result.current.error).toBeTruthy());
+    await waitFor(() => expect(result.current.error).toBe(failure));
     expect(result.current.data).toBeUndefined();
+    expect(errors).toHaveBeenCalledWith(failure);
   });
 });

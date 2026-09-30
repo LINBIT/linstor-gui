@@ -24,6 +24,7 @@ import { kvStore } from '@app/features/keyValueStore';
 import { KV_NAMESPACES } from '@app/const/kvstore';
 import { DEFAULT_ADMIN_USER_NAME, DEFAULT_ADMIN_USER_PASS } from '@app/const/settings';
 import { UserAuthAPI } from '../api';
+import { captureConsoleError } from '@app/testing/console';
 
 // api.test.ts covers register/login/change/delete. This file covers the
 // store lifecycle: legacy migration, first-run initialisation, the admin
@@ -97,19 +98,24 @@ describe('UserAuthAPI store lifecycle', () => {
     });
 
     it('continues after a failed migration but rethrows a failed initialisation', async () => {
+      const errors = captureConsoleError();
       store.instanceExists.mockRejectedValueOnce(new Error('kv down'));
       store.instanceExists.mockResolvedValue(true as never);
       store.getProperty.mockResolvedValue(encrypt('x') as never);
       await expect(api.initUserStore()).resolves.toBeUndefined();
+      expect(errors).toHaveBeenCalledWith('Migration failed, will attempt to initialize normally:', expect.any(Error));
 
       store.instanceExists.mockRejectedValue(new Error('kv down for good'));
       await expect(api.initUserStore()).rejects.toThrow('kv down for good');
+      expect(errors).toHaveBeenLastCalledWith('Failed to initialize user store:', expect.any(Error));
     });
   });
 
   it('hasAdminUser is false on a store error, not an exception', async () => {
+    const errors = captureConsoleError();
     store.getProperty.mockRejectedValue(new Error('boom'));
     await expect(api.hasAdminUser()).resolves.toBe(false);
+    expect(errors).toHaveBeenCalledWith('Failed to check for admin user:', expect.any(Error));
   });
 
   it('updatePassword stores the new password without checking the old one', async () => {
@@ -119,13 +125,17 @@ describe('UserAuthAPI store lifecycle', () => {
     expect(decrypt(cipher as string)).toBe('new-pw');
     expect(store.getProperty).not.toHaveBeenCalled();
 
+    const errors = captureConsoleError();
     store.setProperty.mockRejectedValue(new Error('read only'));
     await expect(api.updatePassword('alice', 'x')).resolves.toBe(false);
+    expect(errors).toHaveBeenCalledWith('Error during password update:', expect.any(Error));
   });
 
   it('login fails cleanly on a password record that does not decrypt', async () => {
+    const errors = captureConsoleError();
     store.getProperty.mockResolvedValue('not-a-ciphertext' as never);
     await expect(api.login({ username: 'alice', password: 'pw' })).resolves.toBe(false);
+    expect(errors).toHaveBeenCalledWith('Failed to decrypt password:', expect.anything());
     expect(localStorage.getItem('linstorname')).toBeNull();
   });
 
@@ -154,8 +164,10 @@ describe('UserAuthAPI store lifecycle', () => {
     });
 
     it('reports failure instead of throwing', async () => {
+      const errors = captureConsoleError();
       store.listKeys.mockRejectedValue(new Error('boom'));
       await expect(api.resetAuthenticationSystem(true)).resolves.toBe(false);
+      expect(errors).toHaveBeenCalledWith('Failed to reset authentication system:', expect.any(Error));
     });
   });
 });

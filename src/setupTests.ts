@@ -1,7 +1,7 @@
 import './setupNoMotion';
 import '@testing-library/jest-dom';
 import { afterAll, afterEach } from 'vitest';
-import { act, configure } from '@testing-library/react';
+import { act, cleanup, configure } from '@testing-library/react';
 import { message, notification } from 'antd';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
@@ -94,6 +94,7 @@ afterAll(() => {
 // is dropped.
 const RC_UTIL_FALSE_CYCLE = 'Warning: Warning: There may be circular references';
 
+const unexpectedLogs: ['error' | 'warn', unknown[]][] = [];
 const reportError = console.error;
 console.error = (...args: unknown[]) => {
   const [format, , stack] = args;
@@ -110,8 +111,30 @@ console.error = (...args: unknown[]) => {
       return;
     }
   }
+  unexpectedLogs.push(['error', args]);
   reportError(...args);
 };
+
+const reportWarning = console.warn;
+console.warn = (...args: unknown[]) => {
+  unexpectedLogs.push(['warn', args]);
+  reportWarning(...args);
+};
+
+// Whatever reaches the two above was not expected: a test that makes the GUI
+// log an error on purpose captures it (captureConsoleError in @app/testing/console) and
+// asserts on it. Anything else fails the test that logged it, so the run's
+// output stays empty and a real error does not hide among expected ones.
+afterEach(() => {
+  const logged = unexpectedLogs.splice(0);
+  if (logged.length) {
+    // Unmount first: a failing hook skips the rest, and the next test would
+    // meet this one's DOM.
+    cleanup();
+    const summary = logged.map(([level, args]) => `console.${level}: ${args.map(String).join(' ')}`).join('\n');
+    throw new Error(`Unexpected console output:\n${summary}`);
+  }
+});
 
 // Set timezone to UTC for consistent test results across different machines
 // This ensures that time-related tests produce the same results regardless of
@@ -139,6 +162,11 @@ Object.defineProperty(window, 'getComputedStyle', {
     backgroundColor: '',
   }),
 });
+
+// jsdom has no canvas; getContext returns nothing either way, it only prints
+// "Not implemented" first (antd's Upload draws its thumbnails on one). null is
+// what a browser answers for a context it cannot provide.
+HTMLCanvasElement.prototype.getContext = (() => null) as typeof HTMLCanvasElement.prototype.getContext;
 
 // Mock ResizeObserver for components that use it
 global.ResizeObserver = class ResizeObserver {

@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, onTestFinished } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
 import HeaderAboutModal from '../HeaderAboutModal';
@@ -69,7 +69,13 @@ describe('HeaderAboutModal', () => {
   it('lets a DEV build in HCI mode override the HCI host', async () => {
     vi.stubEnv('VITE_VERSION', '');
     settings.current = makeSettings({ mode: UIMode.HCI });
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    // jsdom cannot reload a page; a location whose reload is a spy stands in.
+    const { location } = window;
+    const reload = vi.fn();
+    Object.defineProperty(window, 'location', { configurable: true, value: { ...location, reload } });
+    onTestFinished(() => {
+      Object.defineProperty(window, 'location', { configurable: true, value: location });
+    });
     render(<HeaderAboutModal />);
     await openAbout();
 
@@ -83,7 +89,7 @@ describe('HeaderAboutModal', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
 
     expect(localStorage.getItem('HCI_VSAN_HOST')).toBe('https://10.0.0.5:1443');
-    consoleError.mockRestore();
+    expect(reload).toHaveBeenCalled();
   });
 
   it('closes the host dialog on cancel without saving', async () => {

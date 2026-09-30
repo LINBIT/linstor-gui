@@ -21,6 +21,7 @@ vi.mock('react-router-dom', () => ({
 import { createBackup } from '../../api';
 import { getResources } from '@app/features/resource';
 import { CreateBackupForm } from '../CreateBackupForm';
+import { captureConsoleError } from '@app/testing/console';
 
 const renderForm = () => {
   const client = new QueryClient({
@@ -96,9 +97,11 @@ describe('CreateBackupForm', () => {
     expect(await screen.findByText('no snapshot support')).toBeInTheDocument();
 
     vi.mocked(createBackup).mockRejectedValue(new Error('offline'));
+    const errors = captureConsoleError();
     fireEvent.click(screen.getByRole('button', { name: '+ Add' }));
     await pickResource('res-b');
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
     expect(await screen.findByText('Create backup error')).toBeInTheDocument();
+    expect(errors).toHaveBeenCalledWith('create backup error', expect.any(Error));
   });
 });
