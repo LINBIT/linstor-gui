@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect, useRef, useState } from 'react';
+import { Space } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 import { convertRoundUp, sizeOptions } from '@app/utils/size';
@@ -44,29 +45,31 @@ export const SizeInput = ({ value, onChange, placeholder, disabled, defaultUnit,
   }, [value, disabled, defaultUnit, sizeUnit]);
 
   return (
-    <Input
-      style={style}
-      addonAfter={
-        <Select
-          disabled={disabled}
-          options={sizeOptions?.map((e) => ({
-            label: e.label,
-            value: e.value,
-          }))}
-          defaultValue={sizeOptions[2].value}
-          onChange={(value) => {
-            sizeUnitSet.current = true;
-            setSizeUnit(value);
-          }}
-          value={sizeUnit}
-        />
-      }
-      type="number"
-      min={0}
-      placeholder={placeholder || 'Please input size'}
-      value={inputVal}
-      onChange={handleInputChange}
-      disabled={disabled}
-    />
+    // The unit picker is a control, not text: it joins the input in a
+    // Space.Compact rather than sitting in a (grey) addon.
+    <Space.Compact block style={style}>
+      <Input
+        type="number"
+        min={0}
+        placeholder={placeholder || 'Please input size'}
+        value={inputVal}
+        onChange={handleInputChange}
+        disabled={disabled}
+      />
+      <Select
+        disabled={disabled}
+        options={sizeOptions?.map((e) => ({
+          label: e.label,
+          value: e.value,
+        }))}
+        defaultValue={sizeOptions[2].value}
+        onChange={(value) => {
+          sizeUnitSet.current = true;
+          setSizeUnit(value);
+        }}
+        value={sizeUnit}
+        style={{ width: 96, flex: 'none' }}
+      />
+    </Space.Compact>
   );
 };
