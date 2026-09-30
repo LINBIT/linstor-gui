@@ -7,7 +7,9 @@
 import * as React from 'react';
 import { HashRouter as Router } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
-import locale from 'antd/locale/en_US';
+// The ES module: antd/locale/* are CommonJS shims whose default import, once
+// bundled, is the module object rather than the locale (Table then has none).
+import locale from 'antd/es/locale/en_US';
 
 import AppLayout from '@app/layouts/AppLayout';
 import AppRoutes from '@app/routes/routes';
