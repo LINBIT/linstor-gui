@@ -387,17 +387,20 @@ export const List = () => {
               </Popconfirm>
 
               <Tooltip title={!allSelectedOffline && hasSelected ? t('node:lost_tooltip_offline_required') : ''}>
-                <Popconfirm
-                  key="lost"
-                  title={t('node:lost_nodes')}
-                  description={t('node:are_you_sure_lost_selected_nodes')}
-                  onConfirm={handleLostBulk}
-                  disabled={!allSelectedOffline}
-                >
-                  <Button danger disabled={!allSelectedOffline}>
-                    {t('common:lost')}
-                  </Button>
-                </Popconfirm>
+                {/* A DOM element for the tooltip to attach to (the button can be disabled). */}
+                <span>
+                  <Popconfirm
+                    key="lost"
+                    title={t('node:lost_nodes')}
+                    description={t('node:are_you_sure_lost_selected_nodes')}
+                    onConfirm={handleLostBulk}
+                    disabled={!allSelectedOffline}
+                  >
+                    <Button danger disabled={!allSelectedOffline}>
+                      {t('common:lost')}
+                    </Button>
+                  </Popconfirm>
+                </span>
               </Tooltip>
             </Space>
           </Form.Item>

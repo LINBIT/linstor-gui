@@ -219,48 +219,34 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  // Initialize form values
   useEffect(() => {
     setIsEnabled(grafanaSettings.enable);
     setIsDrbdEnabled(grafanaSettings.drbdEnable);
+  }, [grafanaSettings]);
 
-    if (grafanaSettings.enable && grafanaSettings.dashboardUrl) {
-      form.setFieldsValue({
-        dashboardUrl: grafanaSettings.dashboardUrl,
-        cpu: grafanaSettings.panelIdCpu || DEFAULT_PANELS.cpu,
-        memory: grafanaSettings.panelIdMemory || DEFAULT_PANELS.memory,
-        network: grafanaSettings.panelIdNetwork || DEFAULT_PANELS.network,
-        disk: grafanaSettings.panelIdDisk || DEFAULT_PANELS.disk,
-        diskIops: grafanaSettings.panelIdDiskIops || DEFAULT_PANELS.diskIops,
-        ioUsage: grafanaSettings.panelIdIoUsage || DEFAULT_PANELS.ioUsage,
-      });
-    } else {
-      // Set default values
-      form.setFieldsValue({
-        cpu: DEFAULT_PANELS.cpu,
-        memory: DEFAULT_PANELS.memory,
-        network: DEFAULT_PANELS.network,
-        disk: DEFAULT_PANELS.disk,
-        diskIops: DEFAULT_PANELS.diskIops,
-        ioUsage: DEFAULT_PANELS.ioUsage,
-      });
-    }
+  // The forms mount only while their switch is on, so they take these as
+  // initial values instead of being filled before they exist.
+  const formValues = useMemo(
+    () => ({
+      ...(grafanaSettings.enable && grafanaSettings.dashboardUrl ? { dashboardUrl: grafanaSettings.dashboardUrl } : {}),
+      cpu: grafanaSettings.panelIdCpu || DEFAULT_PANELS.cpu,
+      memory: grafanaSettings.panelIdMemory || DEFAULT_PANELS.memory,
+      network: grafanaSettings.panelIdNetwork || DEFAULT_PANELS.network,
+      disk: grafanaSettings.panelIdDisk || DEFAULT_PANELS.disk,
+      diskIops: grafanaSettings.panelIdDiskIops || DEFAULT_PANELS.diskIops,
+      ioUsage: grafanaSettings.panelIdIoUsage || DEFAULT_PANELS.ioUsage,
+    }),
+    [grafanaSettings],
+  );
 
-    // Initialize DRBD form values
-    if (grafanaSettings.drbdEnable && grafanaSettings.drbdUrl) {
-      drbdForm.setFieldsValue({
-        drbdUrl: grafanaSettings.drbdUrl,
-        drbdWriteRatePanelId: grafanaSettings.drbdWriteRatePanelId || DEFAULT_DRBD_PANELS.drbdWriteRatePanelId,
-        drbdReadRatePanelId: grafanaSettings.drbdReadRatePanelId || DEFAULT_DRBD_PANELS.drbdReadRatePanelId,
-      });
-    } else {
-      // Set DRBD default values
-      drbdForm.setFieldsValue({
-        drbdWriteRatePanelId: DEFAULT_DRBD_PANELS.drbdWriteRatePanelId,
-        drbdReadRatePanelId: DEFAULT_DRBD_PANELS.drbdReadRatePanelId,
-      });
-    }
-  }, [grafanaSettings, form, drbdForm]);
+  const drbdFormValues = useMemo(
+    () => ({
+      ...(grafanaSettings.drbdEnable && grafanaSettings.drbdUrl ? { drbdUrl: grafanaSettings.drbdUrl } : {}),
+      drbdWriteRatePanelId: grafanaSettings.drbdWriteRatePanelId || DEFAULT_DRBD_PANELS.drbdWriteRatePanelId,
+      drbdReadRatePanelId: grafanaSettings.drbdReadRatePanelId || DEFAULT_DRBD_PANELS.drbdReadRatePanelId,
+    }),
+    [grafanaSettings],
+  );
 
   const handleEnableChange = useCallback((checked: boolean) => {
     setIsEnabled(checked);
@@ -379,7 +365,7 @@ const Dashboard: React.FC = () => {
       {isEnabled && (
         <Card>
           <FormSection>
-            <Form form={form} layout="vertical">
+            <Form form={form} layout="vertical" initialValues={formValues}>
               <Form.Item
                 label={t('settings:dashboard_url')}
                 name="dashboardUrl"
@@ -474,7 +460,7 @@ const Dashboard: React.FC = () => {
 
             {isDrbdEnabled && (
               <FormSection>
-                <Form form={drbdForm} layout="vertical">
+                <Form form={drbdForm} layout="vertical" initialValues={drbdFormValues}>
                   <Form.Item
                     label={t('settings:drbd_dashboard_url')}
                     name="drbdUrl"

@@ -258,7 +258,7 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
             <Form.Item label={t('common:size')} required>
               <Space>
                 <Form.Item name="size_kib" rules={[{ required: true, message: 'Size is required!' }]}>
-                  {gross_size ? <SizeInput disabled={gross_size} /> : <SizeInput />}
+                  <SizeInput disabled={gross_size} />
                 </Form.Item>
                 <Form.Item name="gross_size" valuePropName="checked">
                   <Checkbox>Use all available</Checkbox>
@@ -355,12 +355,12 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
             <Form.List name="allowed_ips">
               {(fields, { add, remove }, { errors }) => (
                 <>
-                  {fields.map((field, index) => (
+                  {fields.map(({ key, ...field }, index) => (
                     <Form.Item
                       {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
                       label={index === 0 ? 'Allowed IPs' : ''}
                       required={false}
-                      key={field.key}
+                      key={key}
                     >
                       <Form.Item
                         {...field}

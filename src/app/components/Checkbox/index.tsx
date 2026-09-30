@@ -6,6 +6,7 @@
 
 import React from 'react';
 import { Checkbox as AntCheckbox, CheckboxProps as AntCheckboxProps } from 'antd';
+import type { CheckboxRef } from 'antd';
 import styled from '@emotion/styled';
 import { tokens } from '@app/const/color';
 
@@ -72,24 +73,29 @@ export interface CheckboxProps extends Omit<AntCheckboxProps, 'checked' | 'defau
 /**
  * Custom Checkbox component
  * Features custom color scheme with ${tokens.color.brand.primaryActive} as the primary color
- * Based on Ant Design Checkbox with custom styling
+ * Based on Ant Design Checkbox with custom styling. Forwards its ref, so it
+ * can be a Tooltip's child without antd falling back to findDOMNode.
  */
-export const Checkbox: React.FC<CheckboxProps> = ({
-  checked,
-  defaultChecked,
-  disabled = false,
-  onChange,
-  children,
-  indeterminate = false,
-  autoFocus = false,
-  className,
-  style,
-  id,
-  value,
-  ...restProps
-}) => {
+export const Checkbox = React.forwardRef<CheckboxRef, CheckboxProps>(function Checkbox(
+  {
+    checked,
+    defaultChecked,
+    disabled = false,
+    onChange,
+    children,
+    indeterminate = false,
+    autoFocus = false,
+    className,
+    style,
+    id,
+    value,
+    ...restProps
+  },
+  ref,
+) {
   return (
     <StyledCheckbox
+      ref={ref}
       checked={checked}
       defaultChecked={defaultChecked}
       disabled={disabled}
@@ -105,6 +111,6 @@ export const Checkbox: React.FC<CheckboxProps> = ({
       {children}
     </StyledCheckbox>
   );
-};
+});
 
 export default Checkbox;

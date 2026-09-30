@@ -94,7 +94,12 @@ const apiFailure = (res: unknown): string | undefined => {
   return undefined;
 };
 
-export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = ({ open, onClose, onCompleted }) => {
+const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void }> = ({
+  open,
+  onClose,
+  onCompleted,
+  afterClose,
+}) => {
   const { t } = useTranslation(['clusterSetup', 'common']);
   const [nodeForm] = Form.useForm<{ nodes: NodeRow[] }>();
   // A single storage-pool config that is applied identically to every planned
@@ -126,27 +131,6 @@ export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = ({ open, on
     () => nodePlan.map((n) => n.name?.trim()).filter((n): n is string => Boolean(n)),
     [nodePlan],
   );
-
-  const reset = () => {
-    setStep(0);
-    setPoolMode('existing');
-    setNodePlan([]);
-    setPoolPlan([]);
-    setRgPlan(null);
-    setCreating(false);
-    setCreated(false);
-    setNodeOutcomes([]);
-    setPoolOutcomes([]);
-    setRgOutcome(null);
-    nodeForm.resetFields();
-    spForm.resetFields();
-  };
-
-  const handleClose = () => {
-    onClose();
-    // Defer reset so the modal close animation doesn't show empty fields.
-    setTimeout(reset, 200);
-  };
 
   // Step 0 → 1: just validate + remember the node rows.
   const collectNodes = async () => {
@@ -324,12 +308,12 @@ export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = ({ open, on
   // hides the setup card) only once the user dismisses the outcome summary.
   const handleFinish = () => {
     onCompleted();
-    handleClose();
+    onClose();
   };
 
   const nodeFooter = (
     <Space>
-      <Button onClick={handleClose}>{t('common:cancel')}</Button>
+      <Button onClick={onClose}>{t('common:cancel')}</Button>
       <Button type="primary" onClick={collectNodes}>
         {t('clusterSetup:next')}
       </Button>
@@ -338,7 +322,7 @@ export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = ({ open, on
 
   const poolFooter = (
     <Space>
-      <Button onClick={handleClose}>{t('common:cancel')}</Button>
+      <Button onClick={onClose}>{t('common:cancel')}</Button>
       <Button onClick={() => setStep(0)}>{t('common:back')}</Button>
       <Button onClick={skipPools}>{t('common:skip')}</Button>
       <Button type="primary" onClick={collectPools}>
@@ -349,7 +333,7 @@ export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = ({ open, on
 
   const rgFooter = (
     <Space>
-      <Button onClick={handleClose}>{t('common:cancel')}</Button>
+      <Button onClick={onClose}>{t('common:cancel')}</Button>
       <Button onClick={() => setStep(1)}>{t('common:back')}</Button>
       <Button onClick={skipRG}>{t('common:skip')}</Button>
       <Button type="primary" onClick={collectRG}>
@@ -380,7 +364,8 @@ export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = ({ open, on
       title={t('clusterSetup:title')}
       open={open}
       width={920}
-      onCancel={handleClose}
+      onCancel={onClose}
+      afterClose={afterClose}
       maskClosable={false}
       keyboard={false}
       footer={step === 0 ? nodeFooter : step === 1 ? poolFooter : step === 2 ? rgFooter : reviewFooter}
@@ -649,4 +634,13 @@ export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = ({ open, on
       )}
     </Modal>
   );
+};
+
+/**
+ * Every opening starts from scratch: once the modal has closed, the session
+ * (its steps, plans and forms) is replaced by a fresh one.
+ */
+export const SetupClusterWizard: React.FC<SetupClusterWizardProps> = (props) => {
+  const [session, setSession] = useState(0);
+  return <WizardSession key={session} {...props} afterClose={() => setSession((n) => n + 1)} />;
 };

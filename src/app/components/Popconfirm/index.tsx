@@ -63,10 +63,17 @@ export const Popconfirm: React.FC<PopconfirmProps> = ({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // A synchronous onConfirm closes the popover in the same tick as the click;
+  // only a returned promise shows the spinner and closes once it settles.
   const handleConfirm = async (e: React.MouseEvent<HTMLElement>) => {
+    const result = onConfirm?.(e);
+    if (!(result instanceof Promise)) {
+      setOpen(false);
+      return;
+    }
+    setLoading(true);
     try {
-      setLoading(true);
-      await onConfirm?.(e);
+      await result;
       setOpen(false);
     } finally {
       setLoading(false);

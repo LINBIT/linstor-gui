@@ -30,7 +30,7 @@ export const SearchForm = styled.div`
   }
 
   /* Keep the trailing "+ Add" action right-aligned when it wraps. */
-  & > *:not(:first-child):last-child {
+  & > * + *:last-child {
     margin-left: auto;
   }
 `;
