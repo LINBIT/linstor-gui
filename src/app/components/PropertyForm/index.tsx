@@ -418,7 +418,7 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
                   rules: [{ required: true, message: `Please input ${item.label}` }],
                 };
 
-                let element: React.ReactNode = null;
+                let element: React.ReactNode;
                 switch (item.type) {
                   case 'text':
                     element = <Input />;

@@ -28,7 +28,10 @@ export default tseslint.config(
       'react-refresh': reactRefresh,
     },
     rules: {
-      ...reactHooks.configs.recommended.rules,
+      // The two rules v5's recommended set had; v7 adds the React Compiler
+      // rules to recommended, which the code base is not ready for.
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
       // Design-system guard: these antd components have branded wrappers under
       // @app/components — import those instead. The wrapper files themselves
       // are exempted below.

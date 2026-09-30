@@ -306,20 +306,18 @@ export const VSANNodeList = () => {
       dataIndex: 'address',
       key: 'online',
       render: (_, record) => {
-        let color: string = SUCCESS_COLOR;
-        let statusText = 'Online';
+        let color: string;
+        let statusText: string;
 
-        if (record.online) {
-          color = SUCCESS_COLOR;
-          statusText = 'Online';
-
-          if (record.standby) {
-            color = 'yellow';
-            statusText = 'Standby';
-          }
-        } else {
+        if (!record.online) {
           color = ERROR_COLOR;
           statusText = 'Error';
+        } else if (record.standby) {
+          color = 'yellow';
+          statusText = 'Standby';
+        } else {
+          color = SUCCESS_COLOR;
+          statusText = 'Online';
         }
 
         return (

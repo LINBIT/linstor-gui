@@ -74,7 +74,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const probe = ++latestProbe.current;
     probesInFlight.current += 1;
     setCheckingGateway(true);
-    let ok = false;
+    let ok: boolean;
     try {
       const res = await service.get('/api/v2/status');
       ok = res.data?.status === 'ok';

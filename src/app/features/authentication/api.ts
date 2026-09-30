@@ -11,7 +11,7 @@ import { KeyValueStoreType, kvStore } from '@app/features/keyValueStore';
 
 // Only needed when a password is stored or checked, so keep it out of the
 // first load.
-const loadCryptoJS = () => import('crypto-js').then((m) => m.default);
+const loadCipher = () => import('./passwordCipher');
 
 export interface UserAuth {
   username: string;
@@ -25,7 +25,6 @@ export class UserAuthAPI {
 
   constructor() {
     this.store = kvStore;
-    // this.key = CryptoJS.enc.Utf8.parse('1234123412ABCDEF');
     this.key = '1234123412ABCDEF';
   }
 
@@ -193,52 +192,14 @@ export class UserAuthAPI {
   // }
 
   private async encrypt(password: string): Promise<string> {
-    const CryptoJS = await loadCryptoJS();
-    return CryptoJS.AES.encrypt(password, this.key).toString();
-
-    // const srcs = CryptoJS.enc.Utf8.parse(password);
-    // const encrypted = CryptoJS.AES.encrypt(srcs, this.key, {
-    //   iv: this.iv,
-    //   mode: CryptoJS.mode.CBC,
-    //   padding: CryptoJS.pad.Pkcs7,
-    // });
-    // return encrypted.ciphertext.toString().toUpperCase();
+    const { encryptPassword } = await loadCipher();
+    return encryptPassword(password, this.key);
   }
 
   private async decrypt(encryptedPassword: string): Promise<string> {
-    const CryptoJS = await loadCryptoJS();
+    const { decryptPassword } = await loadCipher();
     try {
-      const decrypted = CryptoJS.AES.decrypt(encryptedPassword, this.key);
-      const result = decrypted.toString(CryptoJS.enc.Utf8);
-
-      // Check if decryption resulted in empty string (possible wrong key or format)
-      if (!result) {
-        logger.warn('Decryption resulted in empty string - possible key or format mismatch');
-
-        // Try alternative decryption methods for backward compatibility
-        try {
-          // Try treating the input as different format
-          const alternativeDecrypted = CryptoJS.AES.decrypt(encryptedPassword, this.key).toString(CryptoJS.enc.Utf8);
-
-          if (alternativeDecrypted) {
-            return alternativeDecrypted;
-          }
-        } catch (altError) {
-          logger.error('Alternative decryption also failed:', altError);
-        }
-      }
-
-      return result;
-
-      // const encryptedHexStr = CryptoJS.enc.Hex.parse(encryptedPassword);
-      // const srcs = CryptoJS.enc.Base64.stringify(encryptedHexStr);
-      // const decrypt = CryptoJS.AES.decrypt(srcs, this.key, {
-      //   iv: this.iv,
-      //   mode: CryptoJS.mode.CBC,
-      //   padding: CryptoJS.pad.Pkcs7,
-      // });
-      // const decryptedStr = decrypt.toString(CryptoJS.enc.Utf8);
-      // return decryptedStr.toString();
+      return decryptPassword(encryptedPassword, this.key);
     } catch (error) {
       logger.error('Decryption failed:', error);
       throw error;

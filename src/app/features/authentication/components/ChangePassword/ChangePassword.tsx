@@ -141,7 +141,7 @@ const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordPr
   const onCreate = async (values: Values) => {
     logger.debug('ChangePassword submitted, admin mode:', admin);
 
-    let res = null;
+    let res: boolean;
     if (admin) {
       res = await resetPassword({
         user: user || DEFAULT_ADMIN_USER_NAME,

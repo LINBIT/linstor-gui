@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import CryptoJS from 'crypto-js';
+import { decryptPassword, encryptPassword } from '../passwordCipher';
 
 vi.mock('@app/features/keyValueStore', () => ({
   kvStore: {
@@ -30,8 +30,8 @@ import { UserAuthAPI } from '../api';
 // safety net, reset, and what a corrupt password record does to login.
 
 const KEY = '1234123412ABCDEF';
-const encrypt = (plain: string) => CryptoJS.AES.encrypt(plain, KEY).toString();
-const decrypt = (cipher: string) => CryptoJS.AES.decrypt(cipher, KEY).toString(CryptoJS.enc.Utf8);
+const encrypt = (plain: string) => encryptPassword(plain, KEY);
+const decrypt = (cipher: string) => decryptPassword(cipher, KEY);
 
 const store = vi.mocked(kvStore);
 

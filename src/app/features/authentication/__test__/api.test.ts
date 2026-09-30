@@ -9,7 +9,7 @@ import { UserAuthAPI } from '../api';
 import { kvStore } from '@app/features/keyValueStore';
 import { USER_LOCAL_STORAGE_KEY, DEFAULT_ADMIN_USER_NAME, DEFAULT_ADMIN_USER_PASS } from '@app/const/settings';
 import { KV_NAMESPACES } from '@app/const/kvstore';
-import CryptoJS from 'crypto-js';
+import { encryptPassword } from '../passwordCipher';
 
 // Mock the kvStore
 vi.mock('@app/features/keyValueStore', () => ({
@@ -111,11 +111,11 @@ describe('UserAuthAPI', () => {
 
   describe('hasDefaultAdminPassword', () => {
     it('is true only while admin still has the default password, and logs nobody in', async () => {
-      mockKvStore.getProperty.mockResolvedValue(CryptoJS.AES.encrypt('admin', '1234123412ABCDEF').toString());
+      mockKvStore.getProperty.mockResolvedValue(encryptPassword('admin', '1234123412ABCDEF'));
       expect(await userAuthAPI.hasDefaultAdminPassword()).toBe(true);
       expect(mockKvStore.getProperty).toHaveBeenCalledWith(expect.any(String), 'admin');
 
-      mockKvStore.getProperty.mockResolvedValue(CryptoJS.AES.encrypt('E2eAdmin-1', '1234123412ABCDEF').toString());
+      mockKvStore.getProperty.mockResolvedValue(encryptPassword('E2eAdmin-1', '1234123412ABCDEF'));
       expect(await userAuthAPI.hasDefaultAdminPassword()).toBe(false);
 
       mockKvStore.getProperty.mockResolvedValue(undefined);
@@ -127,7 +127,7 @@ describe('UserAuthAPI', () => {
   describe('login', () => {
     it('should successfully login with correct credentials', async () => {
       const user = { username: 'testuser', password: 'testpass' };
-      const encryptedPassword = CryptoJS.AES.encrypt('testpass', '1234123412ABCDEF').toString();
+      const encryptedPassword = encryptPassword('testpass', '1234123412ABCDEF');
 
       mockKvStore.getProperty.mockResolvedValue(encryptedPassword);
 
@@ -139,7 +139,7 @@ describe('UserAuthAPI', () => {
 
     it('should fail login with incorrect password', async () => {
       const user = { username: 'testuser', password: 'wrongpass' };
-      const encryptedPassword = CryptoJS.AES.encrypt('correctpass', '1234123412ABCDEF').toString();
+      const encryptedPassword = encryptPassword('correctpass', '1234123412ABCDEF');
 
       mockKvStore.getProperty.mockResolvedValue(encryptedPassword);
 
@@ -176,7 +176,7 @@ describe('UserAuthAPI', () => {
       const username = 'testuser';
       const oldPassword = 'oldpass';
       const newPassword = 'newpass';
-      const encryptedOldPassword = CryptoJS.AES.encrypt(oldPassword, '1234123412ABCDEF').toString();
+      const encryptedOldPassword = encryptPassword(oldPassword, '1234123412ABCDEF');
 
       mockKvStore.getProperty.mockResolvedValue(encryptedOldPassword);
       mockKvStore.setProperty.mockResolvedValue();
@@ -191,7 +191,7 @@ describe('UserAuthAPI', () => {
       const username = 'testuser';
       const oldPassword = 'wrongpass';
       const newPassword = 'newpass';
-      const encryptedOldPassword = CryptoJS.AES.encrypt('correctpass', '1234123412ABCDEF').toString();
+      const encryptedOldPassword = encryptPassword('correctpass', '1234123412ABCDEF');
 
       mockKvStore.getProperty.mockResolvedValue(encryptedOldPassword);
 
