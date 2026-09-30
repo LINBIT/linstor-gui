@@ -33,6 +33,7 @@ const renderModal = (props: Partial<React.ComponentProps<typeof ScheduleModal>> 
 
 // The two CronInputs (full, incremental) share a placeholder; full comes first.
 const fullCron = () => screen.getAllByPlaceholderText('Cron Expression')[0];
+const incCron = () => screen.getAllByPlaceholderText('Cron Expression')[1];
 const setCron = (el: HTMLElement, value: string) => {
   fireEvent.change(el, { target: { value } });
   fireEvent.blur(el);
@@ -53,13 +54,41 @@ describe('ScheduleModal', () => {
   });
 
   describe('create', () => {
-    it('opens from the add button and requires a name and a full cron', async () => {
+    it('opens from the add button with a daily full backup and no incremental one, and requires a name', async () => {
       renderModal();
       fireEvent.click(screen.getByRole('button', { name: '+ Add' }));
       expect(await screen.findByText('Create Schedule')).toBeInTheDocument();
+      expect(fullCron()).toHaveValue('0 0 * * *');
+      expect(incCron()).toHaveValue('');
       submit();
       expect(await screen.findByText('Schedule name is required')).toBeInTheDocument();
-      expect(screen.getByText('Please enter a full cron expression')).toBeInTheDocument();
+      expect(screen.queryByText('Please enter a full cron expression')).not.toBeInTheDocument();
+      expect(createSchedule).not.toHaveBeenCalled();
+    });
+
+    it('creates a schedule with the full cron it shows, and without an incremental one', async () => {
+      renderModal();
+      fireEvent.click(screen.getByRole('button', { name: '+ Add' }));
+      await screen.findByText('Create Schedule');
+      fireEvent.change(screen.getByPlaceholderText('Enter schedule name'), { target: { value: 'daily' } });
+      submit();
+      await waitFor(() =>
+        expect(createSchedule).toHaveBeenCalledWith({
+          schedule_name: 'daily',
+          full_cron: '0 0 * * *',
+          on_failure: 'SKIP',
+        }),
+      );
+    });
+
+    it('requires a full cron once it is emptied', async () => {
+      renderModal();
+      fireEvent.click(screen.getByRole('button', { name: '+ Add' }));
+      await screen.findByText('Create Schedule');
+      fireEvent.change(screen.getByPlaceholderText('Enter schedule name'), { target: { value: 'daily' } });
+      setCron(fullCron(), '');
+      submit();
+      expect(await screen.findByText('Please enter a full cron expression')).toBeInTheDocument();
       expect(createSchedule).not.toHaveBeenCalled();
     });
 

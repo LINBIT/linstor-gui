@@ -35,6 +35,9 @@ type ScheduleModalProps = {
   isInDropdown?: boolean;
 };
 
+// A new schedule starts with a daily full backup at midnight.
+const DEFAULT_FULL_CRON = '0 0 * * *';
+
 const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModalProps) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
@@ -94,7 +97,9 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
   const handleOk = () => {
     form
       .validateFields()
-      .then((values: Schedule) => {
+      .then(({ inc_cron, ...rest }: Schedule) => {
+        // An incremental cron is optional; an empty field means none.
+        const values: Schedule = inc_cron ? { ...rest, inc_cron } : rest;
         if (schedule) {
           // If editing, call modifySchedule
           modifyMutation.mutate({ ...schedule, ...values });
@@ -141,6 +146,7 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
           form={form}
           layout="vertical"
           initialValues={{
+            full_cron: DEFAULT_FULL_CRON,
             on_failure: 'SKIP',
           }}
         >

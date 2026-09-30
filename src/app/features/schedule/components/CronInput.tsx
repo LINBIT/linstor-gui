@@ -21,10 +21,11 @@ interface CronInputProps {
   onChange?: (value: string) => void; // callback when value changes
 }
 
-// Validate cron expression
+// Validate cron expression. An empty field is not an error here: whether a
+// value is required is the form's rule to state.
 const validateCronExpression = (expression: string): string | null => {
   if (!expression.trim()) {
-    return 'Cron expression cannot be empty';
+    return null;
   }
 
   try {
@@ -35,7 +36,9 @@ const validateCronExpression = (expression: string): string | null => {
   }
 };
 
-const CronInput: React.FC<CronInputProps> = ({ value = '0 0 * * *', onChange }) => {
+// Shows exactly its value: a default shown here but not in the form would be
+// a value the form does not have. A form that wants one sets it as initial value.
+const CronInput: React.FC<CronInputProps> = ({ value = '', onChange }) => {
   const { t } = useTranslation();
   const [values, dispatchValues] = useCronReducer(value);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -66,16 +69,17 @@ const CronInput: React.FC<CronInputProps> = ({ value = '0 0 * * *', onChange }) 
 
   // Update the cron value when the input field loses focus
   const handleInputBlur = () => {
-    const error = validateCronExpression(values.inputValue);
+    const expression = values.inputValue.trim() ? values.inputValue : '';
+    const error = validateCronExpression(expression);
     setInputError(error);
 
     if (!error) {
       dispatchValues({
-        type: 'set_cron_value',
-        value: values.inputValue,
+        type: 'set_values',
+        value: expression,
       });
       if (onChange) {
-        onChange(values.inputValue);
+        onChange(expression);
       }
     }
   };

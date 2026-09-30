@@ -12,9 +12,10 @@ import CronInput from '../CronInput';
 const input = () => screen.getByPlaceholderText('Cron Expression') as HTMLInputElement;
 
 describe('CronInput', () => {
-  it('starts from the given value, or midnight daily by default', () => {
+  it('shows exactly its value, and nothing when it has none', () => {
     const { unmount } = render(<CronInput />);
-    expect(input()).toHaveValue('0 0 * * *');
+    expect(input()).toHaveValue('');
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     unmount();
     render(<CronInput value="*/5 * * * *" />);
     expect(input()).toHaveValue('*/5 * * * *');
@@ -42,11 +43,13 @@ describe('CronInput', () => {
     expect(screen.queryByText('Invalid cron expression. Please check the format.')).not.toBeInTheDocument();
   });
 
-  it('flags an empty expression', () => {
-    render(<CronInput />);
+  it('reports an emptied field as empty and leaves whether that is allowed to the form', () => {
+    const onChange = vi.fn();
+    render(<CronInput value="0 0 * * *" onChange={onChange} />);
     fireEvent.change(input(), { target: { value: '   ' } });
     fireEvent.blur(input());
-    expect(screen.getByText('Cron expression cannot be empty')).toBeInTheDocument();
+    expect(onChange).toHaveBeenCalledWith('');
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
   it('flags an invalid initial value straight away', () => {
@@ -77,7 +80,7 @@ describe('CronInput', () => {
 
   it('cancel in the editor changes nothing', async () => {
     const onChange = vi.fn();
-    render(<CronInput onChange={onChange} />);
+    render(<CronInput value="0 0 * * *" onChange={onChange} />);
     fireEvent.click(screen.getByRole('button', { name: 'Open Cron Editor' }));
     await screen.findByText('Cron Editor');
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
