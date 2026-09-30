@@ -63,9 +63,13 @@ export const SizeInput = ({ value, onChange, placeholder, disabled, defaultUnit,
           value: e.value,
         }))}
         defaultValue={sizeOptions[2].value}
-        onChange={(value) => {
+        onChange={(unit) => {
           sizeUnitSet.current = true;
-          setSizeUnit(value);
+          setSizeUnit(unit);
+          // The number stays, so the size it stands for changes with the unit.
+          if (inputVal !== '' && onChange) {
+            onChange(convertRoundUp(unit, Number(inputVal)));
+          }
         }}
         value={sizeUnit}
         style={{ width: 96, flex: 'none' }}

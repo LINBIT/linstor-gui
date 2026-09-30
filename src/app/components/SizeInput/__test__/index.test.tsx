@@ -35,6 +35,12 @@ describe('SizeInput', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
+
+  // The dropdown's own option, not the hidden accessibility copy of its text.
+  const pickUnit = async (unit: string) => {
+    await user.click(screen.getByRole('combobox'));
+    await user.click(document.querySelector(`.ant-select-item-option[title="${unit}"]`) as HTMLElement);
+  };
   test('renders with default props', () => {
     render(<SizeInput />);
 
@@ -82,6 +88,25 @@ describe('SizeInput', () => {
 
     expect(screen.getByTitle('MiB')).toBeInTheDocument();
   });
+  test('a unit picked after the number sends the number in that unit', async () => {
+    const handleChange = vi.fn();
+    render(<SizeInput onChange={handleChange} />);
+
+    await user.type(screen.getByPlaceholderText('Please input size'), '512');
+    expect(handleChange).toHaveBeenLastCalledWith(512 * 1024 * 1024);
+
+    await pickUnit('MiB');
+    expect(handleChange).toHaveBeenLastCalledWith(512 * 1024);
+  });
+
+  test('a unit picked before any number sends nothing', async () => {
+    const handleChange = vi.fn();
+    render(<SizeInput onChange={handleChange} />);
+
+    await pickUnit('MiB');
+    expect(handleChange).not.toHaveBeenCalled();
+  });
+
   test('handles disabled state correctly', () => {
     render(<SizeInput disabled />);
 
