@@ -1,3 +1,4 @@
+import './setupNoMotion';
 import '@testing-library/jest-dom';
 import { afterAll, afterEach } from 'vitest';
 import { act, configure } from '@testing-library/react';
@@ -86,16 +87,28 @@ afterAll(() => {
 // something a test can wrap; they were ~1,500 of the log's warnings and hid
 // the rest. An act() warning whose updating component is our code, i.e. whose
 // first stack frame is not under node_modules, still gets through.
+// rc-util's isEqual (used by rc-field-form to compare a field's meta) takes
+// any object it meets twice for a cycle. While a field re-validates, both its
+// errors and warnings are the same empty-array constant, so it reports "There
+// may be circular references" for data that has none. Only that exact message
+// is dropped.
+const RC_UTIL_FALSE_CYCLE = 'Warning: Warning: There may be circular references';
+
 const reportError = console.error;
 console.error = (...args: unknown[]) => {
   const [format, , stack] = args;
-  if (
-    typeof format === 'string' &&
-    format.includes('not wrapped in act(') &&
-    typeof stack === 'string' &&
-    /^\s*at [^\n]*node_modules\//.test(stack.trimStart().split('\n')[0] ?? '')
-  ) {
+  if (format === RC_UTIL_FALSE_CYCLE) {
     return;
+  }
+  const [, component] = args;
+  if (typeof format === 'string' && format.includes('not wrapped in act(')) {
+    const firstFrame = typeof stack === 'string' ? (stack.trimStart().split('\n')[0] ?? '') : '';
+    // antd's static message API renders into a React root of its own: no
+    // frames at all, the component is called "Root".
+    const antdMessageRoot = component === 'Root' && !firstFrame.includes('src/');
+    if (antdMessageRoot || /^\s*at [^\n]*node_modules\//.test(firstFrame)) {
+      return;
+    }
   }
   reportError(...args);
 };
@@ -105,10 +118,14 @@ console.error = (...args: unknown[]) => {
 // the local timezone of the machine running the tests
 process.env.TZ = 'UTC';
 
-// Mock getComputedStyle for jsdom compatibility
+// jsdom's getComputedStyle cascades every injected antd style on each call,
+// which made the suite several times slower; a stub is enough for the tests.
+// Lengths read as 0px rather than '', which parseFloat turns into NaN (TextArea
+// autoSize then set `height: NaN`).
+const LENGTH_PROPERTY = /^(width|height|(padding|margin|border)-.*|line-height|font-size)$/;
 Object.defineProperty(window, 'getComputedStyle', {
   value: () => ({
-    getPropertyValue: () => '',
+    getPropertyValue: (property: string) => (LENGTH_PROPERTY.test(property) ? '0px' : ''),
     display: '',
     position: '',
     width: '',

@@ -208,7 +208,15 @@ const expandRow = async (name: string) => {
 const nodeRowIn = (expanded: HTMLElement, node: string) =>
   within(expanded).getByText(node).closest('tr') as HTMLElement;
 
-const confirmYes = async () => fireEvent.click(await screen.findByRole('button', { name: 'Yes' }));
+// Closed popovers stay in the DOM (hidden by a class); confirm in the open one.
+const confirmYes = async () => {
+  const popover = await waitFor(() => {
+    const open = [...document.querySelectorAll<HTMLElement>('.ant-popover:not(.ant-popover-hidden)')];
+    expect(open.length).toBeGreaterThan(0);
+    return open[open.length - 1];
+  });
+  fireEvent.click(within(popover).getByRole('button', { name: 'Yes' }));
+};
 
 describe('resource OverviewList', () => {
   beforeEach(() => {

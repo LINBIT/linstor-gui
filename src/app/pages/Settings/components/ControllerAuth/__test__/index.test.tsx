@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import ControllerAuth from '..';
 
@@ -51,8 +51,11 @@ describe('Settings ControllerAuth tab', () => {
     warningMessage.mockReset();
   });
 
-  it('shows only the initialize action and HTTPS switch warning', () => {
-    render(<ControllerAuth />);
+  it('shows only the initialize action and HTTPS switch warning', async () => {
+    // The mount probe of the controller properties settles inside act.
+    await act(async () => {
+      render(<ControllerAuth />);
+    });
 
     expect(screen.getByRole('button', { name: 'settings:controller_auth_initialize' })).toBeInTheDocument();
     // Modify Access Token only shows once token auth is initialized.

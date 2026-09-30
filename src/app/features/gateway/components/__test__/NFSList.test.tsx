@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { act, render, screen, fireEvent } from '@testing-library/react';
 
 // Mock setup - must be before imports
 vi.mock('react-i18next', () => ({
@@ -251,12 +251,15 @@ describe('NFSList Component', () => {
   });
 
   describe('Delete Operations', () => {
-    it('should call handleDelete when delete is confirmed', () => {
+    it('should call handleDelete when delete is confirmed', async () => {
       renderComponent();
 
       const confirmButtons = screen.getAllByTestId('popconfirm-ok');
       // Delete button for first export is at index 1
-      fireEvent.click(confirmButtons[2]);
+      // The delete runs to completion (its row stops showing as deleting) inside act.
+      await act(async () => {
+        fireEvent.click(confirmButtons[2]);
+      });
 
       expect(mockHandlers.handleDelete).toHaveBeenCalledWith('nfs-export-1');
     });

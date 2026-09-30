@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { act, render, screen, fireEvent } from '@testing-library/react';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -161,12 +161,15 @@ describe('NVMeList Component', () => {
   });
 
   describe('Delete Operations', () => {
-    it('should call handleDelete when delete is confirmed', () => {
+    it('should call handleDelete when delete is confirmed', async () => {
       renderComponent();
 
       const confirmButtons = screen.getAllByTestId('popconfirm-ok');
       // Delete button for first target is at index 1
-      fireEvent.click(confirmButtons[2]);
+      // The delete runs to completion (its row stops showing as deleting) inside act.
+      await act(async () => {
+        fireEvent.click(confirmButtons[2]);
+      });
 
       expect(mockHandlers.handleDelete).toHaveBeenCalledWith('nqn.2014-08.org.nvmexpress:target1');
     });

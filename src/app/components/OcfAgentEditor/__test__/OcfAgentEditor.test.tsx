@@ -6,7 +6,7 @@
 
 import React, { createRef } from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { act, render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { Form, message } from 'antd';
 
 import { OcfAgentEditor, OcfAgentEditorRef } from '../OcfAgentEditor';
@@ -157,7 +157,8 @@ describe('OcfAgentEditor', () => {
     );
     expect(screen.getByTitle('Drag to resize')).toBeInTheDocument();
 
-    ref.current?.togglePreview();
+    // A state change from outside React, so inside act.
+    act(() => ref.current?.togglePreview());
     await waitFor(() => expect(previewText()).toBeNull());
   });
 
