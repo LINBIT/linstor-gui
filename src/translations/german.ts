@@ -250,6 +250,8 @@ const de = {
     external_name: 'Externer Name',
     use_zfs_clone: 'ZFS Clone verwenden',
     toggle: 'Umschalten',
+    toggle_navigation: 'Navigation ein-/ausblenden',
+    select_row: '{{name}} auswählen',
     layers: 'Schichten',
     volume_definition: 'Volume-Definition',
     volume_number_short: 'V#',

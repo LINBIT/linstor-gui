@@ -204,6 +204,7 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
             type="text"
             icon={<IoMenuOutline />}
             onClick={toggleNav}
+            aria-label={t('common:toggle_navigation')}
             style={{
               fontSize: '20px',
               width: screens.md ? 64 : 40,

@@ -32,9 +32,10 @@ import { SearchForm } from './styled';
 import { SpawnForm } from './SpawnForm';
 import { AddVolumeGroupForm } from './AddVolumeGroupForm';
 import { uniqId } from '@app/utils/stringUtils';
-import { LiaToolsSolid } from 'react-icons/lia';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { useDeleteAction, deletingRowClass } from '@app/hooks/useDeleteAction';
+import { labelRowCheckbox } from '@app/utils/rowSelection';
+import { ActionColumnTitle } from '@app/components/ActionColumnTitle';
 
 // The generated catalog is a union of dozens of shapes; only these fields are read here.
 interface DrbdOptionInfo {
@@ -174,6 +175,7 @@ export const List = () => {
   const rowSelection = {
     selectedRowKeys,
     onChange: onSelectChange,
+    getCheckboxProps: labelRowCheckbox((rg: CreateResourceGroupRequestBody) => rg.name),
   };
 
   const del = useDeleteAction<CreateResourceGroupRequestBody>({
@@ -364,13 +366,7 @@ export const List = () => {
       },
     },
     {
-      title: () => (
-        <Tooltip title={t('common:action')}>
-          <span className="flex justify-center">
-            <LiaToolsSolid className="w-4 h-4" />
-          </span>
-        </Tooltip>
-      ),
+      title: () => <ActionColumnTitle />,
       key: 'action',
       width: 20,
       fixed: 'right',

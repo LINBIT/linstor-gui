@@ -23,13 +23,14 @@ import { SearchForm } from './styled';
 import { uniqId } from '@app/utils/stringUtils';
 import { NodeDataType, NodeListQuery, UpdateNodeRequestBody } from '../types';
 import { omit } from '@app/utils/object';
-import { LiaToolsSolid } from 'react-icons/lia';
 import { FaLinux, FaWindows } from 'react-icons/fa';
 import { UIMode } from '@app/features/settings/types';
 import { useUIMode } from '@app/features/settings/useSettings';
 import { compareVersions } from '@app/utils/version';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { useDeleteAction, deletingRowClass } from '@app/hooks/useDeleteAction';
+import { labelRowCheckbox } from '@app/utils/rowSelection';
+import { ActionColumnTitle } from '@app/components/ActionColumnTitle';
 
 export const List = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -110,6 +111,7 @@ export const List = () => {
   const rowSelection = {
     selectedRowKeys,
     onChange: onSelectChange,
+    getCheckboxProps: labelRowCheckbox((node: NodeDataType) => node.name),
   };
 
   const del = useDeleteAction<NodeDataType>({
@@ -257,13 +259,7 @@ export const List = () => {
       },
     },
     {
-      title: () => (
-        <Tooltip title={t('common:action')}>
-          <span className="flex justify-center">
-            <LiaToolsSolid className="w-4 h-4" />
-          </span>
-        </Tooltip>
-      ),
+      title: () => <ActionColumnTitle />,
       key: 'action',
       width: 150,
       align: 'center',

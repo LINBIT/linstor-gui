@@ -249,6 +249,8 @@ const tr = {
     external_name: 'Harici Ad',
     use_zfs_clone: 'ZFS Klonu Kullan',
     toggle: 'Değiştir',
+    toggle_navigation: 'Gezinmeyi aç/kapat',
+    select_row: '{{name}} seç',
     layers: 'Katmanlar',
     volume_definition: 'Birim Tanımı',
     volume_number_short: 'B#',

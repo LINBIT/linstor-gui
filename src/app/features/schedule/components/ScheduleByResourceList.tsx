@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { logger } from '@app/utils/logger';
-import { Form, Table, message, Space, Dropdown, Tooltip, Tag } from 'antd';
+import { Form, Table, message, Space, Dropdown, Tag } from 'antd';
 import { Input } from '@app/components/Input';
 import { Button } from '@app/components/Button';
 import type { TableProps } from 'antd';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { MoreOutlined } from '@ant-design/icons';
-import { LiaToolsSolid } from 'react-icons/lia';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -26,6 +25,7 @@ import { useUIMode } from '@app/features/settings/useSettings';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { Checkbox } from '@app/components/Checkbox';
 import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
+import { ActionColumnTitle } from '@app/components/ActionColumnTitle';
 
 export const ScheduleByResourceList = () => {
   const { t } = useTranslation(['schedule', 'common']);
@@ -244,13 +244,7 @@ export const ScheduleByResourceList = () => {
       dataIndex: 'reason',
     },
     {
-      title: () => (
-        <Tooltip title={t('common:action')}>
-          <span className="flex justify-center">
-            <LiaToolsSolid className="w-4 h-4" />
-          </span>
-        </Tooltip>
-      ),
+      title: () => <ActionColumnTitle />,
       key: 'action',
       width: 150,
       fixed: 'right',
@@ -375,6 +369,8 @@ export const ScheduleByResourceList = () => {
         rowKey={(record) => record.rsc_name}
         rowClassName={(record) => (del.isDeleting(record.rsc_name) ? deletingRowClass : '')}
         expandable={{
+          // The expand column's header, for screen readers (antd leaves it empty).
+          columnTitle: <span className="sr-only">{t('common:detail')}</span>,
           expandedRowRender,
           onExpand: handleExpand,
           expandedRowKeys,

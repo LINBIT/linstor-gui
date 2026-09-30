@@ -247,6 +247,8 @@ const ja = {
     external_name: '外部名',
     use_zfs_clone: 'ZFSクローンを使用',
     toggle: '切り替え',
+    toggle_navigation: 'Toggle navigation',
+    select_row: 'Select {{name}}',
     layers: 'レイヤー',
     volume_definition: 'ボリューム定義',
     volume_number_short: 'V#',

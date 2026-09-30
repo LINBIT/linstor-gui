@@ -5,19 +5,19 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { useState } from 'react';
-import { Form, Space, Table, Dropdown, Tooltip } from 'antd';
+import { Form, Space, Table, Dropdown } from 'antd';
 import { Input } from '@app/components/Input';
 import type { TableProps } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { MoreOutlined } from '@ant-design/icons';
-import { LiaToolsSolid } from 'react-icons/lia';
 
 import { deleteSchedule, getScheduleList } from '../api';
 import { SearchForm } from './styled';
 import ScheduleModal from './ScheduleModal';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
+import { ActionColumnTitle } from '@app/components/ActionColumnTitle';
 
 export const List = () => {
   const [form] = Form.useForm();
@@ -94,13 +94,7 @@ export const List = () => {
       dataIndex: 'on_failure',
     },
     {
-      title: () => (
-        <Tooltip title={t('common:action')}>
-          <span className="flex justify-center">
-            <LiaToolsSolid className="w-4 h-4" />
-          </span>
-        </Tooltip>
-      ),
+      title: () => <ActionColumnTitle />,
       key: 'action',
       width: 150,
       fixed: 'right',

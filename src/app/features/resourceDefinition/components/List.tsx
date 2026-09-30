@@ -30,6 +30,7 @@ import { omit } from '@app/utils/object';
 import { useTranslation } from 'react-i18next';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { useDeleteAction, deletingRowClass } from '@app/hooks/useDeleteAction';
+import { labelRowCheckbox } from '@app/utils/rowSelection';
 
 export const List = () => {
   const [current, setCurrent] = useState<ResourceDefinition>();
@@ -101,6 +102,7 @@ export const List = () => {
   const rowSelection = {
     selectedRowKeys,
     onChange: onSelectChange,
+    getCheckboxProps: labelRowCheckbox((rd: ResourceDefinition) => rd.name),
   };
 
   const del = useDeleteAction<ResourceDefinition>({

@@ -20,6 +20,7 @@ import { ExpandIconProps, NVMEOFResource } from '../types';
 import { SizeInput } from '@app/components/SizeInput';
 import { useTranslation } from 'react-i18next';
 import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
+import { labelRowCheckbox } from '@app/utils/rowSelection';
 
 type NVMeListProps = {
   list: NVMEOFResource[];
@@ -396,8 +397,11 @@ export const NVMeList = ({
         rowSelection={{
           selectedRowKeys,
           onChange: setSelectedRowKeys,
+          getCheckboxProps: labelRowCheckbox((row: { nqn?: string }) => row.nqn),
         }}
         expandable={{
+          // The expand column's header, for screen readers (antd leaves it empty).
+          columnTitle: <span className="sr-only">{t('common:detail')}</span>,
           expandedRowRender,
           expandedRowKeys,
           onExpandedRowsChange: (keys) => setExpandedRowKeys(keys as string[]),

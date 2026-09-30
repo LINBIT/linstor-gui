@@ -248,6 +248,8 @@ const ru = {
     external_name: 'Внешнее имя',
     use_zfs_clone: 'Использовать клон ZFS',
     toggle: 'Переключить',
+    toggle_navigation: 'Показать/скрыть навигацию',
+    select_row: 'Выбрать {{name}}',
     layers: 'Слои',
     volume_definition: 'Определение тома',
     volume_number_short: 'T#',

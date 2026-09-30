@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Form, Space, Table, Tag, Dropdown, Tooltip } from 'antd';
+import { Form, Space, Table, Tag, Dropdown } from 'antd';
 import { Select } from '@app/components/Select';
 import { Input } from '@app/components/Input';
 import { RegexFilterHint } from '@app/components/RegexFilterHint';
@@ -28,11 +28,12 @@ import { deleteStoragePoolV2, getStoragePool, getStoragePoolCount, updateStorage
 import { SearchForm } from './styled';
 import { useTranslation } from 'react-i18next';
 import { PropertyFormRef } from '@app/components/PropertyForm';
-import { LiaToolsSolid } from 'react-icons/lia';
 import { UIMode } from '@app/features/settings/types';
 import { useUIMode } from '@app/features/settings/useSettings';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { useDeleteAction, deletingRowClass } from '@app/hooks/useDeleteAction';
+import { labelRowCheckbox } from '@app/utils/rowSelection';
+import { ActionColumnTitle } from '@app/components/ActionColumnTitle';
 
 export const List = () => {
   const [form] = Form.useForm();
@@ -150,6 +151,7 @@ export const List = () => {
   const rowSelection = {
     selectedRowKeys,
     onChange: onSelectChange,
+    getCheckboxProps: labelRowCheckbox((pool: StoragePool) => `${pool.storage_pool_name} ${pool.node_name}`),
   };
 
   const hasSelected = selectedRowKeys.length > 0;
@@ -273,13 +275,7 @@ export const List = () => {
       align: 'center',
     },
     {
-      title: () => (
-        <Tooltip title={t('common:action')}>
-          <span className="flex justify-center">
-            <LiaToolsSolid className="w-4 h-4" />
-          </span>
-        </Tooltip>
-      ),
+      title: () => <ActionColumnTitle />,
       key: 'action',
       width: 150,
       fixed: 'right',

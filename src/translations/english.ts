@@ -238,6 +238,8 @@ const en = {
     external_name: 'External Name',
     use_zfs_clone: 'Use ZFS Clone',
     toggle: 'Toggle',
+    toggle_navigation: 'Toggle navigation',
+    select_row: 'Select {{name}}',
     layers: 'Layers',
     volume_definition: 'Volume Definition',
     volume_number_short: 'V#',

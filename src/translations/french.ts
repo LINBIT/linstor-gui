@@ -249,6 +249,8 @@ const fr = {
     external_name: 'Nom externe',
     use_zfs_clone: 'Utiliser le clone ZFS',
     toggle: 'Basculer',
+    toggle_navigation: 'Afficher/masquer la navigation',
+    select_row: 'Sélectionner {{name}}',
     layers: 'Couches',
     volume_definition: 'Définition de volume',
     volume_number_short: 'V#',

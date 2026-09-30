@@ -16,7 +16,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { uniqBy } from 'lodash';
 import { DownOutlined, LineChartOutlined, MoreOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import { LiaToolsSolid } from 'react-icons/lia';
 
 import { uniqId } from '@app/utils/stringUtils';
 import { formatBytes } from '@app/utils/size';
@@ -60,6 +59,7 @@ import { getResourceState } from '@app/utils/resource';
 import { SyncFlowOverlay } from './SyncFlowOverlay';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { useDeleteAction, deletingRowClass, replyError } from '@app/hooks/useDeleteAction';
+import { ActionColumnTitle } from '@app/components/ActionColumnTitle';
 
 /** One row of a definition's volume sub-table: a deployed volume joined with its resource and definition. */
 type OverviewVolume = VolumeType & {
@@ -534,13 +534,7 @@ export const OverviewList = () => {
       },
     },
     {
-      title: () => (
-        <Tooltip title={t('common:action')}>
-          <span className="flex justify-center">
-            <LiaToolsSolid className="w-4 h-4" />
-          </span>
-        </Tooltip>
-      ),
+      title: () => <ActionColumnTitle />,
       key: 'action',
       width: 10,
       fixed: 'right',
@@ -765,13 +759,7 @@ export const OverviewList = () => {
         },
       },
       {
-        title: () => (
-          <Tooltip title={t('common:action')}>
-            <span className="flex justify-center">
-              <LiaToolsSolid className="w-4 h-4" />
-            </span>
-          </Tooltip>
-        ),
+        title: () => <ActionColumnTitle />,
         key: 'action',
         width: 10,
         fixed: 'right',
@@ -970,6 +958,8 @@ export const OverviewList = () => {
         loading={isLoading}
         columns={finalColumns}
         expandable={{
+          // The expand column's header, for screen readers (antd leaves it empty).
+          columnTitle: <span className="sr-only">{t('common:detail')}</span>,
           expandedRowRender: expandableRender,
           rowExpandable: (record) => (record?.volumes?.length ?? 0) > 0,
         }}

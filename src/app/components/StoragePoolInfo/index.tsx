@@ -862,7 +862,7 @@ export const StoragePoolInfo: React.FC = () => {
   return (
     <div className="border-2 border-[color:var(--border-subtle)] rounded px-[34px] py-[30px]">
       <div className="m-0 mb-4 flex items-baseline gap-3 flex-wrap">
-        <h3 className="m-0 text-[26px] font-semibold">{t('common:storage_pool_overview')}</h3>
+        <h2 className="m-0 text-[26px] font-semibold">{t('common:storage_pool_overview')}</h2>
         <Tooltip
           title={
             isTruncated

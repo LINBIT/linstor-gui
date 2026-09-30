@@ -88,6 +88,8 @@ export const PhysicalStorageList = () => {
         dataSource={data?.data?.filter((item) => item.name !== DEFAULT_SP) ?? []}
         loading={isLoading}
         expandable={{
+          // The expand column's header, for screen readers (antd leaves it empty).
+          columnTitle: <span className="sr-only">Detail</span>,
           expandedRowRender: (record) => {
             const nodes = Object.keys(record?.capacities) ?? [];
             return (

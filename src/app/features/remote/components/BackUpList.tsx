@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { useState } from 'react';
-import { Form, Space, Table, Dropdown, Tooltip } from 'antd';
+import { Form, Space, Table, Dropdown } from 'antd';
 import { Input } from '@app/components/Input';
 import { Button } from '@app/components/Button';
 import type { TableProps } from 'antd';
@@ -13,7 +13,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CheckCircleFilled, CloseCircleFilled, MoreOutlined } from '@ant-design/icons';
-import { LiaToolsSolid } from 'react-icons/lia';
 
 import { deleteBackup, getBackup } from '../api';
 import { SearchForm } from './styled';
@@ -21,6 +20,7 @@ import { formatTime } from '@app/utils/time';
 import { CreateBackupForm } from './CreateBackupForm';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
+import { ActionColumnTitle } from '@app/components/ActionColumnTitle';
 
 type RemoteQuery = {
   origin_rsc?: string | null;
@@ -186,13 +186,7 @@ export const List = () => {
       },
     },
     {
-      title: () => (
-        <Tooltip title={t('common:action')}>
-          <span className="flex justify-center">
-            <LiaToolsSolid className="w-4 h-4" />
-          </span>
-        </Tooltip>
-      ),
+      title: () => <ActionColumnTitle />,
       key: 'action',
       width: 150,
       fixed: 'right',

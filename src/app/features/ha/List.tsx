@@ -30,12 +30,12 @@ import {
 import { Link } from '@app/components/Link';
 import { Button } from '@app/components/Button';
 import styled from '@emotion/styled';
-import { LiaToolsSolid } from 'react-icons/lia';
 import { useNodes } from '@app/features/node/hooks/useNode';
 import { getEvictOutcome } from './evict';
 import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
 import { withQuietToasts } from '@app/utils/toast';
 import type { DrbdReactorStatus } from './api';
+import { ActionColumnTitle } from '@app/components/ActionColumnTitle';
 
 const { Text } = Typography;
 
@@ -776,13 +776,7 @@ export const List = () => {
       },
     },
     {
-      title: () => (
-        <Tooltip title={t('common:action')}>
-          <span className="flex justify-center">
-            <LiaToolsSolid className="w-4 h-4" />
-          </span>
-        </Tooltip>
-      ),
+      title: () => <ActionColumnTitle />,
       key: 'action',
       width: 150,
       fixed: 'right',

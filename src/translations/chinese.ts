@@ -246,6 +246,8 @@ const zh = {
     external_name: '外部名称',
     use_zfs_clone: '使用 ZFS 克隆',
     toggle: '切换',
+    toggle_navigation: '展开/收起导航',
+    select_row: '选择 {{name}}',
     volume_definition: '卷定义',
     layers: '存储层',
     keyword: '关键字',

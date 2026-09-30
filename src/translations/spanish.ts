@@ -248,6 +248,8 @@ const es = {
     external_name: 'Nombre externo',
     use_zfs_clone: 'Usar clon ZFS',
     toggle: 'Alternar',
+    toggle_navigation: 'Mostrar/ocultar la navegación',
+    select_row: 'Seleccionar {{name}}',
     layers: 'Capas',
     volume_definition: 'Definición de volumen',
     volume_number_short: 'V#',

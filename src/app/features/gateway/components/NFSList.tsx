@@ -20,6 +20,7 @@ import { formatBytes } from '@app/utils/size';
 import { ExpandIconProps, NFSResource } from '../types';
 import { ExportBasePath } from '../const';
 import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
+import { labelRowCheckbox } from '@app/utils/rowSelection';
 
 type NFSListProps = {
   list: NFSResource[];
@@ -413,8 +414,11 @@ export const NFSList = ({
         rowSelection={{
           selectedRowKeys,
           onChange: setSelectedRowKeys,
+          getCheckboxProps: labelRowCheckbox((row: { name?: string }) => row.name),
         }}
         expandable={{
+          // The expand column's header, for screen readers (antd leaves it empty).
+          columnTitle: <span className="sr-only">{t('common:detail')}</span>,
           expandedRowRender,
           expandedRowKeys,
           onExpandedRowsChange: (keys) => setExpandedRowKeys(keys as string[]),

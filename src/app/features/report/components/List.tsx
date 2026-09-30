@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Form, Space, Table, Tag, DatePicker, Dropdown, Tooltip } from 'antd';
+import { Form, Space, Table, Tag, DatePicker, Dropdown } from 'antd';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
 import { Link } from '@app/components/Link';
@@ -21,13 +21,14 @@ import { useLinstorVersion, MIN_API_VERSION } from '@app/hooks';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { MoreOutlined } from '@ant-design/icons';
-import { LiaToolsSolid } from 'react-icons/lia';
 import DownloadSOS from './DownloadSOS';
 import { useTranslation } from 'react-i18next';
 import { UIMode } from '@app/features/settings/types';
 import { useUIMode } from '@app/features/settings/useSettings';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
+import { labelRowCheckbox } from '@app/utils/rowSelection';
+import { ActionColumnTitle } from '@app/components/ActionColumnTitle';
 
 const { RangePicker } = DatePicker;
 
@@ -182,6 +183,7 @@ export const List = () => {
   const rowSelection = {
     selectedRowKeys,
     onChange: (newSelectedRowKeys: React.Key[]) => setSelectedRowKeys(newSelectedRowKeys),
+    getCheckboxProps: labelRowCheckbox((report: ErrorReport) => report.filename),
     // Keep the selection of other pages when paging on the controller.
     preserveSelectedRowKeys: true,
   };
@@ -337,13 +339,7 @@ export const List = () => {
       ...serverSorter('exception_message'),
     },
     {
-      title: () => (
-        <Tooltip title={t('common:action')}>
-          <span className="flex justify-center">
-            <LiaToolsSolid className="w-4 h-4" />
-          </span>
-        </Tooltip>
-      ),
+      title: () => <ActionColumnTitle />,
       key: 'action',
       width: 150,
       fixed: 'right',

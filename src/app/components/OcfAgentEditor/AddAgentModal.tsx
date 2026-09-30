@@ -16,6 +16,7 @@ import {
   availablePlatforms,
   filterAgentsByPlatform,
 } from './agentCatalog';
+import { labelRowCheckbox } from '@app/utils/rowSelection';
 
 interface AddAgentModalProps {
   visible: boolean;
@@ -118,6 +119,7 @@ export function AddAgentModal({
 
   const rowSelection = {
     type: 'radio' as const,
+    getCheckboxProps: labelRowCheckbox((row: (typeof dataSource)[number]) => row.name),
     selectedRowKeys: selectedKey ? [selectedKey] : [],
     onChange: (selectedRowKeys: React.Key[]) => {
       const row = dataSource.find((item) => item.key === selectedRowKeys[0]);
