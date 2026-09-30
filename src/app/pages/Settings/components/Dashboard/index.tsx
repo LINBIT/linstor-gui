@@ -328,8 +328,11 @@ const Dashboard: React.FC = () => {
       // Save configuration to dedicated namespace
       await saveGrafanaConfig(baseConfig);
     } catch (error) {
-      logger.error('Failed to save:', error);
-      // Error notification is already handled by saveGrafanaConfig
+      // A form that did not validate shows its errors itself; only a failed
+      // save is worth a log (saveGrafanaConfig already notified the user).
+      if (!(error && typeof error === 'object' && 'errorFields' in error)) {
+        logger.error('Failed to save:', error);
+      }
     }
   }, [isEnabled, isDrbdEnabled, form, drbdForm, saveGrafanaConfig, t]);
 

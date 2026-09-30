@@ -1,5 +1,4 @@
 import React from 'react';
-import { logger } from '@app/utils/logger';
 import { Modal, Form, message } from 'antd';
 import { Select } from '@app/components/Select';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -69,12 +68,14 @@ export const AddToNodeModal: React.FC<AddToNodeModalProps> = ({
   });
 
   const handleOk = async () => {
+    let values;
     try {
-      const values = await form.validateFields();
-      mutation.mutate(values);
-    } catch (error) {
-      logger.error('Validation failed:', error);
+      values = await form.validateFields();
+    } catch {
+      // The form shows what is missing.
+      return;
     }
+    mutation.mutate(values);
   };
 
   return (
