@@ -6,155 +6,44 @@
 
 import React from 'react';
 import { Radio as AntRadio, RadioProps as AntRadioProps, RadioGroupProps as AntRadioGroupProps } from 'antd';
-import styled from '@emotion/styled';
 import { tokens } from '@app/const/color';
+import type { CssVars } from '@app/const/themeTokens';
+/** A checked radio button reads semibold on its peach fill; fill, label and
+ *  hover colors come from the Radio tokens (the solid button style). */
+const CHECKED_BUTTON = '[&_.ant-radio-button-wrapper-checked]:font-semibold';
 
-const StyledRadio = styled(AntRadio)`
-  && {
-    color: var(--text-nav) !important;
-  }
+// A checked circle is outlined in the deeper brand peach around a brand dot on
+// the page color; hovering it lightens border and dot (antd would fill it with
+// colorPrimaryHover). A standalone Radio outlines its unchecked circle in the
+// brand peach too; in a group the unchecked ones stay grey until hovered.
+// Disabled radios keep antd's look. The hover rules name the circle twice to
+// outrank the unchecked-hover border; class names are spelled out in full, as
+// Tailwind only generates what it finds in the source.
+const SELF = [
+  '[&_.ant-radio-checked:not(.ant-radio-disabled)]:border-(--radio-brand)',
+  '[&_.ant-radio-checked:not(.ant-radio-disabled)]:bg-(--bg-page)',
+  '[&_.ant-radio-checked:not(.ant-radio-disabled)]:after:bg-(--radio-brand)',
+  '[&_.ant-radio:not(.ant-radio-disabled)]:border-(--radio-brand)',
+  '[&:hover_.ant-radio.ant-radio-checked:not(.ant-radio-disabled)]:border-(--radio-brand-hover)',
+  '[&:hover_.ant-radio.ant-radio-checked:not(.ant-radio-disabled)]:bg-(--bg-page)',
+  '[&:hover_.ant-radio.ant-radio-checked:not(.ant-radio-disabled)]:after:bg-(--radio-brand-hover)',
+].join(' ');
+const IN_GROUP = [
+  '[&_.ant-radio-checked:not(.ant-radio-disabled)]:border-(--radio-brand)',
+  '[&_.ant-radio-checked:not(.ant-radio-disabled)]:bg-(--bg-page)',
+  '[&_.ant-radio-checked:not(.ant-radio-disabled)]:after:bg-(--radio-brand)',
+  '[&_.ant-radio-wrapper:hover_.ant-radio:not(.ant-radio-disabled)]:border-(--radio-brand)',
+  '[&_.ant-radio-wrapper:hover_.ant-radio.ant-radio-checked:not(.ant-radio-disabled)]:border-(--radio-brand-hover)',
+  '[&_.ant-radio-wrapper:hover_.ant-radio.ant-radio-checked:not(.ant-radio-disabled)]:bg-(--bg-page)',
+  '[&_.ant-radio-wrapper:hover_.ant-radio.ant-radio-checked:not(.ant-radio-disabled)]:after:bg-(--radio-brand-hover)',
+].join(' ');
 
-  &.ant-radio-wrapper {
-    color: var(--text-nav) !important;
-  }
+const brandVars = (style?: React.CSSProperties): CssVars => ({
+  '--radio-brand': tokens.color.brand.primaryActive,
+  '--radio-brand-hover': tokens.color.brand.primaryHover,
+  ...style,
+});
 
-  .ant-radio {
-    border-color: ${tokens.color.brand.primaryActive} !important;
-  }
-
-  .ant-radio.ant-radio-checked {
-    border-color: ${tokens.color.brand.primaryActive} !important;
-    background-color: var(--bg-page) !important;
-  }
-
-  .ant-radio.ant-radio-checked::after {
-    background-color: ${tokens.color.brand.primaryActive} !important;
-  }
-
-  .ant-radio:hover {
-    border-color: ${tokens.color.brand.primaryActive} !important;
-  }
-
-  .ant-radio:focus-within {
-    border-color: ${tokens.color.brand.primaryActive} !important;
-    box-shadow: 0 0 0 3px rgba(255, 204, 156, 0.1) !important;
-  }
-
-  &.ant-radio-wrapper:hover .ant-radio {
-    border-color: ${tokens.color.brand.primaryActive} !important;
-  }
-
-  &.ant-radio-wrapper-checked {
-    .ant-radio.ant-radio-checked {
-      border-color: ${tokens.color.brand.primaryActive} !important;
-    }
-
-    .ant-radio.ant-radio-checked::after {
-      background-color: ${tokens.color.brand.primaryActive} !important;
-    }
-
-    &:hover .ant-radio.ant-radio-checked {
-      border-color: ${tokens.color.brand.primaryHover} !important;
-    }
-
-    &:hover .ant-radio.ant-radio-checked::after {
-      background-color: ${tokens.color.brand.primaryHover} !important;
-    }
-  }
-`;
-
-const StyledRadioGroup = styled(AntRadio.Group)`
-  && .ant-radio-wrapper {
-    color: var(--text-nav) !important;
-  }
-
-  .ant-radio-wrapper span {
-    color: var(--text-nav) !important;
-  }
-
-  .ant-radio.ant-radio-checked {
-    border-color: ${tokens.color.brand.primaryActive} !important;
-    background-color: var(--bg-page) !important;
-  }
-
-  .ant-radio.ant-radio-checked::after {
-    background-color: ${tokens.color.brand.primaryActive} !important;
-  }
-
-  .ant-radio:hover {
-    border-color: ${tokens.color.brand.primaryActive} !important;
-  }
-
-  .ant-radio:focus-within {
-    border-color: ${tokens.color.brand.primaryActive} !important;
-    box-shadow: 0 0 0 3px rgba(255, 204, 156, 0.1) !important;
-  }
-
-  .ant-radio-wrapper:hover .ant-radio {
-    border-color: ${tokens.color.brand.primaryActive} !important;
-  }
-
-  .ant-radio-wrapper-checked {
-    .ant-radio.ant-radio-checked {
-      border-color: ${tokens.color.brand.primaryActive} !important;
-    }
-
-    .ant-radio.ant-radio-checked::after {
-      background-color: ${tokens.color.brand.primaryActive} !important;
-    }
-
-    &:hover .ant-radio.ant-radio-checked {
-      border-color: ${tokens.color.brand.primaryHover} !important;
-    }
-
-    &:hover .ant-radio.ant-radio-checked::after {
-      background-color: ${tokens.color.brand.primaryHover} !important;
-    }
-  }
-
-  && .ant-radio-button-wrapper {
-    color: var(--text-nav) !important;
-  }
-
-  .ant-radio-button-wrapper span {
-    color: var(--text-nav) !important;
-  }
-
-  .ant-radio-button-wrapper-checked {
-    background-color: ${tokens.color.brand.primaryActive} !important;
-    border-color: ${tokens.color.brand.primaryActive} !important;
-    color: ${tokens.color.brand.onPrimary} !important;
-    font-weight: 600 !important;
-
-    &:hover {
-      background-color: ${tokens.color.brand.primaryHover} !important;
-      border-color: ${tokens.color.brand.primaryHover} !important;
-      color: ${tokens.color.brand.onPrimary} !important;
-    }
-
-    &::before {
-      background-color: ${tokens.color.brand.primaryActive} !important;
-    }
-  }
-
-  .ant-radio-button-wrapper-checked span {
-    color: ${tokens.color.brand.onPrimary} !important;
-  }
-
-  .ant-radio-button-wrapper:hover {
-    color: ${tokens.color.brand.primaryActive} !important;
-  }
-
-  .ant-radio-button-wrapper:hover span {
-    color: ${tokens.color.brand.primaryActive} !important;
-  }
-
-  .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):focus-within {
-    box-shadow: 0 0 0 3px rgba(255, 204, 156, 0.1) !important;
-  }
-`;
-
-// value, onChange and options come typed from the antd props these extend.
 export interface RadioProps extends Omit<AntRadioProps, 'checked' | 'defaultChecked'> {
   /** Whether the radio is checked */
   checked?: boolean;
@@ -183,16 +72,15 @@ export interface RadioGroupProps extends AntRadioGroupProps {
   style?: React.CSSProperties;
   /** Layout direction */
   optionType?: 'default' | 'button';
-  /** Button style (only works when optionType is button) */
+  /** Button style (only works when optionType is button). Defaults to 'solid': the brand's checked button is the filled one */
   buttonStyle?: 'outline' | 'solid';
   /** Size of radio buttons */
   size?: 'large' | 'middle' | 'small';
 }
 
 /**
- * Custom Radio component
- * Features custom color scheme with ${tokens.color.brand.primaryActive} as the primary color
- * Based on Ant Design Radio with custom styling
+ * antd's Radio under the project name: the brand circle and its hover come
+ * from the classes above, label and dot colors from the Radio tokens.
  */
 export const Radio: React.FC<RadioProps> & {
   Group: React.FC<RadioGroupProps>;
@@ -210,24 +98,25 @@ export const Radio: React.FC<RadioProps> & {
   ...restProps
 }) => {
   return (
-    <StyledRadio
+    <AntRadio
       checked={checked}
       defaultChecked={defaultChecked}
       disabled={disabled}
       onChange={onChange}
       autoFocus={autoFocus}
-      className={className}
-      style={style}
+      className={[SELF, className].filter(Boolean).join(' ')}
+      style={brandVars(style)}
       value={value}
       {...restProps}
     >
       {children}
-    </StyledRadio>
+    </AntRadio>
   );
 };
 
 /**
- * Radio Group component
+ * antd's Radio.Group, styled like Radio for the radios it renders itself
+ * (`options`), with the brand fill on a checked radio button.
  */
 const RadioGroup: React.FC<RadioGroupProps> = ({
   value,
@@ -239,26 +128,26 @@ const RadioGroup: React.FC<RadioGroupProps> = ({
   className,
   style,
   optionType = 'default',
-  buttonStyle = 'outline',
+  buttonStyle = 'solid',
   size = 'middle',
   ...restProps
 }) => {
   return (
-    <StyledRadioGroup
+    <AntRadio.Group
       value={value}
       defaultValue={defaultValue}
       disabled={disabled}
       onChange={onChange}
       options={options}
-      className={className}
-      style={style}
+      className={[CHECKED_BUTTON, IN_GROUP, className].filter(Boolean).join(' ')}
+      style={brandVars(style)}
       optionType={optionType}
       buttonStyle={buttonStyle}
       size={size}
       {...restProps}
     >
       {children}
-    </StyledRadioGroup>
+    </AntRadio.Group>
   );
 };
 

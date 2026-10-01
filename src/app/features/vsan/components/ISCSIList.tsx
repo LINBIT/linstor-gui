@@ -17,7 +17,7 @@ import { REFETCH_INTERVAL } from '@app/const/time';
 import { CreateISCSIForm } from './CreateISCSIForm';
 import { formatBytes } from '@app/utils/size';
 import { GrowVolume } from './GrowVolume';
-import { ActionSection } from './styled';
+
 import { Button } from '@app/components/Button';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { variablesOnly } from '@app/utils/mutation';
@@ -172,12 +172,12 @@ export const ISCSIList = ({ complex }: ISCSIListProp) => {
             replicated storage with an iSCSI initiator.
           </p>
 
-          <ActionSection>
+          <div className="mb-2.5">
             <Button onClick={() => refetch()} style={{ marginRight: 10 }}>
               Reload
             </Button>
             <CreateISCSIForm refetch={refetch} />
-          </ActionSection>
+          </div>
         </>
       )}
 

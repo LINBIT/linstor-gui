@@ -6,6 +6,7 @@
 
 import * as React from 'react';
 import { Dropdown, Tooltip } from 'antd';
+import SVG from 'react-inlinesvg';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { DeploymentUnitOutlined, DownOutlined } from '@ant-design/icons';
@@ -15,7 +16,7 @@ import { useAuth } from '@app/features/authentication/useAuth';
 import { ChangePassword } from '@app/features/authentication/components/ChangePassword/ChangePassword';
 import { Mode } from '@app/hooks/useUIModeStorage';
 import { DEFAULT_ADMIN_USER_NAME } from '@app/const/settings';
-import { BRAND_COLOR } from '@app/const/color';
+import { BRAND_COLOR, tokens } from '@app/const/color';
 import { getControllerVersion } from '@app/features/node/api';
 import { useFaultyResources } from '@app/features/resource/hooks/useFaultyResources';
 import { compareVersions } from '@app/utils/version';
@@ -30,7 +31,6 @@ import logout from '@app/assets/logout.svg';
 import warning from '@app/assets/warning-icon.svg';
 import outlink from '@app/assets/out-link.svg';
 
-import { Attention, ImgIcon, NoSupport, OfficialBuild, OutLink, WarningLogo } from '../styled';
 import { FaultyResourceIcon, UserIcon } from '@app/components/SVGIcon';
 
 interface HeaderToolsProps {
@@ -139,7 +139,7 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
             }}
             className="flex items-center"
           >
-            <ImgIcon src={logout} alt="logout" />
+            <img className="mr-4 size-4" src={logout} alt="logout" />
             <span>{t('common:logout')}</span>
           </a>
         ),
@@ -154,19 +154,23 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
         {isNotOfficialBuild && (
           <div className="hidden xl:flex flex-col xl:flex-row text-[var(--text-primary)] items-center font-semibold gap-2 xl:gap-0">
             <div className="flex items-center">
-              <WarningLogo src={warning} />
-              <Attention>{t('about:unofficial_build_header_attention')}</Attention>
+              <img className="h-[28px] w-[29px]" src={warning} />
+              <div className="mx-4 text-(--text-primary)">{t('about:unofficial_build_header_attention')}</div>
             </div>
-            <OfficialBuild onClick={handleSupportClick}>
+            <div
+              className="flex h-10 cursor-pointer items-center rounded px-4 py-2 font-medium text-(--text-on-brand) decoration-2"
+              style={{ backgroundColor: tokens.color.brand.primaryHover }}
+              onClick={handleSupportClick}
+            >
               {t('about:unofficial_build_header_get_official')}{' '}
-              <OutLink src={outlink} className="outlink-svg brightness-0" />
-            </OfficialBuild>
+              <SVG src={outlink} className="outlink-svg ml-1 size-6 brightness-0" />
+            </div>
           </div>
         )}
         {vsanModeFromSetting && VSANEvalMode && (
-          <NoSupport>
-            <WarningLogo src={warning} />
-            <Attention>
+          <div className="mr-[60px] flex items-center text-[18px] font-semibold text-(--text-primary)">
+            <img className="h-[28px] w-[29px]" src={warning} />
+            <div className="mx-4 text-(--text-primary)">
               Your eval contract has expired. Please{' '}
               <a
                 href={
@@ -180,8 +184,8 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
                 re-register
               </a>{' '}
               with a new contract. Until then all iSCSI targets will be stopped.
-            </Attention>
-          </NoSupport>
+            </div>
+          </div>
         )}
       </div>
 
@@ -209,7 +213,7 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
             <Dropdown menu={menu} placement="bottomLeft" trigger={['hover']}>
               <div className="flex items-center cursor-pointer text-[var(--icon-default)]">
                 <UserIcon className="text-[var(--icon-default)] w-6 h-6" />
-                <DownOutlined className="ml-1 text-[var(--icon-default)]" />
+                <DownOutlined className="ml-1" />
               </div>
             </Dropdown>
           )}

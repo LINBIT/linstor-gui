@@ -6,128 +6,71 @@
 
 import React from 'react';
 import { Link as RouterLink, LinkProps as RouterLinkProps } from 'react-router-dom';
-import styled from '@emotion/styled';
 import { tokens } from '@app/const/color';
-import { cssVar } from '@app/const/themeTokens';
+import { cssVar, type CssVars } from '@app/const/themeTokens';
 
-const StyledLink = styled(RouterLink, {
-  shouldForwardProp: (prop) => !prop.startsWith('$'),
-})<{
-  $linkType?: 'link' | 'primary' | 'secondary' | 'default';
-  $loading?: boolean;
-  $disabled?: boolean;
-}>`
-  text-decoration: none;
-  transition: all 0.2s ease-in-out;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  border-radius: 4px;
-  padding: 4px 15px;
-  font-size: 14px;
-  line-height: 1.5715;
-  user-select: none;
-  white-space: nowrap;
+type LinkType = 'link' | 'primary' | 'secondary' | 'default';
 
-  ${(props) => {
-    if (props.$linkType === 'primary') {
-      return `
-        background-color: ${tokens.color.brand.primary} !important;
-        border-color: ${tokens.color.brand.primary} !important;
-        color: ${tokens.color.brand.onPrimary} !important;
-        border: 1px solid ${tokens.color.neutral.borderDefault};
+const COMMON =
+  'inline-flex items-center justify-center text-sm leading-[1.5715] whitespace-nowrap select-none cursor-pointer ' +
+  'no-underline transition-all duration-200 ease-in-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--link-focus)';
 
-        &:hover:not(:disabled) {
-          background-color: ${tokens.color.brand.primaryHover} !important;
-          border-color: ${tokens.color.brand.primaryHover} !important;
-        }
+/** The button-like links take their colors from the variables below. */
+const BUTTON_LIKE =
+  `${COMMON} rounded-[4px] px-[15px] py-1 font-semibold border-solid border-(--link-border) bg-(--link-bg) ` +
+  'text-(--link-text) hover:bg-(--link-bg-hover) hover:border-(--link-border-hover) ' +
+  'active:bg-(--link-bg-active) active:border-(--link-border-active)';
 
-        &:active:not(:disabled) {
-          background-color: ${tokens.color.brand.primary} !important;
-          border-color: ${tokens.color.brand.primary} !important;
-        }
-      `;
-    }
+const CLASSES: Record<LinkType, string> = {
+  link:
+    `${COMMON} p-0 font-medium bg-transparent border-none text-(--link-text) hover:text-(--link-text-hover) ` +
+    'hover:underline active:text-(--link-text-active) focus-visible:rounded-[2px]',
+  primary: `${BUTTON_LIKE} border`,
+  secondary: `${BUTTON_LIKE} border-[1.5px]`,
+  default: `${BUTTON_LIKE} border`,
+};
 
-    if (props.$linkType === 'secondary') {
-      return `
-        background-color: transparent !important;
-        border: 1.5px solid ${tokens.color.brand.primary} !important;
-        color: ${tokens.color.brand.onPrimary} !important;
+const { brand, neutral, link } = tokens.color;
 
-        &:hover:not(:disabled) {
-          background-color: ${tokens.color.brand.primaryHover} !important;
-          border-color: ${tokens.color.brand.primaryHover} !important;
-        }
-
-        &:active:not(:disabled) {
-          background-color: ${tokens.color.brand.primaryHover} !important;
-          border-color: ${tokens.color.brand.primaryHover} !important;
-        }
-      `;
-    }
-
-    if (props.$linkType === 'default') {
-      return `
-        background-color: transparent !important;
-        border: 1px solid ${tokens.color.neutral.borderDefault} !important;
-        color: ${tokens.color.brand.onPrimary} !important;
-
-        &:hover:not(:disabled) {
-          background-color: ${tokens.color.neutral.disabledBg} !important;
-          border-color: ${tokens.color.neutral.borderDefault} !important;
-        }
-
-        &:active:not(:disabled) {
-          background-color: var(--bg-chip-info) !important;
-          border-color: #4096ff !important;
-        }
-      `;
-    }
-
-    // Default link style
-    return `
-      color: ${cssVar('text/link')} !important;
-      font-weight: 500;
-      padding: 0;
-      background: transparent !important;
-      border: none !important;
-
-      &:hover:not(:disabled) {
-        color: ${tokens.color.link.hover} !important;
-        text-decoration: underline;
-      }
-
-      &:active:not(:disabled) {
-        color: ${tokens.color.link.active} !important;
-      }
-    `;
-  }}
-
-  &:focus {
-    outline: 2px solid
-      ${(props) => (props.$linkType === 'link' ? tokens.color.link.default : tokens.color.brand.primary)};
-    outline-offset: 2px;
-    border-radius: ${(props) => (props.$linkType === 'link' ? '2px' : '4px')};
-  }
-
-  ${(props) =>
-    props.$disabled &&
-    `
-    cursor: not-allowed !important;
-    opacity: 0.6;
-    pointer-events: none;
-  `}
-
-  ${(props) =>
-    props.$loading &&
-    `
-    cursor: wait !important;
-    pointer-events: none;
-  `}
-`;
+/** Per-type colors, from the design tokens. */
+const COLORS: Record<LinkType, CssVars> = {
+  link: {
+    '--link-text': cssVar('text/link'),
+    '--link-text-hover': link.hover,
+    '--link-text-active': link.active,
+    '--link-focus': link.default,
+  },
+  primary: {
+    '--link-text': brand.onPrimary,
+    '--link-bg': brand.primary,
+    '--link-border': brand.primary,
+    '--link-bg-hover': brand.primaryHover,
+    '--link-border-hover': brand.primaryHover,
+    '--link-bg-active': brand.primary,
+    '--link-border-active': brand.primary,
+    '--link-focus': brand.primary,
+  },
+  secondary: {
+    '--link-text': brand.onPrimary,
+    '--link-bg': 'transparent',
+    '--link-border': brand.primary,
+    '--link-bg-hover': brand.primaryHover,
+    '--link-border-hover': brand.primaryHover,
+    '--link-bg-active': brand.primaryHover,
+    '--link-border-active': brand.primaryHover,
+    '--link-focus': brand.primary,
+  },
+  default: {
+    '--link-text': brand.onPrimary,
+    '--link-bg': 'transparent',
+    '--link-border': neutral.borderDefault,
+    '--link-bg-hover': neutral.disabledBg,
+    '--link-border-hover': neutral.borderDefault,
+    '--link-bg-active': cssVar('bg/chip/info'),
+    '--link-border-active': link.default,
+    '--link-focus': brand.primary,
+  },
+};
 
 export interface LinkProps extends Omit<RouterLinkProps, 'to'> {
   /** Link destination */
@@ -170,6 +113,7 @@ export const Link: React.FC<LinkProps> = ({
   rel,
   size = 'middle',
   block = false,
+  style,
   ...restProps
 }) => {
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -195,47 +139,30 @@ export const Link: React.FC<LinkProps> = ({
 
   const linkProps = {
     to,
-    className,
+    className: [CLASSES[type], className].filter(Boolean).join(' '),
     onClick: handleClick,
     target,
     rel,
     style: {
+      ...COLORS[type],
       ...getSizeStyles(),
       ...(block ? { width: '100%', display: 'flex' as const } : {}),
-      ...(disabled || loading ? { cursor: 'not-allowed', opacity: 0.6, pointerEvents: 'none' as const } : {}),
+      ...(disabled || loading
+        ? { cursor: loading ? 'wait' : 'not-allowed', opacity: 0.6, pointerEvents: 'none' as const }
+        : {}),
+      ...style,
     },
     'data-link-type': type,
     ...restProps,
   };
 
   return (
-    <>
-      <style>
-        {`
-          @keyframes link-spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}
-      </style>
-      <StyledLink $linkType={type} $loading={loading} $disabled={disabled} {...linkProps}>
-        {children}
-        {loading && (
-          <span
-            style={{
-              marginLeft: '8px',
-              display: 'inline-block',
-              width: '14px',
-              height: '14px',
-              border: '2px solid currentColor',
-              borderRadius: '50%',
-              borderRightColor: 'transparent',
-              animation: 'link-spin 1s linear infinite',
-            }}
-          />
-        )}
-      </StyledLink>
-    </>
+    <RouterLink {...linkProps}>
+      {children}
+      {loading && (
+        <span className="ml-2 inline-block size-3.5 animate-spin rounded-full border-2 border-current border-r-transparent" />
+      )}
+    </RouterLink>
   );
 };
 

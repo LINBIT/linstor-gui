@@ -7,18 +7,13 @@
 import React from 'react';
 import { Checkbox as AntCheckbox, CheckboxProps as AntCheckboxProps } from 'antd';
 import type { CheckboxRef } from 'antd';
-import styled from '@emotion/styled';
-import { tokens } from '@app/const/color';
 
 // antd 6 draws the box on .ant-checkbox itself and colours its fill, border
 // and hover from the Checkbox theme tokens (brand primaryActive / accent). The
 // tick, its ::after, takes the brand's text colour: white is barely visible on
-// the light peach fill.
-const StyledCheckbox = styled(AntCheckbox)`
-  .ant-checkbox.ant-checkbox-checked::after {
-    border-color: ${tokens.color.brand.onPrimary} !important;
-  }
-`;
+// the light peach fill. Only the project's checkboxes: a table's row
+// selection keeps antd's white tick, and a disabled one antd's grey tick.
+const TICK = '[&_.ant-checkbox-checked:not(.ant-checkbox-disabled)]:after:border-(--text-on-brand)';
 
 // value and onChange come typed from the antd props this extends.
 export interface CheckboxProps extends Omit<AntCheckboxProps, 'checked' | 'defaultChecked'> {
@@ -43,10 +38,9 @@ export interface CheckboxProps extends Omit<AntCheckboxProps, 'checked' | 'defau
 }
 
 /**
- * Custom Checkbox component
- * Features custom color scheme with ${tokens.color.brand.primaryActive} as the primary color
- * Based on Ant Design Checkbox with custom styling. Forwards its ref, so it
- * can be a Tooltip's child without antd falling back to findDOMNode.
+ * antd's Checkbox under the project name with the dark tick above. Forwards
+ * its ref, so it can be a Tooltip's child without antd falling back to
+ * findDOMNode.
  */
 export const Checkbox = React.forwardRef<CheckboxRef, CheckboxProps>(function Checkbox(
   {
@@ -66,7 +60,7 @@ export const Checkbox = React.forwardRef<CheckboxRef, CheckboxProps>(function Ch
   ref,
 ) {
   return (
-    <StyledCheckbox
+    <AntCheckbox
       ref={ref}
       checked={checked}
       defaultChecked={defaultChecked}
@@ -74,14 +68,14 @@ export const Checkbox = React.forwardRef<CheckboxRef, CheckboxProps>(function Ch
       onChange={onChange}
       indeterminate={indeterminate}
       autoFocus={autoFocus}
-      className={className}
+      className={[TICK, className].filter(Boolean).join(' ')}
       style={style}
       id={id}
       value={value}
       {...restProps}
     >
       {children}
-    </StyledCheckbox>
+    </AntCheckbox>
   );
 });
 

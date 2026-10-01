@@ -22,7 +22,7 @@ import { formatTime } from '@app/utils/time';
 import { useNodes } from '@app/features/node';
 import { getResources } from '@app/features/resource';
 
-import { SearchForm } from './styled';
+import { SearchForm } from '@app/components/SearchForm';
 import { CreateSnapshotForm } from './CreateForm';
 import { RollbackSnapshotForm } from './RollbackForm';
 import RestoreFrom from './RestoreFrom';
@@ -350,7 +350,7 @@ export const List = () => {
 
   return (
     <>
-      <SearchForm>
+      <SearchForm className="mb-4">
         <Form
           form={form}
           name="node_list_form"

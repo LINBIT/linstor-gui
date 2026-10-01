@@ -6,7 +6,7 @@
 
 import PageBasic from '@app/components/PageBasic';
 import { useTranslation } from 'react-i18next';
-import { StyledUL } from './styled';
+
 import { PhysicalStorageList } from '@app/features/vsan';
 
 export const PhysicalStorage = () => {
@@ -21,13 +21,13 @@ export const PhysicalStorage = () => {
         </p>
         <p>Hover over the entries to see the path for each device on a particular node.</p>
         <b>Important:</b> To appear on this list, a storage device:
-        <StyledUL>
+        <ul className="list-disc pl-8">
           <li>Must be greater than 1 GiB.</li>
           <li>
             Must be <b>completely empty</b>. This includes file systems, LVM signatures, and others. If there is
             existing data on the device, wipe it first (for example, using <code>wipefs -a</code>).
           </li>
-        </StyledUL>
+        </ul>
       </div>
 
       <PhysicalStorageList />

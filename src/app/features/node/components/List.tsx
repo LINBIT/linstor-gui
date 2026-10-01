@@ -19,7 +19,7 @@ import Button from '@app/components/Button';
 import { Link } from '@app/components/Link';
 import { SupportStatus } from '@app/components/SupportStatus';
 import { getNodes, getNodeCount, deleteNode, updateNode, lostNode, getControllerVersion } from '../api';
-import { SearchForm } from './styled';
+import { SearchForm } from '@app/components/SearchForm';
 import { uniqId } from '@app/utils/stringUtils';
 import { NodeDataType, NodeListQuery, UpdateNodeRequestBody } from '../types';
 import { omit } from '@app/utils/object';

@@ -48,7 +48,7 @@ import { ResourceDataType, ResourceModifyRequestBody, VolumeType } from '../type
 import { CloneForm } from './Clone';
 import { AddToNodeModal } from './AddToNodeModal';
 import { ResourceMigrateForm } from './ResourceMigrateForm';
-import { SearchForm } from './styled';
+import { SearchForm } from '@app/components/SearchForm';
 import './OverviewList.css';
 import { filterResourceList } from './filterResourceList';
 import { PropertyFormRef } from '@app/components/PropertyForm';

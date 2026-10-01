@@ -166,7 +166,9 @@ describe('storage pool CreateForm', () => {
     // The existing-device list also offers DISKLESS and the file/SPDK kinds.
     expect(await screen.findByText('DISKLESS', { selector: '.ant-select-item-option-content' })).toBeInTheDocument();
     fireEvent.click(screen.getByText('LVM_THIN', { selector: '.ant-select-item-option-content' }));
-    fireEvent.change(screen.getByPlaceholderText('Volume Group/Thin Pool Name'), { target: { value: 'vg0/thin' } });
+    fireEvent.change(await screen.findByPlaceholderText('Volume Group/Thin Pool Name'), {
+      target: { value: 'vg0/thin' },
+    });
     submit();
 
     await waitFor(() =>
@@ -186,7 +188,7 @@ describe('storage pool CreateForm', () => {
     fireEvent.click(screen.getByText('Existing Device'));
     await pick(typeSelect(), 'ZFS');
     expect(await screen.findByText(/install and configure ZFS/)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('ZFS Pool name')).toBeInTheDocument();
+    expect(await screen.findByPlaceholderText('ZFS Pool name')).toBeInTheDocument();
   });
 
   it('cancel goes back without creating', () => {

@@ -32,7 +32,7 @@ import {
 } from '../types';
 import { DownOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { SizeInput } from '@app/components/SizeInput';
-import { LabelContainer, TooltipContainer, TooltipLabelContainer } from './styled';
+
 import { useTranslation } from 'react-i18next';
 import { Checkbox } from '@app/components/Checkbox';
 import { Switch } from '@app/components/Switch';
@@ -310,25 +310,25 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
           {!isEdit && (
             <Form.Item
               label={
-                <LabelContainer>
-                  <TooltipLabelContainer>
+                <div className="flex">
+                  <div className="mr-1">
                     <span>{t('resource_group:spawn_on_create')}</span>
-                  </TooltipLabelContainer>
+                  </div>
                   <Popover
                     content={
-                      <TooltipContainer>
+                      <div className="w-[400px]">
                         <p>
                           If option enabled, will create a resource (or resources) when you create this resource group.
                           Created resource(s) will have the name of the resource definition that you specify. If option
                           disabled, will create the resource group only.
                         </p>
-                      </TooltipContainer>
+                      </div>
                     }
                     title={t('resource_group:spawn_on_create')}
                   >
                     <QuestionCircleOutlined />
                   </Popover>
-                </LabelContainer>
+                </div>
               }
               name="deploy"
               valuePropName="checked"
@@ -339,46 +339,46 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
 
           <Form.Item name="diskless_on_remaining" valuePropName="checked" wrapperCol={{ offset: 7, span: 17 }}>
             <Checkbox>
-              <LabelContainer>
+              <div className="flex">
                 <Popover
                   content={
-                    <TooltipContainer>
+                    <div className="w-[400px]">
                       <p>
                         If option is selected, place diskless instances of resources created from this resource group on
                         any remaining nodes after fulfilling the diskful resource placement count in the LINSTOR
                         cluster.
                       </p>
-                    </TooltipContainer>
+                    </div>
                   }
                   title={drbdLayer ? t('resource_group:drbd_protocol') : t('resource_group:replication')}
                 >
                   {t('resource_group:diskless')} <QuestionCircleOutlined />
                 </Popover>
-              </LabelContainer>
+              </div>
             </Checkbox>
           </Form.Item>
         </Col>
         <Col span={12}>
           <Form.Item
             label={
-              <LabelContainer>
-                <TooltipLabelContainer>
+              <div className="flex">
+                <div className="mr-1">
                   <span>{t('resource_group:storage_pool')}</span>
-                </TooltipLabelContainer>
+                </div>
                 <Popover
                   content={
-                    <TooltipContainer>
+                    <div className="w-[400px]">
                       <p>
                         Select storage pool. Resources created from this resource group will be automatically placed
                         into selected storage pool.
                       </p>
-                    </TooltipContainer>
+                    </div>
                   }
                   title={t('resource_group:storage_pool')}
                 >
                   <QuestionCircleOutlined />
                 </Popover>
-              </LabelContainer>
+              </div>
             }
             name="storage_pool_list"
           >
@@ -395,24 +395,24 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
 
           <Form.Item
             label={
-              <LabelContainer>
-                <TooltipLabelContainer>
+              <div className="flex">
+                <div className="mr-1">
                   <span>{t('resource_group:linstor_layers')}</span>
-                </TooltipLabelContainer>
+                </div>
                 <Popover
                   content={
-                    <TooltipContainer>
+                    <div className="w-[400px]">
                       <p>
                         Select LINSTOR layers. Only storage pools having the selected LINSTOR layers will be considered
                         for automatic resource placement when creating resources from this resource group.
                       </p>
-                    </TooltipContainer>
+                    </div>
                   }
                   title={t('resource_group:linstor_layers')}
                 >
                   <QuestionCircleOutlined />
                 </Popover>
-              </LabelContainer>
+              </div>
             }
             name="layer_stack"
           >
@@ -434,24 +434,24 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
 
           <Form.Item
             label={
-              <LabelContainer>
-                <TooltipLabelContainer>
+              <div className="flex">
+                <div className="mr-1">
                   <span>{t('resource_group:storage_providers')}</span>
-                </TooltipLabelContainer>
+                </div>
                 <Popover
                   content={
-                    <TooltipContainer>
+                    <div className="w-[400px]">
                       <p>
                         Select storage providers. Only storage pools backed by the selected storage providers will be
                         considered for automatic resource placement when creating resources from this resource group.
                       </p>
-                    </TooltipContainer>
+                    </div>
                   }
                   title={t('resource_group:storage_providers')}
                 >
                   <QuestionCircleOutlined />
                 </Popover>
-              </LabelContainer>
+              </div>
             }
             name="provider_list"
           >

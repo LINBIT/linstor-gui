@@ -5,34 +5,14 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { Select as AntSelect, SelectProps as AntSelectProps } from 'antd';
-import styled from '@emotion/styled';
-import { tokens } from '@app/const/color';
-
-const BRAND = tokens.color.brand.primary;
-const FOCUS_SHADOW = `0 0 0 2px ${tokens.focusRing}`;
-
-const StyledSelect = styled(AntSelect)`
-  &.ant-select:not(.ant-select-disabled):hover {
-    border-color: ${BRAND} !important;
-  }
-
-  &.ant-select-focused:not(.ant-select-disabled) {
-    border-color: ${BRAND} !important;
-    box-shadow: ${FOCUS_SHADOW} !important;
-  }
-` as unknown as typeof AntSelect;
 
 export type SelectProps<T = unknown> = AntSelectProps<T>;
 
 /**
- * Custom Select component.
- * Drop-in replacement for antd's Select with the brand color scheme (brand primary)
- * applied to the selector hover/focus border. The selected-option background
- * inside the dropdown is handled by the global `colorPrimary` theme token.
- * Exposes the same sub-components (Option, OptGroup).
+ * antd's Select under the project name. The brand look (peach hover/focus
+ * border and focus ring, the peach selected option) comes from the Select
+ * tokens in the antd theme, so it covers antd's own selects as well.
  */
-export const Select = StyledSelect;
-Select.Option = AntSelect.Option;
-Select.OptGroup = AntSelect.OptGroup;
+export const Select = AntSelect;
 
 export default Select;

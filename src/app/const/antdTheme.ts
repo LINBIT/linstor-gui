@@ -43,6 +43,15 @@ export const getAntdTheme = (mode: ThemeMode): ThemeConfig => ({
   },
   components: {
     ...antdTheme.components,
+    // Labels in the nav text color; a radio button group fills its checked
+    // button with the dark on-brand label. The circle's border, dot and hover
+    // live in the Radio wrapper: antd's colorBorder also draws radio button
+    // borders.
+    Radio: {
+      ...antdTheme.components?.Radio,
+      colorText: themeTokens['text/nav'][mode],
+      buttonColor: themeTokens['text/nav'][mode],
+    },
     ...(mode === 'light' && {
       Tag: { ...antdTheme.components?.Tag, ...LIGHT_TAG_TEXT },
       // antd draws the selected tab's label in colorPrimary, the peach that
@@ -107,6 +116,10 @@ export const antdTheme: ThemeConfig = {
     Radio: {
       colorPrimary: tokens.color.brand.primaryActive,
       colorPrimaryHover: tokens.color.brand.accent,
+      buttonSolidCheckedBg: tokens.color.brand.primaryActive,
+      buttonSolidCheckedHoverBg: tokens.color.brand.primaryHover,
+      buttonSolidCheckedActiveBg: tokens.color.brand.primaryHover,
+      buttonSolidCheckedColor: tokens.color.brand.onPrimary,
     },
     Input: {
       activeBorderColor: tokens.color.brand.primary,
@@ -117,8 +130,12 @@ export const antdTheme: ThemeConfig = {
       activeBorderColor: tokens.color.brand.primary,
       hoverBorderColor: tokens.color.brand.primary,
       activeShadow: `0 0 0 2px ${tokens.focusRing}`,
+      handleHoverColor: tokens.color.brand.primary,
     },
     Select: {
+      hoverBorderColor: tokens.color.brand.primary,
+      activeBorderColor: tokens.color.brand.primary,
+      activeOutlineColor: tokens.focusRing,
       optionSelectedBg: tokens.color.brand.primaryHover,
       optionActiveBg: tokens.color.brand.primaryHover,
       // The peach fill stays light in dark mode, so its label has to stay dark

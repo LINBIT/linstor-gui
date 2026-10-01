@@ -47,8 +47,6 @@ export const tokens = {
       white: '#FFFFFF',
       borderDefault: '#D9D9D9',
       disabledBg: '#F5F5F5',
-      disabledBorder: '#D9D9D9',
-      disabledText: '#BFBFBF',
     },
     semantic: {
       success: '#52C41A',

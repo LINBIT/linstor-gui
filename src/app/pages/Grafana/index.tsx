@@ -5,22 +5,9 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { logger } from '@app/utils/logger';
-import styled from '@emotion/styled';
 
 import { useThemeMode } from '@app/hooks';
 import { useSettings } from '@app/features/settings/useSettings';
-
-const PageContainer = styled.div`
-  width: 100%;
-  height: calc(100vh - 64px);
-  background-color: var(--bg-page);
-`;
-
-const IFramePage = styled.iframe`
-  width: 100%;
-  height: 100%;
-  border: none;
-`;
 
 export const GrafanaDashboard = () => {
   const { grafanaConfig } = useSettings();
@@ -50,8 +37,12 @@ export const GrafanaDashboard = () => {
   };
 
   return (
-    <PageContainer>
-      <IFramePage title="dashboard" src={getUrlWithTheme(grafanaConfig.dashboardUrlTemplate)} />
-    </PageContainer>
+    <div className="h-[calc(100vh-64px)] w-full bg-(--bg-page)">
+      <iframe
+        className="h-full w-full border-none"
+        title="dashboard"
+        src={getUrlWithTheme(grafanaConfig.dashboardUrlTemplate)}
+      />
+    </div>
   );
 };

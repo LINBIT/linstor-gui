@@ -230,7 +230,11 @@ describe('Settings ControllerAuth tab', () => {
     fireEvent.click(screen.getByRole('button', { name: 'settings:controller_auth_initialize' }));
 
     await waitFor(() => expect(errorMessage).toHaveBeenCalledWith('controller unreachable'));
-    expect(screen.getByRole('button', { name: 'settings:controller_auth_initialize' })).toBeEnabled();
+    // A loading antd button stays enabled, so "offering it again" means the
+    // spinner is gone.
+    const initialize = screen.getByRole('button', { name: 'settings:controller_auth_initialize' });
+    await waitFor(() => expect(initialize).not.toHaveClass('ant-btn-loading'));
+    expect(initialize).toBeEnabled();
     expect(window.localStorage.getItem('LINSTOR_CONTROLLER_AUTH_TOKEN')).toBeNull();
   });
 

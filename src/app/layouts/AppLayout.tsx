@@ -6,7 +6,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Layout, message, FloatButton, Grid } from 'antd';
+import { Layout, message, FloatButton, Grid, Modal } from 'antd';
 import { VerticalAlignTopOutlined } from '@ant-design/icons';
 import { IoMenuOutline } from 'react-icons/io5';
 import SVG from 'react-inlinesvg';
@@ -26,15 +26,6 @@ import ThemeToggle from './components/ThemeToggle';
 import { LogoImg } from './components/LogoImg';
 import warning from '@app/assets/warning-icon.svg';
 import arrowRight from '@app/assets/arrow_right.svg';
-import {
-  ForOfficialBuild,
-  ModalContent,
-  StyledContent,
-  StyledModal,
-  SupportList,
-  SupportListItem,
-  Warning,
-} from './styled';
 import './AppLayout.css';
 import { Button } from '@app/components/Button';
 
@@ -283,7 +274,13 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
         <ChangePassword defaultOpen={authInfo.needsPasswordChange} admin={false} />
       )}
 
-      <StyledModal
+      <Modal
+        styles={{
+          container: { borderRadius: 16 },
+          header: { borderRadius: '16px 16px 0 0' },
+          footer: { borderRadius: '0 0 16px 16px' },
+          body: { padding: '6px 0' },
+        }}
         open={isModalOpen}
         onOk={handleOk}
         onCancel={handleCancel}
@@ -293,26 +290,29 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
         width={755}
         height={200}
       >
-        <ModalContent>
-          <Warning src={warning} />
-          <StyledContent className="text-[16px]">
+        <div className="flex">
+          <SVG className="mt-2.5 mr-[18px] h-[56px] w-[60px]" src={warning} />
+          <div className="pt-4 pb-0 text-[16px]">
             <div className="text-[16px] font-semibold">
               <div>{t('about:unofficial_build_attention')}</div>
               <div>{t('about:unofficial_build_description')}</div>
             </div>
 
-            <SupportList>
-              <SupportListItem>{t('about:unofficial_build_benefit_support')}</SupportListItem>
-              <SupportListItem>{t('about:unofficial_build_benefit_packages')}</SupportListItem>
-              <SupportListItem>{t('about:unofficial_build_benefit_development')}</SupportListItem>
-            </SupportList>
+            <ul className="mt-2 list-[square] pl-[30px] font-normal">
+              <li className="mb-2 pl-2 indent-[-6px] text-[16px]">{t('about:unofficial_build_benefit_support')}</li>
+              <li className="mb-2 pl-2 indent-[-6px] text-[16px]">{t('about:unofficial_build_benefit_packages')}</li>
+              <li className="mb-2 pl-2 indent-[-6px] text-[16px]">{t('about:unofficial_build_benefit_development')}</li>
+            </ul>
 
-            <ForOfficialBuild onClick={handleSupportClick}>
+            <div
+              className="flex max-w-[190px] cursor-pointer items-center justify-center rounded border-2 border-(--brand-accent) px-3 py-2 font-bold hover:text-(--brand-accent) [&:hover_.outlink-svg_path]:fill-(--brand-accent) [&_.outlink-svg]:ml-1.5"
+              onClick={handleSupportClick}
+            >
               {t('about:unofficial_build_get_official')} <SVG src={arrowRight} className="outlink-svg" />
-            </ForOfficialBuild>
-          </StyledContent>
-        </ModalContent>
-      </StyledModal>
+            </div>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 };

@@ -4,5 +4,5 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-export { UserManagement } from './UserManegment/UserManagement';
+export { UserManagement } from './UserManagement/UserManagement';
 export { Login } from './Login';

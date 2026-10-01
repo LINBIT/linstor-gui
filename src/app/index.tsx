@@ -7,6 +7,7 @@
 import * as React from 'react';
 import { HashRouter as Router } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
+import { StyleProvider } from '@ant-design/cssinjs';
 // The ES module: antd/locale/* are CommonJS shims whose default import, once
 // bundled, is the module object rather than the locale (Table then has none).
 import locale from 'antd/es/locale/en_US';
@@ -14,7 +15,7 @@ import locale from 'antd/es/locale/en_US';
 import AppLayout from '@app/layouts/AppLayout';
 import AppRoutes from '@app/routes/routes';
 import { getAntdTheme } from '@app/const/antdTheme';
-import { applyThemeTokens, initThemeMode } from '@app/const/themeTokens';
+import { applyThemeTokens, getStoredThemeMode, initThemeMode } from '@app/const/themeTokens';
 import { resolveAndStoreLinstorHost } from '@app/utils/resolveLinstorHost';
 import { setControllerAuthRequired, setControllerAuthToken } from '@app/utils/controllerAuth';
 import { useSpaceReportStatus } from '@app/hooks/useSpaceReportStatus';
@@ -27,6 +28,18 @@ import { NavProvider } from './NavContext';
 import { ThemeModeProvider, useThemeMode } from '@app/hooks';
 
 import '@app/app.css';
+
+// message/notification/Modal.confirm render in a root of their own, outside
+// the providers below, so they get the theme and the cascade layer here.
+// holderRender wraps only what antd puts inside its own ConfigProvider: that
+// provider's icon reset (`.anticon { color: inherit }`) still lands unlayered
+// on the first static call and then beats any Tailwind colour on an icon. So
+// icons are coloured through a wrapping element, never a class on the icon.
+// ThemedApp keeps the theme in step with the mode.
+ConfigProvider.config({
+  theme: getAntdTheme(getStoredThemeMode()),
+  holderRender: (children) => <StyleProvider layer>{children}</StyleProvider>,
+});
 
 // Emit the design tokens as CSS custom properties before anything renders
 // (light on :root, dark on :root[data-theme="dark"]) and restore the
@@ -72,21 +85,30 @@ if (typeof window !== 'undefined') {
 const ThemedApp: React.FunctionComponent = () => {
   const { mode } = useThemeMode();
 
+  React.useEffect(() => {
+    ConfigProvider.config({ theme: getAntdTheme(mode) });
+  }, [mode]);
+
   return (
-    <ConfigProvider theme={getAntdTheme(mode)} locale={locale}>
-      <NavProvider>
-        <ControllerAuthGate>
-          {/* Inside the gate: the settings query must not go out before a
+    // antd's styles go into the `antd` cascade layer, which app.css orders
+    // before Tailwind's utilities: a utility class then restyles an antd
+    // component without !important.
+    <StyleProvider layer>
+      <ConfigProvider theme={getAntdTheme(mode)} locale={locale}>
+        <NavProvider>
+          <ControllerAuthGate>
+            {/* Inside the gate: the settings query must not go out before a
               controller token is known, or it would only collect a 401. */}
-          <SettingsProvider>
-            <AuthProvider>
-              <GrafanaPreconnect />
-              <AuthenticatedApp />
-            </AuthProvider>
-          </SettingsProvider>
-        </ControllerAuthGate>
-      </NavProvider>
-    </ConfigProvider>
+            <SettingsProvider>
+              <AuthProvider>
+                <GrafanaPreconnect />
+                <AuthenticatedApp />
+              </AuthProvider>
+            </SettingsProvider>
+          </ControllerAuthGate>
+        </NavProvider>
+      </ConfigProvider>
+    </StyleProvider>
   );
 };
 

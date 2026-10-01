@@ -29,25 +29,31 @@ import {
 } from './useHA';
 import { Link } from '@app/components/Link';
 import { Button } from '@app/components/Button';
-import styled from '@emotion/styled';
 import { useNodes } from '@app/features/node/hooks/useNode';
 import { getEvictOutcome } from './evict';
 import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
 import { withQuietToasts } from '@app/utils/toast';
 import type { DrbdReactorStatus } from './api';
 import { ActionColumnTitle } from '@app/components/ActionColumnTitle';
+import { tokens } from '@app/const/color';
+import { cssVar, type CssVars } from '@app/const/themeTokens';
 
 const { Text } = Typography;
 
 // The active/primary node and the "Running" status share the LINBIT brand color
-// (same as the "+ Add" button). The shared Link forces blue (#499BBB !important),
-// so we override it to black with higher specificity (&&) for the highlighted tag.
-const ACTIVE_TAG_STYLE = { backgroundColor: '#FFCC9C', borderColor: '#FFCC9C', color: '#000' };
-const ActiveNodeLink = styled(Link)`
-  && {
-    color: #000 !important;
-  }
-`;
+// (same as the "+ Add" button).
+const ACTIVE_TAG_STYLE = {
+  backgroundColor: tokens.color.brand.primary,
+  borderColor: tokens.color.brand.primary,
+  color: cssVar('text/on-brand'),
+};
+/** The active node's link sits on the peach tag: dark in every state rather
+ *  than the shared Link's blue. */
+const ACTIVE_NODE_LINK_STYLE: CssVars = {
+  '--link-text': cssVar('text/on-brand'),
+  '--link-text-hover': cssVar('text/on-brand'),
+  '--link-text-active': cssVar('text/on-brand'),
+};
 
 interface HARecord {
   name: string;
@@ -276,7 +282,9 @@ const ResourceNodes: React.FC<ResourceNodesProps> = ({ resourceName, reactorStat
             style={isPrimary ? ACTIVE_TAG_STYLE : undefined}
           >
             {isPrimary ? (
-              <ActiveNodeLink to={`/inventory/nodes/${resourceObj.node_name}`}>{resourceObj.node_name}</ActiveNodeLink>
+              <Link to={`/inventory/nodes/${resourceObj.node_name}`} style={ACTIVE_NODE_LINK_STYLE}>
+                {resourceObj.node_name}
+              </Link>
             ) : (
               <Link to={`/inventory/nodes/${resourceObj.node_name}`}>{resourceObj.node_name}</Link>
             )}
@@ -904,7 +912,11 @@ export const List = () => {
           {
             key: 'delete',
             label: <span className="text-red-600">{t('common:delete')}</span>,
-            icon: <DeleteOutlined className="text-red-600" />,
+            icon: (
+              <span className="text-red-600">
+                <DeleteOutlined />
+              </span>
+            ),
             onClick: () => {
               if (configFiles.length > 0) {
                 setDeleteTarget(record);

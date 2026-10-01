@@ -16,7 +16,7 @@ import { REFETCH_INTERVAL } from '@app/const/time';
 import { formatBytes } from '@app/utils/size';
 import { GrowVolume } from './GrowVolume';
 import { CreateNFSForm } from './CreateNFSForm';
-import { ActionSection } from './styled';
+
 import { Button } from '@app/components/Button';
 import { Popconfirm } from '@app/components/Popconfirm';
 
@@ -201,12 +201,12 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
       {complex && (
         <>
           <p>This module allows exporting the highly available storage managed by LINSTOR via an NFS export.</p>
-          <ActionSection>
+          <div className="mb-2.5">
             <Button onClick={() => refetch()} style={{ marginRight: 10 }}>
               Reload
             </Button>
             <CreateNFSForm refetch={refetch} disabled={listData.length >= 1} />
-          </ActionSection>
+          </div>
         </>
       )}
       <Table

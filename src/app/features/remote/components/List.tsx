@@ -18,7 +18,7 @@ import { MoreOutlined } from '@ant-design/icons';
 
 import { deleteRemote, getRemoteList, getBackup } from '../api';
 import type { RemoteListResponse } from '../types';
-import { SearchForm } from './styled';
+import { SearchForm } from '@app/components/SearchForm';
 import { CreateRemoteForm } from './CreateRemoteForm';
 import { UIMode } from '@app/features/settings/types';
 import { useUIMode } from '@app/features/settings/useSettings';

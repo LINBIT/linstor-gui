@@ -8,24 +8,9 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { logger } from '@app/utils/logger';
 import { Card, Row, Col, Empty } from 'antd';
-import styled from '@emotion/styled';
 import { usePreloadIframes, useThemeMode } from '@app/hooks';
 import TimeRangeSelector from '@app/components/TimeRangeSelector';
 import { useSettings } from '@app/features/settings/useSettings';
-
-const ChartIframe = styled.iframe`
-  width: 100%;
-  height: 250px;
-  border: none;
-  background: var(--bg-page);
-`;
-
-const ChartCard = styled(Card)`
-  margin-bottom: 16px;
-  .ant-card-body {
-    padding: 0;
-  }
-`;
 
 interface GrafanaChartsProps {
   hostname: string;
@@ -132,15 +117,16 @@ const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
       <Row gutter={[16, 16]}>
         {validPanels.map((panel) => (
           <Col xs={24} sm={24} md={12} key={panel.key}>
-            <ChartCard title={panel.title} size="small">
-              <ChartIframe
+            <Card title={panel.title} size="small" className="mb-4" styles={{ body: { padding: 0 } }}>
+              <iframe
+                className="h-[250px] w-full border-none bg-(--bg-page)"
                 title={panel.title}
                 src={generateGrafanaSoloUrl(panel.id!)}
                 loading="eager"
                 onLoad={() => logger.debug(`Panel ${panel.title} loaded`)}
                 onError={() => logger.error(`Panel ${panel.title} failed to load`)}
               />
-            </ChartCard>
+            </Card>
           </Col>
         ))}
       </Row>

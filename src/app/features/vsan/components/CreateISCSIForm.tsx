@@ -20,7 +20,6 @@ import { formatBytes } from '@app/utils/size';
 import { clusterPrivateVolumeSizeKib } from '../const';
 import { ErrorMessage } from '@app/features/vsan';
 
-import { Content } from './styled';
 import { NetworkAddress } from '../types';
 import { Checkbox } from '@app/components/Checkbox';
 import { variablesOnly } from '@app/utils/mutation';
@@ -174,7 +173,7 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
           </div>
         }
       >
-        <Content>
+        <div className="[&_.ant-form-item-explain]:flex [&_.ant-form-item-explain]:justify-between">
           <Form<FormType>
             labelCol={{ span: 6 }}
             wrapperCol={{ span: 18 }}
@@ -314,7 +313,7 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
               </>
             )}
           </Form>
-        </Content>
+        </div>
       </Modal>
     </>
   );

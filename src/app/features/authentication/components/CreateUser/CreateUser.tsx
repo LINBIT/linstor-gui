@@ -10,7 +10,6 @@ import { Input } from '@app/components/Input';
 import Button from '@app/components/Button';
 
 import changePasswordBG from '@app/assets/changepassword-bg.svg';
-import { BGImg, Content, MainSection, FormTitle, FormWrapper } from './styled';
 import { useAuth } from '@app/features/authentication/useAuth';
 import { useTranslation } from 'react-i18next';
 
@@ -40,12 +39,18 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onCreate, onCance
       onCancel={onCancel}
       styles={{ body: { padding: 0 } }}
     >
-      <Content>
-        <BGImg src={changePasswordBG} alt="changePassword" />
+      <div className="flex max-h-[80vh] min-h-[400px] flex-row overflow-hidden bg-transparent max-md:h-auto max-md:max-h-none max-md:min-h-auto max-md:flex-col max-md:items-center max-md:justify-center">
+        <img
+          className="h-full w-[45%] min-w-[400px] shrink-0 object-cover opacity-20 max-lg:w-[40%] max-lg:min-w-[350px] max-md:hidden"
+          src={changePasswordBG}
+          alt="changePassword"
+        />
 
-        <MainSection>
-          <FormWrapper>
-            <FormTitle>{t('add_a_user')}</FormTitle>
+        <div className="flex min-w-0 flex-1 flex-col justify-center overflow-y-auto px-8 py-12 max-lg:py-10 max-md:w-full max-md:max-w-[500px] max-md:p-8 max-[480px]:max-w-[400px] max-[480px]:p-6">
+          <div className="[&_.ant-form-item-label>label]:overflow-visible [&_.ant-form-item-label>label]:font-medium [&_.ant-form-item-label>label]:whitespace-nowrap [&_.ant-form-item-label]:pb-2 [&_.ant-btn-primary]:mt-4 [&_.ant-btn-primary]:h-10 [&_.ant-btn-primary]:w-full max-[480px]:[&_.ant-input]:h-10 max-[480px]:[&_.ant-input-password]:h-10 max-[480px]:[&_.ant-form-item-label>label]:text-[14px]">
+            <h3 className="mb-6 text-[1.5rem] font-semibold text-(--text-primary) max-[480px]:mb-4 max-[480px]:text-[1.25rem]">
+              {t('add_a_user')}
+            </h3>
             <Form
               labelCol={{ span: 8 }}
               wrapperCol={{ span: 16 }}
@@ -100,9 +105,9 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onCreate, onCance
                 </Button>
               </Form.Item>
             </Form>
-          </FormWrapper>
-        </MainSection>
-      </Content>
+          </div>
+        </div>
+      </div>
     </Modal>
   );
 };

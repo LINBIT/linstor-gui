@@ -15,7 +15,7 @@ import {
   enableSchedule,
   getScheduleByResourceName,
 } from '../api';
-import { SearchForm } from './styled';
+import { SearchForm } from '@app/components/SearchForm';
 import { formatTimeUTC } from '@app/utils/time';
 import { ScheduleByResource, ScheduleDetails } from '../types';
 import { useNavigate } from 'react-router-dom';

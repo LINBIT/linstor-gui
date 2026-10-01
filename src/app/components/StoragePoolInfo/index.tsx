@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { groupBy, union } from 'lodash';
 import { getStoragePool } from '@app/features/storagePool';
 import { formatBytes } from '@app/utils/size';
-import styled from '@emotion/styled';
+import './index.css';
 import { useWindowSize, useThemeMode } from '@app/hooks';
 import { generateStoragePoolColorPairs, getNodeTotalColorPair } from '@app/utils/storagePoolColors';
 import { normalizeStoragePoolSpace } from '@app/utils/storagePoolSpace';
@@ -42,201 +42,6 @@ type HoveredNode = {
   height: number;
   name: string;
 };
-
-const ChartContainer = styled.div<{ enableScroll?: boolean; isLegendHovering?: boolean }>`
-  position: relative;
-  overflow-x: ${(props) => (props.enableScroll ? 'auto' : 'visible')};
-
-  .storage-pool-hovered-segment,
-  .storage-pool-hovered-series-segment {
-    stroke: var(--icon-subtle) !important;
-    stroke-width: 2px !important;
-  }
-
-  ${(props) =>
-    props.isLegendHovering &&
-    `
-    .apexcharts-bar-series .apexcharts-series path {
-      opacity: 0.2;
-      transition: opacity 150ms ease;
-    }
-    .apexcharts-bar-series .apexcharts-series path.storage-pool-hovered-series-segment {
-      opacity: 1;
-    }
-  `}
-
-  .storage-pool-hovered-xaxis-label {
-    fill: var(--text-primary) !important;
-    font-weight: 700 !important;
-  }
-
-  @keyframes storagePoolNodeOverlayFadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  .storage-pool-node-overlay {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    border: 1px solid rgba(17, 24, 39, 0.18);
-    border-radius: 8px;
-    background: transparent;
-
-    [data-theme='dark'] & {
-      border-color: rgba(240, 240, 240, 0.25);
-    }
-    pointer-events: none;
-    transition:
-      opacity 120ms ease,
-      height 160ms ease;
-    animation: storagePoolNodeOverlayFadeIn 160ms ease;
-    z-index: 2;
-    overflow: hidden;
-  }
-
-  .storage-pool-node-tooltip {
-    width: 100%;
-    background: rgba(255, 255, 255, 0.92);
-
-    [data-theme='dark'] & {
-      background: rgba(26, 26, 26, 0.92);
-    }
-    padding: 10px 12px 12px;
-    box-shadow: none;
-    pointer-events: auto;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scrollbar-width: thin;
-  }
-
-  .storage-pool-node-tooltip-content {
-    min-width: max-content;
-    display: grid;
-    grid-template-columns: 60px max-content max-content;
-    column-gap: 10px;
-    row-gap: 6px;
-    align-items: center;
-    justify-content: start;
-  }
-
-  .storage-pool-node-details-spacer {
-    width: 100%;
-    flex: 0 0 auto;
-  }
-
-  .storage-pool-node-tooltip-row {
-    display: contents;
-    font-size: 13px;
-    line-height: 1.4;
-    cursor: default;
-  }
-
-  .storage-pool-node-tooltip-row.is-highlighted .storage-pool-node-tooltip-label {
-    font-weight: 700;
-    color: var(--text-primary);
-    background: rgba(0, 0, 0, 0.04);
-  }
-
-  .storage-pool-node-tooltip-row.is-highlighted .storage-pool-node-tooltip-metric {
-    color: var(--text-secondary);
-    background: rgba(0, 0, 0, 0.04);
-  }
-
-  [data-theme='dark'] & .storage-pool-node-tooltip-row.is-highlighted .storage-pool-node-tooltip-label,
-  [data-theme='dark'] & .storage-pool-node-tooltip-row.is-highlighted .storage-pool-node-tooltip-metric {
-    background: rgba(255, 255, 255, 0.08);
-  }
-
-  .storage-pool-node-tooltip-label {
-    font-weight: 400;
-    color: var(--text-muted);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    border-radius: 4px;
-    padding: 1px 2px;
-  }
-
-  .storage-pool-node-tooltip-metric {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    color: var(--text-muted);
-    white-space: nowrap;
-    font-size: 13px;
-    border-radius: 3px;
-    padding: 1px 2px;
-    transition:
-      background 80ms ease,
-      color 80ms ease;
-    cursor: default;
-  }
-
-  .storage-pool-node-tooltip-metric.is-highlighted {
-    background: rgba(0, 0, 0, 0.06);
-    color: var(--text-primary);
-    font-weight: 600;
-  }
-
-  [data-theme='dark'] & .storage-pool-node-tooltip-metric.is-highlighted {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  .storage-pool-node-tooltip-metric-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 2px;
-    flex: 0 0 auto;
-  }
-
-  .storage-pool-custom-legend {
-    margin-top: 14px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 16px;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .storage-pool-custom-legend-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 2px 0;
-    color: var(--text-muted);
-    font-size: 13px;
-    line-height: 1.4;
-    cursor: default;
-    user-select: none;
-  }
-
-  .storage-pool-custom-legend-item.is-highlighted {
-    color: var(--text-primary);
-    font-weight: 700;
-  }
-
-  .storage-pool-custom-legend-value {
-    color: var(--text-secondary);
-    font-variant-numeric: tabular-nums;
-  }
-
-  .storage-pool-custom-legend-item.is-highlighted .storage-pool-custom-legend-value {
-    color: var(--text-primary);
-  }
-
-  .storage-pool-custom-legend-marker {
-    width: 12px;
-    height: 12px;
-    border-radius: 2px;
-    flex: 0 0 auto;
-  }
-`;
 
 const MAX_NODES_TO_RENDER = 20;
 
@@ -875,13 +680,16 @@ export const StoragePoolInfo: React.FC = () => {
           }
           placement="right"
         >
-          <InfoCircleOutlined className="text-gray-400 hover:text-gray-600 cursor-help text-base" />
+          <span className="inline-flex text-gray-400 hover:text-gray-600 cursor-help text-base">
+            <InfoCircleOutlined />
+          </span>
         </Tooltip>
       </div>
       <Spin spinning={isPending}>
-        <ChartContainer
-          enableScroll={nodeCount >= 5}
-          isLegendHovering={isBottomLegendHover}
+        <div
+          className={`storage-pool-chart relative ${nodeCount >= 5 ? 'overflow-x-auto' : 'overflow-x-visible'}${
+            isBottomLegendHover ? ' is-legend-hovering' : ''
+          }`}
           ref={chartContainerRef}
           onMouseMove={handleChartContainerMouseMove}
           onMouseLeave={scheduleHoveredNodeClear}
@@ -995,7 +803,7 @@ export const StoragePoolInfo: React.FC = () => {
               </div>
             ))}
           </div>
-        </ChartContainer>
+        </div>
       </Spin>
     </div>
   );

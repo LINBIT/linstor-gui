@@ -4,7 +4,12 @@
  * Author: Liang Li <liang.li@linbit.com>
  */
 
-@import url('antd/dist/reset.css');
+/* Layer order: Tailwind's preflight, then antd's reset, then antd's component
+ * styles (StyleProvider layer, see index.tsx), then Tailwind's utilities, so
+ * a utility class restyles an antd component without !important. */
+@layer theme, base, antd-reset, antd, components, utilities;
+
+@import url('antd/dist/reset.css') layer(antd-reset);
 @import 'tailwindcss';
 
 /* Design font (DESIGN.md): Roboto, self-hosted via @fontsource — the system

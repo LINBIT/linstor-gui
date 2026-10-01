@@ -10,7 +10,6 @@ import { Tooltip } from 'antd';
 import AddColumnModal from './AddColumnModal';
 import { uniqBy } from 'lodash';
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons';
-import styled from '@emotion/styled';
 import ResetIcon from './reset.svg';
 import SVG from 'react-inlinesvg';
 import { useTranslation } from 'react-i18next';
@@ -29,23 +28,6 @@ interface WithCustomColumnsProps {
   dataSource: Record<string, unknown>[];
   storageKey: string;
 }
-
-const ExtraColumnContent = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
-
-const ColumnAction = styled.div`
-  display: flex;
-  justify-content: end;
-`;
-
-const ResetButton = styled(Button)`
-  margin-left: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
 
 const withCustomColumns = <P extends object>(
   WrappedComponent: React.ComponentType<P & { columns: CustomColumn[]; dataSource: Record<string, unknown>[] }>,
@@ -144,17 +126,17 @@ const withCustomColumns = <P extends object>(
 
     return (
       <div>
-        <ColumnAction>
+        <div className="flex justify-end">
           <Tooltip title={t('add_column')}>
             <Button shape="circle" onClick={showModal} type="primary" icon={<PlusCircleOutlined />} />
           </Tooltip>
 
           <Tooltip title={t('reset_column')}>
-            <ResetButton shape="circle" onClick={resetColumns}>
+            <Button shape="circle" onClick={resetColumns} className="ml-2 flex items-center justify-center">
               <SVG src={ResetIcon} width="16" height="16" />
-            </ResetButton>
+            </Button>
           </Tooltip>
-        </ColumnAction>
+        </div>
 
         <AddColumnModal
           isVisible={isModalVisible}
@@ -167,10 +149,10 @@ const withCustomColumns = <P extends object>(
           columns={columns.map((col) => ({
             ...col,
             title: col.isCustom ? (
-              <ExtraColumnContent>
+              <div className="flex justify-between">
                 {col.title}
                 <Button shape="circle" onClick={() => handleRemoveColumn(col.dataIndex)} icon={<DeleteOutlined />} />
-              </ExtraColumnContent>
+              </div>
             ) : (
               col.title
             ),

@@ -6,29 +6,7 @@
 
 import React from 'react';
 import { Select } from '@app/components/Select';
-import styled from '@emotion/styled';
 import { ClockCircleOutlined } from '@ant-design/icons';
-
-const Container = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  margin-bottom: 16px;
-  padding: 12px;
-  background: var(--bg-surface);
-  border-radius: 8px;
-  border: 1px solid #f0f0f0;
-
-  .time-range-label {
-    font-weight: 500;
-    margin-right: 12px;
-    color: #666;
-  }
-
-  .ant-select {
-    min-width: 160px;
-  }
-`;
 
 // Time range options similar to Grafana's default
 const TIME_RANGE_OPTIONS = [
@@ -70,9 +48,11 @@ const TimeRangeSelector: React.FC<TimeRangeSelectorProps> = ({
   };
 
   return (
-    <Container>
-      <ClockCircleOutlined style={{ marginRight: 8, color: '#666' }} />
-      <span className="time-range-label">{label}</span>
+    <div className="mb-4 flex items-center justify-end rounded-lg border border-(--border-subtle) bg-(--bg-surface) p-3 [&_.ant-select]:min-w-[160px]">
+      <span className="mr-3 inline-flex items-center gap-2 font-medium text-(--text-muted)">
+        <ClockCircleOutlined />
+        {label}
+      </span>
       <Select
         value={value}
         onChange={onChange}
@@ -81,7 +61,7 @@ const TimeRangeSelector: React.FC<TimeRangeSelectorProps> = ({
         allowClear={allowClear}
         onClear={handleClear}
       />
-    </Container>
+    </div>
   );
 };
 

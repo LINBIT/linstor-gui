@@ -19,7 +19,6 @@ import dayjs from 'dayjs';
 import { useNodes } from '@app/features/node';
 import { useLinstorVersion, MIN_API_VERSION } from '@app/hooks';
 import { useNavigate, useLocation } from 'react-router-dom';
-import styled from '@emotion/styled';
 import { MoreOutlined } from '@ant-design/icons';
 import DownloadSOS from './DownloadSOS';
 import { useTranslation } from 'react-i18next';
@@ -31,14 +30,6 @@ import { labelRowCheckbox } from '@app/utils/rowSelection';
 import { ActionColumnTitle } from '@app/components/ActionColumnTitle';
 
 const { RangePicker } = DatePicker;
-
-const SearchItem = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  gap: 16px;
-`;
 
 const idOf = (filename: string) => filename.replace('ErrorReport-', '').replace('.log', '');
 
@@ -408,7 +399,7 @@ export const List = () => {
 
   return (
     <>
-      <SearchItem>
+      <div className="mb-4 flex items-center justify-between gap-4">
         <Form
           form={form}
           name="error_report"
@@ -478,7 +469,7 @@ export const List = () => {
         </Form>
 
         <DownloadSOS />
-      </SearchItem>
+      </div>
 
       <br />
 

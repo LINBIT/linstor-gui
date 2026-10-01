@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { MoreOutlined } from '@ant-design/icons';
 
 import { deleteSchedule, getScheduleList } from '../api';
-import { SearchForm } from './styled';
+import { SearchForm } from '@app/components/SearchForm';
 import ScheduleModal from './ScheduleModal';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';

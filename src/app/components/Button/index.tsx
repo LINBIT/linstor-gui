@@ -6,8 +6,8 @@
 
 import React from 'react';
 import { Button as AntButton, ButtonProps as AntButtonProps } from 'antd';
-import styled from '@emotion/styled';
 import { tokens } from '@app/const/color';
+import { cssVar, type CssVars } from '@app/const/themeTokens';
 
 /** Trash icon of danger buttons. Inline rather than fetched (react-inlinesvg):
  *  a fetched icon arrives a frame after the button and widens it, which
@@ -25,112 +25,76 @@ const DeleteIcon = () => (
  *  their color (a link stays link-colored, a text button inherits). */
 const NATIVE_VARIANTS = ['text', 'link', 'dashed'];
 
-const StyledButton = styled(AntButton, {
-  shouldForwardProp: (prop) => !['buttontype', 'isdanger'].includes(prop),
-})<{
-  buttontype?: 'primary' | 'secondary' | 'default' | 'text' | 'link' | 'dashed';
-  isdanger?: boolean;
-}>`
-  /* Brand base for the filled/bordered variants; primary overrides below —
-   * its brand fill stays light in both modes, so its label stays dark
-   * (text/on-brand). text/link/dashed keep their antd look. */
-  ${(props) =>
-    !NATIVE_VARIANTS.includes(props.buttontype ?? '') &&
-    `
-    color: var(--text-nav) !important;
-    font-weight: 600 !important;
-  `}
-  ${(props) => (props.shape === 'circle' || props.shape === 'round' ? '' : 'border-radius: 4px !important;')}
+type ButtonType = 'primary' | 'secondary' | 'default' | 'text' | 'link' | 'dashed';
 
-  /* Global disabled state */
-  &:disabled,
-  &.ant-btn-loading {
-    background-color: ${tokens.color.neutral.disabledBg} !important;
-    border-color: ${tokens.color.neutral.borderDefault} !important;
-    color: ${tokens.color.neutral.disabledText} !important;
-    cursor: not-allowed !important;
-    opacity: 0.6 !important;
+/** Sets one of antd's button variables (`--ant-btn-<name>`) for every state. */
+const allStates = (name: string, value: string) => ({
+  [`--ant-btn-${name}`]: value,
+  [`--ant-btn-${name}-hover`]: value,
+  [`--ant-btn-${name}-active`]: value,
+});
 
-    &:hover {
-      background-color: ${tokens.color.neutral.disabledBg} !important;
-      border-color: ${tokens.color.neutral.borderDefault} !important;
-      color: ${tokens.color.neutral.disabledText} !important;
-    }
+/**
+ * The brand look, written into the variables antd 6 draws its buttons from
+ * (border, text and background per state), so the hover and pressed states
+ * follow without overriding antd's rules. Primary is the peach fill with a
+ * dark label in both modes; secondary a peach border; danger a red outline
+ * that fills red on hover. text/link/dashed keep their antd look.
+ */
+const variantStyle = (type: ButtonType, danger: boolean, inactive: boolean, rounded: boolean): CssVars => {
+  const style: CssVars = {};
+  if (rounded) style.borderRadius = tokens.radius;
+  if (!NATIVE_VARIANTS.includes(type)) {
+    style.fontWeight = 600;
+    Object.assign(style, allStates('text-color', cssVar('text/nav')));
   }
-
-  [data-theme='dark'] &:disabled,
-  [data-theme='dark'] &.ant-btn-loading {
-    background-color: rgba(255, 255, 255, 0.08) !important;
-    border-color: #434343 !important;
-    color: rgba(255, 255, 255, 0.3) !important;
-
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.08) !important;
-      border-color: #434343 !important;
-      color: rgba(255, 255, 255, 0.3) !important;
-    }
+  if (danger) {
+    Object.assign(style, {
+      '--ant-btn-border-width': '1.5px',
+      '--ant-btn-bg-color': cssVar('bg/page'),
+      '--ant-btn-border-color': cssVar('border/button/active'),
+      '--ant-btn-text-color': cssVar('border/button/active'),
+      '--ant-btn-bg-color-hover': tokens.color.danger.base,
+      '--ant-btn-border-color-hover': tokens.color.danger.base,
+      '--ant-btn-text-color-hover': tokens.color.danger.contrast,
+      '--ant-btn-bg-color-active': tokens.color.danger.base,
+      '--ant-btn-border-color-active': tokens.color.danger.base,
+      '--ant-btn-text-color-active': tokens.color.danger.contrast,
+    });
+  } else if (type === 'primary') {
+    Object.assign(style, allStates('text-color', cssVar('text/on-brand')), {
+      '--ant-btn-bg-color': tokens.color.brand.primary,
+      '--ant-btn-bg-color-hover': tokens.color.brand.primaryHover,
+      '--ant-btn-bg-color-active': tokens.color.brand.primaryHover,
+    });
+  } else if (type === 'secondary') {
+    Object.assign(style, {
+      '--ant-btn-border-width': '1.5px',
+      '--ant-btn-border-color': tokens.color.brand.primary,
+      '--ant-btn-border-color-hover': cssVar('bg/button/secondary-hover'),
+      '--ant-btn-border-color-active': cssVar('bg/button/secondary-hover'),
+      '--ant-btn-bg-color-hover': cssVar('bg/button/secondary-hover'),
+      '--ant-btn-bg-color-active': cssVar('bg/button/secondary-hover'),
+    });
   }
-
-  ${(props) =>
-    props.buttontype === 'primary' &&
-    !props.isdanger &&
-    `
-    color: var(--text-on-brand) !important;
-    background-color: ${tokens.color.brand.primary} !important;
-    border-color: ${tokens.color.brand.primary} !important;
-
-    &:hover:not(:disabled):not(.ant-btn-loading) {
-      background-color: ${tokens.color.brand.primaryHover} !important;
-      border-color: ${tokens.color.brand.primaryHover} !important;
-    }
-  `}
-
-  ${(props) =>
-    props.buttontype === 'secondary' &&
-    !props.isdanger &&
-    `
-    /* Hover fill is bg/button/secondary-hover — the old #FFDCBC in light,
-     * a deep brown in dark (handoff §5). */
-    border: 1.5px solid ${tokens.color.brand.primary} !important;
-
-    &:hover:not(:disabled):not(.ant-btn-loading) {
-      background-color: var(--bg-button-secondary-hover) !important;
-      border-color: var(--bg-button-secondary-hover) !important;
-    }
-  `}
-
-  ${(props) =>
-    props.isdanger &&
-    `
-    /* Default state - red border and icon (bg follows the theme) */
-    background-color: var(--bg-page) !important;
-    border: 1.5px solid var(--border-button-active) !important;
-    color: var(--border-button-active) !important;
-
-    /* Hover state - solid red background */
-    &:hover:not(:disabled):not(.ant-btn-loading) {
-      background-color: ${tokens.color.danger.base} !important;
-      border-color: ${tokens.color.danger.base} !important;
-      color: #FFFFFF !important;
-    }
-
-    /* Active/Clicked state - solid red background */
-    &:active:not(:disabled):not(.ant-btn-loading) {
-      background-color: ${tokens.color.danger.base} !important;
-      border-color: ${tokens.color.danger.base} !important;
-      color: #FFFFFF !important;
-    }
-  `}
-
-  /* SVG icon color inheritance */
-  svg {
-    fill: currentColor;
+  // Disabled and loading buttons look the same in every variant. antd colors
+  // a disabled button directly rather than through its variables, and the
+  // wrapper knows both states, so these are plain properties.
+  if (inactive) {
+    Object.assign(style, {
+      background: cssVar('bg/button/disabled'),
+      borderColor: cssVar('border/button/disabled'),
+      color: cssVar('text/button/disabled'),
+      cursor: 'not-allowed',
+      opacity: 0.6,
+    });
   }
-`;
+  return style;
+};
 
 export interface ButtonProps extends Omit<AntButtonProps, 'type'> {
   /** Button type */
-  type?: 'primary' | 'secondary' | 'default' | 'text' | 'link' | 'dashed';
+  type?: ButtonType;
   /** Whether to show loading state */
   loading?: boolean;
   /** Button size */
@@ -176,6 +140,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function 
     shape = 'default',
     block = false,
     className,
+    style,
     ...restProps
   },
   ref,
@@ -192,10 +157,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function 
   const buttonIcon = danger && !icon && children ? <DeleteIcon /> : icon;
 
   return (
-    <StyledButton
+    <AntButton
       ref={ref}
-      buttontype={type}
-      isdanger={danger}
       type={getAntButtonType()}
       loading={loading}
       size={size}
@@ -207,11 +170,16 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function 
       icon={buttonIcon}
       shape={shape}
       block={block}
-      className={className}
+      // Icons drawn with their own fill follow the label color.
+      className={['[&_svg]:fill-current', className].filter(Boolean).join(' ')}
+      style={{
+        ...variantStyle(type, danger, disabled || !!loading, shape !== 'circle' && shape !== 'round'),
+        ...style,
+      }}
       {...restProps}
     >
       {children}
-    </StyledButton>
+    </AntButton>
   );
 });
 

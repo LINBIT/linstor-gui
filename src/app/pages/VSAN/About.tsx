@@ -7,7 +7,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import PageBasic from '@app/components/PageBasic';
-import { StyledUL } from './styled';
+
 import { Modal } from 'antd';
 import { Input } from '@app/components/Input';
 
@@ -51,7 +51,7 @@ export const About = () => {
       </p>
       <h2>Components</h2>
       <p>LINBIT develops and maintains these components of LINBIT VSAN:</p>
-      <StyledUL>
+      <ul className="list-disc pl-8">
         <li>linstor-appliance, proprietary</li>
         <li>
           linstor-gateway,{' '}
@@ -101,7 +101,7 @@ export const About = () => {
             GPLv2
           </a>
         </li>
-      </StyledUL>
+      </ul>
       <p>
         The source code of these components is available at{' '}
         <a target="_blank" href="https://github.com/LINBIT" rel="noreferrer">
@@ -118,7 +118,7 @@ export const About = () => {
       </p>
       <h2>Authors</h2>
       <p>These fellow LINBITers helped create this product:</p>
-      <StyledUL>
+      <ul className="list-disc pl-8">
         <li>Christoph Böhmwalder - DRBD, linstor-gateway, linstor-appliance, frontend, packaging, testing</li>
         <li>Rene Peinthor - LINSTOR, linstor-appliance</li>
         <li>Gábor Hernádi - LINSTOR mastermind</li>
@@ -128,7 +128,7 @@ export const About = () => {
         <li>Roland Kammerer - DRBD, packaging, building, developer infrastructure and more</li>
         <li>Lars Ellenberg - DRBD guru</li>
         <li>Philipp Reisner - DRBD and leading</li>
-      </StyledUL>
+      </ul>
 
       <Modal
         title={t('common:vsan_host')}

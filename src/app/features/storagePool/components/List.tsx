@@ -25,7 +25,7 @@ import PropertyForm from '@app/components/PropertyForm';
 import { GetStoragePoolQuery, StoragePool, UpdateStoragePoolRequestBody } from '../types';
 import { deleteStoragePoolV2, getStoragePool, getStoragePoolCount, updateStoragePool } from '../api';
 
-import { SearchForm } from './styled';
+import { SearchForm } from '@app/components/SearchForm';
 import { useTranslation } from 'react-i18next';
 import { PropertyFormRef } from '@app/components/PropertyForm';
 import { UIMode } from '@app/features/settings/types';
@@ -339,7 +339,7 @@ export const List = () => {
 
   return (
     <>
-      <SearchForm>
+      <SearchForm className="[&_.ant-form-item]:mr-6 [&_.ant-form-item_.ant-form-item-label]:mr-2 [&_.ant-form-item:has(.ant-switch)]:mr-8">
         <Form
           form={form}
           name="storage_pool_search"
@@ -390,7 +390,7 @@ export const List = () => {
                 onConfirm={handleDeleteBulk}
                 disabled={!hasSelected}
               >
-                <Button danger disabled={!hasSelected} loading={del.busy} className="!font-semibold">
+                <Button danger disabled={!hasSelected} loading={del.busy}>
                   {t('common:delete')}
                 </Button>
               </Popconfirm>

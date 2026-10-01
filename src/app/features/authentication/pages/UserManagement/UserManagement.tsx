@@ -11,7 +11,6 @@ import { useAuth, useUsers } from '@app/features/authentication/useAuth';
 import { useSettings } from '@app/features/settings/useSettings';
 import { Avatar, Divider, Alert } from 'antd';
 import bg from '@app/assets/user_bg.svg';
-import { BG, MainContent, StyledSection } from './styled';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { ChangePassword, CreateUser } from '../../components';
 import { settingAPI } from '@app/features/settings';
@@ -100,9 +99,9 @@ export const UserManagement = () => {
 
   return (
     <PageBasic title={t('users:title')}>
-      <StyledSection>
-        <BG src={bg} title="bg" />
-        <MainContent>
+      <div className="flex h-[calc(100vh-200px)] rounded-2xl bg-(--bg-page)">
+        <img className="h-[calc(100vh-200px)] flex-1 object-cover opacity-20" src={bg} title="bg" />
+        <div className="max-h-[calc(100vh-200px)] flex-[4] overflow-y-auto rounded-r-2xl border border-l-0 border-(--border-subtle) p-6">
           <Alert title={t('users:removal_warning')} type="warning" showIcon style={{ marginBottom: 20 }} />
           {isAdminOrNotEnabled && (
             <>
@@ -171,8 +170,8 @@ export const UserManagement = () => {
           ) : (
             <p style={{ marginTop: 10 }}>{t('users:no_user')}</p>
           )}
-        </MainContent>
-      </StyledSection>
+        </div>
+      </div>
     </PageBasic>
   );
 };

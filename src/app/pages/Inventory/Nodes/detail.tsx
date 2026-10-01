@@ -30,7 +30,6 @@ import { useResources } from '@app/features/snapshot';
 import GrafanaCharts from '@app/components/GrafanaCharts';
 
 import NetInterfaceList from './components/NetInterfaceList';
-import { LabelText, TagContainer } from './detail.styled';
 
 interface NodeResource {
   storage_pool_name?: string;
@@ -218,32 +217,34 @@ const NodeDetail: React.FC = () => {
         <Card size="small">
           <Space orientation="vertical" size="small" style={{ display: 'flex' }}>
             <div>
-              <LabelText>{t('node_name')}:</LabelText>
+              <span className="mr-2.5 w-[220px] font-semibold">{t('node_name')}:</span>
               {nodeData?.name}
             </div>
             {platformAvailable && (
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                <LabelText style={{ width: 'auto' }}>{t('platform')}:</LabelText>
+                <span className="mr-2.5 w-[220px] font-semibold" style={{ width: 'auto' }}>
+                  {t('platform')}:
+                </span>
                 {nodeData?.platform === 'LINUX' && <FaLinux style={{ fontSize: '20px', marginRight: 4 }} />}
                 {nodeData?.platform === 'WINDOWS' && <FaWindows style={{ fontSize: '18px', marginRight: 4 }} />}
                 {nodeData?.platform?.toLowerCase()}
               </div>
             )}
             <div>
-              <LabelText>{t('os_variant')}:</LabelText> {nodeData?.os_variant}
+              <span className="mr-2.5 w-[220px] font-semibold">{t('os_variant')}:</span> {nodeData?.os_variant}
             </div>
             <div>
-              <LabelText>{t('node_type')}:</LabelText> {nodeData?.type?.toLowerCase()}
+              <span className="mr-2.5 w-[220px] font-semibold">{t('node_type')}:</span> {nodeData?.type?.toLowerCase()}
             </div>
             <div>
-              <LabelText>{t('node_status')}: </LabelText>
+              <span className="mr-2.5 w-[220px] font-semibold">{t('node_status')}: </span>
               {nodeData?.connection_status === 'ONLINE' && (
                 <CheckCircleOutlined style={{ color: 'green', marginRight: 4 }} />
               )}
               {nodeData?.connection_status?.toLowerCase()}
             </div>
-            <TagContainer>
-              <LabelText>{t('resource_layers')}:</LabelText>
+            <div className="leading-[2]">
+              <span className="mr-2.5 w-[220px] font-semibold">{t('resource_layers')}:</span>
 
               {nodeData
                 ? nodeData?.resource_layers?.map((e) => (
@@ -259,10 +260,10 @@ const NodeDetail: React.FC = () => {
                     </Tag>
                   ))
                 : null}
-            </TagContainer>
+            </div>
 
-            <TagContainer>
-              <LabelText>{t('storage_providers')}:</LabelText>
+            <div className="leading-[2]">
+              <span className="mr-2.5 w-[220px] font-semibold">{t('storage_providers')}:</span>
               {nodeData
                 ? nodeData?.storage_providers?.map((e) => (
                     <Tag key={e} color="success">
@@ -277,7 +278,7 @@ const NodeDetail: React.FC = () => {
                     </Tag>
                   ))
                 : null}
-            </TagContainer>
+            </div>
           </Space>
         </Card>
 

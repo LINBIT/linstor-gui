@@ -13,7 +13,7 @@ import type { TableProps } from 'antd';
 import { DEFAULT_SP } from '@app/const/type';
 import { CreateResourceGroup } from './CreateResourceGroup';
 import { ErrorMessage, VsanResourceGroup } from '@app/features/vsan';
-import { ActionSection } from './styled';
+
 import { Button } from '@app/components/Button';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { variablesOnly } from '@app/utils/mutation';
@@ -91,13 +91,13 @@ export const ResourceGroupList = () => {
   return (
     <div>
       {contextHolder}
-      <ActionSection>
+      <div className="mb-2.5">
         <Button onClick={() => refetch()} style={{ marginRight: 10 }}>
           Reload
         </Button>
 
         <CreateResourceGroup refetch={refetch} />
-      </ActionSection>
+      </div>
       <Table
         rowKey="name"
         bordered={false}

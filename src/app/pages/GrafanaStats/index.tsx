@@ -7,7 +7,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, Spin, Alert, Typography } from 'antd';
-import styled from '@emotion/styled';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import Button from '@app/components/Button';
@@ -19,49 +18,6 @@ import { useSettings } from '@app/features/settings/useSettings';
 import { cssVar } from '@app/const/themeTokens';
 
 const { Title } = Typography;
-
-const IframeContainer = styled.div`
-  width: 100%;
-  height: 100%;
-  min-height: 400px;
-  border: none;
-  border-radius: 8px;
-  overflow: hidden;
-
-  iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-  }
-`;
-
-const ChartsGrid = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-bottom: 16px;
-`;
-
-const ChartRow = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  height: 400px;
-
-  @media (max-width: 1200px) {
-    grid-template-columns: 1fr;
-    height: 400px;
-  }
-`;
-
-const LoadingContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 400px;
-  gap: 16px;
-`;
 
 const GrafanaStats: React.FC = () => {
   const { t } = useTranslation(['common', 'settings']);
@@ -189,10 +145,10 @@ const GrafanaStats: React.FC = () => {
   if (loading) {
     return (
       <PageBasic title={`${t('settings:node_stats_title')} - ${nodeName || 'Unknown'}`}>
-        <LoadingContainer>
+        <div className="flex h-[400px] flex-col items-center justify-center gap-4">
           <Spin size="large" />
           <Title level={4}>{t('settings:loading_drbd_dashboard')}</Title>
-        </LoadingContainer>
+        </div>
       </PageBasic>
     );
   }
@@ -268,12 +224,16 @@ const GrafanaStats: React.FC = () => {
         {/* Time Range Selector */}
         <TimeRangeSelector value={timeRange} onChange={handleTimeRangeChange} />
 
-        <ChartsGrid>
+        <div className="mb-4 flex flex-col gap-4">
           {/* First row: CPU and Memory panels - always show when Grafana is enabled */}
-          <ChartRow>
-            <IframeContainer>{renderIframe(cpuUrl, `CPU Basic for ${nodeName}`)}</IframeContainer>
-            <IframeContainer>{renderIframe(memoryUrl, `Memory Basic for ${nodeName}`)}</IframeContainer>
-          </ChartRow>
+          <div className="grid h-[400px] grid-cols-2 gap-4 max-[1200px]:grid-cols-1">
+            <div className="h-full min-h-[400px] w-full overflow-hidden rounded-lg border-none [&_iframe]:h-full [&_iframe]:w-full [&_iframe]:border-none">
+              {renderIframe(cpuUrl, `CPU Basic for ${nodeName}`)}
+            </div>
+            <div className="h-full min-h-[400px] w-full overflow-hidden rounded-lg border-none [&_iframe]:h-full [&_iframe]:w-full [&_iframe]:border-none">
+              {renderIframe(memoryUrl, `Memory Basic for ${nodeName}`)}
+            </div>
+          </div>
 
           {/* DRBD Reactor dashboard message when disabled */}
           {!grafanaConfig?.drbdEnable && (
@@ -293,16 +253,16 @@ const GrafanaStats: React.FC = () => {
 
           {/* Second row: DRBD Write Rate and DRBD Read Rate (only when DRBD is enabled) */}
           {grafanaConfig?.drbdEnable && (
-            <ChartRow>
-              <IframeContainer>
+            <div className="grid h-[400px] grid-cols-2 gap-4 max-[1200px]:grid-cols-1">
+              <div className="h-full min-h-[400px] w-full overflow-hidden rounded-lg border-none [&_iframe]:h-full [&_iframe]:w-full [&_iframe]:border-none">
                 {renderIframe(drbdWriteRateUrl, `DRBD Write Rate Dashboard for ${nodeName}`)}
-              </IframeContainer>
-              <IframeContainer>
+              </div>
+              <div className="h-full min-h-[400px] w-full overflow-hidden rounded-lg border-none [&_iframe]:h-full [&_iframe]:w-full [&_iframe]:border-none">
                 {renderIframe(drbdReadRateUrl, `DRBD Read Rate Dashboard for ${nodeName}`)}
-              </IframeContainer>
-            </ChartRow>
+              </div>
+            </div>
           )}
-        </ChartsGrid>
+        </div>
       </Card>
     </PageBasic>
   );

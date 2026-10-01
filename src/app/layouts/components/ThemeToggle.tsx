@@ -6,7 +6,6 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import styled from '@emotion/styled';
 import { IoSunnyOutline, IoMoonOutline } from 'react-icons/io5';
 
 import { ThemeMode } from '@app/const/themeTokens';
@@ -21,70 +20,7 @@ import { useThemeMode } from '@app/hooks';
  * text/primary on hover. Clicking flips `data-theme` and persists the choice.
  */
 
-const Track = styled.div`
-  display: flex;
-  width: 100%;
-  height: 31px;
-  gap: 4px;
-  border: 1px solid var(--border-default);
-  border-radius: 4px;
-  background: var(--bg-toggle-track);
-`;
-
-const Segment = styled('button', { shouldForwardProp: (prop) => prop !== 'selected' })<{ selected: boolean }>`
-  flex: 1 1 0;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 6px 8px;
-  border-radius: 4px;
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 1;
-  cursor: ${({ selected }) => (selected ? 'default' : 'pointer')};
-  transition:
-    color 150ms ease,
-    background 150ms ease;
-  background: ${({ selected }) => (selected ? 'var(--bg-page)' : 'transparent')};
-  border: ${({ selected }) => (selected ? '1px solid var(--border-default)' : '1px solid transparent')};
-  color: ${({ selected }) => (selected ? 'var(--text-nav)' : 'var(--text-muted)')};
-
-  &:hover {
-    color: ${({ selected }) => (selected ? 'var(--text-nav)' : 'var(--text-primary)')};
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--brand-accent);
-    outline-offset: 1px;
-  }
-`;
-
 /** Collapsed-sidebar fallback: a single icon button that flips the theme. */
-const IconButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 31px;
-  border: 1px solid var(--border-default);
-  border-radius: 4px;
-  background: var(--bg-toggle-track);
-  color: var(--text-nav);
-  cursor: pointer;
-  transition: color 150ms ease;
-
-  &:hover {
-    color: var(--text-primary);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--brand-accent);
-    outline-offset: 1px;
-  }
-`;
-
 interface ThemeToggleProps {
   /** Sidebar is collapsed to icons-only — render a single toggle button. */
   collapsed?: boolean;
@@ -94,6 +30,18 @@ const OPTIONS: { mode: ThemeMode; label: string }[] = [
   { mode: 'light', label: 'Light' },
   { mode: 'dark', label: 'Dark' },
 ];
+
+const FOCUS = 'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-(--brand-accent)';
+
+const TRACK = 'flex h-[31px] w-full gap-1 rounded border border-(--border-default) bg-(--bg-toggle-track)';
+
+const SEGMENT = `flex min-w-0 flex-[1_1_0] items-center justify-center gap-2 rounded border px-2 py-1.5 text-base leading-none font-medium transition-[color,background] duration-150 ease-[ease] ${FOCUS}`;
+
+const SEGMENT_SELECTED = 'cursor-default border-(--border-default) bg-(--bg-page) text-(--text-nav)';
+
+const SEGMENT_IDLE = 'cursor-pointer border-transparent bg-transparent text-(--text-muted) hover:text-(--text-primary)';
+
+const ICON_BUTTON = `flex h-[31px] w-full cursor-pointer items-center justify-center rounded border border-(--border-default) bg-(--bg-toggle-track) text-(--text-nav) transition-[color] duration-150 ease-[ease] hover:text-(--text-primary) ${FOCUS}`;
 
 const ThemeToggle: React.FC<ThemeToggleProps> = ({ collapsed }) => {
   const { t } = useTranslation();
@@ -116,34 +64,35 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ collapsed }) => {
   if (collapsed) {
     const next = mode === 'light' ? 'dark' : 'light';
     return (
-      <IconButton
+      <button
+        className={ICON_BUTTON}
         type="button"
         aria-label={`Switch to ${next} theme`}
         title={`Switch to ${next} theme`}
         onClick={() => select(next)}
       >
         {mode === 'light' ? <IoSunnyOutline size={18} /> : <IoMoonOutline size={14} />}
-      </IconButton>
+      </button>
     );
   }
 
   return (
-    <Track role="radiogroup" aria-label={t('common:color_theme')} onKeyDown={handleKeyDown}>
+    <div className={TRACK} role="radiogroup" aria-label={t('common:color_theme')} onKeyDown={handleKeyDown}>
       {OPTIONS.map(({ mode: value, label }) => (
-        <Segment
+        <button
           key={value}
+          className={`${SEGMENT} ${mode === value ? SEGMENT_SELECTED : SEGMENT_IDLE}`}
           type="button"
           role="radio"
           aria-checked={mode === value}
           tabIndex={mode === value ? 0 : -1}
-          selected={mode === value}
           onClick={() => select(value)}
         >
           {value === 'light' ? <IoSunnyOutline size={18} /> : <IoMoonOutline size={14} />}
           {label}
-        </Segment>
+        </button>
       ))}
-    </Track>
+    </div>
   );
 };
 

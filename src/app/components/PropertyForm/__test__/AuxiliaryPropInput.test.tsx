@@ -48,10 +48,9 @@ vi.mock('antd', () => ({
       Group: ({ children, ...props }: any) => <div {...props}>{children}</div>,
     },
   ),
-  // className comes AFTER the spread: the component renders the project Button
-  // (which wraps this mocked antd Button in an emotion styled()), and emotion
-  // passes its own className through props — it must not clobber the marker
-  // classes the assertions look for.
+  // className comes AFTER the spread: the project Button passes its own
+  // className through props, which must not clobber the marker classes the
+  // assertions look for.
   // antd-only props (loading, htmlType, ghost, block) are dropped: a <button> has no such attributes.
   Button: ({ children, onClick, danger, icon, shape, loading, htmlType, ghost, block, ...props }: MockButtonProps) => (
     <button

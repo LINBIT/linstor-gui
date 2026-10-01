@@ -15,7 +15,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { compareIPv4 } from '@app/utils/ip';
 import { InfoCircleOutlined, SettingOutlined } from '@ant-design/icons';
-import { ActionContainer, UpdateStatus } from './styled';
+
 import { BRAND_COLOR, ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
 import { CloudStackNode, ErrorMessage, Node } from '../types';
 import { UIMode } from '@app/features/settings/types';
@@ -403,19 +403,19 @@ export const VSANNodeList = () => {
               </Popconfirm>
             </Space>
             {updating && (
-              <UpdateStatus>
+              <div className="mt-1.5">
                 <Tooltip title={tooltip || ''}>
                   <Progress percent={progress} status="active" strokeColor={color} />
                   <Tag color={color}>{updateProcess?.label}</Tag>
                 </Tooltip>
-              </UpdateStatus>
+              </div>
             )}
             {updateError && (
-              <UpdateStatus>
+              <div className="mt-1.5">
                 <Tooltip title={tooltip || ''}>
                   <Tag color={ERROR_COLOR}>{updateProcess?.label}</Tag>
                 </Tooltip>
-              </UpdateStatus>
+              </div>
             )}
           </>
         );
@@ -426,7 +426,7 @@ export const VSANNodeList = () => {
   return (
     <div>
       {contextHolder}
-      <ActionContainer>
+      <div className="mb-2.5 flex justify-between">
         <Space>
           <Button type="default" onClick={() => nodesFromVSAN.refetch()}>
             Reload
@@ -462,7 +462,7 @@ export const VSANNodeList = () => {
         </Space>
 
         <Button type="primary" shape="circle" icon={<SettingOutlined />} onClick={() => setIntervalModal(true)} />
-      </ActionContainer>
+      </div>
 
       <Table
         rowKey="hostname"

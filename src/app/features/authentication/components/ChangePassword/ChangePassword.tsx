@@ -12,7 +12,6 @@ import { Button } from '@app/components/Button';
 
 import changePassword from '@app/assets/changepassword.svg';
 import changePasswordBG from '@app/assets/changepassword-bg.svg';
-import { BGImg, Content, ImgIcon, MainSection } from './styled';
 import { useAuth } from '@app/features/authentication/useAuth';
 import { useSettings } from '@app/features/settings/useSettings';
 import { USER_LOCAL_STORAGE_KEY, DEFAULT_ADMIN_USER_NAME } from '@app/const/settings';
@@ -56,9 +55,13 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ open, onCreate,
       onCancel={handleCancel}
       style={{ maxWidth: '90vw', padding: '16px' }}
     >
-      <Content>
-        <BGImg src={changePasswordBG} alt="changePassword" />
-        <MainSection>
+      <div className="flex min-h-[400px] flex-row max-md:h-auto max-md:min-h-auto max-md:flex-col max-md:items-center max-md:justify-center max-md:gap-0">
+        <img
+          className="h-auto max-h-[620px] w-full max-w-[422px] shrink-0 rounded-l-lg object-cover opacity-20 max-md:hidden"
+          src={changePasswordBG}
+          alt="changePassword"
+        />
+        <div className="flex flex-1 flex-col items-center justify-center max-md:w-full max-md:max-w-[500px] max-md:p-6 max-[480px]:max-w-[400px] max-[480px]:p-4 [&_form]:w-full [&_form]:max-w-[400px] max-[480px]:[&_form]:max-w-[350px] [&_.ant-form-item]:mb-4 [&_.ant-form-item_.ant-input-password]:w-full">
           <Form
             form={form}
             layout="vertical"
@@ -118,8 +121,8 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ open, onCreate,
               </Space>
             </Form.Item>
           </Form>
-        </MainSection>
-      </Content>
+        </div>
+      </div>
     </Modal>
   );
 };
@@ -240,7 +243,7 @@ const ChangePassword = ({ admin, user, disabled, defaultOpen }: ChangePasswordPr
             <Button disabled={disabled}> {t('reset_password')} </Button>
           ) : (
             <>
-              <ImgIcon src={changePassword} alt="changepassword" />
+              <img className="mr-4 size-4" src={changePassword} alt="changepassword" />
               <span>{t('change_password')}</span>
             </>
           )}

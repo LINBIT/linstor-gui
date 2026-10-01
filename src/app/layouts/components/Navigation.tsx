@@ -30,8 +30,6 @@ import NFS from '@app/assets/nfs.svg';
 import { GrafanaConfig } from '@app/features/settings/types';
 import { useLinstorVersion, MIN_API_VERSION } from '@app/hooks';
 
-import { SideMenu } from '../styled';
-
 type MenuItem = Required<MenuProps>['items'][number];
 
 interface KVSSettings {
@@ -294,7 +292,7 @@ const Navigation: React.FC<NavigationProps> = ({
   };
 
   return (
-    <SideMenu>
+    <div className="[&_.ant-menu.ant-menu-sub.ant-menu-inline]:[background:none]">
       <Menu
         defaultSelectedKeys={[selectedMenu]}
         mode="inline"
@@ -306,7 +304,7 @@ const Navigation: React.FC<NavigationProps> = ({
         openKeys={openKeys}
         onOpenChange={handleOpenChange}
       />
-    </SideMenu>
+    </div>
   );
 };
 

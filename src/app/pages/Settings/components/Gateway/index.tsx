@@ -8,7 +8,6 @@ import React, { useEffect } from 'react';
 import { Form, Card, Alert, Typography, Space, Spin } from 'antd';
 import { Input } from '@app/components/Input';
 import { Switch } from '@app/components/Switch';
-import styled from '@emotion/styled';
 
 import { useSettings } from '@app/features/settings/useSettings';
 import { CheckCircleOutlined, StopOutlined, LoadingOutlined } from '@ant-design/icons';
@@ -17,56 +16,11 @@ import Button from '@app/components/Button';
 
 const { Title, Text } = Typography;
 
-const Wrapper = styled.div`
-  padding: 0;
-  max-width: 800px;
-`;
-
-const HeaderSection = styled.div`
-  margin-bottom: 2em;
-`;
-
-const StatusBadge = styled.span<{ isAvailable?: boolean }>`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5em;
-  padding: 0 0.75em;
-  color: ${(props) => (props.isAvailable ? '#52c41a' : '#fa8c16')};
-  font-weight: 500;
-  white-space: nowrap;
-
-  .anticon {
-    font-size: 14px;
-  }
-`;
-
 type FormType = {
   isChecked: boolean;
   customHost: boolean;
   host: string;
 };
-
-const FormContainer = styled.div`
-  .ant-form-item {
-    margin-bottom: 1.5em;
-  }
-
-  .ant-form-item-label {
-    font-weight: 500;
-  }
-
-  .ant-form-item-extra {
-    margin-top: 0.5em;
-    color: var(--text-muted);
-  }
-`;
-
-const ButtonContainer = styled.div`
-  display: flex;
-  gap: 1em;
-  margin-top: 2em;
-`;
 
 // For setting Gateway related stuff
 const Gateway: React.FC = () => {
@@ -106,14 +60,14 @@ const Gateway: React.FC = () => {
   }, [OriginHost, getGatewayStatus, gatewayHost, isChecked]);
 
   return (
-    <Wrapper>
-      <HeaderSection>
+    <div className="max-w-[800px] p-0">
+      <div className="mb-[2em]">
         <Title level={3}>{t('settings:linstor_gateway')}</Title>
         <Text type="secondary">{t('settings:linstor_gateway_description')}</Text>
-      </HeaderSection>
+      </div>
 
       <Card>
-        <FormContainer>
+        <div className="[&_.ant-form-item]:mb-[1.5em] [&_.ant-form-item-label]:font-medium [&_.ant-form-item-extra]:mt-[0.5em] [&_.ant-form-item-extra]:text-(--text-muted)">
           <Form
             form={form}
             onFinish={onFinish}
@@ -199,7 +153,11 @@ const Gateway: React.FC = () => {
                     size="large"
                     addonAfter={
                       !checkingStatus ? (
-                        <StatusBadge isAvailable={gatewayAvailable}>
+                        <span
+                          className={`inline-flex items-center justify-center gap-[0.5em] px-[0.75em] font-medium whitespace-nowrap [&_.anticon]:text-[14px] ${
+                            gatewayAvailable ? 'text-[#52c41a]' : 'text-[#fa8c16]'
+                          }`}
+                        >
                           {gatewayAvailable ? (
                             <>
                               <CheckCircleOutlined />
@@ -211,7 +169,7 @@ const Gateway: React.FC = () => {
                               {t('settings:not_available')}
                             </>
                           )}
-                        </StatusBadge>
+                        </span>
                       ) : null
                     }
                   />
@@ -234,15 +192,15 @@ const Gateway: React.FC = () => {
               </>
             )}
 
-            <ButtonContainer>
+            <div className="mt-[2em] flex gap-[1em]">
               <Button type="primary" htmlType="submit" disabled={checkingStatus} size="large" loading={checkingStatus}>
                 {t('common:save')}
               </Button>
-            </ButtonContainer>
+            </div>
           </Form>
-        </FormContainer>
+        </div>
       </Card>
-    </Wrapper>
+    </div>
   );
 };
 

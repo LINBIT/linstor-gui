@@ -23,6 +23,8 @@
  * light/dark mode; keep using `color.ts` for the mode-independent brand fills.
  */
 
+import type { CSSProperties } from 'react';
+
 export const themeTokens = {
   'bg/page': { light: '#ffffff', dark: '#111111' },
   'bg/surface': { light: '#f7f7f7', dark: '#1a1a1a' },
@@ -36,6 +38,7 @@ export const themeTokens = {
   'bg/chip/brand': { light: '#fde9d6', dark: '#3a2010' },
   'bg/chip/neutral': { light: '#d9d9d9', dark: '#3d3d3d' },
   'bg/button/secondary-hover': { light: '#ffdcbc', dark: '#4a2a15' },
+  'bg/button/disabled': { light: '#f5f5f5', dark: 'rgba(255, 255, 255, 0.08)' },
 
   'text/primary': { light: '#000000', dark: '#f0f0f0' },
   'text/secondary': { light: '#3f3f3f', dark: '#eeeeee' },
@@ -46,6 +49,7 @@ export const themeTokens = {
   // only 3.1:1, so light mode takes its darker step.
   'text/link': { light: '#317792', dark: '#5aaccc' },
   'text/on-dark': { light: '#ffffff', dark: '#ffffff' },
+  'text/button/disabled': { light: '#bfbfbf', dark: 'rgba(255, 255, 255, 0.3)' },
   /**
    * Label/icon color on top of brand (peach) fills. The fill stays light in
    * both modes, so this must NOT flip with the theme (handoff §5 open item).
@@ -63,6 +67,7 @@ export const themeTokens = {
   'border/strong': { light: '#cccccc', dark: '#444444' },
   'border/button/active': { light: '#da1e28', dark: '#ff5c63' },
   'border/button/inactive': { light: '#aaaaaa', dark: '#555555' },
+  'border/button/disabled': { light: '#d9d9d9', dark: '#434343' },
 
   'brand/accent': { light: '#f79133', dark: '#f79133' },
   'brand/muted': { light: '#ffcc9c', dark: '#ffcc9c' },
@@ -83,6 +88,9 @@ export const cssVarName = (token: ThemeTokenName): string => `--${token.replace(
 
 /** `bg/nav-item/selected` → `var(--bg-nav-item-selected)` — use in styles. */
 export const cssVar = (token: ThemeTokenName): string => `var(${cssVarName(token)})`;
+
+/** A style object that also sets custom properties (`--name: value`). */
+export type CssVars = CSSProperties & Record<`--${string}`, string>;
 
 const declarations = (mode: ThemeMode): string =>
   (Object.keys(themeTokens) as ThemeTokenName[]).map((t) => `  ${cssVarName(t)}: ${themeTokens[t][mode]};`).join('\n');

@@ -10,7 +10,6 @@ import { Modal } from 'antd';
 import { Button } from '@app/components/Button';
 import { Link } from '@app/components/Link';
 import { getNetWorkInterfaceByNode, NetWorkInterface } from '@app/features/ip';
-import styled from '@emotion/styled';
 import { useTranslation } from 'react-i18next';
 
 import { useNodes } from '@app/features/node';
@@ -21,16 +20,6 @@ import { useUIMode } from '@app/features/settings/useSettings';
 type NetInterfaceDetailProp = {
   item: NetWorkInterface;
 };
-
-const Content = styled.div`
-  padding: 10px;
-`;
-
-const Title = styled.div`
-  font-size: 1.2rem;
-  font-weight: semi-bold;
-  display: flex;
-`;
 
 export const NetInterfaceDetail = ({ item }: NetInterfaceDetailProp) => {
   const [open, setOpen] = useState(false);
@@ -89,9 +78,9 @@ export const NetInterfaceDetail = ({ item }: NetInterfaceDetailProp) => {
         {t('common:detail')}
       </Button>
       <Modal open={open} wrapClassName="netinterface-modal" footer={null} onCancel={onCancel}>
-        <Title>{t('node_detail:network_interface_used_by', { name: item.name })}</Title>
-        <Title>{t('node_detail:nodes')} </Title>
-        <Content>
+        <div className="flex text-[1.2rem]">{t('node_detail:network_interface_used_by', { name: item.name })}</div>
+        <div className="flex text-[1.2rem]">{t('node_detail:nodes')} </div>
+        <div className="p-2.5">
           {nodeListInfo.map((nw) => {
             return (
               <div key={nw?.uuid}>
@@ -101,15 +90,15 @@ export const NetInterfaceDetail = ({ item }: NetInterfaceDetailProp) => {
               </div>
             );
           })}
-        </Content>
+        </div>
 
-        <Title>{t('node_detail:resource_group')} </Title>
-        {resourceGroupInfo.length === 0 && <Content>{t('node_detail:not_used_by_resource_group')}</Content>}
-        <Content>
+        <div className="flex text-[1.2rem]">{t('node_detail:resource_group')} </div>
+        {resourceGroupInfo.length === 0 && <div className="p-2.5">{t('node_detail:not_used_by_resource_group')}</div>}
+        <div className="p-2.5">
           {resourceGroupInfo.map((rg) => {
             return <div key={rg?.uuid}>{rg?.name}</div>;
           })}
-        </Content>
+        </div>
       </Modal>
     </>
   );

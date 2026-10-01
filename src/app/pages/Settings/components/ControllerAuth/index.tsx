@@ -8,7 +8,6 @@ import React, { useEffect, useState } from 'react';
 import { Alert, Card, Modal, Tag, Typography, message } from 'antd';
 import { Input } from '@app/components/Input';
 import { CheckCircleOutlined } from '@ant-design/icons';
-import styled from '@emotion/styled';
 import { useTranslation } from 'react-i18next';
 
 import Button from '@app/components/Button';
@@ -20,27 +19,6 @@ import { clearControllerAuthToken, setControllerAuthRequired, setControllerAuthT
 const { Title } = Typography;
 
 const TOKEN_AUTH_PROPERTY = 'Auth/TokenAuthenticationEnabled';
-
-const Wrapper = styled.div`
-  padding: 0;
-  max-width: 800px;
-`;
-
-const HeaderSection = styled.div`
-  margin-bottom: 2em;
-`;
-
-const FormContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5em;
-`;
-
-const ButtonContainer = styled.div`
-  display: flex;
-  gap: 1em;
-  flex-wrap: wrap;
-`;
 
 type ApiCallRcEntry = {
   message?: string;
@@ -208,13 +186,13 @@ const ControllerAuth: React.FC = () => {
   };
 
   return (
-    <Wrapper>
-      <HeaderSection>
+    <div className="max-w-[800px] p-0">
+      <div className="mb-[2em]">
         <Title level={3}>{t('settings:controller_auth')}</Title>
-      </HeaderSection>
+      </div>
 
       <Card>
-        <FormContainer>
+        <div className="flex flex-col gap-[1.5em]">
           {/* Explains what initialising does; once done, the tag below says so. */}
           {tokenAuthEnabled !== true && (
             <Alert
@@ -240,7 +218,7 @@ const ControllerAuth: React.FC = () => {
             </Tag>
           )}
 
-          <ButtonContainer>
+          <div className="flex flex-wrap gap-[1em]">
             {tokenAuthEnabled !== true && (
               <Button type="primary" onClick={handleInitializeTokenAuth} loading={initializingTokenAuth} size="large">
                 {t('settings:controller_auth_initialize')}
@@ -266,8 +244,8 @@ const ControllerAuth: React.FC = () => {
                 </Button>
               </Popconfirm>
             )}
-          </ButtonContainer>
-        </FormContainer>
+          </div>
+        </div>
       </Card>
 
       <Modal
@@ -341,7 +319,7 @@ const ControllerAuth: React.FC = () => {
           autoFocus
         />
       </Modal>
-    </Wrapper>
+    </div>
   );
 };
 

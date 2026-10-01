@@ -54,7 +54,7 @@ vi.mock('@app/utils/toast', () => ({
 import { settingAPI } from '@app/features/settings';
 import authAPI from '@app/features/authentication/api';
 import { notify } from '@app/utils/toast';
-import { UserManagement } from '../UserManegment/UserManagement';
+import { UserManagement } from '../UserManagement/UserManagement';
 
 const renderPage = () => {
   const client = new QueryClient();

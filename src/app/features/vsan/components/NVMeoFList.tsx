@@ -16,7 +16,7 @@ import { REFETCH_INTERVAL } from '@app/const/time';
 import { CreateNVMEOfForm } from './CreateNVMEOfForm';
 import { formatBytes } from '@app/utils/size';
 import { GrowVolume } from './GrowVolume';
-import { ActionSection } from './styled';
+
 import { Button } from '@app/components/Button';
 import { Popconfirm } from '@app/components/Popconfirm';
 
@@ -162,12 +162,12 @@ export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
       {complex && (
         <>
           <p>This module allows exporting the highly available storage managed by LINSTOR via NVMe-oF.</p>
-          <ActionSection style={{ marginBottom: 10 }}>
+          <div className="mb-2.5">
             <Button onClick={() => refetch()} style={{ marginRight: 10 }}>
               Reload
             </Button>
             <CreateNVMEOfForm refetch={refetch} />
-          </ActionSection>
+          </div>
         </>
       )}
       <Table

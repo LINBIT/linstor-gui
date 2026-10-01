@@ -6,32 +6,15 @@
 
 import React from 'react';
 import { Switch as AntSwitch, SwitchProps as AntSwitchProps } from 'antd';
-import styled from '@emotion/styled';
-import { tokens } from '@app/const/color';
-
-const StyledSwitch = styled(AntSwitch)`
-  &.ant-switch-checked {
-    background-color: ${tokens.color.brand.primaryActive} !important;
-    border-color: ${tokens.color.brand.primaryActive} !important;
-
-    .ant-switch-inner,
-    .ant-switch-inner * {
-      color: #000000 !important;
-      font-weight: 600 !important;
-      font-size: 12px !important;
-      line-height: 20px !important;
-    }
-
-    &:hover:not(.ant-switch-disabled) {
-      background-color: ${tokens.color.brand.accent} !important;
-      border-color: ${tokens.color.brand.accent} !important;
-    }
-  }
-
-  &:hover:not(.ant-switch-disabled):not(.ant-switch-checked) {
-    border-color: ${tokens.color.brand.primaryActive} !important;
-  }
-`;
+/** A checked switch's label (checkedChildren) on the peach track: black,
+ *  semibold, 12/20. The track colors come from the Switch tokens. */
+const CHECKED_LABEL = [
+  '[&.ant-switch-checked_.ant-switch-inner]:text-black',
+  '[&.ant-switch-checked_.ant-switch-inner_*]:text-black',
+  '[&.ant-switch-checked_.ant-switch-inner]:font-semibold',
+  '[&.ant-switch-checked_.ant-switch-inner]:text-xs',
+  '[&.ant-switch-checked_.ant-switch-inner]:leading-5',
+].join(' ');
 
 export interface SwitchProps extends Omit<AntSwitchProps, 'checkedChildren' | 'unCheckedChildren'> {
   /** Whether the switch is checked */
@@ -64,9 +47,8 @@ export interface SwitchProps extends Omit<AntSwitchProps, 'checkedChildren' | 'u
 }
 
 /**
- * Custom Switch component
- * Features custom color scheme with ${tokens.color.brand.primaryActive} as the primary color
- * Based on Ant Design Switch with custom styling
+ * antd's Switch under the project name; the track colors come from the Switch
+ * tokens, the checked label from the class above.
  */
 export const Switch: React.FC<SwitchProps> = ({
   checked,
@@ -84,7 +66,7 @@ export const Switch: React.FC<SwitchProps> = ({
   ...restProps
 }) => {
   return (
-    <StyledSwitch
+    <AntSwitch
       checked={checked}
       defaultChecked={defaultChecked}
       disabled={disabled}
@@ -94,7 +76,7 @@ export const Switch: React.FC<SwitchProps> = ({
       size={size}
       loading={loading}
       autoFocus={autoFocus}
-      className={className}
+      className={[CHECKED_LABEL, className].filter(Boolean).join(' ')}
       style={style}
       id={id}
       {...restProps}

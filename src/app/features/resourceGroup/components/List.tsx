@@ -28,7 +28,7 @@ import {
   updateResourceGroup,
 } from '../api';
 import { CreateResourceGroupRequestBody, ResourceGroupListQuery, UpdateResourceGroupRequestBody } from '../types';
-import { SearchForm } from './styled';
+import { SearchForm } from '@app/components/SearchForm';
 import { SpawnForm } from './SpawnForm';
 import { AddVolumeGroupForm } from './AddVolumeGroupForm';
 import { uniqId } from '@app/utils/stringUtils';

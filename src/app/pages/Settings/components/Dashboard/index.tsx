@@ -10,7 +10,6 @@ import { Form, Card, Typography, message, Alert } from 'antd';
 import { Input } from '@app/components/Input';
 import { InputNumber } from '@app/components/InputNumber';
 import { Switch } from '@app/components/Switch';
-import styled from '@emotion/styled';
 import { useTranslation } from 'react-i18next';
 import { CaretRightOutlined } from '@ant-design/icons';
 
@@ -18,98 +17,6 @@ import { useSettings } from '@app/features/settings/useSettings';
 import Button from '@app/components/Button';
 
 const { Text, Title } = Typography;
-
-const Wrapper = styled.div`
-  padding: 0;
-  max-width: 900px;
-`;
-
-const HeaderSection = styled.div`
-  margin-bottom: 2em;
-
-  h3 {
-    margin-bottom: 0.5em;
-  }
-`;
-
-const EnableSection = styled(Card)`
-  margin-bottom: 2em;
-
-  .ant-card-body {
-    padding: 1.5em;
-  }
-`;
-
-const SwitchWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1em;
-
-  .ant-switch {
-    min-width: 44px;
-  }
-`;
-
-const ButtonGroup = styled.div`
-  margin-top: 2em;
-  display: flex;
-  justify-content: flex-end;
-  gap: 1em;
-
-  button {
-    min-width: 100px;
-  }
-`;
-
-const FormSection = styled.div`
-  .ant-form-item {
-    margin-bottom: 1.5em;
-  }
-
-  .ant-form-item-label {
-    font-weight: 500;
-  }
-
-  .ant-form-item-extra {
-    margin-top: 0.5em;
-    color: var(--text-muted);
-  }
-`;
-
-const ExpandableSection = styled.div`
-  margin-top: 1em;
-
-  .expandable-header {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    padding: 0.5em 0;
-    user-select: none;
-
-    &:hover {
-      .expandable-icon {
-        color: #1890ff;
-      }
-    }
-  }
-
-  .expandable-icon {
-    margin-right: 0.5em;
-    transition: transform 0.2s ease;
-    color: var(--icon-subtle);
-
-    &.expanded {
-      transform: rotate(90deg);
-    }
-  }
-
-  .expandable-content {
-    margin-top: 1em;
-    padding: 1em;
-    background: var(--bg-surface);
-    border-radius: 8px;
-  }
-`;
 
 // Default panel IDs (hardcoded)
 const DEFAULT_PANELS = {
@@ -337,8 +244,8 @@ const Dashboard: React.FC = () => {
   }, [isEnabled, isDrbdEnabled, form, drbdForm, saveGrafanaConfig, t]);
 
   return (
-    <Wrapper>
-      <HeaderSection>
+    <div className="max-w-[900px] p-0">
+      <div className="mb-[2em] [&_h3]:mb-[0.5em]">
         <Title level={3}>{t('settings:grafana')}</Title>
         <Text type="secondary">{t('settings:grafana_description')}</Text>
         <div style={{ marginTop: '1em' }}>
@@ -350,10 +257,10 @@ const Dashboard: React.FC = () => {
           </pre>
         </div>
         <Alert style={{ marginTop: '1em' }} type="info" showIcon title={t('settings:grafana_https_notice')} />
-      </HeaderSection>
+      </div>
 
-      <EnableSection>
-        <SwitchWrapper>
+      <Card className="mb-[2em]" styles={{ body: { padding: '1.5em' } }}>
+        <div className="flex items-center gap-[1em] [&_.ant-switch]:min-w-[44px]">
           <Text strong>{t('settings:grafana_dashboard')}</Text>
           <Switch
             checked={isEnabled}
@@ -362,12 +269,12 @@ const Dashboard: React.FC = () => {
             checkedChildren={t('common:on')}
             unCheckedChildren={t('common:off')}
           />
-        </SwitchWrapper>
-      </EnableSection>
+        </div>
+      </Card>
 
       {isEnabled && (
         <Card>
-          <FormSection>
+          <div className="[&_.ant-form-item]:mb-[1.5em] [&_.ant-form-item-label]:font-medium [&_.ant-form-item-extra]:mt-[0.5em] [&_.ant-form-item-extra]:text-(--text-muted)">
             <Form form={form} layout="vertical" initialValues={formValues}>
               <Form.Item
                 label={t('settings:dashboard_url')}
@@ -383,14 +290,21 @@ const Dashboard: React.FC = () => {
                 />
               </Form.Item>
 
-              <ExpandableSection>
-                <div className="expandable-header" onClick={() => setPanelConfigExpanded(!panelConfigExpanded)}>
-                  <CaretRightOutlined className={`expandable-icon ${panelConfigExpanded ? 'expanded' : ''}`} />
+              <div className="mt-[1em]">
+                <div
+                  className="group/header flex cursor-pointer items-center py-[0.5em] select-none"
+                  onClick={() => setPanelConfigExpanded(!panelConfigExpanded)}
+                >
+                  <span
+                    className={`mr-[0.5em] inline-flex text-(--icon-subtle) transition-transform duration-200 ease-[ease] group-hover/header:text-(--text-link) ${panelConfigExpanded ? 'rotate-90' : ''}`}
+                  >
+                    <CaretRightOutlined />
+                  </span>
                   <Text strong>{t('settings:panel_configuration')}</Text>
                 </div>
 
                 {panelConfigExpanded && (
-                  <div className="expandable-content">
+                  <div className="mt-[1em] rounded-lg bg-(--bg-surface) p-[1em]">
                     <Text type="secondary">{t('settings:panel_ids_default_values')}</Text>
 
                     <Form.Item label={t('settings:cpu_panel_id')} name="cpu" help={t('settings:cpu_panel_help')}>
@@ -434,14 +348,14 @@ const Dashboard: React.FC = () => {
                     </Form.Item>
                   </div>
                 )}
-              </ExpandableSection>
+              </div>
             </Form>
-          </FormSection>
+          </div>
 
           {/* DRBD Dashboard Section - moved inside main card */}
           <div style={{ marginTop: '2em', paddingTop: '2em', borderTop: '1px solid #f0f0f0' }}>
             <div style={{ marginBottom: '1em' }}>
-              <SwitchWrapper>
+              <div className="flex items-center gap-[1em] [&_.ant-switch]:min-w-[44px]">
                 <Text strong style={{ color: isEnabled ? 'inherit' : '#d9d9d9' }}>
                   {t('settings:drbd_dashboard')}
                 </Text>
@@ -453,7 +367,7 @@ const Dashboard: React.FC = () => {
                   unCheckedChildren={t('common:off')}
                   disabled={!isEnabled}
                 />
-              </SwitchWrapper>
+              </div>
               {!isEnabled && (
                 <Text type="secondary" style={{ marginLeft: '1em', fontSize: '12px' }}>
                   ({t('settings:drbd_requires_grafana_enabled')})
@@ -462,7 +376,7 @@ const Dashboard: React.FC = () => {
             </div>
 
             {isDrbdEnabled && (
-              <FormSection>
+              <div className="[&_.ant-form-item]:mb-[1.5em] [&_.ant-form-item-label]:font-medium [&_.ant-form-item-extra]:mt-[0.5em] [&_.ant-form-item-extra]:text-(--text-muted)">
                 <Form form={drbdForm} layout="vertical" initialValues={drbdFormValues}>
                   <Form.Item
                     label={t('settings:drbd_dashboard_url')}
@@ -477,17 +391,21 @@ const Dashboard: React.FC = () => {
                     />
                   </Form.Item>
 
-                  <ExpandableSection>
+                  <div className="mt-[1em]">
                     <div
-                      className="expandable-header"
+                      className="group/header flex cursor-pointer items-center py-[0.5em] select-none"
                       onClick={() => setDrbdPanelConfigExpanded(!drbdPanelConfigExpanded)}
                     >
-                      <CaretRightOutlined className={`expandable-icon ${drbdPanelConfigExpanded ? 'expanded' : ''}`} />
+                      <span
+                        className={`mr-[0.5em] inline-flex text-(--icon-subtle) transition-transform duration-200 ease-[ease] group-hover/header:text-(--text-link) ${drbdPanelConfigExpanded ? 'rotate-90' : ''}`}
+                      >
+                        <CaretRightOutlined />
+                      </span>
                       <Text strong>{t('settings:drbd_panel_configuration')}</Text>
                     </div>
 
                     {drbdPanelConfigExpanded && (
-                      <div className="expandable-content">
+                      <div className="mt-[1em] rounded-lg bg-(--bg-surface) p-[1em]">
                         <Text type="secondary">{t('settings:drbd_panel_config_description')}</Text>
 
                         <Form.Item
@@ -507,21 +425,21 @@ const Dashboard: React.FC = () => {
                         </Form.Item>
                       </div>
                     )}
-                  </ExpandableSection>
+                  </div>
                 </Form>
-              </FormSection>
+              </div>
             )}
           </div>
         </Card>
       )}
 
       {/* Single Save Button */}
-      <ButtonGroup>
+      <div className="mt-[2em] flex justify-end gap-[1em] [&_button]:min-w-[100px]">
         <Button type="primary" onClick={handleSave}>
           {t('common:save')}
         </Button>
-      </ButtonGroup>
-    </Wrapper>
+      </div>
+    </div>
   );
 };
 

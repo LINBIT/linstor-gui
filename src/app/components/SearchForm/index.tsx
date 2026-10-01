@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import styled from '@emotion/styled';
+import React from 'react';
 
 /**
  * Filter bar above the list tables: an inline antd <Form> on the left and the
@@ -16,21 +16,18 @@ import styled from '@emotion/styled';
  * version wraps gracefully: rows get a vertical gap, the form can shrink, and
  * the trailing action stays right-aligned even when it wraps onto its own row.
  */
-export const SearchForm = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 12px 16px;
-
-  .ant-form {
-    flex: 1 1 auto;
-    min-width: 0;
-    row-gap: 12px;
-  }
-
-  /* Keep the trailing "+ Add" action right-aligned when it wraps. */
-  & > * + *:last-child {
-    margin-left: auto;
-  }
-`;
+export const SearchForm = ({ className, children }: { className?: string; children?: React.ReactNode }) => (
+  <div
+    className={[
+      'flex flex-wrap items-start justify-between gap-x-4 gap-y-3',
+      '[&_.ant-form]:min-w-0 [&_.ant-form]:flex-auto [&_.ant-form]:gap-y-3',
+      // Keep the trailing "+ Add" action right-aligned when it wraps.
+      '[&>*+*:last-child]:ml-auto',
+      className,
+    ]
+      .filter(Boolean)
+      .join(' ')}
+  >
+    {children}
+  </div>
+);

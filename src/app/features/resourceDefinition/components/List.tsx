@@ -22,7 +22,7 @@ import {
   updateResourceDefinition,
 } from '../api';
 import { ResourceDefinition, ResourceDefinitionListQuery, UpdateResourceDefinitionRequestBody } from '../types';
-import { SearchForm } from './styled';
+import { SearchForm } from '@app/components/SearchForm';
 import { SpawnForm } from './SpawnForm';
 import { ResizeVolumeModal } from './ResizeVolumeModal';
 import { uniqId } from '@app/utils/stringUtils';

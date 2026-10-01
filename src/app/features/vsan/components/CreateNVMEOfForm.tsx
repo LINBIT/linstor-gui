@@ -19,7 +19,7 @@ import { createNVMEExport, getResourceGroups } from '../api';
 import { formatBytes } from '@app/utils/size';
 import { clusterPrivateVolumeSizeKib } from '../const';
 import { ErrorMessage } from '@app/features/vsan';
-import { Content } from './styled';
+
 import { NetworkAddress } from '@app/features/gateway/types';
 import { Checkbox } from '@app/components/Checkbox';
 import { variablesOnly } from '@app/utils/mutation';
@@ -177,7 +177,7 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
           </div>
         }
       >
-        <Content>
+        <div className="[&_.ant-form-item-explain]:flex [&_.ant-form-item-explain]:justify-between">
           <Form<FormType>
             labelCol={{ span: 6 }}
             wrapperCol={{ span: 18 }}
@@ -302,7 +302,7 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
               </Space>
             </Form.Item>
           </Form>
-        </Content>
+        </div>
       </Modal>
     </>
   );

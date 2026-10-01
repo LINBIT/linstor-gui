@@ -8,16 +8,10 @@ import React, { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { message, Modal, Tooltip } from 'antd';
 import { Input } from '@app/components/Input';
-import styled from '@emotion/styled';
 import { Button } from '@app/components/Button';
 import { useMutation } from '@tanstack/react-query';
 import { enterPassPhrase } from '@app/features/settings/passphrase';
 import { FaUnlockAlt } from 'react-icons/fa';
-
-const Wrapper = styled.div`
-  padding: 2em 0;
-  width: 20em;
-`;
 
 export const EnterPassphrase: React.FC = () => {
   const { t } = useTranslation();
@@ -92,7 +86,7 @@ export const EnterPassphrase: React.FC = () => {
         onCancel={handleCancel}
         footer={null}
       >
-        <Wrapper>
+        <div className="w-[20em] py-[2em]">
           <Input.Password
             value={passphrase}
             onChange={(e) => {
@@ -103,7 +97,7 @@ export const EnterPassphrase: React.FC = () => {
             width={100}
             placeholder={t('settings:enter_passphrase')}
           />
-        </Wrapper>
+        </div>
         <Button type="primary" onClick={handleSave}>
           Unlock
         </Button>

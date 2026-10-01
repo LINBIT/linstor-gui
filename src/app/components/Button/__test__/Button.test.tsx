@@ -50,6 +50,8 @@ vi.mock('react-i18next', () => ({
 
 // Import the component after mocking
 import { Button } from '../index';
+import { tokens } from '@app/const/color';
+import { cssVar } from '@app/const/themeTokens';
 
 describe('Button Component', () => {
   describe('Button Types', () => {
@@ -312,6 +314,83 @@ describe('Button Component', () => {
       rerender(<Button danger>Danger</Button>);
       button = screen.getByTestId('ant-button');
       expect(button).toHaveAttribute('data-type', 'primary');
+    });
+  });
+
+  // The brand look is written into the variables antd 6 draws its buttons
+  // from; a renamed variable or a wrong value would silently bring back
+  // antd's blue, so the values are pinned here.
+  describe('Brand look', () => {
+    const vars = (name: string) => {
+      const style = screen.getByTestId('ant-button').style;
+      return ['', '-hover', '-active'].map((state) => style.getPropertyValue(`--ant-btn-${name}${state}`));
+    };
+
+    it('primary is the peach fill with the on-brand label in every state', () => {
+      render(<Button type="primary">Primary</Button>);
+      expect(vars('bg-color')).toEqual([
+        tokens.color.brand.primary,
+        tokens.color.brand.primaryHover,
+        tokens.color.brand.primaryHover,
+      ]);
+      expect(vars('text-color')).toEqual(Array(3).fill(cssVar('text/on-brand')));
+      expect(screen.getByTestId('ant-button').style.fontWeight).toBe('600');
+    });
+
+    it('secondary is a peach border that fills on hover and press', () => {
+      render(<Button type="secondary">Secondary</Button>);
+      const style = screen.getByTestId('ant-button').style;
+      expect(style.getPropertyValue('--ant-btn-border-width')).toBe('1.5px');
+      expect(vars('border-color')).toEqual([
+        tokens.color.brand.primary,
+        cssVar('bg/button/secondary-hover'),
+        cssVar('bg/button/secondary-hover'),
+      ]);
+      expect(vars('bg-color').slice(1)).toEqual(Array(2).fill(cssVar('bg/button/secondary-hover')));
+      expect(vars('text-color')).toEqual(Array(3).fill(cssVar('text/nav')));
+    });
+
+    it('danger is a red outline on the page color that fills red on hover and press', () => {
+      render(<Button danger>Delete</Button>);
+      const style = screen.getByTestId('ant-button').style;
+      expect(style.getPropertyValue('--ant-btn-border-width')).toBe('1.5px');
+      expect(vars('bg-color')).toEqual([cssVar('bg/page'), tokens.color.danger.base, tokens.color.danger.base]);
+      expect(vars('border-color')).toEqual([
+        cssVar('border/button/active'),
+        tokens.color.danger.base,
+        tokens.color.danger.base,
+      ]);
+      expect(vars('text-color')).toEqual([
+        cssVar('border/button/active'),
+        tokens.color.danger.contrast,
+        tokens.color.danger.contrast,
+      ]);
+    });
+
+    it.each([
+      ['disabled', { disabled: true }],
+      ['loading', { loading: true }],
+    ])('a %s button is greyed out in every variant', (_, props) => {
+      for (const variant of [{ type: 'primary' as const }, { type: 'secondary' as const }, { danger: true }]) {
+        const { unmount } = render(
+          <Button {...variant} {...props}>
+            Button
+          </Button>,
+        );
+        const style = screen.getByTestId('ant-button').style;
+        expect(style.background).toBe(cssVar('bg/button/disabled'));
+        expect(style.borderColor).toBe(cssVar('border/button/disabled'));
+        expect(style.color).toBe(cssVar('text/button/disabled'));
+        expect(style.cursor).toBe('not-allowed');
+        expect(style.opacity).toBe('0.6');
+        unmount();
+      }
+    });
+
+    it.each(['text', 'link', 'dashed'] as const)('a %s button keeps antd’s own colors', (type) => {
+      render(<Button type={type}>Native</Button>);
+      expect(vars('text-color')).toEqual(['', '', '']);
+      expect(vars('bg-color')).toEqual(['', '', '']);
     });
   });
 

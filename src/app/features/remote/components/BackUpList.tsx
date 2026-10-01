@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { CheckCircleFilled, CloseCircleFilled, MoreOutlined } from '@ant-design/icons';
 
 import { deleteBackup, getBackup } from '../api';
-import { SearchForm } from './styled';
+import { SearchForm } from '@app/components/SearchForm';
 import { formatTime } from '@app/utils/time';
 import { CreateBackupForm } from './CreateBackupForm';
 import { Popconfirm } from '@app/components/Popconfirm';

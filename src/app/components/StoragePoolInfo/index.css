@@ -1,0 +1,203 @@
+/*
+ * SPDX-License-Identifier: GPL-3.0
+ * Copyright (c) 2024 LINBIT
+ * Author: Liang Li <liang.li@linbit.com>
+ */
+
+/* Storage pool chart: the hover state is toggled with classList on the SVG
+ * apexcharts generates (segments, x-axis labels) and on the node tooltip and
+ * legend rows, so these rules select by class rather than sit on elements.
+ * The !important ones beat the fill/stroke apexcharts writes inline. */
+
+.storage-pool-chart .storage-pool-hovered-segment,
+.storage-pool-chart .storage-pool-hovered-series-segment {
+  stroke: var(--icon-subtle) !important;
+  stroke-width: 2px !important;
+}
+
+.storage-pool-chart.is-legend-hovering .apexcharts-bar-series .apexcharts-series path {
+  opacity: 0.2;
+  transition: opacity 150ms ease;
+}
+
+.storage-pool-chart.is-legend-hovering
+  .apexcharts-bar-series
+  .apexcharts-series
+  path.storage-pool-hovered-series-segment {
+  opacity: 1;
+}
+
+.storage-pool-chart .storage-pool-hovered-xaxis-label {
+  fill: var(--text-primary) !important;
+  font-weight: 700 !important;
+}
+
+@keyframes storagePoolNodeOverlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.storage-pool-chart .storage-pool-node-overlay {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  border: 1px solid rgba(17, 24, 39, 0.18);
+  border-radius: 8px;
+  background: transparent;
+  pointer-events: none;
+  transition:
+    opacity 120ms ease,
+    height 160ms ease;
+  animation: storagePoolNodeOverlayFadeIn 160ms ease;
+  z-index: 2;
+  overflow: hidden;
+}
+
+[data-theme='dark'] .storage-pool-chart .storage-pool-node-overlay {
+  border-color: rgba(240, 240, 240, 0.25);
+}
+
+.storage-pool-chart .storage-pool-node-tooltip {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 10px 12px 12px;
+  box-shadow: none;
+  pointer-events: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+}
+
+[data-theme='dark'] .storage-pool-chart .storage-pool-node-tooltip {
+  background: rgba(26, 26, 26, 0.92);
+}
+
+.storage-pool-chart .storage-pool-node-tooltip-content {
+  min-width: max-content;
+  display: grid;
+  grid-template-columns: 60px max-content max-content;
+  column-gap: 10px;
+  row-gap: 6px;
+  align-items: center;
+  justify-content: start;
+}
+
+.storage-pool-chart .storage-pool-node-details-spacer {
+  width: 100%;
+  flex: 0 0 auto;
+}
+
+.storage-pool-chart .storage-pool-node-tooltip-row {
+  display: contents;
+  font-size: 13px;
+  line-height: 1.4;
+  cursor: default;
+}
+
+.storage-pool-chart .storage-pool-node-tooltip-row.is-highlighted .storage-pool-node-tooltip-label {
+  font-weight: 700;
+  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.storage-pool-chart .storage-pool-node-tooltip-row.is-highlighted .storage-pool-node-tooltip-metric {
+  color: var(--text-secondary);
+  background: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme='dark'] .storage-pool-chart .storage-pool-node-tooltip-row.is-highlighted .storage-pool-node-tooltip-label,
+[data-theme='dark']
+  .storage-pool-chart
+  .storage-pool-node-tooltip-row.is-highlighted
+  .storage-pool-node-tooltip-metric {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.storage-pool-chart .storage-pool-node-tooltip-label {
+  font-weight: 400;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-radius: 4px;
+  padding: 1px 2px;
+}
+
+.storage-pool-chart .storage-pool-node-tooltip-metric {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  font-size: 13px;
+  border-radius: 3px;
+  padding: 1px 2px;
+  transition:
+    background 80ms ease,
+    color 80ms ease;
+  cursor: default;
+}
+
+.storage-pool-chart .storage-pool-node-tooltip-metric.is-highlighted {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+[data-theme='dark'] .storage-pool-chart .storage-pool-node-tooltip-metric.is-highlighted {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.storage-pool-chart .storage-pool-node-tooltip-metric-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  flex: 0 0 auto;
+}
+
+.storage-pool-chart .storage-pool-custom-legend {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: center;
+  justify-content: center;
+}
+
+.storage-pool-chart .storage-pool-custom-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.4;
+  cursor: default;
+  user-select: none;
+}
+
+.storage-pool-chart .storage-pool-custom-legend-item.is-highlighted {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.storage-pool-chart .storage-pool-custom-legend-value {
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.storage-pool-chart .storage-pool-custom-legend-item.is-highlighted .storage-pool-custom-legend-value {
+  color: var(--text-primary);
+}
+
+.storage-pool-chart .storage-pool-custom-legend-marker {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  flex: 0 0 auto;
+}
