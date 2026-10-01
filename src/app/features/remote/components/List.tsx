@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Form, Space, Table, Dropdown } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
@@ -45,8 +45,6 @@ type RemoteRow = Partial<
 };
 
 export const List = () => {
-  const [dataList, setDataList] = useState<RemoteRow[]>();
-
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const location = useLocation();
@@ -78,14 +76,20 @@ export const List = () => {
     };
   });
 
-  const { isPending, refetch } = useQuery({
-    queryKey: ['getRemotes', query],
-    queryFn: async () => {
+  // One fetch for every remote (with its S3 backup count); the search filters
+  // the rows on screen instead of refetching.
+  const {
+    data: remotes,
+    isPending,
+    refetch,
+  } = useQuery({
+    queryKey: ['getRemotes'],
+    queryFn: async (): Promise<RemoteRow[]> => {
       const res = await getRemoteList();
       // The OpenAPI schema types this as an array; the controller answers an object.
       const remotes = res?.data as unknown as RemoteListResponse | undefined;
 
-      let list = Object.keys(remotes || {})
+      const list = Object.keys(remotes || {})
         .map((key: string) => {
           const item = remotes?.[key as keyof RemoteListResponse] || [];
 
@@ -96,19 +100,8 @@ export const List = () => {
         })
         .flat();
 
-      // Filter on the query state, which is what the query key tracks. The
-      // form's watched values are still empty on the first fetch, so a
-      // ?type=... or ?name=... in the URL was never applied.
-      if (query.type) {
-        list = list.filter((e) => e.type === query.type);
-      }
-
-      if (query.name) {
-        list = list.filter((e) => e.remote_name === query.name);
-      }
-
       // fetch backup count for each remote
-      const listWithCount = await Promise.all(
+      return Promise.all(
         list.map(async (e) => {
           let count = 0;
           if (e.type === 's3_remotes') {
@@ -123,10 +116,17 @@ export const List = () => {
           return { ...e, backup_count: count };
         }),
       );
-      setDataList(listWithCount);
-      return listWithCount;
     },
   });
+
+  // Filter on the query state, which follows the URL: the form's watched
+  // values are still empty on the first render, so a ?type=... or ?name=...
+  // in the URL would not apply.
+  const dataList = useMemo(
+    () =>
+      remotes?.filter((e) => (!query.type || e.type === query.type) && (!query.name || e.remote_name === query.name)),
+    [remotes, query.type, query.name],
+  );
 
   // s3_remotes linstor_remotes ebs_remotes
 
@@ -140,7 +140,7 @@ export const List = () => {
   const handleSearch = () => {
     const values = form.getFieldsValue();
     const queryS = new URLSearchParams({});
-    const newQuery: RemoteQuery = { ...query };
+    const newQuery: RemoteQuery = {};
 
     if (values.name) {
       newQuery.name = values.name;
@@ -154,23 +154,7 @@ export const List = () => {
 
     setQuery(newQuery);
 
-    const new_url = `${location.pathname}?${queryS.toString()}`;
-
-    const newList = dataList?.filter((e) => {
-      if (values.name && e.remote_name !== values.name) {
-        return false;
-      }
-
-      if (values.type && e.type !== values.type) {
-        return false;
-      }
-
-      return true;
-    });
-
-    setDataList(newList);
-
-    navigate(new_url);
+    navigate(`${location.pathname}?${queryS.toString()}`);
   };
 
   const handleReset = () => {

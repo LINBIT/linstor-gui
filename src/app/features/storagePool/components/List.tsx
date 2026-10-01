@@ -4,13 +4,13 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Form, Space, Table, Tag, Dropdown } from 'antd';
 import { Select } from '@app/components/Select';
 import { Input } from '@app/components/Input';
 import { RegexFilterHint } from '@app/components/RegexFilterHint';
 import type { TableProps } from 'antd';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { MoreOutlined } from '@ant-design/icons';
 
@@ -72,10 +72,6 @@ export const List = () => {
 
   const propertyFormRef = useRef<PropertyFormRef>(null);
 
-  const [storagePoolListDisplay, setStoragePoolListDisplay] = useState<StoragePool[]>();
-  // The pagination waits for the first page of rows: shown from the count
-  // alone, it sat under the empty table and jumped down when the rows came.
-  const [listLoaded, setListLoaded] = useState(false);
   const [current, setCurrent] = useState<StoragePool>();
 
   const show_default = Form.useWatch('show_default', form);
@@ -96,6 +92,8 @@ export const List = () => {
       }
       return getStoragePool(adjustedQuery);
     },
+    // Another page or filter keeps the current rows until its own arrive.
+    placeholderData: keepPreviousData,
   });
 
   const { data: stats, isPending: isStatsLoading } = useQuery({
@@ -121,21 +119,16 @@ export const List = () => {
     }) => updateStoragePool({ node, storagepool }, data),
   });
 
-  useEffect(() => {
-    let displayData = storagePoolList?.data;
-
-    if (!show_default) {
-      displayData = storagePoolList?.data?.filter((e) => e.storage_pool_name !== 'DfltDisklessStorPool');
-    }
-
-    // Ensure we don't show more than the requested page size
-    if (displayData && query?.limit) {
-      displayData = displayData.slice(0, query.limit);
-    }
-
-    setStoragePoolListDisplay(displayData);
-    if (displayData) setListLoaded(true);
+  const storagePoolListDisplay = useMemo(() => {
+    const rows = show_default
+      ? storagePoolList?.data
+      : storagePoolList?.data?.filter((e) => e.storage_pool_name !== 'DfltDisklessStorPool');
+    // The fetch asks for extra rows without the default pools; show one page.
+    return rows && query?.limit ? rows.slice(0, query.limit) : rows;
   }, [show_default, storagePoolList?.data, query?.limit]);
+  // The pagination waits for the first page of rows: shown from the count
+  // alone, it sat under the empty table and jumped down when the rows came.
+  const listLoaded = storagePoolList !== undefined;
 
   // Handle show_default change: reset pagination when show_default changes
   useEffect(() => {

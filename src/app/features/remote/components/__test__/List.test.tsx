@@ -122,6 +122,18 @@ describe('remote List', () => {
     expect(screen.getByPlaceholderText('Name')).toHaveValue('lin-b');
   });
 
+  it('searching with a cleared field drops that filter, without fetching again', async () => {
+    renderList('/remote?name=lin-b');
+    await screen.findByText('lin-b');
+    expect(screen.queryByText('s3-a')).not.toBeInTheDocument();
+    fireEvent.change(screen.getByPlaceholderText('Name'), { target: { value: '' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Search' }));
+
+    expect(await screen.findByText('s3-a')).toBeInTheDocument();
+    expect(navigate).toHaveBeenCalledWith('/remote?');
+    expect(getRemoteList).toHaveBeenCalledTimes(1);
+  });
+
   it('reset clears the filters and the URL', async () => {
     renderList('/remote?type=linstor_remotes');
     await screen.findByText('lin-b');

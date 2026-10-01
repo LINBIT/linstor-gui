@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Form, Space, Table, Dropdown } from 'antd';
 import { Input } from '@app/components/Input';
 import { Button } from '@app/components/Button';
@@ -39,8 +39,6 @@ interface BackupItem {
 }
 
 export const List = () => {
-  const [dataList, setDataList] = useState<BackupItem[]>([]);
-
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const location = useLocation();
@@ -65,31 +63,28 @@ export const List = () => {
     };
   });
 
-  const { isPending, refetch } = useQuery({
-    queryKey: ['getBackup', query],
+  // One fetch per remote; the search filters the rows on screen.
+  const {
+    data: backups,
+    isPending,
+    refetch,
+  } = useQuery({
+    queryKey: ['getBackup', remote_name],
     queryFn: async () => {
       const res = await getBackup(remote_name ?? '');
-
-      let list = Object.keys(res.data?.linstor || {})
-        .map((key) => {
-          const item = res.data?.linstor?.[key];
-          return item;
-        })
-        .filter((item) => item != null) as BackupItem[];
-
-      if (query.origin_rsc) {
-        list = list.filter((e) => e?.origin_rsc === query.origin_rsc);
-      }
-
-      setDataList(list);
-      return list;
+      return Object.values(res.data?.linstor || {}).filter((item) => item != null) as BackupItem[];
     },
   });
+
+  const dataList = useMemo(
+    () => backups?.filter((e) => !query.origin_rsc || e.origin_rsc === query.origin_rsc),
+    [backups, query.origin_rsc],
+  );
 
   const handleSearch = () => {
     const values = form.getFieldsValue();
     const queryS = new URLSearchParams({});
-    const newQuery: RemoteQuery = { ...query };
+    const newQuery: RemoteQuery = {};
 
     if (values.origin_rsc) {
       newQuery.origin_rsc = values.origin_rsc;
@@ -98,19 +93,7 @@ export const List = () => {
 
     setQuery(newQuery);
 
-    const new_url = `${location.pathname}?${queryS.toString()}`;
-
-    const newList = dataList?.filter((e: BackupItem) => {
-      if (values.origin_rsc && e.origin_rsc !== values.origin_rsc) {
-        return false;
-      }
-
-      return true;
-    });
-
-    setDataList(newList);
-
-    navigate(new_url);
+    navigate(`${location.pathname}?${queryS.toString()}`);
   };
 
   const handleReset = () => {

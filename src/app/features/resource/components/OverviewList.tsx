@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Form, Space, Table, Flex, Tag, Dropdown, Modal, Tooltip } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
@@ -137,7 +137,6 @@ const TAG_COLORS = [
 ];
 
 export const OverviewList = () => {
-  const [resourceDefinitionList, setResourceDefinitionList] = useState<OverviewRow[]>();
   // The definition a row menu acted on, and the deployed resource a sub-row
   // menu acted on; the property forms and the resize modal read these.
   const [currentDefinition, setCurrentDefinition] = useState<OverviewRow>();
@@ -149,7 +148,6 @@ export const OverviewList = () => {
   const resourcePropertyFormRef = useRef<PropertyFormRef>(null);
 
   const [searchKey, setSearchKey] = useState<string>('');
-  const [filteredList, setFilteredList] = useState<OverviewRow[]>();
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     current: 1,
     pageSize: 10,
@@ -178,11 +176,6 @@ export const OverviewList = () => {
   const [form] = Form.useForm();
   const location = useLocation();
   const resource_group = Form.useWatch('resource_group', form);
-
-  useEffect(() => {
-    const filtered = filterResourceList(resourceDefinitionList, resource_group, searchKey);
-    setFilteredList(filtered);
-  }, [resourceDefinitionList, resource_group, searchKey]);
 
   const onSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -308,7 +301,7 @@ export const OverviewList = () => {
   });
 
   // Merge structural data (definitions) with live state (resources view).
-  const mergedResourceDefinitionList = useMemo(() => {
+  const resourceDefinitionList = useMemo(() => {
     if (!resourceDefinitions) return undefined;
     return resourceDefinitions.map((resource): OverviewRow => {
       const { name, volume_definitions: volumeDefinitions } = resource;
@@ -345,9 +338,10 @@ export const OverviewList = () => {
     });
   }, [resourceDefinitions, resourcesView]);
 
-  useEffect(() => {
-    setResourceDefinitionList(mergedResourceDefinitionList);
-  }, [mergedResourceDefinitionList]);
+  const filteredList = useMemo(
+    () => filterResourceList(resourceDefinitionList, resource_group, searchKey),
+    [resourceDefinitionList, resource_group, searchKey],
+  );
 
   const isPending = rdLoading || rvLoading;
   const refetch = useCallback(() => {
