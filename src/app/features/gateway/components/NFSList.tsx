@@ -402,7 +402,7 @@ export const NFSList = ({
 
       <br />
 
-      <Alert message={t('nfs:only_one_resource_note')} type="warning" showIcon style={{ marginBottom: 24 }} />
+      <Alert title={t('nfs:only_one_resource_note')} type="warning" showIcon style={{ marginBottom: 24 }} />
       <Table<NFSResource & NFSOperationStatus>
         bordered={false}
         columns={columns}

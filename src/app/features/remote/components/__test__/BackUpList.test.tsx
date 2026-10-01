@@ -62,7 +62,6 @@ const backups = {
 const renderList = (initialEntry = '/remote/s3-a/backups') => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => {}, warn: () => {}, error: () => {} },
   });
   return render(
     <QueryClientProvider client={client}>

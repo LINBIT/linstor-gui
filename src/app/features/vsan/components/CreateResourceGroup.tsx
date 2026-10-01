@@ -16,6 +16,7 @@ import { Button } from '@app/components/Button';
 import { createResourceGroup, getStoragePool } from '../api';
 import { DEFAULT_SP } from '@app/const/type';
 import { ErrorMessage } from '@app/features/vsan';
+import { variablesOnly } from '@app/utils/mutation';
 
 type FormType = {
   name: string;
@@ -47,10 +48,10 @@ export const CreateResourceGroup = ({ refetch }: CreateResourceGroupProps) => {
   };
 
   const createMutation = useMutation({
-    mutationFn: createResourceGroup,
+    mutationFn: variablesOnly(createResourceGroup),
     onSuccess: () => {
       api.success({
-        message: 'Create resource group successfully',
+        title: 'Create resource group successfully',
       });
 
       setCreateFormModal(false);
@@ -58,7 +59,7 @@ export const CreateResourceGroup = ({ refetch }: CreateResourceGroupProps) => {
     },
     onError: (err: ErrorMessage) => {
       api.error({
-        message: err?.message,
+        title: err?.message,
         description: err?.detail || err?.explanation,
         duration: 0,
       });
@@ -100,7 +101,7 @@ export const CreateResourceGroup = ({ refetch }: CreateResourceGroupProps) => {
             <Button type="secondary" onClick={handleCancel}>
               Cancel
             </Button>
-            <Button type="primary" onClick={handleOk} loading={createMutation.isLoading}>
+            <Button type="primary" onClick={handleOk} loading={createMutation.isPending}>
               Create
             </Button>
           </div>

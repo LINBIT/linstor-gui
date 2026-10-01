@@ -67,13 +67,13 @@ export const List = () => {
   const {
     data: nodes,
     refetch,
-    isLoading: nodeLoading,
+    isPending: nodeLoading,
   } = useQuery({
     queryKey: ['getNodes', query],
     queryFn: () => getNodes(query),
   });
 
-  const { data: stats, isLoading: statsLoading } = useQuery({
+  const { data: stats, isPending: statsLoading } = useQuery({
     queryKey: ['getNodeCount'],
     queryFn: () => getNodeCount(),
   });

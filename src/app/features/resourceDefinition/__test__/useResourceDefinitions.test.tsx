@@ -112,7 +112,7 @@ describe('useResourceDefinitions Hook', () => {
     // Create a new QueryClient for each test
     queryClient = new QueryClient({
       defaultOptions: {
-        queries: { retry: false, cacheTime: 0 },
+        queries: { retry: false, gcTime: 0 },
         mutations: { retry: false },
       },
     });
@@ -130,10 +130,10 @@ describe('useResourceDefinitions Hook', () => {
         wrapper: createWrapper(),
       });
 
-      expect(result.current.isLoading).toBe(true);
+      expect(result.current.isPending).toBe(true);
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isPending).toBe(false);
       });
 
       expect(mockGetResourceDefinition).toHaveBeenCalledWith(undefined);
@@ -152,10 +152,10 @@ describe('useResourceDefinitions Hook', () => {
         wrapper: createWrapper(),
       });
 
-      expect(result.current.isLoading).toBe(true);
+      expect(result.current.isPending).toBe(true);
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isPending).toBe(false);
       });
 
       expect(mockGetResourceDefinition).toHaveBeenCalledWith(query);
@@ -172,7 +172,7 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(queryClient.getQueriesData(['getResources', query])).toBeDefined();
+        expect(queryClient.getQueriesData({ queryKey: ['getResources', query] })).toBeDefined();
       });
     });
 
@@ -182,7 +182,7 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(queryClient.getQueriesData(['getResources', undefined])).toBeDefined();
+        expect(queryClient.getQueriesData({ queryKey: ['getResources', undefined] })).toBeDefined();
       });
     });
 
@@ -192,7 +192,7 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isPending).toBe(false);
       });
 
       const data = result.current.data;
@@ -214,7 +214,7 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isPending).toBe(false);
       });
 
       expect(result.current.data).toEqual([]);
@@ -228,7 +228,7 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isPending).toBe(false);
       });
 
       expect(result.current.data).toHaveLength(1);
@@ -243,7 +243,7 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isPending).toBe(false);
       });
 
       expect(result.current.data).toBeNull();
@@ -257,7 +257,7 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isPending).toBe(false);
       });
 
       expect(result.current.data).toBeUndefined();
@@ -310,7 +310,7 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isPending).toBe(false);
       });
 
       expect(result.current.data).toHaveLength(2);
@@ -336,7 +336,7 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isPending).toBe(false);
       });
 
       expect(mockGetResourceDefinition).toHaveBeenCalledWith(query);
@@ -354,7 +354,7 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isPending).toBe(false);
       });
 
       expect(mockGetResourceDefinition).toHaveBeenCalledWith(query);
@@ -370,7 +370,7 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isPending).toBe(false);
       });
 
       expect(mockGetResourceDefinition).toHaveBeenCalledWith(query);
@@ -389,7 +389,7 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isPending).toBe(false);
       });
 
       expect(mockGetResourceDefinition).toHaveBeenCalledWith(query);
@@ -403,7 +403,7 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isPending).toBe(false);
       });
 
       expect(mockGetResourceDefinition).toHaveBeenCalledWith(query);
@@ -416,12 +416,12 @@ describe('useResourceDefinitions Hook', () => {
         wrapper: createWrapper(),
       });
 
-      expect(result.current.isLoading).toBe(true);
+      expect(result.current.isPending).toBe(true);
       expect(result.current.error).toBeNull();
       expect(result.current.data).toBeUndefined();
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isPending).toBe(false);
       });
 
       expect(result.current.data).toEqual(mockResourceDefinitionData.data);
@@ -434,7 +434,7 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(firstResult.current.isLoading).toBe(false);
+        expect(firstResult.current.isPending).toBe(false);
       });
 
       // Second call should use cached data
@@ -459,7 +459,7 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isPending).toBe(false);
       });
 
       expect(mockGetResourceDefinition).toHaveBeenCalledWith(initialQuery);
@@ -489,7 +489,7 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isPending).toBe(false);
       });
 
       expect(mockGetResourceDefinition).toHaveBeenCalledTimes(1);
@@ -498,7 +498,7 @@ describe('useResourceDefinitions Hook', () => {
       rerender({ query });
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isPending).toBe(false);
       });
 
       // Should not call API again
@@ -511,7 +511,7 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isPending).toBe(false);
       });
 
       const initialData = result.current.data;
@@ -519,7 +519,7 @@ describe('useResourceDefinitions Hook', () => {
       rerender();
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isPending).toBe(false);
       });
 
       expect(result.current.data).toEqual(initialData);
@@ -531,7 +531,7 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isPending).toBe(false);
       });
 
       expect(() => unmount()).not.toThrow();
@@ -543,7 +543,7 @@ describe('useResourceDefinitions Hook', () => {
       // Create a custom QueryClient with caching enabled
       const cachingQueryClient = new QueryClient({
         defaultOptions: {
-          queries: { retry: false, cacheTime: 5000, staleTime: 1000 },
+          queries: { retry: false, gcTime: 5000, staleTime: 1000 },
           mutations: { retry: false },
         },
       });
@@ -559,7 +559,7 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(result1.current.isLoading).toBe(false);
+        expect(result1.current.isPending).toBe(false);
       });
 
       const { result: result2 } = renderHook(() => useResourceDefinitions(query), {
@@ -567,7 +567,7 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(result2.current.isLoading).toBe(false);
+        expect(result2.current.isPending).toBe(false);
       });
 
       // Should only call API once due to caching when using caching-enabled client
@@ -601,7 +601,7 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isPending).toBe(false);
       });
 
       const end = performance.now();
@@ -617,7 +617,7 @@ describe('useResourceDefinitions Hook', () => {
         defaultOptions: {
           queries: {
             retry: 3,
-            cacheTime: 5000,
+            gcTime: 5000,
             staleTime: 1000,
           },
         },
@@ -632,7 +632,7 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isPending).toBe(false);
       });
 
       expect(result.current.data).toEqual(mockResourceDefinitionData.data);
@@ -644,16 +644,16 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isPending).toBe(false);
       });
 
       // Check that all expected properties are available
-      expect(result.current).toHaveProperty('isLoading');
+      expect(result.current).toHaveProperty('isPending');
       expect(result.current).toHaveProperty('error');
       expect(result.current).toHaveProperty('data');
 
-      // isLoading, error, and data are the only properties exposed by the hook
-      expect(Object.keys(result.current).sort()).toEqual(['data', 'error', 'isLoading']);
+      // isPending, error, and data are the only properties exposed by the hook
+      expect(Object.keys(result.current).sort()).toEqual(['data', 'error', 'isPending']);
     });
 
     it('should handle query invalidation', async () => {
@@ -662,13 +662,13 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isPending).toBe(false);
       });
 
       expect(mockGetResourceDefinition).toHaveBeenCalledTimes(1);
 
       // Invalidate the query
-      await queryClient.invalidateQueries(['getResources', undefined]);
+      await queryClient.invalidateQueries({ queryKey: ['getResources', undefined] });
 
       await waitFor(() => {
         expect(mockGetResourceDefinition).toHaveBeenCalledTimes(2);
@@ -699,7 +699,7 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isPending).toBe(false);
       });
 
       expect(result.current.data).toEqual(malformedResponse.data);
@@ -719,8 +719,8 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(result1.current.isLoading).toBe(false);
-        expect(result2.current.isLoading).toBe(false);
+        expect(result1.current.isPending).toBe(false);
+        expect(result2.current.isPending).toBe(false);
       });
 
       expect(mockGetResourceDefinition).toHaveBeenCalledWith(query1);
@@ -740,7 +740,7 @@ describe('useResourceDefinitions Hook', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.isLoading).toBe(false);
+        expect(result.current.isPending).toBe(false);
       });
 
       expect(mockGetResourceDefinition).toHaveBeenCalledWith(queryWithUndefined);

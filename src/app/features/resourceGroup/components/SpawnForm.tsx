@@ -142,7 +142,7 @@ const SpawnForm = ({ resource_group, isInDropdown = false }: SpawnFormProps) => 
               type="primary"
               onClick={() => form.submit()}
               disabled={!submittable}
-              loading={spawnMutation.isLoading}
+              loading={spawnMutation.isPending}
             >
               {t('common:spawn')}
             </Button>

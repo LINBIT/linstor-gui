@@ -37,7 +37,7 @@ export const ResizeVolumeModal: React.FC<ResizeVolumeModalProps> = ({ open, onCl
   const queryClient = useQueryClient();
   const { t } = useTranslation(['common']);
 
-  const { data: volumeDefinitions, isLoading } = useQuery({
+  const { data: volumeDefinitions, isPending } = useQuery({
     queryKey: ['getVolumeDefinitionListByResource', resourceName],
     queryFn: () => getVolumeDefinitionListByResource(resourceName),
     enabled: open && !!resourceName,
@@ -112,12 +112,12 @@ export const ResizeVolumeModal: React.FC<ResizeVolumeModalProps> = ({ open, onCl
         <Button key="cancel" type="secondary" onClick={onClose}>
           {t('common:cancel')}
         </Button>,
-        <Button key="submit" type="primary" loading={mutation.isLoading} onClick={handleOk}>
+        <Button key="submit" type="primary" loading={mutation.isPending} onClick={handleOk}>
           {t('common:ok')}
         </Button>,
       ]}
     >
-      {isLoading ? (
+      {isPending ? (
         <Spin />
       ) : (
         <Form form={form} layout="vertical">

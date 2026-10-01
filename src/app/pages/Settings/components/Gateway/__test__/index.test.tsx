@@ -138,6 +138,8 @@ describe('Settings gateway tab', () => {
     fireEvent.click(switchByLabel(container, 'gateway-mode'));
     await screen.findByRole('textbox');
     fireEvent.click(switchByLabel(container, 'custom-host'));
+    // The host field unlocks once the form has seen the switch.
+    await waitFor(() => expect(hostInput()).toBeEnabled());
 
     fireEvent.change(hostInput(), { target: { value: 'http://192.168.123.201:8337/' } });
     save();

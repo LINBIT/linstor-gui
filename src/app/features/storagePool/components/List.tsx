@@ -80,24 +80,28 @@ export const List = () => {
   const {
     data: storagePoolList,
     refetch,
-    isLoading,
-  } = useQuery(['getStoragePool', query, show_default], () => {
-    // If show_default is false, fetch more data to compensate for filtering
-    const adjustedQuery = { ...query };
-    if (!show_default && query?.limit) {
-      // Fetch extra records to account for filtered default storage pools
-      adjustedQuery.limit = Math.min(query.limit + 5, 100); // Add buffer, cap at 100
-    }
-    return getStoragePool(adjustedQuery);
+    isPending,
+  } = useQuery({
+    queryKey: ['getStoragePool', query, show_default],
+
+    queryFn: () => {
+      // If show_default is false, fetch more data to compensate for filtering
+      const adjustedQuery = { ...query };
+      if (!show_default && query?.limit) {
+        // Fetch extra records to account for filtered default storage pools
+        adjustedQuery.limit = Math.min(query.limit + 5, 100); // Add buffer, cap at 100
+      }
+      return getStoragePool(adjustedQuery);
+    },
   });
 
-  const { data: stats, isLoading: isStatsLoading } = useQuery({
+  const { data: stats, isPending: isStatsLoading } = useQuery({
     queryKey: ['getStoragePoolCount'],
     queryFn: () => getStoragePoolCount(),
   });
 
   // Get count of default storage pools that actually exist
-  const { data: defaultStoragePoolList, isLoading: isDefaultStatsLoading } = useQuery({
+  const { data: defaultStoragePoolList, isPending: isDefaultStatsLoading } = useQuery({
     queryKey: ['getDefaultStoragePools'],
     queryFn: () => getStoragePool({ storage_pools: ['DfltDisklessStorPool'] }),
   });
@@ -421,7 +425,7 @@ export const List = () => {
             });
           },
         }}
-        loading={isLoading || isStatsLoading || isDefaultStatsLoading}
+        loading={isPending || isStatsLoading || isDefaultStatsLoading}
       />
 
       <PropertyForm

@@ -28,7 +28,11 @@ vi.mock('react-inlinesvg', () => ({
 
 const SVG_LOGO = '<svg xmlns="http://www.w3.org/2000/svg"><rect width="1" height="1" /></svg>';
 
-const enableCustomLogo = () => fireEvent.click(screen.getByRole('switch'));
+// The logo fields follow the switch one render later.
+const enableCustomLogo = async () => {
+  fireEvent.click(screen.getByRole('switch'));
+  await screen.findByPlaceholderText('https://example.com/logo.svg');
+};
 const save = () => fireEvent.click(screen.getByRole('button', { name: 'Save' }));
 
 describe('Settings logo tab', () => {
@@ -45,9 +49,9 @@ describe('Settings logo tab', () => {
     expect(screen.queryByRole('button', { name: /Upload/ })).toBeNull();
   });
 
-  it('reveals the upload and URL fields once enabled', () => {
+  it('reveals the upload and URL fields once enabled', async () => {
     renderSettings(<Logo />);
-    enableCustomLogo();
+    await enableCustomLogo();
 
     expect(screen.getByPlaceholderText('https://example.com/logo.svg')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Upload/ })).toBeInTheDocument();
@@ -86,7 +90,7 @@ describe('Settings logo tab', () => {
 
   it('saves a URL logo, clearing any inline SVG', async () => {
     renderSettings(<Logo />);
-    enableCustomLogo();
+    await enableCustomLogo();
 
     fireEvent.change(screen.getByPlaceholderText('https://example.com/logo.svg'), {
       target: { value: 'https://linbit.com/logo.svg' },
@@ -116,7 +120,7 @@ describe('Settings logo tab', () => {
 
   it('saves an uploaded SVG inline', async () => {
     const { container } = renderSettings(<Logo />);
-    enableCustomLogo();
+    await enableCustomLogo();
 
     const file = new File([SVG_LOGO], 'logo.svg', { type: 'image/svg+xml' });
     fireEvent.change(container.querySelector('input[type="file"]') as HTMLElement, { target: { files: [file] } });
@@ -134,7 +138,7 @@ describe('Settings logo tab', () => {
 
   it('refuses an SVG larger than 16 KiB', async () => {
     const { container } = renderSettings(<Logo />);
-    enableCustomLogo();
+    await enableCustomLogo();
 
     const tooBig = new File(['x'.repeat(16 * 1024 + 1)], 'logo.svg', { type: 'image/svg+xml' });
     fireEvent.change(container.querySelector('input[type="file"]') as HTMLElement, { target: { files: [tooBig] } });

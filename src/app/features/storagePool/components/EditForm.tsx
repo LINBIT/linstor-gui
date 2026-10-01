@@ -4,6 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Form } from 'antd';
@@ -46,20 +47,23 @@ const EditForm = () => {
     navigate('/inventory/storage-pools');
   };
 
-  useQuery({
+  const { data: nodePools } = useQuery({
     queryKey: ['getStoragePoolByNode', node],
     queryFn: () => getStoragePoolByNode(node),
-    onSuccess: (data) => {
-      const currentStoragePool = data?.data?.find((e) => e.storage_pool_name === storagePool);
-      form.setFieldsValue({
-        pool_name: currentStoragePool?.storage_pool_name,
-        node: currentStoragePool?.node_name,
-        provider_kind: currentStoragePool?.provider_kind,
-        storage_driver_name: currentStoragePool?.props?.['StorDriver/StorPoolName'],
-        network: currentStoragePool?.props?.PrefNic,
-      });
-    },
   });
+
+  // Fill the form once the node's pools arrive (react-query 5 has no onSuccess on queries).
+  useEffect(() => {
+    if (!nodePools) return;
+    const currentStoragePool = nodePools.data?.find((e) => e.storage_pool_name === storagePool);
+    form.setFieldsValue({
+      pool_name: currentStoragePool?.storage_pool_name,
+      node: currentStoragePool?.node_name,
+      provider_kind: currentStoragePool?.provider_kind,
+      storage_driver_name: currentStoragePool?.props?.['StorDriver/StorPoolName'],
+      network: currentStoragePool?.props?.PrefNic,
+    });
+  }, [nodePools, storagePool, form]);
 
   const updateStoragePoolMutation = useMutation({
     mutationFn: (data: UpdateStoragePoolRequestBody) => updateStoragePool({ node, storagepool: storagePool }, data),
@@ -184,7 +188,7 @@ const EditForm = () => {
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-        <Button type="primary" htmlType="submit" loading={updateStoragePoolMutation.isLoading}>
+        <Button type="primary" htmlType="submit" loading={updateStoragePoolMutation.isPending}>
           Submit
         </Button>
 

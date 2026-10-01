@@ -19,6 +19,7 @@ import { useResourceGroups } from '@app/features/resourceGroup';
 
 import { createNVMEExport } from '../api';
 import { useTranslation } from 'react-i18next';
+import { variablesOnly } from '@app/utils/mutation';
 
 type FormType = {
   name: string;
@@ -46,7 +47,7 @@ const CreateNVMEOfForm = () => {
   };
 
   const createMutation = useMutation({
-    mutationFn: createNVMEExport,
+    mutationFn: variablesOnly(createNVMEExport),
     onSuccess: () => {
       notify('Create NVMe-oF Export successfully', {
         type: 'success',
@@ -102,12 +103,7 @@ const CreateNVMEOfForm = () => {
         gross_size: false,
       }}
     >
-      <Alert
-        message={t('nvme:creates_highly_available_nvme_target')}
-        type="info"
-        showIcon
-        style={{ marginBottom: 24 }}
-      />
+      <Alert title={t('nvme:creates_highly_available_nvme_target')} type="info" showIcon style={{ marginBottom: 24 }} />
       <Form.Item
         label={t('nvme:nqn')}
         name="nqn"
@@ -183,7 +179,7 @@ const CreateNVMEOfForm = () => {
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 7, span: 17 }}>
-        <Button type="primary" htmlType="submit" loading={createMutation.isLoading}>
+        <Button type="primary" htmlType="submit" loading={createMutation.isPending}>
           {t('common:submit')}
         </Button>
 

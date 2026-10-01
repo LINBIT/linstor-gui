@@ -37,7 +37,10 @@ const RestoreFrom: React.FC<RestoreFromProps> = ({ sourceResource, sourceSnapsho
   const targetResource = targetInput.trim() || undefined;
 
   // Fetch resource list for target dropdown
-  const { data: resourceList } = useQuery(['getResources'], () => getResources());
+  const { data: resourceList } = useQuery({
+    queryKey: ['getResources'],
+    queryFn: () => getResources(),
+  });
 
   // Restore snapshot mutation. Up to three requests make one restore: their
   // replies are kept quiet and one progress message (same key) walks through
@@ -125,8 +128,8 @@ const RestoreFrom: React.FC<RestoreFromProps> = ({ sourceResource, sourceSnapsho
           <Button
             type="primary"
             onClick={() => restoreMutation.mutate()}
-            disabled={!targetResource || restoreMutation.isLoading}
-            loading={restoreMutation.isLoading}
+            disabled={!targetResource || restoreMutation.isPending}
+            loading={restoreMutation.isPending}
           >
             {t('snapshot:restore', 'Restore')}
           </Button>

@@ -20,7 +20,7 @@ import { Switch } from '@app/components/Switch';
 
 type RemoteType = 's3_remotes' | 'linstor_remotes' | 'ebs_remotes';
 
-type FormType = S3RemoteCreateRequestBody | LINSTORRemoteCreateRequestBody;
+type FormType = (S3RemoteCreateRequestBody | LINSTORRemoteCreateRequestBody) & { remote_type?: RemoteType };
 
 type CreateRemoteFormProps = {
   refetch: () => void;
@@ -94,7 +94,7 @@ const CreateRemoteForm = ({ refetch }: CreateRemoteFormProps) => {
             <Button onClick={() => setModelOpen(false)}>{t('common:cancel')}</Button>
             <Button
               type="primary"
-              loading={createS3RemoteMutation.isLoading || createLINSTORRemoteMutation.isLoading}
+              loading={createS3RemoteMutation.isPending || createLINSTORRemoteMutation.isPending}
               onClick={() => form.submit()}
             >
               {t('common:submit')}
@@ -102,7 +102,7 @@ const CreateRemoteForm = ({ refetch }: CreateRemoteFormProps) => {
           </div>
         }
         destroyOnHidden
-        maskClosable={false}
+        mask={{ closable: false }}
       >
         <Form<FormType>
           labelCol={{ span: 8 }}

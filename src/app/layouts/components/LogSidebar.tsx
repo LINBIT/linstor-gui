@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { logManager, LogItem } from '@app/utils/toast'; // Adjust to the correct import path
-import { Drawer, List, Badge, Space } from 'antd'; // Import Popconfirm
+import { Drawer, Badge, Space } from 'antd'; // Import Popconfirm
 import { Button } from '@app/components/Button';
 import { useTranslation } from 'react-i18next';
 import { LogIcon } from '@app/components/SVGIcon';
 import { Popconfirm } from '@app/components/Popconfirm';
+import { ItemList } from '@app/components/ItemList';
 
 const LogSidebar: React.FC = () => {
   const [visible, setVisible] = useState(false); // Controls the visibility of the Drawer
@@ -96,19 +97,19 @@ const LogSidebar: React.FC = () => {
         closable={true}
         onClose={onClose}
         open={visible}
-        width={400}
+        size={400}
       >
         {/* If no log is selected, show the list of logs */}
         {!selectedLog ? (
           <>
-            <List
-              itemLayout="horizontal"
-              dataSource={logs}
+            <ItemList
+              items={logs}
+              rowKey={(log) => log.key}
               renderItem={(log) => (
-                <List.Item onClick={() => onLogClick(log)} style={{ cursor: 'pointer' }}>
-                  <List.Item.Meta title={log.url} description={new Date(log.timestamp).toLocaleString()} />
+                <ItemList.Item onClick={() => onLogClick(log)} style={{ cursor: 'pointer' }}>
+                  <ItemList.Meta title={log.url} description={new Date(log.timestamp).toLocaleString()} />
                   {!log.read && <Badge dot />}
-                </List.Item>
+                </ItemList.Item>
               )}
             />
             <div style={{ marginTop: 20, textAlign: 'center' }}>

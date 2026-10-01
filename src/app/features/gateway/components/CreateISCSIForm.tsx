@@ -20,6 +20,7 @@ import { notify } from '@app/utils/toast';
 
 import { useResourceGroups } from '@app/features/resourceGroup';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { variablesOnly } from '@app/utils/mutation';
 
 type FormType = {
   name: string;
@@ -57,7 +58,7 @@ const CreateISCSIForm = () => {
   };
 
   const createMutation = useMutation({
-    mutationFn: createISCSIExport,
+    mutationFn: variablesOnly(createISCSIExport),
     onSuccess: () => {
       notify('Create iSCSI Export successfully', {
         type: 'success',
@@ -127,7 +128,7 @@ const CreateISCSIForm = () => {
       }}
     >
       <Alert
-        message={t('iscsi:creates_highly_available_iscsi_target')}
+        title={t('iscsi:creates_highly_available_iscsi_target')}
         type="info"
         showIcon
         style={{ marginBottom: 24 }}
@@ -264,7 +265,7 @@ const CreateISCSIForm = () => {
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 7, span: 17 }}>
-        <Button type="primary" htmlType="submit" loading={createMutation.isLoading}>
+        <Button type="primary" htmlType="submit" loading={createMutation.isPending}>
           {t('common:submit')}
         </Button>
 

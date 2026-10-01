@@ -10,41 +10,13 @@ import type { CheckboxRef } from 'antd';
 import styled from '@emotion/styled';
 import { tokens } from '@app/const/color';
 
+// antd 6 draws the box on .ant-checkbox itself and colours its fill, border
+// and hover from the Checkbox theme tokens (brand primaryActive / accent). The
+// tick, its ::after, takes the brand's text colour: white is barely visible on
+// the light peach fill.
 const StyledCheckbox = styled(AntCheckbox)`
-  .ant-checkbox-checked .ant-checkbox-inner {
-    background-color: ${tokens.color.brand.primaryActive} !important;
-    border-color: ${tokens.color.brand.primaryActive} !important;
-  }
-
-  .ant-checkbox-checked::after {
-    border-color: ${tokens.color.brand.primaryActive} !important;
-  }
-
-  .ant-checkbox-wrapper:hover .ant-checkbox-inner,
-  .ant-checkbox:hover .ant-checkbox-inner,
-  .ant-checkbox-input:focus + .ant-checkbox-inner {
-    border-color: ${tokens.color.brand.primaryActive} !important;
-  }
-
-  .ant-checkbox-checked .ant-checkbox-inner::after {
+  .ant-checkbox.ant-checkbox-checked::after {
     border-color: ${tokens.color.brand.onPrimary} !important;
-  }
-
-  &.ant-checkbox-wrapper-checked {
-    .ant-checkbox-checked .ant-checkbox-inner {
-      background-color: ${tokens.color.brand.primaryActive} !important;
-      border-color: ${tokens.color.brand.primaryActive} !important;
-    }
-
-    &:hover .ant-checkbox-checked .ant-checkbox-inner {
-      background-color: ${tokens.color.brand.accent} !important;
-      border-color: ${tokens.color.brand.accent} !important;
-    }
-  }
-
-  .ant-checkbox-wrapper:hover .ant-checkbox-checked .ant-checkbox-inner {
-    background-color: ${tokens.color.brand.accent} !important;
-    border-color: ${tokens.color.brand.accent} !important;
   }
 `;
 

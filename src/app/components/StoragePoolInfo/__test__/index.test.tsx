@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StoragePoolInfo } from '../index';
@@ -49,7 +49,7 @@ interface MockChartProps {
   width?: number;
 }
 
-vi.mock('react-apexcharts', () => ({
+vi.mock('@app/components/Chart', () => ({
   default: ({ options, series, type, height, width }: MockChartProps) => (
     <div
       data-testid="mock-chart"
@@ -134,15 +134,7 @@ const createTestQueryClient = () => {
     defaultOptions: {
       queries: {
         retry: false,
-        // Suppress error logging in tests
-        onError: () => {},
       },
-    },
-    // Suppress all logging in tests
-    logger: {
-      log: () => {},
-      warn: () => {},
-      error: () => {},
     },
   });
 };
@@ -151,6 +143,14 @@ const renderWithQueryClient = (component: React.ReactElement) => {
   const queryClient = createTestQueryClient();
   return render(<QueryClientProvider client={queryClient}>{component}</QueryClientProvider>);
 };
+
+// The chart renders (empty) while the pools load; wait for the series.
+const loadedChart = () =>
+  waitFor(() => {
+    const chart = screen.getByTestId('mock-chart');
+    expect(JSON.parse(chart.getAttribute('data-series') || '[]').length).toBeGreaterThan(0);
+    return chart;
+  });
 
 describe('StoragePoolInfo', () => {
   beforeEach(() => {
@@ -187,7 +187,7 @@ describe('StoragePoolInfo', () => {
       renderWithQueryClient(<StoragePoolInfo />);
 
       // Wait for the component to render
-      await screen.findByTestId('mock-chart');
+      await loadedChart();
 
       const chartElement = screen.getByTestId('mock-chart');
       const seriesData = JSON.parse(chartElement.getAttribute('data-series') || '[]');
@@ -221,7 +221,7 @@ describe('StoragePoolInfo', () => {
 
       renderWithQueryClient(<StoragePoolInfo />);
 
-      await screen.findByTestId('mock-chart');
+      await loadedChart();
 
       const chartElement = screen.getByTestId('mock-chart');
       const optionsData = JSON.parse(chartElement.getAttribute('data-options') || '{}');
@@ -240,7 +240,7 @@ describe('StoragePoolInfo', () => {
 
       renderWithQueryClient(<StoragePoolInfo />);
 
-      await screen.findByTestId('mock-chart');
+      await loadedChart();
 
       const chartElement = screen.getByTestId('mock-chart');
       const seriesData: SeriesItem[] = JSON.parse(chartElement.getAttribute('data-series') || '[]');
@@ -259,7 +259,7 @@ describe('StoragePoolInfo', () => {
 
       renderWithQueryClient(<StoragePoolInfo />);
 
-      await screen.findByTestId('mock-chart');
+      await loadedChart();
 
       // Summed over the rendered nodes: pool1 used = 600M + 900M, pool1 free
       // = 400M + 600M, Node used = 1.5G + 2.5G (formatBytes is mocked to raw bytes).
@@ -279,7 +279,7 @@ describe('StoragePoolInfo', () => {
 
       renderWithQueryClient(<StoragePoolInfo />);
 
-      await screen.findByTestId('mock-chart');
+      await loadedChart();
 
       const chartElement = screen.getByTestId('mock-chart');
       const optionsData = JSON.parse(chartElement.getAttribute('data-options') || '{}');
@@ -297,7 +297,7 @@ describe('StoragePoolInfo', () => {
 
       renderWithQueryClient(<StoragePoolInfo />);
 
-      await screen.findByTestId('mock-chart');
+      await loadedChart();
 
       const chartElement = screen.getByTestId('mock-chart');
 
@@ -321,7 +321,7 @@ describe('StoragePoolInfo', () => {
 
       renderWithQueryClient(<StoragePoolInfo />);
 
-      await screen.findByTestId('mock-chart');
+      await loadedChart();
 
       const chartElement = screen.getByTestId('mock-chart');
 
@@ -336,7 +336,7 @@ describe('StoragePoolInfo', () => {
 
       renderWithQueryClient(<StoragePoolInfo />);
 
-      await screen.findByTestId('mock-chart');
+      await loadedChart();
 
       const chartElement = screen.getByTestId('mock-chart');
       const seriesData = JSON.parse(chartElement.getAttribute('data-series') || '[]');
@@ -417,7 +417,7 @@ describe('StoragePoolInfo', () => {
 
       const { unmount } = renderWithQueryClient(<StoragePoolInfo />);
 
-      await screen.findByTestId('mock-chart');
+      await loadedChart();
 
       expect(resizeObserverMock).toHaveBeenCalledTimes(1);
       expect(observe).toHaveBeenCalledTimes(1);
@@ -434,7 +434,7 @@ describe('StoragePoolInfo', () => {
 
       renderWithQueryClient(<StoragePoolInfo />);
 
-      await screen.findByTestId('mock-chart');
+      await loadedChart();
 
       const chartElement = screen.getByTestId('mock-chart');
       const seriesData: SeriesItem[] = JSON.parse(chartElement.getAttribute('data-series') || '[]');
@@ -454,7 +454,7 @@ describe('StoragePoolInfo', () => {
 
       renderWithQueryClient(<StoragePoolInfo />);
 
-      await screen.findByTestId('mock-chart');
+      await loadedChart();
 
       const chartElement = screen.getByTestId('mock-chart');
       const seriesData: SeriesItem[] = JSON.parse(chartElement.getAttribute('data-series') || '[]');

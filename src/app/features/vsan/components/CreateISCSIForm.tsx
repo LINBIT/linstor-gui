@@ -23,6 +23,7 @@ import { ErrorMessage } from '@app/features/vsan';
 import { Content } from './styled';
 import { NetworkAddress } from '../types';
 import { Checkbox } from '@app/components/Checkbox';
+import { variablesOnly } from '@app/utils/mutation';
 
 const timeRegx = /^((19|20)\d\d[-](0[1-9]|1[012]))$/;
 const domainRegx = /^([a-zA-Z\d.][a-zA-Z\d.-]*\.[a-zA-Z\d.][a-zA-Z\d.-]*[a-zA-Z\d])$/;
@@ -73,10 +74,10 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
   }, [ipPrefixes]);
 
   const createMutation = useMutation({
-    mutationFn: createISCSIExport,
+    mutationFn: variablesOnly(createISCSIExport),
     onSuccess: () => {
       api.success({
-        message: 'Create iSCSI Export successfully',
+        title: 'Create iSCSI Export successfully',
       });
 
       setCreateFormModal(false);
@@ -86,7 +87,7 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
     },
     onError: (err: ErrorMessage) => {
       api.error({
-        message: err?.message,
+        title: err?.message,
         description: err?.detail,
         duration: 0,
       });
@@ -167,7 +168,7 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
             <Button type="secondary" onClick={handleCancel}>
               Cancel
             </Button>
-            <Button type="primary" onClick={handleOk} loading={createMutation.isLoading}>
+            <Button type="primary" onClick={handleOk} loading={createMutation.isPending}>
               Create
             </Button>
           </div>

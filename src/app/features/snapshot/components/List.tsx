@@ -96,10 +96,14 @@ export const List = () => {
 
   const {
     data: snapshotList,
-    isLoading,
+    isPending,
     refetch,
-  } = useQuery(['getSnapshots', query], () => {
-    return getSnapshots(query);
+  } = useQuery({
+    queryKey: ['getSnapshots', query],
+
+    queryFn: () => {
+      return getSnapshots(query);
+    },
   });
 
   const del = useDeleteAction<SnapshotType>({
@@ -411,7 +415,7 @@ export const List = () => {
         <CreateSnapshotForm refetch={refetch} />
       </SearchForm>
       <Table
-        loading={isLoading}
+        loading={isPending}
         columns={columns}
         dataSource={snapshotList?.data ?? []}
         rowSelection={rowSelection}

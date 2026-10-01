@@ -134,12 +134,14 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
 
   // Step 0 → 1: just validate + remember the node rows.
   const collectNodes = async () => {
-    let values: { nodes: NodeRow[] };
     try {
-      values = await nodeForm.validateFields();
+      await nodeForm.validateFields();
     } catch {
       return;
     }
+    // validateFields() returns only the fields that have a Form.Item; the
+    // node type lives in the rows without one, so read the whole store.
+    const values: { nodes: NodeRow[] } = nodeForm.getFieldsValue(true);
     const rows = values.nodes ?? [];
     if (rows.length === 0) {
       message.warning(t('clusterSetup:add_at_least_one_node'));
@@ -366,7 +368,7 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
       width={920}
       onCancel={onClose}
       afterClose={afterClose}
-      maskClosable={false}
+      mask={{ closable: false }}
       keyboard={false}
       footer={step === 0 ? nodeFooter : step === 1 ? poolFooter : step === 2 ? rgFooter : reviewFooter}
       destroyOnHidden
@@ -481,7 +483,7 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
               { label: t('clusterSetup:mode_new_device'), value: 'new-device' },
             ]}
           />
-          <Alert type="info" showIcon message={t('clusterSetup:pools_hint')} style={{ marginBottom: 16 }} />
+          <Alert type="info" showIcon title={t('clusterSetup:pools_hint')} style={{ marginBottom: 16 }} />
 
           {/* One pool config; the same name / provider / device is applied to every node. */}
           <Space size="large" align="start" style={{ display: 'flex', flexWrap: 'wrap' }}>
@@ -515,7 +517,7 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
       {step === 2 && <ResourceGroupStep ref={rgStepRef} nodeCount={plannedNodeNames.length} />}
 
       {step === 3 && !created && (
-        <Spin spinning={creating} tip={t('clusterSetup:creating_cluster')}>
+        <Spin spinning={creating} description={t('clusterSetup:creating_cluster')}>
           <div style={{ padding: '8px 0' }}>
             <Typography.Text strong>{t('clusterSetup:step_nodes')}</Typography.Text>
             <div style={{ margin: '6px 0 12px' }}>

@@ -220,7 +220,7 @@ const ControllerAuth: React.FC = () => {
             <Alert
               type="info"
               showIcon
-              message={t('settings:controller_auth_storage_title')}
+              title={t('settings:controller_auth_storage_title')}
               description={t('settings:controller_auth_storage_description')}
             />
           )}
@@ -229,7 +229,7 @@ const ControllerAuth: React.FC = () => {
             <Alert
               type="warning"
               showIcon
-              message={t('settings:controller_auth_https_switch_title')}
+              title={t('settings:controller_auth_https_switch_title')}
               description={t('settings:controller_auth_https_switch_description', { url: getHttpsControllerUrl() })}
             />
           )}
@@ -288,7 +288,7 @@ const ControllerAuth: React.FC = () => {
         <Alert
           type="warning"
           showIcon
-          message={t('settings:controller_auth_initialized_notice')}
+          title={t('settings:controller_auth_initialized_notice')}
           description={t('settings:controller_auth_initialized_notice_description', {
             url: initializedTokenAuth?.url ?? '',
           })}
@@ -300,7 +300,7 @@ const ControllerAuth: React.FC = () => {
           <Alert
             type={initializedTokenAuth?.alreadyEnabled ? 'info' : 'warning'}
             showIcon
-            message={
+            title={
               initializedTokenAuth?.alreadyEnabled
                 ? t('settings:controller_auth_already_enabled_notice')
                 : t('settings:controller_auth_no_token_notice')

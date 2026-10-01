@@ -85,7 +85,7 @@ export function AgentPreview({ parsedAgents, loading, currentTheme }: AgentPrevi
           },
         }}
       >
-        <Spin spinning={loading} tip={t('common:generating_preview')}>
+        <Spin spinning={loading} description={t('common:generating_preview')}>
           <div
             style={{
               background: currentTheme === 'dark' ? '#0f172a' : '#f1f5f9',

@@ -39,7 +39,8 @@ const renderModal = (open = true) => {
 
 const dialog = () => screen.getByRole('dialog');
 const sizes = () => within(dialog()).getAllByRole('spinbutton') as HTMLInputElement[];
-const units = () => Array.from(dialog().querySelectorAll('.ant-select-selection-item')).map((el) => el.textContent);
+const units = () =>
+  Array.from(dialog().querySelectorAll('.ant-select-content-has-value')).map((el) => el.getAttribute('title'));
 
 describe('ResizeVolumeModal', () => {
   beforeEach(() => {

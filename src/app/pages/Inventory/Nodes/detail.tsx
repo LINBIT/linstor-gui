@@ -214,9 +214,9 @@ const NodeDetail: React.FC = () => {
 
   return (
     <PageBasic title={t('title')} showBack>
-      <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
+      <Space orientation="vertical" size="middle" style={{ display: 'flex' }}>
         <Card size="small">
-          <Space direction="vertical" size="small" style={{ display: 'flex' }}>
+          <Space orientation="vertical" size="small" style={{ display: 'flex' }}>
             <div>
               <LabelText>{t('node_name')}:</LabelText>
               {nodeData?.name}

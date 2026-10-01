@@ -169,7 +169,6 @@ const resourcesView = [
 const renderList = (initialEntry = '/storage-configuration/resource-overview') => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => {}, warn: () => {}, error: () => {} },
   });
   return render(
     <QueryClientProvider client={client}>
@@ -217,6 +216,12 @@ const confirmYes = async () => {
   });
   fireEvent.click(within(popover).getByRole('button', { name: 'Yes' }));
 };
+
+// antd labels every modal by its title, but under NODE_ENV=test its useId hands
+// all of them the same id, so a dialog's accessible name is the first title in
+// the document. Find the dialog through its title instead.
+const findDialog = async (title: string) =>
+  (await screen.findByText(title, { selector: '.ant-modal-title' })).closest('[role="dialog"]') as HTMLElement;
 
 describe('resource OverviewList', () => {
   beforeEach(() => {
@@ -381,7 +386,7 @@ describe('resource OverviewList', () => {
       const menu = await openMenuIn(nodeRowIn(expanded, 'node-1'));
       fireEvent.click(within(menu).getByText('Migrate'));
 
-      const dialog = await screen.findByRole('dialog', { name: 'Migrate Resource' });
+      const dialog = await findDialog('Migrate Resource');
       expect(within(dialog).getByDisplayValue('node-1')).toBeDisabled();
       expect(within(dialog).getByDisplayValue('res-a')).toBeDisabled();
       fireEvent.mouseDown(within(dialog).getByRole('combobox'));
@@ -402,7 +407,7 @@ describe('resource OverviewList', () => {
       const expanded = await expandRow('res-a');
       const menu = await openMenuIn(nodeRowIn(expanded, 'node-1'));
       fireEvent.click(within(menu).getByText('Snapshot'));
-      const dialog = await screen.findByRole('dialog', { name: 'Create Snapshot' });
+      const dialog = await findDialog('Create Snapshot');
       fireEvent.change(within(dialog).getByPlaceholderText('Please input snapshot name here...'), {
         target: { value: 'snap-1' },
       });
@@ -419,7 +424,7 @@ describe('resource OverviewList', () => {
       const expanded = await expandRow('res-a');
       const menu = await openMenuIn(nodeRowIn(expanded, 'node-1'));
       fireEvent.click(within(menu).getByText('Snapshot'));
-      const dialog = await screen.findByRole('dialog', { name: 'Create Snapshot' });
+      const dialog = await findDialog('Create Snapshot');
       const input = within(dialog).getByPlaceholderText('Please input snapshot name here...');
       fireEvent.change(input, { target: { value: 'snap-1' } });
       fireEvent.click(within(dialog).getByRole('button', { name: 'OK' }));
@@ -427,7 +432,7 @@ describe('resource OverviewList', () => {
       await act(async () => {
         await Promise.resolve();
       });
-      expect(screen.getByRole('dialog', { name: 'Create Snapshot' })).toBeVisible();
+      expect(await findDialog('Create Snapshot')).toBeVisible();
       expect(input).toHaveValue('snap-1');
     });
 

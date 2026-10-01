@@ -24,7 +24,6 @@ const nameOf = (row: Row) => row.name;
 const wrapper = ({ children }: { children: React.ReactNode }) => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => undefined, warn: () => undefined, error: () => undefined },
   });
   return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 };

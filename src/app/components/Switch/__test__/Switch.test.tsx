@@ -64,7 +64,7 @@ describe('Switch Component', () => {
       const switchElement = screen.getByTestId('ant-switch');
       expect(switchElement).toHaveAttribute('data-disabled', 'false');
       expect(switchElement).toHaveAttribute('data-loading', 'false');
-      expect(switchElement).toHaveAttribute('data-size', 'default');
+      expect(switchElement).toHaveAttribute('data-size', 'medium');
     });
 
     it('should render with custom className', () => {
@@ -134,10 +134,10 @@ describe('Switch Component', () => {
       expect(switchElement).toHaveAttribute('data-size', 'small');
     });
 
-    it('should render with default size', () => {
-      render(<Switch size="default" />);
+    it('should render with medium size', () => {
+      render(<Switch size="medium" />);
       const switchElement = screen.getByTestId('ant-switch');
-      expect(switchElement).toHaveAttribute('data-size', 'default');
+      expect(switchElement).toHaveAttribute('data-size', 'medium');
     });
   });
 

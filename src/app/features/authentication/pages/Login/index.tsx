@@ -56,7 +56,7 @@ export const Login = ({ redirectTo }: LoginProps) => {
               <>
                 <br />
                 <Alert
-                  message={t('users:default_credential_admin_admin')}
+                  title={t('users:default_credential_admin_admin')}
                   type="info"
                   closable
                   className="w-[368px] mt-6 md:mt-[44px] mb-8"

@@ -38,7 +38,6 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
     client={
       new QueryClient({
         defaultOptions: { queries: { retry: false } },
-        logger: { log: () => {}, warn: () => {}, error: () => {} },
       })
     }
   >

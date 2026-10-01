@@ -42,7 +42,6 @@ import { EditForm } from '../EditForm';
 const renderForm = () => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => {}, warn: () => {}, error: () => {} },
   });
   const refetch = vi.spyOn(client, 'refetchQueries');
   render(

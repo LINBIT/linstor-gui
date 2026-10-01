@@ -89,7 +89,6 @@ const pools = [
 const renderList = (initialEntry = '/inventory/storage-pools') => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => {}, warn: () => {}, error: () => {} },
   });
   return render(
     <QueryClientProvider client={client}>

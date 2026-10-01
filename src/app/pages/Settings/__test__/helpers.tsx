@@ -18,7 +18,6 @@ const nav = { isNavOpen: true, toggleNav: () => undefined, setNavOpen: () => und
 export const renderSettings = (ui: React.ReactElement) => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-    logger: { log: () => undefined, warn: () => undefined, error: () => undefined },
   });
   return render(
     <QueryClientProvider client={client}>

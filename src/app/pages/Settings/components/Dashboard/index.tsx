@@ -349,7 +349,7 @@ const Dashboard: React.FC = () => {
             {t('settings:grafana_prerequisites_config')}
           </pre>
         </div>
-        <Alert style={{ marginTop: '1em' }} type="info" showIcon message={t('settings:grafana_https_notice')} />
+        <Alert style={{ marginTop: '1em' }} type="info" showIcon title={t('settings:grafana_https_notice')} />
       </HeaderSection>
 
       <EnableSection>

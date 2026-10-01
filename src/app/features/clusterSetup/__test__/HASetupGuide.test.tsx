@@ -19,7 +19,7 @@ const commandText = () => document.querySelector('pre')?.textContent ?? '';
 
 /** antd renders the multi-select options into a popup on mouse-down. */
 const openNodePicker = () => {
-  fireEvent.mouseDown(document.querySelector('.ant-select-selector') as Element);
+  fireEvent.mouseDown(document.querySelector('.ant-select') as Element);
 };
 
 /** Click an entry in the dropdown — the selected tags carry the same title. */

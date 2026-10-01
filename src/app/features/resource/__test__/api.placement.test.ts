@@ -65,7 +65,9 @@ describe('resource api: placement helpers', () => {
     await createResourceOnNode('res-a', 'node-2', true, 'pool-a');
     await createResourceOnNode('res-a', 'node-3');
 
-    const bodies = vi.mocked(post).mock.calls.map(([, opts]) => (opts as { body: unknown }).body);
+    // openapi-fetch's overloaded client methods leave the mock's call types as never.
+    const calls = vi.mocked(post).mock.calls as unknown as [string, { body: unknown }][];
+    const bodies = calls.map(([, opts]) => opts.body);
     expect(bodies).toEqual([
       { resource: { name: 'res-a', node_name: 'node-1', props: { StorPoolName: 'pool-a' } } },
       { resource: { name: 'res-a', node_name: 'node-2', flags: ['DRBD_DISKLESS'] } },

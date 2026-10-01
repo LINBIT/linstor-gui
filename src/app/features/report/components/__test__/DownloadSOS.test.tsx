@@ -19,7 +19,6 @@ import DownloadSOS from '../DownloadSOS';
 const renderButton = () => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => {}, warn: () => {}, error: () => {} },
   });
   render(
     <QueryClientProvider client={client}>

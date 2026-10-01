@@ -17,7 +17,7 @@ import { addVolumeToResourceGroup } from '../../api';
 import { AddVolumeGroupForm } from '../AddVolumeGroupForm';
 
 const renderForm = (props: Partial<React.ComponentProps<typeof AddVolumeGroupForm>> = {}) => {
-  const client = new QueryClient({ logger: { log: () => {}, warn: () => {}, error: () => {} } });
+  const client = new QueryClient();
   return render(
     <QueryClientProvider client={client}>
       <AddVolumeGroupForm resource_group="rg-a" {...props} />

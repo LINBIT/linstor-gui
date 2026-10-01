@@ -83,13 +83,13 @@ const CreateBackupForm = ({ refetch }: CreateBackupFormProps) => {
         footer={
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
             <Button onClick={() => setModelOpen(false)}>{t('common:cancel')}</Button>
-            <Button type="primary" loading={createBackupMutation.isLoading} onClick={() => form.submit()}>
+            <Button type="primary" loading={createBackupMutation.isPending} onClick={() => form.submit()}>
               {t('common:submit')}
             </Button>
           </div>
         }
         destroyOnHidden
-        maskClosable={false}
+        mask={{ closable: false }}
       >
         <Form<FormType>
           labelCol={{ span: 8 }}

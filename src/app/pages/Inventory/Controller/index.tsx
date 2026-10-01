@@ -18,6 +18,7 @@ import { handlePropsToFormOption } from '@app/utils/property';
 import { MinusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { Popconfirm } from '@app/components/Popconfirm';
+import { variablesOnly } from '@app/utils/mutation';
 
 export const Controller = () => {
   const [editMode, setEditMode] = useState(false);
@@ -30,7 +31,7 @@ export const Controller = () => {
   });
 
   const mutation = useMutation({
-    mutationFn: updateController,
+    mutationFn: variablesOnly(updateController),
     onSuccess: () => {
       refetch();
     },

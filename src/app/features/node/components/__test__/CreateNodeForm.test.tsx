@@ -43,7 +43,6 @@ const existingNode = {
 const renderForm = (editing = false) => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-    logger: { log: () => undefined, warn: () => undefined, error: () => undefined },
   });
   return render(
     <QueryClientProvider client={client}>
@@ -109,7 +108,7 @@ describe('CreateNodeForm', () => {
     const { container } = renderForm();
     fillCreateForm();
 
-    fireEvent.mouseDown(container.querySelector('.ant-select-selector') as HTMLElement);
+    fireEvent.mouseDown(container.querySelector('.ant-select') as HTMLElement);
     fireEvent.click(await screen.findByTitle('Combined'));
     submit();
 

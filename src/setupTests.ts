@@ -1,5 +1,5 @@
 import './setupNoMotion';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { afterAll, afterEach } from 'vitest';
 import { act, cleanup, configure } from '@testing-library/react';
 import { message, notification } from 'antd';
@@ -103,7 +103,16 @@ console.error = (...args: unknown[]) => {
   }
   const [, component] = args;
   if (typeof format === 'string' && format.includes('not wrapped in act(')) {
-    const firstFrame = typeof stack === 'string' ? (stack.trimStart().split('\n')[0] ?? '') : '';
+    // React 18 passed the component stack as an argument; React 19 does not,
+    // so the call stack of the warning itself tells who updated the state:
+    // its first frame outside React.
+    const firstFrame =
+      typeof stack === 'string'
+        ? (stack.trimStart().split('\n')[0] ?? '')
+        : ((new Error().stack ?? '')
+            .split('\n')
+            .slice(1)
+            .find((frame) => !/setupTests|node_modules\/(react|react-dom|scheduler)\//.test(frame)) ?? '');
     // antd's static message API renders into a React root of its own: no
     // frames at all, the component is called "Root".
     const antdMessageRoot = component === 'Root' && !firstFrame.includes('src/');

@@ -6,15 +6,11 @@
 
 import BigNumber from 'bignumber.js';
 
+// bignumber.js throws on a string that is not a number, so the format is
+// checked before one is made.
 function checkPort(_rule: unknown, value: string, callback: (error?: Error) => void) {
-  const val = new BigNumber(value);
-  if (
-    !/^[0-9]{1,5}$/.test(value) ||
-    val.isNaN() ||
-    !val.isFinite() ||
-    (val.comparedTo(0) ?? 0) <= 0 ||
-    (val.comparedTo(65534) ?? 0) > 0
-  ) {
+  const val = /^[0-9]{1,5}$/.test(value) ? new BigNumber(value) : null;
+  if (!val || val.isNaN() || !val.isFinite() || (val.comparedTo(0) ?? 0) <= 0 || (val.comparedTo(65534) ?? 0) > 0) {
     callback(new Error('Port range is 1~65534'));
   } else {
     callback();
@@ -22,9 +18,9 @@ function checkPort(_rule: unknown, value: string, callback: (error?: Error) => v
 }
 
 function volumeSize(_rule: unknown, value: string, callback: (error?: Error) => void): void {
-  const val = new BigNumber(value);
+  const val = /^[0-9]+$/.test(value) ? new BigNumber(value) : null;
   if (
-    !/^[0-9]+$/.test(value) ||
+    !val ||
     val.isNaN() ||
     !val.isFinite() ||
     (val.comparedTo(4) ?? 0) < 0 ||

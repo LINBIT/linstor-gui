@@ -65,7 +65,7 @@ export const List = () => {
     };
   });
 
-  const { isLoading, refetch } = useQuery({
+  const { isPending, refetch } = useQuery({
     queryKey: ['getBackup', query],
     queryFn: async () => {
       const res = await getBackup(remote_name ?? '');
@@ -82,6 +82,7 @@ export const List = () => {
       }
 
       setDataList(list);
+      return list;
     },
   });
 
@@ -264,7 +265,7 @@ export const List = () => {
           showSizeChanger: true,
           showTotal: (total) => t('common:total_items', { total }),
         }}
-        loading={isLoading}
+        loading={isPending}
         rowClassName={(record) => (del.isDeleting(record.id) ? deletingRowClass : '')}
       />
     </>

@@ -26,7 +26,6 @@ import { captureConsoleError } from '@app/testing/console';
 const renderForm = () => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => {}, warn: () => {}, error: () => {} },
   });
   const refetch = vi.fn();
   render(

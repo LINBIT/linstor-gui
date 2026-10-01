@@ -44,14 +44,14 @@ export const GrowVolume = ({ resource, resource_group, current_kib, refetch }: G
     mutationFn: (data: { size: number }) => resizeTarget(resource, data),
     onError: (err: ErrorMessage) => {
       api.error({
-        message: err?.message,
+        title: err?.message,
         description: err?.detail || err?.explanation,
         duration: 0,
       });
     },
     onSuccess: () => {
       api.success({
-        message: 'Resize volume successfully',
+        title: 'Resize volume successfully',
       });
       refetch();
       setModalOpen(false);
@@ -101,7 +101,7 @@ export const GrowVolume = ({ resource, resource_group, current_kib, refetch }: G
             <Button type="secondary" onClick={handleCancel}>
               Cancel
             </Button>
-            <Button type="primary" onClick={handleOk} loading={resizeMutation.isLoading}>
+            <Button type="primary" onClick={handleOk} loading={resizeMutation.isPending}>
               Grow
             </Button>
           </div>

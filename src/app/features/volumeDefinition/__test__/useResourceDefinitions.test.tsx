@@ -21,7 +21,6 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
     client={
       new QueryClient({
         defaultOptions: { queries: { retry: false } },
-        logger: { log: () => {}, warn: () => {}, error: () => {} },
       })
     }
   >
@@ -38,7 +37,7 @@ describe('useResourceDefinitions', () => {
   it('unwraps the list and forwards the query', async () => {
     const query = { resource_definitions: ['r1'] };
     const { result } = renderHook(() => useResourceDefinitions(query), { wrapper });
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    await waitFor(() => expect(result.current.isPending).toBe(false));
     expect(result.current.data?.map((r) => r.name)).toEqual(['r1', 'r2']);
     expect(getResourceDefinition).toHaveBeenCalledWith(query);
   });

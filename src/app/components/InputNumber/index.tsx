@@ -12,20 +12,18 @@ const BRAND = tokens.color.brand.primary;
 const FOCUS_SHADOW = `0 0 0 2px ${tokens.focusRing}`;
 
 const StyledInputNumber = styled(AntInputNumber)`
-  &.ant-input-number:hover,
-  &.ant-input-number-affix-wrapper:hover {
+  /* antd 6: one root (.ant-input-number), with or without a prefix */
+  &.ant-input-number:hover {
     border-color: ${BRAND} !important;
   }
 
   &.ant-input-number-focused,
-  &.ant-input-number-affix-wrapper-focused,
   &.ant-input-number:focus-within {
     border-color: ${BRAND} !important;
     box-shadow: ${FOCUS_SHADOW} !important;
   }
 
-  .ant-input-number-handler:hover .ant-input-number-handler-up-inner,
-  .ant-input-number-handler:hover .ant-input-number-handler-down-inner {
+  .ant-input-number-action:hover {
     color: ${BRAND} !important;
   }
 `;

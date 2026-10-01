@@ -208,7 +208,7 @@ describe('VSANNodeList', () => {
 
     socket.message({ type: 'Downloading', number: 1, of: 4 });
     expect(within(n2).getByText('Downloading')).toBeInTheDocument();
-    expect((n2.querySelector('.ant-progress-bg') as HTMLElement).style.width).toBe('25%');
+    expect((n2.querySelector('.ant-progress-track') as HTMLElement).style.width).toBe('25%');
 
     socket.message({ type: 'Downloading', number: 4, of: 4 });
     expect(within(n2).getByText('Download Finished')).toBeInTheDocument();

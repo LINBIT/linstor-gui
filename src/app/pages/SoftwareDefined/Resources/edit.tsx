@@ -16,7 +16,7 @@ const ResourceEdit: FunctionComponent = () => {
   const { resource, node } = useParams() as { resource: string; node: string };
   const { t } = useTranslation('resource');
 
-  const { data, isLoading } = useQuery({
+  const { data, isPending } = useQuery({
     queryKey: ['getResource', resource],
     queryFn: () => {
       return getResources({
@@ -35,7 +35,7 @@ const ResourceEdit: FunctionComponent = () => {
   };
 
   return (
-    <PageBasic title={t('edit')} loading={isLoading}>
+    <PageBasic title={t('edit')} loading={isPending}>
       <CreateResourceForm isEdit initialValues={initialValues} />
     </PageBasic>
   );

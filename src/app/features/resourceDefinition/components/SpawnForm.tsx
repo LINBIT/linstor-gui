@@ -62,7 +62,7 @@ const SpawnForm = ({ resource }: SpawnFormProps) => {
             <Button
               type="primary"
               onClick={() => onFinish(form.getFieldsValue())}
-              loading={autoPlaceMutation.isLoading}
+              loading={autoPlaceMutation.isPending}
             >
               {t('common:spawn')}
             </Button>

@@ -95,7 +95,7 @@ export const RollbackSnapshotForm: React.FC<RollbackSnapshotFormProps> = ({
         </Button>,
       ]}
     >
-      <Space direction="vertical" style={{ width: '100%' }}>
+      <Space orientation="vertical" style={{ width: '100%' }}>
         <Text>
           {t('snapshot:rollback_confirmation_message', {
             resource,

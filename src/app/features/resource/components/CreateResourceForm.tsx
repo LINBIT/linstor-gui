@@ -44,7 +44,7 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
   const navigate = useNavigate();
   const { resource, node: nodeFromURL } = useParams() as { resource: string; node: string };
   const [form] = Form.useForm<FormType>();
-  const { isLoading: resourceDefinitionIsLoading, data: resourceDefinitions } = useResourceDefinitions();
+  const { isPending: resourceDefinitionIsLoading, data: resourceDefinitions } = useResourceDefinitions();
   const allocate_method = Form.useWatch('allocate_method', form);
   const node = Form.useWatch('node', form);
   const name = Form.useWatch('name', form);
@@ -54,9 +54,9 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
     navigate(-1);
   };
 
-  const { isLoading: nodesIsLoading, data: nodes } = useNodes();
+  const { isPending: nodesIsLoading, data: nodes } = useNodes();
 
-  const { isLoading: storagePoolsIsLoading, data: storagePools } = useStoragePools({
+  const { isPending: storagePoolsIsLoading, data: storagePools } = useStoragePools({
     nodes: [node],
   });
 
@@ -185,7 +185,7 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
     }
   };
 
-  const isLoading = createResourceMutation.isLoading || autoPlaceMutation.isLoading;
+  const isLoading = createResourceMutation.isPending || autoPlaceMutation.isPending;
   const isDisabled = resourceDefinitionIsLoading || storagePoolsIsLoading || nodesIsLoading;
   const isAuto = allocate_method === 'auto';
 

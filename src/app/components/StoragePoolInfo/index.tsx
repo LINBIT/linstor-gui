@@ -8,7 +8,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Spin, Tooltip } from 'antd';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
-import Chart from 'react-apexcharts';
+import Chart from '@app/components/Chart';
 import type { ApexOptions } from 'apexcharts';
 import { useTranslation } from 'react-i18next';
 import { groupBy, union } from 'lodash';
@@ -413,12 +413,13 @@ const setHoveredSeriesState = (
 };
 
 const setHoveredSegmentState = (
-  chartContext: { el?: Element | null } | undefined,
+  // The ApexCharts instance an event hands over; only its root element is used.
+  chartContext: unknown,
   seriesIndex: number,
   dataPointIndex: number,
   hovered: boolean,
 ) => {
-  const chartRoot = chartContext?.el;
+  const chartRoot = (chartContext as { el?: Element | null } | undefined)?.el;
   if (!chartRoot) {
     return;
   }
@@ -519,7 +520,7 @@ export const StoragePoolInfo: React.FC = () => {
   };
 
   // Fetching the storage pool data from the API
-  const { data: poolsData, isLoading } = useQuery({
+  const { data: poolsData, isPending } = useQuery({
     queryKey: ['getStoragePool'],
     queryFn: () => getStoragePool(),
   });
@@ -689,7 +690,7 @@ export const StoragePoolInfo: React.FC = () => {
       : null;
 
   useEffect(() => {
-    if (isLoading || chartData.categories.length === 0) {
+    if (isPending || chartData.categories.length === 0) {
       setHoverableNodes([]);
       return;
     }
@@ -728,7 +729,7 @@ export const StoragePoolInfo: React.FC = () => {
       window.removeEventListener('resize', scheduleHoverableNodesUpdate);
       resizeObserver?.disconnect();
     };
-  }, [chartData.categories, chartData.series, height, isLoading]);
+  }, [chartData.categories, chartData.series, height, isPending]);
 
   useEffect(() => {
     if (!hoveredNode) {
@@ -782,10 +783,10 @@ export const StoragePoolInfo: React.FC = () => {
       events: {
         dataPointMouseEnter: (_event, chartContext, config) => {
           clearHoveredNodeTimer();
-          setHoveredSegmentState(chartContext, config.seriesIndex, config.dataPointIndex, true);
+          if (config) setHoveredSegmentState(chartContext, config.seriesIndex, config.dataPointIndex, true);
         },
         dataPointMouseLeave: (_event, chartContext, config) => {
-          setHoveredSegmentState(chartContext, config.seriesIndex, config.dataPointIndex, false);
+          if (config) setHoveredSegmentState(chartContext, config.seriesIndex, config.dataPointIndex, false);
         },
       },
     },
@@ -877,7 +878,7 @@ export const StoragePoolInfo: React.FC = () => {
           <InfoCircleOutlined className="text-gray-400 hover:text-gray-600 cursor-help text-base" />
         </Tooltip>
       </div>
-      <Spin spinning={isLoading}>
+      <Spin spinning={isPending}>
         <ChartContainer
           enableScroll={nodeCount >= 5}
           isLegendHovering={isBottomLegendHover}

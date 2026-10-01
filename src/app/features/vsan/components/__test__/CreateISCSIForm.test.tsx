@@ -175,7 +175,7 @@ describe('CreateISCSIForm', () => {
     expect(within(dialog).queryByLabelText('Username')).toBeNull();
 
     fireEvent.click(within(dialog).getByRole('checkbox', { name: 'Enable CHAP Authentication' }));
-    fireEvent.change(within(dialog).getByLabelText('Username'), { target: { value: 'chapuser' } });
+    fireEvent.change(await within(dialog).findByLabelText('Username'), { target: { value: 'chapuser' } });
     fireEvent.change(within(dialog).getByLabelText('Password'), { target: { value: 'chappw' } });
     fireEvent.click(dialogButton(dialog, 'Create'));
 

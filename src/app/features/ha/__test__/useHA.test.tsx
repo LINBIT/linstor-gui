@@ -53,7 +53,6 @@ const HA_KEY = 'files/etc/drbd-reactor.d/mysql.toml';
 const makeClient = () =>
   new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => {}, warn: () => {}, error: () => {} },
   });
 
 const wrapperFor = (client: QueryClient) =>
@@ -87,7 +86,7 @@ describe('ha hooks', () => {
 
   it('useHA keeps only resource definitions with a reactor config', async () => {
     const { result } = renderHook(() => useHA(), { wrapper: wrapperFor(makeClient()) });
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    await waitFor(() => expect(result.current.isPending).toBe(false));
     expect(result.current.data.map((rd) => rd.name)).toEqual(['ha-mysql']);
   });
 

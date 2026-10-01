@@ -69,7 +69,7 @@ const AddVolumeGroupForm = ({ resource_group, isInDropdown = false, refetch }: A
             <Button type="secondary" onClick={() => setOpen(false)}>
               {t('common:cancel')}
             </Button>
-            <Button type="primary" loading={mutation.isLoading} onClick={() => form.submit()}>
+            <Button type="primary" loading={mutation.isPending} onClick={() => form.submit()}>
               {t('common:add')}
             </Button>
           </div>

@@ -42,7 +42,7 @@ export function TomlPreview({ content, loading = false, currentTheme, title }: T
           },
         }}
       >
-        <Spin spinning={loading} tip={t('common:generating_preview')}>
+        <Spin spinning={loading} description={t('common:generating_preview')}>
           <div
             style={{
               background: currentTheme === 'dark' ? '#0f172a' : '#f1f5f9',

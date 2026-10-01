@@ -84,7 +84,7 @@ export const ResourceGroupStep = forwardRef<ResourceGroupStepHandle, ResourceGro
 
   return (
     <Form form={form} layout="vertical" initialValues={{ place_count: 2 }}>
-      <Alert type="info" showIcon message={t('clusterSetup:rg_hint')} style={{ marginBottom: 16 }} />
+      <Alert type="info" showIcon title={t('clusterSetup:rg_hint')} style={{ marginBottom: 16 }} />
 
       <Form.Item
         name="name"
@@ -113,7 +113,7 @@ export const ResourceGroupStep = forwardRef<ResourceGroupStepHandle, ResourceGro
           type="warning"
           showIcon
           style={{ marginBottom: 16 }}
-          message={t('clusterSetup:ha_needs_three_nodes', { count: nodeCount })}
+          title={t('clusterSetup:ha_needs_three_nodes', { count: nodeCount })}
         />
       )}
 
@@ -121,7 +121,7 @@ export const ResourceGroupStep = forwardRef<ResourceGroupStepHandle, ResourceGro
         {t('clusterSetup:properties_header')}
       </Typography.Text>
 
-      <Space direction="vertical" size={8} style={{ width: '100%' }}>
+      <Space orientation="vertical" size={8} style={{ width: '100%' }}>
         {rows.map((row) => (
           <Space key={row.id} align="baseline" style={{ display: 'flex', width: '100%' }}>
             <Input

@@ -141,7 +141,7 @@ const HAGuideBody: React.FC<HASetupGuideProps> = ({ storagePool, nodes }) => {
           type="warning"
           showIcon
           style={{ marginBottom: 12 }}
-          message={t('clusterSetup:ha_cmd_nodes_min', { count: MIN_HA_NODES })}
+          title={t('clusterSetup:ha_cmd_nodes_min', { count: MIN_HA_NODES })}
         />
       )}
 

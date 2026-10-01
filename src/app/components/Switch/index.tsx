@@ -50,7 +50,7 @@ export interface SwitchProps extends Omit<AntSwitchProps, 'checkedChildren' | 'u
   /** Content to show when switch is unchecked */
   unCheckedChildren?: React.ReactNode;
   /** Switch size */
-  size?: 'small' | 'default';
+  size?: 'small' | 'medium';
   /** Loading state */
   loading?: boolean;
   /** Auto focus */
@@ -75,7 +75,7 @@ export const Switch: React.FC<SwitchProps> = ({
   onChange,
   checkedChildren,
   unCheckedChildren,
-  size = 'default',
+  size = 'medium',
   loading = false,
   autoFocus = false,
   className,

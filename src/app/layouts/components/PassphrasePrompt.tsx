@@ -15,6 +15,7 @@ import { LoadingOutlined } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { getPassphraseStatus, createPassphrase, enterPassPhrase } from '@app/features/settings/passphrase';
+import { variablesOnly } from '@app/utils/mutation';
 
 interface PassphraseStatus {
   status: 'unset' | 'locked' | 'unlocked';
@@ -32,7 +33,7 @@ const PassphrasePrompt: React.FC = () => {
   const queryClient = useQueryClient();
 
   // Fetch passphrase status
-  const { data: passphraseData, isLoading } = useQuery<PassphraseStatus>({
+  const { data: passphraseData, isPending } = useQuery<PassphraseStatus>({
     queryKey: ['passphraseStatus'],
     queryFn: async (): Promise<PassphraseStatus> => {
       const response = (await getPassphraseStatus()) as unknown as {
@@ -46,7 +47,7 @@ const PassphrasePrompt: React.FC = () => {
 
   // Create passphrase mutation
   const createPassphraseMutation = useMutation({
-    mutationFn: createPassphrase,
+    mutationFn: variablesOnly(createPassphrase),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['passphraseStatus'] });
       setIsModalOpen(false);
@@ -59,7 +60,7 @@ const PassphrasePrompt: React.FC = () => {
 
   // Enter passphrase mutation
   const enterPassphraseMutation = useMutation({
-    mutationFn: enterPassPhrase,
+    mutationFn: variablesOnly(enterPassPhrase),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['passphraseStatus'] });
       setIsModalOpen(false);
@@ -100,7 +101,7 @@ const PassphrasePrompt: React.FC = () => {
 
   // Render icon based on status
   const renderIcon = () => {
-    if (isLoading) {
+    if (isPending) {
       return (
         <Tooltip title={t('settings:linstor_passphrase_loading', 'Loading passphrase status')}>
           <div>
@@ -219,7 +220,7 @@ const PassphrasePrompt: React.FC = () => {
               <Button
                 type="primary"
                 htmlType="submit"
-                loading={createPassphraseMutation.isLoading || enterPassphraseMutation.isLoading}
+                loading={createPassphraseMutation.isPending || enterPassphraseMutation.isPending}
               >
                 {submitButtonText}
               </Button>

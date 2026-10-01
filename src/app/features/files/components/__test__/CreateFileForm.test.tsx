@@ -31,7 +31,7 @@ import { createOrUpdateFile } from '../../api';
 import { CreateFileForm } from '../CreateFileForm';
 
 const renderForm = () => {
-  const client = new QueryClient({ logger: { log: () => {}, warn: () => {}, error: () => {} } });
+  const client = new QueryClient();
   render(
     <QueryClientProvider client={client}>
       <MemoryRouter>

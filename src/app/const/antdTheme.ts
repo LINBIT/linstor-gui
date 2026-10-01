@@ -37,6 +37,9 @@ export const getAntdTheme = (mode: ThemeMode): ThemeConfig => ({
     // Descriptions and empty states read at 4.5:1 (WCAG AA); antd's 45% black
     // is 3.4:1. The dark algorithm's own value already passes.
     ...(mode === 'light' && { colorTextDescription: 'rgba(0, 0, 0, 0.56)' }),
+    // Placeholders too: antd 6 draws a Select's as a text element, which the
+    // contrast audit checks, and its 25% default reads at 1.8:1 in either mode.
+    colorTextPlaceholder: mode === 'light' ? 'rgba(0, 0, 0, 0.56)' : 'rgba(255, 255, 255, 0.45)',
   },
   components: {
     ...antdTheme.components,

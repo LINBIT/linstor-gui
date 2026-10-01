@@ -55,8 +55,8 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
     navigate(-1);
   };
 
-  const { isLoading: resourceGroupsIsLoading, data: resourceGroups } = useResourceGroups({});
-  const { isLoading: storagePoolsIsLoading, data: storagePools } = useStoragePools();
+  const { isPending: resourceGroupsIsLoading, data: resourceGroups } = useResourceGroups({});
+  const { isPending: storagePoolsIsLoading, data: storagePools } = useStoragePools();
 
   const createResourceDefinitionMutation = useMutation({
     mutationFn: (data: CreateResourceDefinitionRequestBody) => createResourceDefinition(data),
@@ -197,9 +197,9 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
   };
 
   const isLoading =
-    createResourceDefinitionMutation.isLoading ||
-    createVolumeDefinitionMutation.isLoading ||
-    autoPlaceMutation.isLoading;
+    createResourceDefinitionMutation.isPending ||
+    createVolumeDefinitionMutation.isPending ||
+    autoPlaceMutation.isPending;
 
   const isDisabled = resourceGroupsIsLoading || storagePoolsIsLoading || !resourceGroups || !storagePools;
 

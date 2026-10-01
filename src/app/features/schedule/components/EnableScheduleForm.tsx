@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Form, message } from 'antd';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
@@ -12,6 +12,14 @@ import _ from 'lodash';
 import { getResourceGroups } from '@app/features/resourceGroup';
 import { useNodes } from '@app/features/node';
 
+// A list that failed to load is reported once per failure (react-query 5 has no
+// onError on queries).
+const useLoadError = (error: Error | null, what: string) => {
+  useEffect(() => {
+    if (error) message.error(`${what}: ${error.message}`);
+  }, [error, what]);
+};
+
 interface EnableScheduleFormProps {
   remote_name?: string;
   schedule_name?: string;
@@ -23,7 +31,13 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
   const [form] = Form.useForm();
   const [visible, setVisible] = useState(false);
 
-  const { data: scheduleList, isLoading: isScheduleLoading } = useQuery(['getScheduleListOption'], getScheduleList, {
+  const {
+    data: scheduleList,
+    isPending: isScheduleLoading,
+    error: scheduleError,
+  } = useQuery({
+    queryKey: ['getScheduleListOption'],
+    queryFn: getScheduleList,
     select: (data) =>
       data?.data?.data?.map((item: { schedule_name: string; full_cron: string }) => {
         return {
@@ -31,12 +45,15 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
           full_cron: item.full_cron,
         };
       }) || [],
-    onError: (error) => {
-      message.error(t('schedule:failed_to_fetch_schedule_list') + ': ' + (error as Error).message);
-    },
   });
 
-  const { data: remoteList, isLoading: isRemoteLoading } = useQuery(['getRemoteListOption'], getRemoteList, {
+  const {
+    data: remoteList,
+    isPending: isRemoteLoading,
+    error: remoteError,
+  } = useQuery({
+    queryKey: ['getRemoteListOption'],
+    queryFn: getRemoteList,
     select: (data) => {
       // The OpenAPI schema types this as an array; the controller answers an object.
       const remotes = data?.data as unknown as RemoteListResponse | undefined;
@@ -44,37 +61,37 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
       const linstorRemotes = remotes?.linstor_remotes?.map((item: { remote_name?: string }) => item.remote_name) || [];
       return [...s3Remotes, ...linstorRemotes];
     },
-    onError: (error) => {
-      message.error(t('schedule:failed_to_fetch_remote_list') + ': ' + (error as Error).message);
-    },
   });
 
-  const { data: resourceList, isLoading: isResourceLoading } = useQuery(
-    ['getResourceListOption'],
-    () => getResources(),
-    {
-      select: (data) => data?.data?.map((item: { name?: string }) => item.name) || [],
-      onError: (error) => {
-        message.error(t('schedule:failed_to_fetch_resource_list') + ': ' + (error as Error).message);
-      },
-    },
-  );
+  const {
+    data: resourceList,
+    isPending: isResourceLoading,
+    error: resourceError,
+  } = useQuery({
+    queryKey: ['getResourceListOption'],
+    queryFn: () => getResources(),
+    select: (data) => data?.data?.map((item: { name?: string }) => item.name) || [],
+  });
 
-  const { data: resourceGroupList, isLoading: isResourceGroupLoading } = useQuery(
-    ['getResourceGroupListOption'],
-    () => getResourceGroups({}),
-    {
-      select: (data) => data?.data?.map((item: { name?: string }) => item.name) || [],
-      onError: (error) => {
-        message.error(t('schedule:failed_to_fetch_resource_group_list') + ': ' + (error as Error).message);
-      },
-    },
-  );
+  const {
+    data: resourceGroupList,
+    isPending: isResourceGroupLoading,
+    error: resourceGroupError,
+  } = useQuery({
+    queryKey: ['getResourceGroupListOption'],
+    queryFn: () => getResourceGroups({}),
+    select: (data) => data?.data?.map((item: { name?: string }) => item.name) || [],
+  });
 
-  const { data: nodeList, isLoading: isNodeLoading } = useNodes();
+  useLoadError(scheduleError, t('schedule:failed_to_fetch_schedule_list'));
+  useLoadError(remoteError, t('schedule:failed_to_fetch_remote_list'));
+  useLoadError(resourceError, t('schedule:failed_to_fetch_resource_list'));
+  useLoadError(resourceGroupError, t('schedule:failed_to_fetch_resource_group_list'));
 
-  const mutation = useMutation(
-    async (
+  const { data: nodeList, isPending: isNodeLoading } = useNodes();
+
+  const mutation = useMutation({
+    mutationFn: async (
       values: BackupSchedule & {
         remote_name?: string;
         schedule_name?: string;
@@ -86,18 +103,18 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
       const { remote_name: _, schedule_name: __, ...body } = values;
       return enableSchedule(finalRemoteName, finalScheduleName, body);
     },
-    {
-      onSuccess: () => {
-        form.resetFields();
-        message.success(t('schedule:schedule_enabled_successfully'));
-        onSuccess?.();
-        setVisible(false);
-      },
-      onError: (error: Error) => {
-        message.error(t('schedule:failed_to_enable_schedule') + ': ' + error.message);
-      },
+
+    onSuccess: () => {
+      form.resetFields();
+      message.success(t('schedule:schedule_enabled_successfully'));
+      onSuccess?.();
+      setVisible(false);
     },
-  );
+
+    onError: (error: Error) => {
+      message.error(t('schedule:failed_to_enable_schedule') + ': ' + error.message);
+    },
+  });
 
   const handleSubmit = (
     values: BackupSchedule & {
@@ -122,7 +139,7 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
           <Button key="cancel" onClick={() => setVisible(false)}>
             {t('common:cancel')}
           </Button>,
-          <Button key="submit" type="primary" loading={mutation.isLoading} onClick={() => form.submit()}>
+          <Button key="submit" type="primary" loading={mutation.isPending} onClick={() => form.submit()}>
             {t('schedule:enable')}
           </Button>,
         ]}

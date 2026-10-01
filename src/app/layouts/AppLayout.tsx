@@ -287,7 +287,7 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
         open={isModalOpen}
         onOk={handleOk}
         onCancel={handleCancel}
-        maskClosable={false}
+        mask={{ closable: false }}
         footer={null}
         centered
         width={755}

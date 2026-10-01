@@ -16,7 +16,6 @@ vi.mock('../api', () => ({
 import { getResourceGroups } from '../api';
 import { useResourceGroups } from '../hooks/useResourceGroup';
 import { DefaultResourceGroup } from '../const';
-import { captureConsoleError } from '@app/testing/console';
 
 const groups = [{ name: DefaultResourceGroup }, { name: 'rg-a' }, { name: 'rg-b' }];
 
@@ -34,7 +33,7 @@ describe('useResourceGroups', () => {
 
   it('returns every group by default, including DfltRscGrp', async () => {
     const { result } = renderHook(() => useResourceGroups({}), { wrapper });
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    await waitFor(() => expect(result.current.isPending).toBe(false));
     expect(result.current.data?.map((g) => g.name)).toEqual([DefaultResourceGroup, 'rg-a', 'rg-b']);
   });
 
@@ -47,18 +46,15 @@ describe('useResourceGroups', () => {
   it('forwards the query to the api', async () => {
     const query = { resource_groups: ['rg-a'] };
     const { result } = renderHook(() => useResourceGroups({ query }), { wrapper });
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    await waitFor(() => expect(result.current.isPending).toBe(false));
     expect(getResourceGroups).toHaveBeenCalledWith(query);
   });
 
   it('surfaces the error and no data when the api rejects', async () => {
     const failure = new Error('down');
     vi.mocked(getResourceGroups).mockRejectedValue(failure);
-    // react-query logs a failed query itself.
-    const errors = captureConsoleError();
     const { result } = renderHook(() => useResourceGroups({}), { wrapper });
     await waitFor(() => expect(result.current.error).toBe(failure));
     expect(result.current.data).toBeUndefined();
-    expect(errors).toHaveBeenCalledWith(failure);
   });
 });

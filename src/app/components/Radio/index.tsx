@@ -18,47 +18,46 @@ const StyledRadio = styled(AntRadio)`
     color: var(--text-nav) !important;
   }
 
-  .ant-radio-inner {
+  .ant-radio {
     border-color: ${tokens.color.brand.primaryActive} !important;
   }
 
-  .ant-radio-checked .ant-radio-inner {
+  .ant-radio.ant-radio-checked {
     border-color: ${tokens.color.brand.primaryActive} !important;
     background-color: var(--bg-page) !important;
   }
 
-  .ant-radio-checked .ant-radio-inner::after {
+  .ant-radio.ant-radio-checked::after {
     background-color: ${tokens.color.brand.primaryActive} !important;
   }
 
-  .ant-radio:hover .ant-radio-inner {
+  .ant-radio:hover {
     border-color: ${tokens.color.brand.primaryActive} !important;
   }
 
-  .ant-radio-input:focus + .ant-radio-inner {
+  .ant-radio:focus-within {
     border-color: ${tokens.color.brand.primaryActive} !important;
     box-shadow: 0 0 0 3px rgba(255, 204, 156, 0.1) !important;
   }
 
-  &.ant-radio-wrapper:hover .ant-radio,
-  &.ant-radio-wrapper:hover .ant-radio-inner {
+  &.ant-radio-wrapper:hover .ant-radio {
     border-color: ${tokens.color.brand.primaryActive} !important;
   }
 
   &.ant-radio-wrapper-checked {
-    .ant-radio-checked .ant-radio-inner {
+    .ant-radio.ant-radio-checked {
       border-color: ${tokens.color.brand.primaryActive} !important;
     }
 
-    .ant-radio-checked .ant-radio-inner::after {
+    .ant-radio.ant-radio-checked::after {
       background-color: ${tokens.color.brand.primaryActive} !important;
     }
 
-    &:hover .ant-radio-checked .ant-radio-inner {
+    &:hover .ant-radio.ant-radio-checked {
       border-color: ${tokens.color.brand.primaryHover} !important;
     }
 
-    &:hover .ant-radio-checked .ant-radio-inner::after {
+    &:hover .ant-radio.ant-radio-checked::after {
       background-color: ${tokens.color.brand.primaryHover} !important;
     }
   }
@@ -73,43 +72,42 @@ const StyledRadioGroup = styled(AntRadio.Group)`
     color: var(--text-nav) !important;
   }
 
-  .ant-radio-checked .ant-radio-inner {
+  .ant-radio.ant-radio-checked {
     border-color: ${tokens.color.brand.primaryActive} !important;
     background-color: var(--bg-page) !important;
   }
 
-  .ant-radio-checked .ant-radio-inner::after {
+  .ant-radio.ant-radio-checked::after {
     background-color: ${tokens.color.brand.primaryActive} !important;
   }
 
-  .ant-radio:hover .ant-radio-inner {
+  .ant-radio:hover {
     border-color: ${tokens.color.brand.primaryActive} !important;
   }
 
-  .ant-radio-input:focus + .ant-radio-inner {
+  .ant-radio:focus-within {
     border-color: ${tokens.color.brand.primaryActive} !important;
     box-shadow: 0 0 0 3px rgba(255, 204, 156, 0.1) !important;
   }
 
-  .ant-radio-wrapper:hover .ant-radio,
-  .ant-radio-wrapper:hover .ant-radio-inner {
+  .ant-radio-wrapper:hover .ant-radio {
     border-color: ${tokens.color.brand.primaryActive} !important;
   }
 
   .ant-radio-wrapper-checked {
-    .ant-radio-checked .ant-radio-inner {
+    .ant-radio.ant-radio-checked {
       border-color: ${tokens.color.brand.primaryActive} !important;
     }
 
-    .ant-radio-checked .ant-radio-inner::after {
+    .ant-radio.ant-radio-checked::after {
       background-color: ${tokens.color.brand.primaryActive} !important;
     }
 
-    &:hover .ant-radio-checked .ant-radio-inner {
+    &:hover .ant-radio.ant-radio-checked {
       border-color: ${tokens.color.brand.primaryHover} !important;
     }
 
-    &:hover .ant-radio-checked .ant-radio-inner::after {
+    &:hover .ant-radio.ant-radio-checked::after {
       background-color: ${tokens.color.brand.primaryHover} !important;
     }
   }

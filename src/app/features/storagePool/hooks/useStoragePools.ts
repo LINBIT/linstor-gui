@@ -9,13 +9,13 @@ import { getStoragePool } from '../api';
 import { GetStoragePoolQuery } from '../types';
 
 const useStoragePools = (query?: GetStoragePoolQuery) => {
-  const { isLoading, error, data } = useQuery({
+  const { isPending, error, data } = useQuery({
     queryKey: ['getStoragePool', query],
     queryFn: () => getStoragePool(query),
   });
 
   return {
-    isLoading,
+    isPending,
     error,
     data: data?.data,
   };

@@ -88,7 +88,6 @@ const volumeGroupsByName: Record<string, { volume_number: number }[]> = {
 const renderList = (initialEntry = '/storage-configuration/resource-groups') => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => {}, warn: () => {}, error: () => {} },
   });
   return render(
     <QueryClientProvider client={client}>
@@ -113,7 +112,10 @@ describe('resource group List', () => {
     vi.mocked(getResourceGroups).mockResolvedValue({ data: groups } as never);
     vi.mocked(getResourceGroupCount).mockResolvedValue({ data: { count: 42 } } as never);
     vi.mocked(getResourceGroupVolumeGroups).mockImplementation(
-      async (name: string) => ({ data: volumeGroupsByName[name] ?? [] }) as never,
+      async (name: string) =>
+        ({
+          data: volumeGroupsByName[name] ?? [],
+        }) as never,
     );
     vi.mocked(deleteResourceGroup).mockResolvedValue({ data: [{ ret_code: 1 }] } as never);
     vi.mocked(updateResourceGroup).mockResolvedValue({ data: [{ ret_code: 1 }] } as never);

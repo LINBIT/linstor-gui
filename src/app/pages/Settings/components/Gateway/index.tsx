@@ -137,7 +137,7 @@ const Gateway: React.FC = () => {
             {isChecked && (
               <>
                 <Alert
-                  message={t('settings:gateway_config_title')}
+                  title={t('settings:gateway_config_title')}
                   description={t('settings:gateway_config_description')}
                   type="info"
                   showIcon

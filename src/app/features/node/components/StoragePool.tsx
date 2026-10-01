@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import Chart from 'react-apexcharts';
+import Chart from '@app/components/Chart';
 import { forEach, groupBy } from 'lodash';
 import { formatBytes } from '@app/utils/size';
 import { generateStoragePoolColorPairs, getNodeTotalColorPair } from '@app/utils/storagePoolColors';

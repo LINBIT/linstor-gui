@@ -144,7 +144,7 @@ export const VSANNodeList = () => {
         });
 
         api.error({
-          message: 'Failed to update node!',
+          title: 'Failed to update node!',
           description: progress?.error,
           duration: 0,
         });
@@ -164,7 +164,7 @@ export const VSANNodeList = () => {
       });
 
       api.success({
-        message: 'Update finished for node: ' + nodeName,
+        title: 'Update finished for node: ' + nodeName,
       });
     });
   };
@@ -180,14 +180,14 @@ export const VSANNodeList = () => {
     },
     onSuccess: () => {
       api.success({
-        message: 'Standby status changed!',
+        title: 'Standby status changed!',
       });
 
       nodesFromVSAN.refetch();
     },
     onError: (err: ErrorMessage) => {
       api.error({
-        message: err?.message,
+        title: err?.message,
         description: err?.detail || err?.explanation,
         duration: 0,
       });
@@ -351,7 +351,7 @@ export const VSANNodeList = () => {
       render: (_, record) => {
         return (
           <Switch
-            loading={standByMutation.isLoading && currentNode === record.hostname}
+            loading={standByMutation.isPending && currentNode === record.hostname}
             checked={record.standby}
             onChange={(checked) => {
               handleStandby(record.hostname, checked);
@@ -468,7 +468,7 @@ export const VSANNodeList = () => {
         rowKey="hostname"
         columns={columns}
         dataSource={mergedNodesData}
-        loading={nodesFromVSAN.isLoading || (isHCI && cloudStackNodes.isLoading)}
+        loading={nodesFromVSAN.isPending || (isHCI && cloudStackNodes.isPending)}
         pagination={false}
       />
 

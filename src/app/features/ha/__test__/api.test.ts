@@ -71,7 +71,8 @@ describe('ha api', () => {
     });
 
     await createFile('/etc/systemd/system/x.mount', 'YQ==');
-    const [, options] = vi.mocked(put).mock.calls[1];
+    // openapi-fetch's overloaded client methods leave the mock's call types as never.
+    const [, options] = vi.mocked(put).mock.calls[1] as unknown as [string, { body?: unknown }];
     expect(options?.body).toEqual({ path: '/etc/systemd/system/x.mount', content: 'YQ==' });
     expect(options?.body).not.toHaveProperty('alt_suffixes');
   });

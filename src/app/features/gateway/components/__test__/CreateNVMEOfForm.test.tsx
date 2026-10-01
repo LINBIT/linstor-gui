@@ -354,7 +354,7 @@ describe('CreateNVMEOfForm Component', () => {
     it('should show loading state on submit button when creating', () => {
       mockMutation.mockReturnValue({
         mutate: vi.fn(),
-        isLoading: true,
+        isPending: true,
       });
 
       render(<CreateNVMEOfForm />);

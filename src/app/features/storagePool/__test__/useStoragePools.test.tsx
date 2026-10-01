@@ -21,7 +21,6 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
     client={
       new QueryClient({
         defaultOptions: { queries: { retry: false } },
-        logger: { log: () => {}, warn: () => {}, error: () => {} },
       })
     }
   >
@@ -37,7 +36,7 @@ describe('useStoragePools', () => {
 
   it('unwraps the list and forwards the query', async () => {
     const { result } = renderHook(() => useStoragePools({ nodes: ['node-1'] }), { wrapper });
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    await waitFor(() => expect(result.current.isPending).toBe(false));
     expect(result.current.data).toEqual([{ storage_pool_name: 'p1' }]);
     expect(getStoragePool).toHaveBeenCalledWith({ nodes: ['node-1'] });
   });

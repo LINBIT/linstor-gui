@@ -9,13 +9,13 @@ import { getNodes } from '../api';
 import { NodeListQuery } from '../types';
 
 const useNodes = (query?: NodeListQuery) => {
-  const { isLoading, error, data, refetch } = useQuery({
+  const { isPending, error, data, refetch } = useQuery({
     queryKey: ['getNodes', query],
     queryFn: () => getNodes(query),
   });
 
   return {
-    isLoading,
+    isPending,
     error,
     data: data?.data,
     refetch,

@@ -37,7 +37,6 @@ import EnableScheduleForm from '../EnableScheduleForm';
 const renderForm = (props: React.ComponentProps<typeof EnableScheduleForm> = {}) => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => {}, warn: () => {}, error: () => {} },
   });
   render(
     <QueryClientProvider client={client}>

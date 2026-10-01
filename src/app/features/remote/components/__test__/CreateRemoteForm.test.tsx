@@ -18,7 +18,7 @@ import { CreateRemoteForm } from '../CreateRemoteForm';
 import { captureConsoleError } from '@app/testing/console';
 
 const renderForm = () => {
-  const client = new QueryClient({ logger: { log: () => {}, warn: () => {}, error: () => {} } });
+  const client = new QueryClient();
   const refetch = vi.fn();
   render(
     <QueryClientProvider client={client}>
@@ -31,6 +31,8 @@ const renderForm = () => {
 const open = async () => {
   fireEvent.click(screen.getByRole('button', { name: '+ Add' }));
   await screen.findByPlaceholderText('Please input name');
+  // The fields of the chosen type (S3 first) follow one render later.
+  await screen.findByPlaceholderText('Please input endpoint');
 };
 
 const type = (placeholder: string, value: string) =>
@@ -107,7 +109,8 @@ describe('CreateRemoteForm', () => {
     await open();
     fireEvent.mouseDown(screen.getByRole('combobox'));
     fireEvent.click(await screen.findByText('linstor_remotes', { selector: '.ant-select-item-option-content' }));
-    expect(screen.queryByPlaceholderText('Please input endpoint')).not.toBeInTheDocument();
+    // The fields follow the chosen type one render later.
+    await waitFor(() => expect(screen.queryByPlaceholderText('Please input endpoint')).not.toBeInTheDocument());
     type('Please input name', 'lin-b');
     type('Please input url', 'http://other:3370');
     submit();
@@ -148,6 +151,7 @@ describe('CreateRemoteForm', () => {
     await open();
     fireEvent.mouseDown(screen.getByRole('combobox'));
     fireEvent.click(await screen.findByText('linstor_remotes', { selector: '.ant-select-item-option-content' }));
+    await screen.findByPlaceholderText('Please input url');
     type('Please input name', 'lin-x');
     type('Please input url', 'http://x');
     submit();

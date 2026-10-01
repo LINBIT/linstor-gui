@@ -16,27 +16,28 @@ import { ErrorMessage, VsanResourceGroup } from '@app/features/vsan';
 import { ActionSection } from './styled';
 import { Button } from '@app/components/Button';
 import { Popconfirm } from '@app/components/Popconfirm';
+import { variablesOnly } from '@app/utils/mutation';
 
 export const ResourceGroupList = () => {
   const { t } = useTranslation();
   const [api, contextHolder] = notification.useNotification();
 
-  const { data, refetch, isLoading } = useQuery({
+  const { data, refetch, isPending } = useQuery({
     queryKey: ['getResourceGroups'],
     queryFn: () => getResourceGroups(),
   });
 
   const deleteMutation = useMutation({
-    mutationFn: deleteResourceGroup,
+    mutationFn: variablesOnly(deleteResourceGroup),
     onSuccess: () => {
       api.success({
-        message: 'Delete resource group successfully',
+        title: 'Delete resource group successfully',
       });
       refetch();
     },
     onError: (err: ErrorMessage) => {
       api.error({
-        message: err?.message,
+        title: err?.message,
         description: err?.detail || err?.explanation,
         duration: 0,
       });
@@ -78,7 +79,7 @@ export const ResourceGroupList = () => {
               deleteMutation.mutate(record.name);
             }}
           >
-            <Button type="default" danger loading={deleteMutation.isLoading}>
+            <Button type="default" danger loading={deleteMutation.isPending}>
               Delete
             </Button>
           </Popconfirm>
@@ -102,7 +103,7 @@ export const ResourceGroupList = () => {
         bordered={false}
         columns={columns}
         dataSource={data?.data?.filter((item) => item.name !== DEFAULT_SP) ?? []}
-        loading={isLoading}
+        loading={isPending}
         pagination={false}
       />
     </div>

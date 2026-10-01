@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Form } from 'antd';
 import { Input } from '@app/components/Input';
@@ -52,26 +52,28 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
 
   const { node } = useParams() as { node: string };
 
-  useQuery({
+  const { data: nodeDetail } = useQuery({
     queryKey: ['getNodeDetailByName', node],
     queryFn: () => getNodes({ nodes: [node] }),
     enabled: !!node && editing,
-    onSuccess: (data) => {
-      const currentNode = data?.data?.[0];
-
-      if (currentNode) {
-        const initialData = {
-          name: currentNode?.name,
-          address: currentNode?.net_interfaces?.[0].address,
-          satellite_port: currentNode?.net_interfaces?.[0].satellite_port,
-          type: capitalize(currentNode?.type) as NodeType,
-        };
-
-        setDefaultNetwork(currentNode?.net_interfaces?.find((e) => e.is_active));
-        form.setFieldsValue(initialData);
-      }
-    },
   });
+
+  // Fill the form whenever the node arrives (react-query 5 has no onSuccess on queries).
+  useEffect(() => {
+    const currentNode = nodeDetail?.data?.[0];
+
+    if (currentNode) {
+      const initialData = {
+        name: currentNode?.name,
+        address: currentNode?.net_interfaces?.[0].address,
+        satellite_port: currentNode?.net_interfaces?.[0].satellite_port,
+        type: capitalize(currentNode?.type) as NodeType,
+      };
+
+      setDefaultNetwork(currentNode?.net_interfaces?.find((e) => e.is_active));
+      form.setFieldsValue(initialData);
+    }
+  }, [nodeDetail, form]);
 
   const updateNodeNetworkMutation = useMutation({
     mutationFn: (data: { node: string; netinterface: string; body: UpdateNetInterfaceRequestBody }) =>
@@ -213,7 +215,7 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
       </Form.Item>
 
       <Form.Item wrapperCol={{ offset: 6, span: 18 }}>
-        <Button type="primary" htmlType="submit" loading={createNodeMutation.isLoading}>
+        <Button type="primary" htmlType="submit" loading={createNodeMutation.isPending}>
           {t('common:submit')}
         </Button>
 

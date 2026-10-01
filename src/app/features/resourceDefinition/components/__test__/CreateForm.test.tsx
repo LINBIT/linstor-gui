@@ -102,11 +102,13 @@ describe('resourceDefinition CreateForm', () => {
 
     fireEvent.change(nameInput(), { target: { value: 'rd9' } });
     fireEvent.click(screen.getByRole('switch'));
+    // The size field follows the switch one render later.
+    await screen.findByPlaceholderText('Please input size');
     submit();
     expect(await screen.findByText('Size is required when spawn-on-create is enabled!')).toBeInTheDocument();
     expect(createResourceDefinition).not.toHaveBeenCalled();
 
-    fireEvent.change(screen.getByPlaceholderText('Please input size'), { target: { value: '1' } });
+    fireEvent.change(await screen.findByPlaceholderText('Please input size'), { target: { value: '1' } });
     const placeCount = screen.getByRole('spinbutton', { name: 'Place Count' }) as HTMLInputElement;
     expect(placeCount.value).toBe('2');
     fireEvent.change(placeCount, { target: { value: '3' } });
@@ -129,7 +131,7 @@ describe('resourceDefinition CreateForm', () => {
 
     fireEvent.change(nameInput(), { target: { value: 'rd9' } });
     fireEvent.click(screen.getByRole('switch'));
-    fireEvent.change(screen.getByPlaceholderText('Please input size'), { target: { value: '1' } });
+    fireEvent.change(await screen.findByPlaceholderText('Please input size'), { target: { value: '1' } });
     submit();
 
     await waitFor(() => expect(autoPlace).toHaveBeenCalled());
@@ -142,7 +144,7 @@ describe('resourceDefinition CreateForm', () => {
 
     fireEvent.change(nameInput(), { target: { value: 'rd9' } });
     fireEvent.click(screen.getByRole('switch'));
-    fireEvent.change(screen.getByPlaceholderText('Please input size'), { target: { value: '1' } });
+    fireEvent.change(await screen.findByPlaceholderText('Please input size'), { target: { value: '1' } });
     submit();
 
     await waitFor(() => expect(createResourceDefinition).toHaveBeenCalled());
@@ -157,7 +159,7 @@ describe('resourceDefinition CreateForm', () => {
 
     fireEvent.change(nameInput(), { target: { value: 'rd9' } });
     fireEvent.click(screen.getByRole('switch'));
-    fireEvent.change(screen.getByPlaceholderText('Please input size'), { target: { value: '1' } });
+    fireEvent.change(await screen.findByPlaceholderText('Please input size'), { target: { value: '1' } });
     submit();
 
     await waitFor(() => expect(createVolumeDefinition).toHaveBeenCalled());
@@ -223,7 +225,7 @@ describe('resourceDefinition CreateForm', () => {
 
     fireEvent.change(nameInput(), { target: { value: 'rd9' } });
     fireEvent.click(screen.getByRole('switch'));
-    fireEvent.change(screen.getByPlaceholderText('Please input size'), { target: { value: '1' } });
+    fireEvent.change(await screen.findByPlaceholderText('Please input size'), { target: { value: '1' } });
     submit();
 
     await waitFor(() => expect(autoPlace).toHaveBeenCalled());
@@ -235,7 +237,7 @@ describe('resourceDefinition CreateForm', () => {
 
     fireEvent.change(nameInput(), { target: { value: 'rd9' } });
     fireEvent.click(screen.getByRole('switch'));
-    fireEvent.change(screen.getByPlaceholderText('Please input size'), { target: { value: '0' } });
+    fireEvent.change(await screen.findByPlaceholderText('Please input size'), { target: { value: '0' } });
     submit();
 
     await waitFor(() =>

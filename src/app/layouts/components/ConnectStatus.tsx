@@ -16,14 +16,14 @@ import { getControllerConfig } from '@app/features/node/api';
 import { ConnectedIcon, DisconnectedIcon } from '@app/components/SVGIcon';
 
 const ConnectStatus: React.FC = () => {
-  const { isLoading, error } = useQuery({
+  const { isPending, error } = useQuery({
     queryKey: ['getControllerConfig'],
     queryFn: getControllerConfig,
   });
 
   const { t } = useTranslation('common');
 
-  if (isLoading) {
+  if (isPending) {
     return null;
   }
 

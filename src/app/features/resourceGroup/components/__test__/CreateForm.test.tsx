@@ -51,7 +51,6 @@ const failed = { data: [{ ret_code: -1, message: 'nope' }] };
 const renderForm = (props: React.ComponentProps<typeof CreateForm> = {}) => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => {}, warn: () => {}, error: () => {} },
   });
   return render(
     <QueryClientProvider client={client}>

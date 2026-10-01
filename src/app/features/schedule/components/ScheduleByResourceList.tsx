@@ -39,7 +39,7 @@ export const ScheduleByResourceList = () => {
 
   const {
     data: dataList,
-    isLoading,
+    isPending,
     refetch,
   } = useQuery({
     queryKey: ['getScheduleByResource', showAll],
@@ -95,7 +95,7 @@ export const ScheduleByResourceList = () => {
     refresh: () => refetch(),
   });
 
-  const { data: resourceDetailData, isLoading: detailLoading } = useQuery({
+  const { data: resourceDetailData, isPending: detailLoading } = useQuery({
     queryKey: ['getScheduleByResourceName', expandedRowKeys],
     queryFn: async () => {
       if (!expandedRowKeys.length) return null;
@@ -365,7 +365,7 @@ export const ScheduleByResourceList = () => {
           showSizeChanger: true,
           showTotal: (total) => t('common:total_items', { total }),
         }}
-        loading={isLoading}
+        loading={isPending}
         rowKey={(record) => record.rsc_name}
         rowClassName={(record) => (del.isDeleting(record.rsc_name) ? deletingRowClass : '')}
         expandable={{

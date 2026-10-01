@@ -23,6 +23,7 @@ import { ErrorMessage } from '../types';
 import { Content } from './styled';
 import { NetworkAddress } from '../types';
 import { Checkbox } from '@app/components/Checkbox';
+import { variablesOnly } from '@app/utils/mutation';
 
 type FormType = {
   name: string;
@@ -84,10 +85,10 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
   }, [form, resourceGroupsFromVSAN, resource_group, gross_size]);
 
   const createMutation = useMutation({
-    mutationFn: createNFSExport,
+    mutationFn: variablesOnly(createNFSExport),
     onSuccess: () => {
       api.success({
-        message: 'Create NFS Export successfully',
+        title: 'Create NFS Export successfully',
       });
 
       setCreateFormModal(false);
@@ -98,7 +99,7 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
     },
     onError: (err: ErrorMessage) => {
       api.error({
-        message: err?.message,
+        title: err?.message,
         description: err?.detail || err?.explanation,
         duration: 0,
       });
@@ -188,7 +189,7 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
             <Button type="secondary" onClick={handleCancel}>
               Cancel
             </Button>
-            <Button type="primary" onClick={handleOk} loading={createMutation.isLoading}>
+            <Button type="primary" onClick={handleOk} loading={createMutation.isPending}>
               Create
             </Button>
           </div>

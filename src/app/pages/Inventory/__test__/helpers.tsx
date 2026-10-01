@@ -13,7 +13,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 export const renderPage = (ui: React.ReactElement, path = '/') => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-    logger: { log: () => undefined, warn: () => undefined, error: () => undefined },
   });
   return render(
     <QueryClientProvider client={client}>

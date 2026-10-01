@@ -8,13 +8,13 @@ import { useQuery } from '@tanstack/react-query';
 import { getNetWorkInterfaces } from '../api';
 
 const useNodeNetWorkInterface = () => {
-  const { isLoading, error, data } = useQuery({
+  const { isPending, error, data } = useQuery({
     queryKey: ['getNodes'],
     queryFn: () => getNetWorkInterfaces(),
   });
 
   return {
-    isLoading,
+    isPending,
     error,
     data: data?.data?.prefixes?.filter((s) => s.prefix !== '127.'),
   };

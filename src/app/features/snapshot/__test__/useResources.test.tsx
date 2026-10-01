@@ -15,7 +15,6 @@ vi.mock('../api', () => ({
 
 import { getAllResources } from '../api';
 import { useResources } from '../hooks/useResources';
-import { captureConsoleError } from '@app/testing/console';
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
@@ -32,7 +31,7 @@ describe('useResources', () => {
   it('unwraps the data array and forwards the query', async () => {
     const query = { resources: ['r1'] };
     const { result } = renderHook(() => useResources(query), { wrapper });
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    await waitFor(() => expect(result.current.isPending).toBe(false));
     expect(result.current.data?.map((r) => r.name)).toEqual(['r1', 'r2']);
     expect(getAllResources).toHaveBeenCalledWith(query);
   });
@@ -40,11 +39,8 @@ describe('useResources', () => {
   it('reports the error when the api rejects', async () => {
     const failure = new Error('down');
     vi.mocked(getAllResources).mockRejectedValue(failure);
-    // react-query logs a failed query itself.
-    const errors = captureConsoleError();
     const { result } = renderHook(() => useResources(), { wrapper });
     await waitFor(() => expect(result.current.error).toBe(failure));
     expect(result.current.data).toBeUndefined();
-    expect(errors).toHaveBeenCalledWith(failure);
   });
 });

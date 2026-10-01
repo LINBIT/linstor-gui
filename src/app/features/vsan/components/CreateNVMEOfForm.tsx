@@ -22,6 +22,7 @@ import { ErrorMessage } from '@app/features/vsan';
 import { Content } from './styled';
 import { NetworkAddress } from '@app/features/gateway/types';
 import { Checkbox } from '@app/components/Checkbox';
+import { variablesOnly } from '@app/utils/mutation';
 
 interface ResourceGroup {
   name: string;
@@ -104,10 +105,10 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
   };
 
   const createMutation = useMutation({
-    mutationFn: createNVMEExport,
+    mutationFn: variablesOnly(createNVMEExport),
     onSuccess: () => {
       api.success({
-        message: 'Create NVMe-oF Export successfully',
+        title: 'Create NVMe-oF Export successfully',
       });
       setCreateFormModal(false);
 
@@ -117,7 +118,7 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
     },
     onError: (err: ErrorMessage) => {
       api.error({
-        message: err?.message,
+        title: err?.message,
         description: err?.detail || err?.explanation,
         duration: 0,
       });
@@ -170,7 +171,7 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
             <Button type="secondary" onClick={handleCancel}>
               Cancel
             </Button>
-            <Button type="primary" onClick={handleOk} loading={createMutation.isLoading}>
+            <Button type="primary" onClick={handleOk} loading={createMutation.isPending}>
               Create
             </Button>
           </div>

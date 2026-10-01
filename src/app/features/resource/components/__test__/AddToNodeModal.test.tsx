@@ -26,7 +26,6 @@ import { AddToNodeModal } from '../AddToNodeModal';
 const renderModal = (props: Partial<React.ComponentProps<typeof AddToNodeModal>> = {}) => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => {}, warn: () => {}, error: () => {} },
   });
   const onClose = vi.fn();
   const onSuccess = vi.fn();
@@ -114,7 +113,7 @@ describe('AddToNodeModal', () => {
     await waitFor(() => expect(getNodes).toHaveBeenCalled());
     await pick(screen.getAllByRole('combobox')[0], 'node-4');
     fireEvent.click(screen.getByRole('checkbox'));
-    expect(screen.getAllByRole('combobox')).toHaveLength(1);
+    await waitFor(() => expect(screen.getAllByRole('combobox')).toHaveLength(1));
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
     await waitFor(() => expect(createResourceOnNode).toHaveBeenCalledWith('res-a', 'node-4', true, undefined));
   });

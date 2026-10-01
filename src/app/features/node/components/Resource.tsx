@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import Chart from 'react-apexcharts';
+import Chart from '@app/components/Chart';
 
 import { useThemeMode } from '@app/hooks';
 

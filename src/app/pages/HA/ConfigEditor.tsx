@@ -29,7 +29,7 @@ const ConfigEditor = () => {
 
   const editorRef = useRef<OcfAgentEditorRef>(null);
 
-  const { data: haResources, isLoading: haLoading } = useHA();
+  const { data: haResources, isPending: haLoading } = useHA();
   const [filePath, setFilePath] = useState<string | null>(urlFilePath);
 
   useEffect(() => {
@@ -48,8 +48,8 @@ const ConfigEditor = () => {
   const [tomlContent, setTomlContent] = useState<string>('');
   const [loaded, setLoaded] = useState(isCreate); // Loaded by default for create mode
 
-  const { mutateAsync: createFileAsync, isLoading: isCreating } = useCreateFile();
-  const { mutateAsync: deployFileAsync, isLoading: isDeploying } = useDeployFile();
+  const { mutateAsync: createFileAsync, isPending: isCreating } = useCreateFile();
+  const { mutateAsync: deployFileAsync, isPending: isDeploying } = useDeployFile();
 
   const [showDirtyModal, setShowDirtyModal] = useState(false);
 
@@ -142,7 +142,7 @@ const ConfigEditor = () => {
       >
         {isLoading ? (
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-            <Spin tip={t('common:loading')} />
+            <Spin description={t('common:loading')} />
           </div>
         ) : (
           <OcfAgentEditor

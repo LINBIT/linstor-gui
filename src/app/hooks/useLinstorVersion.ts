@@ -33,7 +33,7 @@ export const useLinstorVersion = () => {
   return {
     restApiVersion,
     isFetched: query.isFetched,
-    isLoading: query.isLoading,
+    isLoading: query.isPending,
     hasMinVersion: (min: string) => compareVersions(restApiVersion, min),
   };
 };

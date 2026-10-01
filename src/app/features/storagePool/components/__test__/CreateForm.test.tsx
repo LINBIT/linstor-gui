@@ -40,7 +40,6 @@ const ok = { data: [{ ret_code: 1 }] };
 const renderForm = () => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => {}, warn: () => {}, error: () => {} },
   });
   render(
     <QueryClientProvider client={client}>
@@ -160,7 +159,7 @@ describe('storage pool CreateForm', () => {
   it('an existing volume group creates the pool directly with the driver name', async () => {
     renderForm();
     fireEvent.click(screen.getByText('Existing Device'));
-    expect(screen.queryByText('Multiple Nodes')).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByText('Multiple Nodes')).not.toBeInTheDocument());
     typeName('pool-vg');
     await pick(nodeSelect(), 'node-2');
     fireEvent.mouseDown(typeSelect());

@@ -9,7 +9,7 @@ import { logger } from '@app/utils/logger';
 import PageBasic from '@app/components/PageBasic';
 import { useAuth, useUsers } from '@app/features/authentication/useAuth';
 import { useSettings } from '@app/features/settings/useSettings';
-import { Avatar, List, Divider, Alert } from 'antd';
+import { Avatar, Divider, Alert } from 'antd';
 import bg from '@app/assets/user_bg.svg';
 import { BG, MainContent, StyledSection } from './styled';
 import { QuestionCircleOutlined } from '@ant-design/icons';
@@ -25,6 +25,7 @@ import { Button } from '@app/components/Button';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
 import { withQuietToasts } from '@app/utils/toast';
+import { ItemList } from '@app/components/ItemList';
 
 export const UserManagement = () => {
   const { deleteUser } = useAuth();
@@ -102,7 +103,7 @@ export const UserManagement = () => {
       <StyledSection>
         <BG src={bg} title="bg" />
         <MainContent>
-          <Alert message={t('users:removal_warning')} type="warning" showIcon style={{ marginBottom: 20 }} />
+          <Alert title={t('users:removal_warning')} type="warning" showIcon style={{ marginBottom: 20 }} />
           {isAdminOrNotEnabled && (
             <>
               <div>
@@ -113,7 +114,7 @@ export const UserManagement = () => {
                   unCheckedChildren={t('users:switch_off')}
                   checked={checked}
                   onChange={handleToggleEnableAuthentication}
-                  loading={toggleMutation.isLoading}
+                  loading={toggleMutation.isPending}
                   disabled={!isAdminOrNotEnabled}
                 />
               </div>
@@ -126,11 +127,11 @@ export const UserManagement = () => {
           </div>
           {users && users.length > 0 ? (
             <>
-              <List
-                itemLayout="horizontal"
-                dataSource={users.map((user) => ({ title: user }))}
+              <ItemList
+                items={users.map((user) => ({ title: user }))}
+                rowKey={(user) => user.title}
                 renderItem={(user, index) => (
-                  <List.Item
+                  <ItemList.Item
                     className={del.isDeleting(user.title) ? deletingRowClass : undefined}
                     actions={[
                       <ChangePassword key="change" admin user={user.title} disabled={!isAdmin} />,
@@ -150,7 +151,7 @@ export const UserManagement = () => {
                       </Popconfirm>,
                     ]}
                   >
-                    <List.Item.Meta
+                    <ItemList.Meta
                       avatar={
                         <Avatar style={{ backgroundColor: '#f7a75c', verticalAlign: 'middle' }} size="large">
                           {user.title.slice(0, 1).toUpperCase()}
@@ -163,7 +164,7 @@ export const UserManagement = () => {
                       }
                       description={`${t('users:user_description')} ${index + 1}`}
                     />
-                  </List.Item>
+                  </ItemList.Item>
                 )}
               />
             </>

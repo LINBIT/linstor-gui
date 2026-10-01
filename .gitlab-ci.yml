@@ -3,7 +3,7 @@ variables:
 # published build-helpers docker image (carrying pulp-cli and lbbuildctl).
   BUILD_HELPERS_VERSION: bbebcdb3f5f69354111219750b347d30f81f41a9
 
-image: node:22
+image: node:24
 
 stages:
   - test
@@ -151,7 +151,7 @@ e2e:
 
 # Build the release tarball with node, then hand it to the deploy job: the
 # upload moved from the retired Nexus to Pulp, and the pulp CLI lives in the
-# build-helpers image, not in node:22.
+# build-helpers image, not in node:24.
 build:
   stage: build
   rules:

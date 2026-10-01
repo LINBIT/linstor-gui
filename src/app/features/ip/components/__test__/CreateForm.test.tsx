@@ -22,7 +22,7 @@ import { createNetWorkInterface } from '../../api';
 import { CreateForm } from '../CreateForm';
 
 const renderForm = () => {
-  const client = new QueryClient({ logger: { log: () => {}, warn: () => {}, error: () => {} } });
+  const client = new QueryClient();
   const refetch = vi.fn();
   render(
     <QueryClientProvider client={client}>

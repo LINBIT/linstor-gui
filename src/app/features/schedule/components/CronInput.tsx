@@ -148,7 +148,7 @@ const CronInput: React.FC<CronInputProps> = ({ value = '', onChange }) => {
 
       {inputError && (
         <div className="mt-1">
-          <Alert message={inputError} type="error" showIcon style={{ padding: '2px 8px', fontSize: '12px' }} />
+          <Alert title={inputError} type="error" showIcon style={{ padding: '2px 8px', fontSize: '12px' }} />
         </div>
       )}
 
@@ -177,7 +177,7 @@ const CronInput: React.FC<CronInputProps> = ({ value = '', onChange }) => {
         {error && (
           <div className="mt-2">
             <Alert
-              message={t('schedule:invalid_cron_expression')}
+              title={t('schedule:invalid_cron_expression')}
               description={error.description}
               type="error"
               showIcon

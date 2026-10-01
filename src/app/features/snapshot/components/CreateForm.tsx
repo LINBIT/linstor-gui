@@ -23,8 +23,8 @@ import { createSnapshot } from '../api';
 
 type FormType = {
   name: string;
-  node: string[];
-  resource: string;
+  nodes: string[];
+  resource_name: string;
 };
 
 type CollectionCreateFormProps = {
@@ -53,7 +53,7 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
     .map((e) => e.node_name);
   const resourceStoragePool = resourceObj?.props?.StorPoolName;
 
-  const { data, isLoading } = useQuery({
+  const { data, isPending } = useQuery({
     queryKey: ['getStoragePool', resourceStoragePool],
     queryFn: () =>
       getStoragePool({
@@ -80,7 +80,7 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
   });
 
   const canDoSnapshot = data?.data?.every((e) => e.supports_snapshots);
-  const disabledStatus = resource && !canDoSnapshot && !isLoading;
+  const disabledStatus = !!resource && !canDoSnapshot && !isPending;
 
   return (
     <>
@@ -124,7 +124,7 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
                   });
               }}
               disabled={disabledStatus}
-              loading={createResourceMutation.isLoading}
+              loading={createResourceMutation.isPending}
             >
               {t('common:submit')}
             </Button>
@@ -139,7 +139,7 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
           layout="horizontal"
           form={form}
         >
-          {resource && !canDoSnapshot && !isLoading && (
+          {resource && !canDoSnapshot && !isPending && (
             <div style={{ color: 'red', marginBottom: 20 }}>
               The storage pool does not support snapshots, please select another resource
             </div>

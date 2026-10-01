@@ -21,7 +21,6 @@ const mockedConfig = vi.mocked(getControllerConfig);
 const renderStatus = () => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => undefined, warn: () => undefined, error: () => undefined },
   });
   return render(
     <QueryClientProvider client={client}>

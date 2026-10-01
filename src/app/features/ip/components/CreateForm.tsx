@@ -85,7 +85,7 @@ const CreateForm = ({ editing, node, refetch }: FormProps) => {
           <Button
             key="confirm"
             type="primary"
-            loading={createNetWorkInterfaceMutation.isLoading}
+            loading={createNetWorkInterfaceMutation.isPending}
             onClick={() => {
               form
                 .validateFields()

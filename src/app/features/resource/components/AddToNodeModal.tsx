@@ -87,7 +87,7 @@ export const AddToNodeModal: React.FC<AddToNodeModalProps> = ({
         <Button key="cancel" onClick={onClose}>
           {t('common:cancel')}
         </Button>,
-        <Button key="submit" type="primary" loading={mutation.isLoading} onClick={handleOk}>
+        <Button key="submit" type="primary" loading={mutation.isPending} onClick={handleOk}>
           {t('common:submit')}
         </Button>,
       ]}

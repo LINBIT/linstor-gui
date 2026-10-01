@@ -21,7 +21,7 @@ import { captureConsoleError } from '@app/testing/console';
 const ok = { data: [{ ret_code: 1 }] };
 
 const renderModal = (props: Partial<React.ComponentProps<typeof ScheduleModal>> = {}) => {
-  const client = new QueryClient({ logger: { log: () => {}, warn: () => {}, error: () => {} } });
+  const client = new QueryClient();
   const refetch = vi.fn();
   render(
     <QueryClientProvider client={client}>

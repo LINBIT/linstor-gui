@@ -17,7 +17,7 @@ import { rollbackSnapshot } from '../../api';
 import { RollbackSnapshotForm } from '../RollbackForm';
 
 const renderForm = (props: Partial<React.ComponentProps<typeof RollbackSnapshotForm>> = {}) => {
-  const client = new QueryClient({ logger: { log: () => {}, warn: () => {}, error: () => {} } });
+  const client = new QueryClient();
   const onClose = vi.fn();
   const onSuccess = vi.fn();
   render(

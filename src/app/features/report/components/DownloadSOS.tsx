@@ -4,8 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { Button } from '@app/components/Button';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
@@ -29,23 +28,12 @@ const downloadFile = async () => {
 };
 
 const DownloadSOS = () => {
-  const [downloading, setDownloading] = useState(false);
-  const { refetch } = useQuery({
-    queryKey: ['downloadSOS'],
-    queryFn: () => downloadFile(),
-    enabled: false,
-  });
-
-  const handleDownload = async () => {
-    setDownloading(true);
-    await refetch();
-    setDownloading(false);
-  };
+  const download = useMutation({ mutationFn: downloadFile });
 
   const { t } = useTranslation('error_report');
 
   return (
-    <Button type="primary" onClick={handleDownload} loading={downloading}>
+    <Button type="primary" onClick={() => download.mutate()} loading={download.isPending}>
       {t('download_sos')}
     </Button>
   );

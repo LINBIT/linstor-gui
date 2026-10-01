@@ -35,7 +35,7 @@ const renderList = (list: NetWorkInterface[] = interfaces) => {
 };
 
 const itemByText = (container: HTMLElement, text: string) => {
-  const item = Array.from(container.querySelectorAll('.ant-list-item')).find((el) => el.textContent?.includes(text)) as
+  const item = Array.from(container.querySelectorAll('li')).find((el) => el.textContent?.includes(text)) as
     HTMLElement | undefined;
   expect(item).toBeDefined();
   return item as HTMLElement;
@@ -96,7 +96,7 @@ describe('NetInterfaceList', () => {
   it('renders nothing but the empty state without interfaces', () => {
     const { container } = renderList([]);
 
-    expect(container.querySelectorAll('.ant-list-item')).toHaveLength(0);
+    expect(container.querySelectorAll('li')).toHaveLength(0);
     // antd renders the empty text twice (visible + screen-reader copy).
     expect(container.querySelector('.ant-empty')).not.toBeNull();
   });

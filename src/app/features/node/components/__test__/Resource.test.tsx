@@ -8,7 +8,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Resource } from '../Resource';
 
-// Mock react-apexcharts
+// Mock the chart
 const mockChartRender = vi.fn();
 
 interface MockChartProps {
@@ -22,7 +22,7 @@ interface MockChartProps {
   height: number;
 }
 
-vi.mock('react-apexcharts', () => ({
+vi.mock('@app/components/Chart', () => ({
   default: (props: MockChartProps) => {
     mockChartRender(props);
     return (

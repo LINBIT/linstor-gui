@@ -227,7 +227,7 @@ const ControllerAuthGate = ({ children }: ControllerAuthGateProps) => {
               </Typography.Paragraph>
             </div>
 
-            {errorMessage ? <Alert type="error" message={errorMessage} showIcon /> : null}
+            {errorMessage ? <Alert type="error" title={errorMessage} showIcon /> : null}
 
             <Form form={form} layout="vertical" onFinish={handleSubmit}>
               <Form.Item

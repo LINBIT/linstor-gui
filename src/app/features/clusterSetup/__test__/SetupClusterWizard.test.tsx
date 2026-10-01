@@ -48,7 +48,6 @@ const renderWizard = () => {
   const onCompleted = vi.fn();
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => undefined, warn: () => undefined, error: () => undefined },
   });
   const utils = render(
     <QueryClientProvider client={client}>

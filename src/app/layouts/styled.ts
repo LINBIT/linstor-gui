@@ -85,7 +85,7 @@ export const Warning = styled(SVG)`
 `;
 
 export const StyledModal = styled(Modal)`
-  .ant-modal-content {
+  .ant-modal-container {
     border-radius: 16px;
   }
   .ant-modal-header {

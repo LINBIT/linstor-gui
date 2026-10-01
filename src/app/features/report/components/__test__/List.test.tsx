@@ -69,7 +69,6 @@ const reports = [
 const renderList = (initialEntry = '/error-reports') => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => {}, warn: () => {}, error: () => {} },
   });
   return render(
     <QueryClientProvider client={client}>
@@ -366,7 +365,7 @@ describe('error report List from REST 1.30.0 (paged on the controller)', () => {
     expect(lastPageQuery()).toMatchObject({ limit: 10, offset: 20 });
     expect(shownIds()[0]).toBe('R004-000000');
 
-    fireEvent.mouseDown(document.querySelector('.ant-pagination-options .ant-select-selector') as HTMLElement);
+    fireEvent.mouseDown(document.querySelector('.ant-pagination-options .ant-select') as HTMLElement);
     fireEvent.click(await screen.findByText('20 / page', { selector: '.ant-select-item-option-content' }));
     // A new page size starts over from page one.
     await waitFor(() => expect(lastPageQuery()).toMatchObject({ limit: 20, offset: 0 }));

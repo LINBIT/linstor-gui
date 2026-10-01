@@ -25,7 +25,7 @@ export const List = () => {
   const { t } = useTranslation(['remote', 'common']);
 
   const {
-    isLoading,
+    isPending,
     refetch,
     data: dataList,
   } = useQuery({
@@ -153,7 +153,7 @@ export const List = () => {
           showSizeChanger: true,
           showTotal: (total) => t('common:total_items', { total }),
         }}
-        loading={isLoading}
+        loading={isPending}
         rowClassName={(record) => (del.isDeleting(record.schedule_name) ? deletingRowClass : '')}
       />
     </>

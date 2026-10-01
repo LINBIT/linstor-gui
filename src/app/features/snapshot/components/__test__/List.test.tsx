@@ -58,6 +58,7 @@ vi.mock('@app/features/settings/useSettings', async (importOriginal) => ({
 }));
 import { getSnapshots, deleteSnapshot, rollbackSnapshot } from '../../api';
 import { getResources } from '@app/features/resource';
+import { getResources as getResourcesForRestore } from '@app/features/resource/api';
 import { List } from '../List';
 
 const GIB = 1024 * 1024;
@@ -98,7 +99,6 @@ const snapshots = [
 const renderList = (initialEntry = '/snapshot') => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => {}, warn: () => {}, error: () => {} },
   });
   return render(
     <QueryClientProvider client={client}>
@@ -137,6 +137,7 @@ describe('snapshot List', () => {
     vi.mocked(getResources).mockResolvedValue({
       data: [{ name: 'res-a' }, { name: 'res-a' }, { name: 'res-b' }],
     } as never);
+    vi.mocked(getResourcesForRestore).mockResolvedValue({ data: [] } as never);
   });
 
   it('renders every snapshot with nodes, volumes, creation time and state', async () => {

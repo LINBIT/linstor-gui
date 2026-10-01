@@ -45,7 +45,7 @@ const rowNames = () =>
   );
 
 const pickPlatform = async (label: string) => {
-  fireEvent.mouseDown(document.querySelector('.ant-select-selector') as Element);
+  fireEvent.mouseDown(document.querySelector('.ant-select') as Element);
   const option = await waitFor(() => {
     const found = document.querySelector(`.ant-select-item-option[title="${label}"]`);
     if (!found) throw new Error(`option ${label} not rendered`);

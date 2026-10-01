@@ -78,7 +78,7 @@ export const List = () => {
     };
   });
 
-  const { isLoading, refetch } = useQuery({
+  const { isPending, refetch } = useQuery({
     queryKey: ['getRemotes', query],
     queryFn: async () => {
       const res = await getRemoteList();
@@ -124,6 +124,7 @@ export const List = () => {
         }),
       );
       setDataList(listWithCount);
+      return listWithCount;
     },
   });
 
@@ -338,7 +339,7 @@ export const List = () => {
           showSizeChanger: true,
           showTotal: (total) => t('common:total_items', { total }),
         }}
-        loading={isLoading}
+        loading={isPending}
         rowClassName={(record) => (del.isDeleting(record.remote_name ?? '') ? deletingRowClass : '')}
       />
     </>

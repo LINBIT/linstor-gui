@@ -98,7 +98,6 @@ const resourcesView: Record<string, unknown[]> = {
 const renderList = () => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => {}, warn: () => {}, error: () => {} },
   });
   return render(
     <QueryClientProvider client={client}>
@@ -147,7 +146,10 @@ describe('DRBD Reactor List', () => {
     } as never);
     vi.mocked(getFileContent).mockResolvedValue({ data: { path: MYSQL_PATH, content: btoa('[[promoter]]') } } as never);
     vi.mocked(getResources).mockImplementation(
-      async (name?: string) => ({ data: resourcesView[name ?? ''] ?? [] }) as never,
+      async (name?: string) =>
+        ({
+          data: resourcesView[name ?? ''] ?? [],
+        }) as never,
     );
     vi.mocked(getDrbdReactorStatus).mockImplementation(later(runningStatus));
     vi.mocked(evictDrbdReactor).mockResolvedValue([{ node: 'node-a', exit_code: 0, active_node: 'node-b' }] as never);

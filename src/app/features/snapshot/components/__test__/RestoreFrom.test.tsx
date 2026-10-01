@@ -30,7 +30,6 @@ const ok = { data: [{ ret_code: 1 }] };
 const renderRestore = (props: Partial<React.ComponentProps<typeof RestoreFrom>> = {}) => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => {}, warn: () => {}, error: () => {} },
   });
   return render(
     <QueryClientProvider client={client}>

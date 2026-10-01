@@ -30,7 +30,6 @@ const brandInputCss = `
 
   &:focus,
   &.ant-input:focus,
-  &.ant-input-focused,
   &.ant-input-affix-wrapper:focus,
   &.ant-input-affix-wrapper-focused {
     border-color: ${BRAND} !important;
@@ -38,8 +37,7 @@ const brandInputCss = `
   }
 
   /* keep the inner <input> of affix wrappers from drawing its own ring */
-  .ant-input:focus,
-  .ant-input-focused {
+  .ant-input:focus {
     box-shadow: none !important;
   }
 `;

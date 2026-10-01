@@ -44,11 +44,11 @@ export const List = () => {
   const [modifyContent, setModifyContent] = useState('');
   const [modifyLoading, setModifyLoading] = useState(false);
 
-  const { data: files, refetch, isLoading } = useFiles(false);
-  const { data: resourceDefinitions, isLoading: rdLoading } = useResourceDefinitions();
+  const { data: files, refetch, isPending } = useFiles(false);
+  const { data: resourceDefinitions, isPending: rdLoading } = useResourceDefinitions();
 
   // Get file with content for the modal
-  const { data: fileContent, isLoading: contentLoading } = useQuery({
+  const { data: fileContent, isPending: contentLoading } = useQuery({
     queryKey: ['fileContent', selectedFilePath],
     queryFn: () => getFile(selectedFilePath || ''),
     enabled: !!selectedFilePath,
@@ -328,7 +328,7 @@ export const List = () => {
         columns={columns}
         dataSource={filteredFiles}
         rowKey={(item) => item.path ?? uniqId()}
-        loading={isLoading}
+        loading={isPending}
         rowClassName={(record) => (record.path && del.isDeleting(record.path) ? deletingRowClass : '')}
         pagination={{
           total: filteredFiles.length,
@@ -347,7 +347,7 @@ export const List = () => {
         onOk={handleModifyConfirm}
         okText={t('common:save')}
         cancelText={t('common:cancel')}
-        confirmLoading={createOrUpdateMutation.isLoading}
+        confirmLoading={createOrUpdateMutation.isPending}
         width={700}
       >
         <Spin spinning={modifyLoading}>
@@ -411,7 +411,7 @@ export const List = () => {
           setSelectedResource(null);
         }}
         onOk={handleDeployConfirm}
-        confirmLoading={deployMutation.isLoading}
+        confirmLoading={deployMutation.isPending}
         okText={t('common:confirm')}
         cancelText={t('common:cancel')}
       >

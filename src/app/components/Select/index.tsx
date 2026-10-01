@@ -12,11 +12,11 @@ const BRAND = tokens.color.brand.primary;
 const FOCUS_SHADOW = `0 0 0 2px ${tokens.focusRing}`;
 
 const StyledSelect = styled(AntSelect)`
-  &.ant-select:not(.ant-select-disabled):hover .ant-select-selector {
+  &.ant-select:not(.ant-select-disabled):hover {
     border-color: ${BRAND} !important;
   }
 
-  &.ant-select-focused:not(.ant-select-disabled):not(.ant-select-customize-input) .ant-select-selector {
+  &.ant-select-focused:not(.ant-select-disabled) {
     border-color: ${BRAND} !important;
     box-shadow: ${FOCUS_SHADOW} !important;
   }

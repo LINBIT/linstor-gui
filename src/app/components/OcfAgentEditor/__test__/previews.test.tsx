@@ -29,7 +29,7 @@ const unit = (original: string): OcfAgentWithMetadata => ({
   instanceId: 1,
 });
 
-const preview = () => document.querySelector('.ant-card-body > .ant-spin-nested-loading div[style]') as HTMLElement;
+const preview = () => document.querySelector('.ant-card-body > .ant-spin div[style]') as HTMLElement;
 
 describe('AgentPreview', () => {
   it('renders the start array with quoting for values that need it', () => {

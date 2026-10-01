@@ -106,7 +106,7 @@ export const List = () => {
   const {
     data: resourceGroups,
     refetch,
-    isLoading,
+    isPending,
   } = useQuery({
     queryKey: ['getResourceGroups', query],
     queryFn: () => getResourceGroups(query),
@@ -135,7 +135,7 @@ export const List = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resourceGroupNames.join(','), volumeGroupQueries.map((q) => q.dataUpdatedAt).join(',')]);
 
-  const { data: stats, isLoading: isStatsLoading } = useQuery({
+  const { data: stats, isPending: isStatsLoading } = useQuery({
     queryKey: ['getResourceGroupCount'],
     queryFn: () => getResourceGroupCount(),
   });
@@ -503,7 +503,7 @@ export const List = () => {
             });
           },
         }}
-        loading={isLoading || isStatsLoading}
+        loading={isPending || isStatsLoading}
       />
 
       <PropertyForm

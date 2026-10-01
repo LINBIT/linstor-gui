@@ -41,7 +41,6 @@ const resourceDefinitions = [
 const renderList = () => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => {}, warn: () => {}, error: () => {} },
   });
   return render(
     <QueryClientProvider client={client}>
@@ -73,7 +72,10 @@ describe('files List', () => {
     vi.mocked(getFiles).mockResolvedValue({ data: files } as never);
     vi.mocked(getResourceDefinition).mockResolvedValue({ data: resourceDefinitions } as never);
     vi.mocked(getFile).mockImplementation(
-      async (path: string) => ({ data: { path, content: btoa(`content of ${path}`) } }) as never,
+      async (path: string) =>
+        ({
+          data: { path, content: btoa(`content of ${path}`) },
+        }) as never,
     );
     for (const fn of [createOrUpdateFile, deleteFile, deployFile, undeployFile]) {
       vi.mocked(fn).mockResolvedValue({ data: [{ ret_code: 1 }] } as never);

@@ -19,7 +19,6 @@ vi.mock('../../api', () => ({
 const wrapper = ({ children }: { children: React.ReactNode }) => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => undefined, warn: () => undefined, error: () => undefined },
   });
   return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 };
@@ -42,8 +41,8 @@ describe('useNodeNetWorkInterface', () => {
 
     const { result } = renderHook(() => useNodeNetWorkInterface(), { wrapper });
 
-    expect(result.current.isLoading).toBe(true);
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.isPending).toBe(true);
+    await waitFor(() => expect(result.current.isPending).toBe(false));
     expect(result.current.data).toEqual([
       { prefix: '10.0.0.', mask: 24 },
       { prefix: '192.168.1.', mask: 16 },

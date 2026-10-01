@@ -81,9 +81,7 @@ const pickOption = async (title: string, match: '=' | '^=' = '=') => {
 
 // Inactive tab panes stay in the DOM, so read the preview of the active one only.
 const previewText = () => {
-  const el = document.querySelector(
-    '.ant-tabs-tabpane-active .ant-spin-nested-loading div[style*="monospace"]',
-  ) as HTMLElement | null;
+  const el = document.querySelector('.ant-tabs-content-active .ant-spin div[style*="monospace"]') as HTMLElement | null;
   return el?.textContent ?? null;
 };
 

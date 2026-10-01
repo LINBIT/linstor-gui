@@ -102,7 +102,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
   const { t } = useTranslation(['resource_group', 'common']);
   const [expand, setExpand] = useState(false);
 
-  const { data, isLoading } = useQuery({
+  const { data, isPending } = useQuery({
     queryKey: ['getRGDetail', resourceGroup],
     queryFn: () => getResourceGroups({ resource_groups: [resourceGroup!] }),
     enabled: !!isEdit && !!resourceGroup,
@@ -142,7 +142,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
     navigate(-1);
   };
 
-  const { isLoading: storagePoolsIsLoading, data: storagePools } = useStoragePools();
+  const { isPending: storagePoolsIsLoading, data: storagePools } = useStoragePools();
 
   const createResourceGroupMutation = useMutation({
     mutationFn: (data: ResourceGroupCreateRequestBody) => createResourceGroup(data),
@@ -253,14 +253,14 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
   };
 
   const isSubmitting =
-    updateResourceGroupMutation.isLoading ||
-    addVolumeToResourceGroupMutation.isLoading ||
-    createResourceGroupMutation.isLoading ||
-    spawnResourceGroupMutation.isLoading;
+    updateResourceGroupMutation.isPending ||
+    addVolumeToResourceGroupMutation.isPending ||
+    createResourceGroupMutation.isPending ||
+    spawnResourceGroupMutation.isPending;
 
   const drbdLayer = layer_stack?.includes('drbd');
 
-  if (isEdit && isLoading) {
+  if (isEdit && isPending) {
     return <Spin />;
   }
 

@@ -39,7 +39,6 @@ const remotes = {
 const renderList = (initialEntry = '/remote') => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => {}, warn: () => {}, error: () => {} },
   });
   return render(
     <QueryClientProvider client={client}>

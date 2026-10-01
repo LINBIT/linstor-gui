@@ -124,7 +124,7 @@ describe('useFaultyResources Hook', () => {
     // Create a new QueryClient for each test
     queryClient = new QueryClient({
       defaultOptions: {
-        queries: { retry: false, cacheTime: 0 },
+        queries: { retry: false, gcTime: 0 },
         mutations: { retry: false },
       },
     });
@@ -162,7 +162,7 @@ describe('useFaultyResources Hook', () => {
       });
 
       await waitFor(() => {
-        expect(queryClient.getQueriesData(['getFaultyResources'])).toBeDefined();
+        expect(queryClient.getQueriesData({ queryKey: ['getFaultyResources'] })).toBeDefined();
       });
     });
 
@@ -321,7 +321,7 @@ describe('useFaultyResources Hook', () => {
       expect(mockGetResources).toHaveBeenCalledTimes(1);
 
       // Invalidate the query
-      await queryClient.invalidateQueries(['getFaultyResources']);
+      await queryClient.invalidateQueries({ queryKey: ['getFaultyResources'] });
 
       await waitFor(() => {
         expect(mockGetResources).toHaveBeenCalledTimes(2);
@@ -386,7 +386,7 @@ describe('useFaultyResources Hook', () => {
       // Create a custom QueryClient with caching enabled
       const cachingQueryClient = new QueryClient({
         defaultOptions: {
-          queries: { retry: false, cacheTime: 5000, staleTime: 1000 },
+          queries: { retry: false, gcTime: 5000, staleTime: 1000 },
           mutations: { retry: false },
         },
       });
@@ -477,7 +477,7 @@ describe('useFaultyResources Hook', () => {
         defaultOptions: {
           queries: {
             retry: 3,
-            cacheTime: 5000,
+            gcTime: 5000,
             staleTime: 1000,
           },
         },

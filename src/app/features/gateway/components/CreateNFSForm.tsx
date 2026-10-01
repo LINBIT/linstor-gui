@@ -22,6 +22,7 @@ import { notify } from '@app/utils/toast';
 import { createNFSExport, getNFSList } from '../api';
 import { useGatewayVersion, MIN_GATEWAY_VERSION } from '../hooks';
 import { NFSImplementation } from '../types';
+import { variablesOnly } from '@app/utils/mutation';
 
 type FormType = {
   name: string;
@@ -72,7 +73,7 @@ const CreateNFSForm = () => {
   };
 
   const createNFTMutation = useMutation({
-    mutationFn: createNFSExport,
+    mutationFn: variablesOnly(createNFSExport),
     onSuccess: () => {
       notify('Create NFS Export successfully', {
         type: 'success',
@@ -375,7 +376,7 @@ const CreateNFSForm = () => {
       </Form.List>
 
       <Form.Item wrapperCol={{ offset: 7, span: 17 }}>
-        <Button type="primary" htmlType="submit" loading={createNFTMutation.isLoading}>
+        <Button type="primary" htmlType="submit" loading={createNFTMutation.isPending}>
           {t('common:submit')}
         </Button>
 

@@ -26,12 +26,14 @@ const mockedStatus = vi.mocked(getPassphraseStatus);
 const mockedCreate = vi.mocked(createPassphrase);
 const mockedEnter = vi.mocked(enterPassPhrase);
 
-const status = (value: 'unset' | 'locked' | 'unlocked') => ({ data: { status: value } }) as never;
+const status = (value: 'unset' | 'locked' | 'unlocked') =>
+  ({
+    data: { status: value },
+  }) as never;
 
 const renderPrompt = () => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => undefined, warn: () => undefined, error: () => undefined },
   });
   return render(
     <QueryClientProvider client={client}>

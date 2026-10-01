@@ -9,13 +9,13 @@ import { getAllResources } from '../api';
 import { ResourceListQuery } from '../types';
 
 const useResources = (query?: ResourceListQuery) => {
-  const { isLoading, error, data } = useQuery({
+  const { isPending, error, data } = useQuery({
     queryKey: ['getAllResources', query],
     queryFn: () => getAllResources(query),
   });
 
   return {
-    isLoading,
+    isPending,
     error,
     data: data?.data,
   };

@@ -1373,10 +1373,8 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
     <>
       <style>
         {`
+          .ocf-agent-editor .ant-tabs-body,
           .ocf-agent-editor .ant-tabs-content {
-            height: 100%;
-          }
-          .ocf-agent-editor .ant-tabs-tabpane {
             height: 100%;
           }
         `}

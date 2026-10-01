@@ -69,7 +69,7 @@ export const NetInterfaceDetail = ({ item }: NetInterfaceDetailProp) => {
     setOpen(false);
   };
 
-  if (nodes.isLoading || networkQueries.some((item) => item.isLoading)) {
+  if (nodes.isPending || networkQueries.some((item) => item.isLoading)) {
     return <div>{t('node_detail:loading')}</div>;
   }
 

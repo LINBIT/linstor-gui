@@ -50,7 +50,6 @@ const ok = { data: [{ ret_code: 1 }] };
 const renderForm = (props: React.ComponentProps<typeof CreateResourceForm> = {}) => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => {}, warn: () => {}, error: () => {} },
   });
   render(
     <QueryClientProvider client={client}>
@@ -77,7 +76,9 @@ describe('CreateResourceForm', () => {
     // res-a already lives on node-1; nothing else is placed anywhere.
     vi.mocked(getResources).mockImplementation(
       async (query?: { resources?: string[] }) =>
-        ({ data: query?.resources?.includes('res-a') ? [{ name: 'res-a', node_name: 'node-1' }] : [] }) as never,
+        ({
+          data: query?.resources?.includes('res-a') ? [{ name: 'res-a', node_name: 'node-1' }] : [],
+        }) as never,
     );
   });
 
@@ -128,8 +129,10 @@ describe('CreateResourceForm', () => {
 
     const [, nodeSelect, poolSelect] = screen.getAllByRole('combobox');
     fireEvent.mouseDown(nodeSelect);
-    const nodes = await screen.findAllByText(/^node-/, { selector: '.ant-select-item-option-content' });
-    expect(nodes.map((n) => n.textContent)).toEqual(['node-2', 'node-3']);
+    // The list drops the nodes that have the resource once those have loaded.
+    const options = () => screen.getAllByText(/^node-/, { selector: '.ant-select-item-option-content' });
+    await waitFor(() => expect(options().map((n) => n.textContent)).toEqual(['node-2', 'node-3']));
+    const nodes = options();
     fireEvent.click(nodes[1]);
     await pick(poolSelect, 'pool-a');
     submit();

@@ -23,7 +23,6 @@ const GIB = 1024 * 1024;
 const renderForm = (props: Partial<React.ComponentProps<typeof CreateForm>> = {}) => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => {}, warn: () => {}, error: () => {} },
   });
   const refetch = vi.fn();
   const { unmount } = render(

@@ -284,14 +284,14 @@ const AuthTokens = () => {
 
   if (versionFetched && !hasMinVersion(MIN_API_VERSION.AUTH_TOKENS)) {
     return (
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <Space orientation="vertical" size="large" style={{ width: '100%' }}>
         <Title level={3} style={{ marginBottom: 4 }}>
           {t('authToken:title')}
         </Title>
         <Alert
           type="warning"
           showIcon
-          message={t('common:feature_unavailable')}
+          title={t('common:feature_unavailable')}
           description={t('common:feature_requires_api_version', { version: MIN_API_VERSION.AUTH_TOKENS })}
         />
       </Space>
@@ -300,14 +300,14 @@ const AuthTokens = () => {
 
   if (featureSupported && tokenAuthEnabled === false) {
     return (
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <Space orientation="vertical" size="large" style={{ width: '100%' }}>
         <Title level={3} style={{ marginBottom: 4 }}>
           {t('authToken:title')}
         </Title>
         <Alert
           type="warning"
           showIcon
-          message={t('authToken:auth_disabled_title')}
+          title={t('authToken:auth_disabled_title')}
           description={t('authToken:auth_disabled_description')}
           action={
             <Link to="/settings">
@@ -320,7 +320,7 @@ const AuthTokens = () => {
   }
 
   return (
-    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+    <Space orientation="vertical" size="large" style={{ width: '100%' }}>
       <div className="flex items-center justify-between gap-4">
         <div>
           <Title level={3} style={{ marginBottom: 4 }}>
@@ -344,7 +344,7 @@ const AuthTokens = () => {
         </Space>
       </div>
 
-      <Alert type="info" showIcon message={t('authToken:token_visibility_notice')} />
+      <Alert type="info" showIcon title={t('authToken:token_visibility_notice')} />
 
       <Card>
         <Table
@@ -404,7 +404,7 @@ const AuthTokens = () => {
           </div>
         }
       >
-        <Alert type="warning" showIcon message={t('authToken:created_token_notice')} />
+        <Alert type="warning" showIcon title={t('authToken:created_token_notice')} />
         <Input.TextArea value={createdToken ?? ''} readOnly autoSize style={{ marginTop: 16 }} />
       </Modal>
     </Space>

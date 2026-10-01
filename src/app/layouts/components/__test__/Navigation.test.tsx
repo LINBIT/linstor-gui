@@ -19,14 +19,16 @@ vi.mock('@app/features/node/api', async (importOriginal) => ({
 
 const mockedVersion = vi.mocked(getControllerVersion);
 
-const version = (restApi: string) => ({ data: { rest_api_version: restApi } }) as never;
+const version = (restApi: string) =>
+  ({
+    data: { rest_api_version: restApi },
+  }) as never;
 
 type Props = React.ComponentProps<typeof Navigation>;
 
 const renderNav = (path = '/', props: Props = {}) => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => undefined, warn: () => undefined, error: () => undefined },
   });
   return render(
     <QueryClientProvider client={client}>

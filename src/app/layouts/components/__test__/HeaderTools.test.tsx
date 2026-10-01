@@ -62,7 +62,6 @@ type Props = React.ComponentProps<typeof HeaderTools>;
 const renderTools = (props: Partial<Props> = {}) => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => undefined, warn: () => undefined, error: () => undefined },
   });
   const onModeChange = vi.fn();
   const handleSupportClick = vi.fn();

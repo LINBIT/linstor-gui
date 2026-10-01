@@ -287,7 +287,7 @@ const ResourceNodes: React.FC<ResourceNodesProps> = ({ resourceName, reactorStat
           <Tooltip
             title={nodeTooltipContent}
             key={resourceObj.node_name}
-            styles={{ root: { maxWidth: 'none' }, body: { width: 'max-content', maxWidth: 'none', padding: 12 } }}
+            styles={{ root: { maxWidth: 'none' }, container: { width: 'max-content', maxWidth: 'none', padding: 12 } }}
           >
             {tag}
           </Tooltip>
@@ -349,7 +349,7 @@ const FileContentModal: React.FC<FileContentModalProps> = ({ filePath, visible, 
 
 export const List = () => {
   const { t } = useTranslation(['ha', 'common']);
-  const { data, isLoading } = useHA();
+  const { data, isPending: isLoading } = useHA();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -740,7 +740,7 @@ export const List = () => {
         return tooltipContent ? (
           <Tooltip
             title={tooltipContent}
-            styles={{ root: { maxWidth: 'none' }, body: { width: 'max-content', maxWidth: 'none', padding: 12 } }}
+            styles={{ root: { maxWidth: 'none' }, container: { width: 'max-content', maxWidth: 'none', padding: 12 } }}
           >
             {tag}
           </Tooltip>
@@ -761,7 +761,7 @@ export const List = () => {
         if (!record.props) return '-';
         const configFiles = Object.keys(record.props).filter((key) => key.startsWith('files/etc/drbd-reactor.d/'));
         return (
-          <Space size={4} direction="vertical">
+          <Space size={4} orientation="vertical">
             {configFiles.map((file) => (
               <Text key={file} code>
                 {file.replace('files/', '/')}
@@ -1022,7 +1022,7 @@ export const List = () => {
             <Button
               type="primary"
               disabled={!manageFile || !manageResource}
-              loading={manageMutation.isLoading}
+              loading={manageMutation.isPending}
               onClick={handleManageSubmit}
             >
               Manage

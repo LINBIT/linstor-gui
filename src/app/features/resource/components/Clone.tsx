@@ -65,7 +65,7 @@ const CloneForm = ({ resource, isUsingZFS }: SpawnFormProps) => {
             <Button type="secondary" onClick={() => setShowForm(false)}>
               {t('common:cancel')}
             </Button>
-            <Button type="primary" loading={cloneResourceMutation.isLoading} onClick={() => form.submit()}>
+            <Button type="primary" loading={cloneResourceMutation.isPending} onClick={() => form.submit()}>
               {t('common:clone')}
             </Button>
           </>

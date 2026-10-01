@@ -54,7 +54,7 @@ vi.mock('@app/components/GrafanaCharts', () => ({
 }));
 
 // apexcharts needs a real layout engine; the series is what the page computes.
-vi.mock('react-apexcharts', () => ({
+vi.mock('@app/components/Chart', () => ({
   default: ({ series, options }: { series: unknown; options: unknown }) => (
     <div data-testid="chart">{JSON.stringify({ series, options })}</div>
   ),
@@ -206,7 +206,7 @@ describe('NodeDetail', () => {
   it('deletes an interface on this node and reloads the list', async () => {
     const { container } = await renderDetail();
 
-    const item = Array.from(container.querySelectorAll('.ant-list-item')).find((el) =>
+    const item = Array.from(container.querySelectorAll('li')).find((el) =>
       el.textContent?.includes('backup'),
     ) as HTMLElement;
     fireEvent.click(within(item).getByRole('button', { name: 'Delete' }));
@@ -219,7 +219,7 @@ describe('NodeDetail', () => {
   it('activates an interface by re-sending it with is_active', async () => {
     const { container } = await renderDetail();
 
-    const item = Array.from(container.querySelectorAll('.ant-list-item')).find((el) =>
+    const item = Array.from(container.querySelectorAll('li')).find((el) =>
       el.textContent?.includes('backup'),
     ) as HTMLElement;
     fireEvent.click(within(item).getByRole('button', { name: 'Set as active' }));

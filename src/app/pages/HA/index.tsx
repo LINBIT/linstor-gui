@@ -25,7 +25,7 @@ const HA = () => {
         <Alert
           type="warning"
           showIcon
-          message={t('common:feature_unavailable')}
+          title={t('common:feature_unavailable')}
           description={t('common:feature_requires_api_version', { version: MIN_API_VERSION.HA })}
         />
       </PageBasic>

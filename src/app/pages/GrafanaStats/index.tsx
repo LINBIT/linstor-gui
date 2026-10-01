@@ -202,7 +202,7 @@ const GrafanaStats: React.FC = () => {
       <PageBasic title={`${t('settings:node_stats_title')} - ${nodeName || 'Unknown'}`}>
         <Card>
           <Alert
-            message={t('common:error')}
+            title={t('common:error')}
             description={error}
             type="error"
             showIcon
@@ -278,7 +278,7 @@ const GrafanaStats: React.FC = () => {
           {/* DRBD Reactor dashboard message when disabled */}
           {!grafanaConfig?.drbdEnable && (
             <Alert
-              message={t('settings:drbd_reactor_dashboard')}
+              title={t('settings:drbd_reactor_dashboard')}
               description={t('settings:drbd_reactor_dashboard_info')}
               type="info"
               showIcon

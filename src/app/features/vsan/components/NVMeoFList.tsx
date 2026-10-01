@@ -38,7 +38,7 @@ export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
   const { t } = useTranslation();
   const [api, contextHolder] = notification.useNotification();
 
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isPending, refetch } = useQuery({
     queryKey: ['getNVMeoFTarget'],
     queryFn: () => getNVMeoFTarget(),
     refetchInterval: REFETCH_INTERVAL,
@@ -48,13 +48,13 @@ export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
     mutationFn: (nqn: string) => deleteNVMeExport(nqn),
     onSuccess: () => {
       api.success({
-        message: 'Delete NVMe-oF target successfully',
+        title: 'Delete NVMe-oF target successfully',
       });
       refetch();
     },
     onError: (err: ErrorMessage) => {
       api.error({
-        message: err?.message,
+        title: err?.message,
         description: err?.detail,
         duration: 0,
       });
@@ -118,7 +118,7 @@ export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
               refetch={refetch}
             />
             <Popconfirm title={t('iscsi:are_you_sure_delete_target')} onConfirm={() => deleteTarget.mutate(target.nqn)}>
-              <Button danger loading={deleteTarget.isLoading}>
+              <Button danger loading={deleteTarget.isPending}>
                 Delete
               </Button>
             </Popconfirm>
@@ -174,7 +174,7 @@ export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
         bordered={false}
         columns={columns}
         dataSource={handleTargetData(data?.data ?? [])}
-        loading={isLoading}
+        loading={isPending}
         pagination={false}
       />
     </div>

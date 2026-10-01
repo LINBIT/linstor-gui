@@ -15,6 +15,7 @@ import { useMutation } from '@tanstack/react-query';
 import { createSchedule, modifySchedule } from '../api';
 import CronInput from './CronInput';
 import { useTranslation } from 'react-i18next';
+import { variablesOnly } from '@app/utils/mutation';
 
 const { Option } = Select;
 
@@ -44,7 +45,8 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
   const { t } = useTranslation(['schedule', 'common']);
 
   // Mutation for creating a schedule
-  const createMutation = useMutation(createSchedule, {
+  const createMutation = useMutation({
+    mutationFn: variablesOnly(createSchedule),
     onSuccess: () => {
       message.success('Schedule created successfully!');
       refetch();
@@ -57,8 +59,8 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
   });
 
   // Mutation for modifying a schedule
-  const modifyMutation = useMutation(
-    (values: Schedule) => {
+  const modifyMutation = useMutation({
+    mutationFn: (values: Schedule) => {
       // The name is the path parameter, not part of the modify body.
       const { schedule_name: _scheduleName, ...restValues } = values;
       if (!schedule || !schedule.schedule_name) {
@@ -66,17 +68,17 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
       }
       return modifySchedule(schedule.schedule_name, restValues);
     },
-    {
-      onSuccess: () => {
-        refetch();
-        handleCancel();
-      },
-      onError: (error) => {
-        logger.error('Error modifying schedule:', error);
-        message.error('Failed to modify schedule.');
-      },
+
+    onSuccess: () => {
+      refetch();
+      handleCancel();
     },
-  );
+
+    onError: (error) => {
+      logger.error('Error modifying schedule:', error);
+      message.error('Failed to modify schedule.');
+    },
+  });
 
   // Open the modal
   const showModal = () => {
@@ -136,7 +138,7 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
             <Button type="secondary" onClick={handleCancel}>
               {t('common:cancel')}
             </Button>
-            <Button type="primary" onClick={handleOk} loading={createMutation.isLoading || modifyMutation.isLoading}>
+            <Button type="primary" onClick={handleOk} loading={createMutation.isPending || modifyMutation.isPending}>
               {t('common:submit')}
             </Button>
           </div>

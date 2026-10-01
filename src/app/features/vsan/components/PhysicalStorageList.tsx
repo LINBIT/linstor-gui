@@ -27,7 +27,7 @@ interface DataType {
 }
 
 export const PhysicalStorageList = () => {
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isPending, refetch } = useQuery({
     queryKey: ['getStoragePool'],
     queryFn: () => getStoragePool(),
     refetchInterval: REFETCH_INTERVAL,
@@ -86,7 +86,7 @@ export const PhysicalStorageList = () => {
         bordered={false}
         columns={columns}
         dataSource={data?.data?.filter((item) => item.name !== DEFAULT_SP) ?? []}
-        loading={isLoading}
+        loading={isPending}
         expandable={{
           // The expand column's header, for screen readers (antd leaves it empty).
           columnTitle: <span className="sr-only">Detail</span>,

@@ -32,7 +32,7 @@ export const useGatewayVersion = () => {
 
   return {
     version,
-    isLoading: query.isLoading,
+    isLoading: query.isPending,
     // Reachable = the status endpoint answered (even if it predates the version field).
     isReachable: query.isSuccess,
     isError: query.isError,

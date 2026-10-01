@@ -111,21 +111,24 @@ export default defineConfig(({ mode, command }) => {
       // whole group — apexcharts, every antd component — into the entry.
       // Pages are lazy (routes/), so the bundler's own split is the smaller one.
       sourcemap: false, // Disable sourcemaps in production
-      // Two lazy chunks sit between 500 and 600 kB and cannot be split
-      // further: apexcharts on its own, and the OCF agent catalog data behind
-      // the reactor editor. Anything else crossing 500 kB should still warn,
-      // so the limit only covers those two.
-      chunkSizeWarningLimit: 600,
+      // Two lazy chunks sit between 500 and 650 kB and cannot be split
+      // further: apexcharts (~630 kB: its core alone is ~470 kB, plus the
+      // types and features @app/components/Chart registers), and the OCF agent
+      // catalog data behind the reactor editor. Anything else crossing 500 kB
+      // should still warn, so the limit only covers those two.
+      chunkSizeWarningLimit: 650,
       cssCodeSplit: true,
       // Vite's default oxc minifier; terser took 95% of the build time.
       rolldownOptions: {
         // Our own modules only matter for their exports, so an unused export
         // of a feature barrel (e.g. node's chart components behind useNodes)
         // no longer drags apexcharts into every page. i18n.ts initialises on
-        // import; CSS and node_modules keep the default.
+        // import, components/Chart registers the apexcharts chart types and
+        // features it imports; CSS and node_modules keep the default.
         treeshake: {
           moduleSideEffects: [
             { test: /\/src\/i18n\.ts$/, sideEffects: true },
+            { test: /\/src\/app\/components\/Chart\/index\.ts$/, sideEffects: true },
             { test: /\/src\/.*\.tsx?$/, sideEffects: false },
           ],
         },
@@ -164,6 +167,10 @@ export default defineConfig(({ mode, command }) => {
       // locally. The limit is a hang guard, not a performance target.
       testTimeout: 20000,
       setupFiles: './src/setupTests.ts',
+      // Every file gets a fresh worker: the suites vi.mock the same modules
+      // differently and keep state in module scope. Set explicitly, which also
+      // stops vitest from printing an "isolate: false is faster" hint per run.
+      isolate: true,
       // No test reads computed styles (getComputedStyle is stubbed in
       // setupTests); running the CSS/Tailwind pipeline for every test file
       // only cost time (~12% of the run).

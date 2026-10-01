@@ -20,6 +20,7 @@ import { GrowVolume } from './GrowVolume';
 import { ActionSection } from './styled';
 import { Button } from '@app/components/Button';
 import { Popconfirm } from '@app/components/Popconfirm';
+import { variablesOnly } from '@app/utils/mutation';
 
 interface DataType {
   iqn: string;
@@ -38,23 +39,23 @@ export const ISCSIList = ({ complex }: ISCSIListProp) => {
   const { t } = useTranslation();
   const [api, contextHolder] = notification.useNotification();
 
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isPending, refetch } = useQuery({
     queryKey: ['getISCSITarget'],
     queryFn: () => getISCSITarget(),
     refetchInterval: REFETCH_INTERVAL,
   });
 
   const deleteMutation = useMutation({
-    mutationFn: deleteISCISExport,
+    mutationFn: variablesOnly(deleteISCISExport),
     onSuccess: () => {
       api.success({
-        message: 'Delete ISCSI target successfully',
+        title: 'Delete ISCSI target successfully',
       });
       refetch();
     },
     onError: (err: ErrorMessage) => {
       api.error({
-        message: err?.message,
+        title: err?.message,
         description: err?.detail || err?.explanation,
         duration: 0,
       });
@@ -123,7 +124,7 @@ export const ISCSIList = ({ complex }: ISCSIListProp) => {
                 deleteMutation.mutate(target.iqn);
               }}
             >
-              <Button type="default" danger loading={deleteMutation.isLoading}>
+              <Button type="default" danger loading={deleteMutation.isPending}>
                 Delete
               </Button>
             </Popconfirm>
@@ -184,7 +185,7 @@ export const ISCSIList = ({ complex }: ISCSIListProp) => {
         bordered={false}
         columns={columns}
         dataSource={handleTargetData(data?.data ?? [])}
-        loading={isLoading}
+        loading={isPending}
         pagination={false}
       />
     </div>

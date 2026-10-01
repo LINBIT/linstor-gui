@@ -368,9 +368,9 @@ const CreateForm = () => {
           type="primary"
           htmlType="submit"
           disabled={
-            createStoragePoolWithExistingVolumeGroup.isLoading || createStoragePoolWithPhysicalStorage.isLoading
+            createStoragePoolWithExistingVolumeGroup.isPending || createStoragePoolWithPhysicalStorage.isPending
           }
-          loading={createStoragePoolWithExistingVolumeGroup.isLoading || createStoragePoolWithPhysicalStorage.isLoading}
+          loading={createStoragePoolWithExistingVolumeGroup.isPending || createStoragePoolWithPhysicalStorage.isPending}
         >
           {t('common:submit')}
         </Button>

@@ -10,7 +10,7 @@ import { ResourceGroupQuery } from '../types';
 import { DefaultResourceGroup } from '../const';
 
 const useResourceGroups = ({ query, excludeDefault }: { query?: ResourceGroupQuery; excludeDefault?: boolean }) => {
-  const { isLoading, error, data } = useQuery({
+  const { isPending, error, data } = useQuery({
     queryKey: ['getResourceGroups', query],
     queryFn: () => getResourceGroups(query),
   });
@@ -18,7 +18,7 @@ const useResourceGroups = ({ query, excludeDefault }: { query?: ResourceGroupQue
   const result = excludeDefault ? data?.data?.filter((e) => e.name !== DefaultResourceGroup) : data?.data;
 
   return {
-    isLoading,
+    isPending,
     error,
     data: result,
   };

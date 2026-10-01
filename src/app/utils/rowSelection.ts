@@ -16,4 +16,6 @@ import i18n from 'i18next';
 export const labelRowCheckbox =
   <T>(nameOf: (row: T) => string | undefined) =>
   (row: T): CheckboxProps =>
-    ({ 'aria-label': i18n.t('common:select_row', { name: nameOf(row) ?? '' }) }) as CheckboxProps;
+    ({
+      'aria-label': i18n.t('common:select_row', { name: nameOf(row) ?? '' }),
+    }) as CheckboxProps;

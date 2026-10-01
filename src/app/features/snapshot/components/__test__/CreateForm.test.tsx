@@ -43,7 +43,6 @@ import { CreateSnapshotForm } from '../CreateForm';
 const renderForm = (refetch = vi.fn()) => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
-    logger: { log: () => {}, warn: () => {}, error: () => {} },
   });
   render(
     <QueryClientProvider client={client}>

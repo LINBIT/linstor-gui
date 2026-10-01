@@ -14,7 +14,7 @@ import { getErrorReportById } from '@app/features/report';
 
 const ErrorReportDetail = () => {
   const { id } = useParams() as { id: string };
-  const { data, isLoading } = useQuery({
+  const { data, isPending } = useQuery({
     queryKey: ['getErrorDetail', id],
     queryFn: () => {
       return getErrorReportById(id);
@@ -25,7 +25,7 @@ const ErrorReportDetail = () => {
   const { t } = useTranslation('error_report');
 
   return (
-    <PageBasic title={t('detail_title')} loading={isLoading} showBack>
+    <PageBasic title={t('detail_title')} loading={isPending} showBack>
       <Card>
         <pre>{data?.data?.[0].text}</pre>
       </Card>

@@ -57,7 +57,7 @@ import { notify } from '@app/utils/toast';
 import { UserManagement } from '../UserManegment/UserManagement';
 
 const renderPage = () => {
-  const client = new QueryClient({ logger: { log: () => {}, warn: () => {}, error: () => {} } });
+  const client = new QueryClient();
   return render(
     <QueryClientProvider client={client}>
       <MemoryRouter>
@@ -148,7 +148,7 @@ describe('UserManagement', () => {
   it('lists users with their initial and deletes one after confirm', async () => {
     state = { users: ['admin', 'bob'], authenticationEnabled: true };
     renderPage();
-    const bob = screen.getByText('bob').closest('.ant-list-item') as HTMLElement;
+    const bob = screen.getByText('bob').closest('li') as HTMLElement;
     expect(within(bob).getByText('B')).toBeInTheDocument();
     expect(within(bob).getByText('User 2')).toBeInTheDocument();
 
@@ -164,11 +164,11 @@ describe('UserManagement', () => {
     deleteUser.mockReturnValue(new Promise<void>((resolve) => (finish = resolve)));
     state = { users: ['admin', 'carol'], authenticationEnabled: true };
     renderPage();
-    const carol = screen.getByText('carol').closest('.ant-list-item') as HTMLElement;
+    const carol = screen.getByText('carol').closest('li') as HTMLElement;
     fireEvent.click(within(carol).getByRole('button', { name: 'Delete user' }));
     fireEvent.click(await screen.findByRole('button', { name: 'Yes' }));
     await waitFor(() => expect(carol).toHaveClass('opacity-50'));
-    expect(screen.getByText('admin').closest('.ant-list-item')).not.toHaveClass('opacity-50');
+    expect(screen.getByText('admin').closest('li')).not.toHaveClass('opacity-50');
 
     finish();
     await waitFor(() => expect(carol).not.toHaveClass('opacity-50'));
@@ -180,7 +180,7 @@ describe('UserManagement', () => {
     deleteUser.mockRejectedValue(new Error('kv down'));
     state = { users: ['admin', 'bob'], authenticationEnabled: true };
     renderPage();
-    const bob = screen.getByText('bob').closest('.ant-list-item') as HTMLElement;
+    const bob = screen.getByText('bob').closest('li') as HTMLElement;
     fireEvent.click(within(bob).getByRole('button', { name: 'Delete user' }));
     fireEvent.click(await screen.findByRole('button', { name: 'Yes' }));
     expect(await screen.findByText('Failed to delete bob: kv down')).toBeInTheDocument();

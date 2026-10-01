@@ -5,13 +5,12 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { useState } from 'react';
-import { logger } from '@app/utils/logger';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Form, Modal } from 'antd';
 import { Select } from '@app/components/Select';
 import { useTranslation } from 'react-i18next';
 
-import { createVolumeDefinition, getResourceDefinition, getVolumeDefinitionListByResource } from '../api';
+import { createVolumeDefinition, getResourceDefinition } from '../api';
 import { CreateVolumeDefinitionRequestBody } from '../types';
 import { SizeInput } from '@app/components/SizeInput';
 import { Button } from '@app/components/Button';
@@ -34,14 +33,6 @@ const CreateForm = ({ refetch, simple }: CreateFormProps) => {
   const { data: resourceDefinition } = useQuery({
     queryKey: ['getResourceDefinition'],
     queryFn: () => getResourceDefinition({}),
-    onSuccess: (data) => {
-      data?.data?.forEach(async (item) => {
-        if (item?.name) {
-          const vd = await getVolumeDefinitionListByResource(item?.name);
-          logger.debug(vd, 'vd');
-        }
-      });
-    },
   });
 
   const createVD = useMutation({
@@ -102,7 +93,7 @@ const CreateForm = ({ refetch, simple }: CreateFormProps) => {
             <Button type="secondary" onClick={() => setShowCreateForm(false)}>
               {t('common:cancel')}
             </Button>
-            <Button type="primary" onClick={submit} loading={createVD.isLoading}>
+            <Button type="primary" onClick={submit} loading={createVD.isPending}>
               {t('common:spawn')}
             </Button>
           </>

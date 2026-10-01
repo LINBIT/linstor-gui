@@ -43,13 +43,13 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
     mutationFn: (iqn: string) => deleteNFSExport(iqn),
     onSuccess: () => {
       api.success({
-        message: 'Target has been deleted!',
+        title: 'Target has been deleted!',
       });
       refetch();
     },
     onError: (err: ErrorMessage) => {
       api.error({
-        message: err?.message,
+        title: err?.message,
         description: err?.detail || err?.explanation,
         duration: 0,
       });
@@ -124,7 +124,7 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
                 deleteMutation.mutate(target.name);
               }}
             >
-              <Button type="default" danger loading={deleteMutation.isLoading}>
+              <Button type="default" danger loading={deleteMutation.isPending}>
                 Delete
               </Button>
             </Popconfirm>
@@ -135,7 +135,7 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
     });
   }
 
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isPending, refetch } = useQuery({
     queryKey: ['getNFSExport'],
     queryFn: () => getNFSExport(),
     refetchInterval: REFETCH_INTERVAL,
@@ -214,7 +214,7 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
         bordered={false}
         columns={columns}
         dataSource={listData}
-        loading={isLoading}
+        loading={isPending}
         pagination={false}
       />
     </div>

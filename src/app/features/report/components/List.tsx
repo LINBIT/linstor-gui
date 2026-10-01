@@ -11,7 +11,7 @@ import { Button } from '@app/components/Button';
 import { Link } from '@app/components/Link';
 import type { TableProps } from 'antd';
 import type { SortOrder } from 'antd/es/table/interface';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { deleteReport, deleteReportBulk, getErrorReportPage, getErrorReports } from '../api';
 import { ErrorReport, ErrorReportPageQuery, ErrorReportSortField, GetErrorReportRequestQuery } from '../types';
 import { formatTime } from '@app/utils/time';
@@ -115,7 +115,10 @@ export const List = () => {
   }, [module]);
 
   const legacyQuery: GetErrorReportRequestQuery = filters.node ? { node: filters.node } : {};
-  const legacy = useQuery(['getErrors', legacyQuery], () => getErrorReports(legacyQuery), {
+  const legacy = useQuery({
+    queryKey: ['getErrors', legacyQuery],
+    queryFn: () => getErrorReports(legacyQuery),
+
     // Wait for the version, or every visit would first pull the full list.
     enabled: versionFetched && !serverPaging,
   });
@@ -129,9 +132,11 @@ export const List = () => {
     sort_by: sort.sort_by,
     sort_order: sort.sort_order,
   };
-  const paged = useQuery(['viewErrorReports', pageQuery], () => getErrorReportPage(pageQuery), {
+  const paged = useQuery({
+    queryKey: ['viewErrorReports', pageQuery],
+    queryFn: () => getErrorReportPage(pageQuery),
     enabled: serverPaging,
-    keepPreviousData: true,
+    placeholderData: keepPreviousData,
   });
 
   // The controller leaves `items` out of an empty page.
@@ -489,7 +494,7 @@ export const List = () => {
             ? { current: page.current, pageSize: page.pageSize, total: pageTotal, showSizeChanger: true, showTotal }
             : { showSizeChanger: true, showTotal }
         }
-        loading={!versionFetched || (serverPaging ? paged.isFetching : legacy.isLoading)}
+        loading={!versionFetched || (serverPaging ? paged.isFetching : legacy.isPending)}
         scroll={{ x: 'max-content' }}
       />
     </>

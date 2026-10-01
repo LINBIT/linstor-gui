@@ -60,6 +60,7 @@ import { SyncFlowOverlay } from './SyncFlowOverlay';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { useDeleteAction, deletingRowClass, replyError } from '@app/hooks/useDeleteAction';
 import { ActionColumnTitle } from '@app/components/ActionColumnTitle';
+import { variablesOnly } from '@app/utils/mutation';
 
 /** One row of a definition's volume sub-table: a deployed volume joined with its resource and definition. */
 type OverviewVolume = VolumeType & {
@@ -215,7 +216,7 @@ export const OverviewList = () => {
   const { mode, grafanaConfig } = useSettings();
 
   const migrateResourceMutation = useMutation({
-    mutationFn: resourceMigration,
+    mutationFn: variablesOnly(resourceMigration),
   });
 
   const queryClient = useQueryClient();
@@ -280,7 +281,7 @@ export const OverviewList = () => {
 
   const {
     data: resourceDefinitions,
-    isLoading: rdLoading,
+    isPending: rdLoading,
     refetch: refetchResourceDefinitions,
   } = useQuery({
     queryKey: ['getResourceDefinitionList', query],
@@ -297,7 +298,7 @@ export const OverviewList = () => {
   // a single lightweight endpoint.
   const {
     data: resourcesView,
-    isLoading: rvLoading,
+    isPending: rvLoading,
     refetch: refetchResourcesView,
   } = useQuery({
     queryKey: ['getResourcesView'],
@@ -348,7 +349,7 @@ export const OverviewList = () => {
     setResourceDefinitionList(mergedResourceDefinitionList);
   }, [mergedResourceDefinitionList]);
 
-  const isLoading = rdLoading || rvLoading;
+  const isPending = rdLoading || rvLoading;
   const refetch = useCallback(() => {
     void refetchResourceDefinitions();
     void refetchResourcesView();
@@ -356,7 +357,7 @@ export const OverviewList = () => {
 
   const adjustResourceGroupMutation = useMutation({
     mutationKey: ['adjustResourceGroupMutation'],
-    mutationFn: adjustResourceGroup,
+    mutationFn: variablesOnly(adjustResourceGroup),
     onSuccess: () => {
       refetch();
     },
@@ -502,7 +503,7 @@ export const OverviewList = () => {
           <Flex gap="4px 0" wrap>
             {record?.layer_data?.map((layer, index) => {
               return (
-                <Tag key={index} color={TAG_COLORS[index]} bordered={false}>
+                <Tag key={index} color={TAG_COLORS[index]} variant="filled">
                   <span className="text-[var(--text-on-brand)]">{layer.type}</span>
                 </Tag>
               );
@@ -955,7 +956,7 @@ export const OverviewList = () => {
       <br />
 
       <Table
-        loading={isLoading}
+        loading={isPending}
         columns={finalColumns}
         expandable={{
           // The expand column's header, for screen readers (antd leaves it empty).

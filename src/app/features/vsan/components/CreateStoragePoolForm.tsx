@@ -30,6 +30,7 @@ import {
 import { Table } from 'antd';
 import type { TableProps } from 'antd';
 import { Checkbox } from '@app/components/Checkbox';
+import { variablesOnly } from '@app/utils/mutation';
 
 interface DataType {
   key: string;
@@ -279,10 +280,10 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
   }, [add_to_existing, form, spOption]);
 
   const createMutation = useMutation({
-    mutationFn: createPool,
+    mutationFn: variablesOnly(createPool),
     onSuccess: () => {
       api.success({
-        message: 'Create successfully',
+        title: 'Create successfully',
       });
 
       setCreateFormModal(false);
@@ -292,7 +293,7 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
     },
     onError: (err: ErrorMessage) => {
       api.error({
-        message: err?.message,
+        title: err?.message,
         description: err?.detail || err?.explanation,
         duration: 0,
       });
@@ -380,7 +381,7 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
             <Button type="secondary" onClick={handleCancel}>
               Cancel
             </Button>
-            <Button type="primary" onClick={handleOk} loading={createMutation.isLoading}>
+            <Button type="primary" onClick={handleOk} loading={createMutation.isPending}>
               {add_to_existing ? 'Add' : 'Create'}
             </Button>
           </div>

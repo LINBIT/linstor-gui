@@ -49,7 +49,7 @@ export interface HAResourceDefinition {
 const HA_PROP_KEY = 'files/etc/drbd-reactor.d/';
 
 export const useHA = () => {
-  const { data, isLoading, error, refetch } = useQuery({
+  const { data, isPending, error, refetch } = useQuery({
     queryKey: ['ha-resource-definitions'],
     queryFn: getHAResourceDefinitions,
   });
@@ -66,7 +66,7 @@ export const useHA = () => {
 
   return {
     data: haResources,
-    isLoading,
+    isPending,
     error,
     refetch,
   };
