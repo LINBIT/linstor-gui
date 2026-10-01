@@ -73,6 +73,9 @@ export const List = () => {
   const propertyFormRef = useRef<PropertyFormRef>(null);
 
   const [storagePoolListDisplay, setStoragePoolListDisplay] = useState<StoragePool[]>();
+  // The pagination waits for the first page of rows: shown from the count
+  // alone, it sat under the empty table and jumped down when the rows came.
+  const [listLoaded, setListLoaded] = useState(false);
   const [current, setCurrent] = useState<StoragePool>();
 
   const show_default = Form.useWatch('show_default', form);
@@ -131,6 +134,7 @@ export const List = () => {
     }
 
     setStoragePoolListDisplay(displayData);
+    if (displayData) setListLoaded(true);
   }, [show_default, storagePoolList?.data, query?.limit]);
 
   // Handle show_default change: reset pagination when show_default changes
@@ -208,6 +212,7 @@ export const List = () => {
     {
       title: t('storage_pool:name'),
       key: 'name',
+      ellipsis: true,
       dataIndex: 'storage_pool_name',
       sorter: (a, b) => {
         return a.storage_pool_name.localeCompare(b.storage_pool_name);
@@ -217,6 +222,7 @@ export const List = () => {
     {
       title: t('storage_pool:node_name'),
       key: 'node_name',
+      width: 108,
       dataIndex: 'node_name',
       sorter: (a, b) => {
         return (a?.node_name ?? '').localeCompare(b?.node_name ?? '');
@@ -231,6 +237,7 @@ export const List = () => {
     {
       title: t('storage_pool:provider_kind'),
       key: 'provider_kind',
+      width: 115,
       dataIndex: 'provider_kind',
       render: (provider_kind: string) => {
         const color = providerKindColorMap?.[provider_kind as keyof typeof providerKindColorMap] ?? 'default';
@@ -240,6 +247,8 @@ export const List = () => {
     {
       title: t('storage_pool:disk'),
       key: 'disk',
+      width: 111,
+      ellipsis: true,
       render: (_, sp) => {
         if (sp.provider_kind === 'DISKLESS') {
           return <span>N/A</span>;
@@ -251,6 +260,7 @@ export const List = () => {
       title: t('storage_pool:free_capacity'),
       dataIndex: 'free_capacity',
       key: 'free_capacity',
+      width: 106,
       render: (free_capacity, sp) => {
         if (typeof free_capacity === 'undefined' || sp.provider_kind === 'DISKLESS') {
           return <span>N/A</span>;
@@ -262,6 +272,7 @@ export const List = () => {
       title: t('storage_pool:total_capacity'),
       dataIndex: 'total_capacity',
       key: 'total_capacity',
+      width: 108,
       render: (total_capacity, sp) => {
         if (typeof total_capacity === 'undefined' || sp.provider_kind === 'DISKLESS') {
           return <span>N/A</span>;
@@ -273,6 +284,7 @@ export const List = () => {
       title: t('storage_pool:supports_snapshots'),
       dataIndex: 'supports_snapshots',
       key: 'supports_snapshots',
+      width: 136,
       render: (supports_snapshots) => {
         return <SupportStatus supported={supports_snapshots} />;
       },
@@ -409,22 +421,28 @@ export const List = () => {
         rowSelection={rowSelection}
         rowKey={(item) => item?.uuid || ''}
         rowClassName={(item) => (del.isDeleting(item.uuid || '') ? deletingRowClass : '')}
-        pagination={{
-          total: show_default
-            ? (stats?.data?.count ?? 0)
-            : (stats?.data?.count ?? 0) - (defaultStoragePoolList?.data?.length ?? 0), // Subtract actual count of default SPs
-          showSizeChanger: true,
-          showTotal: (total) => t('common:total_items', { total }),
-          current: Math.floor((query?.offset ?? 0) / (query?.limit ?? 10)) + 1,
-          pageSize: query?.limit,
-          onChange(page, pageSize) {
-            setQuery({
-              ...query,
-              limit: pageSize,
-              offset: (page - 1) * pageSize,
-            });
-          },
-        }}
+        // Fixed widths (what the auto layout settled on with rows): measured
+        // from the content, the columns re-laid out when the rows arrived and
+        // the wrapped header grew, shifting the page.
+        tableLayout="fixed"
+        pagination={
+          listLoaded && {
+            total: show_default
+              ? (stats?.data?.count ?? 0)
+              : (stats?.data?.count ?? 0) - (defaultStoragePoolList?.data?.length ?? 0), // Subtract actual count of default SPs
+            showSizeChanger: true,
+            showTotal: (total) => t('common:total_items', { total }),
+            current: Math.floor((query?.offset ?? 0) / (query?.limit ?? 10)) + 1,
+            pageSize: query?.limit,
+            onChange(page, pageSize) {
+              setQuery({
+                ...query,
+                limit: pageSize,
+                offset: (page - 1) * pageSize,
+              });
+            },
+          }
+        }
         loading={isPending || isStatsLoading || isDefaultStatsLoading}
       />
 
