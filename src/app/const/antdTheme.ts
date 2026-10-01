@@ -43,7 +43,18 @@ export const getAntdTheme = (mode: ThemeMode): ThemeConfig => ({
   },
   components: {
     ...antdTheme.components,
-    ...(mode === 'light' && { Tag: { ...antdTheme.components?.Tag, ...LIGHT_TAG_TEXT } }),
+    ...(mode === 'light' && {
+      Tag: { ...antdTheme.components?.Tag, ...LIGHT_TAG_TEXT },
+      // antd draws the selected tab's label in colorPrimary, the peach that
+      // reads at 1.5:1 on white. The label stays text-colored (and a hovered
+      // one too); the deeper accent ink bar marks the selection.
+      Tabs: {
+        itemSelectedColor: themeTokens['text/primary'].light,
+        itemHoverColor: themeTokens['text/secondary'].light,
+        itemActiveColor: themeTokens['text/primary'].light,
+        inkBarColor: tokens.color.brand.accent,
+      },
+    }),
   },
 });
 
