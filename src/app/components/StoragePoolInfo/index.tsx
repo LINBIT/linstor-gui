@@ -4,645 +4,45 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Spin, Tooltip } from 'antd';
-import { InfoCircleOutlined } from '@ant-design/icons';
-import { useQuery } from '@tanstack/react-query';
+import React from 'react';
+import { Spin } from 'antd';
 import Chart from '@app/components/Chart';
-import type { ApexOptions } from 'apexcharts';
-import { useTranslation } from 'react-i18next';
-import { groupBy, union } from 'lodash';
-import { getStoragePool } from '@app/features/storagePool';
-import { formatBytes } from '@app/utils/size';
 import './index.css';
 import { useWindowSize, useThemeMode } from '@app/hooks';
-import { generateStoragePoolColorPairs, getNodeTotalColorPair } from '@app/utils/storagePoolColors';
-import { normalizeStoragePoolSpace } from '@app/utils/storagePoolSpace';
-type SeriesItem = {
-  name: string;
-  group: string;
-  data: number[];
-  color: string;
-};
-
-type NodeSummaryItem = {
-  label: string;
-  group: string;
-  free: number;
-  used: number;
-  freeColor?: string;
-  usedColor?: string;
-};
-
-type HoveredNode = {
-  index: number;
-  top: number;
-  left: number;
-  width: number;
-  height: number;
-  name: string;
-};
-
-const MAX_NODES_TO_RENDER = 20;
-
-const HOVERED_SEGMENT_CLASS = 'storage-pool-hovered-segment';
-const HOVERED_SERIES_SEGMENT_CLASS = 'storage-pool-hovered-series-segment';
-const HOVERED_NODE_SEGMENT_CLASS = 'storage-pool-hovered-node-segment';
-const HOVERED_XAXIS_LABEL_CLASS = 'storage-pool-hovered-xaxis-label';
-const NODE_OVERLAY_HORIZONTAL_INSET = 52;
-const NODE_OVERLAY_MIN_WIDTH = 320;
-const NODE_OVERLAY_MAX_WIDTH = 380;
-const NODE_OVERLAY_TOP_PADDING = 8;
-const HOVERED_NODE_CLEAR_DELAY = 120;
-const NODE_DETAILS_PANEL_ROW_HEIGHT = 26;
-const NODE_DETAILS_PANEL_PADDING = 28;
-const NODE_DETAILS_PANEL_GAP = 8;
-
-const formatLegendLabel = (seriesName: string): string => seriesName.replace(/<[^>]+>/g, '').trim();
-
-const buildHoveredNodes = (containerElement: HTMLDivElement | null, nodeNames: string[]): HoveredNode[] => {
-  if (!containerElement || nodeNames.length === 0) {
-    return [];
-  }
-
-  const chartRoot = containerElement.querySelector('.apexcharts-canvas');
-  if (!chartRoot || !containerElement) {
-    return [];
-  }
-
-  const containerRect = containerElement.getBoundingClientRect();
-  const plotRect = chartRoot.querySelector('.apexcharts-grid')?.getBoundingClientRect();
-  const canvasRect = chartRoot.getBoundingClientRect();
-  const xAxisLabels = chartRoot.querySelectorAll('.apexcharts-xaxis-texts-g text');
-
-  if (!plotRect || !canvasRect) {
-    return [];
-  }
-
-  const plotLeft = plotRect.left - containerRect.left;
-  const plotRight = plotRect.right - containerRect.left;
-  const plotTop = plotRect.top - containerRect.top;
-  const plotWidth = plotRect.width;
-
-  const xAxisTextElements = chartRoot.querySelectorAll('.apexcharts-xaxis-texts-g text');
-  const xAxisTextsBottom =
-    xAxisTextElements.length > 0
-      ? Math.max(...Array.from(xAxisTextElements).map((el) => el.getBoundingClientRect().bottom - containerRect.top))
-      : canvasRect.bottom - containerRect.top;
-  const canvasBottom = xAxisTextsBottom + 20;
-  const fallbackStep = plotWidth / nodeNames.length;
-  const seriesElements = chartRoot.querySelectorAll('.apexcharts-bar-series .apexcharts-series');
-  const overlayMinWidth = Math.min(
-    NODE_OVERLAY_MAX_WIDTH,
-    Math.max(NODE_OVERLAY_MIN_WIDTH, plotWidth / Math.max(nodeNames.length, 1) - 40),
-  );
-
-  const centers = nodeNames.map((_, index) => {
-    const segmentRects = Array.from(seriesElements)
-      .map((seriesElement) => seriesElement.querySelectorAll('path')[index]?.getBoundingClientRect())
-      .filter((rect): rect is DOMRect => Boolean(rect) && rect.width > 0);
-
-    if (segmentRects.length > 0) {
-      const left = Math.min(...segmentRects.map((rect) => rect.left - containerRect.left));
-      const right = Math.max(...segmentRects.map((rect) => rect.right - containerRect.left));
-      return (left + right) / 2;
-    }
-
-    const labelRect = xAxisLabels[index]?.getBoundingClientRect();
-    if (labelRect) {
-      return labelRect.left - containerRect.left + labelRect.width / 2;
-    }
-
-    return plotLeft + fallbackStep * index + fallbackStep / 2;
-  });
-
-  return nodeNames.map((nodeName, index) => {
-    const currentCenter = centers[index];
-    const previousCenter = centers[index - 1] ?? plotLeft;
-    const nextCenter = centers[index + 1] ?? plotRight;
-    const rawLeft = index === 0 ? plotLeft : (previousCenter + currentCenter) / 2;
-    const rawRight = index === nodeNames.length - 1 ? plotRight : (currentCenter + nextCenter) / 2;
-    const preferredWidth = Math.min(
-      Math.max(rawRight - rawLeft - NODE_OVERLAY_HORIZONTAL_INSET * 2, overlayMinWidth),
-      NODE_OVERLAY_MAX_WIDTH,
-    );
-    const maxLeft = Math.max(plotRight - preferredWidth, plotLeft);
-    const left = Math.min(Math.max(currentCenter - preferredWidth / 2, plotLeft), maxLeft);
-    const width = preferredWidth;
-    const height = canvasBottom - plotTop;
-
-    return {
-      index,
-      name: nodeName,
-      left,
-      top: Math.max(plotTop - NODE_OVERLAY_TOP_PADDING, 0),
-      width,
-      height,
-    };
-  });
-};
-
-const findSeriesElementByIndex = (root: ParentNode | null | undefined, seriesIndex: number): Element | null => {
-  if (!root) {
-    return null;
-  }
-
-  return (
-    Array.from(root.querySelectorAll('.apexcharts-bar-series .apexcharts-series')).find((seriesElement) => {
-      return (
-        seriesElement.getAttribute('data:realIndex') === String(seriesIndex) ||
-        seriesElement.getAttribute('data-realIndex') === String(seriesIndex)
-      );
-    }) || null
-  );
-};
-
-const setHoveredNodeSegmentsState = (
-  containerElement: HTMLDivElement | null,
-  dataPointIndex: number,
-  hovered: boolean,
-) => {
-  const chartRoot = containerElement?.querySelector('.apexcharts-canvas');
-  if (!chartRoot) {
-    return;
-  }
-
-  chartRoot.querySelectorAll('.apexcharts-bar-series .apexcharts-series').forEach((seriesElement) => {
-    const segment = seriesElement.querySelectorAll('path')[dataPointIndex];
-    if (!segment) {
-      return;
-    }
-
-    segment.classList.toggle(HOVERED_NODE_SEGMENT_CLASS, hovered);
-  });
-};
-
-const setHoveredXAxisLabelState = (
-  containerElement: HTMLDivElement | null,
-  dataPointIndex: number,
-  hovered: boolean,
-) => {
-  const chartRoot = containerElement?.querySelector('.apexcharts-canvas');
-  if (!chartRoot) {
-    return;
-  }
-
-  const label = chartRoot.querySelectorAll('.apexcharts-xaxis-texts-g text')[dataPointIndex];
-  if (!label) {
-    return;
-  }
-
-  label.classList.toggle(HOVERED_XAXIS_LABEL_CLASS, hovered);
-};
-
-const setHoveredSeriesState = (
-  containerElement: HTMLDivElement | null,
-  seriesIndex: number,
-  hovered: boolean,
-  nodeIndex?: number | null,
-) => {
-  const chartRoot = containerElement?.querySelector('.apexcharts-canvas');
-  if (!chartRoot) {
-    return;
-  }
-
-  const seriesElement = findSeriesElementByIndex(chartRoot, seriesIndex);
-  if (!seriesElement) {
-    return;
-  }
-
-  seriesElement.querySelectorAll('path').forEach((segment, index) => {
-    const shouldHighlight = hovered && (nodeIndex === undefined || nodeIndex === null || index === nodeIndex);
-    segment.classList.toggle(HOVERED_SERIES_SEGMENT_CLASS, shouldHighlight);
-  });
-};
-
-const setHoveredSegmentState = (
-  // The ApexCharts instance an event hands over; only its root element is used.
-  chartContext: unknown,
-  seriesIndex: number,
-  dataPointIndex: number,
-  hovered: boolean,
-) => {
-  const chartRoot = (chartContext as { el?: Element | null } | undefined)?.el;
-  if (!chartRoot) {
-    return;
-  }
-
-  const seriesElement = findSeriesElementByIndex(chartRoot, seriesIndex);
-  const segment = seriesElement?.querySelectorAll('path')[dataPointIndex];
-
-  if (!segment) {
-    return;
-  }
-
-  segment.classList.toggle(HOVERED_SEGMENT_CLASS, hovered);
-};
+import { NODE_DETAILS_PANEL_GAP, NODE_DETAILS_PANEL_PADDING, NODE_DETAILS_PANEL_ROW_HEIGHT } from './constants';
+import { getSeriesIndexByGroupAndSide, hoveredChartItemOf } from './chartData';
+import { buildChartOptions } from './chartOptions';
+import { useStoragePoolChartData } from './useStoragePoolChartData';
+import { useNodeHover } from './useNodeHover';
+import { useSeriesHighlight } from './useSeriesHighlight';
+import { OverviewHeader } from './OverviewHeader';
+import { NodeTooltip } from './NodeTooltip';
+import { ChartLegend } from './ChartLegend';
 
 export const StoragePoolInfo: React.FC = () => {
-  const { t } = useTranslation();
-
   const { mode } = useThemeMode();
   const { height } = useWindowSize();
-  const chartContainerRef = useRef<HTMLDivElement | null>(null);
-  const hideHoveredNodeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const hoverableNodesFrameRef = useRef<number | null>(null);
-  const activeHoveredNodeIndexRef = useRef<number | null>(null);
-  const [hoverableNodes, setHoverableNodes] = useState<HoveredNode[]>([]);
-  const [hoveredNode, setHoveredNode] = useState<HoveredNode | null>(null);
-  const [highlightedLegendIndexes, setHighlightedLegendIndexes] = useState<number[]>([]);
-  const [highlightedSeriesIndexes, setHighlightedSeriesIndexes] = useState<number[]>([]);
-  const [isBottomLegendHover, setIsBottomLegendHover] = useState(false);
 
-  const clearActiveHoveredNode = () => {
-    if (activeHoveredNodeIndexRef.current === null) {
-      return;
-    }
+  const { chartData, seriesTotals, isPending } = useStoragePoolChartData();
+  const {
+    chartContainerRef,
+    hoveredNode,
+    clearHoveredNodeTimer,
+    scheduleHoveredNodeClear,
+    handleChartContainerMouseMove,
+  } = useNodeHover({ categories: chartData.categories, series: chartData.series, height, isPending });
+  const {
+    highlightedLegendIndexes,
+    setHighlightedLegendIndexes,
+    highlightedSeriesIndexes,
+    setHighlightedSeriesIndexes,
+    isBottomLegendHover,
+    setIsBottomLegendHover,
+  } = useSeriesHighlight({ chartContainerRef, series: chartData.series, hoveredNode });
 
-    setHoveredNodeSegmentsState(chartContainerRef.current, activeHoveredNodeIndexRef.current, false);
-    setHoveredXAxisLabelState(chartContainerRef.current, activeHoveredNodeIndexRef.current, false);
-    activeHoveredNodeIndexRef.current = null;
-  };
+  const hoveredChartItem = hoveredChartItemOf(chartData.series, highlightedSeriesIndexes);
 
-  const clearHoveredNodeTimer = () => {
-    if (hideHoveredNodeTimerRef.current) {
-      clearTimeout(hideHoveredNodeTimerRef.current);
-      hideHoveredNodeTimerRef.current = null;
-    }
-  };
-
-  const scheduleHoveredNodeClear = () => {
-    clearHoveredNodeTimer();
-    hideHoveredNodeTimerRef.current = setTimeout(() => {
-      clearActiveHoveredNode();
-      setHoveredNode(null);
-      hideHoveredNodeTimerRef.current = null;
-    }, HOVERED_NODE_CLEAR_DELAY);
-  };
-
-  const activateHoveredNode = (node: HoveredNode) => {
-    clearHoveredNodeTimer();
-
-    if (activeHoveredNodeIndexRef.current !== node.index) {
-      clearActiveHoveredNode();
-      setHoveredNodeSegmentsState(chartContainerRef.current, node.index, true);
-      setHoveredXAxisLabelState(chartContainerRef.current, node.index, true);
-      activeHoveredNodeIndexRef.current = node.index;
-    }
-
-    setHoveredNode(node);
-  };
-
-  const handleChartContainerMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    if ((event.target as HTMLElement | null)?.closest('.storage-pool-node-tooltip')) {
-      clearHoveredNodeTimer();
-      return;
-    }
-
-    const container = chartContainerRef.current;
-    if (!container || hoverableNodes.length === 0) {
-      return;
-    }
-
-    const rect = container.getBoundingClientRect();
-    const pointerX = event.clientX - rect.left;
-    const pointerY = event.clientY - rect.top;
-    const nextHoveredNode = hoverableNodes.find((node) => {
-      return (
-        pointerX >= node.left &&
-        pointerX <= node.left + node.width &&
-        pointerY >= node.top &&
-        pointerY <= node.top + node.height
-      );
-    });
-
-    if (nextHoveredNode) {
-      activateHoveredNode(nextHoveredNode);
-      return;
-    }
-
-    scheduleHoveredNodeClear();
-  };
-
-  // Fetching the storage pool data from the API
-  const { data: poolsData, isPending } = useQuery({
-    queryKey: ['getStoragePool'],
-    queryFn: () => getStoragePool(),
-  });
-
-  const chartData = useMemo(() => {
-    if (!poolsData || poolsData?.data?.length === 0) {
-      return {
-        series: [],
-        categories: [],
-        nodeSummaries: {} as Record<string, NodeSummaryItem[]>,
-        totalNodeCount: 0,
-      };
-    }
-
-    // Filter out the DISKLESS provider kind
-    const validPools = poolsData?.data?.filter((p) => p.provider_kind !== 'DISKLESS');
-
-    // Group pools by node name for processing
-    const groupedByNode = groupBy(validPools, 'node_name');
-    const totalNodeCount = Object.keys(groupedByNode).length;
-
-    // Cap the rendered nodes to the ones carrying the most capacity so the chart
-    // stays responsive on large clusters. Sort by used desc, then total desc.
-    const allNodes = Object.keys(groupedByNode)
-      .map((node) => {
-        const pools = groupedByNode[node];
-        const total = pools.reduce(
-          (acc, item) => acc + normalizeStoragePoolSpace(item.total_capacity, item.free_capacity).total,
-          0,
-        );
-        const used = pools.reduce(
-          (acc, item) => acc + normalizeStoragePoolSpace(item.total_capacity, item.free_capacity).used,
-          0,
-        );
-        return { node, used, total };
-      })
-      .sort((a, b) => b.used - a.used || b.total - a.total)
-      .slice(0, MAX_NODES_TO_RENDER)
-      .map((entry) => entry.node);
-
-    // Union of all unique storage pool names across the rendered nodes
-    const allPools = union(...allNodes.map((node) => groupedByNode[node].map((sp) => sp.storage_pool_name)));
-
-    const colorPairs = generateStoragePoolColorPairs(allPools.length);
-    const nodeColorPair = getNodeTotalColorPair();
-
-    const nodeTotals: Record<string, number> = {};
-    const nodeUsed: Record<string, number> = {};
-    const nodeSummaries: Record<string, NodeSummaryItem[]> = {};
-    allNodes.forEach((node) => {
-      const nodeSp = groupedByNode[node];
-      nodeTotals[node] = nodeSp.reduce(
-        (acc, item) => acc + normalizeStoragePoolSpace(item.total_capacity, item.free_capacity).total,
-        0,
-      );
-      nodeUsed[node] = nodeSp.reduce(
-        (acc, item) => acc + normalizeStoragePoolSpace(item.total_capacity, item.free_capacity).used,
-        0,
-      );
-    });
-
-    const spSeries: SeriesItem[] = [];
-    allPools.forEach((pool, idx) => {
-      const colorIndex = idx % colorPairs.length;
-      const colors = colorPairs[colorIndex];
-
-      const totalsForPool: number[] = [];
-      const freeForPool: number[] = [];
-      allNodes.forEach((node) => {
-        const found = groupedByNode[node].find((i) => i.storage_pool_name === pool);
-        const { total, free } = normalizeStoragePoolSpace(found?.total_capacity, found?.free_capacity);
-        totalsForPool.push(total);
-        freeForPool.push(free);
-      });
-
-      spSeries.push({
-        name: `${pool} - <b>Used<b>`, // Show Used above
-        group: pool,
-        data: totalsForPool.map((total, idx) => total - freeForPool[idx]), // Used = Total - Free
-        color: colors.used,
-      });
-
-      // Used data should come first (on top), followed by free data
-      spSeries.push({
-        name: `${pool} - <b>Free</b>`, // Show Free below
-        group: pool,
-        data: freeForPool,
-        color: colors.free,
-      });
-
-      allNodes.forEach((node, nodeIndex) => {
-        const total = totalsForPool[nodeIndex];
-        const free = freeForPool[nodeIndex];
-        const used = total - free;
-
-        if (total <= 0 && free <= 0 && used <= 0) {
-          return;
-        }
-
-        if (!nodeSummaries[node]) {
-          nodeSummaries[node] = [];
-        }
-
-        nodeSummaries[node].push({
-          label: pool,
-          group: pool,
-          free,
-          used,
-          freeColor: colorPairs[colorIndex].free,
-          usedColor: colorPairs[colorIndex].used,
-        });
-      });
-    });
-
-    const nodeTotalSeries = {
-      name: 'Node - <b>Free</b>', // Change the name to indicate free space
-      group: 'NodeAll',
-      data: allNodes.map((n) => nodeTotals[n] - nodeUsed[n]), // Free = Total - Used
-      color: nodeColorPair.free,
-    };
-
-    const nodeUsedSeries = {
-      name: 'Node - <b>Used</b>', // Used data should be on top
-      group: 'NodeAll',
-      data: allNodes.map((n) => nodeUsed[n]),
-      color: nodeColorPair.used,
-    };
-
-    return {
-      series: allPools.length > 1 ? [...spSeries, nodeUsedSeries, nodeTotalSeries] : [...spSeries],
-      categories: allNodes,
-      totalNodeCount,
-      nodeSummaries: allNodes.reduce<Record<string, NodeSummaryItem[]>>((acc, node) => {
-        acc[node] = [
-          ...(nodeSummaries[node] || []),
-          {
-            label: 'Node',
-            group: 'NodeAll',
-            free: nodeTotals[node] - nodeUsed[node],
-            used: nodeUsed[node],
-            freeColor: nodeColorPair.free,
-            usedColor: nodeColorPair.used,
-          },
-        ];
-        return acc;
-      }, {}),
-    };
-  }, [poolsData]);
-
-  // Sum of each series over the rendered nodes, shown next to its legend
-  // label: the legend otherwise only highlights bars and gives no figure.
-  const seriesTotals = useMemo(
-    () => chartData.series.map((seriesItem) => seriesItem.data.reduce((sum, value) => sum + value, 0)),
-    [chartData.series],
-  );
-
-  const getSeriesIndexByGroupAndSide = (group: string, side: 'free' | 'used'): number =>
-    chartData.series.findIndex((s) => s.group === group && (side === 'free') === s.name.includes('Free'));
-
-  const hoveredChartItem =
-    highlightedSeriesIndexes.length > 0
-      ? (() => {
-          const s = chartData.series[highlightedSeriesIndexes[0]];
-          if (!s) return null;
-          return { group: s.group, side: s.name.includes('Free') ? ('free' as const) : ('used' as const) };
-        })()
-      : null;
-
-  useEffect(() => {
-    if (isPending || chartData.categories.length === 0) {
-      setHoverableNodes([]);
-      return;
-    }
-
-    const scheduleHoverableNodesUpdate = () => {
-      if (hoverableNodesFrameRef.current !== null) {
-        window.cancelAnimationFrame(hoverableNodesFrameRef.current);
-      }
-
-      hoverableNodesFrameRef.current = window.requestAnimationFrame(() => {
-        hoverableNodesFrameRef.current = null;
-        setHoverableNodes(buildHoveredNodes(chartContainerRef.current, chartData.categories));
-      });
-    };
-
-    const container = chartContainerRef.current;
-    const resizeObserver =
-      typeof ResizeObserver !== 'undefined' && container
-        ? new ResizeObserver(() => {
-            scheduleHoverableNodesUpdate();
-          })
-        : null;
-
-    scheduleHoverableNodesUpdate();
-    window.addEventListener('resize', scheduleHoverableNodesUpdate);
-    if (container) {
-      resizeObserver?.observe(container);
-    }
-
-    return () => {
-      if (hoverableNodesFrameRef.current !== null) {
-        window.cancelAnimationFrame(hoverableNodesFrameRef.current);
-        hoverableNodesFrameRef.current = null;
-      }
-
-      window.removeEventListener('resize', scheduleHoverableNodesUpdate);
-      resizeObserver?.disconnect();
-    };
-  }, [chartData.categories, chartData.series, height, isPending]);
-
-  useEffect(() => {
-    if (!hoveredNode) {
-      return;
-    }
-
-    const nextHoveredNode = hoverableNodes.find((node) => node.name === hoveredNode.name);
-    if (!nextHoveredNode) {
-      clearActiveHoveredNode();
-      setHoveredNode(null);
-      return;
-    }
-
-    if (
-      nextHoveredNode.left !== hoveredNode.left ||
-      nextHoveredNode.top !== hoveredNode.top ||
-      nextHoveredNode.width !== hoveredNode.width ||
-      nextHoveredNode.height !== hoveredNode.height ||
-      nextHoveredNode.index !== hoveredNode.index
-    ) {
-      setHoveredNode(nextHoveredNode);
-    }
-  }, [hoverableNodes, hoveredNode]);
-
-  useEffect(() => {
-    const container = chartContainerRef.current;
-    if (!container) {
-      return;
-    }
-
-    // Highlighting from a node's tooltip should only light up that node's own
-    // segment; the bottom legend still highlights the series across all nodes.
-    const nodeIndex = !isBottomLegendHover && hoveredNode ? hoveredNode.index : null;
-
-    chartData.series.forEach((_seriesItem, index) => {
-      const isHovered = highlightedSeriesIndexes.includes(index);
-      setHoveredSeriesState(container, index, isHovered, nodeIndex);
-    });
-  }, [chartData.series, highlightedSeriesIndexes, isBottomLegendHover, hoveredNode]);
-
-  const options: ApexOptions = {
-    chart: {
-      // Axis/label text follows the theme (apex can't read CSS vars)
-      foreColor: mode === 'dark' ? '#e0e0e0' : '#373d3f',
-      stacked: true,
-      redrawOnParentResize: true,
-      redrawOnWindowResize: true,
-      toolbar: {
-        show: false,
-      },
-      events: {
-        dataPointMouseEnter: (_event, chartContext, config) => {
-          clearHoveredNodeTimer();
-          if (config) setHoveredSegmentState(chartContext, config.seriesIndex, config.dataPointIndex, true);
-        },
-        dataPointMouseLeave: (_event, chartContext, config) => {
-          if (config) setHoveredSegmentState(chartContext, config.seriesIndex, config.dataPointIndex, false);
-        },
-      },
-    },
-    states: {
-      hover: {
-        filter: {
-          type: 'none',
-        },
-      },
-      active: {
-        filter: {
-          type: 'none',
-        },
-      },
-    },
-    plotOptions: {
-      bar: {
-        horizontal: false,
-        columnWidth: '20%',
-      },
-    },
-    xaxis: {
-      categories: chartData.categories,
-    },
-    legend: {
-      show: false,
-      position: 'bottom' as const,
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    yaxis: {
-      labels: {
-        formatter: (val: number) => formatBytes(val),
-      },
-    },
-    fill: {
-      opacity: 1,
-    },
-    stroke: {
-      width: 1,
-      // Segment separator matches the page background in each mode
-      colors: [mode === 'dark' ? '#111111' : '#fff'],
-    },
-    grid: {
-      borderColor: mode === 'dark' ? '#2e2e2e' : '#e0e0e0',
-    },
-    tooltip: {
-      theme: mode,
-    },
-  };
+  const options = buildChartOptions(mode, chartData.categories, clearHoveredNodeTimer);
 
   const nodeCount = chartData.categories.length;
   const chartWidth = nodeCount * 400;
@@ -663,28 +63,14 @@ export const StoragePoolInfo: React.FC = () => {
   // Wrapping the chart in a fixed-height parent keeps its observed parent stable.
   const chartHeight = height > 900 ? 500 : 300;
 
-  const isTruncated = chartData.totalNodeCount > nodeCount;
+  const highlightSeries = (index: number) => {
+    setHighlightedSeriesIndexes([index]);
+    setHighlightedLegendIndexes([index]);
+  };
 
   return (
     <div className="border-2 border-[color:var(--border-subtle)] rounded px-[34px] py-[30px]">
-      <div className="m-0 mb-4 flex items-baseline gap-3 flex-wrap">
-        <h2 className="m-0 text-[26px] font-semibold">{t('common:storage_pool_overview')}</h2>
-        <Tooltip
-          title={
-            isTruncated
-              ? `${t('common:showing_top_n_of_total_nodes', {
-                  n: nodeCount,
-                  total: chartData.totalNodeCount,
-                })}. ${t('common:top_n_nodes_hint', { n: MAX_NODES_TO_RENDER })}`
-              : t('common:top_n_nodes_hint', { n: MAX_NODES_TO_RENDER })
-          }
-          placement="right"
-        >
-          <span className="inline-flex text-gray-400 hover:text-gray-600 cursor-help text-base">
-            <InfoCircleOutlined />
-          </span>
-        </Tooltip>
-      </div>
+      <OverviewHeader nodeCount={nodeCount} totalNodeCount={chartData.totalNodeCount} />
       <Spin spinning={isPending}>
         <div
           className={`storage-pool-chart relative ${nodeCount >= 5 ? 'overflow-x-auto' : 'overflow-x-visible'}${
@@ -695,76 +81,24 @@ export const StoragePoolInfo: React.FC = () => {
           onMouseLeave={scheduleHoveredNodeClear}
         >
           {hoveredNode && (
-            <div
-              className="storage-pool-node-overlay"
-              style={{
-                left: hoveredNode.left,
-                top: hoveredNode.top,
-                width: hoveredNode.width,
-                height: hoveredNode.height + tooltipPanelHeight,
+            <NodeTooltip
+              hoveredNode={hoveredNode}
+              rows={[...hoveredNodeSpRows, ...(hoveredNodeTotalRow ? [hoveredNodeTotalRow] : [])]}
+              tooltipPanelHeight={tooltipPanelHeight}
+              hoveredChartItem={hoveredChartItem}
+              onTooltipEnter={clearHoveredNodeTimer}
+              onTooltipLeave={() => {
+                setHighlightedSeriesIndexes([]);
+                setHighlightedLegendIndexes([]);
+                scheduleHoveredNodeClear();
               }}
-            >
-              <div
-                className="storage-pool-node-tooltip"
-                key={hoveredNode.name}
-                onMouseEnter={clearHoveredNodeTimer}
-                onMouseLeave={() => {
-                  setHighlightedSeriesIndexes([]);
-                  setHighlightedLegendIndexes([]);
-                  scheduleHoveredNodeClear();
-                }}
-              >
-                <div className="storage-pool-node-tooltip-content">
-                  {[...hoveredNodeSpRows, ...(hoveredNodeTotalRow ? [hoveredNodeTotalRow] : [])].map((item) => {
-                    const isFreeHighlighted =
-                      hoveredChartItem?.group === item.group && hoveredChartItem?.side === 'free';
-                    const isUsedHighlighted =
-                      hoveredChartItem?.group === item.group && hoveredChartItem?.side === 'used';
-                    return (
-                      <div className="storage-pool-node-tooltip-row" key={`${hoveredNode.name}-${item.label}`}>
-                        <div className="storage-pool-node-tooltip-label">{item.label}</div>
-                        <div
-                          className={`storage-pool-node-tooltip-metric${isFreeHighlighted ? ' is-highlighted' : ''}`}
-                          onMouseEnter={() => {
-                            const idx = getSeriesIndexByGroupAndSide(item.group, 'free');
-                            if (idx >= 0) {
-                              setHighlightedSeriesIndexes([idx]);
-                              setHighlightedLegendIndexes([idx]);
-                            }
-                          }}
-                        >
-                          {item.freeColor && (
-                            <span
-                              className="storage-pool-node-tooltip-metric-dot"
-                              style={{ background: item.freeColor }}
-                            />
-                          )}
-                          {`Free: ${formatBytes(item.free)}`}
-                        </div>
-                        <div
-                          className={`storage-pool-node-tooltip-metric${isUsedHighlighted ? ' is-highlighted' : ''}`}
-                          onMouseEnter={() => {
-                            const idx = getSeriesIndexByGroupAndSide(item.group, 'used');
-                            if (idx >= 0) {
-                              setHighlightedSeriesIndexes([idx]);
-                              setHighlightedLegendIndexes([idx]);
-                            }
-                          }}
-                        >
-                          {item.usedColor && (
-                            <span
-                              className="storage-pool-node-tooltip-metric-dot"
-                              style={{ background: item.usedColor }}
-                            />
-                          )}
-                          {`Used: ${formatBytes(item.used)}`}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
+              onMetricEnter={(group, side) => {
+                const idx = getSeriesIndexByGroupAndSide(chartData.series, group, side);
+                if (idx >= 0) {
+                  highlightSeries(idx);
+                }
+              }}
+            />
           )}
           <div style={{ height: chartHeight, ...widthForChart }}>
             <Chart options={options} series={chartData.series} type="bar" height={chartHeight} {...widthForChart} />
@@ -775,34 +109,20 @@ export const StoragePoolInfo: React.FC = () => {
               style={{ height: tooltipPanelHeight + NODE_DETAILS_PANEL_GAP }}
             />
           )}
-          <div className="storage-pool-custom-legend">
-            {chartData.series.map((seriesItem, index) => (
-              <div
-                className={`storage-pool-custom-legend-item${
-                  highlightedLegendIndexes.includes(index) ? ' is-highlighted' : ''
-                }`}
-                key={`${seriesItem.name}-${index}`}
-                onMouseEnter={() => {
-                  setIsBottomLegendHover(true);
-                  setHighlightedSeriesIndexes([index]);
-                  setHighlightedLegendIndexes([index]);
-                }}
-                onMouseLeave={() => {
-                  setIsBottomLegendHover(false);
-                  setHighlightedSeriesIndexes((current) =>
-                    current.length === 1 && current[0] === index ? [] : current,
-                  );
-                  setHighlightedLegendIndexes((current) =>
-                    current.length === 1 && current[0] === index ? [] : current,
-                  );
-                }}
-              >
-                <span className="storage-pool-custom-legend-marker" style={{ background: seriesItem.color }} />
-                <span>{formatLegendLabel(seriesItem.name)}</span>
-                <span className="storage-pool-custom-legend-value">{formatBytes(seriesTotals[index])}</span>
-              </div>
-            ))}
-          </div>
+          <ChartLegend
+            series={chartData.series}
+            seriesTotals={seriesTotals}
+            highlightedLegendIndexes={highlightedLegendIndexes}
+            onItemEnter={(index) => {
+              setIsBottomLegendHover(true);
+              highlightSeries(index);
+            }}
+            onItemLeave={(index) => {
+              setIsBottomLegendHover(false);
+              setHighlightedSeriesIndexes((current) => (current.length === 1 && current[0] === index ? [] : current));
+              setHighlightedLegendIndexes((current) => (current.length === 1 && current[0] === index ? [] : current));
+            }}
+          />
         </div>
       </Spin>
     </div>
