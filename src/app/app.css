@@ -25,6 +25,15 @@
   display: none;
 }
 
+/* antd 6 dropped the 8px gap antd 5 put after every Tag, so tags side by side
+ * (layers, resource states, node lists) touched. Restored above antd's layer
+ * and below the utilities, so a class like mr-0 still overrides it. */
+@layer components {
+  .ant-tag {
+    margin-inline-end: 8px;
+  }
+}
+
 /* Base text/background follow the theme tokens (antd reset pins them to
  * light values); Roboto per DESIGN.md. */
 body {
