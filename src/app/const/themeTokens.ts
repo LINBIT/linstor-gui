@@ -57,7 +57,9 @@ export const themeTokens = {
   'text/on-brand': { light: '#111111', dark: '#111111' },
 
   'icon/default': { light: '#111111', dark: '#e0e0e0' },
-  'icon/subtle': { light: '#3f3f3f', dark: '#777777' },
+  // Dark: 4.1:1 on a hovered table row (#2d2d2d), the lightest surface an
+  // icon in this tone sits on; #777777 was 3.1:1 there.
+  'icon/subtle': { light: '#3f3f3f', dark: '#8c8c8c' },
   'icon/muted': { light: '#888888', dark: '#808080' },
   'icon/nav-arrow': { light: '#000000', dark: '#e0e0e0' },
   'icon/on-dark': { light: '#ffffff', dark: '#ffffff' },

@@ -177,7 +177,7 @@ export const HARowActions: React.FC<HARowActionsProps> = ({
 
   return (
     <Dropdown menu={{ items }}>
-      <span className="cursor-pointer text-gray-600 hover:text-gray-800">
+      <span className="cursor-pointer text-(--icon-subtle) hover:text-(--icon-default)">
         <MoreOutlined />
       </span>
     </Dropdown>

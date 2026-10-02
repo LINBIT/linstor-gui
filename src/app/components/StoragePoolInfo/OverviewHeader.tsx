@@ -35,7 +35,7 @@ export const OverviewHeader = ({ nodeCount, totalNodeCount }: OverviewHeaderProp
         }
         placement="right"
       >
-        <span className="inline-flex text-gray-400 hover:text-gray-600 cursor-help text-base">
+        <span className="inline-flex text-(--icon-muted) hover:text-(--icon-default) cursor-help text-base">
           <InfoCircleOutlined />
         </span>
       </Tooltip>

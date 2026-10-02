@@ -47,7 +47,7 @@ export const Login = ({ redirectTo }: LoginProps) => {
 
           {/* Form content */}
           <div className="px-4 md:pl-[37px]">
-            <h3 className="text-lg font-normal text-gray-800 text-center md:text-left mb-6 md:mb-0">
+            <h3 className="text-lg font-normal text-(--text-primary) text-center md:text-left mb-6 md:mb-0">
               Log into to Your Account
             </h3>
 

@@ -21,7 +21,7 @@ const NotFound: React.FunctionComponent = () => {
       <div className="flex flex-col items-center text-center">
         <img src={mazeSvg} alt="404 maze" className="w-64 h-64 mb-6" />
         <h1 className="m-0 mb-6 text-6xl font-light">Sorry</h1>
-        <p className="m-0 mb-6 text-lg text-gray-600">
+        <p className="m-0 mb-6 text-lg text-(--text-secondary)">
           We didn't find a page that matches the address you navigated to.
         </p>
         <Button type="primary" onClick={handleGoHome}>
