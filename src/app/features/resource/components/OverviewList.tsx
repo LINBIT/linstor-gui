@@ -4,137 +4,32 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { Form, Space, Table, Flex, Tag, Dropdown, Modal, Tooltip } from 'antd';
-import { Input } from '@app/components/Input';
-import { Select } from '@app/components/Select';
-import { Button } from '@app/components/Button';
-import { Link } from '@app/components/Link';
-import type { TableProps, TablePaginationConfig } from 'antd';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { Form, Table } from 'antd';
+import type { TablePaginationConfig } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { uniqBy } from 'lodash';
-import { DownOutlined, LineChartOutlined, MoreOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 
 import { uniqId } from '@app/utils/stringUtils';
-import { formatBytes } from '@app/utils/size';
-import {
-  deleteResourceDefinition,
-  getResourceDefinition,
-  ResourceDefinition,
-  ResourceDefinitionListQuery,
-  VolumeDefinition,
-  updateResourceDefinition,
-  UpdateResourceDefinitionRequestBody,
-  updateVolumeDefinition,
-  VolumeDefinitionModify,
-  ResizeVolumeModal,
-} from '@app/features/resourceDefinition';
-import { CreateForm } from '@app/features/volumeDefinition';
-import { SpawnForm } from '@app/features/resourceGroup/components/SpawnForm';
+import { ResizeVolumeModal } from '@app/features/resourceDefinition';
 import { useWidth } from '@app/hooks';
 import PropertyForm from '@app/components/PropertyForm';
+import { PropertyFormRef } from '@app/components/PropertyForm';
+import { useSettings } from '@app/features/settings/useSettings';
+import { deletingRowClass } from '@app/hooks/useDeleteAction';
 
-import {
-  adjustResourceGroup,
-  deleteResource,
-  getResources,
-  resourceMigration,
-  resourceModify,
-  toggleResource,
-} from '../api';
-import { ResourceDataType, ResourceModifyRequestBody, VolumeType } from '../types';
-import { CloneForm } from './Clone';
 import { AddToNodeModal } from './AddToNodeModal';
 import { ResourceMigrateForm } from './ResourceMigrateForm';
-import { SearchForm } from '@app/components/SearchForm';
 import './OverviewList.css';
 import { filterResourceList } from './filterResourceList';
-import { PropertyFormRef } from '@app/components/PropertyForm';
-import { UIMode } from '@app/features/settings/types';
-import { useSettings } from '@app/features/settings/useSettings';
-import { createSnapshot } from '@app/features/snapshot/api';
-import { getResourceState } from '@app/utils/resource';
-import { SyncFlowOverlay } from './SyncFlowOverlay';
-import { Popconfirm } from '@app/components/Popconfirm';
-import { useDeleteAction, deletingRowClass, replyError } from '@app/hooks/useDeleteAction';
-import { ActionColumnTitle } from '@app/components/ActionColumnTitle';
-import { variablesOnly } from '@app/utils/mutation';
-
-/** One row of a definition's volume sub-table: a deployed volume joined with its resource and definition. */
-type OverviewVolume = VolumeType & {
-  size_kib: number;
-  node_name?: string;
-  resource_name?: string;
-  /** The node the resource is Primary (in use) on, or '' when it is nowhere. */
-  primary_node: string;
-  resource_group_name: string;
-  flags?: string[];
-  volume_definition?: VolumeDefinition;
-  resource: ResourceDataType;
-  resourceDefinition: ResourceDefinition;
-};
-
-/** A resource definition with its deployed volumes, as the overview table lists it. */
-type OverviewRow = ResourceDefinition & {
-  volumes: OverviewVolume[];
-  volumeDefinitions: VolumeDefinition[];
-};
-
-type SubTableColumns = NonNullable<TableProps<OverviewVolume>['columns']>;
-
-interface ExpandableSubTableProps {
-  volumes: OverviewVolume[];
-  columns: SubTableColumns;
-  isDeleting: (row: OverviewVolume) => boolean;
-}
-
-// Permanent left gutter that hosts the SyncFlowOverlay's arrows. Kept at a
-// fixed width regardless of sync state so the table layout never jumps.
-const SYNC_LANE_WIDTH = 96;
-
-const ExpandableSubTable: React.FC<ExpandableSubTableProps> = ({ volumes, columns, isDeleting }) => {
-  const containerRef = useRef<HTMLDivElement | null>(null);
-
-  return (
-    <div ref={containerRef} style={{ position: 'relative', paddingLeft: SYNC_LANE_WIDTH }}>
-      <Table
-        bordered
-        size="small"
-        columns={columns}
-        dataSource={volumes}
-        rowKey={(item) => `${item?.node_name}:${item?.volume_number ?? 0}`}
-        rowClassName={(row) => {
-          const isPrimaryNode = row?.node_name?.toLowerCase() === row?.primary_node?.toLowerCase();
-          return [isPrimaryNode ? 'ant-table-row-primary' : '', isDeleting(row) ? deletingRowClass : '']
-            .filter(Boolean)
-            .join(' ');
-        }}
-        pagination={false}
-        scroll={{ x: 'max-content' }}
-      />
-      <SyncFlowOverlay containerRef={containerRef} volumes={volumes} />
-    </div>
-  );
-};
-
-const TAG_COLORS = [
-  '#FFCC9C',
-  '#EEEEEE',
-  '#E1C047',
-  '#C0854E',
-  '#F79133',
-  '#499BBB',
-  '#E1C047',
-  '#65BDED',
-  '#C0854E',
-  '#84E4E9',
-  '#FF6D6D',
-  '#5FD4A9',
-  '#C38EC8',
-  '#BBD45F',
-];
+import { auxPropKeys, resourceKey } from './overview/rows';
+import type { OverviewRow } from './overview/types';
+import { useOverviewData } from './overview/useOverviewData';
+import { useOverviewMutations } from './overview/useOverviewMutations';
+import { useDefinitionColumns, withAuxColumns } from './overview/useDefinitionColumns';
+import { NodeVolumesTable } from './overview/NodeVolumesTable';
+import { OverviewToolbar } from './overview/OverviewToolbar';
+import { CreateSnapshotModal } from './overview/CreateSnapshotModal';
+import { useUrlQuery } from './overview/useUrlQuery';
 
 export const OverviewList = () => {
   // The definition a row menu acted on, and the deployed resource a sub-row
@@ -159,7 +54,6 @@ export const OverviewList = () => {
   const [addToNodeModalOpen, setAddToNodeModalOpen] = useState(false);
   const [currentResource, setCurrentResource] = useState<string>();
   const [usedNodes, setUsedNodes] = useState<string[]>([]);
-  const [snapshotName, setSnapshotName] = useState<string>('');
   const [migrationInfo, setMigrationInfo] = useState<{
     resource: string;
     node: string;
@@ -172,69 +66,40 @@ export const OverviewList = () => {
 
   const isLargeScreen = width >= 1080;
 
-  const navigate = useNavigate();
   const [form] = Form.useForm();
-  const location = useLocation();
   const resource_group = Form.useWatch('resource_group', form);
-
-  const onSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchKey(value);
-  };
 
   const { t } = useTranslation(['volume', 'common']);
 
-  const [query, setQuery] = useState<ResourceDefinitionListQuery>(() => {
-    const query = new URLSearchParams(location.search);
-    const resource_definitions = query.get('resource-definitions')?.split(',');
-    const resource = query.get('resource');
+  const [query, setQuery] = useUrlQuery(form, setSearchKey);
 
-    const queryO: ResourceDefinitionListQuery = {};
+  const { mode } = useSettings();
 
-    if (resource_definitions) {
-      form.setFieldValue('name', resource_definitions);
-      queryO['resource_definitions'] = resource_definitions;
-    }
+  const { resourceDefinitionList, isPending, refetch, reloadAll } = useOverviewData(query);
 
-    if (resource) {
-      form.setFieldValue('name', resource);
-      setSearchKey(resource);
-    }
+  const filteredList = useMemo(
+    () => filterResourceList(resourceDefinitionList, resource_group, searchKey),
+    [resourceDefinitionList, resource_group, searchKey],
+  );
 
-    return {
-      resource_definitions,
-    };
+  const {
+    migrateResourceMutation,
+    adjustResourceGroupMutation,
+    toggleResourceMutation,
+    updateResourceMutation,
+    updateResourceDefinitionMutation,
+    updateVolumeDefinitionMutation,
+    delResource,
+    delDefinition,
+  } = useOverviewMutations({
+    refetch,
+    reloadAll,
+    currentDefinition,
+    currentResource: currentResource_,
+    rdPropertyFormRef,
+    vdPropertyFormRef,
+    resourcePropertyFormRef,
   });
-
-  const { mode, grafanaConfig } = useSettings();
-
-  const migrateResourceMutation = useMutation({
-    mutationFn: variablesOnly(resourceMigration),
-  });
-
-  const queryClient = useQueryClient();
-
-  // openapi-fetch reports a refused snapshot in `error` rather than throwing;
-  // the fetch proxy toasts it, and the dialog stays open to correct the name.
-  const handleCreateSnapShot = async () => {
-    if (currentResource && snapshotName != '') {
-      const res = await createSnapshot(currentResource, { name: snapshotName });
-      if (replyError(res)) return;
-      setIsModalOpen(false);
-      setSnapshotName('');
-      void queryClient.invalidateQueries({ queryKey: ['getSnapshots'] });
-    }
-  };
-
-  const handleOpenMigrate = (resource: string, node: string) => {
-    setMigrateModalOpen(true);
-    setMigrationInfo({ resource, node });
-  };
-
-  const handleSnapshot = (resource: string) => {
-    setIsModalOpen(true);
-    setCurrentResource(resource);
-  };
 
   const handleMigrate = async (val: { node: string }) => {
     const res = await migrateResourceMutation.mutateAsync({
@@ -248,175 +113,6 @@ export const OverviewList = () => {
     }
   };
 
-  const handleStatsClick = (nodeName: string, resourceName: string) => {
-    if (!grafanaConfig?.enable) {
-      Modal.warning({
-        title: 'Grafana Dashboard Not Enabled',
-        content: 'Please enable and configure Grafana Dashboard in Settings to view stats.',
-      });
-      return;
-    }
-
-    // Navigate to the Grafana stats page with node name and resource name as route params
-    navigate(`/stats/${nodeName}/${encodeURIComponent(resourceName)}`);
-  };
-
-  const fetchResourceDefinitions = async () => {
-    const data = await getResourceDefinition({
-      ...query,
-      with_volume_definitions: true,
-    });
-
-    return data?.data ?? [];
-  };
-
-  const fetchResourcesView = async () => (await getResources()).data ?? [];
-
-  const {
-    data: resourceDefinitions,
-    isPending: rdLoading,
-    refetch: refetchResourceDefinitions,
-  } = useQuery({
-    queryKey: ['getResourceDefinitionList', query],
-    queryFn: fetchResourceDefinitions,
-    // Definitions/props/layers rarely change during a sync. Polling slow keeps
-    // the controller load down even on large clusters.
-    refetchInterval: 10000,
-  });
-
-  // Live state (disk_state, replication_states, done_percentage, in_use) is
-  // fetched separately so it can poll fast during a sync without re-pulling
-  // the heavier resource-definition payload. Constant 1s cadence so we don't
-  // need to "detect" sync before going fast — the /v1/view/resources call is
-  // a single lightweight endpoint.
-  const {
-    data: resourcesView,
-    isPending: rvLoading,
-    refetch: refetchResourcesView,
-  } = useQuery({
-    queryKey: ['getResourcesView'],
-    queryFn: fetchResourcesView,
-    refetchInterval: 1000,
-    refetchIntervalInBackground: false,
-  });
-
-  // Merge structural data (definitions) with live state (resources view).
-  const resourceDefinitionList = useMemo(() => {
-    if (!resourceDefinitions) return undefined;
-    return resourceDefinitions.map((resource): OverviewRow => {
-      const { name, volume_definitions: volumeDefinitions } = resource;
-
-      const resourceWithVolumes: OverviewRow = {
-        ...resource,
-        volumes: [],
-        volumeDefinitions: volumeDefinitions || [],
-      };
-
-      resourceWithVolumes.volumes =
-        resourcesView
-          ?.filter((e) => e.name === name)
-          ?.flatMap(
-            (e) =>
-              e.volumes?.map((v): OverviewVolume => {
-                const matchingVolume = volumeDefinitions?.find((vd) => vd.volume_number === v.volume_number);
-                return {
-                  ...v,
-                  size_kib: matchingVolume?.size_kib || 0,
-                  node_name: e.node_name,
-                  resource_name: e.name,
-                  primary_node: e.state?.in_use ? (e.node_name ?? '') : '',
-                  resource_group_name: resource.resource_group_name || '',
-                  flags: e.flags,
-                  volume_definition: matchingVolume,
-                  resource: e,
-                  resourceDefinition: resource,
-                };
-              }) || [],
-          ) ?? [];
-
-      return resourceWithVolumes;
-    });
-  }, [resourceDefinitions, resourcesView]);
-
-  const filteredList = useMemo(
-    () => filterResourceList(resourceDefinitionList, resource_group, searchKey),
-    [resourceDefinitionList, resource_group, searchKey],
-  );
-
-  const isPending = rdLoading || rvLoading;
-  const refetch = useCallback(() => {
-    void refetchResourceDefinitions();
-    void refetchResourcesView();
-  }, [refetchResourceDefinitions, refetchResourcesView]);
-
-  const adjustResourceGroupMutation = useMutation({
-    mutationKey: ['adjustResourceGroupMutation'],
-    mutationFn: variablesOnly(adjustResourceGroup),
-    onSuccess: () => {
-      refetch();
-    },
-  });
-
-  const toggleResourceMutation = useMutation({
-    mutationKey: ['toggleResourceMutation'],
-    mutationFn: (data: { resource: string; node: string; action: 'to_diskless' | 'to_diskful' }) => {
-      const { resource, node, action } = data;
-      return toggleResource(resource, node, action);
-    },
-    onSuccess: () => {
-      refetch();
-    },
-  });
-
-  // Awaitable twin of refetch, so a delete keeps its row busy until both lists have reloaded.
-  const reloadAll = () => Promise.all([refetchResourceDefinitions(), refetchResourcesView()]);
-
-  const resourceKey = (vol: OverviewVolume) => `${vol.resource_name ?? ''}@${vol.node_name ?? ''}`;
-
-  const delResource = useDeleteAction<OverviewVolume>({
-    remove: (vol) => deleteResource(vol.resource_name ?? '', vol.node_name ?? ''),
-    keyOf: resourceKey,
-    nameOf: (vol) => `${vol.resource_name ?? ''} on ${vol.node_name ?? ''}`,
-    refresh: reloadAll,
-  });
-
-  const updateResourceMutation = useMutation({
-    mutationKey: ['resourceModify'],
-    mutationFn: (data: ResourceModifyRequestBody) => {
-      return resourceModify(currentResource_?.resource_name ?? '', currentResource_?.node_name ?? '', data);
-    },
-    onSuccess: () => {
-      resourcePropertyFormRef.current?.closeModal();
-      refetch();
-    },
-  });
-
-  const updateResourceDefinitionMutation = useMutation({
-    mutationKey: ['updateResourceDefinition'],
-    mutationFn: (data: UpdateResourceDefinitionRequestBody) =>
-      updateResourceDefinition(currentDefinition?.name ?? '', data),
-    onSuccess: () => {
-      rdPropertyFormRef.current?.closeModal();
-      refetch();
-    },
-  });
-
-  const updateVolumeDefinitionMutation = useMutation({
-    mutationKey: ['updateVolumeDefinition'],
-    mutationFn: (data: VolumeDefinitionModify) => updateVolumeDefinition(currentDefinition?.name ?? '', 0, data),
-    onSuccess: () => {
-      vdPropertyFormRef.current?.closeModal();
-      refetch();
-    },
-  });
-
-  const delDefinition = useDeleteAction<OverviewRow>({
-    remove: (rd) => deleteResourceDefinition(rd.name ?? ''),
-    keyOf: (rd) => rd.name ?? '',
-    nameOf: (rd) => rd.name ?? '',
-    refresh: reloadAll,
-  });
-
   const handleReset = () => {
     form.resetFields();
     setQuery({
@@ -427,201 +123,30 @@ export const OverviewList = () => {
     refetch();
   };
 
-  const handleConnectStatusDisplay = (resourceItem: ResourceDataType) => {
-    let failStr = '';
-    const conn = resourceItem?.layer_object?.drbd?.connections || {};
-    if (Object.keys(conn).length === 0) {
-      return 'OK';
-    }
-    let count = 0;
-    let fail = false;
-    for (const nodeName in conn) {
-      count++;
-      if (!conn?.[nodeName]?.connected) {
-        fail = true;
-        if (failStr !== '') {
-          failStr += ',';
-        }
-        failStr += `${nodeName} ${conn?.[nodeName]?.message}`;
-      }
-    }
-    fail = count === 0 ? true : fail;
-    failStr = fail ? failStr : 'OK';
-    return failStr;
-  };
-
-  const calculatePercentage = (allocated: number = 0, total: number = 0): string => {
-    if (total === 0) return '0.00';
-    const percentage = (allocated / total) * 100;
-    return Math.min(percentage, 100).toFixed(2);
-  };
-
-  const CSProps = Array.from(
-    new Set(
-      resourceDefinitionList?.flatMap((item) => Object.keys(item.props ?? {}).filter((key) => key.startsWith('Aux'))),
-    ),
-  );
-
-  const columns: NonNullable<TableProps<OverviewRow>['columns']> = [
-    {
-      title: t('common:name'),
-      key: 'resource',
-      dataIndex: 'name',
-      sorter: (a, b) => {
-        if (a.name && b.name) {
-          return a.name.localeCompare(b.name);
-        } else {
-          return 0;
-        }
-      },
-      showSorterTooltip: false,
+  const columns = useDefinitionColumns(mode, {
+    onAddToNode: (record) => {
+      setCurrentResource(record.name);
+      const nodes = record.volumes?.map((v) => v.node_name) || [];
+      setUsedNodes(Array.from(new Set(nodes.filter((n): n is string => Boolean(n)))));
+      setAddToNodeModalOpen(true);
     },
-    {
-      title: t('common:resource_group'),
-      key: 'resource_group_name',
-      dataIndex: 'resource_group_name',
-      render: (resource_group_name) => {
-        const url =
-          mode === UIMode.HCI
-            ? `/hci/storage-configuration/resource-groups?resource_groups=${resource_group_name}`
-            : `/storage-configuration/resource-groups?resource_groups=${resource_group_name}`;
-
-        return <Link to={url}>{resource_group_name}</Link>;
-      },
+    onAdjust: (record) => adjustResourceGroupMutation.mutate({ resource_group: record.resource_group_name ?? '' }),
+    onResize: (record) => {
+      setCurrentDefinition(record);
+      setResizeModalOpen(true);
     },
-    {
-      title: t('common:layers'),
-      key: 'layers',
-      render: (_, record) => {
-        return (
-          <Flex gap="4px 0" wrap>
-            {record?.layer_data?.map((layer, index) => {
-              return (
-                <Tag key={index} color={TAG_COLORS[index]} variant="filled">
-                  <span className="text-[var(--text-on-brand)]">{layer.type}</span>
-                </Tag>
-              );
-            })}
-          </Flex>
-        );
-      },
+    onDefinitionProperties: (record) => {
+      setCurrentDefinition(record);
+      setInitialProps(record.props ?? {});
+      rdPropertyFormRef.current?.openModal();
     },
-    {
-      title: t('common:state'),
-      key: 'state',
-      render: (_, rd) => {
-        const isResizing = rd.volumeDefinitions?.some((vd) =>
-          vd.flags?.some((flag: string) => flag.includes('RESIZE')),
-        );
-
-        if (isResizing) {
-          return <Tag color="orange">RESIZING</Tag>;
-        }
-
-        const stateOfResources = rd.volumes?.map((e) => handleConnectStatusDisplay(e.resource));
-
-        const isAllOK = stateOfResources?.every((e) => e === 'OK');
-
-        // Filter out 'OK' and remove duplicates before joining
-        const uniqueNonOKStates = Array.from(new Set(stateOfResources?.filter((e) => e !== 'OK')));
-
-        return <Tag color={isAllOK ? 'green' : 'red'}>{isAllOK ? 'OK' : uniqueNonOKStates.join(',')}</Tag>;
-      },
+    onVolumeDefinitionProperties: (record) => {
+      setCurrentDefinition(record);
+      setInitialProps(record.volumeDefinitions[0]?.props ?? {});
+      vdPropertyFormRef.current?.openModal();
     },
-    {
-      title: () => <ActionColumnTitle />,
-      key: 'action',
-      width: 10,
-      fixed: 'right',
-      render: (_, record) => {
-        const isUsingZFS = record.volumes?.every((e) => e.provider_kind === 'ZFS');
-        return (
-          <Dropdown
-            menu={{
-              items: [
-                {
-                  key: 'add_to_node',
-                  label: t('resource:add_to_node'),
-                  onClick: () => {
-                    setCurrentResource(record.name);
-                    const nodes = record.volumes?.map((v) => v.node_name) || [];
-                    setUsedNodes(Array.from(new Set(nodes.filter((n): n is string => Boolean(n)))));
-                    setAddToNodeModalOpen(true);
-                  },
-                },
-                {
-                  key: 'adjust',
-                  label: (
-                    <Popconfirm
-                      title={t('resource:adjust_resource')}
-                      description={t('resource:are_you_sure_adjust_resource')}
-                      onConfirm={() => {
-                        adjustResourceGroupMutation.mutate({
-                          resource_group: record.resource_group_name ?? '',
-                        });
-                      }}
-                    >
-                      <div className="w-full">{t('common:adjust')}</div>
-                    </Popconfirm>
-                  ),
-                },
-                {
-                  key: 'clone',
-                  label: <CloneForm resource={record.name ?? ''} isUsingZFS={isUsingZFS} />,
-                },
-                {
-                  key: 'resize',
-                  label: t('common:resize'),
-                  onClick: () => {
-                    setCurrentDefinition(record);
-                    setResizeModalOpen(true);
-                  },
-                },
-                {
-                  key: 'resource_definition',
-                  label: t('common:resource_definition_properties'),
-                  onClick: () => {
-                    setCurrentDefinition(record);
-                    setInitialProps(record.props ?? {});
-                    rdPropertyFormRef.current?.openModal();
-                  },
-                },
-                {
-                  key: 'volume_definition',
-                  label: t('common:volume_definition_properties'),
-                  // A definition created without a size has no volume
-                  // definition to edit; reading [0] of it used to throw.
-                  disabled: record.volumeDefinitions.length === 0,
-                  onClick: () => {
-                    setCurrentDefinition(record);
-                    setInitialProps(record.volumeDefinitions[0]?.props ?? {});
-                    vdPropertyFormRef.current?.openModal();
-                  },
-                },
-                {
-                  key: 'delete',
-                  label: (
-                    <Popconfirm
-                      key="delete"
-                      title={t('resource:delete_resource_definition')}
-                      description={t('resource:are_you_sure_delete_resource')}
-                      onConfirm={() => delDefinition.run([record])}
-                    >
-                      <div className="w-full text-red-600">{t('common:delete')}</div>
-                    </Popconfirm>
-                  ),
-                },
-              ],
-            }}
-          >
-            <span className="cursor-pointer text-gray-600 hover:text-gray-800 flex items-center justify-center w-8 h-8">
-              <MoreOutlined style={{ fontSize: 18 }} />
-            </span>
-          </Dropdown>
-        );
-      },
-    },
-  ];
+    onDelete: (record) => delDefinition.run([record]),
+  });
 
   const handlePaginationChange = useCallback((pagination: TablePaginationConfig) => {
     setPagination(pagination);
@@ -633,16 +158,7 @@ export const OverviewList = () => {
   const pageSize = pagination.pageSize ?? 10;
   const currentPage = pagination.current ?? 1;
   const currentData = filteredList?.slice(pageSize * (currentPage - 1), pageSize * currentPage);
-  const shouldShowCSProps = currentData?.some((e) => CSProps.some((key) => e.props?.[key]));
-  const extra = shouldShowCSProps
-    ? CSProps.map((e) => ({
-        title: e,
-        key: e,
-        render: (item: OverviewRow) => <span>{item?.props?.[e]}</span>,
-      }))
-    : [];
-
-  const finalColumns = isLargeScreen ? [...columns.slice(0, -1), ...extra, columns[columns.length - 1]] : columns;
+  const finalColumns = withAuxColumns(columns, auxPropKeys(resourceDefinitionList), currentData, isLargeScreen);
 
   const tablePagination = useMemo(() => {
     return {
@@ -653,299 +169,48 @@ export const OverviewList = () => {
     };
   }, [t]);
 
-  const expandableRender = (record: OverviewRow) => {
-    const subTableColumns: SubTableColumns = [
-      {
-        title: t('common:node'),
-        key: 'node_name',
-        dataIndex: 'node_name',
-        render: (node_name) => {
-          return <span>{node_name}</span>;
-        },
-      },
-      {
-        title: t('common:volume_number_short'),
-        key: 'volume_number',
-        dataIndex: 'volume_number',
-        render: (volume_number) => {
-          return <span>{volume_number}</span>;
-        },
-      },
-      {
-        title: t('common:size'),
-        key: 'size',
-        render: (_, record) => {
-          return (
-            <span>
-              {formatBytes(record.allocated_size_kib ?? 0)} / {formatBytes(record?.size_kib ?? 0)} (
-              {calculatePercentage(record.allocated_size_kib, record.size_kib)}%)
-            </span>
-          );
-        },
-      },
-      {
-        title: t('common:storage_pool'),
-        key: 'storage_pool',
-        dataIndex: 'storage_pool_name',
-        render: (storage_pool_name) => {
-          const url =
-            mode === UIMode.HCI
-              ? `/hci/inventory/storage-pools?storage_pools=${storage_pool_name}`
-              : `/inventory/storage-pools?storage_pools=${storage_pool_name}`;
+  const expandableRender = (record: OverviewRow) => (
+    <NodeVolumesTable
+      volumes={record.volumes ?? []}
+      isDeleting={(vol) => delResource.isDeleting(resourceKey(vol))}
+      onToggleDisk={(vol, action) =>
+        toggleResourceMutation.mutate({ resource: vol.resource_name ?? '', node: vol.node_name ?? '', action })
+      }
+      onProperties={(vol) => {
+        setCurrentResource_({
+          resource_name: vol.resource_name,
+          node_name: vol.node_name,
+        });
 
-          return <Link to={url}>{storage_pool_name}</Link>;
-        },
-      },
-      {
-        title: t('volume:device_name'),
-        key: 'device_path',
-        dataIndex: 'device_path',
-      },
-      {
-        title: t('resource:connection_status'),
-        key: 'connection_status',
-        render: (record) => {
-          const connectionStatus = handleConnectStatusDisplay(record?.resource);
-          return <Tag color={connectionStatus === 'OK' ? 'green' : 'red'}>{connectionStatus}</Tag>;
-        },
-      },
-      {
-        title: t('common:state'),
-        key: 'state',
-        dataIndex: 'state',
-        render: (_, record) => {
-          const isPrimaryNode = record?.node_name?.toLowerCase() === record?.primary_node?.toLowerCase();
-          const stateStr = getResourceState(record.resource, record.volume_number);
-          const isInconsistent = stateStr?.includes('Inconsistent');
-          return (
-            <>
-              <Tag color={isInconsistent ? 'red' : 'geekblue'}>{stateStr}</Tag>
-              {isPrimaryNode && <Tag color="cyan">{t('common:primary')}</Tag>}
-            </>
-          );
-        },
-      },
-      {
-        title: 'Stats',
-        key: 'stats',
-        width: 10,
-        align: 'center',
-        render: (_, record) => {
-          const statsIcon = (
-            <LineChartOutlined
-              onClick={() => handleStatsClick(record.node_name ?? '', record.resource_name ?? '')}
-              style={{
-                color: grafanaConfig?.enable ? '#1890ff' : '#d9d9d9',
-                cursor: grafanaConfig?.enable ? 'pointer' : 'not-allowed',
-              }}
-              disabled={!grafanaConfig?.enable}
-            />
-          );
-
-          if (!grafanaConfig?.enable) {
-            return (
-              <Tooltip title={t('resource:please_enable_configure_grafana')} placement="top">
-                {statsIcon}
-              </Tooltip>
-            );
-          }
-
-          return statsIcon;
-        },
-      },
-      {
-        title: () => <ActionColumnTitle />,
-        key: 'action',
-        width: 10,
-        fixed: 'right',
-        align: 'center',
-        render: (_, record) => {
-          const isDisklessOrTieBreaker =
-            record.flags && (record.flags.includes('DRBD_DISKLESS') || record.flags.includes('TIE_BREAKER'));
-
-          return (
-            <>
-              <Dropdown
-                menu={{
-                  items: [
-                    {
-                      key: 'toggle',
-                      label: (
-                        <Popconfirm
-                          title={t('resource:toggle_resource')}
-                          description={t('resource:are_you_sure_toggle_resource')}
-                          onConfirm={() => {
-                            toggleResourceMutation.mutate({
-                              resource: record.resource_name ?? '',
-                              node: record.node_name ?? '',
-                              action: isDisklessOrTieBreaker ? 'to_diskful' : 'to_diskless',
-                            });
-                          }}
-                        >
-                          <div className="w-full">
-                            {isDisklessOrTieBreaker ? t('resource:add_disk') : t('resource:remove_disk')}
-                          </div>
-                        </Popconfirm>
-                      ),
-                    },
-                    {
-                      key: 'property',
-                      label: t('common:property'),
-                      onClick: () => {
-                        setCurrentResource_({
-                          resource_name: record.resource_name,
-                          node_name: record.node_name,
-                        });
-
-                        const currentData = record?.resource.props;
-                        setInitialProps({
-                          ...currentData,
-                          name: record?.resource_name,
-                        });
-                        resourcePropertyFormRef.current?.openModal();
-                      },
-                    },
-                    {
-                      key: 'snapshot',
-                      label: t('common:snapshot'),
-                      onClick: () => {
-                        handleSnapshot(record.resource_name ?? '');
-                      },
-                    },
-                    {
-                      key: 'migrate',
-                      label: t('common:migrate'),
-                      onClick: () => {
-                        handleOpenMigrate(record.resource_name ?? '', record.node_name ?? '');
-                      },
-                    },
-                    {
-                      key: 'delete',
-                      label: (
-                        <Popconfirm
-                          key="delete"
-                          title={t('resource:delete_resource')}
-                          description={t('resource:are_you_sure_delete_resource_2')}
-                          onConfirm={() => delResource.run([record])}
-                        >
-                          <div className="w-full text-red-600">{t('common:delete')}</div>
-                        </Popconfirm>
-                      ),
-                    },
-                  ],
-                }}
-              >
-                <span className="cursor-pointer text-gray-600 hover:text-gray-800 flex items-center justify-center w-8 h-8">
-                  <MoreOutlined style={{ fontSize: 18 }} />
-                </span>
-              </Dropdown>
-            </>
-          );
-        },
-      },
-    ];
-
-    return (
-      <ExpandableSubTable
-        volumes={record.volumes ?? []}
-        columns={subTableColumns}
-        isDeleting={(vol) => delResource.isDeleting(resourceKey(vol))}
-      />
-    );
-  };
+        const currentData = vol?.resource.props;
+        setInitialProps({
+          ...currentData,
+          name: vol?.resource_name,
+        });
+        resourcePropertyFormRef.current?.openModal();
+      }}
+      onSnapshot={(resource) => {
+        setIsModalOpen(true);
+        setCurrentResource(resource);
+      }}
+      onMigrate={(resource, node) => {
+        setMigrateModalOpen(true);
+        setMigrationInfo({ resource, node });
+      }}
+      onDelete={(vol) => delResource.run([vol])}
+    />
+  );
 
   return (
     <div className="overflow-x-auto relative">
-      <SearchForm>
-        <Form form={form} name="storage_pool_search" layout="inline">
-          <Form.Item
-            name="name"
-            label={
-              <>
-                {t('common:name')}
-                <Tooltip title={t('resource:search_placeholder')}>
-                  <QuestionCircleOutlined style={{ marginLeft: 5 }} />
-                </Tooltip>
-              </>
-            }
-          >
-            <Input
-              placeholder={t('resource:search_placeholder')}
-              onChange={onSearchInputChange}
-              onPressEnter={(e) => setSearchKey(e.currentTarget.value)}
-            />
-          </Form.Item>
-
-          <Form.Item name="resource_group" label={t('common:resource_group')}>
-            <Select
-              showSearch
-              allowClear
-              style={{ width: 200 }}
-              options={uniqBy(
-                resourceDefinitionList?.map((e) => ({
-                  label: e.resource_group_name,
-                  value: e.resource_group_name,
-                })) || [],
-                'value',
-              )}
-              placeholder={t('common:select_resource_group')}
-            />
-          </Form.Item>
-
-          <Form.Item>
-            <Space size="small">
-              <Button type="secondary" onClick={handleReset}>
-                {t('common:reset')}
-              </Button>
-            </Space>
-          </Form.Item>
-        </Form>
-
-        <Space>
-          {/* Quick path: spawn a fully-deployed resource from a resource group. */}
-          <SpawnForm />
-
-          {/* Advanced path: create the Resource Definition / Volume Definition /
-              Resource by hand. */}
-          <Dropdown
-            menu={{
-              items: [
-                {
-                  key: '1',
-                  label: `${t('common:create')} ${t('common:resource_definition')}`,
-                  onClick: () => {
-                    navigate(
-                      mode === UIMode.HCI
-                        ? `/hci/storage-configuration/resource-definitions/create`
-                        : `/storage-configuration/resource-definitions/create`,
-                    );
-                  },
-                },
-                {
-                  key: '2',
-                  label: <CreateForm refetch={refetch} simple />,
-                },
-                {
-                  key: '3',
-                  label: `${t('common:create')} ${t('common:resource')}`,
-                  onClick: () => {
-                    navigate(
-                      mode === UIMode.HCI
-                        ? `/hci/storage-configuration/resources/create`
-                        : `/storage-configuration/resources/create`,
-                    );
-                  },
-                },
-              ],
-            }}
-            placement="bottomRight"
-          >
-            <Button type="secondary">
-              {t('common:advanced')} <DownOutlined />
-            </Button>
-          </Dropdown>
-        </Space>
-      </SearchForm>
+      <OverviewToolbar
+        form={form}
+        rows={resourceDefinitionList}
+        mode={mode}
+        onSearch={setSearchKey}
+        onReset={handleReset}
+        refetch={refetch}
+      />
 
       <br />
 
@@ -1006,21 +271,7 @@ export const OverviewList = () => {
         }}
       />
 
-      <Modal
-        title={t('resource:create_snapshot')}
-        open={isModalOpen}
-        onCancel={() => setIsModalOpen(false)}
-        onOk={handleCreateSnapShot}
-      >
-        <Input
-          type="text"
-          placeholder={t('resource:please_input_snapshot_name')}
-          value={snapshotName}
-          onChange={(evt) => {
-            setSnapshotName(evt.target.value);
-          }}
-        />
-      </Modal>
+      <CreateSnapshotModal open={isModalOpen} resource={currentResource} onClose={() => setIsModalOpen(false)} />
       <ResourceMigrateForm
         open={migrateModalOpen}
         migrationInfo={migrationInfo}
