@@ -231,10 +231,13 @@ describe('Settings ControllerAuth tab', () => {
 
     await waitFor(() => expect(errorMessage).toHaveBeenCalledWith('controller unreachable'));
     // A loading antd button stays enabled, so "offering it again" means the
-    // spinner is gone.
-    const initialize = screen.getByRole('button', { name: 'settings:controller_auth_initialize' });
-    await waitFor(() => expect(initialize).not.toHaveClass('ant-btn-loading'));
-    expect(initialize).toBeEnabled();
+    // spinner is gone. Looked up inside waitFor: while it spins, the loading
+    // icon is part of the button's accessible name.
+    await waitFor(() => {
+      const initialize = screen.getByRole('button', { name: 'settings:controller_auth_initialize' });
+      expect(initialize).not.toHaveClass('ant-btn-loading');
+      expect(initialize).toBeEnabled();
+    });
     expect(window.localStorage.getItem('LINSTOR_CONTROLLER_AUTH_TOKEN')).toBeNull();
   });
 
