@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { test, expect, toast, type Page } from '../fixtures';
+import { test, expect, type Page } from '../fixtures';
 
 // GUI user login, kept in the mock's key-value store: a fresh user store
 // offers admin/admin and forces a new password; once changed, the default is
@@ -17,12 +17,20 @@ const logIn = async (page: Page, password: string) => {
   await page.getByRole('button', { name: 'Log in' }).click();
 };
 
+// Waits for the setting to be saved rather than for the toast: the page
+// reloads two seconds after the toggle, and on a slow runner the toast could
+// be gone, or never painted, before it was seen. A missed "off" left user
+// login on in the mock for every later test.
 const setUserLogin = async (page: Page, on: boolean) => {
   await page.goto('#/users');
   const toggle = page.getByRole('main').getByRole('switch').first();
   await expect(toggle).toHaveAttribute('aria-checked', String(!on));
+  const saved = page.waitForResponse(
+    (res) => res.request().method() === 'PUT' && res.url().endsWith('/v1/key-value-store/__gui__settings') && res.ok(),
+  );
   await toggle.click();
-  await expect(toast(page, `Authentication is now ${on ? 'enabled' : 'disabled'}`)).toBeVisible();
+  await saved;
+  await expect(toggle).toHaveAttribute('aria-checked', String(on));
 };
 
 test('user login: default credential, forced change, then only the new password', async ({ page }) => {
