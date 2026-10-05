@@ -33,7 +33,7 @@ const PageBasic: React.FC<PropsWithChildren<Props>> = ({ showBack, onBack, title
   };
 
   return (
-    <main className="content">
+    <main className="content gui-page-enter">
       {/* className content is used by WidthProvider */}
       <div className="flex items-center justify-between pb-4">
         <h1 className="text-lg font-semibold">{title}</h1>

@@ -69,6 +69,16 @@ describe('PageBasic', () => {
       expect(mainElement).toHaveClass('content');
     });
 
+    it('fades the page in on mount', () => {
+      render(
+        <PageBasic title="Test Page">
+          <div>Test Content</div>
+        </PageBasic>,
+      );
+
+      expect(screen.getByRole('main')).toHaveClass('gui-page-enter');
+    });
+
     it('should render title as h1 with correct classes', () => {
       render(
         <PageBasic title="Test Page">

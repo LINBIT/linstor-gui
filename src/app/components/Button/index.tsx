@@ -171,7 +171,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function 
       shape={shape}
       block={block}
       // Icons drawn with their own fill follow the label color.
-      className={['[&_svg]:fill-current', className].filter(Boolean).join(' ')}
+      className={['gui-button', '[&_svg]:fill-current', className].filter(Boolean).join(' ')}
       style={{
         ...variantStyle(type, danger, disabled || !!loading, shape !== 'circle' && shape !== 'round'),
         ...style,

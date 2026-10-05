@@ -100,6 +100,9 @@ export const antdTheme: ThemeConfig = {
     colorLinkActive: tokens.color.link.active,
     borderRadius: tokens.radius,
     controlOutline: tokens.focusRing,
+    motionDurationFast: '0.1s',
+    motionDurationMid: '0.15s',
+    motionDurationSlow: '0.2s',
   },
   components: {
     // Selection controls (checkbox/radio/switch) sit on light row tints, where

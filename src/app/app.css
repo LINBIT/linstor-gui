@@ -34,6 +34,81 @@
   }
 }
 
+/* Motion stays brief in the administration UI. Page entry uses opacity only:
+ * transforms on a page would change the containing block of fixed overlays.
+ * No fill-mode, so the page does not retain a stacking context afterwards. */
+:root {
+  --gui-motion-fast: 100ms;
+  --gui-motion-normal: 150ms;
+  --gui-motion-enter: 180ms;
+  --gui-motion-ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+.gui-page-enter {
+  animation: gui-page-enter var(--gui-motion-enter) var(--gui-motion-ease);
+}
+
+@keyframes gui-page-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.gui-button {
+  transition:
+    background-color var(--gui-motion-normal) var(--gui-motion-ease),
+    border-color var(--gui-motion-normal) var(--gui-motion-ease),
+    color var(--gui-motion-normal) var(--gui-motion-ease),
+    box-shadow var(--gui-motion-normal) var(--gui-motion-ease),
+    translate var(--gui-motion-fast) var(--gui-motion-ease);
+}
+
+.gui-button:not(:disabled):not(.ant-btn-disabled):not(.ant-btn-loading):active {
+  translate: 0 1px;
+}
+
+.ant-layout-sider .ant-menu-item,
+.ant-layout-sider .ant-menu-submenu-title {
+  transition:
+    background-color var(--gui-motion-normal) var(--gui-motion-ease),
+    color var(--gui-motion-normal) var(--gui-motion-ease);
+}
+
+/* Keep loading indicators visible, but remove decorative movement for users
+ * who request reduced motion, including existing sync-flow animations. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0s !important;
+    scroll-behavior: auto !important;
+  }
+
+  .gui-page-enter,
+  .storage-pool-node-overlay,
+  .sync-flow-path-flow,
+  .sync-flow-source-pulse {
+    animation: none !important;
+  }
+
+  .gui-button:active {
+    translate: none !important;
+  }
+
+  .ant-modal,
+  .ant-modal-mask,
+  .ant-popover,
+  .ant-tooltip,
+  .ant-select-dropdown,
+  .ant-dropdown {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
 /* Base text/background follow the theme tokens (antd reset pins them to
  * light values); Roboto per DESIGN.md. */
 body {

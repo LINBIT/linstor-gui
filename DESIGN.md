@@ -185,6 +185,17 @@ the custom properties.
   selected segment is a `bg-page` pill with `border-default`; clicking flips
   `data-theme` and persists to localStorage (`__gui__theme`).
 
+## Motion
+
+- Keep interaction feedback brief: 100ms for button press, 150ms for color
+  changes, and 180ms for page entry. Ant Design transitions use 100–200ms.
+- `PageBasic` fades in on mount; data refreshes do not replay the animation.
+  Use opacity only on page containers to preserve fixed-overlay positioning.
+- Branded buttons move down 1px while pressed; disabled/loading buttons stay
+  still. Avoid staggered table rows or animated live metric values.
+- Respect `prefers-reduced-motion`: remove decorative entry and sync-flow
+  movement, minimize popup motion, and keep loading indicators visible.
+
 ## Do's and Don'ts
 
 - **Never hardcode a hex value in feature code.** Use

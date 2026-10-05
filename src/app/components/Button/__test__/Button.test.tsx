@@ -269,6 +269,8 @@ describe('Button Component', () => {
       expect(button).toBeInTheDocument();
       const classNameAttr = button.getAttribute('data-classname');
       expect(classNameAttr).toContain('custom-class');
+      // The caller's class joins the press and colour motion, it does not replace it.
+      expect(classNameAttr).toContain('gui-button');
     });
 
     it('should pass through additional props', () => {
