@@ -37,6 +37,7 @@ const TAG_COLORS = [
 ];
 
 export interface DefinitionActions {
+  onEdit: (record: OverviewRow) => void;
   onAddToNode: (record: OverviewRow) => void;
   onAdjust: (record: OverviewRow) => void;
   onResize: (record: OverviewRow) => void;
@@ -126,6 +127,11 @@ export const useDefinitionColumns = (mode: UIMode | undefined, actions: Definiti
           <Dropdown
             menu={{
               items: [
+                {
+                  key: 'edit',
+                  label: t('common:edit'),
+                  onClick: () => actions.onEdit(record),
+                },
                 {
                   key: 'add_to_node',
                   label: t('resource:add_to_node'),

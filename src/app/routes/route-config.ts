@@ -33,6 +33,7 @@ const GeneralSettings = lazy(() => import('@app/pages/Settings'));
 const AuthTokens = lazy(() => import('@app/pages/AuthTokens'));
 const ResourceOverview = lazy(() => import('@app/pages/SoftwareDefined/Resources/overview'));
 const ResourceDefinitionCreate = lazy(() => import('@app/pages/SoftwareDefined/ResourceDefinitions/create'));
+const ResourceDefinitionEdit = lazy(() => import('@app/pages/SoftwareDefined/ResourceDefinitions/edit'));
 const HA = lazy(() => import('@app/pages/HA'));
 
 import gateway from './gateway';
@@ -188,6 +189,12 @@ export const routes: AppRouteConfig[] = [
         label: 'resource_definition_create',
         path: '/storage-configuration/resource-definitions/create',
         title: 'LINSTOR | Storage Configuration | Resource Definitions | Create',
+      },
+      {
+        component: ResourceDefinitionEdit,
+        exact: true,
+        path: '/storage-configuration/resource-definitions/:resource/edit',
+        title: 'LINSTOR | Storage Configuration | Resource Definitions | Edit',
       },
     ],
   },

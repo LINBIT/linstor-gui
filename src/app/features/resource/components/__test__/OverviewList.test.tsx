@@ -450,6 +450,22 @@ describe('resource OverviewList', () => {
   });
 
   describe('per-definition actions', () => {
+    it('opens the edit page of the definition in the current mode', async () => {
+      const { unmount } = renderList();
+      await screen.findByText('res-a');
+      let menu = await openMenuIn(rowOf('res-a'));
+      fireEvent.click(within(menu).getByText('Edit'));
+      expect(navigate).toHaveBeenCalledWith('/storage-configuration/resource-definitions/res-a/edit');
+      unmount();
+
+      uiMode = UIMode.HCI;
+      renderList();
+      await screen.findByText('res-a');
+      menu = await openMenuIn(rowOf('res-a'));
+      fireEvent.click(within(menu).getByText('Edit'));
+      expect(navigate).toHaveBeenLastCalledWith('/hci/storage-configuration/resource-definitions/res-a/edit');
+    });
+
     it('opens "add to node" for the definition', async () => {
       renderList();
       await screen.findByText('res-a');

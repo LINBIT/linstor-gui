@@ -8,6 +8,7 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { Form, Table } from 'antd';
 import type { TablePaginationConfig } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 import { uniqId } from '@app/utils/stringUtils';
 import { ResizeVolumeModal } from '@app/features/resourceDefinition';
@@ -15,6 +16,7 @@ import { useWidth } from '@app/hooks';
 import PropertyForm from '@app/components/PropertyForm';
 import { PropertyFormRef } from '@app/components/PropertyForm';
 import { useSettings } from '@app/features/settings/useSettings';
+import { UIMode } from '@app/features/settings/types';
 import { deletingRowClass } from '@app/hooks/useDeleteAction';
 
 import { AddToNodeModal } from './AddToNodeModal';
@@ -74,6 +76,7 @@ export const OverviewList = () => {
   const [query, setQuery] = useUrlQuery(form, setSearchKey);
 
   const { mode } = useSettings();
+  const navigate = useNavigate();
 
   const { resourceDefinitionList, isPending, refetch, reloadAll } = useOverviewData(query);
 
@@ -124,6 +127,10 @@ export const OverviewList = () => {
   };
 
   const columns = useDefinitionColumns(mode, {
+    onEdit: (record) =>
+      navigate(
+        `${mode === UIMode.HCI ? '/hci' : ''}/storage-configuration/resource-definitions/${encodeURIComponent(record.name ?? '')}/edit`,
+      ),
     onAddToNode: (record) => {
       setCurrentResource(record.name);
       const nodes = record.volumes?.map((v) => v.node_name) || [];

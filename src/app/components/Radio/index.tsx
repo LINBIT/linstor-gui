@@ -88,7 +88,9 @@ export const Radio: React.FC<RadioProps> & {
 } = ({
   checked,
   defaultChecked,
-  disabled = false,
+  // No default: antd 6 takes a radio's own `disabled` over its group's (`??`),
+  // so a `false` here kept every radio of a disabled group enabled.
+  disabled,
   onChange,
   children,
   autoFocus = false,
@@ -121,7 +123,7 @@ export const Radio: React.FC<RadioProps> & {
 const RadioGroup: React.FC<RadioGroupProps> = ({
   value,
   defaultValue,
-  disabled = false,
+  disabled,
   onChange,
   options,
   children,

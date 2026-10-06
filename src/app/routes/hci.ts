@@ -30,6 +30,7 @@ const UserManagement = lazy(() => import('@app/features/authentication').then((m
 const GeneralSettings = lazy(() => import('@app/pages/Settings'));
 const ResourceOverview = lazy(() => import('@app/pages/SoftwareDefined/Resources/overview'));
 const ResourceDefinitionCreate = lazy(() => import('@app/pages/SoftwareDefined/ResourceDefinitions/create'));
+const ResourceDefinitionEdit = lazy(() => import('@app/pages/SoftwareDefined/ResourceDefinitions/edit'));
 const List = lazy(() => import('@app/pages/Snapshot'));
 const ISCSIList = lazy(() => import('@app/pages/Gateway/iscsi'));
 const ISCSICreate = lazy(() => import('@app/pages/Gateway/iscsi/Create'));
@@ -149,6 +150,12 @@ const hci = [
     label: 'resource_definition_create',
     path: '/hci/storage-configuration/resource-definitions/create',
     title: 'LINSTOR | HCI | Storage Configuration | Resource Definitions | Create',
+  },
+  {
+    component: ResourceDefinitionEdit,
+    exact: true,
+    path: '/hci/storage-configuration/resource-definitions/:resource/edit',
+    title: 'LINSTOR | HCI | Storage Configuration | Resource Definitions | Edit',
   },
   // Snapshot
   {

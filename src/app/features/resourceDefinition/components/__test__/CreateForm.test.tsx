@@ -185,6 +185,8 @@ describe('resourceDefinition CreateForm', () => {
 
     expect(nameInput()).toBeDisabled();
     expect(nameInput()).toHaveValue('rd1');
+    expect(screen.getByLabelText('Asynchronous(A)')).toBeDisabled();
+    expect(screen.getByLabelText('Synchronous(C)')).toBeDisabled();
     expect(screen.queryByRole('switch')).toBeNull();
 
     await selectOption(screen.getByRole('combobox'), 'DfltRscGrp');
@@ -204,6 +206,36 @@ describe('resourceDefinition CreateForm', () => {
     await waitFor(() => expect(updateResourceDefinition).toHaveBeenCalled());
     await new Promise((resolve) => setTimeout(resolve, 50));
     expect(hoisted.navigate).not.toHaveBeenCalled();
+  });
+
+  it('leaves the edit form when the group moved but placing its replicas failed', async () => {
+    // The controller commits the new group before it places the replicas the
+    // group asks for; the placement error does not undo the move.
+    vi.mocked(updateResourceDefinition).mockResolvedValue({
+      data: [
+        { ret_code: 0x2380003, message: "Resource definition 'rd1' modified." },
+        { ret_code: -4611686018407202813, message: "No volumes have been defined for resource 'rd1'" },
+      ],
+    } as never);
+    renderWithClient(<CreateForm isEdit initialValues={{ name: 'rd1', resource_group_name: 'rg1' }} />);
+
+    submit();
+
+    await waitFor(() => expect(hoisted.navigate).toHaveBeenCalledWith(-1));
+  });
+
+  it('leaves the edit form when an error status still reports the definition modified', async () => {
+    vi.mocked(updateResourceDefinition).mockResolvedValue({
+      error: [
+        { ret_code: 0x2380003, message: "Resource definition 'rd1' modified." },
+        { ret_code: -1, message: 'Not enough available nodes' },
+      ],
+    } as never);
+    renderWithClient(<CreateForm isEdit initialValues={{ name: 'rd1', resource_group_name: 'rg1' }} />);
+
+    submit();
+
+    await waitFor(() => expect(hoisted.navigate).toHaveBeenCalledWith(-1));
   });
 
   it('stays on the edit form when the request itself fails', async () => {

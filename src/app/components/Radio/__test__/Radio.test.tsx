@@ -134,6 +134,17 @@ describe('Radio.Group Component', () => {
     });
   });
 
+  it('disables the Radio children of a disabled group', () => {
+    render(
+      <Radio.Group disabled>
+        <Radio value="a">A</Radio>
+        <Radio value="b">B</Radio>
+      </Radio.Group>,
+    );
+    expect(screen.getByLabelText('A')).toBeDisabled();
+    expect(screen.getByLabelText('B')).toBeDisabled();
+  });
+
   it('supports button style', () => {
     const { container } = render(
       <Radio.Group optionType="button">

@@ -28,6 +28,16 @@ import { Checkbox } from '@app/components/Checkbox';
 import { Switch } from '@app/components/Switch';
 import { Radio } from '@app/components/Radio';
 
+// A ret_code packs severity, operation, object and outcome (linstor-server
+// ApiConsts). This one is the "Resource definition 'x' modified." entry.
+const MASK_MOD = 0x2000000;
+const MASK_RSC_DFN = 0x380000;
+const MODIFIED = 3;
+const RSC_DFN_MODIFIED = MASK_MOD | MASK_RSC_DFN | MODIFIED;
+
+const definitionModified = (reply: unknown): boolean =>
+  Array.isArray(reply) && reply.some((entry) => entry?.ret_code === RSC_DFN_MODIFIED);
+
 type FormType = {
   replication_mode: 'A' | 'C';
   name: string;
@@ -117,9 +127,12 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
           resource_group: values.resource_group_name,
         });
 
-        // A 2xx answer can still carry a negative ret_code; only leave the
-        // page when the controller accepted every part of the change.
-        if (fullySuccess(res.data)) {
+        // The controller saves the new group first, then places the replicas
+        // it asks for beyond the current ones. A failed placement fails the
+        // reply (its error is toasted) but the group has moved all the same,
+        // so the page closes once the definition reports itself modified.
+        const reply = res.data ?? res.error;
+        if (fullySuccess(reply) || definitionModified(reply)) {
           backToList();
         }
       } catch (error) {
@@ -197,6 +210,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
   };
 
   const isLoading =
+    updateMutation.isPending ||
     createResourceDefinitionMutation.isPending ||
     createVolumeDefinitionMutation.isPending ||
     autoPlaceMutation.isPending;
@@ -255,8 +269,9 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
         />
       </Form.Item>
 
+      {/* Editing changes the group only; the name and the protocol are shown. */}
       <Form.Item label={t('common:replication_mode')} name="replication_mode">
-        <Radio.Group>
+        <Radio.Group disabled={isEdit}>
           <Radio value="A">{t('common:async')}</Radio>
           <Radio value="C">{t('common:sync')}</Radio>
         </Radio.Group>
