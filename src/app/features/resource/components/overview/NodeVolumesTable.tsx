@@ -158,10 +158,18 @@ export const NodeVolumesTable: React.FC<NodeVolumesTableProps> = ({
         const isPrimaryNode = record?.node_name?.toLowerCase() === record?.primary_node?.toLowerCase();
         const stateStr = getResourceState(record.resource, record.volume_number);
         const isInconsistent = stateStr?.includes('Inconsistent');
+        // A Primary always holds its device open; the tag is for a Secondary
+        // whose device is open anyway (mounted read-only, held by a process).
+        const isOpenSecondary = !isPrimaryNode && record.resource?.state?.open === true;
         return (
           <>
             <Tag color={isInconsistent ? 'red' : 'geekblue'}>{stateStr}</Tag>
             {isPrimaryNode && <Tag color="cyan">{t('common:primary')}</Tag>}
+            {isOpenSecondary && (
+              <Tooltip title={t('resource:open_tooltip')}>
+                <Tag color="gold">{t('resource:open')}</Tag>
+              </Tooltip>
+            )}
           </>
         );
       },
@@ -203,6 +211,9 @@ export const NodeVolumesTable: React.FC<NodeVolumesTableProps> = ({
       render: (_, record) => {
         const isDisklessOrTieBreaker =
           record.flags && (record.flags.includes('DRBD_DISKLESS') || record.flags.includes('TIE_BREAKER'));
+        // The controller refuses to delete a resource on a node where it is
+        // Primary or its device is open; say so instead of offering it.
+        const holdsDevice = record.resource?.state?.in_use === true || record.resource?.state?.open === true;
 
         return (
           <>
@@ -246,7 +257,12 @@ export const NodeVolumesTable: React.FC<NodeVolumesTableProps> = ({
                   },
                   {
                     key: 'delete',
-                    label: (
+                    disabled: holdsDevice,
+                    label: holdsDevice ? (
+                      <Tooltip title={t('resource:delete_blocked_in_use')} placement="left">
+                        <div className="w-full">{t('common:delete')}</div>
+                      </Tooltip>
+                    ) : (
                       <Popconfirm
                         key="delete"
                         title={t('resource:delete_resource')}

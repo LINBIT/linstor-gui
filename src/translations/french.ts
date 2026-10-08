@@ -520,6 +520,11 @@ const fr = {
     are_you_sure_toggle_resource: 'Voulez-vous vraiment basculer cette ressource ?',
     delete_resource: 'Supprimer la ressource',
     are_you_sure_delete_resource_2: 'Voulez-vous vraiment supprimer cette ressource ?',
+    open: 'Ouvert',
+    open_tooltip:
+      'Le périphérique DRBD est ouvert sur ce nœud (par exemple monté, ou ouvert en lecture seule par un processus).',
+    delete_blocked_in_use:
+      'La ressource est Primary sur ce nœud ou son périphérique DRBD est ouvert. Démontez-le ou arrêtez les processus qui le maintiennent ouvert, puis supprimez la ressource.',
     please_input_snapshot_name: "Saisissez ici le nom de l'instantané...",
     add_to_node: 'Ajouter la ressource à un nœud',
     diskful: 'Diskful',

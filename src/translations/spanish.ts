@@ -517,6 +517,11 @@ const es = {
     are_you_sure_toggle_resource: '¿Seguro que desea alternar este recurso?',
     delete_resource: 'Eliminar el recurso',
     are_you_sure_delete_resource_2: '¿Seguro que desea eliminar este recurso?',
+    open: 'Abierto',
+    open_tooltip:
+      'El dispositivo DRBD está abierto en este nodo (por ejemplo, montado o abierto en solo lectura por un proceso).',
+    delete_blocked_in_use:
+      'El recurso es Primary en este nodo o su dispositivo DRBD está abierto. Desmóntelo o detenga los procesos que lo mantienen abierto y luego elimine el recurso.',
     please_input_snapshot_name: 'Introduzca aquí el nombre de la instantánea...',
     add_to_node: 'Añadir recurso al nodo',
     diskful: 'Diskful',

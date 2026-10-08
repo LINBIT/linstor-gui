@@ -6842,6 +6842,11 @@ export interface components {
         };
         ResourceState: {
             in_use?: boolean;
+            /**
+             * @description Whether any DRBD device of the resource is open, also if it is only opened read-only while Secondary.
+             *     Not set if unknown (not a DRBD resource, or DRBD does not report it).
+             */
+            open?: boolean;
         };
         DrbdConnection: {
             connected?: boolean;

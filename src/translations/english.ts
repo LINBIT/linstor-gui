@@ -668,6 +668,10 @@ const en = {
     are_you_sure_toggle_resource: 'Are you sure to toggle this resource?',
     delete_resource: 'Delete the resource',
     are_you_sure_delete_resource_2: 'Are you sure to delete this resource?',
+    open: 'Open',
+    open_tooltip: 'The DRBD device is open on this node (for example mounted, or opened read-only by a process).',
+    delete_blocked_in_use:
+      'The resource is Primary or its DRBD device is open on this node. Unmount it or stop the processes that hold it, then delete it.',
     please_input_snapshot_name: 'Please input snapshot name here...',
     list: 'Resource List',
     overview: 'Resource Overview',

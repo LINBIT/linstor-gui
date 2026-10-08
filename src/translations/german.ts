@@ -521,6 +521,11 @@ const de = {
     are_you_sure_toggle_resource: 'Diese Ressource wirklich umschalten?',
     delete_resource: 'Ressource löschen',
     are_you_sure_delete_resource_2: 'Diese Ressource wirklich löschen?',
+    open: 'Geöffnet',
+    open_tooltip:
+      'Das DRBD-Gerät ist auf diesem Knoten geöffnet (zum Beispiel eingehängt oder von einem Prozess schreibgeschützt geöffnet).',
+    delete_blocked_in_use:
+      'Die Ressource ist auf diesem Knoten Primary oder ihr DRBD-Gerät ist geöffnet. Hängen Sie es aus oder beenden Sie die Prozesse, die es offen halten, und löschen Sie die Ressource dann.',
     please_input_snapshot_name: 'Bitte hier den Snapshot-Namen eingeben...',
     add_to_node: 'Ressource zu Knoten hinzufügen',
     diskful: 'Diskful',

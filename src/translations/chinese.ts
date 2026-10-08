@@ -645,6 +645,10 @@ const zh = {
     are_you_sure_toggle_resource: '确定切换此资源？',
     delete_resource: '删除资源',
     are_you_sure_delete_resource_2: '确定删除此资源？',
+    open: '已打开',
+    open_tooltip: 'DRBD 设备在此节点上处于打开状态（例如已挂载，或被某个进程以只读方式打开）。',
+    delete_blocked_in_use:
+      '资源在此节点上为 Primary，或其 DRBD 设备处于打开状态。请先卸载，或停止占用它的进程，再删除。',
     please_input_snapshot_name: '请在此输入快照名称...',
     diskful: '有盘',
     drbd_diskless: 'DRBD 无盘',

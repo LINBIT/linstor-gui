@@ -517,6 +517,10 @@ const tr = {
     are_you_sure_toggle_resource: 'Bu kaynağı değiştirmek istediğinizden emin misiniz?',
     delete_resource: 'Kaynağı sil',
     are_you_sure_delete_resource_2: 'Bu kaynağı silmek istediğinizden emin misiniz?',
+    open: 'Açık',
+    open_tooltip: 'DRBD aygıtı bu düğümde açık (örneğin bağlı ya da bir süreç tarafından salt okunur açılmış).',
+    delete_blocked_in_use:
+      'Kaynak bu düğümde Primary ya da DRBD aygıtı açık. Aygıtı ayırın veya onu açık tutan süreçleri durdurun, ardından kaynağı silin.',
     please_input_snapshot_name: 'Anlık görüntü adını buraya girin...',
     add_to_node: 'Kaynağı Düğüme Ekle',
     diskful: 'Diskful',

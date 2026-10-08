@@ -516,6 +516,11 @@ const ja = {
     are_you_sure_toggle_resource: 'このリソースを切り替えてもよろしいですか。',
     delete_resource: 'リソースを削除',
     are_you_sure_delete_resource_2: 'このリソースを削除してもよろしいですか。',
+    open: 'オープン',
+    open_tooltip:
+      'このノードで DRBD デバイスが開かれています（例: マウント済み、またはプロセスが読み取り専用で開いている）。',
+    delete_blocked_in_use:
+      'このノードではリソースが Primary であるか、DRBD デバイスが開かれています。アンマウントするか、デバイスを開いているプロセスを停止してから削除してください。',
     please_input_snapshot_name: 'ここにスナップショット名を入力してください...',
     add_to_node: 'ノードにリソースを追加',
     diskful: 'Diskful',

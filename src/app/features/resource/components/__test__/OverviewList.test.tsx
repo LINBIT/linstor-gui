@@ -160,7 +160,8 @@ const resourcesView = [
     name: 'res-b',
     node_name: 'node-1',
     flags: [],
-    state: { in_use: false },
+    // Secondary, but its device is open (mounted read-only, held by a process).
+    state: { in_use: false, open: true },
     layer_object: { drbd: { connections: {} } },
     volumes: [volume({ allocated_size_kib: 1 * GIB })],
   },
@@ -366,17 +367,44 @@ describe('resource OverviewList', () => {
       renderList();
       await screen.findByText('res-a');
       const expanded = await expandRow('res-a');
-      const menu = await openMenuIn(nodeRowIn(expanded, 'node-1'));
+      const menu = await openMenuIn(nodeRowIn(expanded, 'node-2'));
       fireEvent.click(within(menu).getByText('Delete'));
       expect(await screen.findByText('Are you sure to delete this resource?')).toBeInTheDocument();
       expect(deleteResource).not.toHaveBeenCalled();
       const before = vi.mocked(getResources).mock.calls.length;
       const rdBefore = vi.mocked(getResourceDefinition).mock.calls.length;
       await confirmYes();
-      await waitFor(() => expect(deleteResource).toHaveBeenCalledWith('res-a', 'node-1'));
+      await waitFor(() => expect(deleteResource).toHaveBeenCalledWith('res-a', 'node-2'));
       await waitFor(() => expect(vi.mocked(getResources).mock.calls.length).toBeGreaterThan(before));
       await waitFor(() => expect(getResourceDefinition).toHaveBeenCalledTimes(rdBefore + 1));
       expect(deleteResource).toHaveBeenCalledTimes(1);
+    });
+
+    it('offers no delete on the node a resource is Primary on', async () => {
+      renderList();
+      await screen.findByText('res-a');
+      const expanded = await expandRow('res-a');
+      expect(within(nodeRowIn(expanded, 'node-1')).getByText('Primary')).toBeInTheDocument();
+      expect(within(nodeRowIn(expanded, 'node-1')).queryByText('Open')).toBeNull();
+      const menu = await openMenuIn(nodeRowIn(expanded, 'node-1'));
+      const del = within(menu).getByText('Delete').closest('li') as HTMLElement;
+      expect(del).toHaveAttribute('aria-disabled', 'true');
+      fireEvent.click(within(menu).getByText('Delete'));
+      expect(screen.queryByText('Are you sure to delete this resource?')).toBeNull();
+      expect(deleteResource).not.toHaveBeenCalled();
+    });
+
+    it('tags a Secondary whose device is open, and offers no delete there', async () => {
+      renderList();
+      await screen.findByText('res-b');
+      const expanded = await expandRow('res-b');
+      const row = nodeRowIn(expanded, 'node-1');
+      expect(within(row).getByText('Open')).toBeInTheDocument();
+      expect(within(row).queryByText('Primary')).toBeNull();
+      fireEvent.mouseEnter(within(row).getByText('Open'));
+      expect(await screen.findByText(/The DRBD device is open on this node/)).toBeInTheDocument();
+      const menu = await openMenuIn(row);
+      expect(within(menu).getByText('Delete').closest('li')).toHaveAttribute('aria-disabled', 'true');
     });
 
     it('migrates the disk to another node', async () => {
