@@ -205,6 +205,9 @@ export const List = () => {
     {
       title: t('storage_pool:name'),
       key: 'name',
+      // A share of the table, not all of what is left: on a wide screen the
+      // name took half the row while the disk path was cut off.
+      width: '20%',
       ellipsis: true,
       dataIndex: 'storage_pool_name',
       sorter: (a, b) => {
@@ -240,14 +243,11 @@ export const List = () => {
     {
       title: t('storage_pool:disk'),
       key: 'disk',
-      width: 111,
+      // The one column without a width: with the fixed layout it takes the
+      // room the others leave, and the backing path is the longest value here.
+      // Plain text, so a cut-off path shows in full on hover.
       ellipsis: true,
-      render: (_, sp) => {
-        if (sp.provider_kind === 'DISKLESS') {
-          return <span>N/A</span>;
-        }
-        return <span>{sp?.props?.['StorDriver/StorPoolName']}</span>;
-      },
+      render: (_, sp) => (sp.provider_kind === 'DISKLESS' ? 'N/A' : (sp?.props?.['StorDriver/StorPoolName'] ?? '')),
     },
     {
       title: t('storage_pool:free_capacity'),
@@ -277,7 +277,7 @@ export const List = () => {
       title: t('storage_pool:supports_snapshots'),
       dataIndex: 'supports_snapshots',
       key: 'supports_snapshots',
-      width: 136,
+      width: 112,
       render: (supports_snapshots) => {
         return <SupportStatus supported={supports_snapshots} />;
       },
@@ -286,7 +286,8 @@ export const List = () => {
     {
       title: () => <ActionColumnTitle />,
       key: 'action',
-      width: 150,
+      // Holds the ⋮ menu only; 150px of it was taken from the disk path.
+      width: 64,
       fixed: 'right',
       align: 'center',
       render: (_, record) => (

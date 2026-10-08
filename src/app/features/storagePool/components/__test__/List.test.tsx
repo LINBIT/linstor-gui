@@ -150,6 +150,25 @@ describe('storage pool List', () => {
     expect(getStoragePool).toHaveBeenCalledWith({ limit: 10, offset: 0 });
   });
 
+  it('gives the spare width to the disk path, not the name, and shows a cut-off path on hover', async () => {
+    const { container } = renderList();
+    const lvm = (await screen.findByText('pool-lvm')).closest('tr') as HTMLElement;
+
+    // The fixed layout hands the room no column claims to the one without a
+    // width; that is the disk path, the longest value in a row.
+    const cols = Array.from(container.querySelectorAll('.ant-table-content colgroup col'));
+    const headers = Array.from(container.querySelectorAll('.ant-table-thead th'));
+    const widthOf = (title: string) => {
+      const index = headers.findIndex((th) => th.textContent === title);
+      expect(index).toBeGreaterThan(-1);
+      return (cols[index] as HTMLElement).style.width;
+    };
+    expect(widthOf('Name')).toBe('20%');
+    expect(widthOf('Disk')).toBe('');
+
+    expect(within(lvm).getByTitle('vg0')).toHaveTextContent('vg0');
+  });
+
   it('hiding default pools drops them from the list and the total, and over-fetches to fill the page', async () => {
     renderList();
     await screen.findByText('DfltDisklessStorPool');
