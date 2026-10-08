@@ -30,9 +30,11 @@ const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
 
   logger.debug('GrafanaCharts render:', { grafanaConfig, hostname });
 
-  // Helper function to generate Grafana solo panel URL
+  // A solo panel of the dashboard, for this node. Node Exporter Full picks the
+  // node by `nodename` (its kernel hostname, which LINSTOR uses as the node
+  // name) and derives the scrape instance from it.
   const generateGrafanaSoloUrl = useCallback(
-    (panelId: number, includeHostname = false) => {
+    (panelId: number) => {
       if (!grafanaConfig?.baseUrl || !grafanaConfig?.dashboardUid) return '';
 
       const params = new URLSearchParams({
@@ -44,11 +46,8 @@ const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
         theme: mode,
         refresh: '10s',
         timezone: 'browser',
+        'var-nodename': hostname,
       });
-
-      if (includeHostname) {
-        params.append('var-node', hostname);
-      }
 
       return `${grafanaConfig.baseUrl}/d-solo/${grafanaConfig.dashboardUid}/_?${params.toString()}`;
     },
@@ -80,16 +79,11 @@ const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
   // Preload iframe URLs only if Grafana is enabled
   usePreloadIframes(iframeUrls, { prefetch: false });
 
-  // Don't show if no grafanaConfig is available
-  if (!grafanaConfig?.baseUrl || !grafanaConfig?.dashboardUid) {
-    logger.debug('GrafanaCharts not showing: no grafanaConfig or dashboardUid');
+  // Nothing to show unless Grafana is switched on and points at a dashboard.
+  if (!grafanaConfig?.enable || !grafanaConfig?.baseUrl || !grafanaConfig?.dashboardUid) {
+    logger.debug('GrafanaCharts not showing: Grafana disabled or no dashboard');
     return null;
   }
-
-  // Log sample embed URL for debugging
-  const samplePanelId = grafanaConfig.panelIds.cpu || 77;
-  const embedUrl = generateGrafanaSoloUrl(samplePanelId, true);
-  logger.debug('Sample embed URL:', embedUrl);
 
   const panels: ChartPanel[] = [
     { id: grafanaConfig.panelIds.cpu, title: 'CPU Usage', key: 'cpu' },
@@ -117,16 +111,18 @@ const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
       <Row gutter={[16, 16]}>
         {validPanels.map((panel) => (
           <Col xs={24} sm={24} md={12} key={panel.key}>
-            <Card title={panel.title} size="small" className="mb-4" styles={{ body: { padding: 0 } }}>
+            {/* The panel draws its own title; a card header above it only
+                repeated it, or named a different panel than the one set. */}
+            <div className="overflow-hidden rounded-md border border-(--border-subtle)">
               <iframe
-                className="h-[250px] w-full border-none bg-(--bg-page)"
+                className="block h-[280px] w-full border-none bg-(--bg-page)"
                 title={panel.title}
                 src={generateGrafanaSoloUrl(panel.id!)}
                 loading="eager"
                 onLoad={() => logger.debug(`Panel ${panel.title} loaded`)}
                 onError={() => logger.error(`Panel ${panel.title} failed to load`)}
               />
-            </Card>
+            </div>
           </Col>
         ))}
       </Row>

@@ -59,9 +59,14 @@ const NetInterfaceList: React.FC<Props> = ({ list, handleDeleteNetWorkInterface,
           ]}
         >
           <ItemList.Meta title={item.name} description={item.address} />
-          <div>
-            {item.is_active && <Tag color="success">Active</Tag>}
-            <code>{item.satellite_port}</code>
+          <div className="flex items-center gap-2">
+            {item.is_active && <Tag color="success">{t('node_detail:active')}</Tag>}
+            {item.satellite_port !== undefined && (
+              <span>
+                <span className="text-(--text-secondary)">{t('node_detail:tcp_port')}</span>{' '}
+                <span className="tabular-nums">{item.satellite_port}</span>
+              </span>
+            )}
           </div>
         </ItemList.Item>
       )}

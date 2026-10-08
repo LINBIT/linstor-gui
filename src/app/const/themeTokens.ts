@@ -79,6 +79,12 @@ export const themeTokens = {
 
   'status/error': { light: '#fa4d56', dark: '#ff6b72' },
   'status/warning': { light: '#ffc130', dark: '#ffc130' },
+
+  // A capacity meter: one ramp, the fill 3:1 against its track (WCAG 1.4.11).
+  // brand/accent on the light track reads at 2:1, so light mode takes the
+  // next orange down.
+  'chart/meter/fill': { light: '#d46b08', dark: '#f79133' },
+  'chart/meter/track': { light: '#fde9d6', dark: '#3a2010' },
 } as const;
 
 export type ThemeTokenName = keyof typeof themeTokens;

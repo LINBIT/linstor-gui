@@ -51,6 +51,11 @@ colors:
   status-error: "#FA4D56"
   status-error-dark: "#FF6B72"
   status-warning: "#FFC130"
+  # Charts
+  chart-meter-fill: "#D46B08"
+  chart-meter-fill-dark: "#F79133"
+  chart-meter-track: "#FDE9D6"
+  chart-meter-track-dark: "#3A2010"
 typography:
   nav-label:
     fontFamily: Roboto
@@ -147,6 +152,9 @@ light top bar is `bg-surface`.
   purpose (flagged with design).
 - **interactive-primary** (#499BBB) is the link/data-accent blue.
 - Status colors (`status-error`, `status-warning`) are feedback-only.
+- **chart-meter-fill / chart-meter-track** draw a ratio against a limit (a
+  storage pool's used capacity): one orange ramp, the fill 3:1 against its
+  track. The light fill is darker than brand-accent, which reads at 2:1 there.
 
 ## Typography
 

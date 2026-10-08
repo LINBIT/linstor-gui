@@ -6,6 +6,8 @@
 
 export { CreateNodeForm } from './CreateNodeForm';
 
-export { Resource } from './Resource';
+export { NodeSummary } from './NodeSummary';
 
-export { StoragePool } from './StoragePool';
+export { NodeResources } from './NodeResources';
+
+export { StoragePoolCapacity } from './StoragePoolCapacity';

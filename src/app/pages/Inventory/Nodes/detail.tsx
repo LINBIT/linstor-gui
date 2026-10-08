@@ -7,16 +7,13 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Card, Space, Tag } from 'antd';
-import { CheckCircleOutlined } from '@ant-design/icons';
-import { FaLinux, FaWindows } from 'react-icons/fa';
+import { Card, Col, Row, Space } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import PageBasic from '@app/components/PageBasic';
-import { Resource, StoragePool, useNodes } from '@app/features/node';
+import { NodeResources, NodeSummary, StoragePoolCapacity, useNodes } from '@app/features/node';
 import { getControllerVersion } from '@app/features/node/api';
 import { compareVersions } from '@app/utils/version';
-import { normalizeStoragePoolSpace } from '@app/utils/storagePoolSpace';
 import {
   CreateForm,
   CreateNetWorkInterfaceRequestBody,
@@ -27,112 +24,11 @@ import {
 import { fullySuccess } from '@app/features/requests';
 import { useStoragePools } from '@app/features/storagePool';
 import { useResources } from '@app/features/snapshot';
+import { useUIMode } from '@app/features/settings/useSettings';
+import { UIMode } from '@app/features/settings/types';
 import GrafanaCharts from '@app/components/GrafanaCharts';
 
 import NetInterfaceList from './components/NetInterfaceList';
-
-interface NodeResource {
-  storage_pool_name?: string;
-  total_capacity?: number;
-  free_capacity?: number;
-  state?: {
-    in_use?: boolean;
-  };
-}
-
-interface StoragePoolItem {
-  storage_pool_name: string;
-  total_capacity: number;
-  free_capacity: number;
-}
-
-interface StoragePoolData {
-  storagePool: string;
-  type: 'Used' | 'Total';
-  value: number;
-}
-
-interface ResourceDataItem {
-  type: 'in use' | 'not in use';
-  value: number;
-}
-
-const isValidArray = (nodeRes: NodeResource[] | undefined | null): nodeRes is NodeResource[] => {
-  return Array.isArray(nodeRes) && nodeRes.length > 0;
-};
-
-const DEFAULT_SP = 'DfltDisklessStorPool';
-
-const handleStorageData = (storagePool: StoragePoolItem[] | undefined, node: string): StoragePoolData[] => {
-  const validData = storagePool?.filter((item) => item.storage_pool_name !== DEFAULT_SP);
-
-  if (!isValidArray(validData)) {
-    return [];
-  }
-
-  const storagePoolUsedData: StoragePoolData[] = validData.map((item) => {
-    return {
-      storagePool: item.storage_pool_name,
-      type: 'Used',
-      value: normalizeStoragePoolSpace(item.total_capacity, item.free_capacity).used,
-    };
-  });
-
-  const storagePoolFreeData: StoragePoolData[] = validData.map((item) => {
-    return {
-      storagePool: item.storage_pool_name,
-      type: 'Total',
-      value: normalizeStoragePoolSpace(item.total_capacity, item.free_capacity).total,
-    };
-  });
-
-  const nodeFreeCapacity: number = validData.reduce(
-    (acc, curr) => acc + normalizeStoragePoolSpace(curr.total_capacity, curr.free_capacity).free,
-    0,
-  );
-
-  const nodeTotalCapacity: number = validData.reduce(
-    (acc, curr) => acc + normalizeStoragePoolSpace(curr.total_capacity, curr.free_capacity).total,
-    0,
-  );
-
-  const storagePoolOnNodeTotalData: StoragePoolData = {
-    storagePool: `Total on ${node}`,
-    type: 'Total',
-    value: nodeTotalCapacity,
-  };
-
-  const storagePoolOnNodeFreeData: StoragePoolData = {
-    storagePool: `Total on ${node}`,
-    type: 'Used',
-    value: nodeTotalCapacity - nodeFreeCapacity,
-  };
-
-  return [...storagePoolUsedData, ...storagePoolFreeData, storagePoolOnNodeFreeData, storagePoolOnNodeTotalData];
-};
-
-const handleResourceData = (resource: NodeResource[] | undefined): ResourceDataItem[] => {
-  if (!isValidArray(resource)) {
-    return [];
-  }
-
-  const resourceData: ResourceDataItem[] =
-    resource.reduce((acc: ResourceDataItem[], curr: NodeResource) => {
-      const inUse = curr.state?.in_use;
-      const inUseType: 'in use' | 'not in use' = inUse ? 'in use' : 'not in use';
-
-      const existingItem = acc.find((item) => item.type === inUseType);
-      if (existingItem) {
-        existingItem.value++;
-      } else {
-        acc.push({ type: inUseType, value: 1 });
-      }
-
-      return acc;
-    }, []) || [];
-
-  return resourceData;
-};
 
 const NodeDetail: React.FC = () => {
   const { t } = useTranslation('node_detail');
@@ -162,9 +58,9 @@ const NodeDetail: React.FC = () => {
 
   const platformAvailable = versionFetched && compareVersions(linstorVersion?.data?.rest_api_version, '1.28.0');
 
+  const routePrefix = useUIMode() === UIMode.HCI ? '/hci' : '';
+
   const nodeData = nodeInfo?.[0];
-  const storagePoolData = handleStorageData(nodeStoragePoolInfo?.data as StoragePoolItem[], node) || [];
-  const resourceData = handleResourceData(resourceInfo?.data) || [];
 
   const deleteNetWorkInterfaceMutation = useMutation({
     mutationFn: (data: { node: string; netinterface: string }) => {
@@ -214,73 +110,20 @@ const NodeDetail: React.FC = () => {
   return (
     <PageBasic title={t('title')} showBack>
       <Space orientation="vertical" size="middle" style={{ display: 'flex' }}>
-        <Card size="small">
-          <Space orientation="vertical" size="small" style={{ display: 'flex' }}>
-            <div>
-              <span className="mr-2.5 w-[220px] font-semibold">{t('node_name')}:</span>
-              {nodeData?.name}
-            </div>
-            {platformAvailable && (
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <span className="mr-2.5 w-[220px] font-semibold" style={{ width: 'auto' }}>
-                  {t('platform')}:
-                </span>
-                {nodeData?.platform === 'LINUX' && <FaLinux style={{ fontSize: '20px', marginRight: 4 }} />}
-                {nodeData?.platform === 'WINDOWS' && <FaWindows style={{ fontSize: '18px', marginRight: 4 }} />}
-                {nodeData?.platform?.toLowerCase()}
-              </div>
-            )}
-            <div>
-              <span className="mr-2.5 w-[220px] font-semibold">{t('os_variant')}:</span> {nodeData?.os_variant}
-            </div>
-            <div>
-              <span className="mr-2.5 w-[220px] font-semibold">{t('node_type')}:</span> {nodeData?.type?.toLowerCase()}
-            </div>
-            <div>
-              <span className="mr-2.5 w-[220px] font-semibold">{t('node_status')}: </span>
-              {nodeData?.connection_status === 'ONLINE' && (
-                <CheckCircleOutlined style={{ color: 'green', marginRight: 4 }} />
-              )}
-              {nodeData?.connection_status?.toLowerCase()}
-            </div>
-            <div className="leading-[2]">
-              <span className="mr-2.5 w-[220px] font-semibold">{t('resource_layers')}:</span>
+        <NodeSummary node={nodeData} showPlatform={!!platformAvailable} />
 
-              {nodeData
-                ? nodeData?.resource_layers?.map((e) => (
-                    <Tag key={e} color="success">
-                      {e}
-                    </Tag>
-                  ))
-                : null}
-              {nodeData
-                ? Object.keys(nodeData?.unsupported_layers ?? {}).map((e) => (
-                    <Tag key={e} color="error">
-                      {e}
-                    </Tag>
-                  ))
-                : null}
-            </div>
-
-            <div className="leading-[2]">
-              <span className="mr-2.5 w-[220px] font-semibold">{t('storage_providers')}:</span>
-              {nodeData
-                ? nodeData?.storage_providers?.map((e) => (
-                    <Tag key={e} color="success">
-                      {e}
-                    </Tag>
-                  ))
-                : null}
-              {nodeData
-                ? Object.keys(nodeData?.unsupported_providers ?? {}).map((e) => (
-                    <Tag key={e} color="error">
-                      {e}
-                    </Tag>
-                  ))
-                : null}
-            </div>
-          </Space>
-        </Card>
+        <Row gutter={[16, 16]}>
+          <Col xs={24} xl={12}>
+            <Card title={t('storage_pool_info')} size="small" className="h-full">
+              <StoragePoolCapacity node={node} pools={nodeStoragePoolInfo?.data ?? []} routePrefix={routePrefix} />
+            </Card>
+          </Col>
+          <Col xs={24} xl={12}>
+            <Card title={t('resource_info')} size="small" className="h-full">
+              <NodeResources resources={resourceInfo?.data ?? []} routePrefix={routePrefix} />
+            </Card>
+          </Col>
+        </Row>
 
         <Card title={t('network_interfaces')} size="small">
           <NetInterfaceList
@@ -294,17 +137,6 @@ const NodeDetail: React.FC = () => {
           <CreateForm node={nodeData?.name} refetch={refetch} />
         </Card>
 
-        <div className="flex gap-4">
-          <Card title={t('storage_pool_info')} size="small" style={{ width: '50%' }}>
-            {storagePoolData.length > 0 && <StoragePool data={storagePoolData} />}
-          </Card>
-
-          <Card title={t('resource_info')} size="small" style={{ width: '50%' }}>
-            {resourceData.length > 0 && <Resource data={resourceData} />}
-          </Card>
-        </div>
-
-        {/* Grafana Charts */}
         <GrafanaCharts hostname={node} />
       </Space>
     </PageBasic>
