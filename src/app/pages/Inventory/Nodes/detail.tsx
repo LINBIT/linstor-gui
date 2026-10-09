@@ -7,7 +7,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Card, Col, Row, Space } from 'antd';
+import { Card, Space } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import PageBasic from '@app/components/PageBasic';
@@ -112,18 +112,15 @@ const NodeDetail: React.FC = () => {
       <Space orientation="vertical" size="middle" style={{ display: 'flex' }}>
         <NodeSummary node={nodeData} showPlatform={!!platformAvailable} />
 
-        <Row gutter={[16, 16]}>
-          <Col xs={24} xl={12}>
-            <Card title={t('storage_pool_info')} size="small" className="h-full">
-              <StoragePoolCapacity node={node} pools={nodeStoragePoolInfo?.data ?? []} routePrefix={routePrefix} />
-            </Card>
-          </Col>
-          <Col xs={24} xl={12}>
-            <Card title={t('resource_info')} size="small" className="h-full">
-              <NodeResources resources={resourceInfo?.data ?? []} routePrefix={routePrefix} />
-            </Card>
-          </Col>
-        </Row>
+        {/* One row each: side by side at one height, the shorter card was
+            mostly empty space. */}
+        <Card title={t('storage_pool_info')} size="small">
+          <StoragePoolCapacity node={node} pools={nodeStoragePoolInfo?.data ?? []} routePrefix={routePrefix} />
+        </Card>
+
+        <Card title={t('resource_info')} size="small">
+          <NodeResources resources={resourceInfo?.data ?? []} routePrefix={routePrefix} />
+        </Card>
 
         <Card title={t('network_interfaces')} size="small">
           <NetInterfaceList

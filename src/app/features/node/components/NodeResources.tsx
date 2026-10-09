@@ -19,6 +19,12 @@ interface NodeResourcesProps {
   routePrefix?: string;
 }
 
+/** A value per volume, once each (a resource's volumes usually share a pool). */
+const perVolume = (
+  r: ResourceDataType,
+  pick: (v: NonNullable<ResourceDataType['volumes']>[number]) => string | undefined,
+) => Array.from(new Set((r.volumes ?? []).map(pick).filter(Boolean))).join(', ');
+
 const isDiskless = (r: ResourceDataType) => !!r.flags?.some((f) => f === 'DISKLESS' || f === 'DRBD_DISKLESS');
 
 const Count: React.FC<{ label: string; value: number }> = ({ label, value }) => (
@@ -30,7 +36,7 @@ const Count: React.FC<{ label: string; value: number }> = ({ label, value }) => 
 
 /** The resources deployed on the node: how many and in which role, then each one. */
 export const NodeResources: React.FC<NodeResourcesProps> = ({ resources, routePrefix = '' }) => {
-  const { t } = useTranslation(['node_detail', 'common', 'resource']);
+  const { t } = useTranslation(['node_detail', 'common', 'resource', 'volume']);
 
   if (resources.length === 0) {
     return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('node_detail:no_resources')} />;
@@ -52,6 +58,16 @@ export const NodeResources: React.FC<NodeResourcesProps> = ({ resources, routePr
           {name}
         </Link>
       ),
+    },
+    {
+      title: t('common:storage_pool'),
+      key: 'storage_pool',
+      render: (_, r) => perVolume(r, (v) => v.storage_pool_name),
+    },
+    {
+      title: t('volume:device_name'),
+      key: 'device',
+      render: (_, r) => <span className="tabular-nums">{perVolume(r, (v) => v.device_path)}</span>,
     },
     {
       title: t('common:state'),

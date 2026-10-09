@@ -101,7 +101,8 @@ export const StoragePoolCapacity: React.FC<StoragePoolCapacityProps> = ({ node, 
 
   return (
     <>
-      <ul className="m-0 list-none p-0">
+      {/* As many columns of meters as the width holds. */}
+      <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-x-10 p-0">
         {rows.map(({ pool, used, total }) => (
           <CapacityRow
             key={pool.storage_pool_name}

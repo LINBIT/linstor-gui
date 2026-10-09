@@ -91,7 +91,12 @@ const storagePools = [
   { storage_pool_name: 'pool-c', provider_kind: 'LVM', total_capacity: 10 * GIB, free_capacity: GIB / 2 },
 ];
 
-const drbdVolume = (diskState: string) => ({ layer_data_list: [{ type: 'DRBD' }], state: { disk_state: diskState } });
+const drbdVolume = (diskState: string, pool = 'pool-a', device = '/dev/drbd1000') => ({
+  layer_data_list: [{ type: 'DRBD' }],
+  state: { disk_state: diskState },
+  storage_pool_name: pool,
+  device_path: device,
+});
 
 const resources = [
   { name: 'res1', flags: [], state: { in_use: true, open: true }, volumes: [drbdVolume('UpToDate')] },
@@ -100,7 +105,7 @@ const resources = [
     name: 'res3',
     flags: ['DISKLESS', 'DRBD_DISKLESS', 'TIE_BREAKER'],
     state: { in_use: false },
-    volumes: [drbdVolume('Diskless')],
+    volumes: [drbdVolume('Diskless', 'DfltDisklessStorPool', '/dev/drbd1002')],
   },
 ];
 
@@ -223,6 +228,9 @@ describe('NodeDetail', () => {
     expect(within(row('res1')).queryByText('Open')).toBeNull();
     expect(within(row('res2')).getByText('Open')).toBeInTheDocument();
     expect(within(row('res3')).getByText('TieBreaker')).toBeInTheDocument();
+    expect(row('res1')).toHaveTextContent('pool-a');
+    expect(row('res3')).toHaveTextContent('DfltDisklessStorPool');
+    expect(row('res3')).toHaveTextContent('/dev/drbd1002');
     expect(within(card).getByRole('link', { name: 'res2' })).toHaveAttribute(
       'href',
       '/storage-configuration/resource-overview?resource=res2',
