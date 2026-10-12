@@ -322,6 +322,8 @@ const fr = {
     are_you_sure_lost_selected_nodes: 'Voulez-vous vraiment déclarer perdus les nœuds sélectionnés ?',
     node_list: 'Liste des nœuds',
     node_name: 'Nom',
+    active_controller: 'Contrôleur',
+    active_controller_tooltip: 'Ce nœud exécute le contrôleur actif. Il passe sur un autre nœud lors d’un basculement.',
     platform: 'Plateforme',
     default_ip: 'IP',
     default_port: 'Port',

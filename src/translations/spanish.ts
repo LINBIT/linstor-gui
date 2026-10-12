@@ -321,6 +321,9 @@ const es = {
     are_you_sure_lost_selected_nodes: '¿Seguro que desea marcar como perdidos los nodos seleccionados?',
     node_list: 'Lista de nodos',
     node_name: 'Nombre',
+    active_controller: 'Controlador',
+    active_controller_tooltip:
+      'Este nodo ejecuta el controlador activo. Pasa a otro nodo con una conmutación por error.',
     platform: 'Plataforma',
     default_ip: 'IP',
     default_port: 'Puerto',

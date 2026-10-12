@@ -10,7 +10,16 @@ import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { List } from '../List';
-import { getNodes, getNodeCount, deleteNode, lostNode, updateNode, getControllerVersion } from '../../api';
+import {
+  getNodes,
+  getNodeCount,
+  deleteNode,
+  lostNode,
+  updateNode,
+  getControllerVersion,
+  getExternalFilesWithContent,
+  getResourceOnNodes,
+} from '../../api';
 import { UIMode } from '@app/features/settings/types';
 
 const hoisted = vi.hoisted(() => ({
@@ -37,6 +46,8 @@ vi.mock('../../api', async (importOriginal) => ({
   lostNode: vi.fn(),
   updateNode: vi.fn(),
   getControllerVersion: vi.fn(),
+  getExternalFilesWithContent: vi.fn(),
+  getResourceOnNodes: vi.fn(),
 }));
 
 // The property editor has its own suite; here it only has to expose the
@@ -134,6 +145,51 @@ describe('node List', () => {
     vi.mocked(deleteNode).mockResolvedValue({ data: [] } as never);
     vi.mocked(lostNode).mockResolvedValue({ data: [] } as never);
     vi.mocked(updateNode).mockResolvedValue({ data: [] } as never);
+    vi.mocked(getExternalFilesWithContent).mockResolvedValue({ data: [] } as never);
+    vi.mocked(getResourceOnNodes).mockResolvedValue({ data: [] } as never);
+  });
+
+  it('marks the node where the controller database is Primary as running the controller', async () => {
+    vi.mocked(getResourceOnNodes).mockResolvedValue({
+      data: [
+        { name: 'linstor_db', node_name: nodes[0].name, state: { in_use: false } },
+        { name: 'linstor_db', node_name: nodes[1].name, state: { in_use: true } },
+      ],
+    } as never);
+    const { container } = renderList();
+    await screen.findByText(nodes[1].name);
+
+    const active = rowOf(container, nodes[1].name);
+    expect(await within(active).findByText('Controller')).toBeInTheDocument();
+    expect(within(rowOf(container, nodes[0].name)).queryByText('Controller')).toBeNull();
+    fireEvent.mouseEnter(within(active).getByText('Controller'));
+    expect(await screen.findByText(/runs the active controller/)).toBeInTheDocument();
+  });
+
+  it('follows the resource the drbd-reactor config starts the controller with', async () => {
+    const config =
+      '[[promoter]]\n[promoter.resources.ctrl_db]\nstart = ["var-lib-linstor.mount", "linstor-controller.service"]\n';
+    vi.mocked(getExternalFilesWithContent).mockResolvedValue({
+      data: [{ path: '/etc/drbd-reactor.d/ctrl_db.toml', content: btoa(config) }],
+    } as never);
+    vi.mocked(getResourceOnNodes).mockResolvedValue({
+      data: [{ name: 'ctrl_db', node_name: nodes[0].name, state: { in_use: true } }],
+    } as never);
+    const { container } = renderList();
+    await screen.findByText(nodes[0].name);
+
+    await waitFor(() => expect(getResourceOnNodes).toHaveBeenCalledWith('ctrl_db'));
+    expect(await within(rowOf(container, nodes[0].name)).findByText('Controller')).toBeInTheDocument();
+  });
+
+  it('marks no node without controller HA, or while no node is Primary', async () => {
+    vi.mocked(getResourceOnNodes).mockResolvedValue({
+      data: [{ name: 'linstor_db', node_name: nodes[0].name, state: { in_use: false } }],
+    } as never);
+    const { container } = renderList();
+    await waitFor(() => expect(getResourceOnNodes).toHaveBeenCalledWith('linstor_db'));
+    await screen.findByText(nodes[0].name);
+    expect(within(container).queryByText('Controller')).toBeNull();
   });
 
   it('asks for the first page and lists what comes back', async () => {

@@ -322,6 +322,8 @@ const tr = {
     are_you_sure_lost_selected_nodes: 'Seçili düğümleri kayıp olarak işaretlemek istediğinizden emin misiniz?',
     node_list: 'Düğüm Listesi',
     node_name: 'Ad',
+    active_controller: 'Denetleyici',
+    active_controller_tooltip: 'Bu düğüm etkin denetleyiciyi çalıştırıyor. Yük devretmede başka bir düğüme geçer.',
     platform: 'Platform',
     default_ip: 'IP',
     default_port: 'Port',

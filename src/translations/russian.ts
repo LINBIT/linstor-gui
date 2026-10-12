@@ -321,6 +321,9 @@ const ru = {
     are_you_sure_lost_selected_nodes: 'Действительно пометить выбранные узлы как потерянные?',
     node_list: 'Список узлов',
     node_name: 'Имя',
+    active_controller: 'Контроллер',
+    active_controller_tooltip:
+      'На этом узле работает активный контроллер. При отработке отказа он переходит на другой узел.',
     platform: 'Платформа',
     default_ip: 'IP',
     default_port: 'Порт',

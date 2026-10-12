@@ -323,6 +323,9 @@ const de = {
     are_you_sure_lost_selected_nodes: 'Die ausgewählten Knoten wirklich als verloren markieren?',
     node_list: 'Knotenliste',
     node_name: 'Name',
+    active_controller: 'Controller',
+    active_controller_tooltip:
+      'Auf diesem Knoten läuft der aktive Controller. Bei einem Failover wechselt er auf einen anderen Knoten.',
     platform: 'Plattform',
     default_ip: 'IP',
     default_port: 'Port',

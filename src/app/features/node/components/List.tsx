@@ -31,6 +31,7 @@ import { Popconfirm } from '@app/components/Popconfirm';
 import { useDeleteAction, deletingRowClass } from '@app/hooks/useDeleteAction';
 import { labelRowCheckbox } from '@app/utils/rowSelection';
 import { ActionColumnTitle } from '@app/components/ActionColumnTitle';
+import { useActiveController } from '../hooks/useActiveController';
 
 export const List = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -56,6 +57,7 @@ export const List = () => {
   }));
 
   const mode = useUIMode();
+  const activeController = useActiveController();
 
   const { data: linstorVersion, isFetched: versionFetched } = useQuery({
     queryKey: ['linstorVersion'],
@@ -217,7 +219,18 @@ export const List = () => {
       render: (text, record) => {
         const nodeUrl = mode === UIMode.HCI ? `/hci/inventory/nodes/${record.name}` : `/inventory/nodes/${record.name}`;
 
-        return <Link to={nodeUrl}>{text}</Link>;
+        return (
+          <span className="inline-flex flex-wrap items-center gap-2">
+            <Link to={nodeUrl}>{text}</Link>
+            {record.name === activeController && (
+              <Tooltip title={t('node:active_controller_tooltip')}>
+                <Tag color="cyan" className="m-0">
+                  {t('node:active_controller')}
+                </Tag>
+              </Tooltip>
+            )}
+          </span>
+        );
       },
     },
     ...(platformColumnAvailable ? [platformColumn] : []),

@@ -473,6 +473,8 @@ const en = {
     are_you_sure_lost_selected_nodes: 'Are you sure to lost the selected nodes?',
     node_list: 'Node List',
     node_name: 'Name',
+    active_controller: 'Controller',
+    active_controller_tooltip: 'This node runs the active controller. It moves to another node with a failover.',
     platform: 'Platform',
     default_ip: 'IP',
     default_port: 'Port',

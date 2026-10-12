@@ -463,6 +463,8 @@ const zh = {
     are_you_sure_lost_selected_nodes: '确定强制移除选中的节点？',
     node_list: '节点列表',
     node_name: '名称',
+    active_controller: '控制器',
+    active_controller_tooltip: '此节点运行当前活动的控制器，故障切换时会迁移到其他节点。',
     platform: '平台',
     default_ip: '默认地址',
     default_port: '默认端口',

@@ -320,6 +320,9 @@ const ja = {
     are_you_sure_lost_selected_nodes: '選択したノードを消失として扱ってもよろしいですか。',
     node_list: 'ノードリスト',
     node_name: '名前',
+    active_controller: 'コントローラー',
+    active_controller_tooltip:
+      'このノードでアクティブなコントローラーが動作しています。フェイルオーバー時には別のノードに移動します。',
     platform: 'プラットフォーム',
     default_ip: 'IP',
     default_port: 'ポート',
