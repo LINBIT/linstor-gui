@@ -4,30 +4,45 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { Table } from 'antd';
-import { Input } from '@app/components/Input';
-import { Select } from '@app/components/Select';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { Collapse, Empty, Tag } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 
 import Button from '@app/components/Button';
-import { Switch } from '@app/components/Switch';
+import { Input } from '@app/components/Input';
+import PageBasic from '@app/components/PageBasic';
 import PropertyForm from '@app/components/PropertyForm';
-import { getControllerProperties, updateController } from '@app/features/node';
-import { handlePropsToFormOption } from '@app/utils/property';
-import { MinusOutlined } from '@ant-design/icons';
-import { useTranslation } from 'react-i18next';
-import { Popconfirm } from '@app/components/Popconfirm';
+import { fullySuccess } from '@app/features/requests';
+import { getControllerProperties, getControllerPropertiesInfo, updateController } from '@app/features/node';
 import { variablesOnly } from '@app/utils/mutation';
+import { ControllerActions } from './ControllerActions';
+import { ControllerOverview } from './ControllerOverview';
+import { PropertyRow } from './PropertyRow';
+import {
+  COLLAPSED_GROUPS,
+  GROUPS,
+  SHOWN_WHEN_UNSET,
+  groupOf,
+  matches,
+  type GroupId,
+  type PropertyInfo,
+} from './properties';
 
 export const Controller = () => {
-  const [editMode, setEditMode] = useState(false);
-
-  const { t } = useTranslation(['common']);
+  const { t } = useTranslation(['controller', 'common']);
+  const [search, setSearch] = useState('');
+  const [open, setOpen] = useState<string[]>(GROUPS.filter((g) => !COLLAPSED_GROUPS.includes(g)));
 
   const { data: properties, refetch } = useQuery({
     queryKey: ['controllerProperties'],
     queryFn: getControllerProperties,
+  });
+
+  const { data: propertiesInfo } = useQuery({
+    queryKey: ['controllerPropertiesInfo'],
+    queryFn: getControllerPropertiesInfo,
+    staleTime: Infinity,
   });
 
   const mutation = useMutation({
@@ -37,135 +52,88 @@ export const Controller = () => {
     },
   });
 
-  const propertiesArray = Object.entries(properties?.data || {}).map(([key, value]) => ({
-    key,
-    value,
-  }));
+  const values = useMemo(() => (properties?.data ?? {}) as Record<string, string>, [properties]);
+  const infos = useMemo(() => (propertiesInfo?.data ?? {}) as Record<string, PropertyInfo>, [propertiesInfo]);
 
-  const nodePropertyList = handlePropsToFormOption('controller', properties?.data);
-
-  const renderItem = (item: { key: string; value: string }) => {
-    const isBoolean = item.value === 'false' || item.value === 'true';
-
-    const info = nodePropertyList.find((e) => e.label === item.key);
-
-    let inputItem = <span>{item.value}</span>;
-    let deleteButton = true;
-
-    if (item.key.startsWith('Aux/') || (!info && !isBoolean)) {
-      inputItem = (
-        <Input
-          style={{ width: '100%', maxWidth: '200px' }}
-          defaultValue={item.value}
-          onChange={(e) => {
-            mutation.mutate({
-              override_props: { [item.key]: e.target.value },
-            });
-          }}
-        />
-      );
-    } else if (info?.type === 'checkbox' || isBoolean) {
-      inputItem = (
-        <Switch
-          checked={item.value === 'true'}
-          onChange={(checked) => {
-            mutation.mutate({
-              override_props: { [item.key]: checked.toString() },
-            });
-          }}
-        />
-      );
-    } else if (info?.type === 'single_select') {
-      inputItem = (
-        <Select
-          style={{ width: '100%', maxWidth: '200px' }}
-          value={item.value}
-          onChange={(e) => {
-            mutation.mutate({
-              override_props: { [item.key]: e },
-            });
-          }}
-          options={info.extraInfo?.options?.map((e) => ({ label: e.label, value: e.value })) || []}
-        ></Select>
-      );
-    } else {
-      deleteButton = false;
-    }
-
-    return (
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        {inputItem}
-        {deleteButton && info && (
-          <Popconfirm
-            title={t('common:delete_property')}
-            description={t('common:are_you_sure_delete_property')}
-            onConfirm={() => {
-              mutation.mutate({
-                delete_props: [item.key],
-              });
-            }}
-            onCancel={() => {}}
-          >
-            <Button danger shape="circle" icon={<MinusOutlined />} size="small" style={{ marginLeft: 6 }} />
-          </Popconfirm>
-        )}
-      </div>
+  // What is set, plus the settings shown with their defaults when they are not.
+  const groups = useMemo(() => {
+    const names = Array.from(new Set([...Object.keys(values), ...SHOWN_WHEN_UNSET.filter((k) => infos[k])])).sort(
+      (a, b) => a.localeCompare(b),
     );
+    const byGroup = new Map<GroupId, string[]>(GROUPS.map((g) => [g, []]));
+    for (const name of names) {
+      if (matches(search, name, infos[name])) {
+        byGroup.get(groupOf(name))!.push(name);
+      }
+    }
+    return GROUPS.map((id) => ({ id, names: byGroup.get(id)! })).filter((g) => g.names.length > 0);
+  }, [values, infos, search]);
+
+  const save = async (name: string, value: string) => {
+    const res = await mutation.mutateAsync({ override_props: { [name]: value } }).catch(() => undefined);
+    return !!res && fullySuccess(res.data);
   };
 
+  const remove = (name: string) => mutation.mutate({ delete_props: [name] });
+
+  // While searching, every group with a match is open.
+  const activeKey = search.trim() ? groups.map((g) => g.id) : open;
+
   return (
-    <div>
-      <div className="flex items-center mb-6">
-        <div style={{ width: '40%' }}>
-          <h4 className="font-medium text-[22px]">{t('common:controller')}</h4>
-        </div>
+    <PageBasic title={t('common:controller')} extra={<ControllerActions />}>
+      <ControllerOverview />
 
-        <div style={{ width: '60%' }} className="flex items-center justify-between">
-          <div className="flex items-center">
-            <span className="mr-2 font-medium">{t('common:edit_mode')} </span>
-            <Switch onChange={() => setEditMode((editMode) => !editMode)} />
-          </div>
-
-          <PropertyForm
-            initialVal={properties?.data}
-            type="controller"
-            handleSubmit={(data) => {
-              mutation.mutate(data);
-            }}
-          >
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <h2 className="m-0 text-base font-semibold">
+          {t('common:controller_properties')}{' '}
+          <span className="font-normal text-(--text-secondary)">{Object.keys(values).length}</span>
+        </h2>
+        <div className="flex flex-wrap items-center gap-3">
+          <Input
+            allowClear
+            className="w-[300px] max-w-full"
+            aria-label={t('controller:search_label')}
+            placeholder={t('controller:search_placeholder')}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <PropertyForm initialVal={properties?.data} type="controller" handleSubmit={(data) => mutation.mutate(data)}>
             <Button type="secondary">+ {t('common:add_property')}</Button>
           </PropertyForm>
         </div>
       </div>
 
-      <Table
-        style={{ marginTop: '1rem', tableLayout: 'fixed' }}
-        className="mt-4"
-        size="small"
-        dataSource={propertiesArray}
-        pagination={false}
-        rowClassName={(_, index) => (index % 2 === 1 ? 'bg-[var(--bg-surface)]' : '')}
-        columns={[
-          {
-            title: t('common:controller_properties'),
-            dataIndex: 'key',
-            key: 'key',
-            width: '40%',
-            render: (text) => <span>{text}</span>,
-          },
-          {
-            title: 'Value',
-            dataIndex: 'value',
-            key: 'value',
-            width: '60%',
-            render: (value, record) => (
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                {editMode ? renderItem(record) : <span>{value}</span>}
-              </div>
+      {groups.length === 0 ? (
+        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('controller:no_match')} />
+      ) : (
+        <Collapse
+          activeKey={activeKey}
+          onChange={(keys) => setOpen(Array.isArray(keys) ? keys : [keys])}
+          items={groups.map((group) => ({
+            key: group.id,
+            styles: { body: { padding: 0 } },
+            label: (
+              <span className="inline-flex flex-wrap items-center gap-3">
+                <span className="font-medium">{t(`controller:group_${group.id}`)}</span>
+                <Tag className="m-0" variant="filled">
+                  {group.names.length}
+                </Tag>
+              </span>
             ),
-          },
-        ]}
-      />
-    </div>
+            children: group.names.map((name) => (
+              <PropertyRow
+                key={name}
+                name={name}
+                value={values[name]}
+                info={infos[name]}
+                onSave={save}
+                onDelete={remove}
+                saving={mutation.isPending}
+              />
+            )),
+          }))}
+        />
+      )}
+    </PageBasic>
   );
 };

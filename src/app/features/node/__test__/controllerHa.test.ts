@@ -6,7 +6,7 @@
 
 import { describe, it, expect } from 'vitest';
 
-import { controllerHaResource, controllerResourceInReactorConfig } from '../controllerHa';
+import { controllerHaPromoter, controllerHaResource, controllerResourceInReactorConfig } from '../controllerHa';
 
 // As the controller HA guide and linstor-controller-ha-setup write it.
 const CONTROLLER_CONFIG = `[[promoter]]
@@ -46,6 +46,20 @@ describe('controller HA resource', () => {
         file('/etc/drbd-reactor.d/ctrl.toml', CONTROLLER_CONFIG.replace(/linstor_db/g, 'ctrl_db')),
       ]),
     ).toBe('ctrl_db');
+  });
+
+  it('reads the service IP the controller promoter brings up', () => {
+    expect(controllerHaPromoter([file('/etc/drbd-reactor.d/linstor_db.toml', CONTROLLER_CONFIG)])).toEqual({
+      resource: 'linstor_db',
+      vip: '192.0.2.10',
+    });
+    const withoutIp = CONTROLLER_CONFIG.replace(/^.*IPaddr2.*\n/m, '');
+    expect(controllerHaPromoter([file('/etc/drbd-reactor.d/linstor_db.toml', withoutIp)])).toEqual({
+      resource: 'linstor_db',
+      vip: undefined,
+    });
+    // Without a config in LINSTOR the address is not known.
+    expect(controllerHaPromoter([])).toEqual({ resource: 'linstor_db' });
   });
 
   it('falls back to linstor_db when no config in LINSTOR starts the controller', () => {

@@ -16,8 +16,14 @@ export const CONTROLLER_HA_RESOURCE = 'linstor_db';
 
 const CONTROLLER_SERVICE = 'linstor-controller.service';
 
-/** The resource whose drbd-reactor promoter starts the controller, if this config has one. */
-export const controllerResourceInReactorConfig = (toml: string): string | undefined => {
+/** The controller's promoter in a drbd-reactor config: its resource, and the service IP it brings up. */
+interface ControllerPromoter {
+  resource: string;
+  /** From an `ocf:heartbeat:IPaddr2 … ip=<address>` start entry. */
+  vip?: string;
+}
+
+const controllerPromoterInReactorConfig = (toml: string): ControllerPromoter | undefined => {
   let doc: Record<string, unknown>;
   try {
     doc = parse(toml);
@@ -28,20 +34,28 @@ export const controllerResourceInReactorConfig = (toml: string): string | undefi
   for (const promoter of promoters) {
     const resources = (promoter as { resources?: Record<string, { start?: unknown }> })?.resources ?? {};
     for (const [name, resource] of Object.entries(resources)) {
-      const start = Array.isArray(resource?.start) ? resource.start : [];
-      if (start.some((unit) => typeof unit === 'string' && unit.trim() === CONTROLLER_SERVICE)) {
-        return name;
+      const start = (Array.isArray(resource?.start) ? resource.start : []).filter(
+        (unit): unit is string => typeof unit === 'string',
+      );
+      if (start.some((unit) => unit.trim() === CONTROLLER_SERVICE)) {
+        const vip = start.map((unit) => unit.match(/^ocf:heartbeat:IPaddr2\b.*\bip=(\S+)/)?.[1]).find(Boolean);
+        return { resource: name, vip };
       }
     }
   }
   return undefined;
 };
 
+/** The resource whose drbd-reactor promoter starts the controller, if this config has one. */
+export const controllerResourceInReactorConfig = (toml: string): string | undefined =>
+  controllerPromoterInReactorConfig(toml)?.resource;
+
 /**
- * The controller's HA resource among LINSTOR's external files: the first
- * drbd-reactor config that starts the controller, else the conventional name.
+ * The controller's promoter among LINSTOR's external files: the first
+ * drbd-reactor config that starts the controller, else the conventional
+ * resource name (and no known service IP).
  */
-export const controllerHaResource = (files: { path?: string; content?: string }[]): string => {
+export const controllerHaPromoter = (files: { path?: string; content?: string }[]): ControllerPromoter => {
   for (const file of files) {
     if (!file.path?.startsWith('/etc/drbd-reactor.d/') || !file.path.endsWith('.toml') || !file.content) {
       continue;
@@ -52,10 +66,14 @@ export const controllerHaResource = (files: { path?: string; content?: string }[
     } catch {
       continue;
     }
-    const resource = controllerResourceInReactorConfig(text);
-    if (resource) {
-      return resource;
+    const promoter = controllerPromoterInReactorConfig(text);
+    if (promoter) {
+      return promoter;
     }
   }
-  return CONTROLLER_HA_RESOURCE;
+  return { resource: CONTROLLER_HA_RESOURCE };
 };
+
+/** The controller's HA resource among LINSTOR's external files (see controllerHaPromoter). */
+export const controllerHaResource = (files: { path?: string; content?: string }[]): string =>
+  controllerHaPromoter(files).resource;

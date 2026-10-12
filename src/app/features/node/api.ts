@@ -26,6 +26,13 @@ const getControllerConfig = () => {
   return get('/v1/controller/config');
 };
 
+/** Changes the controller's log level while it runs. */
+const updateControllerLogLevel = (level: 'ERROR' | 'WARN' | 'INFO' | 'DEBUG' | 'TRACE') => {
+  return put('/v1/controller/config', {
+    body: { log: { level } },
+  });
+};
+
 const getControllerVersion = () => {
   return get('/v1/controller/version');
 };
@@ -75,6 +82,11 @@ const updateNode = ({ node, body }: { node: string; body: UpdateNodeRequestBody 
 
 const getControllerProperties = () => {
   return get('/v1/controller/properties');
+};
+
+/** What the controller documents about each property: description, type, default, unit. */
+const getControllerPropertiesInfo = () => {
+  return get('/v1/controller/properties/info');
 };
 
 const updateController = (body: UpdateControllerBody) => {
@@ -147,6 +159,8 @@ export {
   getSpaceReport,
   lostNode,
   updateController,
+  updateControllerLogLevel,
   getControllerProperties,
+  getControllerPropertiesInfo,
   getControllerVersion,
 };
