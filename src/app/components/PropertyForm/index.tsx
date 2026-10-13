@@ -6,7 +6,7 @@
 
 import { handlePropsToFormOption } from '@app/utils/property';
 import { useTranslation } from 'react-i18next';
-import React, { useState, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useEffect, useCallback, forwardRef, useImperativeHandle, useRef } from 'react';
 import { FormItem } from '@app/interfaces/dynamicFormType';
 import { uniqId } from '@app/utils/stringUtils';
 import SingleSelectDescription from './PropertySelector';
@@ -58,6 +58,9 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
     const [modalVisible, setModalVisible] = useState(false);
     const [currentInitialVal, setCurrentInitialVal] = useState<Record<string, unknown> | undefined>();
     const [form] = Form.useForm();
+    // What each field starts with when the dialog opens: a field still holding
+    // it is not sent.
+    const startValues = useRef<Record<string, unknown>>({});
 
     // Both ways of opening (the ref and clicking the children) fill the form
     // once the dialog, and with it the form, is open. The form was reset when
@@ -90,18 +93,25 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
       }
       setAuxProps(originalAuxItems);
 
+      // Radio buttons and checkboxes take the value read from the property
+      // (yes/no, a boolean); the other fields take it as it is.
+      const formValues: Record<string, unknown> = {};
+      if (currentInitial) {
+        displayItems.forEach((item) => {
+          if (!item.hide && item.name in currentInitial) {
+            formValues[item.name] =
+              item.type === 'radio' || item.type === 'checkbox' ? item.defaultValue : currentInitial[item.name];
+          } else if (!item.hide) {
+            formValues[item.name] = item.defaultValue;
+          }
+        });
+      }
+      startValues.current = formValues;
+
       setModalVisible(true);
 
       setTimeout(() => {
         if (currentInitial) {
-          const formValues: Record<string, unknown> = {};
-          displayItems.forEach((item) => {
-            if (!item.hide && item.name in currentInitial) {
-              formValues[item.name] = item.type === 'radio' ? item.defaultValue : currentInitial[item.name];
-            } else if (!item.hide) {
-              formValues[item.name] = item.defaultValue;
-            }
-          });
           form.setFieldsValue(formValues);
         }
       }, 50);
@@ -214,10 +224,11 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
       const original = currentInitialVal ?? {};
       const changedData: Record<string, unknown> = {};
 
-      // Compare each field in form data with currentInitialVal
+      // Send each field that no longer holds what it started with, a checkbox
+      // as the string LINSTOR stores.
       Object.entries(data).forEach(([key, val]) => {
-        if (original[key] !== val) {
-          changedData[key] = val;
+        if (startValues.current[key] !== val) {
+          changedData[key] = typeof val === 'boolean' ? String(val) : val;
         }
       });
 

@@ -13,17 +13,23 @@ import { propertyConstants } from '@app/utils/properties/propertyConstants';
 import { FormItem, TYPE_MAP } from '@app/interfaces/dynamicFormType';
 import { uniqId } from './stringUtils';
 
+// LINSTOR takes true/false and yes/no in any case: the controller itself
+// reports some properties as True and others as true.
 function normalizeYesNoValue(value: unknown, fallback?: boolean): 'yes' | 'no' {
-  if (value === 'yes' || value === 'on' || value === true || value === 'true') {
+  const v = typeof value === 'string' ? value.toLowerCase() : value;
+  if (v === 'yes' || v === 'on' || v === true || v === 'true') {
     return 'yes';
   }
 
-  if (value === 'no' || value === 'off' || value === false || value === 'false') {
+  if (v === 'no' || v === 'off' || v === false || v === 'false') {
     return 'no';
   }
 
   return fallback ? 'yes' : 'no';
 }
+
+const isTrue = (value: unknown): boolean =>
+  typeof value === 'string' ? value.toLowerCase() === 'true' : Boolean(value);
 
 export function handlePropsToFormOption(key: string, prop: Record<string, unknown> = {}): FormItem[] {
   if (!key || key === '') {
@@ -191,7 +197,7 @@ export function handlePropsToFormOption(key: string, prop: Record<string, unknow
           type: TYPE_MAP.CHECKBOX,
           label: title,
           name: field,
-          defaultValue: typeof value === 'string' ? (value === 'true' ? true : false) : Boolean(value),
+          defaultValue: isTrue(value),
           tipLabel: data['info'],
           hide,
         };
@@ -228,7 +234,7 @@ export function handlePropsToFormOption(key: string, prop: Record<string, unknow
                 type: TYPE_MAP.CHECKBOX,
                 label: title,
                 name: field,
-                defaultValue: typeof value === 'string' ? value === 'true' : Boolean(value),
+                defaultValue: isTrue(value),
                 tipLabel: data['info'],
                 hide,
               };

@@ -248,6 +248,31 @@ describe('handlePropsToFormOption', () => {
     expect(result[0].defaultValue).toBe(true);
   });
 
+  // Some true/false properties read True (the defaults the controller writes when it creates
+  // its database), others true.
+  it.each([
+    ['true', true],
+    ['True', true],
+    ['false', false],
+    ['False', false],
+  ])('reads a true/false property of %s as %s, in either case', (value, checked) => {
+    expect(handlePropsToFormOption('booleanTrueFalseKey', { booleanTrueFalseField: value })[0].defaultValue).toBe(
+      checked,
+    );
+    expect(handlePropsToFormOption('booleanKey', { booleanField: value })[0].defaultValue).toBe(checked);
+  });
+
+  // The default of this one is yes: a value that is not read falls back to it.
+  it.each([
+    ['no', 'no'],
+    ['No', 'no'],
+    ['False', 'no'],
+    ['Yes', 'yes'],
+    ['True', 'yes'],
+  ])('reads a yes/no property of %s as %s, in either case', (value, choice) => {
+    expect(handlePropsToFormOption('drbdBooleanKey', { drbdBooleanField: value })[0].defaultValue).toBe(choice);
+  });
+
   it('should handle non-DRBD boolean type as checkbox', () => {
     const prop = { booleanField: 'true' };
     const result = handlePropsToFormOption('booleanKey', prop);

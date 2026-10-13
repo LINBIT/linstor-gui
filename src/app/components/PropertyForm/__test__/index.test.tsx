@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, test, expect, vi } from 'vitest';
-import { render, fireEvent, screen, waitFor } from '@testing-library/react';
+import { act, render, fireEvent, screen, waitFor } from '@testing-library/react';
 import PropertyForm, { PropertyFormRef } from '../index';
 
 describe('PropertyForm', () => {
@@ -422,5 +422,41 @@ describe('PropertyForm', () => {
         delete_props: [],
       }),
     );
+  });
+
+  // Some true/false properties read True (the defaults the controller writes when it creates
+  // its database), others true.
+  test.each([
+    ['true', true, 'false'],
+    ['True', true, 'false'],
+    ['false', false, 'true'],
+    ['False', false, 'true'],
+  ])('shows a true/false property of %s as ticked: %s, and one click sends %s', async (value, ticked, flipped) => {
+    for (const click of [false, true]) {
+      const handleSubmit = vi.fn();
+      const ref = React.createRef<PropertyFormRef>();
+      const { unmount } = render(
+        <PropertyForm
+          ref={ref}
+          type="controller"
+          initialVal={{ 'DrbdOptions/AutoEvictAllowEviction': value }}
+          handleSubmit={handleSubmit}
+        />,
+      );
+      act(() => ref.current!.openModal());
+      const box = await screen.findByRole('checkbox');
+      await waitFor(() => expect(box).toHaveProperty('checked', ticked));
+
+      if (click) fireEvent.click(box);
+      fireEvent.click(screen.getByText('Submit'));
+
+      await waitFor(() =>
+        expect(handleSubmit).toHaveBeenCalledWith({
+          override_props: click ? { 'DrbdOptions/AutoEvictAllowEviction': flipped } : {},
+          delete_props: [],
+        }),
+      );
+      unmount();
+    }
   });
 });
