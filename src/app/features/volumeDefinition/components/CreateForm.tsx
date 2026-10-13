@@ -100,11 +100,9 @@ const CreateForm = ({ refetch, simple }: CreateFormProps) => {
         }
       >
         <Form<FormType>
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 16 }}
           style={{ maxWidth: 700 }}
           size="large"
-          layout="horizontal"
+          layout="vertical"
           form={form}
           initialValues={{
             place_count: 1,

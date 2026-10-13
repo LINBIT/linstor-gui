@@ -125,31 +125,11 @@ const CreateNFSForm = () => {
     createNFTMutation.mutate(currentExport);
   };
 
-  const formItemLayout = {
-    labelCol: {
-      xs: { span: 24 },
-      sm: { span: 7 },
-    },
-    wrapperCol: {
-      xs: { span: 24 },
-      sm: { span: 17 },
-    },
-  };
-
-  const formItemLayoutWithOutLabel = {
-    wrapperCol: {
-      xs: { span: 24, offset: 0 },
-      sm: { span: 17, offset: 7 },
-    },
-  };
-
   return (
     <Form<FormType>
-      labelCol={{ span: 7 }}
-      wrapperCol={{ span: 17 }}
       style={{ maxWidth: 800 }}
       size="large"
-      layout="horizontal"
+      layout="vertical"
       form={form}
       onFinish={onFinish}
       initialValues={{
@@ -271,12 +251,7 @@ const CreateNFSForm = () => {
         {(fields, { add, remove }, { errors }) => (
           <>
             {fields.map((field, index) => (
-              <Form.Item
-                {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
-                label={index === 0 ? t('nfs:volumes') : ''}
-                required={false}
-                key={field.key}
-              >
+              <Form.Item label={index === 0 ? t('nfs:volumes') : ''} required={false} key={field.key}>
                 <Form.Item
                   label={t('common:size')}
                   name={[index, 'size_kib']}
@@ -307,7 +282,7 @@ const CreateNFSForm = () => {
                 ) : null}
               </Form.Item>
             ))}
-            <Form.Item wrapperCol={{ xs: { span: 24, offset: 0 }, sm: { span: 17, offset: 7 } }}>
+            <Form.Item>
               <Button type="dashed" onClick={() => add()} style={{ width: '60%' }}>
                 {t('nfs:volumes')} <PlusOutlined />
               </Button>
@@ -322,7 +297,6 @@ const CreateNFSForm = () => {
           <>
             {fields.map((field, index) => (
               <Form.Item
-                {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
                 label={
                   index === 0 ? (
                     <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>{t('nfs:allowed_ips')}</span>
@@ -365,7 +339,7 @@ const CreateNFSForm = () => {
                 ) : null}
               </Form.Item>
             ))}
-            <Form.Item wrapperCol={{ xs: { span: 24, offset: 0 }, sm: { span: 17, offset: 7 } }}>
+            <Form.Item>
               <Button type="dashed" onClick={() => add()} style={{ width: '60%' }}>
                 {t('nfs:allowed_ips')} <PlusOutlined />
               </Button>
@@ -375,7 +349,7 @@ const CreateNFSForm = () => {
         )}
       </Form.List>
 
-      <Form.Item wrapperCol={{ offset: 7, span: 17 }}>
+      <Form.Item>
         <Button type="primary" htmlType="submit" loading={createNFTMutation.isPending}>
           {t('common:submit')}
         </Button>

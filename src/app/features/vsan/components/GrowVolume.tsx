@@ -7,7 +7,7 @@
 import { SizeInput } from '@app/components/SizeInput';
 import { useTranslation } from 'react-i18next';
 import { logger } from '@app/utils/logger';
-import { Form, Modal, Space, notification } from 'antd';
+import { Form, Modal, notification } from 'antd';
 import { Button } from '@app/components/Button';
 import { useEffect, useState } from 'react';
 import { clusterPrivateVolumeSizeKib } from '../const';
@@ -115,14 +115,15 @@ export const GrowVolume = ({ resource, resource_group, current_kib, refetch }: G
           }}
         >
           <Form.Item label={t('common:size')}>
-            <Space>
-              <Form.Item name="size" required>
+            {/* The size takes the room there is; the checkbox goes below it when there is none. */}
+            <div className="flex flex-wrap items-center gap-x-4">
+              <Form.Item name="size" className="min-w-[220px] flex-1" required>
                 {use_all ? <SizeInput disabled={use_all} /> : <SizeInput defaultUnit="KiB" />}
               </Form.Item>
               <Form.Item name="use_all" valuePropName="checked">
                 <Checkbox>Use all available</Checkbox>
               </Form.Item>
-            </Space>
+            </div>
           </Form.Item>
         </Form>
       </Modal>

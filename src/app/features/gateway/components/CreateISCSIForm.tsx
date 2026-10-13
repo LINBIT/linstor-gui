@@ -37,13 +37,6 @@ type FormType = {
   password?: string;
 };
 
-const formItemLayoutWithOutLabel = {
-  wrapperCol: {
-    xs: { span: 24, offset: 0 },
-    sm: { span: 17, offset: 7 },
-  },
-};
-
 const CreateISCSIForm = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm<FormType>();
@@ -113,11 +106,9 @@ const CreateISCSIForm = () => {
 
   return (
     <Form<FormType>
-      labelCol={{ span: 7 }}
-      wrapperCol={{ span: 17 }}
       style={{ maxWidth: 800 }}
       size="large"
-      layout="horizontal"
+      layout="vertical"
       form={form}
       onFinish={onFinish}
       initialValues={{
@@ -194,7 +185,7 @@ const CreateISCSIForm = () => {
         {(fields, { add, remove }, { errors }) => (
           <>
             {fields.map((field) => (
-              <Form.Item {...formItemLayoutWithOutLabel} required={false} key={field.key}>
+              <Form.Item required={false} key={field.key}>
                 <Form.Item
                   {...field}
                   validateTrigger={['onChange', 'onBlur']}
@@ -220,11 +211,7 @@ const CreateISCSIForm = () => {
                 ) : null}
               </Form.Item>
             ))}
-            <Form.Item
-              wrapperCol={{
-                offset: 7,
-              }}
-            >
+            <Form.Item>
               <Button type="dashed" onClick={() => add()} style={{ width: '60%' }}>
                 {t('iscsi:add_service_ip')}
                 <PlusOutlined />
@@ -264,7 +251,7 @@ const CreateISCSIForm = () => {
         <Input.Password placeholder={t('iscsi:chap_password')} />
       </Form.Item>
 
-      <Form.Item wrapperCol={{ offset: 7, span: 17 }}>
+      <Form.Item>
         <Button type="primary" htmlType="submit" loading={createMutation.isPending}>
           {t('common:submit')}
         </Button>

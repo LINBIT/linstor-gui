@@ -52,8 +52,6 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onCreate, onCance
               {t('add_a_user')}
             </h3>
             <Form
-              labelCol={{ span: 8 }}
-              wrapperCol={{ span: 16 }}
               initialValues={{ login: true }}
               form={form}
               layout="vertical"

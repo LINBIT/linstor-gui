@@ -75,13 +75,7 @@ const AddVolumeGroupForm = ({ resource_group, isInDropdown = false, refetch }: A
           </div>
         }
       >
-        <Form<FormType>
-          form={form}
-          layout="horizontal"
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 16 }}
-          onFinish={onFinish}
-        >
+        <Form<FormType> form={form} layout="vertical" onFinish={onFinish}>
           <Form.Item
             name="volume_number"
             label={t('common:volume_number', 'Volume Number')}

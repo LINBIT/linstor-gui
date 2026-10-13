@@ -45,6 +45,8 @@ const Item = ({ actions, className, style, onClick, children }: ItemProps) => {
       onClick={onClick}
       style={{
         display: 'flex',
+        // On a narrow screen the actions move below the row instead of off it.
+        flexWrap: 'wrap',
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: token.marginLG,
@@ -58,6 +60,7 @@ const Item = ({ actions, className, style, onClick, children }: ItemProps) => {
         <ul
           style={{
             display: 'flex',
+            flexWrap: 'wrap',
             alignItems: 'center',
             gap: token.marginXS,
             margin: 0,

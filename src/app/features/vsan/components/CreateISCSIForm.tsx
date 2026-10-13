@@ -174,15 +174,7 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
         }
       >
         <div className="[&_.ant-form-item-explain]:flex [&_.ant-form-item-explain]:justify-between">
-          <Form<FormType>
-            labelCol={{ span: 6 }}
-            wrapperCol={{ span: 18 }}
-            style={{ maxWidth: 800 }}
-            size="large"
-            layout="horizontal"
-            form={form}
-            onFinish={onFinish}
-          >
+          <Form<FormType> style={{ maxWidth: 800 }} size="large" layout="vertical" form={form} onFinish={onFinish}>
             <Form.Item label="IQN" required>
               <Space.Compact size="large">
                 <Space.Addon>iqn.</Space.Addon>
@@ -279,17 +271,22 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
             </Form.Item>
 
             <Form.Item label={t('common:size')}>
-              <Space>
-                <Form.Item name="size" rules={[{ required: true, message: 'Size is required!' }]}>
+              {/* The size takes the room there is; the checkbox goes below it when there is none. */}
+              <div className="flex flex-wrap items-center gap-x-4">
+                <Form.Item
+                  name="size"
+                  className="min-w-[220px] flex-1"
+                  rules={[{ required: true, message: 'Size is required!' }]}
+                >
                   {gross_size ? <SizeInput disabled={gross_size} /> : <SizeInput />}
                 </Form.Item>
                 <Form.Item name="gross_size" valuePropName="checked">
                   <Checkbox>Use all available</Checkbox>
                 </Form.Item>
-              </Space>
+              </div>
             </Form.Item>
 
-            <Form.Item name="enable_chap" valuePropName="checked" wrapperCol={{ span: 12, offset: 6 }}>
+            <Form.Item name="enable_chap" valuePropName="checked">
               <Checkbox>Enable CHAP Authentication</Checkbox>
             </Form.Item>
 

@@ -114,15 +114,7 @@ const EditForm = () => {
   };
 
   return (
-    <Form
-      labelCol={{ span: 8 }}
-      wrapperCol={{ span: 16 }}
-      style={{ maxWidth: 600 }}
-      size="large"
-      layout="horizontal"
-      form={form}
-      onFinish={onFinish}
-    >
+    <Form style={{ maxWidth: 600 }} size="large" layout="vertical" form={form} onFinish={onFinish}>
       <Form.Item
         name="pool_name"
         label={t('storage_pool:storage_pool_name')}
@@ -187,7 +179,7 @@ const EditForm = () => {
         />
       </Form.Item>
 
-      <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+      <Form.Item>
         <Button type="primary" htmlType="submit" loading={updateStoragePoolMutation.isPending}>
           Submit
         </Button>

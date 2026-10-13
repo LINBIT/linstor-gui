@@ -90,11 +90,9 @@ const CreateNVMEOfForm = () => {
 
   return (
     <Form<FormType>
-      labelCol={{ span: 7 }}
-      wrapperCol={{ span: 17 }}
       style={{ maxWidth: 800 }}
       size="large"
-      layout="horizontal"
+      layout="vertical"
       form={form}
       onFinish={onFinish}
       initialValues={{
@@ -178,7 +176,7 @@ const CreateNVMEOfForm = () => {
         <Checkbox />
       </Form.Item>
 
-      <Form.Item wrapperCol={{ offset: 7, span: 17 }}>
+      <Form.Item>
         <Button type="primary" htmlType="submit" loading={createMutation.isPending}>
           {t('common:submit')}
         </Button>

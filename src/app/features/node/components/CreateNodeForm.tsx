@@ -138,11 +138,9 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
 
   return (
     <Form<FormType>
-      labelCol={{ span: 6 }}
-      wrapperCol={{ span: 18 }}
       style={{ maxWidth: 500 }}
       size="large"
-      layout="horizontal"
+      layout="vertical"
       form={form}
       onFinish={onFinish}
       initialValues={{
@@ -214,7 +212,7 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
         <Input placeholder={t('node:please_input_port')} type="number" />
       </Form.Item>
 
-      <Form.Item wrapperCol={{ offset: 6, span: 18 }}>
+      <Form.Item>
         <Button type="primary" htmlType="submit" loading={createNodeMutation.isPending}>
           {t('common:submit')}
         </Button>

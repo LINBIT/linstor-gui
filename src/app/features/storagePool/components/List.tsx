@@ -218,7 +218,7 @@ export const List = () => {
     {
       title: t('storage_pool:node_name'),
       key: 'node_name',
-      width: 108,
+      width: 130,
       dataIndex: 'node_name',
       sorter: (a, b) => {
         return (a?.node_name ?? '').localeCompare(b?.node_name ?? '');
@@ -233,7 +233,7 @@ export const List = () => {
     {
       title: t('storage_pool:provider_kind'),
       key: 'provider_kind',
-      width: 115,
+      width: 120,
       dataIndex: 'provider_kind',
       render: (provider_kind: string) => {
         const color = providerKindColorMap?.[provider_kind as keyof typeof providerKindColorMap] ?? 'default';
@@ -253,7 +253,7 @@ export const List = () => {
       title: t('storage_pool:free_capacity'),
       dataIndex: 'free_capacity',
       key: 'free_capacity',
-      width: 106,
+      width: 120,
       render: (free_capacity, sp) => {
         if (typeof free_capacity === 'undefined' || sp.provider_kind === 'DISKLESS') {
           return <span>N/A</span>;
@@ -265,7 +265,7 @@ export const List = () => {
       title: t('storage_pool:total_capacity'),
       dataIndex: 'total_capacity',
       key: 'total_capacity',
-      width: 108,
+      width: 125,
       render: (total_capacity, sp) => {
         if (typeof total_capacity === 'undefined' || sp.provider_kind === 'DISKLESS') {
           return <span>N/A</span>;
@@ -277,7 +277,7 @@ export const List = () => {
       title: t('storage_pool:supports_snapshots'),
       dataIndex: 'supports_snapshots',
       key: 'supports_snapshots',
-      width: 112,
+      width: 160,
       render: (supports_snapshots) => {
         return <SupportStatus supported={supports_snapshots} />;
       },
@@ -419,6 +419,9 @@ export const List = () => {
         // from the content, the columns re-laid out when the rows arrived and
         // the wrapped header grew, shifting the page.
         tableLayout="fixed"
+        // Below this the columns would squeeze under their titles (and the
+        // disk path to nothing): the table scrolls sideways instead.
+        scroll={{ x: 1100 }}
         pagination={
           listLoaded && {
             total: show_default

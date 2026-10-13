@@ -219,11 +219,9 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
 
   return (
     <Form<FormType>
-      labelCol={{ span: 8 }}
-      wrapperCol={{ span: 16 }}
       style={{ maxWidth: 700 }}
       size="large"
-      layout="horizontal"
+      layout="vertical"
       form={form}
       initialValues={{
         resource_group_name: 'DfltRscGrp',
@@ -305,13 +303,13 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
             <Input placeholder={t('resource:please_input_place_count')} type="number" min={0} />
           </Form.Item>
 
-          <Form.Item name="diskless" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
+          <Form.Item name="diskless" valuePropName="checked">
             <Checkbox>{t('common:diskless_on_remaining')}</Checkbox>
           </Form.Item>
         </>
       )}
 
-      <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+      <Form.Item>
         <Button type="primary" htmlType="submit" loading={isLoading} disabled={isDisabled}>
           {t('common:submit')}
         </Button>

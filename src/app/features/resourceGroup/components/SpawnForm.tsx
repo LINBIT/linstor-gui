@@ -150,15 +150,7 @@ const SpawnForm = ({ resource_group, isInDropdown = false }: SpawnFormProps) => 
         }
         width={800}
       >
-        <Form<FormType>
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 16 }}
-          style={{ maxWidth: 700 }}
-          size="large"
-          layout="horizontal"
-          form={form}
-          onFinish={onFinish}
-        >
+        <Form<FormType> style={{ maxWidth: 700 }} size="large" layout="vertical" form={form} onFinish={onFinish}>
           {selectResourceGroup && (
             <Form.Item
               name="resource_group"

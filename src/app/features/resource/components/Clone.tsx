@@ -71,20 +71,12 @@ const CloneForm = ({ resource, isUsingZFS }: SpawnFormProps) => {
           </>
         }
       >
-        <Form<FormType>
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 16 }}
-          style={{ maxWidth: 700 }}
-          size="large"
-          layout="horizontal"
-          form={form}
-          onFinish={onFinish}
-        >
+        <Form<FormType> style={{ maxWidth: 700 }} size="large" layout="vertical" form={form} onFinish={onFinish}>
           <Form.Item name="name" label={t('common:name')} required>
             <Input placeholder={t('resource:input_clone_name')} />
           </Form.Item>
 
-          <Form.Item name="use_zfs_clone" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
+          <Form.Item name="use_zfs_clone" valuePropName="checked">
             <Checkbox disabled={!isUsingZFS}>{t('common:use_zfs_clone')}</Checkbox>
           </Form.Item>
         </Form>

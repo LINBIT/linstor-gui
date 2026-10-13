@@ -142,24 +142,6 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
     }
   };
 
-  const formItemLayout = {
-    labelCol: {
-      xs: { span: 24 },
-      sm: { span: 6 },
-    },
-    wrapperCol: {
-      xs: { span: 24 },
-      sm: { span: 20 },
-    },
-  };
-
-  const formItemLayoutWithOutLabel = {
-    wrapperCol: {
-      xs: { span: 24, offset: 0 },
-      sm: { span: 18, offset: 6 },
-    },
-  };
-
   const handleOk = () => {
     onFinish();
   };
@@ -197,10 +179,8 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
       >
         <div className="[&_.ant-form-item-explain]:flex [&_.ant-form-item-explain]:justify-between">
           <Form<FormType>
-            labelCol={{ span: 6 }}
-            wrapperCol={{ span: 18 }}
             size="large"
-            layout="horizontal"
+            layout="vertical"
             form={form}
             onFinish={onFinish}
             initialValues={{
@@ -257,14 +237,19 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
             </Form.Item>
 
             <Form.Item label={t('common:size')} required>
-              <Space>
-                <Form.Item name="size_kib" rules={[{ required: true, message: 'Size is required!' }]}>
+              {/* The size takes the room there is; the checkbox goes below it when there is none. */}
+              <div className="flex flex-wrap items-center gap-x-4">
+                <Form.Item
+                  name="size_kib"
+                  className="min-w-[220px] flex-1"
+                  rules={[{ required: true, message: 'Size is required!' }]}
+                >
                   <SizeInput disabled={gross_size} />
                 </Form.Item>
                 <Form.Item name="gross_size" valuePropName="checked">
                   <Checkbox>Use all available</Checkbox>
                 </Form.Item>
-              </Space>
+              </div>
             </Form.Item>
 
             <Form.Item
@@ -304,12 +289,7 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
               {(fields, { add, remove }, { errors }) => (
                 <>
                   {fields.map((field, index) => (
-                    <Form.Item
-                      {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
-                      label={index === 0 ? 'Additional Volumes' : ''}
-                      required={false}
-                      key={field.key}
-                    >
+                    <Form.Item label={index === 0 ? 'Additional Volumes' : ''} required={false} key={field.key}>
                       <Form.Item label={t('common:size')} name={[index, 'size_kib']}>
                         <SizeInput />
                       </Form.Item>
@@ -357,12 +337,7 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
               {(fields, { add, remove }, { errors }) => (
                 <>
                   {fields.map(({ key, ...field }, index) => (
-                    <Form.Item
-                      {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
-                      label={index === 0 ? 'Allowed IPs' : ''}
-                      required={false}
-                      key={key}
-                    >
+                    <Form.Item label={index === 0 ? 'Allowed IPs' : ''} required={false} key={key}>
                       <Form.Item
                         {...field}
                         validateTrigger={['onChange', 'onBlur']}

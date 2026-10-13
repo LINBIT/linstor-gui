@@ -108,11 +108,9 @@ export const CreateResourceGroup = ({ refetch }: CreateResourceGroupProps) => {
         }
       >
         <Form<FormType>
-          labelCol={{ span: 6 }}
-          wrapperCol={{ span: 18 }}
           style={{ maxWidth: 800 }}
           size="large"
-          layout="horizontal"
+          layout="vertical"
           form={form}
           onFinish={onFinish}
           initialValues={{

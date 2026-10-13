@@ -71,13 +71,7 @@ export const SVGFileUpload: React.FunctionComponent = () => {
   };
 
   return (
-    <Form<FormType>
-      labelCol={{ span: 6 }}
-      wrapperCol={{ span: 18 }}
-      layout="horizontal"
-      style={{ maxWidth: 600, marginLeft: 0 }}
-      form={form}
-    >
+    <Form<FormType> layout="vertical" style={{ maxWidth: 600, marginLeft: 0 }} form={form}>
       <Form.Item
         label={t('settings:custom_logo')}
         valuePropName="checked"
@@ -131,7 +125,7 @@ export const SVGFileUpload: React.FunctionComponent = () => {
         </>
       )}
 
-      <Form.Item wrapperCol={{ span: 4, offset: 6 }}>
+      <Form.Item>
         <Button type="primary" onClick={handleSave}>
           {t('common:save')}
         </Button>

@@ -103,11 +103,9 @@ const CreateForm = ({ editing, node, refetch }: FormProps) => {
         ]}
       >
         <Form<FormType>
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 16 }}
           style={{ maxWidth: 600 }}
           size="large"
-          layout="horizontal"
+          layout="vertical"
           form={form}
           initialValues={{
             satellite_port: 3366,
@@ -157,11 +155,11 @@ const CreateForm = ({ editing, node, refetch }: FormProps) => {
             </Radio.Group>
           </Form.Item>
 
-          <Form.Item name="is_active" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
+          <Form.Item name="is_active" valuePropName="checked">
             <Checkbox>{t('default_ip')}</Checkbox>
           </Form.Item>
 
-          {/* <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+          {/* <Form.Item>
             <Button
               type="primary"
               htmlType="submit"

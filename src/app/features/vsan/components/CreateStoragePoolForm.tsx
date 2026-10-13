@@ -390,10 +390,8 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
         <Table columns={columns} dataSource={data} pagination={false} />
         <br />
         <Form<FormType>
-          labelCol={{ span: 6 }}
-          wrapperCol={{ span: 18 }}
           size="large"
-          layout="horizontal"
+          layout="vertical"
           form={form}
           onFinish={onFinish}
           initialValues={{

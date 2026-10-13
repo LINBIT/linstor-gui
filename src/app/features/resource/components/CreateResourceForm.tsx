@@ -210,11 +210,9 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
 
   return (
     <Form<FormType>
-      labelCol={{ span: 8 }}
-      wrapperCol={{ span: 16 }}
       style={{ maxWidth: 700 }}
       size="large"
-      layout="horizontal"
+      layout="vertical"
       form={form}
       initialValues={{
         allocate_method: 'auto',
@@ -305,7 +303,7 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
         </>
       )}
 
-      <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+      <Form.Item>
         <Button type="primary" htmlType="submit" loading={isLoading} disabled={isDisabled}>
           {t('common:submit')}
         </Button>

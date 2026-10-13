@@ -130,6 +130,20 @@ body {
   overflow-x: auto;
 }
 
+/* Column titles stay on one line; a table wider than the screen scrolls
+ * (above) instead of breaking its titles into a word per line. */
+.ant-table-thead > tr > th {
+  white-space: nowrap;
+}
+
+/* A fixed-layout table keeps its column widths: a title longer than its
+ * column (a longer translation) ends in an ellipsis instead of running into
+ * the next one. */
+.ant-table-layout-fixed .ant-table-thead > tr > th {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* Keep the shell itself from ever growing wider than the viewport. */
 .ant-layout {
   min-width: 0;

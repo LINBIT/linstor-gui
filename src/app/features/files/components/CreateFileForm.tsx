@@ -42,15 +42,7 @@ const CreateFileForm = () => {
   };
 
   return (
-    <Form<FormType>
-      labelCol={{ span: 6 }}
-      wrapperCol={{ span: 18 }}
-      style={{ maxWidth: 700 }}
-      size="large"
-      layout="horizontal"
-      form={form}
-      onFinish={onFinish}
-    >
+    <Form<FormType> style={{ maxWidth: 700 }} size="large" layout="vertical" form={form} onFinish={onFinish}>
       <Form.Item
         label={t('path')}
         name="path"
@@ -79,7 +71,7 @@ const CreateFileForm = () => {
         <TextArea rows={10} placeholder={t('content_placeholder')} />
       </Form.Item>
 
-      <Form.Item wrapperCol={{ offset: 6, span: 18 }}>
+      <Form.Item>
         <Button type="primary" htmlType="submit" loading={createOrUpdateMutation.isPending}>
           {t('common:submit')}
         </Button>
