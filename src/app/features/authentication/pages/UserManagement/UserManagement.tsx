@@ -100,8 +100,13 @@ export const UserManagement = () => {
   return (
     <PageBasic title={t('users:title')}>
       <div className="flex h-[calc(100vh-200px)] rounded-2xl bg-(--bg-page)">
-        <img className="h-[calc(100vh-200px)] flex-1 object-cover opacity-20" src={bg} title="bg" />
-        <div className="max-h-[calc(100vh-200px)] flex-[4] overflow-y-auto rounded-r-2xl border border-l-0 border-(--border-subtle) p-6">
+        {/* The picture only when there is room beside the list. */}
+        <img
+          className="hidden h-[calc(100vh-200px)] min-w-0 flex-1 object-cover opacity-20 md:block"
+          src={bg}
+          title="bg"
+        />
+        <div className="max-h-[calc(100vh-200px)] min-w-0 flex-[4] overflow-y-auto rounded-2xl border border-(--border-subtle) p-6 md:rounded-l-none md:border-l-0">
           <Alert title={t('users:removal_warning')} type="warning" showIcon style={{ marginBottom: 20 }} />
           {isAdminOrNotEnabled && (
             <>

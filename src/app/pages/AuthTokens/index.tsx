@@ -321,14 +321,14 @@ const AuthTokens = () => {
 
   return (
     <Space orientation="vertical" size="large" style={{ width: '100%' }}>
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <Title level={3} style={{ marginBottom: 4 }}>
             {t('authToken:title')}
           </Title>
         </div>
 
-        <Space>
+        <Space wrap>
           <Space>
             <Switch checked={showAllTokens} onChange={setShowAllTokens} />
             <span>{t('authToken:show_all')}</span>
@@ -353,7 +353,8 @@ const AuthTokens = () => {
           dataSource={tokens}
           loading={loading}
           pagination={{ showSizeChanger: true, showTotal: (total) => t('authToken:total_items', { total }) }}
-          scroll={{ x: true }}
+          // Columns as wide as their content; on a narrow screen the table scrolls.
+          scroll={{ x: 'max-content' }}
         />
       </Card>
 
