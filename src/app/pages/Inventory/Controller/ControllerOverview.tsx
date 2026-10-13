@@ -5,7 +5,6 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
-import { Typography } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
@@ -126,18 +125,6 @@ export const ControllerOverview: React.FC = () => {
       </div>
 
       <dl className="m-0 grid grid-cols-[max-content_minmax(0,1fr)] gap-x-6 gap-y-2 rounded-lg border border-(--border-subtle) p-4 text-sm">
-        <dt className="font-medium text-(--text-secondary)">{t('controller:cluster_id')}</dt>
-        <dd className="m-0">
-          {props['Cluster/LocalID'] ? (
-            <Typography.Text copyable className="font-mono">
-              {props['Cluster/LocalID']}
-            </Typography.Text>
-          ) : (
-            '-'
-          )}
-        </dd>
-        <dt className="font-medium text-(--text-secondary)">{t('controller:database')}</dt>
-        <dd className="m-0 font-mono break-all">{c?.db?.connection_url ?? '-'}</dd>
         <dt className="font-medium text-(--text-secondary)">{t('controller:logs')}</dt>
         <dd className="m-0 font-mono break-all">
           {[c?.log?.directory, c?.log?.level].filter(Boolean).join(' · ') || '-'}

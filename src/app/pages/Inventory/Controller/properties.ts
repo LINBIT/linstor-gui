@@ -13,21 +13,27 @@ export interface PropertyInfo {
   unit?: string;
 }
 
-export type GroupId = 'drbd' | 'security' | 'db_export' | 'aux' | 'connections' | 'other';
+/** A property's group: the namespace before its first `/`, or OTHER_GROUP. */
+export type GroupId = string;
 
-/** The order the groups are shown in; connections and other start collapsed. */
-export const GROUPS: GroupId[] = ['drbd', 'security', 'db_export', 'aux', 'connections', 'other'];
+/** Properties without a namespace. A namespace never contains `/`, so this key cannot clash with one. */
+export const OTHER_GROUP: GroupId = '/';
 
-export const COLLAPSED_GROUPS: GroupId[] = ['connections', 'other'];
+/** The user's own properties, shown first. */
+export const AUX_GROUP: GroupId = 'Aux';
+
+/** Groups that start collapsed: the connector definitions and the names of the default ones. */
+export const COLLAPSED_GROUPS: GroupId[] = ['NetCom', OTHER_GROUP];
 
 export const groupOf = (key: string): GroupId => {
-  if (key.startsWith('DrbdOptions/')) return 'drbd';
-  if (key.startsWith('Auth/') || key.startsWith('REST/') || key.startsWith('encrypted/')) return 'security';
-  if (key.startsWith('AutoDbExport/')) return 'db_export';
-  if (key.startsWith('Aux/')) return 'aux';
-  // The connector definitions and the names of the default ones.
-  if (key.startsWith('NetCom/') || /^default\w*(Connector|ConSvc)$/.test(key)) return 'connections';
-  return 'other';
+  const slash = key.indexOf('/');
+  return slash > 0 ? key.slice(0, slash) : OTHER_GROUP;
+};
+
+/** Aux first, then the namespaces alphabetically, ignoring case, and OTHER_GROUP last. */
+export const compareGroups = (a: GroupId, b: GroupId): number => {
+  const rank = (id: GroupId) => (id === AUX_GROUP ? 0 : id === OTHER_GROUP ? 2 : 1);
+  return rank(a) - rank(b) || a.localeCompare(b, undefined, { sensitivity: 'base' }) || a.localeCompare(b);
 };
 
 /**

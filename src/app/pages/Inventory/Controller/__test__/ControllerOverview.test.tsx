@@ -109,13 +109,12 @@ describe('ControllerOverview', () => {
     expect(screen.getByRole('link', { name: 'Manage tokens' })).toHaveAttribute('href', '/auth-tokens');
   });
 
-  it('lists the cluster ID with a copy button, the database and the logs', async () => {
+  it('lists the logs, not the cluster ID or the database', async () => {
     renderOverview();
 
-    expect(await screen.findByText('9b508d7c-54bb')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /copy/i })).toBeInTheDocument();
-    expect(await screen.findByText('jdbc:h2:/var/lib/linstor/linstordb')).toBeInTheDocument();
-    expect(screen.getByText('/var/log/linstor-controller · INFO')).toBeInTheDocument();
+    expect(await screen.findByText('/var/log/linstor-controller · INFO')).toBeInTheDocument();
+    expect(screen.queryByText('9b508d7c-54bb')).toBeNull();
+    expect(screen.queryByText('jdbc:h2:/var/lib/linstor/linstordb')).toBeNull();
   });
 
   it('says so when the controller is not highly available', async () => {

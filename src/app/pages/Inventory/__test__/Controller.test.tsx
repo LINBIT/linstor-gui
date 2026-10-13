@@ -19,9 +19,8 @@ vi.mock('@app/features/node', async (importOriginal) => ({
   updateController: vi.fn(),
 }));
 
-// The overview and the actions have their own suites.
+// The overview has its own suite.
 vi.mock('../Controller/ControllerOverview', () => ({ ControllerOverview: () => null }));
-vi.mock('../Controller/ControllerActions', () => ({ ControllerActions: () => null }));
 
 vi.mock('@app/components/PropertyForm', () => ({
   default: ({ children, handleSubmit }: { children?: React.ReactNode; handleSubmit: (d: unknown) => void }) => (
@@ -43,7 +42,9 @@ const properties = {
   'DrbdOptions/Net/timeout': '60',
   'NetCom/SslConnector/KeyPasswd': 'linstor',
   'encrypted/masterkey': 'c2VjcmV0',
+  'REST/AutoHTTPS': 'true',
   TcpPortAutoRange: '7000-7999',
+  defaultPlainConSvc: 'PlainConnector',
 };
 
 const info = {
@@ -98,18 +99,25 @@ describe('Controller page', () => {
     vi.mocked(updateController).mockResolvedValue(ok as never);
   });
 
-  it('groups the properties, with the description and default the controller gives', async () => {
+  it('groups the properties by namespace, Aux first, with the description and default the controller gives', async () => {
     const { container } = await renderController();
 
     const headers = Array.from(container.querySelectorAll('.ant-collapse-header')).map((h) => h.textContent);
     expect(headers).toEqual([
-      'DRBD defaults3',
-      'Security2',
-      'Automatic database export2',
       'Custom (Aux/)1',
-      'Connections1',
+      'Auth1',
+      'AutoDbExport2',
+      'Cluster1',
+      'DrbdOptions3',
+      'encrypted1',
+      'NetCom1',
+      'REST1',
       'Other2',
     ]);
+    // The connector definitions and the properties without a namespace start collapsed.
+    const open = Array.from(container.querySelectorAll('.ant-collapse-item-active .ant-collapse-header'));
+    expect(open.map((h) => h.textContent)).not.toContain('NetCom1');
+    expect(open.map((h) => h.textContent)).not.toContain('Other2');
     expect(row('DrbdOptions/AutoEvictAllowEviction')).toHaveTextContent('If set to false on a node');
     expect(within(row('DrbdOptions/AutoEvictAllowEviction')).getByText('Default')).toBeInTheDocument();
     expect(within(row('DrbdOptions/Resource/on-no-quorum')).queryByText('Default')).toBeNull();
@@ -129,7 +137,7 @@ describe('Controller page', () => {
     const { container } = await renderController();
 
     expect(container).not.toHaveTextContent('c2VjcmV0');
-    fireEvent.click(screen.getByText(/Connections/));
+    fireEvent.click(screen.getByText('NetCom'));
     await screen.findByText('NetCom/SslConnector/KeyPasswd');
     expect(row('NetCom/SslConnector/KeyPasswd')).not.toHaveTextContent('linstor');
 
@@ -141,7 +149,6 @@ describe('Controller page', () => {
 
   it('offers no editing for the controller’s own state', async () => {
     await renderController();
-    fireEvent.click(screen.getByText(/^Other/));
 
     expect(within(row('encrypted/masterkey')).queryByRole('button', { name: /Edit/ })).toBeNull();
     expect(within(row('Cluster/LocalID')).queryByRole('button', { name: /Edit/ })).toBeNull();

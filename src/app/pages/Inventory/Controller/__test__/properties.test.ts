@@ -6,20 +6,38 @@
 
 import { describe, it, expect } from 'vitest';
 
-import { editorFor, groupOf, isDefault, isEditable, isSecret, matches } from '../properties';
+import {
+  AUX_GROUP,
+  OTHER_GROUP,
+  compareGroups,
+  editorFor,
+  groupOf,
+  isDefault,
+  isEditable,
+  isSecret,
+  matches,
+} from '../properties';
 
 describe('controller properties', () => {
-  it('groups by namespace', () => {
-    expect(groupOf('DrbdOptions/Resource/on-no-quorum')).toBe('drbd');
-    expect(groupOf('Auth/TokenAuthenticationEnabled')).toBe('security');
-    expect(groupOf('REST/AutoHTTPS')).toBe('security');
-    expect(groupOf('encrypted/masterkey')).toBe('security');
-    expect(groupOf('AutoDbExport/Cron')).toBe('db_export');
-    expect(groupOf('Aux/owner')).toBe('aux');
-    expect(groupOf('NetCom/SslConnector/Port')).toBe('connections');
-    expect(groupOf('defaultPlainConSvc')).toBe('connections');
-    expect(groupOf('defaultDebugSslConnector')).toBe('connections');
-    expect(groupOf('Cluster/LocalID')).toBe('other');
+  it('groups by the namespace before the first slash', () => {
+    expect(groupOf('DrbdOptions/Resource/on-no-quorum')).toBe('DrbdOptions');
+    expect(groupOf('Auth/TokenAuthenticationEnabled')).toBe('Auth');
+    expect(groupOf('encrypted/masterkey')).toBe('encrypted');
+    expect(groupOf('Aux/owner')).toBe(AUX_GROUP);
+    expect(groupOf('NetCom/SslConnector/Port')).toBe('NetCom');
+    expect(groupOf('defaultPlainConSvc')).toBe(OTHER_GROUP);
+    expect(groupOf('/odd')).toBe(OTHER_GROUP);
+  });
+
+  it('puts Aux first and the properties without a namespace last', () => {
+    expect([OTHER_GROUP, 'REST', 'encrypted', 'Auth', AUX_GROUP, 'DrbdOptions'].sort(compareGroups)).toEqual([
+      AUX_GROUP,
+      'Auth',
+      'DrbdOptions',
+      'encrypted',
+      'REST',
+      OTHER_GROUP,
+    ]);
   });
 
   it('treats passwords and the encryption keys as secrets', () => {

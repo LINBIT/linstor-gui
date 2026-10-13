@@ -16,13 +16,14 @@ import PropertyForm from '@app/components/PropertyForm';
 import { fullySuccess } from '@app/features/requests';
 import { getControllerProperties, getControllerPropertiesInfo, updateController } from '@app/features/node';
 import { variablesOnly } from '@app/utils/mutation';
-import { ControllerActions } from './ControllerActions';
 import { ControllerOverview } from './ControllerOverview';
 import { PropertyRow } from './PropertyRow';
 import {
+  AUX_GROUP,
   COLLAPSED_GROUPS,
-  GROUPS,
+  OTHER_GROUP,
   SHOWN_WHEN_UNSET,
+  compareGroups,
   groupOf,
   matches,
   type GroupId,
@@ -32,7 +33,8 @@ import {
 export const Controller = () => {
   const { t } = useTranslation(['controller', 'common']);
   const [search, setSearch] = useState('');
-  const [open, setOpen] = useState<string[]>(GROUPS.filter((g) => !COLLAPSED_GROUPS.includes(g)));
+  // The groups come from the properties, so remember the closed ones: a new group starts open.
+  const [closed, setClosed] = useState<GroupId[]>(COLLAPSED_GROUPS);
 
   const { data: properties, refetch } = useQuery({
     queryKey: ['controllerProperties'],
@@ -60,13 +62,16 @@ export const Controller = () => {
     const names = Array.from(new Set([...Object.keys(values), ...SHOWN_WHEN_UNSET.filter((k) => infos[k])])).sort(
       (a, b) => a.localeCompare(b),
     );
-    const byGroup = new Map<GroupId, string[]>(GROUPS.map((g) => [g, []]));
+    const byGroup = new Map<GroupId, string[]>();
     for (const name of names) {
       if (matches(search, name, infos[name])) {
-        byGroup.get(groupOf(name))!.push(name);
+        const id = groupOf(name);
+        byGroup.set(id, [...(byGroup.get(id) ?? []), name]);
       }
     }
-    return GROUPS.map((id) => ({ id, names: byGroup.get(id)! })).filter((g) => g.names.length > 0);
+    return Array.from(byGroup.keys())
+      .sort(compareGroups)
+      .map((id) => ({ id, names: byGroup.get(id)! }));
   }, [values, infos, search]);
 
   const save = async (name: string, value: string) => {
@@ -77,10 +82,19 @@ export const Controller = () => {
   const remove = (name: string) => mutation.mutate({ delete_props: [name] });
 
   // While searching, every group with a match is open.
-  const activeKey = search.trim() ? groups.map((g) => g.id) : open;
+  const shown = groups.map((g) => g.id);
+  const activeKey = search.trim() ? shown : shown.filter((id) => !closed.includes(id));
+
+  const onCollapse = (keys: string | string[]) => {
+    const open = Array.isArray(keys) ? keys : [keys];
+    setClosed((prev) => [...prev.filter((id) => !shown.includes(id)), ...shown.filter((id) => !open.includes(id))]);
+  };
+
+  const groupLabel = (id: GroupId) =>
+    id === AUX_GROUP ? t('controller:group_aux') : id === OTHER_GROUP ? t('controller:group_other') : id;
 
   return (
-    <PageBasic title={t('common:controller')} extra={<ControllerActions />}>
+    <PageBasic title={t('common:controller')}>
       <ControllerOverview />
 
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -108,13 +122,13 @@ export const Controller = () => {
       ) : (
         <Collapse
           activeKey={activeKey}
-          onChange={(keys) => setOpen(Array.isArray(keys) ? keys : [keys])}
+          onChange={onCollapse}
           items={groups.map((group) => ({
             key: group.id,
             styles: { body: { padding: 0 } },
             label: (
               <span className="inline-flex flex-wrap items-center gap-3">
-                <span className="font-medium">{t(`controller:group_${group.id}`)}</span>
+                <span className="font-medium">{groupLabel(group.id)}</span>
                 <Tag className="m-0" variant="filled">
                   {group.names.length}
                 </Tag>
