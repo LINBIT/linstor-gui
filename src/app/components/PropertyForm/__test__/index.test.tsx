@@ -383,4 +383,44 @@ describe('PropertyForm', () => {
     fireEvent.click(screen.getByText('Open'));
     expect(await screen.findByText('Property Editor')).toBeInTheDocument();
   });
+
+  test('shows the values it was given, without warnings, before and after opening', async () => {
+    const initialVal = { TcpPortAutoRange: '7000-7999', 'Aux/owner': 'team-a' };
+    render(
+      <PropertyForm type="controller" initialVal={initialVal} handleSubmit={vi.fn()}>
+        <button>Open</button>
+      </PropertyForm>,
+    );
+    // Closed: nothing to fill yet. Wait out anything scheduled for the form.
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    fireEvent.click(screen.getByText('Open'));
+    expect(await screen.findByDisplayValue('7000-7999')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('team-a')).toBeInTheDocument();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  });
+
+  test('opened by clicking, sends only what changed', async () => {
+    const initialVal = { TcpPortAutoRange: '7000-7999', 'DrbdOptions/AutoEvictAllowEviction': 'true' };
+    const handleSubmit = vi.fn();
+    render(
+      <PropertyForm type="controller" initialVal={initialVal} handleSubmit={handleSubmit}>
+        <button>Open</button>
+      </PropertyForm>,
+    );
+
+    fireEvent.click(screen.getByText('Open'));
+    const range = await screen.findByDisplayValue('7000-7999');
+    // As a person would: after the dialog has filled in the current values.
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    fireEvent.change(range, { target: { value: '7000-8999' } });
+    fireEvent.click(screen.getByText('Submit'));
+
+    await waitFor(() =>
+      expect(handleSubmit).toHaveBeenCalledWith({
+        override_props: { TcpPortAutoRange: '7000-8999' },
+        delete_props: [],
+      }),
+    );
+  });
 });

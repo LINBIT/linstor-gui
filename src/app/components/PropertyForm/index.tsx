@@ -59,52 +59,56 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
     const [currentInitialVal, setCurrentInitialVal] = useState<Record<string, unknown> | undefined>();
     const [form] = Form.useForm();
 
-    useImperativeHandle(ref, () => ({
-      openModal: () => {
-        const currentInitial = initialVal;
-        setCurrentInitialVal(currentInitial);
+    // Both ways of opening (the ref and clicking the children) fill the form
+    // once the dialog, and with it the form, is open. The form was reset when
+    // the dialog last closed: while it is closed there is no form to reset.
+    const openModal = () => {
+      const currentInitial = initialVal;
+      setCurrentInitialVal(currentInitial);
 
-        form.resetFields();
-        setDeleteProps([]);
-        setDeleteAll(false);
+      setDeleteProps([]);
+      setDeleteAll(false);
 
-        const nodePropertyList: FormItem[] = handlePropsToFormOption(type, currentInitial);
-        const displayItems = nodePropertyList.filter((e) => !e.hide);
-        setFormItemList(nodePropertyList);
-        setFormItems(displayItems);
+      const nodePropertyList: FormItem[] = handlePropsToFormOption(type, currentInitial);
+      const displayItems = nodePropertyList.filter((e) => !e.hide);
+      setFormItemList(nodePropertyList);
+      setFormItems(displayItems);
 
-        const originalAuxItems: AuxProp[] = [];
-        if (currentInitial) {
-          for (const propsKey in currentInitial) {
-            const strings = propsKey.split('/');
-            const first = strings[0];
-            if (strings.length > 0 && first === 'Aux') {
-              originalAuxItems.push({
-                name: strings.slice(1).join('/'),
-                value: currentInitial[propsKey] as string,
-                id: uniqId(),
-              });
-            }
+      const originalAuxItems: AuxProp[] = [];
+      if (currentInitial) {
+        for (const propsKey in currentInitial) {
+          const strings = propsKey.split('/');
+          const first = strings[0];
+          if (strings.length > 0 && first === 'Aux') {
+            originalAuxItems.push({
+              name: strings.slice(1).join('/'),
+              value: currentInitial[propsKey] as string,
+              id: uniqId(),
+            });
           }
         }
-        setAuxProps(originalAuxItems);
+      }
+      setAuxProps(originalAuxItems);
 
-        setModalVisible(true);
+      setModalVisible(true);
 
-        setTimeout(() => {
-          if (currentInitial) {
-            const formValues: Record<string, unknown> = {};
-            displayItems.forEach((item) => {
-              if (!item.hide && item.name in currentInitial) {
-                formValues[item.name] = item.type === 'radio' ? item.defaultValue : currentInitial[item.name];
-              } else if (!item.hide) {
-                formValues[item.name] = item.defaultValue;
-              }
-            });
-            form.setFieldsValue(formValues);
-          }
-        }, 50);
-      },
+      setTimeout(() => {
+        if (currentInitial) {
+          const formValues: Record<string, unknown> = {};
+          displayItems.forEach((item) => {
+            if (!item.hide && item.name in currentInitial) {
+              formValues[item.name] = item.type === 'radio' ? item.defaultValue : currentInitial[item.name];
+            } else if (!item.hide) {
+              formValues[item.name] = item.defaultValue;
+            }
+          });
+          form.setFieldsValue(formValues);
+        }
+      }, 50);
+    };
+
+    useImperativeHandle(ref, () => ({
+      openModal,
       closeModal: () => {
         form.resetFields();
         setModalVisible(false);
@@ -135,24 +139,12 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
       }
       setAuxProps(originalAuxItems);
 
-      form.resetFields();
-
-      setTimeout(() => {
-        const formValues: Record<string, unknown> = {};
-        displayItems.forEach((item) => {
-          if (!item.hide && item.name in initialVal) {
-            formValues[item.name] = item.type === 'radio' ? item.defaultValue : initialVal[item.name];
-          } else if (!item.hide) {
-            formValues[item.name] = item.defaultValue;
-          }
-        });
-
-        form.setFieldsValue(formValues);
-      }, 0);
+      // The form is filled when the dialog opens (openModal): while it is
+      // closed, there is no form to fill.
 
       setDeleteProps([]);
       setDeleteAll(false);
-    }, [initialVal, type, form]);
+    }, [initialVal, type]);
 
     // Handle showing a previously hidden property
     const handleAddProperty = (propertyName: string) => {
@@ -245,6 +237,7 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
         delete_props,
       });
 
+      form.resetFields();
       setModalVisible(false);
     };
 
@@ -288,13 +281,7 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
 
     return (
       <>
-        <div
-          onClick={() => {
-            setModalVisible(true);
-          }}
-        >
-          {children}
-        </div>
+        <div onClick={openModal}>{children}</div>
         <Modal
           key={JSON.stringify(initialVal)}
           title={t('common:property_editor')}
@@ -409,7 +396,6 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
               {formItems.map((item) => {
                 if (item.hide) return null;
                 const commonFormProps = {
-                  key: item.id,
                   label: item.label,
                   name: item.name,
                   initialValue: item.defaultValue,
