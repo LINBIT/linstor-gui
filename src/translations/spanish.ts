@@ -496,6 +496,13 @@ const es = {
     do_not_place_with: 'No colocar con',
     replicas_on_different: 'Réplicas en diferentes',
     do_not_place_with_regex: 'No colocar con regex',
+    diskless_storage_pools: 'Pools de almacenamiento sin disco',
+    diskless_storage_pools_info:
+      'Pools de almacenamiento para los recursos sin disco colocados desde este grupo de recursos, como los tiebreakers y las réplicas sin disco en los nodos restantes. Sin ninguno, van a DfltDisklessStorPool.',
+    nodes: 'Nodos',
+    nodes_info:
+      'Los recursos de este grupo de recursos se colocan solo en estos nodos. Sin ninguno, en todos los nodos.',
+    not_reported: 'Esta versión de LINSTOR no informa del ajuste actual; se mantiene a menos que elija aquí.',
   },
   resource_definition: {
     please_input_resource_definition_name: 'Introduzca el nombre de la definición de recurso',

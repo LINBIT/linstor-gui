@@ -495,6 +495,13 @@ const ja = {
     do_not_place_with: '一緒に配置しない',
     replicas_on_different: '異なる場所のレプリカ',
     do_not_place_with_regex: '正規表現で一緒に配置しない',
+    diskless_storage_pools: 'ディスクレスストレージプール',
+    diskless_storage_pools_info:
+      'このリソースグループから配置されるディスクレスリソース（タイブレーカーや残りのノード上のディスクレスレプリカなど）のストレージプール。指定しない場合は DfltDisklessStorPool に配置されます。',
+    nodes: 'ノード',
+    nodes_info:
+      'このリソースグループのリソースはこれらのノードにのみ配置されます。指定しない場合はすべてのノードに配置されます。',
+    not_reported: 'この LINSTOR バージョンは現在の設定を返しません。ここで選択しない限り、そのまま保持されます。',
   },
   resource_definition: {
     please_input_resource_definition_name: 'リソース定義名を入力してください',

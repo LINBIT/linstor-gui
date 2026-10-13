@@ -646,6 +646,12 @@ const en = {
     do_not_place_with: 'Do Not Place With',
     replicas_on_different: 'Replicas On Different',
     do_not_place_with_regex: 'Do Not Place With Regex',
+    diskless_storage_pools: 'Diskless Storage Pools',
+    diskless_storage_pools_info:
+      'Storage pools for the diskless resources placed from this resource group, such as tiebreakers and diskless replicas on the remaining nodes. Without one, they go to DfltDisklessStorPool.',
+    nodes: 'Nodes',
+    nodes_info: 'Resources of this resource group are placed only on these nodes. Without any, on all nodes.',
+    not_reported: 'This LINSTOR version does not report the current setting; it is kept unless you choose here.',
   },
   resource_definition: {
     please_input_resource_definition_name: 'Please input resource definition name',

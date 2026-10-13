@@ -496,6 +496,14 @@ const fr = {
     do_not_place_with: 'Ne pas placer avec',
     replicas_on_different: 'Répliques sur différents',
     do_not_place_with_regex: 'Ne pas placer avec regex',
+    diskless_storage_pools: 'Pools de stockage sans disque',
+    diskless_storage_pools_info:
+      'Pools de stockage des ressources sans disque placées depuis ce groupe de ressources, comme les tiebreakers et les répliques sans disque sur les nœuds restants. Sans pool, elles vont dans DfltDisklessStorPool.',
+    nodes: 'Nœuds',
+    nodes_info:
+      'Les ressources de ce groupe de ressources sont placées uniquement sur ces nœuds. Sans nœud, sur tous les nœuds.',
+    not_reported:
+      'Cette version de LINSTOR ne renvoie pas le réglage actuel ; il est conservé tant que vous ne choisissez rien ici.',
   },
   resource_definition: {
     please_input_resource_definition_name: 'Veuillez saisir le nom de la définition de ressource',

@@ -614,6 +614,12 @@ const zh = {
     do_not_place_with: '不要放置在',
     replicas_on_different: '在不同节点上的副本',
     do_not_place_with_regex: '不要在正则表达式匹配的节点上放置',
+    diskless_storage_pools: '无盘存储池',
+    diskless_storage_pools_info:
+      '由此资源组放置的无盘资源（例如仲裁节点和其余节点上的无盘副本）所用的存储池。不设置时，它们放在 DfltDisklessStorPool 中。',
+    nodes: '节点',
+    nodes_info: '此资源组的资源只放置在这些节点上。不设置时，可放置在所有节点上。',
+    not_reported: '此 LINSTOR 版本不会返回当前设置；除非在这里选择，否则保持不变。',
   },
   resource_definition: {
     please_input_resource_definition_name: '请输入资源定义名称',

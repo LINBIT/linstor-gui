@@ -26,8 +26,15 @@ vi.mock('@app/features/storagePool', () => ({
       { storage_pool_name: 'pool-a', node_name: 'n1' },
       { storage_pool_name: 'pool-a', node_name: 'n2' },
       { storage_pool_name: 'pool-b', node_name: 'n1' },
+      { storage_pool_name: 'diskless-a', node_name: 'n1', provider_kind: 'DISKLESS' },
+      { storage_pool_name: 'diskless-a', node_name: 'n2', provider_kind: 'DISKLESS' },
     ],
   }),
+}));
+
+vi.mock('@app/features/node', () => ({
+  useNodes: () => ({ data: [{ name: 'n1' }, { name: 'n2' }] }),
+  getControllerVersion: vi.fn(),
 }));
 
 const navigate = vi.fn();
@@ -43,6 +50,7 @@ import {
   getResourceGroups,
   spawnResourceGroup,
 } from '../../api';
+import { getControllerVersion } from '@app/features/node';
 import { CreateForm } from '../CreateForm';
 
 const ok = { data: [{ ret_code: 1, message: 'ok' }] };
@@ -74,6 +82,7 @@ describe('resource group CreateForm', () => {
     vi.mocked(addVolumeToResourceGroup).mockResolvedValue(ok as never);
     vi.mocked(spawnResourceGroup).mockResolvedValue(ok as never);
     vi.mocked(getResourceGroups).mockResolvedValue({ data: [] } as never);
+    vi.mocked(getControllerVersion).mockResolvedValue({ data: { version: '1.35.3' } } as never);
   });
 
   it('refuses to submit without a name', async () => {
@@ -96,8 +105,10 @@ describe('resource group CreateForm', () => {
     expect(body.description).toBe('for tests');
     // The number input hands back a string; the request must carry a number.
     expect(body.select_filter?.place_count).toBe(3);
-    expect(body.select_filter?.storage_pool_diskless_list).toEqual([]);
-    expect(body.select_filter?.x_replicas_on_different_map).toEqual({});
+    // Not chosen: left to the controller.
+    expect(body.select_filter?.storage_pool_diskless_list).toBeUndefined();
+    expect(body.select_filter?.node_name_list).toBeUndefined();
+    expect(body.select_filter?.x_replicas_on_different_map).toBeUndefined();
 
     await waitFor(() => expect(addVolumeToResourceGroup).toHaveBeenCalledWith('rg-new', {}));
     expect(updateResourceGroup).toHaveBeenCalledWith('rg-new', {});
@@ -158,12 +169,33 @@ describe('resource group CreateForm', () => {
     expect(screen.queryByText('Replicas On Same')).not.toBeInTheDocument();
   });
 
-  const layerSelect = () => {
-    const item = Array.from(document.querySelectorAll('.ant-form-item')).find((el) =>
-      el.querySelector('label')?.textContent?.includes('LINSTOR Layers'),
+  const formItem = (label: string) =>
+    Array.from(document.querySelectorAll('.ant-form-item')).find((el) =>
+      el.querySelector('label')?.textContent?.includes(label),
     ) as HTMLElement;
-    return item.querySelector('[role="combobox"]') as HTMLElement;
+  const selectIn = (label: string) => formItem(label).querySelector('[role="combobox"]') as HTMLElement;
+  const layerSelect = () => selectIn('LINSTOR Layers');
+  const pick = async (label: string, option: string) => {
+    fireEvent.mouseDown(selectIn(label));
+    fireEvent.click(await screen.findByText(option, { selector: '.ant-select-item-option-content' }));
   };
+
+  it('offers only diskless storage pools as diskless storage pools, and sends the one chosen', async () => {
+    renderForm();
+    typeName('rg-dl');
+    fireEvent.mouseDown(selectIn('Diskless Storage Pools'));
+    const options = await screen.findAllByText(/./, { selector: '.ant-select-item-option-content' });
+    expect(options.map((o) => o.textContent)).toEqual(['diskless-a']);
+    fireEvent.click(options[0]);
+    fireEvent.click(screen.getByText('Show advanced setting'));
+    await pick('Nodes', 'n2');
+    submit();
+
+    await waitFor(() => expect(createResourceGroup).toHaveBeenCalled());
+    const filter = vi.mocked(createResourceGroup).mock.calls[0][0].select_filter;
+    expect(filter?.storage_pool_diskless_list).toEqual(['diskless-a']);
+    expect(filter?.node_name_list).toEqual(['n2']);
+  });
 
   it('offers exactly the layers the controller accepts', async () => {
     renderForm();
@@ -231,7 +263,17 @@ describe('resource group CreateForm', () => {
         layer_stack: ['DRBD', 'STORAGE'],
         provider_list: ['LVM_THIN'],
         diskless_on_remaining: true,
+        storage_pool_diskless_list: ['diskless-a'],
+        node_name_list: ['n1'],
+        replicas_on_different: ['Aux/site'],
+        x_replicas_on_different_map: { 'Aux/site': 2 },
       },
+    };
+
+    const loaded = async () => {
+      const description = await screen.findByPlaceholderText('Please input description');
+      await waitFor(() => expect(description).toHaveValue('old text'));
+      return description;
     };
 
     beforeEach(() => {
@@ -283,6 +325,46 @@ describe('resource group CreateForm', () => {
       await waitFor(() => expect(updateResourceGroup).toHaveBeenCalled());
       await new Promise((r) => setTimeout(r, 20));
       expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it('keeps what it does not change: diskless storage pools, nodes and x-replicas-on-different', async () => {
+      renderForm({ isEdit: true, resourceGroup: 'rg-edit' });
+      fireEvent.change(await loaded(), { target: { value: 'new text' } });
+      submit();
+
+      await waitFor(() => expect(updateResourceGroup).toHaveBeenCalled());
+      const filter = vi.mocked(updateResourceGroup).mock.calls[0][1].select_filter;
+      // Left out of the request, so the controller keeps them; [] or {} would clear them.
+      expect(filter?.storage_pool_diskless_list).toBeUndefined();
+      expect(filter?.node_name_list).toBeUndefined();
+      expect(filter?.x_replicas_on_different_map).toBeUndefined();
+    });
+
+    it('shows the diskless storage pools and nodes of the group, and sends them once changed', async () => {
+      renderForm({ isEdit: true, resourceGroup: 'rg-edit' });
+      await loaded();
+      fireEvent.click(screen.getByText('Show advanced setting'));
+      await waitFor(() => expect(formItem('Diskless Storage Pools')).toHaveTextContent('diskless-a'));
+      expect(formItem('Nodes')).toHaveTextContent('n1');
+
+      await pick('Nodes', 'n2');
+      submit();
+
+      await waitFor(() => expect(updateResourceGroup).toHaveBeenCalled());
+      const filter = vi.mocked(updateResourceGroup).mock.calls[0][1].select_filter;
+      expect(filter?.node_name_list).toEqual(['n1', 'n2']);
+      expect(filter?.storage_pool_diskless_list).toBeUndefined();
+    });
+
+    it('says when the controller does not report these settings', async () => {
+      vi.mocked(getControllerVersion).mockResolvedValue({ data: { version: '1.35.2' } } as never);
+      renderForm({ isEdit: true, resourceGroup: 'rg-edit' });
+      await loaded();
+      expect(
+        await screen.findByText(
+          'This LINSTOR version does not report the current setting; it is kept unless you choose here.',
+        ),
+      ).toBeInTheDocument();
     });
   });
 });

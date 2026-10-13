@@ -494,6 +494,12 @@ const tr = {
     do_not_place_with: 'İle Yerleştirme',
     replicas_on_different: 'Farklı Üzerinde Kopyalar',
     do_not_place_with_regex: 'Regex İle Yerleştirme',
+    diskless_storage_pools: 'Disksiz Depolama Havuzları',
+    diskless_storage_pools_info:
+      "Bu kaynak grubundan yerleştirilen disksiz kaynaklar (örneğin tiebreaker'lar ve kalan düğümlerdeki disksiz kopyalar) için depolama havuzları. Belirtilmezse DfltDisklessStorPool'a yerleştirilirler.",
+    nodes: 'Düğümler',
+    nodes_info: 'Bu kaynak grubunun kaynakları yalnızca bu düğümlere yerleştirilir. Belirtilmezse tüm düğümlere.',
+    not_reported: 'Bu LINSTOR sürümü geçerli ayarı bildirmez; burada bir seçim yapmadığınız sürece korunur.',
   },
   resource_definition: {
     please_input_resource_definition_name: 'Lütfen kaynak tanımı adını girin',

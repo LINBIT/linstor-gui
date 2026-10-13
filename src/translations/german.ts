@@ -499,6 +499,14 @@ const de = {
     do_not_place_with: 'Nicht platzieren mit',
     replicas_on_different: 'Replikas auf verschiedenen',
     do_not_place_with_regex: 'Nicht platzieren mit Regex',
+    diskless_storage_pools: 'Disklose Speicherpools',
+    diskless_storage_pools_info:
+      'Speicherpools für die disklosen Ressourcen, die aus dieser Ressourcengruppe platziert werden, etwa Tiebreaker und disklose Replikate auf den übrigen Knoten. Ohne Angabe landen sie in DfltDisklessStorPool.',
+    nodes: 'Knoten',
+    nodes_info:
+      'Ressourcen dieser Ressourcengruppe werden nur auf diesen Knoten platziert. Ohne Angabe auf allen Knoten.',
+    not_reported:
+      'Diese LINSTOR-Version meldet die aktuelle Einstellung nicht; sie bleibt erhalten, sofern Sie hier nichts auswählen.',
   },
   resource_definition: {
     please_input_resource_definition_name: 'Bitte Namen der Ressourcendefinition eingeben',

@@ -13,9 +13,11 @@ import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
 import type { FormInstance } from 'antd/es/form';
 import { useNavigate } from 'react-router-dom';
-import { uniqBy } from 'lodash';
+import { isEqual, uniqBy } from 'lodash';
 
 import { useStoragePools } from '@app/features/storagePool';
+import { getControllerVersion, useNodes } from '@app/features/node';
+import { compareVersions } from '@app/utils/version';
 import { fullySuccess } from '@app/features/requests';
 import {
   createResourceGroup,
@@ -52,6 +54,8 @@ type FormType = {
   replicas_on_different: string[];
   diskless_on_remaining: boolean;
   storage_pool_list: string[];
+  storage_pool_diskless_list: string[];
+  node_name_list: string[];
   layer_stack: string[];
   provider_list: string[];
   resource_definition_name?: string;
@@ -117,6 +121,8 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
             description: detailData?.[0]?.description,
             diskless_on_remaining: detailData?.[0]?.select_filter?.diskless_on_remaining,
             storage_pool_list: detailData?.[0]?.select_filter?.storage_pool_list ?? [],
+            storage_pool_diskless_list: detailData?.[0]?.select_filter?.storage_pool_diskless_list ?? [],
+            node_name_list: detailData?.[0]?.select_filter?.node_name_list ?? [],
             layer_stack: detailData?.[0]?.select_filter?.layer_stack?.map((e: string) => e.toLowerCase()) ?? [],
             provider_list: detailData?.[0]?.select_filter?.provider_list?.map((e: string) => e.toLowerCase()) ?? [],
             replicas_on_same: detailData?.[0]?.select_filter?.replicas_on_same ?? [],
@@ -143,6 +149,26 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
   };
 
   const { isPending: storagePoolsIsLoading, data: storagePools } = useStoragePools();
+  const { data: nodes } = useNodes();
+
+  // Controllers before 1.35.3 accept the diskless storage pools and the node
+  // list of a group but do not report them, so the form cannot show them.
+  const { data: version, isFetched: versionFetched } = useQuery({
+    queryKey: ['linstorVersion'],
+    queryFn: () => getControllerVersion(),
+    enabled: !!isEdit,
+  });
+  const notReported =
+    isEdit && versionFetched && !compareVersions(version?.data?.version, '1.35.3')
+      ? t('resource_group:not_reported')
+      : undefined;
+
+  // The controller keeps what a group has for a field left out of the request,
+  // and an empty list clears it: these two are sent only when changed here.
+  const changed = (name: 'storage_pool_diskless_list' | 'node_name_list') => {
+    const value = usedForm.getFieldValue(name) as string[] | undefined;
+    return value !== undefined && !isEqual(value, initialVal?.[name] ?? []) ? value : undefined;
+  };
 
   const createResourceGroupMutation = useMutation({
     mutationFn: (data: ResourceGroupCreateRequestBody) => createResourceGroup(data),
@@ -191,9 +217,11 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
         layer_stack: values.layer_stack,
         provider_list: values.provider_list,
         place_count: Number(values.place_count),
-        storage_pool_diskless_list: [],
-        x_replicas_on_different_map: {},
-      },
+        storage_pool_diskless_list: changed('storage_pool_diskless_list'),
+        node_name_list: changed('node_name_list'),
+        // The generated type requires every field the spec gives a null
+        // default; the controller reads one left out as "keep what it is".
+      } as ResourceGroupCreateRequestBody['select_filter'],
     };
 
     if (isEdit) {
@@ -267,9 +295,9 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
   return (
     <Form<FormType>
       size="large"
-      layout="horizontal"
-      labelCol={{ span: 8 }}
-      wrapperCol={{ span: 16 }}
+      // Labels above the fields, two columns once there is room for both.
+      layout="vertical"
+      className="max-w-[1200px]"
       form={usedForm}
       initialValues={{
         deploy: false,
@@ -279,8 +307,8 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
       }}
       onFinish={onFinish}
     >
-      <Row gutter={[16, 16]}>
-        <Col span={12}>
+      <Row gutter={[24, 0]}>
+        <Col xs={24} lg={12}>
           <Form.Item
             label={t('resource_group:name')}
             name="name"
@@ -337,7 +365,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
             </Form.Item>
           )}
 
-          <Form.Item name="diskless_on_remaining" valuePropName="checked" wrapperCol={{ offset: 7, span: 17 }}>
+          <Form.Item name="diskless_on_remaining" valuePropName="checked">
             <Checkbox>
               <div className="flex">
                 <Popover
@@ -358,7 +386,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
             </Checkbox>
           </Form.Item>
         </Col>
-        <Col span={12}>
+        <Col xs={24} lg={12}>
           <Form.Item
             label={
               <div className="flex">
@@ -387,6 +415,37 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
               placeholder={t('resource:please_select_storage_pool')}
               mode="multiple"
               options={uniqBy(storagePools, 'storage_pool_name')?.map((e) => ({
+                label: e.storage_pool_name,
+                value: e.storage_pool_name,
+              }))}
+            />
+          </Form.Item>
+
+          <Form.Item
+            label={
+              <div className="flex">
+                <div className="mr-1">
+                  <span>{t('resource_group:diskless_storage_pools')}</span>
+                </div>
+                <Popover
+                  content={<div className="w-[400px]">{t('resource_group:diskless_storage_pools_info')}</div>}
+                  title={t('resource_group:diskless_storage_pools')}
+                >
+                  <QuestionCircleOutlined />
+                </Popover>
+              </div>
+            }
+            name="storage_pool_diskless_list"
+            extra={notReported}
+          >
+            <Select
+              allowClear
+              placeholder={t('resource:please_select_storage_pool')}
+              mode="multiple"
+              options={uniqBy(
+                storagePools?.filter((e) => e.provider_kind === 'DISKLESS'),
+                'storage_pool_name',
+              ).map((e) => ({
                 label: e.storage_pool_name,
                 value: e.storage_pool_name,
               }))}
@@ -468,12 +527,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
         </Col>
       </Row>
 
-      <div
-        style={{
-          marginLeft: 40,
-          marginBottom: 20,
-        }}
-      >
+      <div className="mb-5">
         <a
           style={{ fontSize: 16 }}
           onClick={() => {
@@ -486,8 +540,8 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
       </div>
 
       {expand && (
-        <Row gutter={[16, 16]}>
-          <Col span={10}>
+        <Row gutter={[24, 0]}>
+          <Col xs={24} lg={12}>
             <Form.Item label={t('resource_group:replicas_on_same')} name="replicas_on_same">
               <Select mode="tags" allowClear placeholder="" />
             </Form.Item>
@@ -495,19 +549,39 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
             <Form.Item label={t('resource_group:replicas_on_different')} name="replicas_on_different">
               <Select mode="tags" allowClear placeholder="" />
             </Form.Item>
+
+            <Form.Item
+              label={
+                <div className="flex">
+                  <div className="mr-1">
+                    <span>{t('resource_group:nodes')}</span>
+                  </div>
+                  <Popover
+                    content={<div className="w-[400px]">{t('resource_group:nodes_info')}</div>}
+                    title={t('resource_group:nodes')}
+                  >
+                    <QuestionCircleOutlined />
+                  </Popover>
+                </div>
+              }
+              name="node_name_list"
+              extra={notReported}
+            >
+              <Select
+                mode="multiple"
+                allowClear
+                placeholder=""
+                options={nodes?.map((e) => ({ label: e.name, value: e.name }))}
+              />
+            </Form.Item>
           </Col>
 
-          <Col span={10}>
+          <Col xs={24} lg={12}>
             <Form.Item label={t('resource_group:do_not_place_with')} name="not_place_with_rsc">
               <Input placeholder="" />
             </Form.Item>
 
-            <Form.Item
-              label={t('resource_group:do_not_place_with_regex')}
-              name="not_place_with_rsc_regex"
-              labelCol={{ span: 8 }}
-              wrapperCol={{ span: 16 }}
-            >
+            <Form.Item label={t('resource_group:do_not_place_with_regex')} name="not_place_with_rsc_regex">
               <Input placeholder="" />
             </Form.Item>
           </Col>
@@ -517,8 +591,8 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
       {deploy && (
         <>
           <Divider />
-          <Row gutter={[16, 16]}>
-            <Col span={10}>
+          <Row gutter={[24, 0]}>
+            <Col xs={24} lg={12}>
               <Form.Item
                 label={t('common:resource_definition_name')}
                 name="resource_definition_name"
@@ -529,21 +603,19 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
                     message: 'Resource definition name is required!',
                   },
                 ]}
-                labelCol={{ span: 8 }}
-                wrapperCol={{ span: 16 }}
               >
                 <Input placeholder={t('resource_group:please_input_resource_definition_group')} />
               </Form.Item>
             </Col>
 
-            <Col span={10}>
+            <Col xs={24} lg={12}>
               <Form.Item name="size" label={t('resource_group:volume_size')} required>
                 <SizeInput />
               </Form.Item>
             </Col>
 
-            <Col span={10}>
-              <Form.Item name="definition_only" valuePropName="checked" wrapperCol={{ offset: 7, span: 17 }}>
+            <Col xs={24} lg={12}>
+              <Form.Item name="definition_only" valuePropName="checked">
                 <Checkbox>Definition Only</Checkbox>
               </Form.Item>
             </Col>
@@ -551,12 +623,12 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
         </>
       )}
 
-      <div style={{ marginLeft: 80 }}>
+      <div className="flex flex-wrap gap-4">
         <Button type="primary" htmlType="submit" disabled={storagePoolsIsLoading || isSubmitting}>
           {t('common:submit')}
         </Button>
 
-        <Button type="secondary" onClick={backToList} style={{ marginLeft: '1em' }}>
+        <Button type="secondary" onClick={backToList}>
           {isEdit ? 'Back' : 'Cancel'}
         </Button>
       </div>
