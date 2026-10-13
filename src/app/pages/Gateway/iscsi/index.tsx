@@ -12,6 +12,8 @@ import PageBasic from '@app/components/PageBasic';
 
 import { ISCSIList as ISCSIListV2, ISCSIResource } from '@app/features/gateway';
 import { useGatewayResources } from '@app/features/gateway/hooks/useGatewayResources';
+import { GatewayConnectionHelp } from '@app/features/gateway/components/GatewayConnectionHelp';
+import { currentGatewayHost } from '@app/features/gateway/connection';
 
 const iqnOf = (resource: ISCSIResource) => resource.iqn;
 
@@ -20,7 +22,7 @@ const List: React.FunctionComponent = () => {
 
   const navigate = useNavigate();
 
-  const { list, loading, reload, start, stop, remove, addLUN, addingVolume, deleteLUN } =
+  const { list, loading, unreachable, reload, start, stop, remove, addLUN, addingVolume, deleteLUN } =
     useGatewayResources<ISCSIResource>('iscsi', iqnOf);
 
   const createISCSI = () => {
@@ -45,6 +47,11 @@ const List: React.FunctionComponent = () => {
 
   return (
     <PageBasic title={t('iscsi:list')}>
+      {unreachable && (
+        <div className="mb-4">
+          <GatewayConnectionHelp host={currentGatewayHost()} showSettingsLink />
+        </div>
+      )}
       <ISCSIListV2
         onCreate={createISCSI}
         list={list}

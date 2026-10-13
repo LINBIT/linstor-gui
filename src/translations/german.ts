@@ -977,6 +977,17 @@ org_role = Viewer`,
       'Konfigurieren Sie die LINSTOR-Gateway-Einstellungen, um Speicherressourcen über die Gateway-API zu verwalten. Führen Sie unbedingt „linstor-gateway check-health“ im Terminal aus und beheben Sie alle gemeldeten Probleme.',
     gateway_url_required: 'Bitte Gateway-URL eingeben',
     gateway_connect_error: 'Verbindung zu LINSTOR-Gateway nicht möglich',
+    gateway_unreachable: 'LINSTOR Gateway unter {{host}} ist nicht erreichbar',
+    gateway_check_mixed_content:
+      'Diese Seite wird über HTTPS ausgeliefert, das Gateway über HTTP: Browser blockieren solche Anfragen (Firefox immer). Verwenden Sie eine https://-URL; dafür muss LINSTOR Gateway HTTPS anbieten.',
+    gateway_check_certificate:
+      'Wenn sein Zertifikat nicht vertrauenswürdig ist, öffnen Sie dies in einem neuen Tab und akzeptieren Sie es:',
+    gateway_check_cors:
+      'LINSTOR Gateway muss diese Seite zulassen: Fügen Sie diesen Ursprung zu cors_allowed_origins im Abschnitt [server] von linstor-gateway.toml hinzu und starten Sie es neu:',
+    gateway_check_running: 'Prüfen Sie, ob LINSTOR Gateway läuft und sein Port von diesem Computer aus erreichbar ist.',
+    gateway_open_settings: 'Gateway-Einstellungen',
+    gateway_mixed_content_warning:
+      'Diese Seite wird über HTTPS ausgeliefert, daher blockieren Browser ihre Anfragen an eine http://-Gateway-URL (Firefox immer, Chromium warnt eventuell nur). Verwenden Sie eine https://-URL; dafür muss LINSTOR Gateway HTTPS anbieten.',
     gateway_url_placeholder: 'http://192.168.1.1:8337/',
     test_connection: 'Verbindung testen',
     drbd_dashboard: 'DRBD-Dashboard',

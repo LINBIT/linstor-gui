@@ -54,6 +54,13 @@ describe('Settings page', () => {
     await waitFor(() => expect(tabLabels()).toEqual(['General', 'Gateway', 'Grafana', 'Controller Auth']));
   });
 
+  it('opens on the gateway tab when a link asks for it', async () => {
+    renderSettings(<GeneralSettings />, { pathname: '/settings', state: { tab: 'gateway' } });
+
+    expect(await screen.findByTestId('gateway-tab')).toBeInTheDocument();
+    expect(screen.queryByTestId('logo-tab')).toBeNull();
+  });
+
   it('switches to the tab that was clicked', async () => {
     renderSettings(<GeneralSettings />);
 

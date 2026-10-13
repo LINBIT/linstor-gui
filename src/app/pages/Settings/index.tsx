@@ -9,6 +9,7 @@ import { logger } from '@app/utils/logger';
 import { Tabs } from 'antd';
 import type { TabsProps } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 
 import PageBasic from '@app/components/PageBasic';
 import { useSettings } from '@app/features/settings/useSettings';
@@ -21,6 +22,7 @@ import ControllerAuth from './components/ControllerAuth';
 
 const GeneralSettings = () => {
   const { t } = useTranslation(['common', 'settings']);
+  const { state } = useLocation();
   const { refresh } = useSettings();
   const { isFetched: versionFetched, hasMinVersion } = useLinstorVersion();
   // Optimistically show the controller-auth tab while the version is still
@@ -64,7 +66,12 @@ const GeneralSettings = () => {
 
   return (
     <PageBasic title={t('common:settings')}>
-      <Tabs defaultActiveKey="1" items={items} onChange={onChange} />
+      {/* The gateway lists link here with { tab: 'gateway' } to open the Gateway tab. */}
+      <Tabs
+        defaultActiveKey={(state as { tab?: string } | null)?.tab === 'gateway' ? '2' : '1'}
+        items={items}
+        onChange={onChange}
+      />
     </PageBasic>
   );
 };

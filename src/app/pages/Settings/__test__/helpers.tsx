@@ -15,13 +15,16 @@ import { NavContext } from '@app/hooks/useNav';
 // PageBasic navigates and measures itself against the nav.
 const nav = { isNavOpen: true, toggleNav: () => undefined, setNavOpen: () => undefined };
 
-export const renderSettings = (ui: React.ReactElement) => {
+export const renderSettings = (
+  ui: React.ReactElement,
+  route: string | { pathname: string; state: unknown } = '/settings',
+) => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
   return render(
     <QueryClientProvider client={client}>
-      <MemoryRouter>
+      <MemoryRouter initialEntries={[route]}>
         <NavContext.Provider value={nav}>{ui}</NavContext.Provider>
       </MemoryRouter>
     </QueryClientProvider>,

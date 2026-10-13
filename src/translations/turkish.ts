@@ -964,6 +964,17 @@ org_role = Viewer`,
       'Depolama kaynaklarını ağ geçidi API\'si üzerinden yönetmek için LINSTOR Gateway ayarlarını yapılandırın. Terminalde „linstor-gateway check-health" komutunu çalıştırmayı ve bildirilen sorunları gidermeyi unutmayın.',
     gateway_url_required: "Lütfen ağ geçidi URL'sini girin",
     gateway_connect_error: "LINSTOR-Gateway'e bağlanılamıyor",
+    gateway_unreachable: '{{host}} adresindeki LINSTOR Gateway’e ulaşılamıyor',
+    gateway_check_mixed_content:
+      'Bu sayfa HTTPS üzerinden, ağ geçidi ise HTTP üzerinden sunuluyor: tarayıcılar bu istekleri engeller (Firefox her zaman). https:// adresi kullanın; bunun için LINSTOR Gateway’in HTTPS sunması gerekir.',
+    gateway_check_certificate: 'Sertifikası güvenilir değilse bunu yeni bir sekmede açıp sertifikayı kabul edin:',
+    gateway_check_cors:
+      'LINSTOR Gateway bu sayfaya izin vermelidir: bu kaynağı linstor-gateway.toml dosyasının [server] bölümündeki cors_allowed_origins listesine ekleyin ve yeniden başlatın:',
+    gateway_check_running:
+      'LINSTOR Gateway’in çalıştığını ve bağlantı noktasına bu bilgisayardan erişilebildiğini kontrol edin.',
+    gateway_open_settings: 'Ağ geçidi ayarları',
+    gateway_mixed_content_warning:
+      'Bu sayfa HTTPS üzerinden sunulduğu için tarayıcılar http:// ağ geçidi adresine yaptığı istekleri engeller (Firefox her zaman; Chromium yalnızca uyarabilir). https:// adresi kullanın; bunun için LINSTOR Gateway’in HTTPS sunması gerekir.',
     gateway_url_placeholder: 'http://192.168.1.1:8337/',
     test_connection: 'Bağlantıyı Test Et',
     drbd_dashboard: 'DRBD Panosu',

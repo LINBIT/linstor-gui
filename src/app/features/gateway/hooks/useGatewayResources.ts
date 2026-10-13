@@ -108,6 +108,8 @@ export function useGatewayResources<T extends object>(kind: GatewayKind, idOf: (
     list,
     total: list.length,
     loading: query.isFetching,
+    /** The list request failed: the gateway could not be reached. */
+    unreachable: query.isError,
     reload,
     start: (id: string) => toggle(id, 'start'),
     stop: (id: string) => toggle(id, 'stop'),

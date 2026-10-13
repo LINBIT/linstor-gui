@@ -13,6 +13,8 @@ import { useSettings } from '@app/features/settings/useSettings';
 import { CheckCircleOutlined, StopOutlined, LoadingOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import Button from '@app/components/Button';
+import { GatewayConnectionHelp } from '@app/features/gateway/components/GatewayConnectionHelp';
+import { isMixedContent } from '@app/features/gateway/connection';
 
 const { Title, Text } = Typography;
 
@@ -30,11 +32,14 @@ const Gateway: React.FC = () => {
 
   const customHost = Form.useWatch('customHost', form);
   const isChecked = Form.useWatch('isChecked', form);
+  const hostInput = Form.useWatch('host', form);
 
   const { t } = useTranslation(['common', 'settings']);
 
   const { KVS, gatewayAvailable, checkingGateway: checkingStatus, getGatewayStatus, setGatewayMode } = useSettings();
   const { gatewayEnabled, gatewayHost, gatewayCustomHost: customHostFromSetting } = KVS;
+  // The URL the form is about: the one typed in, or the default.
+  const shownHost = String((customHost ? hostInput : undefined) || gatewayHost || OriginHost);
 
   useEffect(() => {
     if (customHost) {
@@ -174,6 +179,17 @@ const Gateway: React.FC = () => {
                     }
                   />
                 </Form.Item>
+
+                {/* When the gateway cannot be reached, the help below says this too. */}
+                {isMixedContent(shownHost) && (checkingStatus || gatewayAvailable) && (
+                  <Alert type="warning" showIcon className="mb-4" title={t('settings:gateway_mixed_content_warning')} />
+                )}
+
+                {!checkingStatus && !gatewayAvailable && (
+                  <div className="mb-4">
+                    <GatewayConnectionHelp host={shownHost} />
+                  </div>
+                )}
 
                 {isChecked && (
                   <Form.Item style={{ marginBottom: '2em', marginTop: '1em' }}>

@@ -11,6 +11,8 @@ import PageBasic from '@app/components/PageBasic';
 import { NVMeList as NVMeListV2 } from '@app/features/gateway';
 import type { NVMEOFResource } from '@app/features/gateway/types';
 import { useGatewayResources } from '@app/features/gateway/hooks/useGatewayResources';
+import { GatewayConnectionHelp } from '@app/features/gateway/components/GatewayConnectionHelp';
+import { currentGatewayHost } from '@app/features/gateway/connection';
 import { useNavigate } from 'react-router-dom';
 
 const nqnOf = (resource: NVMEOFResource) => resource.nqn;
@@ -20,7 +22,7 @@ const List = () => {
 
   const navigate = useNavigate();
 
-  const { list, loading, reload, start, stop, remove, addLUN, addingVolume, deleteLUN } =
+  const { list, loading, unreachable, reload, start, stop, remove, addLUN, addingVolume, deleteLUN } =
     useGatewayResources<NVMEOFResource>('nvme-of', nqnOf);
 
   const createNVMeOf = () => {
@@ -45,6 +47,11 @@ const List = () => {
 
   return (
     <PageBasic title={t('nvme:list')}>
+      {unreachable && (
+        <div className="mb-4">
+          <GatewayConnectionHelp host={currentGatewayHost()} showSettingsLink />
+        </div>
+      )}
       <NVMeListV2
         onCreate={createNVMeOf}
         list={list}

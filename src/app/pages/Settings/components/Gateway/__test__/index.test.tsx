@@ -82,6 +82,24 @@ describe('Settings gateway tab', () => {
     expect(container).toBeInTheDocument();
   });
 
+  it('says what to check when the gateway cannot be reached, and nothing once it can', async () => {
+    const { container } = renderSettings(<Gateway />);
+    fireEvent.click(switchByLabel(container, 'gateway-mode'));
+
+    expect(await screen.findByText(`Cannot reach LINSTOR Gateway at ${ORIGIN_HOST}`)).toBeInTheDocument();
+    // The origin to allow in the gateway's CORS settings.
+    expect(screen.getByText(window.location.origin)).toBeInTheDocument();
+    // jsdom serves http, so neither the mixed-content warning nor a certificate applies.
+    expect(screen.queryByText(/served over HTTPS/)).toBeNull();
+    expect(screen.queryByText(/certificate/)).toBeNull();
+
+    settings.current!.gatewayAvailable = true;
+    const { container: reachable } = renderSettings(<Gateway />);
+    fireEvent.click(switchByLabel(reachable, 'gateway-mode'));
+    await screen.findByText('Connected');
+    expect(screen.getAllByText(/Cannot reach LINSTOR Gateway/)).toHaveLength(1);
+  });
+
   it('re-probes the entered host on demand', async () => {
     const { container } = renderSettings(<Gateway />);
     fireEvent.click(switchByLabel(container, 'gateway-mode'));

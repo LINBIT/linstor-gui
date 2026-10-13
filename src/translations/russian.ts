@@ -965,6 +965,17 @@ org_role = Viewer`,
       'Настройте параметры LINSTOR Gateway, чтобы управлять ресурсами хранения через API шлюза. Обязательно выполните «linstor-gateway check-health» в терминале и устраните обнаруженные проблемы.',
     gateway_url_required: 'Введите URL шлюза',
     gateway_connect_error: 'Не удаётся подключиться к LINSTOR-Gateway',
+    gateway_unreachable: 'Не удаётся подключиться к LINSTOR Gateway по адресу {{host}}',
+    gateway_check_mixed_content:
+      'Эта страница открыта по HTTPS, а шлюз работает по HTTP: браузеры блокируют такие запросы (Firefox — всегда). Используйте адрес https://; для этого LINSTOR Gateway должен поддерживать HTTPS.',
+    gateway_check_certificate:
+      'Если его сертификат не является доверенным, откройте этот адрес в новой вкладке и примите сертификат:',
+    gateway_check_cors:
+      'LINSTOR Gateway должен разрешать эту страницу: добавьте этот источник в cors_allowed_origins в разделе [server] файла linstor-gateway.toml и перезапустите его:',
+    gateway_check_running: 'Убедитесь, что LINSTOR Gateway запущен и его порт доступен с этого компьютера.',
+    gateway_open_settings: 'Настройки шлюза',
+    gateway_mixed_content_warning:
+      'Эта страница открыта по HTTPS, поэтому браузеры блокируют её запросы к адресу шлюза http:// (Firefox — всегда, Chromium может лишь предупредить). Используйте адрес https://; для этого LINSTOR Gateway должен поддерживать HTTPS.',
     gateway_url_placeholder: 'http://192.168.1.1:8337/',
     test_connection: 'Проверить подключение',
     drbd_dashboard: 'Панель DRBD',

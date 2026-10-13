@@ -965,6 +965,18 @@ org_role = Viewer`,
       'ゲートウェイ API 経由でストレージリソースを管理するために LINSTOR Gateway の設定を行います。ターミナルで「linstor-gateway check-health」を実行し、問題があれば解消してください。',
     gateway_url_required: 'ゲートウェイ URL を入力してください',
     gateway_connect_error: 'LINSTOR-Gateway に接続できません',
+    gateway_unreachable: '{{host}} の LINSTOR Gateway に接続できません',
+    gateway_check_mixed_content:
+      'このページは HTTPS、ゲートウェイは HTTP で提供されています。ブラウザはこのようなリクエストをブロックします（Firefox は常に）。https:// の URL を使用してください。そのためには LINSTOR Gateway が HTTPS を提供する必要があります。',
+    gateway_check_certificate:
+      '証明書が信頼されていない場合は、新しいタブで次の URL を開いて証明書を受け入れてください:',
+    gateway_check_cors:
+      'LINSTOR Gateway がこのページを許可する必要があります。linstor-gateway.toml の [server] セクションの cors_allowed_origins に次のオリジンを追加し、再起動してください:',
+    gateway_check_running:
+      'LINSTOR Gateway が動作していて、このコンピューターからそのポートに到達できることを確認してください。',
+    gateway_open_settings: 'ゲートウェイ設定',
+    gateway_mixed_content_warning:
+      'このページは HTTPS で提供されているため、ブラウザは http:// のゲートウェイ URL へのリクエストをブロックします（Firefox は常に、Chromium は警告のみの場合があります）。https:// の URL を使用してください。そのためには LINSTOR Gateway が HTTPS を提供する必要があります。',
     gateway_url_placeholder: 'http://192.168.1.1:8337/',
     test_connection: '接続をテスト',
     drbd_dashboard: 'DRBD ダッシュボード',

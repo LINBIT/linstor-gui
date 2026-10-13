@@ -30,6 +30,11 @@ vi.mock('@app/components/PageBasic', () => ({
 }));
 
 vi.mock('@app/features/gateway/hooks/useGatewayResources', () => ({ useGatewayResources: vi.fn() }));
+vi.mock('@app/features/gateway/components/GatewayConnectionHelp', () => ({
+  GatewayConnectionHelp: ({ host, showSettingsLink }: { host: string; showSettingsLink?: boolean }) => (
+    <div data-testid="gateway-help" data-host={host} data-settings-link={String(!!showSettingsLink)} />
+  ),
+}));
 
 // The lists are covered by their own tests; here they only expose the props the pages wire up.
 const listProps: Record<string, Record<string, any>> = {};
@@ -139,5 +144,23 @@ describe('Gateway list pages', () => {
       expect(hook.addLUN).toHaveBeenCalledWith({ id, lun: 3, sizeKib: 1048576 });
       expect(hook.deleteLUN).toHaveBeenCalledWith(id, 2);
     });
+  });
+
+  it.each([
+    ['NFS', NFSPage],
+    ['iSCSI', ISCSIPage],
+    ['NVMe-oF', NVMePage],
+  ])('%s: says the gateway cannot be reached, with a link to its settings, when the list fails', (_, Page) => {
+    window.localStorage.setItem('GATEWAY_HOST', 'http://10.0.0.1:8337/');
+    const { unmount } = render(<Page />);
+    expect(screen.queryByTestId('gateway-help')).toBeNull();
+    unmount();
+
+    vi.mocked(useGatewayResources).mockReturnValue({ ...hook, unreachable: true } as never);
+    render(<Page />);
+    const help = screen.getByTestId('gateway-help');
+    expect(help).toHaveAttribute('data-host', 'http://10.0.0.1:8337/');
+    expect(help).toHaveAttribute('data-settings-link', 'true');
+    window.localStorage.removeItem('GATEWAY_HOST');
   });
 });

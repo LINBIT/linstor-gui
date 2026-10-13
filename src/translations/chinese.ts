@@ -1052,6 +1052,16 @@ org_role = Viewer`,
       '配置 LINSTOR Gateway 设置以通过网关 API 管理存储资源。请确保在终端中运行 "linstor-gateway check-health" 并解决所有问题。',
     gateway_url_required: '请输入网关 URL',
     gateway_connect_error: '无法连接到 LINSTOR Gateway',
+    gateway_unreachable: '无法连接 {{host}} 上的 LINSTOR Gateway',
+    gateway_check_mixed_content:
+      '本页面通过 HTTPS 提供，而 gateway 使用 HTTP：浏览器会拦截这类请求（Firefox 一定会拦截）。请使用 https:// 地址，这需要 LINSTOR Gateway 提供 HTTPS。',
+    gateway_check_certificate: '如果它的证书不受信任，请在新标签页中打开以下地址并接受证书：',
+    gateway_check_cors:
+      'LINSTOR Gateway 必须允许本页面：在 linstor-gateway.toml 的 [server] 部分把以下来源加入 cors_allowed_origins，然后重启它：',
+    gateway_check_running: '请确认 LINSTOR Gateway 正在运行，并且这台电脑能访问它的端口。',
+    gateway_open_settings: 'Gateway 设置',
+    gateway_mixed_content_warning:
+      '本页面通过 HTTPS 提供，浏览器会拦截它发往 http:// gateway 地址的请求（Firefox 一定会拦截，Chromium 可能只给出警告）。请使用 https:// 地址，这需要 LINSTOR Gateway 提供 HTTPS。',
     gateway_url_placeholder: 'http://192.168.1.1:8337/',
     test_connection: '测试连接',
     create_edit_label: '创建/编辑',

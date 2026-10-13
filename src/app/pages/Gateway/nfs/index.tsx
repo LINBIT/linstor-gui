@@ -12,6 +12,8 @@ import PageBasic from '@app/components/PageBasic';
 import { NFSList as NFSListV2 } from '@app/features/gateway';
 import { NFSResource } from '@app/features/gateway/types';
 import { useGatewayResources } from '@app/features/gateway/hooks/useGatewayResources';
+import { GatewayConnectionHelp } from '@app/features/gateway/components/GatewayConnectionHelp';
+import { currentGatewayHost } from '@app/features/gateway/connection';
 import { useNavigate } from 'react-router-dom';
 
 const nameOf = (resource: NFSResource) => resource.name;
@@ -21,7 +23,7 @@ const List: React.FunctionComponent = () => {
 
   const navigate = useNavigate();
 
-  const { list, loading, reload, start, stop, remove } = useGatewayResources<NFSResource>('nfs', nameOf);
+  const { list, loading, unreachable, reload, start, stop, remove } = useGatewayResources<NFSResource>('nfs', nameOf);
 
   const createNFS = () => {
     navigate(`/gateway/nfs/create`);
@@ -37,6 +39,11 @@ const List: React.FunctionComponent = () => {
 
   return (
     <PageBasic title={t('nfs:list')}>
+      {unreachable && (
+        <div className="mb-4">
+          <GatewayConnectionHelp host={currentGatewayHost()} showSettingsLink />
+        </div>
+      )}
       <NFSListV2
         onCreate={createNFS}
         list={list}

@@ -1180,6 +1180,16 @@ org_role = Viewer`,
       'Configure LINSTOR Gateway settings to manage storage resources through the gateway API. Make sure to run "linstor-gateway check-health" in the terminal and resolve any issues.',
     gateway_url_required: 'Please enter gateway URL',
     gateway_connect_error: 'Cannot connect to LINSTOR-Gateway',
+    gateway_unreachable: 'Cannot reach LINSTOR Gateway at {{host}}',
+    gateway_check_mixed_content:
+      'This page is served over HTTPS and the gateway over HTTP: browsers block such requests (Firefox always). Use an https:// URL; LINSTOR Gateway has to serve HTTPS for that.',
+    gateway_check_certificate: 'If its certificate is not trusted, open this in a new tab and accept it:',
+    gateway_check_cors:
+      'LINSTOR Gateway has to allow this page: add this origin to cors_allowed_origins in the [server] section of linstor-gateway.toml and restart it:',
+    gateway_check_running: 'Check that LINSTOR Gateway is running and that its port can be reached from this computer.',
+    gateway_open_settings: 'Gateway settings',
+    gateway_mixed_content_warning:
+      'This page is served over HTTPS, so browsers block its requests to an http:// gateway URL (Firefox always; Chromium may only warn). Use an https:// URL, for which LINSTOR Gateway has to serve HTTPS.',
     gateway_url_placeholder: 'http://192.168.1.1:8337/',
     test_connection: 'Test Connection',
     linstor_passphrase: 'LINSTOR Passphrase',
