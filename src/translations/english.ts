@@ -108,6 +108,7 @@ const en = {
     hci_host: 'HCI Host',
     are_you_sure_you_want_clear_all_logs: 'Are you sure you want to clear all logs?',
     color_theme: 'Color theme',
+    has_faulty_resources: 'Has faulty resources',
     delete_property: 'Delete the property',
     are_you_sure_delete_property: 'Are you sure to delete this property?',
     delete_network_interface: 'Delete the network interface',

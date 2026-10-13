@@ -107,6 +107,7 @@ const ja = {
     hci_host: 'HCI ホスト',
     are_you_sure_you_want_clear_all_logs: 'すべてのログを消去してもよろしいですか。',
     color_theme: 'カラーテーマ',
+    has_faulty_resources: '障害のあるリソースがあります',
     delete_property: 'プロパティを削除',
     are_you_sure_delete_property: 'このプロパティを削除してもよろしいですか。',
     delete_network_interface: 'ネットワークインターフェイスを削除',

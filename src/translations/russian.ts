@@ -108,6 +108,7 @@ const ru = {
     hci_host: 'Хост HCI',
     are_you_sure_you_want_clear_all_logs: 'Действительно очистить все журналы?',
     color_theme: 'Цветовая тема',
+    has_faulty_resources: 'Есть неисправные ресурсы',
     delete_property: 'Удалить свойство',
     are_you_sure_delete_property: 'Действительно удалить это свойство?',
     delete_network_interface: 'Удалить сетевой интерфейс',

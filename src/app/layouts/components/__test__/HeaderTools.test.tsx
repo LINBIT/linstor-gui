@@ -163,12 +163,12 @@ describe('HeaderTools', () => {
 
   it('links to the dashboard when there are faulty resources', async () => {
     hoisted.faulty = [{ name: 'r1' }];
-    const { container } = renderTools();
+    renderTools();
     await waitForVersion();
 
-    const link = container.querySelector('a[href="/"]');
-    expect(link).not.toBeNull();
-    fireEvent.mouseEnter(link as HTMLElement);
+    const link = screen.getByRole('link', { name: 'Has faulty resources' });
+    expect(link).toHaveAttribute('href', '/');
+    fireEvent.mouseEnter(link);
     expect(await screen.findByRole('tooltip')).toHaveTextContent('Has faulty resources');
   });
 

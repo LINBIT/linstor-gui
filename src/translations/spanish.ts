@@ -108,6 +108,7 @@ const es = {
     hci_host: 'Host HCI',
     are_you_sure_you_want_clear_all_logs: '¿Seguro que desea borrar todos los registros?',
     color_theme: 'Tema de color',
+    has_faulty_resources: 'Hay recursos defectuosos',
     delete_property: 'Eliminar la propiedad',
     are_you_sure_delete_property: '¿Seguro que desea eliminar esta propiedad?',
     delete_network_interface: 'Eliminar la interfaz de red',

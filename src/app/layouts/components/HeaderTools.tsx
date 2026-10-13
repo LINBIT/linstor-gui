@@ -193,8 +193,12 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
         <div className="flex items-center gap-2 sm:gap-4 md:gap-6">
           <div className="flex items-center">
             {hasFaultyResources && (
-              <Tooltip title={t('settings:has_faulty_resources', 'Has faulty resources')}>
-                <Link to="/" style={{ display: 'flex', alignItems: 'center' }}>
+              <Tooltip title={t('common:has_faulty_resources')}>
+                <Link
+                  to="/"
+                  aria-label={t('common:has_faulty_resources')}
+                  style={{ display: 'flex', alignItems: 'center' }}
+                >
                   <FaultyResourceIcon />
                 </Link>
               </Tooltip>

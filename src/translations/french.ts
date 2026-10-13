@@ -108,6 +108,7 @@ const fr = {
     hci_host: 'Hôte HCI',
     are_you_sure_you_want_clear_all_logs: 'Voulez-vous vraiment effacer tous les journaux ?',
     color_theme: 'Thème de couleurs',
+    has_faulty_resources: 'Ressources défectueuses présentes',
     delete_property: 'Supprimer la propriété',
     are_you_sure_delete_property: 'Voulez-vous vraiment supprimer cette propriété ?',
     delete_network_interface: "Supprimer l'interface réseau",

@@ -108,6 +108,7 @@ const zh = {
     hci_host: 'HCI 主机',
     are_you_sure_you_want_clear_all_logs: '确定要清空所有日志吗？',
     color_theme: '配色主题',
+    has_faulty_resources: '存在故障资源',
     delete_property: '删除属性',
     are_you_sure_delete_property: '确定删除此属性？',
     delete_network_interface: '删除网络接口',

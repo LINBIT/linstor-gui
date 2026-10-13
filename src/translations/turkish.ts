@@ -108,6 +108,7 @@ const tr = {
     hci_host: 'HCI Sunucusu',
     are_you_sure_you_want_clear_all_logs: 'Tüm günlükleri temizlemek istediğinizden emin misiniz?',
     color_theme: 'Renk teması',
+    has_faulty_resources: 'Hatalı kaynaklar var',
     delete_property: 'Özelliği sil',
     are_you_sure_delete_property: 'Bu özelliği silmek istediğinizden emin misiniz?',
     delete_network_interface: 'Ağ arayüzünü sil',

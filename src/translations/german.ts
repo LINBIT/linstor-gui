@@ -109,6 +109,7 @@ const de = {
     hci_host: 'HCI-Host',
     are_you_sure_you_want_clear_all_logs: 'Möchten Sie wirklich alle Protokolle löschen?',
     color_theme: 'Farbschema',
+    has_faulty_resources: 'Fehlerhafte Ressourcen vorhanden',
     delete_property: 'Eigenschaft löschen',
     are_you_sure_delete_property: 'Diese Eigenschaft wirklich löschen?',
     delete_network_interface: 'Netzwerkschnittstelle löschen',
