@@ -172,6 +172,11 @@ describe('Settings ControllerAuth tab', () => {
     render(<ControllerAuth />);
 
     fireEvent.click(await screen.findByRole('button', { name: 'settings:controller_auth_enter_token' }));
+    // A token, not a password: nothing for the browser to fill in or save.
+    expect(screen.getByPlaceholderText('settings:controller_auth_token_placeholder')).toHaveAttribute(
+      'autocomplete',
+      'off',
+    );
     fireEvent.change(screen.getByPlaceholderText('settings:controller_auth_token_placeholder'), {
       target: { value: 'manual-token' },
     });

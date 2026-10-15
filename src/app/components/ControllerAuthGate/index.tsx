@@ -235,7 +235,11 @@ const ControllerAuthGate = ({ children }: ControllerAuthGateProps) => {
                 name="token"
                 rules={[{ required: true, message: 'Please enter the controller token.' }]}
               >
-                <Input.Password placeholder={t('settings:controller_auth_token_placeholder')} autoFocus />
+                <Input.Password
+                  placeholder={t('settings:controller_auth_token_placeholder')}
+                  autoComplete="off"
+                  autoFocus
+                />
               </Form.Item>
 
               <div className="flex justify-end">

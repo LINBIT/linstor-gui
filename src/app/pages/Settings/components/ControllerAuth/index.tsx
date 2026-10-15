@@ -316,6 +316,7 @@ const ControllerAuth: React.FC = () => {
           value={manualToken}
           onChange={(event) => setManualToken(event.target.value)}
           placeholder={t('settings:controller_auth_token_placeholder')}
+          autoComplete="off"
           autoFocus
         />
       </Modal>

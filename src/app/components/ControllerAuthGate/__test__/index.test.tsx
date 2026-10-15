@@ -171,6 +171,8 @@ describe('ControllerAuthGate', () => {
       expect(screen.getByText('Controller Token Required')).toBeInTheDocument();
     });
 
+    // A token, not a password: nothing for the browser to fill in or save.
+    expect(screen.getByPlaceholderText('Paste Bearer token')).toHaveAttribute('autocomplete', 'off');
     fireEvent.change(screen.getByPlaceholderText('Paste Bearer token'), {
       target: { value: 'new-token' },
     });
