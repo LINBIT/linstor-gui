@@ -51,27 +51,28 @@ const HeaderAboutModal: React.FC<HeaderAboutModalProps> = ({ linstorVersion }) =
       </Tooltip>
       <div className="flex items-center relative z-50">
         {isModalOpen && (
-          <div className="fixed inset-0 flex items-center justify-center text-[var(--text-primary)]">
-            <div className="relative max-w-[1000px] max-h-[620px] w-full h-full flex rounded-2xl shadow-2xl overflow-hidden bg-[var(--bg-page)]">
+          <div className="fixed inset-0 flex items-center justify-center p-4 text-[var(--text-primary)]">
+            {/* Narrow: as tall as its content, scrolling inside the screen. */}
+            <div className="relative flex max-h-full w-full max-w-[1000px] overflow-y-auto rounded-2xl bg-[var(--bg-page)] shadow-2xl md:h-full md:max-h-[620px] md:overflow-hidden">
               <img src={bgImg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-20" />
               <div
-                className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full z-10 cursor-pointer"
+                className="absolute top-3 right-3 z-20 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full md:top-6 md:right-6"
                 onClick={handleModalToggle}
               >
                 <CloseOutlined />
               </div>
 
-              <div className="w-3/5 pt-[71px] pl-[68px] rounded-2xl relative z-10">
+              <div className="relative z-10 w-full rounded-2xl px-6 pt-14 pb-6 md:w-3/5 md:pt-[71px] md:pr-0 md:pb-0 md:pl-[68px]">
                 <img src={brandImgOnLight} alt="LINBIT logo" className="w-40 block logo-on-light" />
                 <img src={brandImgOnDark} alt="LINBIT logo" className="w-40 block logo-on-dark" />
-                <div className="pl-[48px]">
-                  <div className="text-[52px] mt-8 mb-6">LINBIT-SDS</div>
+                <div className="md:pl-[48px]">
+                  <div className="mt-6 mb-5 text-[36px] md:mt-8 md:mb-6 md:text-[52px]">LINBIT-SDS</div>
                   <div className="[&>*:not(:last-child)]:mb-3">
-                    <div className="flex justify-between text-base">
+                    <div className="flex justify-between gap-4 text-base">
                       <span className="font-medium">{t('linstor_version')}</span>
                       <span>{linstorVersion?.version || 'unknown'}</span>
                     </div>
-                    <div className="flex justify-between text-base">
+                    <div className="flex justify-between gap-4 text-base">
                       <span className="font-medium">{t('ui_version')}</span>
                       <span
                         style={{
@@ -88,16 +89,16 @@ const HeaderAboutModal: React.FC<HeaderAboutModalProps> = ({ linstorVersion }) =
                       </span>
                     </div>
                     {sdsVersion && (
-                      <div className="flex justify-between text-base">
+                      <div className="flex justify-between gap-4 text-base">
                         <span className="font-medium">{t('sds_version')}</span>
                         <span>{sdsVersion}</span>
                       </div>
                     )}
-                    <div className="flex justify-between text-base">
+                    <div className="flex justify-between gap-4 text-base">
                       <span className="font-medium">{t('controller_ip')}</span>
                       <span>0.0.0.0</span>
                     </div>
-                    <div className="flex justify-between text-base">
+                    <div className="flex justify-between gap-4 text-base">
                       <span className="font-medium">{t('controller_active_on')}</span>
                       <span>{hostName}</span>
                     </div>
