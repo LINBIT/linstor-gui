@@ -95,11 +95,12 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({ name, value, info, onS
   return (
     <div
       className={[
-        'grid grid-cols-[minmax(0,1fr)_minmax(0,320px)_auto] items-center gap-6 border-t border-(--border-subtle) px-4 py-3 first:border-t-0',
+        // Narrow: the name on its own line, the value and the buttons below it.
+        'grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 border-t border-(--border-subtle) px-4 py-3 first:border-t-0 lg:grid-cols-[minmax(0,1fr)_minmax(0,320px)_auto] lg:gap-6',
         editing ? 'bg-(--bg-chip-brand)' : '',
       ].join(' ')}
     >
-      <div className="min-w-0">
+      <div className="col-span-2 min-w-0 lg:col-span-1">
         <div className="font-mono text-[13px] font-medium break-all">{name}</div>
         {info?.info && <div className="mt-0.5 text-[13px] text-(--text-secondary)">{info.info}</div>}
       </div>

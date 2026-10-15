@@ -126,7 +126,7 @@ export const ControllerOverview: React.FC = () => {
 
       <dl className="m-0 grid grid-cols-[max-content_minmax(0,1fr)] gap-x-6 gap-y-2 rounded-lg border border-(--border-subtle) p-4 text-sm">
         <dt className="font-medium text-(--text-secondary)">{t('controller:logs')}</dt>
-        <dd className="m-0 font-mono break-all">
+        <dd className="m-0 font-mono break-words">
           {[c?.log?.directory, c?.log?.level].filter(Boolean).join(' · ') || '-'}
         </dd>
       </dl>
