@@ -20,6 +20,7 @@ import { UIMode as SettingUIMode } from '@app/features/settings/types'; // impor
 import { useSettings } from '@app/features/settings/useSettings';
 import { useAuth } from '@app/features/authentication/useAuth';
 import { useNav } from '@app/hooks';
+import { cssVar } from '@app/const/themeTokens';
 import Navigation from './components/Navigation';
 import HeaderTools from './components/HeaderTools';
 import ThemeToggle from './components/ThemeToggle';
@@ -261,11 +262,18 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
       <FloatButton
         type="primary"
         icon={<VerticalAlignTopOutlined />}
-        style={{
-          display: showBackTop ? 'block' : 'none',
-          right: '40px',
-          bottom: '40px',
-        }}
+        style={
+          {
+            display: showBackTop ? 'block' : 'none',
+            right: '40px',
+            bottom: '40px',
+            // antd 6 draws the float button as a Button, which labels a primary
+            // fill in white; on the light peach the arrow takes `text/on-brand`.
+            '--ant-btn-text-color': cssVar('text/on-brand'),
+            '--ant-btn-text-color-hover': cssVar('text/on-brand'),
+            '--ant-btn-text-color-active': cssVar('text/on-brand'),
+          } as React.CSSProperties
+        }
         tooltip="back to top"
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
       />
