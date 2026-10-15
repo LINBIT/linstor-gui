@@ -408,8 +408,6 @@ const es = {
     supports_snapshots: 'Soporta instantáneas',
     show_default: 'Mostrar predeterminado',
     add_title: 'Añadir pool de almacenamiento',
-    add_description:
-      'Un pool de almacenamiento identifica el almacenamiento físico respaldado que consumen los volúmenes de almacenamiento LINSTOR. Puede asignar un pool de almacenamiento a otros objetos LINSTOR, como recursos LINSTOR, definiciones de recursos o grupos de recursos. Los volúmenes de almacenamiento LINSTOR creados a partir de estos objetos consumirán almacenamiento físico del pool de almacenamiento asignado al objeto.',
     new_device: 'Nuevo dispositivo',
     new_device_description:
       'Al crear un pool de almacenamiento usando un nuevo dispositivo, asegúrese de que el dispositivo esté vacío.',

@@ -199,15 +199,22 @@ const CreateForm = () => {
               provider_kind: 'LVM',
             });
           }}
-        >
-          <Tooltip title={t('storage_pool:new_device_description')}>
-            <Radio.Button value="new">{t('storage_pool:new_device')}</Radio.Button>
-          </Tooltip>
-
-          <Tooltip title={t('storage_pool:existing_device_description')}>
-            <Radio.Button value="existing">{t('storage_pool:existing_device')}</Radio.Button>
-          </Tooltip>
-        </Radio.Group>
+          optionType="button"
+          options={[
+            {
+              value: 'new',
+              label: <Tooltip title={t('storage_pool:new_device_description')}>{t('storage_pool:new_device')}</Tooltip>,
+            },
+            {
+              value: 'existing',
+              label: (
+                <Tooltip title={t('storage_pool:existing_device_description')}>
+                  {t('storage_pool:existing_device')}
+                </Tooltip>
+              ),
+            },
+          ]}
+        />
       </Form.Item>
 
       <Form.Item

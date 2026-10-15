@@ -410,8 +410,6 @@ const de = {
     supports_snapshots: 'Unterstützt Snapshots',
     show_default: 'Standard anzeigen',
     add_title: 'Speicherpool hinzufügen',
-    add_description:
-      'Ein Speicherpool identifiziert physisch unterstützte Speicher, die LINSTOR-Speicher-Volumes verwenden. Sie können einen Speicherpool anderen LINSTOR-Objekten zuweisen, wie LINSTOR-Ressourcen, Ressourcendefinitionen oder Ressourcengruppen. LINSTOR-Speicher-Volumes, die aus diesen Objekten erstellt werden, verwenden physischen Speicher aus dem zugewiesenen Speicherpool.',
     new_device: 'Neues Gerät',
     new_device_description:
       'Beim Erstellen eines Speicherpools mit einem neuen Gerät stellen Sie sicher, dass das Gerät leer ist.',

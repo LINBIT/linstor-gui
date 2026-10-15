@@ -557,8 +557,6 @@ const zh = {
     disk: '硬盘',
     show_default: '显示默认',
     add_title: '添加存储池',
-    add_description:
-      '存储池标识了 LINSTOR 存储卷消耗的物理支持存储。您可以将存储池分配给其他 LINSTOR 对象，例如 LINSTOR 资源、资源定义或资源组。从这些对象创建的 LINSTOR 存储卷将从分配给对象的存储池中消耗物理存储。',
     new_device: '新设备',
     new_device_description: '创建存储池时使用新设备，请确保设备为空。',
     existing_device: '现有设备',

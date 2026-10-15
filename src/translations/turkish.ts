@@ -408,8 +408,6 @@ const tr = {
     supports_snapshots: 'Anlık Görüntüleri Destekler',
     show_default: 'Varsayılanı Göster',
     add_title: 'Depolama Havuzu Ekle',
-    add_description:
-      'Depolama havuzu, LINSTOR depolama birimlerinin tükettiği fiziksel olarak desteklenen depolamayı tanımlar. Bir depolama havuzunu LINSTOR kaynakları, kaynak tanımları veya kaynak grupları gibi diğer LINSTOR nesnelerine atayabilirsiniz. Bu nesnelerden oluşturulan LINSTOR depolama birimleri, nesneye atanan depolama havuzundan fiziksel depolama tüketecektir.',
     new_device: 'Yeni Cihaz',
     new_device_description: 'Yeni cihaz kullanarak depolama havuzu oluştururken, cihazın boş olduğundan emin olun.',
     existing_device: 'Mevcut Cihaz',

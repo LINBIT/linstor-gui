@@ -559,8 +559,6 @@ const en = {
     supports_snapshots: 'Supports Snapshots',
     show_default: 'Show Default',
     add_title: 'Add Storage Pool',
-    add_description:
-      'A storage pool identifies physically-backed storage that LINSTOR storage volumes consume. You can assign a storage pool to other LINSTOR objects, such as LINSTOR resources, resource definitions, or resource groups. LINSTOR storage volumes created from these objects will consume physical storage from the storage pool assigned to the object.',
     new_device: 'New Device',
     new_device_description: 'When creating storage pool using new device, please make sure the device is empty.',
     existing_device: 'Existing Device',

@@ -12,7 +12,6 @@ const StoragePoolCreate = () => {
   const { t } = useTranslation('storage_pool');
   return (
     <PageBasic title={t('add_title')}>
-      <p>{t('add_description')}</p>
       <StoragePoolCreateForm />
     </PageBasic>
   );

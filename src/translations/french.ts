@@ -408,8 +408,6 @@ const fr = {
     supports_snapshots: 'Prend en charge les instantanés',
     show_default: 'Afficher par défaut',
     add_title: 'Ajouter un pool de stockage',
-    add_description:
-      "Un pool de stockage identifie le stockage physique sauvegardé que les volumes de stockage LINSTOR consomment. Vous pouvez assigner un pool de stockage à d'autres objets LINSTOR, tels que les ressources LINSTOR, les définitions de ressources ou les groupes de ressources. Les volumes de stockage LINSTOR créés à partir de ces objets consommeront le stockage physique du pool de stockage assigné à l'objet.",
     new_device: 'Nouveau périphérique',
     new_device_description:
       "Lors de la création d'un pool de stockage utilisant un nouveau périphérique, assurez-vous que le périphérique est vide.",
