@@ -117,6 +117,20 @@ describe('ControllerOverview', () => {
     expect(screen.queryByText('jdbc:h2:/var/lib/linstor/linstordb')).toBeNull();
   });
 
+  it('shows skeletons until the controller has answered', async () => {
+    vi.mocked(getControllerVersion).mockReturnValue(new Promise(() => {}) as never);
+    vi.mocked(getControllerConfig).mockReturnValue(new Promise(() => {}) as never);
+    vi.mocked(getNodes).mockReturnValue(new Promise(() => {}) as never);
+    vi.mocked(getExternalFilesWithContent).mockReturnValue(new Promise(() => {}) as never);
+    const { container } = renderOverview();
+
+    // Version, HA, satellites, REST API, access and the logs row.
+    expect(container.querySelectorAll('.ant-skeleton')).toHaveLength(6);
+    expect(screen.getByText('Version')).toBeInTheDocument();
+    expect(screen.queryByText('-')).toBeNull();
+    expect(screen.queryByText('Token auth off')).toBeNull();
+  });
+
   it('says so when the controller is not highly available', async () => {
     vi.mocked(getExternalFilesWithContent).mockResolvedValue({ data: [] } as never);
     vi.mocked(getResourceOnNodes).mockResolvedValue({ data: [] } as never);

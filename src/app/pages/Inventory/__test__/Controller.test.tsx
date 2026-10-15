@@ -99,6 +99,20 @@ describe('Controller page', () => {
     vi.mocked(updateController).mockResolvedValue(ok as never);
   });
 
+  it('shows skeleton rows, not an empty list, until the properties have arrived', async () => {
+    vi.mocked(getControllerProperties).mockReturnValue(new Promise(() => {}) as never);
+    const { container } = renderPage(
+      <NavContext.Provider value={nav}>
+        <Controller />
+      </NavContext.Provider>,
+    );
+
+    expect(await screen.findByText('Controller Properties')).toBeInTheDocument();
+    expect(container.querySelector('[aria-busy="true"] .ant-skeleton')).not.toBeNull();
+    expect(screen.queryByText('No property matches')).toBeNull();
+    expect(container.querySelector('.ant-collapse')).toBeNull();
+  });
+
   it('groups the properties by namespace, Aux first, with the description and default the controller gives', async () => {
     const { container } = await renderController();
 

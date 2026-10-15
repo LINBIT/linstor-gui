@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
+import { Skeleton } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
@@ -18,11 +19,22 @@ import {
   useNodes,
 } from '@app/features/node';
 
-const Tile: React.FC<{ label: string; value: React.ReactNode; sub?: React.ReactNode }> = ({ label, value, sub }) => (
+const Tile: React.FC<{ label: string; value: React.ReactNode; sub?: React.ReactNode; loading?: boolean }> = ({
+  label,
+  value,
+  sub,
+  loading,
+}) => (
   <div className="flex min-w-0 flex-col gap-1.5 rounded-lg border border-(--border-subtle) p-4">
     <span className="text-[13px] font-medium text-(--text-secondary)">{label}</span>
-    <span className="text-xl font-semibold break-words">{value}</span>
-    {sub && <span className="text-[13px] text-(--text-secondary)">{sub}</span>}
+    {loading ? (
+      <Skeleton active title={{ width: '70%' }} paragraph={{ rows: 1, width: '90%' }} />
+    ) : (
+      <>
+        <span className="text-xl font-semibold break-words">{value}</span>
+        {sub && <span className="text-[13px] text-(--text-secondary)">{sub}</span>}
+      </>
+    )}
   </div>
 );
 
@@ -32,10 +44,19 @@ const yes = (value?: string) => value?.toLowerCase() === 'true';
 export const ControllerOverview: React.FC = () => {
   const { t } = useTranslation(['controller', 'common']);
 
-  const { data: version } = useQuery({ queryKey: ['linstorVersion'], queryFn: getControllerVersion });
-  const { data: config } = useQuery({ queryKey: ['getControllerConfig'], queryFn: getControllerConfig });
-  const { data: properties } = useQuery({ queryKey: ['controllerProperties'], queryFn: getControllerProperties });
-  const { data: nodes } = useNodes({});
+  const { data: version, isPending: versionPending } = useQuery({
+    queryKey: ['linstorVersion'],
+    queryFn: getControllerVersion,
+  });
+  const { data: config, isPending: configPending } = useQuery({
+    queryKey: ['getControllerConfig'],
+    queryFn: getControllerConfig,
+  });
+  const { data: properties, isPending: propertiesPending } = useQuery({
+    queryKey: ['controllerProperties'],
+    queryFn: getControllerProperties,
+  });
+  const { data: nodes, isPending: nodesPending } = useNodes({});
   const ha = useControllerHa();
 
   const v = version?.data;
@@ -52,6 +73,7 @@ export const ControllerOverview: React.FC = () => {
       <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
         <Tile
           label={t('controller:version')}
+          loading={versionPending}
           value={v?.version ?? '-'}
           sub={[
             v?.rest_api_version && t('controller:rest_api_version', { version: v.rest_api_version }),
@@ -63,11 +85,10 @@ export const ControllerOverview: React.FC = () => {
 
         <Tile
           label={t('controller:high_availability')}
+          // Nothing to say until LINSTOR has been asked: "single" would be a guess.
+          loading={ha.isPending}
           value={
-            // Nothing to say until LINSTOR has been asked: "single" would be a guess.
-            ha.isPending ? (
-              '-'
-            ) : ha.enabled ? (
+            ha.enabled ? (
               <span className="inline-flex items-center gap-2">
                 <SupportStatus supported={!!ha.active} />
                 {ha.active ? t('controller:active_on', { node: ha.active }) : t('controller:no_active_node')}
@@ -77,27 +98,27 @@ export const ControllerOverview: React.FC = () => {
             )
           }
           sub={
-            ha.isPending
-              ? undefined
-              : ha.enabled
-                ? [
-                    ha.standby.length > 0 && t('controller:standby', { nodes: ha.standby.join(', ') }),
-                    ha.vip && t('controller:vip', { ip: ha.vip }),
-                  ]
-                    .filter(Boolean)
-                    .join(' · ')
-                : t('controller:not_highly_available')
+            ha.enabled
+              ? [
+                  ha.standby.length > 0 && t('controller:standby', { nodes: ha.standby.join(', ') }),
+                  ha.vip && t('controller:vip', { ip: ha.vip }),
+                ]
+                  .filter(Boolean)
+                  .join(' · ')
+              : t('controller:not_highly_available')
           }
         />
 
         <Tile
           label={t('controller:satellites')}
+          loading={nodesPending}
           value={t('controller:satellites_online', { online: online.length, total: satellites.length })}
           sub={<Link to="/inventory/nodes">{t('controller:open_node_list')}</Link>}
         />
 
         <Tile
           label={t('controller:rest_api')}
+          loading={configPending || propertiesPending}
           value={c?.https?.enabled ? `HTTPS :${c.https.port}` : c?.http?.enabled ? `HTTP :${c.http.port}` : '-'}
           sub={[
             c?.https?.enabled && c?.http?.enabled && `HTTP :${c.http.port}`,
@@ -109,6 +130,7 @@ export const ControllerOverview: React.FC = () => {
 
         <Tile
           label={t('controller:access')}
+          loading={configPending || propertiesPending}
           value={
             yes(props['Auth/TokenAuthenticationEnabled'])
               ? t('controller:token_auth_on')
@@ -127,7 +149,11 @@ export const ControllerOverview: React.FC = () => {
       <dl className="m-0 grid grid-cols-[max-content_minmax(0,1fr)] gap-x-6 gap-y-2 rounded-lg border border-(--border-subtle) p-4 text-sm">
         <dt className="font-medium text-(--text-secondary)">{t('controller:logs')}</dt>
         <dd className="m-0 font-mono break-words">
-          {[c?.log?.directory, c?.log?.level].filter(Boolean).join(' · ') || '-'}
+          {configPending ? (
+            <Skeleton.Input active size="small" className="!w-72 !max-w-full !min-w-0" />
+          ) : (
+            [c?.log?.directory, c?.log?.level].filter(Boolean).join(' · ') || '-'
+          )}
         </dd>
       </dl>
     </section>

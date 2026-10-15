@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { useMemo, useState } from 'react';
-import { Collapse, Empty, Tag } from 'antd';
+import { Collapse, Empty, Skeleton, Tag } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
@@ -36,12 +36,16 @@ export const Controller = () => {
   // The groups come from the properties, so remember the closed ones: a new group starts open.
   const [closed, setClosed] = useState<GroupId[]>(COLLAPSED_GROUPS);
 
-  const { data: properties, refetch } = useQuery({
+  const {
+    data: properties,
+    isPending: propertiesPending,
+    refetch,
+  } = useQuery({
     queryKey: ['controllerProperties'],
     queryFn: getControllerProperties,
   });
 
-  const { data: propertiesInfo } = useQuery({
+  const { data: propertiesInfo, isPending: infoPending } = useQuery({
     queryKey: ['controllerPropertiesInfo'],
     queryFn: getControllerPropertiesInfo,
     staleTime: Infinity,
@@ -81,6 +85,9 @@ export const Controller = () => {
 
   const remove = (name: string) => mutation.mutate({ delete_props: [name] });
 
+  // The rows show what the controller documents about each property.
+  const loading = propertiesPending || infoPending;
+
   // While searching, every group with a match is open.
   const shown = groups.map((g) => g.id);
   const activeKey = search.trim() ? shown : shown.filter((id) => !closed.includes(id));
@@ -100,7 +107,7 @@ export const Controller = () => {
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h2 className="m-0 text-base font-semibold">
           {t('common:controller_properties')}{' '}
-          <span className="font-normal text-(--text-secondary)">{Object.keys(values).length}</span>
+          {!loading && <span className="font-normal text-(--text-secondary)">{Object.keys(values).length}</span>}
         </h2>
         <div className="flex flex-wrap items-center gap-3">
           <Input
@@ -117,7 +124,15 @@ export const Controller = () => {
         </div>
       </div>
 
-      {groups.length === 0 ? (
+      {loading ? (
+        <div aria-busy="true" className="rounded-lg border border-(--border-subtle)">
+          {Array.from({ length: 6 }, (_, i) => (
+            <div key={i} className="border-t border-(--border-subtle) px-4 py-3 first:border-t-0">
+              <Skeleton active title={{ width: '40%' }} paragraph={{ rows: 1, width: '70%' }} />
+            </div>
+          ))}
+        </div>
+      ) : groups.length === 0 ? (
         <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('controller:no_match')} />
       ) : (
         <Collapse
