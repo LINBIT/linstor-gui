@@ -105,6 +105,12 @@ export const antdTheme: ThemeConfig = {
     motionDurationSlow: '0.2s',
   },
   components: {
+    // antd's own primary buttons (dialog OK buttons, the back-to-top float
+    // button) label the peach fill in white, which nearly vanishes on it;
+    // brand fills take the dark `text/on-brand`, as the project's Button does.
+    Button: {
+      primaryColor: tokens.color.brand.onPrimary,
+    },
     // Selection controls (checkbox/radio/switch) sit on light row tints, where
     // the button peach #FFCC9C looks washed out at 16px. They use the deeper
     // primaryActive as their checked fill and the brand accent on hover.
