@@ -311,7 +311,10 @@ export const List = () => {
                     <Popconfirm
                       key="delete"
                       title={t('storage_pool:delete_storage_pool')}
-                      description={t('storage_pool:are_you_sure_delete_storage_pool')}
+                      description={t('storage_pool:are_you_sure_delete_storage_pool', {
+                        name: record.storage_pool_name,
+                        node: record.node_name,
+                      })}
                       onConfirm={() => del.run([record])}
                     >
                       <div className="w-full text-red-600">{t('common:delete')}</div>

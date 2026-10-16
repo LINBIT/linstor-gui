@@ -255,7 +255,7 @@ export const List = () => {
                           label: (
                             <Popconfirm
                               key="undeploy"
-                              title={t('undeploy_confirm')}
+                              title={t('undeploy_confirm', { name: record.path, resource: deployedRd })}
                               okText={t('common:yes')}
                               cancelText={t('common:no')}
                               onConfirm={() => handleUndeploy(record)}
@@ -282,7 +282,7 @@ export const List = () => {
                     label: (
                       <Popconfirm
                         key="delete"
-                        title={t('delete_confirm')}
+                        title={t('delete_confirm', { name: record.path })}
                         okText={t('common:yes')}
                         cancelText={t('common:no')}
                         onConfirm={() => (record.path ? del.run([record]) : undefined)}

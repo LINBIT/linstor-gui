@@ -117,7 +117,10 @@ export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
               current_kib={target.size}
               refetch={refetch}
             />
-            <Popconfirm title={t('iscsi:are_you_sure_delete_target')} onConfirm={() => deleteTarget.mutate(target.nqn)}>
+            <Popconfirm
+              title={t('iscsi:are_you_sure_delete_target', { name: target.nqn })}
+              onConfirm={() => deleteTarget.mutate(target.nqn)}
+            >
               <Button danger loading={deleteTarget.isPending}>
                 Delete
               </Button>

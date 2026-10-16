@@ -143,7 +143,7 @@ export const UserManagement = () => {
                       <Popconfirm
                         key="delete"
                         title={t('users:delete_user_title')}
-                        description={t('users:delete_user_description')}
+                        description={t('users:delete_user_description', { name: user.title })}
                         okText={t('users:yes')}
                         cancelText={t('users:no')}
                         icon={<QuestionCircleOutlined style={{ color: 'red' }} />}

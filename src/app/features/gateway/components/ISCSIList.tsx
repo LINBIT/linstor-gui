@@ -207,7 +207,7 @@ export const ISCSIList = ({
                     label: (
                       <Popconfirm
                         key="delete"
-                        title={t('iscsi:are_you_sure_delete_target')}
+                        title={t('iscsi:are_you_sure_delete_target', { name: record.iqn })}
                         onConfirm={() => (record.iqn ? del.run([record.iqn]) : undefined)}
                       >
                         <div className="w-full text-red-600">{t('common:delete')}</div>
@@ -262,7 +262,7 @@ export const ISCSIList = ({
       width: 150,
       render: (_, record) => (
         <Popconfirm
-          title={t('iscsi:are_you_sure_delete_volume')}
+          title={t('iscsi:are_you_sure_delete_volume', { name: record.iqn, lun: record.lunId })}
           onConfirm={() => {
             if (record.iqn && record.lunId) {
               handleDeleteVolume(record.iqn, record.lunId);

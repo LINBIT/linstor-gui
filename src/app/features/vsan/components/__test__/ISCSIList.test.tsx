@@ -121,7 +121,9 @@ describe('ISCSIList', () => {
     const { container } = await renderList(true);
 
     fireEvent.click(within(rowByText(container, 'tgt1')).getByRole('button', { name: 'Delete' }));
-    expect(await screen.findByText('Are you sure to delete this ISCSI target?')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Are you sure you want to delete iSCSI target iqn.2024-01.com.linbit:tgt1?'),
+    ).toBeInTheDocument();
     await confirmPopover();
 
     await waitFor(() => expect(deleteISCISExport).toHaveBeenCalledWith('iqn.2024-01.com.linbit:tgt1'));

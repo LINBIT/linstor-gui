@@ -290,7 +290,10 @@ export const ScheduleByResourceList = () => {
                     key: 'delete',
                     label: (
                       <Popconfirm
-                        title={t('schedule:delete_schedule_confirm')}
+                        title={t('schedule:delete_schedule_confirm', {
+                          name: record.schedule_name,
+                          resource: record.rsc_name,
+                        })}
                         description={t('schedule:delete_schedule_warning')}
                         onConfirm={() => del.run([record])}
                       >

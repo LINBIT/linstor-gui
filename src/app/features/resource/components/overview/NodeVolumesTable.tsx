@@ -266,7 +266,10 @@ export const NodeVolumesTable: React.FC<NodeVolumesTableProps> = ({
                       <Popconfirm
                         key="delete"
                         title={t('resource:delete_resource')}
-                        description={t('resource:are_you_sure_delete_resource_2')}
+                        description={t('resource:are_you_sure_delete_resource_2', {
+                          name: record.resource_name,
+                          node: record.node_name,
+                        })}
                         onConfirm={() => onDelete(record)}
                       >
                         <div className="w-full text-red-600">{t('common:delete')}</div>

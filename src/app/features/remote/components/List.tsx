@@ -238,7 +238,10 @@ export const List = () => {
                   {
                     key: 'delete',
                     label: (
-                      <Popconfirm title={t('remote:delete_remote_object')} onConfirm={() => del.run([record])}>
+                      <Popconfirm
+                        title={t('remote:delete_remote_object', { name: record.remote_name })}
+                        onConfirm={() => del.run([record])}
+                      >
                         {t('common:delete')}
                       </Popconfirm>
                     ),

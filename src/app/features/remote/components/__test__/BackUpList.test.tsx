@@ -138,7 +138,7 @@ describe('backup List', () => {
     await screen.findByText('back_20231114_221320');
     const menu = await openRowMenu('back_20231114_221320');
     fireEvent.click(within(menu).getByText('Delete'));
-    expect(await screen.findByText('Delete this backup?')).toBeInTheDocument();
+    expect(await screen.findByText('Delete backup back_20231114_221320?')).toBeInTheDocument();
     expect(deleteBackup).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
     await waitFor(() => expect(deleteBackup).toHaveBeenCalledWith('s3-a', { timestamp: '20231114_221320' }));

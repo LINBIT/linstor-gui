@@ -33,7 +33,7 @@ const NetInterfaceList: React.FC<Props> = ({ list, handleDeleteNetWorkInterface,
             <Popconfirm
               key="delete"
               title={t('common:delete_network_interface')}
-              description={t('common:are_you_sure_delete_network_interface')}
+              description={t('common:are_you_sure_delete_network_interface', { name: item.name })}
               onConfirm={() => {
                 handleDeleteNetWorkInterface(item.name);
               }}

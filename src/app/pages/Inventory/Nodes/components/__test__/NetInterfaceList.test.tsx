@@ -77,7 +77,7 @@ describe('NetInterfaceList', () => {
     const { container, handleDeleteNetWorkInterface } = renderList();
 
     fireEvent.click(within(itemByText(container, 'backup')).getByRole('button', { name: 'Delete' }));
-    expect(await screen.findByText('Are you sure to delete this network interface?')).toBeInTheDocument();
+    expect(await screen.findByText('Are you sure you want to delete network interface backup?')).toBeInTheDocument();
     await confirmPopover();
 
     await waitFor(() => expect(handleDeleteNetWorkInterface).toHaveBeenCalledWith('backup'));

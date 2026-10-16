@@ -260,7 +260,9 @@ describe('storage pool List', () => {
     await screen.findByText('pool-zfs');
     const menu = await openRowMenu('pool-zfs');
     fireEvent.click(within(menu).getByText('Delete'));
-    expect(await screen.findByText('Are you sure to delete this storage pool?')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Are you sure you want to delete storage pool pool-zfs on node node-3?'),
+    ).toBeInTheDocument();
     expect(deleteStoragePoolV2).not.toHaveBeenCalled();
     const listCallsBefore = vi.mocked(getStoragePool).mock.calls.length;
     fireEvent.click(screen.getByRole('button', { name: 'Yes' }));

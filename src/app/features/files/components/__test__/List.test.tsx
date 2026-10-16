@@ -161,7 +161,9 @@ describe('files List', () => {
     const menu = await openRowMenu(MOUNT);
     expect(within(menu).queryByText('Deploy')).not.toBeInTheDocument();
     fireEvent.click(within(menu).getByText('Undeploy'));
-    expect(await screen.findByText('Are you sure to undeploy this file from its resource?')).toBeInTheDocument();
+    expect(
+      await screen.findByText(`Are you sure you want to undeploy file ${MOUNT} from resource res-a?`),
+    ).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
     await waitFor(() => expect(undeployFile).toHaveBeenCalledWith('res-a', MOUNT));
     expect(await screen.findByText('File undeployed successfully')).toBeInTheDocument();
@@ -189,7 +191,7 @@ describe('files List', () => {
     await screen.findByText(MOUNT);
     const menu = await openRowMenu(CONF);
     fireEvent.click(within(menu).getByText('Delete'));
-    expect(await screen.findByText('Are you sure to delete this file?')).toBeInTheDocument();
+    expect(await screen.findByText(`Are you sure you want to delete file ${CONF}?`)).toBeInTheDocument();
     expect(deleteFile).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
     await waitFor(() => expect(deleteFile).toHaveBeenCalledWith(CONF));

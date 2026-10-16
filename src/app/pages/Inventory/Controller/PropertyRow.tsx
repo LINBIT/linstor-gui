@@ -161,7 +161,7 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({ name, value, info, onS
               ) : (
                 <Popconfirm
                   title={t('common:delete_property')}
-                  description={t('common:are_you_sure_delete_property')}
+                  description={t('common:are_you_sure_delete_property', { name })}
                   onConfirm={() => onDelete(name)}
                 >
                   <Button

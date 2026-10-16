@@ -119,7 +119,7 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
             <Popconfirm
               key="delete"
               title={t('common:delete_nfs_target')}
-              description={t('common:are_you_sure_delete_nfs_target')}
+              description={t('common:are_you_sure_delete_nfs_target', { name: target.name })}
               onConfirm={() => {
                 deleteMutation.mutate(target.name);
               }}

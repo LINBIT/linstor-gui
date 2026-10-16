@@ -119,7 +119,7 @@ export const ISCSIList = ({ complex }: ISCSIListProp) => {
             <Popconfirm
               key="delete"
               title={t('common:delete_iscsi_target')}
-              description={t('common:are_you_sure_delete_iscsi_target')}
+              description={t('common:are_you_sure_delete_iscsi_target', { name: target.iqn })}
               onConfirm={() => {
                 deleteMutation.mutate(target.iqn);
               }}

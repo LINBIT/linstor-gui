@@ -356,7 +356,7 @@ export const List = () => {
                     <Popconfirm
                       key="delete"
                       title={t('error_report:delete_error_report')}
-                      description={t('error_report:are_you_sure_delete_error_report')}
+                      description={t('error_report:are_you_sure_delete_error_report', { name: getId(record) })}
                       onConfirm={() => handleDelete(record)}
                     >
                       {t('common:delete')}

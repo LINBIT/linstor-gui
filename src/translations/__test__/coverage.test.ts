@@ -34,6 +34,21 @@ const flatten = (node: Tree, prefix = ''): string[] =>
     return value && typeof value === 'object' && !Array.isArray(value) ? flatten(value as Tree, path) : [path];
   });
 
+/** Every string leaf in a translation tree, as `[namespace.some.key, value]`. */
+const leaves = (node: Tree, prefix = ''): [string, string][] =>
+  Object.entries(node).flatMap(([key, value]): [string, string][] => {
+    const path = prefix ? `${prefix}.${key}` : key;
+    if (value && typeof value === 'object' && !Array.isArray(value)) return leaves(value as Tree, path);
+    return typeof value === 'string' ? [[path, value]] : [];
+  });
+
+/** The interpolation variables a string uses, sorted, e.g. `name,node`. */
+const placeholders = (value: string) =>
+  [...value.matchAll(/\{\{\s*([\w.]+)[^}]*\}\}/g)]
+    .map((match) => match[1])
+    .sort()
+    .join(',');
+
 const englishKeys = flatten(translations.en as unknown as Tree);
 const languages = Object.keys(translations).filter((code) => code !== 'en') as Array<keyof typeof translations>;
 
@@ -83,6 +98,21 @@ describe('translation coverage', () => {
       extra.length ? `${code} has ${extra.length} stale keys, e.g. ${extra.slice(0, 8).join(', ')}` : '',
     ).toEqual([]);
   });
+  it.each(languages)('%s fills in the same {{placeholders}} as English', (code) => {
+    // A translation that drops or misspells a placeholder renders without the
+    // value, silently: a delete confirmation that names its target in English
+    // would ask "Delete node?" in German, or show a literal {{name}}.
+    const english = new Map(leaves(translations.en as unknown as Tree));
+    const mismatched = leaves(translations[code] as unknown as Tree)
+      .filter(([key, value]) => english.has(key) && placeholders(english.get(key)!) !== placeholders(value))
+      .map(([key]) => key);
+
+    expect(
+      mismatched,
+      mismatched.length ? `${code} has placeholders that differ from English in ${mismatched.join(', ')}` : '',
+    ).toEqual([]);
+  });
+
   it.each(Object.keys(translations))('%s declares no duplicate keys inside a namespace', (code) => {
     // A repeated key in an object literal is legal and the last one silently
     // wins, so neither tsc nor the parity checks above can see it. Scan the

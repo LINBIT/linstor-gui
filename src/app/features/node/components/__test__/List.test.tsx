@@ -394,6 +394,8 @@ describe('node List', () => {
 
     const menu = await openRowMenu(container, 'gui02');
     fireEvent.click(within(menu).getByText('Delete'));
+    // The confirmation names the node, so a misclick on the wrong row shows.
+    expect(await screen.findByText('Are you sure you want to delete node gui02?')).toBeInTheDocument();
     await confirmPopconfirm();
 
     await waitFor(() => expect(deleteNode).toHaveBeenCalledWith('gui02'));
@@ -419,6 +421,7 @@ describe('node List', () => {
 
     const menu = await openRowMenu(container, 'gui02');
     fireEvent.click(within(menu).getByText('Lost'));
+    expect(await screen.findByText('Are you sure you want to declare node gui02 lost?')).toBeInTheDocument();
     await confirmPopconfirm();
 
     await waitFor(() => expect(lostNode).toHaveBeenCalledWith('gui02'));

@@ -95,7 +95,7 @@ describe('schedule List', () => {
     await screen.findByText('nightly');
     const menu = await openRowMenu('nightly');
     fireEvent.click(within(menu).getByText('Delete'));
-    expect(await screen.findByText('Delete this schedule?')).toBeInTheDocument();
+    expect(await screen.findByText('Delete schedule nightly?')).toBeInTheDocument();
     expect(deleteSchedule).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole('button', { name: 'Yes' }));

@@ -83,7 +83,7 @@ describe('ResourceGroupList', () => {
     const { container } = await renderList();
 
     fireEvent.click(within(rowByText(container, 'rg1')).getByRole('button', { name: 'Delete' }));
-    expect(await screen.findByText('Are you sure to delete this resource group?')).toBeInTheDocument();
+    expect(await screen.findByText('Are you sure you want to delete resource group rg1?')).toBeInTheDocument();
     await confirmPopover();
 
     await waitFor(() => expect(mocked.remove).toHaveBeenCalledWith('rg1'));

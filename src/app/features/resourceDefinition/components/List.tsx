@@ -198,7 +198,7 @@ export const List = () => {
           <Popconfirm
             key="delete"
             title={t('resource:delete_resource_definition')}
-            description={t('resource_definition:are_you_sure_delete_resource_definition')}
+            description={t('resource_definition:are_you_sure_delete_resource_definition', { name: record.name })}
             onConfirm={() => del.run([record])}
           >
             <Button danger>{t('common:delete')}</Button>

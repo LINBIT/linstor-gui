@@ -205,7 +205,7 @@ export const NVMeList = ({
                     label: (
                       <Popconfirm
                         key="delete"
-                        title={t('iscsi:are_you_sure_delete_target')}
+                        title={t('iscsi:are_you_sure_delete_target', { name: record.nqn })}
                         onConfirm={() => (record.nqn ? del.run([record.nqn]) : undefined)}
                       >
                         <div className="w-full text-red-600">{t('common:delete')}</div>
@@ -260,7 +260,7 @@ export const NVMeList = ({
       width: 150,
       render: (_, record) => (
         <Popconfirm
-          title={t('iscsi:are_you_sure_delete_volume')}
+          title={t('iscsi:are_you_sure_delete_volume', { name: record.nqn, lun: record.lunId })}
           onConfirm={() => {
             if (record.nqn && record.lunId) {
               handleDeleteVolume(record.nqn, record.lunId);

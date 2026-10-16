@@ -153,7 +153,7 @@ describe('UserManagement', () => {
     expect(within(bob).getByText('User 2')).toBeInTheDocument();
 
     fireEvent.click(within(bob).getByRole('button', { name: 'Delete user' }));
-    expect(await screen.findByText('Are you sure to delete this user?')).toBeInTheDocument();
+    expect(await screen.findByText('Are you sure you want to delete user bob?')).toBeInTheDocument();
     expect(deleteUser).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
     await waitFor(() => expect(deleteUser).toHaveBeenCalledWith('bob'));

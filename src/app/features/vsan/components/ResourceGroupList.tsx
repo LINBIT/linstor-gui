@@ -74,7 +74,7 @@ export const ResourceGroupList = () => {
           <Popconfirm
             key="delete"
             title={t('resource_group:delete_resource_group')}
-            description={t('resource_group:are_you_sure_delete_resource_group')}
+            description={t('resource_group:are_you_sure_delete_resource_group', { name: record.name })}
             onConfirm={() => {
               deleteMutation.mutate(record.name);
             }}

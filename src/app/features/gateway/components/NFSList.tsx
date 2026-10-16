@@ -229,7 +229,7 @@ export const NFSList = ({
                     label: (
                       <Popconfirm
                         key="delete"
-                        title={t('nfs:are_you_sure_delete_export')}
+                        title={t('nfs:are_you_sure_delete_export', { name: record.name })}
                         onConfirm={() => (record.name ? del.run([record.name]) : undefined)}
                       >
                         <div className="w-full text-red-600">{t('common:delete')}</div>

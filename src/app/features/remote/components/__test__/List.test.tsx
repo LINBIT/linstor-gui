@@ -169,7 +169,7 @@ describe('remote List', () => {
     await screen.findByText('s3-a');
     const menu = await openRowMenu('s3-a');
     fireEvent.click(within(menu).getByText('Delete'));
-    expect(await screen.findByText('Delete this remote object?')).toBeInTheDocument();
+    expect(await screen.findByText('Delete remote s3-a?')).toBeInTheDocument();
     expect(deleteRemote).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
     await waitFor(() => expect(deleteRemote).toHaveBeenCalledWith('s3-a'));

@@ -223,7 +223,7 @@ describe('resource group List', () => {
     const menu = await openRowMenu('rg-alpha');
 
     fireEvent.click(within(menu).getByText('Delete'));
-    expect(await screen.findByText('Are you sure to delete this resource group?')).toBeInTheDocument();
+    expect(await screen.findByText('Are you sure you want to delete resource group rg-alpha?')).toBeInTheDocument();
     expect(deleteResourceGroup).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole('button', { name: 'Yes' }));

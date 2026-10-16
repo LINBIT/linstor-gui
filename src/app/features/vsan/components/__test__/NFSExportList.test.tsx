@@ -117,7 +117,7 @@ describe('NFSExportList', () => {
     expect(within(child).queryByRole('button', { name: 'Delete' })).toBeNull();
 
     fireEvent.click(within(row).getByRole('button', { name: 'Delete' }));
-    expect(await screen.findByText('Are you sure to delete this NFS target?')).toBeInTheDocument();
+    expect(await screen.findByText('Are you sure you want to delete NFS target nfs1?')).toBeInTheDocument();
     await confirmPopover();
 
     await waitFor(() => expect(deleteNFSExport).toHaveBeenCalledWith('nfs1'));

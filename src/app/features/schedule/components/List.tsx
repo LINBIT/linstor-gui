@@ -112,7 +112,10 @@ export const List = () => {
                   {
                     key: 'delete',
                     label: (
-                      <Popconfirm title={t('schedule:delete_schedule')} onConfirm={() => del.run([record])}>
+                      <Popconfirm
+                        title={t('schedule:delete_schedule', { name: record.schedule_name })}
+                        onConfirm={() => del.run([record])}
+                      >
                         {t('common:delete')}
                       </Popconfirm>
                     ),

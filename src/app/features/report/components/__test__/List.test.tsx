@@ -192,7 +192,7 @@ describe('error report List before REST 1.30.0 (everything in the browser)', () 
     await screen.findByText('AAAA-000001');
     const menu = await openRowMenu('AAAA-000001');
     fireEvent.click(within(menu).getByText('Delete'));
-    expect(await screen.findByText('Are you sure to delete this error report?')).toBeInTheDocument();
+    expect(await screen.findByText('Are you sure you want to delete error report AAAA-000001?')).toBeInTheDocument();
     expect(deleteReport).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'Yes' }));
     await waitFor(() => expect(deleteReport).toHaveBeenCalledWith('AAAA-000001'));

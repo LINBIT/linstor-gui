@@ -315,7 +315,7 @@ export const List = () => {
                     <Popconfirm
                       key="delete"
                       title={t('node:delete_node')}
-                      description={t('node:are_you_sure_delete_node')}
+                      description={t('node:are_you_sure_delete_node', { name: record.name })}
                       onConfirm={() => del.run([record])}
                     >
                       <div className="w-full text-red-600">{t('common:delete')}</div>
@@ -328,7 +328,7 @@ export const List = () => {
                     <Popconfirm
                       key="lost"
                       title={t('node:lost_node')}
-                      description={t('node:are_you_sure_lost_node')}
+                      description={t('node:are_you_sure_lost_node', { name: record.name })}
                       onConfirm={() => {
                         lostMutation.mutate(record.name || '');
                       }}

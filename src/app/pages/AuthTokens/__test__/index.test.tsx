@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
 import AuthTokens from '..';
@@ -26,9 +26,12 @@ const errorMessage = vi.fn();
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, params?: { total?: number }) => {
+    t: (key: string, params?: { total?: number; name?: string }) => {
       if (key === 'authToken:total_items') {
         return `Total ${params?.total ?? 0} items`;
+      }
+      if (key === 'authToken:delete_confirm') {
+        return `Delete auth token ${params?.name}?`;
       }
 
       return key;
@@ -159,6 +162,50 @@ describe('AuthTokens page', () => {
     });
     expect(screen.getByRole('button', { name: 'authToken:go_to_settings' })).toBeInTheDocument();
     expect(mockGet).not.toHaveBeenCalledWith('/v1/controller/auth/token');
+  });
+
+  it('names the token in the delete confirmation and deletes it only after confirm', async () => {
+    mockGet.mockImplementation((url: string) => {
+      if (url === '/v1/controller/properties') {
+        return Promise.resolve({ data: { 'Auth/TokenAuthenticationEnabled': 'true' } });
+      }
+      return Promise.resolve({
+        data: {
+          count: 1,
+          list: [
+            {
+              id: 11,
+              description: 'reinti',
+              created_at: '2026-04-14T07:35:44Z',
+              is_active: true,
+              is_user_token: true,
+              ip_filter: null,
+              expires_at: null,
+            },
+          ],
+        },
+      });
+    });
+    mockDelete.mockResolvedValue({ data: [] });
+
+    renderPage();
+
+    const row = (await screen.findByText('reinti')).closest('tr') as HTMLElement;
+    fireEvent.mouseEnter(within(row).getByRole('button'));
+    fireEvent.click(within(row).getByRole('button'));
+    fireEvent.click(await screen.findByText('authToken:delete'));
+
+    expect(await screen.findByText('Delete auth token #11 (reinti)?')).toBeInTheDocument();
+    expect(mockDelete).not.toHaveBeenCalled();
+
+    const confirm = await screen.findAllByRole('button', { name: 'authToken:delete' });
+    fireEvent.click(confirm[confirm.length - 1]);
+
+    await waitFor(() => {
+      expect(mockDelete).toHaveBeenCalledWith('/v1/controller/auth/token/{authtokenid}', {
+        params: { path: { authtokenid: 11 } },
+      });
+    });
   });
 
   it('creates a token and displays the returned token once', async () => {

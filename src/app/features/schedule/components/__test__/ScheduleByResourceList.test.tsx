@@ -188,7 +188,10 @@ describe('ScheduleByResourceList', () => {
     await screen.findByText('res-active');
     const menu = await openRowMenu('res-active');
     fireEvent.click(within(menu).getByText('Delete'));
-    expect(await screen.findByText('This action cannot be undone!')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Are you sure you want to delete schedule nightly from resource res-active?'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('This action cannot be undone!')).toBeInTheDocument();
     await confirmYes();
     await waitFor(() =>
       expect(deleteBackupSchedule).toHaveBeenCalledWith('s3-a', 'nightly', { rsc_dfn_name: 'res-active' }),

@@ -369,7 +369,9 @@ describe('resource OverviewList', () => {
       const expanded = await expandRow('res-a');
       const menu = await openMenuIn(nodeRowIn(expanded, 'node-2'));
       fireEvent.click(within(menu).getByText('Delete'));
-      expect(await screen.findByText('Are you sure to delete this resource?')).toBeInTheDocument();
+      expect(
+        await screen.findByText('Are you sure you want to delete resource res-a on node node-2?'),
+      ).toBeInTheDocument();
       expect(deleteResource).not.toHaveBeenCalled();
       const before = vi.mocked(getResources).mock.calls.length;
       const rdBefore = vi.mocked(getResourceDefinition).mock.calls.length;
@@ -390,7 +392,7 @@ describe('resource OverviewList', () => {
       const del = within(menu).getByText('Delete').closest('li') as HTMLElement;
       expect(del).toHaveAttribute('aria-disabled', 'true');
       fireEvent.click(within(menu).getByText('Delete'));
-      expect(screen.queryByText('Are you sure to delete this resource?')).toBeNull();
+      expect(screen.queryByText('Are you sure you want to delete resource res-a on node node-1?')).toBeNull();
       expect(deleteResource).not.toHaveBeenCalled();
     });
 
@@ -561,7 +563,7 @@ describe('resource OverviewList', () => {
       await screen.findByText('res-b');
       const menu = await openMenuIn(rowOf('res-b'));
       fireEvent.click(within(menu).getByText('Delete'));
-      expect(await screen.findByText('Are you sure to delete this resource definitions?')).toBeInTheDocument();
+      expect(await screen.findByText('Are you sure you want to delete resource definition res-b?')).toBeInTheDocument();
       expect(deleteResourceDefinition).not.toHaveBeenCalled();
       const before = vi.mocked(getResourceDefinition).mock.calls.length;
       await confirmYes();

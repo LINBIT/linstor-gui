@@ -138,7 +138,7 @@ describe('resourceDefinition List', () => {
     const { container } = await renderList();
 
     fireEvent.click(within(rowByText(container, 'rd1')).getByRole('button', { name: 'Delete' }));
-    expect(await screen.findByText('Are you sure to delete this resource definition?')).toBeInTheDocument();
+    expect(await screen.findByText('Are you sure you want to delete resource definition rd1?')).toBeInTheDocument();
     await confirmPopover();
 
     await waitFor(() => expect(deleteResourceDefinition).toHaveBeenCalledWith('rd1'));
