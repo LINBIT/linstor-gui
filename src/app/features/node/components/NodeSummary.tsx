@@ -12,11 +12,14 @@ import { FaLinux, FaWindows } from 'react-icons/fa';
 
 import { SupportStatus } from '@app/components/SupportStatus';
 import type { NodeDataType } from '../types';
+import { ActiveControllerTag } from './ActiveControllerTag';
 
 interface NodeSummaryProps {
   node?: NodeDataType;
   /** The controller reports the platform from REST API 1.28.0 on. */
   showPlatform: boolean;
+  /** The node runs the active controller. */
+  activeController?: boolean;
 }
 
 /**
@@ -64,7 +67,7 @@ const Capabilities: React.FC<{ label: string; supported?: string[]; unsupported?
 };
 
 /** The node at a glance: name and state first, then where it runs and what it can do. */
-export const NodeSummary: React.FC<NodeSummaryProps> = ({ node, showPlatform }) => {
+export const NodeSummary: React.FC<NodeSummaryProps> = ({ node, showPlatform, activeController }) => {
   const { t } = useTranslation(['node_detail', 'common']);
   const online = node?.connection_status === 'ONLINE' || node?.connection_status === 'CONNECTED';
   const active = node?.net_interfaces?.find((ni) => ni.is_active) ?? node?.net_interfaces?.[0];
@@ -112,6 +115,7 @@ export const NodeSummary: React.FC<NodeSummaryProps> = ({ node, showPlatform }) 
     <Card size="small">
       <div className="mb-3 flex flex-wrap items-center gap-3">
         <h2 className="m-0 text-xl font-semibold">{node?.name}</h2>
+        {activeController && <ActiveControllerTag />}
         {node?.connection_status && (
           <span className="inline-flex items-center gap-1.5">
             <SupportStatus supported={online} />

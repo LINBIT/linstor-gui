@@ -6,6 +6,8 @@
 
 export { CreateNodeForm } from './CreateNodeForm';
 
+export { ActiveControllerTag } from './ActiveControllerTag';
+
 export { NodeSummary } from './NodeSummary';
 
 export { NodeResources } from './NodeResources';

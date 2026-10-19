@@ -11,7 +11,7 @@ import { Card, Space } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import PageBasic from '@app/components/PageBasic';
-import { NodeResources, NodeSummary, StoragePoolCapacity, useNodes } from '@app/features/node';
+import { NodeResources, NodeSummary, StoragePoolCapacity, useActiveController, useNodes } from '@app/features/node';
 import { getControllerVersion } from '@app/features/node/api';
 import { compareVersions } from '@app/utils/version';
 import {
@@ -32,6 +32,7 @@ import NetInterfaceList from './components/NetInterfaceList';
 
 const NodeDetail: React.FC = () => {
   const { t } = useTranslation('node_detail');
+  const activeController = useActiveController();
   const { node } = useParams() as { node: string };
 
   const { data: nodeInfo } = useNodes({
@@ -110,7 +111,11 @@ const NodeDetail: React.FC = () => {
   return (
     <PageBasic title={t('title')} showBack>
       <Space orientation="vertical" size="middle" style={{ display: 'flex' }}>
-        <NodeSummary node={nodeData} showPlatform={!!platformAvailable} />
+        <NodeSummary
+          node={nodeData}
+          showPlatform={!!platformAvailable}
+          activeController={!!nodeData?.name && nodeData.name === activeController}
+        />
 
         {/* One row each: side by side at one height, the shorter card was
             mostly empty space. */}
@@ -131,7 +136,9 @@ const NodeDetail: React.FC = () => {
 
           {/* nodeInfo?.[0].name threw once the list came back empty: the `?.`
               guards the list, not its first entry. */}
-          <CreateForm node={nodeData?.name} refetch={refetch} />
+          <div className="mt-4">
+            <CreateForm node={nodeData?.name} refetch={refetch} />
+          </div>
         </Card>
 
         <GrafanaCharts hostname={node} />

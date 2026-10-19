@@ -28,6 +28,7 @@ import { UIMode } from '@app/features/settings/types';
 import { useUIMode } from '@app/features/settings/useSettings';
 import { compareVersions } from '@app/utils/version';
 import { Popconfirm } from '@app/components/Popconfirm';
+import { ActiveControllerTag } from './ActiveControllerTag';
 import { useDeleteAction, deletingRowClass } from '@app/hooks/useDeleteAction';
 import { labelRowCheckbox } from '@app/utils/rowSelection';
 import { ActionColumnTitle } from '@app/components/ActionColumnTitle';
@@ -222,13 +223,7 @@ export const List = () => {
         return (
           <span className="inline-flex flex-wrap items-center gap-2">
             <Link to={nodeUrl}>{text}</Link>
-            {record.name === activeController && (
-              <Tooltip title={t('node:active_controller_tooltip')}>
-                <Tag color="cyan" className="m-0">
-                  {t('node:active_controller')}
-                </Tag>
-              </Tooltip>
-            )}
+            {record.name === activeController && <ActiveControllerTag />}
           </span>
         );
       },

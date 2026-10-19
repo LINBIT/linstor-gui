@@ -161,6 +161,11 @@ describe('node List', () => {
 
     const active = rowOf(container, nodes[1].name);
     expect(await within(active).findByText('Controller')).toBeInTheDocument();
+    // The brand chip, not antd's cyan.
+    expect(within(active).getByText('Controller').closest('.ant-tag')).toHaveAttribute(
+      'style',
+      expect.stringContaining('var(--bg-chip-brand)'),
+    );
     expect(within(rowOf(container, nodes[0].name)).queryByText('Controller')).toBeNull();
     fireEvent.mouseEnter(within(active).getByText('Controller'));
     expect(await screen.findByText(/runs the active controller/)).toBeInTheDocument();

@@ -53,6 +53,12 @@ vi.mock('@app/components/GrafanaCharts', () => ({
   default: ({ hostname }: { hostname: string }) => <div data-testid="grafana" data-hostname={hostname} />,
 }));
 
+let activeController: string | undefined;
+vi.mock('@app/features/node/hooks/useActiveController', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@app/features/node/hooks/useActiveController')>()),
+  useActiveController: () => activeController,
+}));
+
 let uiMode = 'NORMAL';
 vi.mock('@app/features/settings/useSettings', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@app/features/settings/useSettings')>()),
@@ -139,6 +145,7 @@ describe('NodeDetail', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     uiMode = 'NORMAL';
+    activeController = undefined;
     vi.mocked(getNodes).mockResolvedValue({ data: [node] } as never);
     vi.mocked(getControllerVersion).mockResolvedValue({ data: { rest_api_version: '1.28.0' } } as never);
     vi.mocked(getNetWorkInterfaceByNode).mockResolvedValue({ data: interfaces } as never);
@@ -159,6 +166,18 @@ describe('NodeDetail', () => {
     expect(screen.getByText('Ubuntu 24.04.4 LTS')).toBeInTheDocument();
     // The active interface, not the first one listed.
     expect(container).toHaveTextContent('10.0.0.1:3366PLAIN');
+  });
+
+  it('tags the node that runs the active controller, and only that one', async () => {
+    activeController = 'gui02';
+    const { unmount } = await renderDetail();
+    expect(screen.queryByText('Controller')).toBeNull();
+    unmount();
+
+    activeController = 'gui01';
+    await renderDetail();
+    const tag = screen.getByText('Controller');
+    expect(tag.closest('.ant-tag')).toHaveAttribute('style', expect.stringContaining('var(--bg-chip-brand)'));
   });
 
   it('marks a node that is not online', async () => {
