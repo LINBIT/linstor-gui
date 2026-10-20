@@ -123,13 +123,20 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
       setMode(SettingUIMode.NORMAL);
       updateUIMode('NORMAL');
     }
-    // remove any query parameters
-    if (location.search) {
-      navigate(location.pathname, { replace: true });
+    // The VSAN and HCI entry links carry ?vsan=true / ?hci=true, done with once
+    // the mode is set. Any other parameter is page state (an open tab, a list
+    // filter) and stays, so a reload keeps it.
+    const params = new URLSearchParams(location.search);
+    if (params.has('vsan') || params.has('hci')) {
+      params.delete('vsan');
+      params.delete('hci');
+      const rest = params.toString();
+      navigate({ pathname: location.pathname, search: rest ? `?${rest}` : '' }, { replace: true });
     }
     // On navigation to another page only. The lists write their filters into
-    // the current page's query string, which a search dependency would strip
-    // again at once; updateUIMode is a new function on every render.
+    // the current page's query string, and a search dependency would boot the
+    // stores again on every filter change; updateUIMode is a new function on
+    // every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 

@@ -139,8 +139,7 @@ describe('AppLayout', () => {
     withKVS({ authenticationEnabled: true });
     renderLayout('/inventory/nodes?tab=1');
 
-    // The layout drops the query string before the login page settles on its return path.
-    await waitFor(() => expect(screen.getByTestId('login')).toHaveTextContent(/^\/inventory\/nodes$/));
+    await waitFor(() => expect(screen.getByTestId('login')).toHaveTextContent(/^\/inventory\/nodes\?tab=1$/));
     expect(screen.queryByTestId('page')).toBeNull();
   });
 
@@ -191,10 +190,24 @@ describe('AppLayout', () => {
     expect(headerProps()).toMatchObject({ vsan: false, hci: true });
   });
 
-  it('strips query parameters from the URL', async () => {
-    renderLayout('/inventory/nodes?tab=1');
+  it('keeps page parameters in the URL', async () => {
+    renderLayout('/inventory/nodes/n1?tab=resources');
 
-    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent(/^\/inventory\/nodes$/));
+    // Give a stray navigation the chance to land before looking.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(screen.getByTestId('location')).toHaveTextContent(/^\/inventory\/nodes\/n1\?tab=resources$/);
+  });
+
+  it('drops the VSAN entry parameter from the URL', async () => {
+    renderLayout('/vsan/dashboard?vsan=true');
+
+    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent(/^\/vsan\/dashboard$/));
+  });
+
+  it('drops the HCI entry parameter and keeps the others', async () => {
+    renderLayout('/hci/dashboard?hci=true&tab=nodes');
+
+    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent(/^\/hci\/dashboard\?tab=nodes$/));
   });
 
   it('toggles the sidebar from the menu button', () => {
