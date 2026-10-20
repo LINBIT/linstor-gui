@@ -4,10 +4,11 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Card, Space } from 'antd';
+import { Card, Space, Tabs } from 'antd';
+import type { TabsProps } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import PageBasic from '@app/components/PageBasic';
@@ -24,16 +25,23 @@ import {
 import { fullySuccess } from '@app/features/requests';
 import { useStoragePools } from '@app/features/storagePool';
 import { useResources } from '@app/features/snapshot';
-import { useUIMode } from '@app/features/settings/useSettings';
+import { useSettings, useUIMode } from '@app/features/settings/useSettings';
 import { UIMode } from '@app/features/settings/types';
+import { grafanaEnabled } from '@app/features/settings/grafana';
 import GrafanaCharts from '@app/components/GrafanaCharts';
 
 import NetInterfaceList from './components/NetInterfaceList';
 
 const NodeDetail: React.FC = () => {
-  const { t } = useTranslation('node_detail');
+  const { t } = useTranslation(['node_detail', 'common']);
   const activeController = useActiveController();
   const { node } = useParams() as { node: string };
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { grafanaConfig } = useSettings();
+  // The open tab goes into the URL, so coming back from a linked resource or
+  // pool lands on the same tab. It is read once: AppLayout strips the query
+  // string whenever the page changes, right after this page has rendered.
+  const [requestedTab, setRequestedTab] = useState(() => searchParams.get('tab'));
 
   const { data: nodeInfo } = useNodes({
     nodes: [node],
@@ -108,26 +116,22 @@ const NodeDetail: React.FC = () => {
     });
   };
 
-  return (
-    <PageBasic title={t('title')} showBack>
-      <Space orientation="vertical" size="middle" style={{ display: 'flex' }}>
-        <NodeSummary
-          node={nodeData}
-          showPlatform={!!platformAvailable}
-          activeController={!!nodeData?.name && nodeData.name === activeController}
-        />
-
-        {/* One row each: side by side at one height, the shorter card was
-            mostly empty space. */}
-        <Card title={t('storage_pool_info')} size="small">
-          <StoragePoolCapacity node={node} pools={nodeStoragePoolInfo?.data ?? []} routePrefix={routePrefix} />
-        </Card>
-
-        <Card title={t('resource_info')} size="small">
-          <NodeResources resources={resourceInfo?.data ?? []} routePrefix={routePrefix} />
-        </Card>
-
-        <Card title={t('network_interfaces')} size="small">
+  const tabs: TabsProps['items'] = [
+    {
+      key: 'storage-pools',
+      label: t('storage_pools'),
+      children: <StoragePoolCapacity node={node} pools={nodeStoragePoolInfo?.data ?? []} routePrefix={routePrefix} />,
+    },
+    {
+      key: 'resources',
+      label: t('resources'),
+      children: <NodeResources resources={resourceInfo?.data ?? []} routePrefix={routePrefix} />,
+    },
+    {
+      key: 'network-interfaces',
+      label: t('network_interfaces'),
+      children: (
+        <>
           <NetInterfaceList
             list={nodeInterfaceInfo?.data || []}
             handleDeleteNetWorkInterface={handleDeleteNetWorkInterface}
@@ -139,9 +143,41 @@ const NodeDetail: React.FC = () => {
           <div className="mt-4">
             <CreateForm node={nodeData?.name} refetch={refetch} />
           </div>
-        </Card>
+        </>
+      ),
+    },
+    // Without Grafana there is nothing to chart, so no tab for it either.
+    ...(grafanaEnabled(grafanaConfig)
+      ? [{ key: 'performance', label: t('common:performance_metrics'), children: <GrafanaCharts hostname={node} /> }]
+      : []),
+  ];
 
-        <GrafanaCharts hostname={node} />
+  // Performance is missing until the settings have loaded, so a request for it
+  // is kept rather than dropped.
+  const activeTab = tabs.some((tab) => tab.key === requestedTab) ? (requestedTab as string) : 'storage-pools';
+  const onTabChange = (key: string) => {
+    setRequestedTab(key);
+    setSearchParams(
+      (params) => {
+        params.set('tab', key);
+        return params;
+      },
+      { replace: true },
+    );
+  };
+
+  return (
+    <PageBasic title={t('title')} showBack>
+      <Space orientation="vertical" size="middle" style={{ display: 'flex' }}>
+        <NodeSummary
+          node={nodeData}
+          showPlatform={!!platformAvailable}
+          activeController={!!nodeData?.name && nodeData.name === activeController}
+        />
+
+        <Card size="small">
+          <Tabs activeKey={activeTab} onChange={onTabChange} items={tabs} />
+        </Card>
       </Space>
     </PageBasic>
   );

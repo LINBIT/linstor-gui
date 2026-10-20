@@ -103,7 +103,11 @@ export const NodeResources: React.FC<NodeResourcesProps> = ({ resources, routePr
         columns={columns}
         dataSource={resources}
         rowKey={(r) => r.name ?? ''}
-        pagination={resources.length > 10 ? { pageSize: 10, showSizeChanger: false } : false}
+        pagination={{
+          defaultPageSize: 10,
+          showSizeChanger: true,
+          showTotal: (total) => t('common:total_items', { total }),
+        }}
       />
     </>
   );

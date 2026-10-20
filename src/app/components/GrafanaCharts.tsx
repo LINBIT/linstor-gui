@@ -7,10 +7,11 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { logger } from '@app/utils/logger';
-import { Card, Row, Col, Empty } from 'antd';
+import { Row, Col, Empty } from 'antd';
 import { usePreloadIframes, useThemeMode } from '@app/hooks';
 import TimeRangeSelector from '@app/components/TimeRangeSelector';
 import { useSettings } from '@app/features/settings/useSettings';
+import { grafanaEnabled } from '@app/features/settings/grafana';
 
 interface GrafanaChartsProps {
   hostname: string;
@@ -80,7 +81,7 @@ const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
   usePreloadIframes(iframeUrls, { prefetch: false });
 
   // Nothing to show unless Grafana is switched on and points at a dashboard.
-  if (!grafanaConfig?.enable || !grafanaConfig?.baseUrl || !grafanaConfig?.dashboardUid) {
+  if (!grafanaEnabled(grafanaConfig)) {
     logger.debug('GrafanaCharts not showing: Grafana disabled or no dashboard');
     return null;
   }
@@ -98,15 +99,13 @@ const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
   const validPanels = panels.filter((panel) => panel.id !== undefined);
 
   if (validPanels.length === 0) {
-    return (
-      <Card title={t('common:performance_metrics')} style={{ marginBottom: 16 }}>
-        <Empty description={t('common:no_grafana_panels_configured_check')} />
-      </Card>
-    );
+    return <Empty description={t('common:no_grafana_panels_configured_check')} />;
   }
 
   return (
-    <Card title={t('common:performance_metrics')} style={{ marginBottom: 16 }}>
+    // No card or title of its own: the node detail page shows it under a tab
+    // that already names it.
+    <>
       <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
       <Row gutter={[16, 16]}>
         {validPanels.map((panel) => (
@@ -126,7 +125,7 @@ const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
           </Col>
         ))}
       </Row>
-    </Card>
+    </>
   );
 };
 

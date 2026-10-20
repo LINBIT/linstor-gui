@@ -56,7 +56,8 @@ describe('GrafanaCharts', () => {
 
     expect(screen.getByTitle('CPU Usage').tagName).toBe('IFRAME');
     expect(screen.queryByText('CPU Usage')).toBeNull();
-    expect(screen.getByText('Performance Metrics')).toBeInTheDocument();
+    // Nor a title of its own: the tab it sits under names it.
+    expect(screen.queryByText('Performance Metrics')).toBeNull();
   });
 
   it('shows nothing while Grafana is switched off', () => {

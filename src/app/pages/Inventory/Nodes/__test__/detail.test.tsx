@@ -5,7 +5,9 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { act, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import type { NavigateFunction } from 'react-router-dom';
 
 import NodeDetail from '../detail';
 import { getNodes, getControllerVersion } from '@app/features/node/api';
@@ -13,7 +15,7 @@ import { getNetWorkInterfaceByNode, deleteNetWorkInterface, updateNetWorkInterfa
 import { getStoragePool } from '@app/features/storagePool/api';
 import { getAllResources } from '@app/features/snapshot/api';
 import { NavContext } from '@app/hooks/useNav';
-import { renderPage, confirmPopover, ok } from '../../__test__/helpers';
+import { renderPage, confirmPopover, ok, tableRows } from '../../__test__/helpers';
 
 vi.mock('react-router-dom', async (importOriginal) => ({
   ...(await importOriginal<typeof import('react-router-dom')>()),
@@ -53,6 +55,11 @@ vi.mock('@app/components/GrafanaCharts', () => ({
   default: ({ hostname }: { hostname: string }) => <div data-testid="grafana" data-hostname={hostname} />,
 }));
 
+let grafanaOn = true;
+vi.mock('@app/features/settings/grafana', () => ({
+  grafanaEnabled: () => grafanaOn,
+}));
+
 let activeController: string | undefined;
 vi.mock('@app/features/node/hooks/useActiveController', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@app/features/node/hooks/useActiveController')>()),
@@ -63,6 +70,8 @@ let uiMode = 'NORMAL';
 vi.mock('@app/features/settings/useSettings', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@app/features/settings/useSettings')>()),
   useUIMode: () => uiMode,
+  // Whether Grafana is on is up to the grafanaEnabled mock above.
+  useSettings: () => ({ grafanaConfig: null }),
 }));
 
 const GIB = 1024 * 1024;
@@ -115,12 +124,19 @@ const resources = [
   },
 ];
 
-const cardByTitle = (container: HTMLElement, title: string) => {
-  const card = Array.from(container.querySelectorAll('.ant-card')).find(
-    (el) => el.querySelector('.ant-card-head-title')?.textContent === title,
-  ) as HTMLElement | undefined;
-  expect(card).toBeDefined();
-  return card as HTMLElement;
+/** Opens a tab and hands back its panel. */
+const openTab = (name: string) => {
+  fireEvent.click(screen.getByRole('tab', { name }));
+  return screen.getByRole('tabpanel', { name }) as HTMLElement;
+};
+
+let location = '';
+let navigate: NavigateFunction;
+const Location = () => {
+  const { pathname, search } = useLocation();
+  location = pathname + search;
+  navigate = useNavigate();
+  return null;
 };
 
 const meter = (name: string) => screen.getByRole('meter', { name: `Used capacity of ${name}` });
@@ -128,15 +144,17 @@ const meter = (name: string) => screen.getByRole('meter', { name: `Used capacity
 // PageBasic measures its content against the nav, so the page needs a nav context.
 const nav = { isNavOpen: true, toggleNav: () => undefined, setNavOpen: () => undefined };
 
-const renderDetailPage = () =>
+const renderDetailPage = (path = '/') =>
   renderPage(
     <NavContext.Provider value={nav}>
       <NodeDetail />
+      <Location />
     </NavContext.Provider>,
+    path,
   );
 
-const renderDetail = async () => {
-  const utils = renderDetailPage();
+const renderDetail = async (path?: string) => {
+  const utils = renderDetailPage(path);
   await screen.findByRole('heading', { name: 'gui01' });
   return utils;
 };
@@ -146,6 +164,7 @@ describe('NodeDetail', () => {
     vi.resetAllMocks();
     uiMode = 'NORMAL';
     activeController = undefined;
+    grafanaOn = true;
     vi.mocked(getNodes).mockResolvedValue({ data: [node] } as never);
     vi.mocked(getControllerVersion).mockResolvedValue({ data: { rest_api_version: '1.28.0' } } as never);
     vi.mocked(getNetWorkInterfaceByNode).mockResolvedValue({ data: interfaces } as never);
@@ -215,7 +234,7 @@ describe('NodeDetail', () => {
   });
 
   it('meters every pool with storage, then all of them together, and flags a nearly full one', async () => {
-    const { container } = await renderDetail();
+    await renderDetail();
     await screen.findByRole('meter', { name: 'Used capacity of pool-a' });
 
     expect(meter('pool-a')).toHaveAttribute('aria-valuenow', '60');
@@ -225,7 +244,7 @@ describe('NodeDetail', () => {
     expect(meter('All pools on gui01')).toHaveAttribute('aria-valuenow', '22');
     expect(screen.queryByRole('meter', { name: /DfltDisklessStorPool/ })).toBeNull();
 
-    const card = cardByTitle(container, 'Storage pool info');
+    const card = screen.getByRole('tabpanel', { name: 'Storage pools' });
     expect(card).toHaveTextContent('60.00 GiB / 100.00 GiB');
     expect(card).toHaveTextContent('LVM_THIN');
     expect(screen.getAllByText('Nearly full')).toHaveLength(1);
@@ -236,8 +255,8 @@ describe('NodeDetail', () => {
   });
 
   it('counts the resources by role and lists each with its state', async () => {
-    const { container } = await renderDetail();
-    const card = cardByTitle(container, 'Resource info');
+    await renderDetail();
+    const card = openTab('Resources');
     await within(card).findByRole('link', { name: 'res1' });
 
     expect(card).toHaveTextContent('3Resources1Primary2Diskful1Diskless');
@@ -264,6 +283,7 @@ describe('NodeDetail', () => {
       'href',
       '/hci/inventory/storage-pools?nodes=gui01&storage_pools=pool-a',
     );
+    openTab('Resources');
     expect(await screen.findByRole('link', { name: 'res1' })).toHaveAttribute(
       'href',
       '/hci/storage-configuration/resource-overview?resource=res1',
@@ -276,12 +296,14 @@ describe('NodeDetail', () => {
     await renderDetail();
 
     expect(await screen.findByText('No storage pools with storage on this node')).toBeInTheDocument();
+    openTab('Resources');
     expect(await screen.findByText('No resources on this node')).toBeInTheDocument();
     expect(screen.queryByRole('meter')).toBeNull();
   });
 
   it('labels the satellite port of each interface', async () => {
     const { container } = await renderDetail();
+    openTab('Network interfaces');
     const item = Array.from(container.querySelectorAll('li')).find((el) =>
       el.textContent?.includes('backup'),
     ) as HTMLElement;
@@ -290,6 +312,7 @@ describe('NodeDetail', () => {
 
   it('deletes an interface on this node and reloads the list', async () => {
     const { container } = await renderDetail();
+    openTab('Network interfaces');
 
     const item = Array.from(container.querySelectorAll('li')).find((el) =>
       el.textContent?.includes('backup'),
@@ -303,6 +326,7 @@ describe('NodeDetail', () => {
 
   it('activates an interface by re-sending it with is_active', async () => {
     const { container } = await renderDetail();
+    openTab('Network interfaces');
 
     const item = Array.from(container.querySelectorAll('li')).find((el) =>
       el.textContent?.includes('backup'),
@@ -321,8 +345,70 @@ describe('NodeDetail', () => {
   it('hands the node name to the create form and the Grafana charts', async () => {
     await renderDetail();
 
+    openTab('Network interfaces');
     expect(screen.getByTestId('create-interface')).toHaveAttribute('data-node', 'gui01');
+    openTab('Performance Metrics');
     expect(screen.getByTestId('grafana')).toHaveAttribute('data-hostname', 'gui01');
+  });
+
+  it('puts the sections under tabs below the summary, opening on the storage pools', async () => {
+    await renderDetail();
+
+    expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual([
+      'Storage pools',
+      'Resources',
+      'Network interfaces',
+      'Performance Metrics',
+    ]);
+    expect(screen.getByRole('tab', { name: 'Storage pools' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.queryByTestId('grafana')).toBeNull();
+  });
+
+  it('leaves out the performance tab while Grafana is off', async () => {
+    grafanaOn = false;
+    await renderDetail();
+
+    expect(screen.queryByRole('tab', { name: 'Performance Metrics' })).toBeNull();
+  });
+
+  it('keeps the open tab in the URL and opens the one the URL names', async () => {
+    const { unmount } = await renderDetail();
+    openTab('Network interfaces');
+    expect(location).toBe('/?tab=network-interfaces');
+    unmount();
+
+    await renderDetail('/?tab=resources');
+    expect(screen.getByRole('tab', { name: 'Resources' })).toHaveAttribute('aria-selected', 'true');
+    // AppLayout strips the query string on every page change; the tab stays.
+    act(() => navigate('/', { replace: true }));
+    expect(location).toBe('/');
+    expect(screen.getByRole('tab', { name: 'Resources' })).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('opens the first tab when the URL names one that is not there', async () => {
+    grafanaOn = false;
+    await renderDetail('/?tab=performance');
+
+    expect(screen.getByRole('tab', { name: 'Storage pools' })).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('pages the resources ten at a time', async () => {
+    const many = Array.from({ length: 12 }, (_, i) => ({
+      name: `res${String(i + 1).padStart(2, '0')}`,
+      flags: [],
+      state: { in_use: false },
+      volumes: [drbdVolume('UpToDate')],
+    }));
+    vi.mocked(getAllResources).mockResolvedValue({ data: many } as never);
+    await renderDetail();
+    const panel = openTab('Resources');
+    await within(panel).findByRole('link', { name: 'res01' });
+
+    expect(tableRows(panel)).toHaveLength(10);
+    expect(panel).toHaveTextContent('Total 12 items');
+    fireEvent.click(within(panel).getByTitle('2'));
+    expect(await within(panel).findByRole('link', { name: 'res12' })).toBeInTheDocument();
+    expect(tableRows(panel)).toHaveLength(2);
   });
 
   it('renders without a node instead of throwing on an empty node list', async () => {
@@ -331,6 +417,7 @@ describe('NodeDetail', () => {
 
     await waitFor(() => expect(getNodes).toHaveBeenCalled());
     expect(screen.getByRole('heading', { name: 'Node Detail' })).toBeInTheDocument();
+    openTab('Network interfaces');
     expect(screen.getByTestId('create-interface')).toHaveAttribute('data-node', '');
   });
 });
