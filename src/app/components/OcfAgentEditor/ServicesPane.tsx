@@ -12,7 +12,7 @@ import {
 } from '@dnd-kit/core';
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import type { FormInstance } from 'antd';
-import { Card, Empty, Form, Space } from 'antd';
+import { Alert, Card, Empty, Form, Space } from 'antd';
 import { Button } from '@app/components/Button';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
@@ -153,6 +153,8 @@ export const ServicesPane = ({
           <Empty description={t('common:no_ocf_agents_found_in_start_array')} />
         ) : (
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+            {/* drbd-reactor chains the start list: each entry depends on the one above it. */}
+            <Alert type="info" showIcon title={t('common:services_order_note')} style={{ marginBottom: 12 }} />
             <SortableContext items={items} strategy={verticalListSortingStrategy}>
               {parsedAgents.map((agentWithMeta, index) => {
                 const { item } = agentWithMeta;

@@ -74,6 +74,7 @@ const ja = {
     select_resource: 'リソースを選択',
     config_file: '設定ファイル',
     no_ocf_agents_found_in_start_array: 'start 配列に OCF エージェントが見つかりません',
+    services_order_note: '順序が重要です：サービスは上から順に起動し、逆順に停止します。',
     add_systemd_mount: 'Systemd/マウントを追加',
     unit_type: 'ユニット種別',
     unit_name: 'ユニット名',

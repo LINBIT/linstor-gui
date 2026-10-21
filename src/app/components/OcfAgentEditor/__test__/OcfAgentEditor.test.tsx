@@ -143,6 +143,9 @@ describe('OcfAgentEditor', () => {
     expect(second).toHaveTextContent('#2');
     expect(second).toHaveTextContent('systemd');
     expect(second).toHaveTextContent('mysql.service');
+    expect(
+      screen.getByText('Order matters: services start from top to bottom and stop in reverse order.'),
+    ).toBeInTheDocument();
 
     expect(toolbar('Save')).toBeDisabled();
     expect(toolbar('Reset')).toBeDisabled();
@@ -408,6 +411,8 @@ describe('OcfAgentEditor', () => {
   it('shows the empty state for a profile without content', async () => {
     renderEditor({ tomlContent: '' });
     expect(await screen.findByText('No OCF agents found in start array')).toBeInTheDocument();
+    // Nothing to put in order yet.
+    expect(screen.queryByText(/^Order matters/)).toBeNull();
   });
 
   describe('create mode', () => {

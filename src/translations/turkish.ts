@@ -75,6 +75,7 @@ const tr = {
     select_resource: 'Kaynak seç',
     config_file: 'Yapılandırma Dosyası',
     no_ocf_agents_found_in_start_array: 'start dizisinde OCF aracısı bulunamadı',
+    services_order_note: 'Sıra önemlidir: hizmetler yukarıdan aşağıya başlatılır ve ters sırada durdurulur.',
     add_systemd_mount: 'Systemd/Mount Ekle',
     unit_type: 'Birim Türü',
     unit_name: 'Birim Adı',

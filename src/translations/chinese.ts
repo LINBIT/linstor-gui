@@ -75,6 +75,7 @@ const zh = {
     select_resource: '选择资源',
     config_file: '配置文件',
     no_ocf_agents_found_in_start_array: 'start 数组中未找到 OCF 代理',
+    services_order_note: '顺序很重要：服务从上到下依次启动，停止时顺序相反。',
     add_systemd_mount: '添加 Systemd/挂载',
     unit_type: '单元类型',
     unit_name: '单元名称',

@@ -75,6 +75,7 @@ const ru = {
     select_resource: 'Выберите ресурс',
     config_file: 'Файл конфигурации',
     no_ocf_agents_found_in_start_array: 'В массиве start не найдено ни одного агента OCF',
+    services_order_note: 'Порядок важен: службы запускаются сверху вниз и останавливаются в обратном порядке.',
     add_systemd_mount: 'Добавить Systemd/Mount',
     unit_type: 'Тип юнита',
     unit_name: 'Имя юнита',

@@ -76,6 +76,8 @@ const de = {
     select_resource: 'Ressource auswählen',
     config_file: 'Konfigurationsdatei',
     no_ocf_agents_found_in_start_array: 'Keine OCF-Agenten im start-Array gefunden',
+    services_order_note:
+      'Die Reihenfolge ist wichtig: Dienste starten von oben nach unten und stoppen in umgekehrter Reihenfolge.',
     add_systemd_mount: 'Systemd/Mount hinzufügen',
     unit_type: 'Unit-Typ',
     unit_name: 'Unit-Name',
