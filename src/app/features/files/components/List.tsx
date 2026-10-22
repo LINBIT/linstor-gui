@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { Space, Table, Tag, Dropdown, Modal, Spin, message } from 'antd';
 import { Select } from '@app/components/Select';
 import { Input } from '@app/components/Input';
@@ -43,6 +43,10 @@ export const List = () => {
   const [modifyFilePath, setModifyFilePath] = useState<string | null>(null);
   const [modifyContent, setModifyContent] = useState('');
   const [modifyLoading, setModifyLoading] = useState(false);
+  // Counts the openings of the modify dialog: a read that comes back after its
+  // dialog was closed, or another file was opened, is dropped, or it would put
+  // that file's content under the open one's path.
+  const modifyRequest = useRef(0);
 
   const { data: files, refetch, isPending } = useFiles(false);
   const { data: resourceDefinitions, isPending: rdLoading } = useResourceDefinitions();
@@ -152,19 +156,23 @@ export const List = () => {
       return;
     }
 
+    const request = ++modifyRequest.current;
     setModifyLoading(true);
     setModifyFilePath(record.path);
+    setModifyContent('');
     setShowModifyModal(true);
 
     try {
       const response = await getFile(record.path);
+      if (request !== modifyRequest.current) return;
       setModifyContent(decodeContent(response?.data?.content));
     } catch {
+      if (request !== modifyRequest.current) return;
       message.error(t('load_content_failed'));
       setShowModifyModal(false);
       setModifyFilePath(null);
     } finally {
-      setModifyLoading(false);
+      if (request === modifyRequest.current) setModifyLoading(false);
     }
   };
 
@@ -340,11 +348,14 @@ export const List = () => {
         title={t('modify_file')}
         open={showModifyModal}
         onCancel={() => {
+          modifyRequest.current++;
           setShowModifyModal(false);
           setModifyFilePath(null);
           setModifyContent('');
+          setModifyLoading(false);
         }}
         onOk={handleModifyConfirm}
+        okButtonProps={{ disabled: modifyLoading }}
         okText={t('common:save')}
         cancelText={t('common:cancel')}
         confirmLoading={createOrUpdateMutation.isPending}

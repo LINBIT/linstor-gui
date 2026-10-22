@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -184,6 +184,41 @@ describe('files List', () => {
     );
     expect(await screen.findByText('File modified successfully')).toBeInTheDocument();
     await waitFor(() => expect(getFiles).toHaveBeenCalledTimes(2));
+  });
+
+  it('modify shows and saves the file that is open, not a slower earlier one', async () => {
+    const pending: Record<string, (value: never) => void> = {};
+    vi.mocked(getFile).mockImplementation((path: string) => new Promise((resolve) => (pending[path] = resolve)));
+    const answer = (path: string) =>
+      act(async () => pending[path]({ data: { path, content: btoa(`content of ${path}`) } } as never));
+    renderList();
+    await screen.findByText(MOUNT);
+
+    fireEvent.click(within(await openRowMenu(MOUNT)).getByText('Modify'));
+    expect(await screen.findByText('Modify File')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    fireEvent.click(within(await openRowMenu(CONF)).getByText('Modify'));
+    await waitFor(() => expect(getFile).toHaveBeenCalledWith(CONF));
+
+    await answer(CONF);
+    await answer(MOUNT);
+    const textarea = await screen.findByDisplayValue(`content of ${CONF}`);
+    fireEvent.change(textarea, { target: { value: 'new content' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() =>
+      expect(createOrUpdateFile).toHaveBeenCalledWith(CONF, { path: CONF, content: btoa('new content') }),
+    );
+  });
+
+  it('modify cannot save while the file is still loading', async () => {
+    vi.mocked(getFile).mockImplementation(() => new Promise(() => {}));
+    renderList();
+    await screen.findByText(MOUNT);
+
+    fireEvent.click(within(await openRowMenu(CONF)).getByText('Modify'));
+    expect(await screen.findByText('Modify File')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
   });
 
   it('deletes after confirm and refetches', async () => {
