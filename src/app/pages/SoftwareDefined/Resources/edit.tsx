@@ -7,6 +7,7 @@
 import { FunctionComponent } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { Empty, Skeleton } from 'antd';
 
 import PageBasic from '@app/components/PageBasic';
 import { CreateResourceForm, getResources } from '@app/features/resource';
@@ -16,29 +17,32 @@ const ResourceEdit: FunctionComponent = () => {
   const { resource, node } = useParams() as { resource: string; node: string };
   const { t } = useTranslation('resource');
 
-  const { data, isPending } = useQuery({
-    queryKey: ['getResource', resource],
-    queryFn: () => {
-      return getResources({
-        resources: [resource],
-        nodes: [node],
-      });
-    },
+  const { data: detailData, isPending } = useQuery({
+    // A resource is one per node: the node belongs in the key, or the page for
+    // another node would open with this one's storage pool.
+    queryKey: ['resourceEdit', resource, node],
+    queryFn: async () => (await getResources({ resources: [resource], nodes: [node] })).data?.[0] ?? null,
     enabled: !!resource,
+    // No cached copy for the next visit: the form would mount with the pool
+    // from before the last edit and ignore the refetched one.
+    gcTime: 0,
   });
 
-  const detailData = data?.data?.[0];
-
-  const initialValues = {
-    ...detailData,
-    storage_pool: detailData?.props?.StorPoolName || '',
-  };
-
-  return (
-    <PageBasic title={t('edit')} loading={isPending}>
-      <CreateResourceForm isEdit initialValues={initialValues} />
-    </PageBasic>
+  // The form reads its initial values once, so it mounts only after the
+  // resource has arrived, and again for another resource or node.
+  const content = isPending ? (
+    <Skeleton active />
+  ) : detailData ? (
+    <CreateResourceForm
+      key={`${node}/${resource}`}
+      isEdit
+      initialValues={{ name: detailData.name, storage_pool: detailData.props?.StorPoolName ?? '' }}
+    />
+  ) : (
+    <Empty />
   );
+
+  return <PageBasic title={t('edit')}>{content}</PageBasic>;
 };
 
 export default ResourceEdit;
