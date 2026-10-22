@@ -118,6 +118,28 @@ describe('AddToNodeModal', () => {
     await waitFor(() => expect(createResourceOnNode).toHaveBeenCalledWith('res-a', 'node-4', true, undefined));
   });
 
+  it('opens for the next resource without the node picked for the last one', async () => {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const view = (open: boolean, resourceName: string) => (
+      <QueryClientProvider client={client}>
+        <AddToNodeModal open={open} resourceName={resourceName} usedNodes={['node-1', 'node-2']} onClose={vi.fn()} />
+      </QueryClientProvider>
+    );
+    const { rerender } = render(view(true, 'res-a'));
+    await screen.findByText('Add Resource to Node - res-a');
+    await waitFor(() => expect(getNodes).toHaveBeenCalled());
+    await pick(screen.getAllByRole('combobox')[0], 'node-3');
+
+    // Cancelled, then opened for another definition.
+    rerender(view(false, 'res-a'));
+    rerender(view(true, 'res-b'));
+    await screen.findByText('Add Resource to Node - res-b');
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+    expect(await screen.findByText('Please select a node')).toBeInTheDocument();
+    expect(createResourceOnNode).not.toHaveBeenCalled();
+  });
+
   it('cancel closes without creating', async () => {
     const { onClose } = renderModal();
     await screen.findByText('Add Resource to Node - res-a');

@@ -83,6 +83,7 @@ export const AddToNodeModal: React.FC<AddToNodeModalProps> = ({
       title={`${t('resource:add_to_node')} - ${resourceName}`}
       open={open}
       onCancel={onClose}
+      destroyOnHidden
       footer={[
         <Button key="cancel" onClick={onClose}>
           {t('common:cancel')}
@@ -92,7 +93,8 @@ export const AddToNodeModal: React.FC<AddToNodeModalProps> = ({
         </Button>,
       ]}
     >
-      <Form form={form} layout="vertical" initialValues={{ drbd_diskless: false }}>
+      {/* Dropped with the dialog, so the next opening starts from its own object, not what was entered last. */}
+      <Form form={form} layout="vertical" initialValues={{ drbd_diskless: false }} clearOnDestroy>
         <Form.Item name="node" label={t('common:node')} rules={[{ required: true, message: 'Please select a node' }]}>
           <Select placeholder={t('node:node_list')} showSearch optionFilterProp="children">
             {nodeList.map((node) => (

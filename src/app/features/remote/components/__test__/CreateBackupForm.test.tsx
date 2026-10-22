@@ -65,6 +65,18 @@ describe('CreateBackupForm', () => {
     expect(refetch).not.toHaveBeenCalled();
   });
 
+  it('opens again without the resource picked before it was cancelled', async () => {
+    renderForm();
+    await open();
+    await pickResource('res-b');
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    await open();
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+    expect(await screen.findByText('Please select a resource')).toBeInTheDocument();
+    expect(createBackup).not.toHaveBeenCalled();
+  });
+
   it('offers each resource once and backs it up incrementally by default', async () => {
     const refetch = renderForm();
     await open();

@@ -269,6 +269,21 @@ describe('snapshot List', () => {
     expect(screen.getByText('Snapshot: snap-b')).toBeInTheDocument();
   });
 
+  it('opens the restore dialog for the next snapshot without the target typed for the last one', async () => {
+    renderList();
+    await screen.findByText('snap-b');
+    fireEvent.click(within(await openRowMenu('snap-b')).getByText('Restore'));
+    await screen.findByText('Snapshot: snap-b');
+    const target = within(screen.getByRole('dialog')).getByRole('combobox');
+    fireEvent.change(target, { target: { value: 'new-res' } });
+    expect(target).toHaveValue('new-res');
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    fireEvent.click(within(await openRowMenu('snap-old')).getByText('Restore'));
+    expect(await screen.findByText('Snapshot: snap-old')).toBeInTheDocument();
+    expect(within(screen.getByRole('dialog')).getByRole('combobox')).toHaveValue('');
+  });
+
   it('shows an empty table when there are no snapshots', async () => {
     vi.mocked(getSnapshots).mockResolvedValue({ data: [] } as never);
     renderList();

@@ -62,6 +62,33 @@ describe('ResourceMigrateForm', () => {
     vi.clearAllMocks();
   });
 
+  it('opens for the next resource without the target picked for the last one', async () => {
+    const client = createQueryClient();
+    const view = (open: boolean, migrationInfo: { node: string; resource: string }) => (
+      <QueryClientProvider client={client}>
+        <ResourceMigrateForm
+          open={open}
+          onCreate={mockOnCreate}
+          migrationInfo={migrationInfo}
+          onCancel={mockOnCancel}
+        />
+      </QueryClientProvider>
+    );
+    const { rerender } = render(view(true, { node: 'node1', resource: 'r1' }));
+    fireEvent.mouseDown(screen.getAllByRole('combobox')[0]);
+    fireEvent.click(await screen.findByText('node2', { selector: '.ant-select-item-option-content' }));
+
+    // Cancelled, then opened for a resource on the node picked as the target.
+    rerender(view(false, { node: 'node1', resource: 'r1' }));
+    rerender(view(true, { node: 'node2', resource: 'r2' }));
+    expect(await screen.findByDisplayValue('r2')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('node2')).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+
+    expect(await screen.findByText('Please select node!')).toBeInTheDocument();
+    expect(mockOnCreate).not.toHaveBeenCalled();
+  });
+
   describe('Basic Rendering', () => {
     it('should not render modal when closed', () => {
       renderWithQueryClient(

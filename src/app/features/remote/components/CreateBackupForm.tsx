@@ -100,6 +100,8 @@ const CreateBackupForm = ({ refetch }: CreateBackupFormProps) => {
             incremental: true,
           }}
           onFinish={onFinish}
+          // The dialog is destroyed when hidden; this drops the values with it.
+          clearOnDestroy
         >
           <Form.Item
             name="rsc_name"

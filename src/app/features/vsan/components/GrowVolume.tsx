@@ -96,6 +96,7 @@ export const GrowVolume = ({ resource, resource_group, current_kib, refetch }: G
         open={modalOpen}
         onCancel={handleCancel}
         width={600}
+        destroyOnHidden
         footer={
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
             <Button type="secondary" onClick={handleCancel}>
@@ -107,12 +108,14 @@ export const GrowVolume = ({ resource, resource_group, current_kib, refetch }: G
           </div>
         }
       >
+        {/* Dropped with the dialog, so the next opening starts from its own object, not what was entered last. */}
         <Form<FormType>
           size="large"
           form={form}
           initialValues={{
             size: current_kib,
           }}
+          clearOnDestroy
         >
           <Form.Item label={t('common:size')}>
             {/* The size takes the room there is; the checkbox goes below it when there is none. */}

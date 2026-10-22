@@ -442,6 +442,8 @@ export const List = () => {
         open={restoreModalInfo.visible}
         onCancel={handleCloseRestoreModal}
         footer={null}
+        // The restore form and its target go with the dialog: the next snapshot starts empty.
+        destroyOnHidden
       >
         <RestoreFrom
           sourceResource={restoreModalInfo.resource}

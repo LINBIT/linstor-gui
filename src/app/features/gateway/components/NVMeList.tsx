@@ -410,8 +410,16 @@ export const NVMeList = ({
             !!(record.volumes && record.volumes.filter((v) => v?.number !== undefined && v.number > 0).length > 0),
         }}
       />
-      <Modal title={t('nvme:add_volume')} open={lunModal} onCancel={() => setLunModal(false)} width={600} footer={null}>
-        <Form<FormType> size="large" form={form}>
+      <Modal
+        title={t('nvme:add_volume')}
+        open={lunModal}
+        onCancel={() => setLunModal(false)}
+        width={600}
+        footer={null}
+        destroyOnHidden
+      >
+        {/* Dropped with the dialog, so the next opening starts from its own object, not what was entered last. */}
+        <Form<FormType> size="large" form={form} clearOnDestroy>
           <Form.Item label={t('common:size')} name="size" required>
             <SizeInput defaultUnit="GiB" />
           </Form.Item>

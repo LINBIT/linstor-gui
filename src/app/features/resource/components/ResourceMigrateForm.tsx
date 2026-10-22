@@ -51,6 +51,7 @@ export const ResourceMigrateForm: React.FC<CollectionCreateFormProps> = ({
       okText={t('common:confirm')}
       cancelText={t('common:cancel')}
       onCancel={onCancel}
+      destroyOnHidden
       onOk={() => {
         form
           .validateFields()
@@ -63,10 +64,12 @@ export const ResourceMigrateForm: React.FC<CollectionCreateFormProps> = ({
           });
       }}
     >
+      {/* Dropped with the dialog, so the next opening starts from its own object, not what was entered last. */}
       <Form
         form={form}
         layout="vertical"
         name="form_in_modal"
+        clearOnDestroy
         initialValues={{ fromnode: migrationInfo.node, resource: migrationInfo.resource }}
       >
         <Form.Item name="fromnode" label={t('resource:from')}>

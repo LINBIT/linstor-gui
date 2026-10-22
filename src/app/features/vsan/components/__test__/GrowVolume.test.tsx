@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { GrowVolume } from '../GrowVolume';
 import { getResourceGroups, resizeTarget } from '../../api';
@@ -50,6 +51,30 @@ describe('GrowVolume', () => {
     expect(await screen.findByText('Resize volume successfully')).toBeInTheDocument();
     expect(refetch).toHaveBeenCalledTimes(1);
     await expectModalClosed();
+  });
+
+  it('opens after a resize with the size the volume has now, not the one typed last', async () => {
+    vi.mocked(resizeTarget).mockResolvedValue({} as never);
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const view = (current_kib: number) => (
+      <QueryClientProvider client={client}>
+        <GrowVolume resource="res1" resource_group="rg1" current_kib={current_kib} refetch={vi.fn()} />
+      </QueryClientProvider>
+    );
+    const { rerender } = render(view(GIB));
+    fireEvent.click(screen.getByRole('button', { name: 'Grow' }));
+    let dialog = await openDialog();
+    fireEvent.change(sizeInput(dialog), { target: { value: String(2 * GIB) } });
+    fireEvent.click(dialogButton(dialog, 'Grow'));
+    await waitFor(() => expect(resizeTarget).toHaveBeenCalledWith('res1', { size: 2 * GIB }));
+    await expectModalClosed();
+
+    // The controller rounds the new size up; the list hands that down.
+    rerender(view(2 * GIB + 4096));
+    // The page's own Grow button, the first one.
+    fireEvent.click(screen.getAllByRole('button', { name: 'Grow' })[0]);
+    dialog = await openDialog();
+    expect(sizeInput(dialog).value).toBe(String(2 * GIB + 4096));
   });
 
   it('fills in the largest possible size when "Use all available" is ticked', async () => {
