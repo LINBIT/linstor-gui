@@ -62,10 +62,20 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
     // it is not sent.
     const startValues = useRef<Record<string, unknown>>({});
 
-    // Both ways of opening (the ref and clicking the children) fill the form
-    // once the dialog, and with it the form, is open. The form was reset when
-    // the dialog last closed: while it is closed there is no form to reset.
-    const openModal = () => {
+    // Both ways of opening (the ref and clicking the children) only ask for
+    // the dialog. The lists set the clicked object's props and open in the same
+    // handler, so initialVal here can still be the previous object's; the
+    // effect below builds the form after the render that carries the props
+    // this opening is for. The form was reset when the dialog last closed:
+    // while it is closed there is no form to reset.
+    const [openRequest, setOpenRequest] = useState(0);
+    const builtFor = useRef(0);
+    const openModal = () => setOpenRequest((n) => n + 1);
+
+    useEffect(() => {
+      if (openRequest === builtFor.current) return;
+      builtFor.current = openRequest;
+
       const currentInitial = initialVal;
       setCurrentInitialVal(currentInitial);
 
@@ -110,12 +120,15 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
 
       setModalVisible(true);
 
+      // A field the last object had keeps that object's value in the form after
+      // the dialog closed, and would show it again when the property is added
+      // here: clear the ones this object does not show, so an added field starts
+      // from its own initial value.
       setTimeout(() => {
-        if (currentInitial) {
-          form.setFieldsValue(formValues);
-        }
+        const stale = Object.keys(form.getFieldsValue(true)).filter((key) => !(key in formValues));
+        form.setFieldsValue({ ...Object.fromEntries(stale.map((key) => [key, undefined])), ...formValues });
       }, 50);
-    };
+    }, [openRequest, initialVal, type, form]);
 
     useImperativeHandle(ref, () => ({
       openModal,

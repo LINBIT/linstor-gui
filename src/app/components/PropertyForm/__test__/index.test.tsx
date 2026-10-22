@@ -424,6 +424,92 @@ describe('PropertyForm', () => {
     );
   });
 
+  // The lists set the clicked object's props and open the dialog in one click handler, so the
+  // dialog opens before it has been given the new props.
+  describe('opened for one object after another', () => {
+    const objects: Record<string, Record<string, string>> = {
+      a: { TcpPortAutoRange: '7000-7999', 'Aux/owner': 'team-a' },
+      b: { TcpPortAutoRange: '8000-8999', 'Aux/owner': 'team-b' },
+      c: { 'Aux/owner': 'team-c' },
+    };
+    const Host = ({ handleSubmit }: { handleSubmit: () => void }) => {
+      const ref = React.useRef<PropertyFormRef>(null);
+      const [props, setProps] = React.useState<Record<string, string>>();
+      const open = (name: string) => {
+        setProps(objects[name]);
+        ref.current?.openModal();
+      };
+      return (
+        <>
+          <button onClick={() => open('a')}>Open a</button>
+          <button onClick={() => open('b')}>Open b</button>
+          <button onClick={() => open('c')}>Open c</button>
+          <PropertyForm ref={ref} type="controller" initialVal={props} handleSubmit={handleSubmit} />
+        </>
+      );
+    };
+    const openA = async () => {
+      fireEvent.click(screen.getByText('Open a'));
+      await screen.findByDisplayValue('7000-7999');
+      fireEvent.click(screen.getByText('Cancel'));
+      await waitFor(() => expect(screen.queryByText('Property Editor')).not.toBeInTheDocument());
+    };
+
+    test('shows the second object and sends a value it shares with the first', async () => {
+      const handleSubmit = vi.fn();
+      render(<Host handleSubmit={handleSubmit} />);
+      await openA();
+
+      fireEvent.click(screen.getByText('Open b'));
+      const range = await screen.findByDisplayValue('8000-8999');
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      expect(range).toHaveValue('8000-8999');
+      expect(screen.getByDisplayValue('team-b')).toBeInTheDocument();
+
+      fireEvent.change(range, { target: { value: '7000-7999' } });
+      fireEvent.change(screen.getByDisplayValue('team-b'), { target: { value: 'team-a' } });
+      fireEvent.click(screen.getByText('Submit'));
+
+      await waitFor(() =>
+        expect(handleSubmit).toHaveBeenCalledWith({
+          override_props: { TcpPortAutoRange: '7000-7999', 'Aux/owner': 'team-a' },
+          delete_props: [],
+        }),
+      );
+    });
+
+    test('adds a property the second object lacks without the value it had on the first', async () => {
+      render(<Host handleSubmit={vi.fn()} />);
+      await openA();
+
+      fireEvent.click(screen.getByText('Open c'));
+      await screen.findByDisplayValue('team-c');
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      const picker = screen.getAllByRole('combobox')[0];
+      fireEvent.mouseDown(picker);
+      fireEvent.change(picker, { target: { value: 'TcpPortAutoRange' } });
+      await screen.findAllByLabelText('TcpPortAutoRange');
+      fireEvent.click(document.querySelector('.ant-select-item-option') as HTMLElement);
+      fireEvent.click(screen.getByText('Add'));
+
+      await waitFor(() => expect(document.getElementById('TcpPortAutoRange')).toBeInTheDocument());
+      expect(document.getElementById('TcpPortAutoRange')).not.toHaveValue('7000-7999');
+    });
+
+    test('sends nothing for the second object when nothing changed', async () => {
+      const handleSubmit = vi.fn();
+      render(<Host handleSubmit={handleSubmit} />);
+      await openA();
+
+      fireEvent.click(screen.getByText('Open b'));
+      await screen.findByDisplayValue('8000-8999');
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      fireEvent.click(screen.getByText('Submit'));
+
+      await waitFor(() => expect(handleSubmit).toHaveBeenCalledWith({ override_props: {}, delete_props: [] }));
+    });
+  });
+
   // Some true/false properties read True (the defaults the controller writes when it creates
   // its database), others true.
   test.each([
