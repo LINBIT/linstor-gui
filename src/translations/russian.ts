@@ -1107,6 +1107,10 @@ org_role = Viewer`,
     unofficial_build_header_get_official: 'Для официальных сборок',
   },
   ha: {
+    reactor_not_installed_anywhere:
+      'drbd-reactor не установлен ни на одном узле. Установите его на узлах, где должны работать эти службы.',
+    reactor_not_installed_on: 'drbd-reactor не установлен на: {{nodes}}',
+    reactor_status_failed: 'Не удалось прочитать состояние drbd-reactor на {{node}}: {{message}}',
     manage_ha_configuration: 'Управление конфигурацией HA',
     select_unmanaged_configuration_file: 'Выберите неуправляемый файл конфигурации',
     primary_node: 'Первичный узел',

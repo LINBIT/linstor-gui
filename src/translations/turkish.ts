@@ -1108,6 +1108,10 @@ org_role = Viewer`,
     unofficial_build_header_get_official: 'Resmi yapılandırmalar için',
   },
   ha: {
+    reactor_not_installed_anywhere:
+      'drbd-reactor hiçbir düğümde kurulu değil. Bu hizmetleri çalıştıracak düğümlere kurun.',
+    reactor_not_installed_on: 'drbd-reactor şu düğümlerde kurulu değil: {{nodes}}',
+    reactor_status_failed: '{{node}} üzerindeki drbd-reactor durumu okunamadı: {{message}}',
     manage_ha_configuration: 'HA Yapılandırmasını Yönet',
     select_unmanaged_configuration_file: 'Yönetilmeyen bir yapılandırma dosyası seçin',
     primary_node: 'Birincil Düğüm',

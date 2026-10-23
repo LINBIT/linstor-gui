@@ -1116,6 +1116,10 @@ org_role = Viewer`,
     unofficial_build_header_get_official: 'Para compilaciones oficiales',
   },
   ha: {
+    reactor_not_installed_anywhere:
+      'drbd-reactor no está instalado en ningún nodo. Instálelo en los nodos que deben ejecutar estos servicios.',
+    reactor_not_installed_on: 'drbd-reactor no está instalado en: {{nodes}}',
+    reactor_status_failed: 'No se pudo leer el estado de drbd-reactor en {{node}}: {{message}}',
     manage_ha_configuration: 'Gestionar la configuración de HA',
     select_unmanaged_configuration_file: 'Seleccione un archivo de configuración no gestionado',
     primary_node: 'Nodo primario',

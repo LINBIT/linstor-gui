@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { useState } from 'react';
-import { Table } from 'antd';
+import { useTranslation } from 'react-i18next';
+import { Alert, Table } from 'antd';
 
 import { useHA } from './useHA';
 import { Button } from '@app/components/Button';
@@ -19,6 +20,7 @@ import { ManageModal } from './ManageModal';
 import { useUnmanagedFiles } from './useUnmanagedFiles';
 
 export const List = () => {
+  const { t } = useTranslation(['ha']);
   const { data, isPending: isLoading } = useHA();
 
   const reactor = useReactorActions();
@@ -38,8 +40,40 @@ export const List = () => {
 
   const columns = useHAColumns({ reactor, onViewFile: openViewModal, onDelete: deletion.setDeleteTarget });
 
+  // Nodes that gave no status: without drbd-reactor they would otherwise just show nothing.
+  const failures = reactor.reactorFailures ?? [];
+  const notInstalled = failures.filter((f) => f.notInstalled).map((f) => f.node);
+  const otherFailures = failures.filter((f) => !f.notInstalled);
+  const installedNowhere = notInstalled.length > 0 && notInstalled.length === reactor.nodeNames.length;
+
   return (
     <>
+      {notInstalled.length > 0 && (
+        <Alert
+          className="mb-4"
+          type="warning"
+          showIcon
+          title={
+            installedNowhere
+              ? t('ha:reactor_not_installed_anywhere')
+              : t('ha:reactor_not_installed_on', { nodes: notInstalled.join(', ') })
+          }
+        />
+      )}
+      {otherFailures.length > 0 && (
+        <Alert
+          className="mb-4"
+          type="error"
+          showIcon
+          title={
+            <>
+              {otherFailures.map((f) => (
+                <div key={f.node}>{t('ha:reactor_status_failed', { node: f.node, message: f.message })}</div>
+              ))}
+            </>
+          }
+        />
+      )}
       {unmanagedFiles.length > 0 && (
         <div className="mb-4">
           <Button onClick={() => setManageModalVisible(true)}>Manage ({unmanagedFiles.length} unmanaged)</Button>

@@ -52,7 +52,7 @@ import {
   deleteFile,
   undeployFile,
 } from '../api';
-import type { DrbdReactorStatus } from '../api';
+import type { DrbdReactorFailure, DrbdReactorStatus } from '../api';
 import { List } from '../List';
 
 const MYSQL_KEY = 'files/etc/drbd-reactor.d/mysql.toml';
@@ -137,6 +137,12 @@ const later =
   () =>
     new Promise<T>((resolve) => setTimeout(() => resolve(value), 15));
 
+// What getDrbdReactorStatus resolves to: each node's status and the nodes that gave none.
+const report = (status: Record<string, DrbdReactorStatus>, failures: DrbdReactorFailure[] = []) => ({
+  status,
+  failures,
+});
+
 describe('DRBD Reactor List', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -151,7 +157,7 @@ describe('DRBD Reactor List', () => {
           data: resourcesView[name ?? ''] ?? [],
         }) as never,
     );
-    vi.mocked(getDrbdReactorStatus).mockImplementation(later(runningStatus));
+    vi.mocked(getDrbdReactorStatus).mockImplementation(later(report(runningStatus)));
     vi.mocked(evictDrbdReactor).mockResolvedValue([{ node: 'node-a', exit_code: 0, active_node: 'node-b' }] as never);
     vi.mocked(disableDrbdReactor).mockResolvedValue([{ node: 'node-a', exit_code: 0 }] as never);
     vi.mocked(enableDrbdReactor).mockResolvedValue([{ node: 'node-a', exit_code: 0 }] as never);
@@ -178,6 +184,59 @@ describe('DRBD Reactor List', () => {
 
     expect(within(mysql).getByText(MYSQL_PATH)).toBeInTheDocument();
     expect(getDrbdReactorStatus).toHaveBeenCalledWith(['node-a', 'node-b']);
+  });
+
+  describe('nodes that give no drbd-reactor status', () => {
+    const NOT_FOUND = 'Cannot run program "drbd-reactorctl": Exec failed, error: 2 (No such file or directory)';
+
+    it('names the nodes without drbd-reactor', async () => {
+      vi.mocked(getDrbdReactorStatus).mockImplementation(
+        later(
+          report({ 'node-a': runningStatus['node-a'] }, [{ node: 'node-b', notInstalled: true, message: NOT_FOUND }]),
+        ),
+      );
+      renderList();
+      expect(await screen.findByText('drbd-reactor is not installed on: node-b')).toBeInTheDocument();
+    });
+
+    it('says so when no node has drbd-reactor', async () => {
+      vi.mocked(getDrbdReactorStatus).mockImplementation(
+        later(
+          report({}, [
+            { node: 'node-a', notInstalled: true, message: NOT_FOUND },
+            { node: 'node-b', notInstalled: true, message: NOT_FOUND },
+          ]),
+        ),
+      );
+      renderList();
+      expect(
+        await screen.findByText(
+          'drbd-reactor is not installed on any node. Install it on the nodes that should run these services.',
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it('shows any other failure with its message', async () => {
+      vi.mocked(getDrbdReactorStatus).mockImplementation(
+        later(
+          report({ 'node-a': runningStatus['node-a'] }, [
+            { node: 'node-b', notInstalled: false, message: 'Error: cannot read config' },
+          ]),
+        ),
+      );
+      renderList();
+      expect(
+        await screen.findByText('Could not read the drbd-reactor status on node-b: Error: cannot read config'),
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/is not installed/)).toBeNull();
+    });
+
+    it('shows nothing when every node answers', async () => {
+      renderList();
+      await screen.findByText('ha-mysql');
+      await within(rowOf('ha-mysql')).findByText('Running');
+      expect(screen.queryByText(/drbd-reactor is not installed|Could not read the drbd-reactor status/)).toBeNull();
+    });
   });
 
   it('shows the promoter tree on the status tag', async () => {
@@ -270,8 +329,8 @@ describe('DRBD Reactor List', () => {
 
   it('stop disables the standby nodes first, then the active one with --now', async () => {
     vi.mocked(getDrbdReactorStatus)
-      .mockImplementationOnce(later(runningStatus))
-      .mockImplementation(later(stoppedStatus));
+      .mockImplementationOnce(later(report(runningStatus)))
+      .mockImplementation(later(report(stoppedStatus)));
     renderList();
     const mysql = (await screen.findByText('ha-mysql')).closest('tr') as HTMLElement;
     await within(mysql).findByText('Running');
@@ -302,8 +361,8 @@ describe('DRBD Reactor List', () => {
       'node-b': { promoter: [mysqlPromoter('inactive')] },
     };
     vi.mocked(getDrbdReactorStatus)
-      .mockImplementationOnce(later(runningStatus))
-      .mockImplementation(later(startedStatus));
+      .mockImplementationOnce(later(report(runningStatus)))
+      .mockImplementation(later(report(startedStatus)));
     renderList();
     await screen.findByText('ha-stopped');
     await within(rowOf('ha-stopped')).findByText('Stopped');

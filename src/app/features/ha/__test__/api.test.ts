@@ -106,7 +106,7 @@ describe('ha api', () => {
       expect(post).toHaveBeenCalledWith(exec('status'), { body: { nodes: ['node-a', 'node-b'], wait: false } });
     });
 
-    it("parses each node's JSON status and skips failed or unparsable nodes", async () => {
+    it("parses each node's JSON status and reports why a node gave none", async () => {
       vi.mocked(post).mockResolvedValue({
         data: [
           {
@@ -114,14 +114,29 @@ describe('ha api', () => {
             exit_code: 0,
             stdout_utf8: JSON.stringify({ promoter: [{ drbd_resource: 'r', status: 'active' }] }),
           },
-          { node: 'node-b', exit_code: 1, stdout_utf8: '', stderr_utf8: 'no reactor' },
+          { node: 'node-b', exit_code: 1, stdout_utf8: '', stderr_utf8: 'Error: cannot read config\n' },
           { node: 'node-c', exit_code: 0, stdout_utf8: 'not json' },
+          // What a satellite without drbd-reactor answers.
+          {
+            node: 'node-d',
+            exit_code: -1,
+            stdout_utf8: '',
+            stderr_utf8: 'Cannot run program "drbd-reactorctl": Exec failed, error: 2 (No such file or directory) ',
+          },
         ],
       } as never);
-      const status = await getDrbdReactorStatus(['node-a', 'node-b', 'node-c']);
+      const { status, failures } = await getDrbdReactorStatus(['node-a', 'node-b', 'node-c', 'node-d']);
       expect(Object.keys(status)).toEqual(['node-a']);
       expect(status['node-a'].promoter?.[0].drbd_resource).toBe('r');
       expect(logger.error).toHaveBeenCalledWith(expect.stringContaining('node-c'), expect.anything());
+      expect(failures).toEqual([
+        { node: 'node-b', notInstalled: false, message: 'Error: cannot read config' },
+        {
+          node: 'node-d',
+          notInstalled: true,
+          message: 'Cannot run program "drbd-reactorctl": Exec failed, error: 2 (No such file or directory)',
+        },
+      ]);
     });
 
     it('sends the evict, disable, enable and restart bodies', async () => {

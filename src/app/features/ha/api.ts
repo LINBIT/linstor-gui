@@ -105,24 +105,44 @@ interface DrbdReactorStatus {
   }>;
 }
 
-// Get DRBD Reactor status from nodes
-const getDrbdReactorStatus = async (nodes: string[]): Promise<Record<string, DrbdReactorStatus>> => {
+// A node that gave no status, and why.
+interface DrbdReactorFailure {
+  node: string;
+  // The satellite could not start drbd-reactorctl at all: drbd-reactor is not installed there.
+  notInstalled: boolean;
+  message: string;
+}
+
+interface DrbdReactorReport {
+  status: Record<string, DrbdReactorStatus>;
+  failures: DrbdReactorFailure[];
+}
+
+// What the satellite reports when the program is missing, e.g.
+// `Cannot run program "drbd-reactorctl": Exec failed, error: 2 (No such file or directory)`.
+const NOT_INSTALLED = /Cannot run program "drbd-reactorctl".*No such file or directory/;
+
+// Get DRBD Reactor status from nodes, with the reason for each node that gave none.
+const getDrbdReactorStatus = async (nodes: string[]): Promise<DrbdReactorReport> => {
   const results: ExecResponse[] = await unwrap(
     post('/v1/nodes/exec/drbd-reactorctl/status', { body: { nodes, wait: false } }),
   );
-  const statusMap: Record<string, DrbdReactorStatus> = {};
+  const report: DrbdReactorReport = { status: {}, failures: [] };
 
   for (const result of results) {
     if (result.exit_code === 0 && result.stdout_utf8) {
       try {
-        statusMap[result.node] = JSON.parse(result.stdout_utf8) as DrbdReactorStatus;
+        report.status[result.node] = JSON.parse(result.stdout_utf8) as DrbdReactorStatus;
       } catch (e) {
         logger.error(`Failed to parse status for node ${result.node}:`, e);
       }
+    } else if (result.exit_code !== 0) {
+      const message = (result.stderr_utf8 || result.stdout_utf8 || '').trim();
+      report.failures.push({ node: result.node, notInstalled: NOT_INSTALLED.test(message), message });
     }
   }
 
-  return statusMap;
+  return report;
 };
 
 // Evict DRBD Reactor resource on nodes
@@ -180,4 +200,4 @@ export {
   undeployFile,
 };
 
-export type { ExecResponse, DrbdReactorStatus };
+export type { ExecResponse, DrbdReactorStatus, DrbdReactorFailure, DrbdReactorReport };

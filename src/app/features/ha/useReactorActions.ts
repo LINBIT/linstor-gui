@@ -8,7 +8,13 @@ import { useState, useMemo, useEffect } from 'react';
 import { message } from 'antd';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNodes } from '@app/features/node/hooks/useNode';
-import { useDrbdReactorStatus, useEvictDrbdReactor, useDisableDrbdReactor, useEnableDrbdReactor } from './useHA';
+import {
+  useDrbdReactorStatus,
+  useDrbdReactorFailures,
+  useEvictDrbdReactor,
+  useDisableDrbdReactor,
+  useEnableDrbdReactor,
+} from './useHA';
 import { getEvictOutcome } from './evict';
 import {
   type HARecord,
@@ -48,6 +54,7 @@ export const useReactorActions = () => {
     dataUpdatedAt: reactorStatusUpdatedAt,
     refetch: refetchReactorStatus,
   } = useDrbdReactorStatus(nodeNames, nodeNames.length > 0, evictingResource || stoppingResource ? 5000 : false);
+  const { data: reactorFailures } = useDrbdReactorFailures(nodeNames);
 
   // Evict mutation
   const evictMutation = useEvictDrbdReactor();
@@ -274,8 +281,10 @@ export const useReactorActions = () => {
   };
 
   return {
+    nodeNames,
     reactorStatus,
     reactorStatusLoading,
+    reactorFailures,
     disableMutation,
     getPrimaryNode,
     isResourceActive,

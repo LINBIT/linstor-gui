@@ -1123,6 +1123,10 @@ org_role = Viewer`,
     unofficial_build_header_get_official: 'Pour les versions officielles',
   },
   ha: {
+    reactor_not_installed_anywhere:
+      "drbd-reactor n'est installé sur aucun nœud. Installez-le sur les nœuds qui doivent exécuter ces services.",
+    reactor_not_installed_on: "drbd-reactor n'est pas installé sur : {{nodes}}",
+    reactor_status_failed: "Impossible de lire l'état de drbd-reactor sur {{node}} : {{message}}",
     manage_ha_configuration: 'Gérer la configuration HA',
     select_unmanaged_configuration_file: 'Sélectionner un fichier de configuration non géré',
     primary_node: 'Nœud primaire',

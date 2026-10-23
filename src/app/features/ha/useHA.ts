@@ -145,6 +145,18 @@ export const useDrbdReactorStatus = (nodes: string[], enabled = true, refetchInt
     enabled: enabled && nodes.length > 0,
     retry: 1, // One retry is enough; the controller is either up or failing over
     refetchInterval,
+    select: (report) => report.status,
+  });
+};
+
+// The nodes that gave no status, from the same request as useDrbdReactorStatus.
+export const useDrbdReactorFailures = (nodes: string[]) => {
+  return useQuery({
+    queryKey: ['drbd-reactor-status', nodes],
+    queryFn: () => getDrbdReactorStatus(nodes),
+    enabled: nodes.length > 0,
+    retry: 1,
+    select: (report) => report.failures,
   });
 };
 

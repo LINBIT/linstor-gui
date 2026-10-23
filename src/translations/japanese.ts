@@ -1108,6 +1108,10 @@ org_role = Viewer`,
     unofficial_build_header_get_official: '公式ビルドのために',
   },
   ha: {
+    reactor_not_installed_anywhere:
+      'どのノードにも drbd-reactor がインストールされていません。これらのサービスを実行するノードにインストールしてください。',
+    reactor_not_installed_on: 'drbd-reactor がインストールされていないノード: {{nodes}}',
+    reactor_status_failed: '{{node}} の drbd-reactor の状態を読み取れませんでした: {{message}}',
     manage_ha_configuration: 'HA 設定を管理',
     select_unmanaged_configuration_file: '未管理の設定ファイルを選択',
     primary_node: 'プライマリノード',

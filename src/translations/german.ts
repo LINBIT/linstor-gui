@@ -1129,6 +1129,10 @@ org_role = Viewer`,
     unofficial_build_header_get_official: 'Für offizielle Builds',
   },
   ha: {
+    reactor_not_installed_anywhere:
+      'drbd-reactor ist auf keinem Knoten installiert. Installieren Sie es auf den Knoten, die diese Dienste ausführen sollen.',
+    reactor_not_installed_on: 'drbd-reactor ist nicht installiert auf: {{nodes}}',
+    reactor_status_failed: 'Der drbd-reactor-Status auf {{node}} konnte nicht gelesen werden: {{message}}',
     manage_ha_configuration: 'HA-Konfiguration verwalten',
     select_unmanaged_configuration_file: 'Eine nicht verwaltete Konfigurationsdatei auswählen',
     primary_node: 'Primärer Knoten',

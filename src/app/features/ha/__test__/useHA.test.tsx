@@ -71,7 +71,7 @@ describe('ha hooks', () => {
       ],
     } as never);
     vi.mocked(getFileContent).mockResolvedValue({ data: { content: 'YQ==' } } as never);
-    vi.mocked(getDrbdReactorStatus).mockResolvedValue({} as never);
+    vi.mocked(getDrbdReactorStatus).mockResolvedValue({ status: {}, failures: [] } as never);
     for (const fn of [deployFile, deleteFile, undeployFile, createFile]) {
       vi.mocked(fn).mockResolvedValue({ data: [] } as never);
     }
