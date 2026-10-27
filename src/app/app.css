@@ -144,6 +144,15 @@ body {
   text-overflow: ellipsis;
 }
 
+/* A table that scrolls sideways (or has a fixed header) sizes its columns
+ * from a hidden measuring row holding a copy of each column title, the
+ * selection column's Select all checkbox among them. The row is aria-hidden,
+ * but the copy could still take keyboard focus. Hidden this way it cannot,
+ * and the row still lays out, so the measuring is unchanged. */
+.ant-table-measure-row {
+  visibility: hidden;
+}
+
 /* Keep the shell itself from ever growing wider than the viewport. */
 .ant-layout {
   min-width: 0;
