@@ -52,6 +52,8 @@
 //     --format <f>     json (default) | ts   — `ts` emits `export const allAgents = ...`
 //     --out <file>     Output path                 (default: agents.json)
 //     --ref <ref>      Branch/tag to clone         (default: per-source default)
+//     --release        With --all: clone each upstream's newest release tag
+//                      (no release candidates) instead of its default branch.
 //     --repo <url>     Repo URL                    (default: ClusterLabs/resource-agents)
 //     --subdir <dir>   Agent dir inside the repo   (default: heartbeat)
 //     --provider <p>   Provider name in output     (default: heartbeat)
@@ -92,18 +94,21 @@ const SOURCES = [
     // directory, so the provider is assembled from two paths.
     subdirs: ['heartbeat', 'ldirectord/OCF'],
     ref: 'main',
+    releaseTag: /^v(\d+)\.(\d+)\.(\d+)$/,
   },
   {
     provider: 'linbit',
     repo: 'https://github.com/LINBIT/drbd-utils.git',
     subdir: 'scripts',
     ref: 'master',
+    releaseTag: /^v(\d+)\.(\d+)\.(\d+)$/,
   },
   {
     provider: 'pacemaker',
     repo: 'https://github.com/ClusterLabs/pacemaker.git',
     subdir: 'agents/ocf',
     ref: 'main',
+    releaseTag: /^Pacemaker-(\d+)\.(\d+)\.(\d+)$/,
   },
 ];
 
@@ -138,6 +143,7 @@ function parseArgs(argv) {
       case '--only': opts.only = argv[++i]; break;
       case '--dump': opts.dump = true; break;
       case '--all': opts.all = true; break;
+      case '--release': opts.release = true; break;
       case '--format': opts.format = argv[++i]; break;
       case '--merge': opts.merge = argv[++i]; break;
       case '-h': case '--help':
@@ -534,6 +540,23 @@ function readSourcedHelpers(script, agentsDir) {
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
+// The newest tag of `repo` matching `pattern`, whose groups are the numeric
+// version parts (major, minor, patch).
+function latestReleaseTag(repo, pattern) {
+  const tags = execFileSync('git', ['ls-remote', '--tags', '--refs', repo], { encoding: 'utf8' })
+    .split('\n')
+    .map((line) => line.split('refs/tags/')[1])
+    .filter((tag) => tag && pattern.test(tag));
+  const version = (tag) => tag.match(pattern).slice(1).map(Number);
+  tags.sort((a, b) => {
+    const [va, vb] = [version(a), version(b)];
+    const i = va.findIndex((n, j) => n !== vb[j]);
+    return i === -1 ? 0 : va[i] - vb[i];
+  });
+  if (!tags.length) throw new Error(`no release tag in ${repo} matches ${pattern}`);
+  return tags[tags.length - 1];
+}
+
 // Build one provider's agent list from a checkout (cloning if needed).
 // Returns { agents, scanned, failures }.
 function buildProvider({ repo, ref, subdir, subdirs, provider, src, keep }, opts) {
@@ -726,6 +749,11 @@ function main() {
         ref: opts.ref || 'main',
       }];
 
+  if (opts.release && (!opts.all || opts.ref)) {
+    console.error('--release picks each upstream\'s tag; it needs --all and cannot be combined with --ref.');
+    process.exit(2);
+  }
+
   if (opts.all && opts.src) {
     console.error('--all clones three upstreams; it cannot be combined with --src.');
     process.exit(2);
@@ -736,9 +764,18 @@ function main() {
   const allFailures = [];
 
   for (const s of sources) {
+    let ref = opts.ref || s.ref;
+    if (opts.release) {
+      try {
+        ref = latestReleaseTag(s.repo, s.releaseTag);
+      } catch (e) {
+        console.error(e.message);
+        process.exit(1);
+      }
+    }
     const cfg = {
       ...s,
-      ref: opts.ref || s.ref,
+      ref,
       src: opts.all ? null : opts.src,
       keep: opts.keep,
     };
