@@ -52,7 +52,7 @@ export const DeviceSourceSelect: React.FC<Props> = ({ id, mode, node, value, onC
         options={options}
         value={value}
         onChange={onChange}
-        style={{ width: '100%' }}
+        className="w-full"
       />
     );
   }
@@ -69,7 +69,7 @@ export const DeviceSourceSelect: React.FC<Props> = ({ id, mode, node, value, onC
       onChange={(v?: string) => onChange?.(v ?? '')}
       placeholder={placeholder ?? 'VG / thin pool (e.g. vg1/pool1)'}
       options={[]}
-      style={{ width: '100%' }}
+      className="w-full"
     />
   );
 };

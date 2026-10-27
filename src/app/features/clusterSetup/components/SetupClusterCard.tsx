@@ -10,7 +10,6 @@ import { CloudServerOutlined, DatabaseOutlined, RocketOutlined } from '@ant-desi
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@app/components/Button';
-import { cssVar } from '@app/const/themeTokens';
 
 export interface SetupClusterCardProps {
   onStart: () => void;
@@ -22,9 +21,8 @@ export const SetupClusterCard: React.FC<SetupClusterCardProps> = ({ onStart, onD
 
   return (
     <Card
+      className="border-2 border-(--brand-accent)"
       style={{
-        borderColor: cssVar('brand/accent'),
-        borderWidth: 2,
         // Subtle brand tint fading to the page background — theme-aware
         // (the old hardcoded #fff8f1→#fff washed the text out in dark mode).
         background:
@@ -32,45 +30,32 @@ export const SetupClusterCard: React.FC<SetupClusterCardProps> = ({ onStart, onD
       }}
       styles={{ body: { padding: 24 } }}
     >
-      <Space size="large" align="start" style={{ width: '100%' }} wrap>
-        <div
-          style={{
-            width: 56,
-            height: 56,
-            borderRadius: 12,
-            background: cssVar('bg/chip/brand'),
-            color: cssVar('brand/accent'),
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 28,
-            flex: '0 0 auto',
-          }}
-        >
+      <Space size="large" align="start" className="w-full" wrap>
+        <div className="flex size-14 flex-none items-center justify-center rounded-xl bg-(--bg-chip-brand) text-[28px] text-(--brand-accent)">
           <RocketOutlined />
         </div>
 
-        <div style={{ flex: 1, minWidth: 280 }}>
-          <Typography.Title level={4} style={{ marginTop: 0, marginBottom: 8 }}>
+        <div className="flex-1 min-w-[280px]">
+          <Typography.Title level={4} className="mt-0 mb-2">
             {t('clusterSetup:welcome_title')}
           </Typography.Title>
-          <Typography.Paragraph type="secondary" style={{ marginBottom: 12 }}>
+          <Typography.Paragraph type="secondary" className="mb-3">
             {t('clusterSetup:welcome_description')}
           </Typography.Paragraph>
           <Space size={[24, 8]} wrap>
             <Space size={6}>
-              <CloudServerOutlined style={{ color: cssVar('brand/accent') }} />
+              <CloudServerOutlined className="text-(--brand-accent)" />
               <Typography.Text>{t('clusterSetup:welcome_bullet_nodes')}</Typography.Text>
             </Space>
             <Space size={6}>
-              <DatabaseOutlined style={{ color: cssVar('brand/accent') }} />
+              <DatabaseOutlined className="text-(--brand-accent)" />
               <Typography.Text>{t('clusterSetup:welcome_bullet_pools')}</Typography.Text>
             </Space>
           </Space>
         </div>
       </Space>
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 24 }}>
+      <div className="flex justify-end gap-2 mt-6">
         <Button type="default" size="large" onClick={onDismiss}>
           {t('clusterSetup:dismiss')}
         </Button>

@@ -84,7 +84,7 @@ export const ResourceGroupStep = forwardRef<ResourceGroupStepHandle, ResourceGro
 
   return (
     <Form form={form} layout="vertical" initialValues={{ place_count: 2 }}>
-      <Alert type="info" showIcon title={t('clusterSetup:rg_hint')} style={{ marginBottom: 16 }} />
+      <Alert type="info" showIcon title={t('clusterSetup:rg_hint')} className="mb-4" />
 
       <Form.Item
         name="name"
@@ -95,7 +95,7 @@ export const ResourceGroupStep = forwardRef<ResourceGroupStepHandle, ResourceGro
       </Form.Item>
 
       <Form.Item name="place_count" label={t('clusterSetup:place_count')}>
-        <InputNumber min={1} max={32} style={{ width: 160 }} />
+        <InputNumber min={1} max={32} className="w-[160px]" />
       </Form.Item>
 
       <Form.Item label={t('clusterSetup:service_label')} extra={t('clusterSetup:service_hint')}>
@@ -103,7 +103,7 @@ export const ResourceGroupStep = forwardRef<ResourceGroupStepHandle, ResourceGro
           value={service}
           onChange={(value) => applyService(value as ServiceKey)}
           placeholder={t('clusterSetup:service_placeholder')}
-          style={{ width: 240 }}
+          className="w-[240px]"
           options={SERVICE_KEYS.map((k) => ({ label: t(`clusterSetup:service_${k}`), value: k }))}
         />
       </Form.Item>
@@ -112,29 +112,29 @@ export const ResourceGroupStep = forwardRef<ResourceGroupStepHandle, ResourceGro
         <Alert
           type="warning"
           showIcon
-          style={{ marginBottom: 16 }}
+          className="mb-4"
           title={t('clusterSetup:ha_needs_three_nodes', { count: nodeCount })}
         />
       )}
 
-      <Typography.Text strong style={{ display: 'block', margin: '4px 0 12px' }}>
+      <Typography.Text strong className="block mt-1 mb-3">
         {t('clusterSetup:properties_header')}
       </Typography.Text>
 
-      <Space orientation="vertical" size={8} style={{ width: '100%' }}>
+      <Space orientation="vertical" size={8} className="w-full">
         {rows.map((row) => (
-          <Space key={row.id} align="baseline" style={{ display: 'flex', width: '100%' }}>
+          <Space key={row.id} align="baseline" className="flex w-full">
             <Input
               placeholder={t('clusterSetup:property_key')}
               value={row.key}
               onChange={(e) => updateRow(row.id, { key: e.target.value })}
-              style={{ width: 360 }}
+              className="w-[360px]"
             />
             <Input
               placeholder={t('clusterSetup:property_value')}
               value={row.value}
               onChange={(e) => updateRow(row.id, { value: e.target.value })}
-              style={{ width: 220 }}
+              className="w-[220px]"
             />
             <Button
               type="text"
@@ -145,7 +145,7 @@ export const ResourceGroupStep = forwardRef<ResourceGroupStepHandle, ResourceGro
             />
           </Space>
         ))}
-        <Button type="dashed" icon={<PlusOutlined />} onClick={addRow} style={{ width: 600 }}>
+        <Button type="dashed" icon={<PlusOutlined />} onClick={addRow} className="w-[600px]">
           {t('clusterSetup:add_property')}
         </Button>
       </Space>

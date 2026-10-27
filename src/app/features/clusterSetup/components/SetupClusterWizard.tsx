@@ -377,7 +377,7 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
       <Steps
         current={step}
         size="small"
-        style={{ marginBottom: 24 }}
+        className="mb-6"
         items={[
           { title: t('clusterSetup:step_nodes') },
           { title: t('clusterSetup:step_pools') },
@@ -404,7 +404,7 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
                         <Form.Item
                           name={[idx, 'name']}
                           rules={[{ required: true, message: t('clusterSetup:required') }]}
-                          style={{ marginBottom: 0 }}
+                          className="mb-0"
                         >
                           <Input placeholder="node01" />
                         </Form.Item>
@@ -417,7 +417,7 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
                         <Form.Item
                           name={[idx, 'ip']}
                           rules={[{ required: true, message: t('clusterSetup:required') }]}
-                          style={{ marginBottom: 0 }}
+                          className="mb-0"
                         >
                           <Input placeholder="10.0.0.1" />
                         </Form.Item>
@@ -431,9 +431,9 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
                         <Form.Item
                           name={[idx, 'port']}
                           rules={[{ required: true, message: t('clusterSetup:required') }]}
-                          style={{ marginBottom: 0 }}
+                          className="mb-0"
                         >
-                          <InputNumber min={1} max={65535} style={{ width: '100%' }} />
+                          <InputNumber min={1} max={65535} className="w-full" />
                         </Form.Item>
                       ),
                     },
@@ -456,7 +456,7 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
                   type="dashed"
                   block
                   icon={<PlusOutlined />}
-                  style={{ marginTop: 12 }}
+                  className="mt-3"
                   onClick={() => add({ name: '', ip: '', port: 3366, type: 'Satellite' })}
                 >
                   {t('clusterSetup:add_node_row')}
@@ -478,38 +478,38 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
             onChange={(e) => setPoolMode(e.target.value)}
             optionType="button"
             buttonStyle="solid"
-            style={{ marginBottom: 12 }}
+            className="mb-3"
             options={[
               { label: t('clusterSetup:mode_existing'), value: 'existing' },
               { label: t('clusterSetup:mode_new_device'), value: 'new-device' },
             ]}
           />
-          <Alert type="info" showIcon title={t('clusterSetup:pools_hint')} style={{ marginBottom: 16 }} />
+          <Alert type="info" showIcon title={t('clusterSetup:pools_hint')} className="mb-4" />
 
           {/* One pool config; the same name / provider / device is applied to every node. */}
-          <Space size="large" align="start" style={{ display: 'flex', flexWrap: 'wrap' }}>
+          <Space size="large" align="start" className="flex flex-wrap">
             <Form.Item
               name="name"
               label={t('clusterSetup:pool_name')}
               rules={[{ required: true, message: t('clusterSetup:required') }]}
-              style={{ marginBottom: 8 }}
+              className="mb-2"
             >
-              <Input placeholder="lvm-thin-pool" style={{ width: 220 }} />
+              <Input placeholder="lvm-thin-pool" className="w-[220px]" />
             </Form.Item>
-            <Form.Item name="provider_kind" label={t('clusterSetup:provider')} style={{ marginBottom: 8 }}>
-              <Select options={PROVIDER_OPTIONS} style={{ width: 160 }} />
+            <Form.Item name="provider_kind" label={t('clusterSetup:provider')} className="mb-2">
+              <Select options={PROVIDER_OPTIONS} className="w-[160px]" />
             </Form.Item>
             <Form.Item
               name="source"
               label={t('clusterSetup:source')}
               rules={[{ required: true, message: t('clusterSetup:required') }]}
-              style={{ marginBottom: 8, minWidth: 280, flex: 1 }}
+              className="mb-2 min-w-[280px] flex-1"
             >
               <DeviceSourceSelect mode={poolMode} node={plannedNodeNames[0]} />
             </Form.Item>
           </Space>
 
-          <Typography.Text type="secondary" style={{ display: 'block', marginTop: 4 }}>
+          <Typography.Text type="secondary" className="block mt-1">
             {t('clusterSetup:pool_applies_to_all', { nodes: plannedNodeNames.join(', ') })}
           </Typography.Text>
         </Form>
@@ -519,22 +519,22 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
 
       {step === 3 && !created && (
         <Spin spinning={creating} description={t('clusterSetup:creating_cluster')}>
-          <div style={{ padding: '8px 0' }}>
+          <div className="py-2">
             <Typography.Text strong>{t('clusterSetup:step_nodes')}</Typography.Text>
-            <div style={{ margin: '6px 0 12px' }}>
+            <div className="mt-1.5 mb-3">
               {nodePlan.map((n) => (
-                <Tag key={n.name} tone="info" style={{ marginBottom: 4 }}>
+                <Tag key={n.name} tone="info" className="mb-1">
                   {n.name} ({n.ip}:{n.port})
                 </Tag>
               ))}
             </div>
 
             <Typography.Text strong>{t('clusterSetup:step_pools')}</Typography.Text>
-            <div style={{ margin: '6px 0 12px' }}>
+            <div className="mt-1.5 mb-3">
               {poolPlan.length === 0 ? (
                 <Typography.Text type="secondary">{t('clusterSetup:rg_skipped_none')}</Typography.Text>
               ) : (
-                <Tag tone="info" style={{ marginBottom: 4 }}>
+                <Tag tone="info" className="mb-1">
                   {poolPlan[0].name} ({poolPlan[0].provider_kind}: {poolPlan[0].source}) —{' '}
                   {poolPlan.map((p) => p.node).join(', ')}
                 </Tag>
@@ -542,14 +542,14 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
             </div>
 
             <Typography.Text strong>{t('clusterSetup:step_resource_group')}</Typography.Text>
-            <div style={{ marginTop: 6 }}>
+            <div className="mt-1.5">
               {rgPlan ? (
                 <>
                   <Tag tone="info">{rgPlan.name}</Tag>
                   {Object.keys(rgPlan.props).length > 0 && (
-                    <div style={{ marginTop: 8 }}>
+                    <div className="mt-2">
                       {Object.entries(rgPlan.props).map(([k, v]) => (
-                        <div key={k} style={{ marginBottom: 2 }}>
+                        <div key={k} className="mb-0.5">
                           <Typography.Text code>{k}</Typography.Text>
                           {' = '}
                           <Typography.Text code>{v}</Typography.Text>
@@ -567,7 +567,7 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
       )}
 
       {step === 3 && created && (
-        <div style={{ padding: '8px 0' }}>
+        <div className="py-2">
           {anyFailed ? (
             <Typography.Title level={4}>{t('clusterSetup:finished_with_errors')}</Typography.Title>
           ) : (
@@ -577,15 +577,15 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
             </>
           )}
           {nodeOutcomes.length > 0 && (
-            <div style={{ marginTop: 12 }}>
+            <div className="mt-3">
               <Typography.Text strong>{t('clusterSetup:step_nodes')}</Typography.Text>
-              <div style={{ marginTop: 6 }}>
+              <div className="mt-1.5">
                 {nodeOutcomes.map((o) => (
                   <Tag
                     key={o.name}
                     icon={o.status === 'success' ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
                     tone={o.status === 'success' ? 'success' : 'danger'}
-                    style={{ marginBottom: 4 }}
+                    className="mb-1"
                   >
                     {o.name}
                     {o.message ? `: ${o.message}` : ''}
@@ -595,14 +595,14 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
             </div>
           )}
           {poolOutcomes.length > 0 && (
-            <div style={{ marginTop: 12 }}>
+            <div className="mt-3">
               <Typography.Text strong>{t('clusterSetup:step_pools')}</Typography.Text>
-              <div style={{ marginTop: 6 }}>
+              <div className="mt-1.5">
                 {poolOutcomes.map((o) => (
                   <Tag
                     key={`${o.node}:${o.pool}`}
                     tone={o.status === 'success' ? 'success' : o.status === 'skipped' ? 'neutral' : 'danger'}
-                    style={{ marginBottom: 4 }}
+                    className="mb-1"
                   >
                     {o.node} / {o.pool}
                     {o.message ? `: ${o.message}` : ''}
@@ -612,9 +612,9 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
             </div>
           )}
           {rgOutcome && (
-            <div style={{ marginTop: 12 }}>
+            <div className="mt-3">
               <Typography.Text strong>{t('clusterSetup:step_resource_group')}</Typography.Text>
-              <div style={{ marginTop: 6 }}>
+              <div className="mt-1.5">
                 {rgOutcome.status === 'created' && <Tag tone="success">{rgOutcome.name}</Tag>}
                 {rgOutcome.status === 'error' && (
                   <Tag tone="danger">

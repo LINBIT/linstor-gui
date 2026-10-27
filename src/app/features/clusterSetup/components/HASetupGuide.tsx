@@ -90,7 +90,7 @@ const HAGuideBody: React.FC<HASetupGuideProps> = ({ storagePool, nodes }) => {
   return (
     <div>
       <Typography.Paragraph>{t('clusterSetup:ha_cmd_intro')}</Typography.Paragraph>
-      <ul style={{ paddingLeft: 20, marginBottom: 12, listStyleType: 'disc' }}>
+      <ul className="pl-5 mb-3 list-disc">
         <li>
           <Typography.Text>{t('clusterSetup:ha_cmd_req_root')}</Typography.Text>
         </li>
@@ -103,7 +103,7 @@ const HAGuideBody: React.FC<HASetupGuideProps> = ({ storagePool, nodes }) => {
       </ul>
 
       {needsPicker && (
-        <div style={{ marginBottom: 12 }}>
+        <div className="mb-3">
           <Typography.Text strong>{t('clusterSetup:ha_cmd_nodes_label')}</Typography.Text>
           <Select
             mode="multiple"
@@ -111,27 +111,27 @@ const HAGuideBody: React.FC<HASetupGuideProps> = ({ storagePool, nodes }) => {
             value={picked}
             onChange={setPicked}
             options={allNodes.map((node) => ({ label: node, value: node }))}
-            style={{ width: '100%', marginTop: 6 }}
+            className="w-full mt-1.5"
             placeholder={t('clusterSetup:ha_cmd_nodes_label')}
             aria-label={t('clusterSetup:ha_cmd_nodes_label')}
           />
-          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+          <Typography.Text type="secondary" className="text-[12px]">
             {t('clusterSetup:ha_cmd_nodes_hint')}
           </Typography.Text>
         </div>
       )}
 
-      <div style={{ marginBottom: 12 }}>
+      <div className="mb-3">
         <Typography.Text strong>{t('clusterSetup:ha_cmd_vip_label')}</Typography.Text>
         <Input
           value={vip}
           onChange={(e) => setVip(e.target.value)}
           placeholder="10.0.0.100/24"
           status={vipInvalid ? 'error' : undefined}
-          style={{ marginTop: 6 }}
+          className="mt-1.5"
           aria-label={t('clusterSetup:ha_cmd_vip_label')}
         />
-        <Typography.Text type={vipInvalid ? 'danger' : 'secondary'} style={{ fontSize: 12 }}>
+        <Typography.Text type={vipInvalid ? 'danger' : 'secondary'} className="text-[12px]">
           {vipInvalid ? t('clusterSetup:ha_cmd_vip_invalid') : t('clusterSetup:ha_cmd_vip_hint')}
         </Typography.Text>
       </div>
@@ -140,7 +140,7 @@ const HAGuideBody: React.FC<HASetupGuideProps> = ({ storagePool, nodes }) => {
         <Alert
           type="warning"
           showIcon
-          style={{ marginBottom: 12 }}
+          className="mb-3"
           title={t('clusterSetup:ha_cmd_nodes_min', { count: MIN_HA_NODES })}
         />
       )}
@@ -151,7 +151,7 @@ const HAGuideBody: React.FC<HASetupGuideProps> = ({ storagePool, nodes }) => {
 
       <pre style={codeStyle}>{command}</pre>
 
-      <Typography.Paragraph type="secondary" style={{ marginTop: 12, marginBottom: 0 }}>
+      <Typography.Paragraph type="secondary" className="mt-3 mb-0">
         {t('clusterSetup:ha_cmd_outro')}
       </Typography.Paragraph>
     </div>
@@ -162,11 +162,11 @@ export const HASetupGuide: React.FC<HASetupGuideProps> = ({ storagePool, nodes }
   const { t } = useTranslation(['clusterSetup']);
 
   return (
-    <div style={{ marginTop: 24 }}>
-      <Typography.Title level={4} style={{ marginBottom: 6 }}>
+    <div className="mt-6">
+      <Typography.Title level={4} className="mb-1.5">
         {t('clusterSetup:further_tasks')}
       </Typography.Title>
-      <Typography.Paragraph type="secondary" style={{ marginBottom: 12 }}>
+      <Typography.Paragraph type="secondary" className="mb-3">
         {t('clusterSetup:further_tasks_intro')}
       </Typography.Paragraph>
 
