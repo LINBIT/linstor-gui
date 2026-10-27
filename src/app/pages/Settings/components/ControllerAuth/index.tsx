@@ -214,7 +214,7 @@ const ControllerAuth: React.FC = () => {
           )}
 
           {tokenAuthEnabled === true && (
-            <Tag tone="success" icon={<CheckCircleOutlined />} style={{ alignSelf: 'flex-start' }}>
+            <Tag tone="success" icon={<CheckCircleOutlined />} className="self-start">
               {t('settings:controller_auth_already_initialized')}
             </Tag>
           )}
@@ -254,7 +254,7 @@ const ControllerAuth: React.FC = () => {
         open={Boolean(initializedTokenAuth)}
         onCancel={() => setInitializedTokenAuth(null)}
         footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <div className="flex justify-end gap-2">
             <Button type="secondary" onClick={() => setInitializedTokenAuth(null)}>
               {t('settings:controller_auth_stay_here')}
             </Button>
@@ -274,7 +274,7 @@ const ControllerAuth: React.FC = () => {
         />
 
         {initializedTokenAuth?.token ? (
-          <Input.TextArea value={initializedTokenAuth.token} readOnly autoSize style={{ marginTop: 16 }} />
+          <Input.TextArea value={initializedTokenAuth.token} readOnly autoSize className="mt-4" />
         ) : (
           <Alert
             type={initializedTokenAuth?.alreadyEnabled ? 'info' : 'warning'}
@@ -284,7 +284,7 @@ const ControllerAuth: React.FC = () => {
                 ? t('settings:controller_auth_already_enabled_notice')
                 : t('settings:controller_auth_no_token_notice')
             }
-            style={{ marginTop: 16 }}
+            className="mt-4"
           />
         )}
       </Modal>
@@ -297,7 +297,7 @@ const ControllerAuth: React.FC = () => {
           setManualToken('');
         }}
         footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <div className="flex justify-end gap-2">
             <Button
               type="secondary"
               onClick={() => {

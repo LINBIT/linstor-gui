@@ -142,7 +142,7 @@ const HeaderAboutModal: React.FC<HeaderAboutModalProps> = ({ linstorVersion }) =
               open={hostModal}
               onCancel={() => setHostModal(false)}
               footer={
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                <div className="flex justify-end gap-2">
                   <Button type="secondary" onClick={() => setHostModal(false)}>
                     {t('common:cancel')}
                   </Button>

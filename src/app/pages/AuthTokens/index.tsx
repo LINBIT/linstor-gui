@@ -287,8 +287,8 @@ const AuthTokens = () => {
 
   if (versionFetched && !hasMinVersion(MIN_API_VERSION.AUTH_TOKENS)) {
     return (
-      <Space orientation="vertical" size="large" style={{ width: '100%' }}>
-        <Title level={3} style={{ marginBottom: 4 }}>
+      <Space orientation="vertical" size="large" className="w-full">
+        <Title level={3} className="mb-1">
           {t('authToken:title')}
         </Title>
         <Alert
@@ -303,8 +303,8 @@ const AuthTokens = () => {
 
   if (featureSupported && tokenAuthEnabled === false) {
     return (
-      <Space orientation="vertical" size="large" style={{ width: '100%' }}>
-        <Title level={3} style={{ marginBottom: 4 }}>
+      <Space orientation="vertical" size="large" className="w-full">
+        <Title level={3} className="mb-1">
           {t('authToken:title')}
         </Title>
         <Alert
@@ -323,10 +323,10 @@ const AuthTokens = () => {
   }
 
   return (
-    <Space orientation="vertical" size="large" style={{ width: '100%' }}>
+    <Space orientation="vertical" size="large" className="w-full">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <Title level={3} style={{ marginBottom: 4 }}>
+          <Title level={3} className="mb-1">
             {t('authToken:title')}
           </Title>
         </div>
@@ -367,7 +367,7 @@ const AuthTokens = () => {
         onCancel={() => setCreateOpen(false)}
         destroyOnHidden
         footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <div className="flex justify-end gap-2">
             <Button type="secondary" onClick={() => setCreateOpen(false)}>
               {t('common:cancel')}
             </Button>
@@ -391,7 +391,7 @@ const AuthTokens = () => {
           </Form.Item>
 
           <Form.Item label={t('authToken:expires')} name="expires_at" extra={t('authToken:expires_help')}>
-            <DatePicker showTime style={{ width: '100%' }} />
+            <DatePicker showTime className="w-full" />
           </Form.Item>
         </Form>
       </Modal>
@@ -401,7 +401,7 @@ const AuthTokens = () => {
         open={Boolean(createdToken)}
         onCancel={() => setCreatedToken(null)}
         footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <div className="flex justify-end gap-2">
             <Button type="primary" onClick={() => setCreatedToken(null)}>
               {t('common:close')}
             </Button>
@@ -409,7 +409,7 @@ const AuthTokens = () => {
         }
       >
         <Alert type="warning" showIcon title={t('authToken:created_token_notice')} />
-        <Input.TextArea value={createdToken ?? ''} readOnly autoSize style={{ marginTop: 16 }} />
+        <Input.TextArea value={createdToken ?? ''} readOnly autoSize className="mt-4" />
       </Modal>
     </Space>
   );

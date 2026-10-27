@@ -176,40 +176,22 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
 
   return (
     <>
-      <Layout style={{ minHeight: '100vh' }}>
+      <Layout className="min-h-screen">
         <Header
-          style={{
-            position: 'sticky',
-            top: 0,
-            zIndex: 60,
-            width: '100%',
-            height: HEADER_HEIGHT,
-            display: 'flex',
-            alignItems: 'center',
-            // Light-gray top bar matching the sidebar (per the Figma prototype;
-            // NOTE: the tokens JSON says bg/nav=#111 for the top bar, but the
-            // light-mode prototype clearly renders it as bg/surface — follow
-            // the visual until design confirms).
-            backgroundColor: 'var(--bg-surface)',
-            borderBottom: '1px solid var(--border-subtle)',
-            // Inherited by the currentColor header icons (log, dots, user, …)
-            color: 'var(--icon-default)',
-            paddingLeft: '16px',
-            paddingRight: '16px',
-          }}
+          // Light-gray top bar matching the sidebar (per the Figma prototype;
+          // NOTE: the tokens JSON says bg/nav=#111 for the top bar, but the
+          // light-mode prototype clearly renders it as bg/surface — follow
+          // the visual until design confirms). Its text color is inherited by
+          // the currentColor header icons (log, dots, user, …).
+          className="sticky top-0 z-60 flex w-full items-center border-b border-b-(--border-subtle) bg-(--bg-surface) px-4 text-(--icon-default)"
+          style={{ height: HEADER_HEIGHT }}
         >
           <Button
             type="text"
             icon={<IoMenuOutline />}
             onClick={toggleNav}
             aria-label={t('common:toggle_navigation')}
-            style={{
-              fontSize: '20px',
-              width: screens.md ? 64 : 40,
-              height: screens.md ? 64 : 40,
-              color: 'var(--icon-default)',
-              marginRight: screens.md ? '16px' : '8px',
-            }}
+            className="mr-2 size-10 text-[20px] text-(--icon-default) md:mr-4 md:size-16"
           />
           <LogoImg logoSrc={logoSrc} />
           <HeaderTools
@@ -233,14 +215,8 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
             // Auto-collapse below ~992px, re-expand above (isNavOpen === collapsed)
             onBreakpoint={setNavOpen}
             collapsedWidth={screens.md === false ? 0 : 80}
-            style={{
-              position: 'sticky',
-              top: HEADER_HEIGHT,
-              height: `calc(100vh - ${HEADER_HEIGHT}px)`,
-              overflowY: 'auto',
-              backgroundColor: 'var(--bg-surface)',
-              borderTopRightRadius: '4px',
-            }}
+            className="sticky overflow-y-auto rounded-tr bg-(--bg-surface)"
+            style={{ top: HEADER_HEIGHT, height: `calc(100vh - ${HEADER_HEIGHT}px)` }}
           >
             <div className="flex min-h-full flex-col">
               <div className="flex-1">

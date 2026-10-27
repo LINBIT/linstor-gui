@@ -103,7 +103,7 @@ const Navigation: React.FC<NavigationProps> = ({
         getItem(
           <Link to="/vsan/nfs">NFS</Link>,
           '/vsan/nfs',
-          <SVG src={NFS} width="16" height="16" style={{ color: 'var(--icon-default)' }} />,
+          <SVG src={NFS} width="16" height="16" className="text-(--icon-default)" />,
         ),
         getItem(<Link to="/vsan/error-reports">Error Reports</Link>, '/vsan/error-reports', <WarningOutlined />),
         getItem(<Link to="/vsan/users">Users</Link>, '/vsan/users', <UserOutlined />),
@@ -299,7 +299,7 @@ const Navigation: React.FC<NavigationProps> = ({
         theme="light"
         inlineCollapsed={isNavOpen}
         items={items}
-        style={{ backgroundColor: 'transparent' }}
+        className="bg-transparent"
         selectedKeys={selectedMenu ? [selectedMenu] : []}
         openKeys={openKeys}
         onOpenChange={handleOpenChange}

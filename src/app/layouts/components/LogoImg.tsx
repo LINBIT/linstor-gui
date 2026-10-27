@@ -52,9 +52,7 @@ export const LogoImg: React.FC<LogoImgProps> = ({ logoSrc }) => {
       {logoSrc && (
         <>
           {' '}
-          <div className="mx-2 text-2xl" style={{ color: 'var(--text-primary)' }}>
-            {'|'}
-          </div>
+          <div className="mx-2 text-2xl text-(--text-primary)">{'|'}</div>
           <div className="">{renderLogo(logoSrc)}</div>
         </>
       )}

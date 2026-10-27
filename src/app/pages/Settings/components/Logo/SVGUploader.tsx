@@ -71,7 +71,7 @@ export const SVGFileUpload: React.FunctionComponent = () => {
   };
 
   return (
-    <Form<FormType> layout="vertical" style={{ maxWidth: 600, marginLeft: 0 }} form={form}>
+    <Form<FormType> layout="vertical" className="max-w-[600px] ml-0" form={form}>
       <Form.Item
         label={t('settings:custom_logo')}
         valuePropName="checked"
@@ -113,9 +113,9 @@ export const SVGFileUpload: React.FunctionComponent = () => {
               }}
               accept=".svg"
             >
-              <button style={{ border: 0, background: 'none' }} type="button">
+              <button className="border-0 [background:none]" type="button">
                 <PlusOutlined />
-                <div style={{ marginTop: 8 }}>{t('common:upload')}</div>
+                <div className="mt-2">{t('common:upload')}</div>
               </button>
             </Upload>
           </Form.Item>

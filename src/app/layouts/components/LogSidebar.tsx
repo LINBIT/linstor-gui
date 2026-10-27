@@ -106,13 +106,13 @@ const LogSidebar: React.FC = () => {
               items={logs}
               rowKey={(log) => log.key}
               renderItem={(log) => (
-                <ItemList.Item onClick={() => onLogClick(log)} style={{ cursor: 'pointer' }}>
+                <ItemList.Item onClick={() => onLogClick(log)} className="cursor-pointer">
                   <ItemList.Meta title={log.url} description={new Date(log.timestamp).toLocaleString()} />
                   {!log.read && <Badge dot />}
                 </ItemList.Item>
               )}
             />
-            <div style={{ marginTop: 20, textAlign: 'center' }}>
+            <div className="mt-5 text-center">
               <Space>
                 <Button type="primary" onClick={markAllAsRead}>
                   {t('mark_all_as_read')}
@@ -151,11 +151,7 @@ const LogSidebar: React.FC = () => {
               </p>
             )}
 
-            <Space
-              style={{
-                marginTop: 10,
-              }}
-            >
+            <Space className="mt-2.5">
               <Button type="secondary" onClick={() => markLogAsRead(selectedLog.key)}>
                 {t('mark_as_read')}
               </Button>

@@ -105,7 +105,7 @@ const PassphrasePrompt: React.FC = () => {
       return (
         <Tooltip title={t('settings:linstor_passphrase_loading', 'Loading passphrase status')}>
           <div>
-            <Spin indicator={<LoadingOutlined style={{ fontSize: 24, color: 'var(--icon-default)' }} spin />} />
+            <Spin indicator={<LoadingOutlined className="text-[24px] text-(--icon-default)" spin />} />
           </div>
         </Tooltip>
       );

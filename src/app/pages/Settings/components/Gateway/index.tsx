@@ -100,7 +100,7 @@ const Gateway: React.FC = () => {
                   description={t('settings:gateway_config_description')}
                   type="info"
                   showIcon
-                  style={{ marginBottom: '1.5em' }}
+                  className="mb-[1.5em]"
                 />
 
                 <Form.Item
@@ -120,7 +120,7 @@ const Gateway: React.FC = () => {
                   label={
                     <Space>
                       {t('settings:url')}
-                      <Spin spinning={checkingStatus} indicator={<LoadingOutlined style={{ fontSize: 14 }} spin />} />
+                      <Spin spinning={checkingStatus} indicator={<LoadingOutlined className="text-[14px]" spin />} />
                     </Space>
                   }
                   name="host"
@@ -146,7 +146,7 @@ const Gateway: React.FC = () => {
                   // alongside it.
                   extra={
                     customHost ? (
-                      <div style={{ marginTop: '1em', marginBottom: '1em' }}>
+                      <div className="mt-[1em] mb-[1em]">
                         {t('settings:default')}: {OriginHost}
                       </div>
                     ) : undefined
@@ -192,8 +192,8 @@ const Gateway: React.FC = () => {
                 )}
 
                 {isChecked && (
-                  <Form.Item style={{ marginBottom: '2em', marginTop: '1em' }}>
-                    <div style={{ width: '20%' }}>
+                  <Form.Item className="mb-[2em] mt-[1em]">
+                    <div className="w-1/5">
                       <Button
                         onClick={() => getGatewayStatus(form.getFieldValue('host'))}
                         disabled={checkingStatus}

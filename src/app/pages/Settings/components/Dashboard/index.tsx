@@ -249,15 +249,13 @@ const Dashboard: React.FC = () => {
       <div className="mb-[2em] [&_h3]:mb-[0.5em]">
         <Title level={3}>{t('settings:grafana')}</Title>
         <Text type="secondary">{t('settings:grafana_description')}</Text>
-        <div style={{ marginTop: '1em' }}>
+        <div className="mt-[1em]">
           <Text type="secondary">{t('settings:grafana_prerequisites_note')}</Text>
-          <pre
-            style={{ marginTop: '0.5em', padding: '0.5em', backgroundColor: 'var(--bg-surface)', borderRadius: '4px' }}
-          >
+          <pre className="mt-[0.5em] bg-(--bg-surface) rounded p-[0.5em]">
             {t('settings:grafana_prerequisites_config')}
           </pre>
         </div>
-        <Alert style={{ marginTop: '1em' }} type="info" showIcon title={t('settings:grafana_https_notice')} />
+        <Alert className="mt-[1em]" type="info" showIcon title={t('settings:grafana_https_notice')} />
       </div>
 
       <Card className="mb-[2em]" styles={{ body: { padding: '1.5em' } }}>
@@ -309,7 +307,7 @@ const Dashboard: React.FC = () => {
                     <Text type="secondary">{t('settings:panel_ids_default_values')}</Text>
 
                     <Form.Item label={t('settings:cpu_panel_id')} name="cpu" help={t('settings:cpu_panel_help')}>
-                      <InputNumber min={1} style={{ width: '100%' }} />
+                      <InputNumber min={1} className="w-full" />
                     </Form.Item>
 
                     <Form.Item
@@ -317,7 +315,7 @@ const Dashboard: React.FC = () => {
                       name="memory"
                       help={t('settings:memory_panel_help')}
                     >
-                      <InputNumber min={1} style={{ width: '100%' }} />
+                      <InputNumber min={1} className="w-full" />
                     </Form.Item>
 
                     <Form.Item
@@ -325,11 +323,11 @@ const Dashboard: React.FC = () => {
                       name="network"
                       help={t('settings:network_panel_help')}
                     >
-                      <InputNumber min={1} style={{ width: '100%' }} />
+                      <InputNumber min={1} className="w-full" />
                     </Form.Item>
 
                     <Form.Item label={t('settings:disk_panel_id')} name="disk" help={t('settings:disk_panel_help')}>
-                      <InputNumber min={1} style={{ width: '100%' }} />
+                      <InputNumber min={1} className="w-full" />
                     </Form.Item>
 
                     <Form.Item
@@ -337,7 +335,7 @@ const Dashboard: React.FC = () => {
                       name="diskIops"
                       help={t('settings:disk_iops_panel_help')}
                     >
-                      <InputNumber min={1} style={{ width: '100%' }} />
+                      <InputNumber min={1} className="w-full" />
                     </Form.Item>
 
                     <Form.Item
@@ -345,7 +343,7 @@ const Dashboard: React.FC = () => {
                       name="ioUsage"
                       help={t('settings:io_usage_panel_help')}
                     >
-                      <InputNumber min={1} style={{ width: '100%' }} />
+                      <InputNumber min={1} className="w-full" />
                     </Form.Item>
                   </div>
                 )}
@@ -354,8 +352,8 @@ const Dashboard: React.FC = () => {
           </div>
 
           {/* DRBD Dashboard Section - moved inside main card */}
-          <div style={{ marginTop: '2em', paddingTop: '2em', borderTop: `1px solid ${cssVar('border/subtle')}` }}>
-            <div style={{ marginBottom: '1em' }}>
+          <div className="mt-[2em] pt-[2em] border-t border-t-(--border-subtle)">
+            <div className="mb-[1em]">
               <div className="flex items-center gap-[1em] [&_.ant-switch]:min-w-[44px]">
                 <Text strong style={{ color: isEnabled ? 'inherit' : cssVar('text/button/disabled') }}>
                   {t('settings:drbd_dashboard')}
@@ -370,7 +368,7 @@ const Dashboard: React.FC = () => {
                 />
               </div>
               {!isEnabled && (
-                <Text type="secondary" style={{ marginLeft: '1em', fontSize: '12px' }}>
+                <Text type="secondary" className="ml-[1em] text-[12px]">
                   ({t('settings:drbd_requires_grafana_enabled')})
                 </Text>
               )}
@@ -414,7 +412,7 @@ const Dashboard: React.FC = () => {
                           name="drbdWriteRatePanelId"
                           help={t('settings:drbd_write_rate_panel_help')}
                         >
-                          <InputNumber min={1} style={{ width: '100%' }} />
+                          <InputNumber min={1} className="w-full" />
                         </Form.Item>
 
                         <Form.Item
@@ -422,7 +420,7 @@ const Dashboard: React.FC = () => {
                           name="drbdReadRatePanelId"
                           help={t('settings:drbd_read_rate_panel_help')}
                         >
-                          <InputNumber min={1} style={{ width: '100%' }} />
+                          <InputNumber min={1} className="w-full" />
                         </Form.Item>
                       </div>
                     )}

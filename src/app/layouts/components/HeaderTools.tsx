@@ -16,7 +16,6 @@ import { useAuth } from '@app/features/authentication/useAuth';
 import { ChangePassword } from '@app/features/authentication/components/ChangePassword/ChangePassword';
 import { Mode } from '@app/hooks/useUIModeStorage';
 import { DEFAULT_ADMIN_USER_NAME } from '@app/const/settings';
-import { cssVar } from '@app/const/themeTokens';
 import { getControllerVersion } from '@app/features/node/api';
 import { useFaultyResources } from '@app/features/resource/hooks/useFaultyResources';
 import { compareVersions } from '@app/utils/version';
@@ -87,15 +86,7 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
             }}
             className="flex items-center"
           >
-            <UserIcon
-              style={{
-                color: cssVar('brand/accent'),
-                marginLeft: 2,
-                marginRight: '1rem',
-              }}
-              width={16}
-              height={16}
-            />
+            <UserIcon className="text-(--brand-accent) ml-0.5 mr-[1rem]" width={16} height={16} />
             <span>
               {t('common:user')}: {authInfo.username || DEFAULT_ADMIN_USER_NAME}
             </span>
@@ -120,7 +111,7 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
             }}
             className="flex items-center"
           >
-            <DeploymentUnitOutlined style={{ color: cssVar('brand/accent'), marginLeft: 2, marginRight: '1rem' }} />
+            <DeploymentUnitOutlined className="text-(--brand-accent) ml-0.5 mr-[1rem]" />
 
             <span>{vsanModeFromSetting ? 'Switch to advanced mode' : 'Leave advanced mode'}</span>
           </a>
@@ -158,8 +149,7 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
               <div className="mx-4 text-(--text-primary)">{t('about:unofficial_build_header_attention')}</div>
             </div>
             <div
-              className="flex h-10 cursor-pointer items-center rounded px-4 py-2 font-medium text-(--text-on-brand) decoration-2"
-              style={{ backgroundColor: cssVar('brand/muted/hover') }}
+              className="flex h-10 cursor-pointer items-center rounded px-4 py-2 font-medium text-(--text-on-brand) decoration-2 bg-(--brand-muted-hover)"
               onClick={handleSupportClick}
             >
               {t('about:unofficial_build_header_get_official')}{' '}
@@ -194,11 +184,7 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
           <div className="flex items-center">
             {hasFaultyResources && (
               <Tooltip title={t('common:has_faulty_resources')}>
-                <Link
-                  to="/"
-                  aria-label={t('common:has_faulty_resources')}
-                  style={{ display: 'flex', alignItems: 'center' }}
-                >
+                <Link to="/" aria-label={t('common:has_faulty_resources')} className="flex items-center">
                   <FaultyResourceIcon />
                 </Link>
               </Tooltip>
