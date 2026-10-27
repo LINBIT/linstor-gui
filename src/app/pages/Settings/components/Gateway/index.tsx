@@ -160,7 +160,7 @@ const Gateway: React.FC = () => {
                       !checkingStatus ? (
                         <span
                           className={`inline-flex items-center justify-center gap-[0.5em] px-[0.75em] font-medium whitespace-nowrap [&_.anticon]:text-[14px] ${
-                            gatewayAvailable ? 'text-[#52c41a]' : 'text-[#fa8c16]'
+                            gatewayAvailable ? 'text-(--text-chip-success)' : 'text-(--text-chip-warning)'
                           }`}
                         >
                           {gatewayAvailable ? (

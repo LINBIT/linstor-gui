@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { formatBytes } from '@app/utils/size';
 import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
 import { labelRowCheckbox } from '@app/utils/rowSelection';
+import { cssVar } from '@app/const/themeTokens';
 
 type ISCSIListProps = {
   list: ISCSIResource[];
@@ -329,12 +330,12 @@ export const ISCSIList = ({
 
     return expanded ? (
       <DownOutlined
-        style={{ cursor: 'pointer', marginRight: 8, color: '#1890ff' }}
+        style={{ cursor: 'pointer', marginRight: 8, color: cssVar('text/link') }}
         onClick={(e) => onExpand(record, e)}
       />
     ) : (
       <RightOutlined
-        style={{ cursor: 'pointer', marginRight: 8, color: '#1890ff' }}
+        style={{ cursor: 'pointer', marginRight: 8, color: cssVar('text/link') }}
         onClick={(e) => onExpand(record, e)}
       />
     );

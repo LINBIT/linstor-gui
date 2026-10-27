@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import type { ApexOptions } from 'apexcharts';
-import type { ThemeMode } from '@app/const/themeTokens';
+import { themeTokens, type ThemeMode } from '@app/const/themeTokens';
 import { formatBytes } from '@app/utils/size';
 import { setHoveredSegmentState } from './chartDom';
 
@@ -14,7 +14,7 @@ import { setHoveredSegmentState } from './chartDom';
 export const buildChartOptions = (mode: ThemeMode, categories: string[], onSegmentEnter: () => void): ApexOptions => ({
   chart: {
     // Axis/label text follows the theme (apex can't read CSS vars)
-    foreColor: mode === 'dark' ? '#e0e0e0' : '#373d3f',
+    foreColor: themeTokens['text/secondary'][mode],
     stacked: true,
     redrawOnParentResize: true,
     redrawOnWindowResize: true,
@@ -70,10 +70,10 @@ export const buildChartOptions = (mode: ThemeMode, categories: string[], onSegme
   stroke: {
     width: 1,
     // Segment separator matches the page background in each mode
-    colors: [mode === 'dark' ? '#111111' : '#fff'],
+    colors: [themeTokens['bg/page'][mode]],
   },
   grid: {
-    borderColor: mode === 'dark' ? '#2e2e2e' : '#e0e0e0',
+    borderColor: themeTokens['border/subtle'][mode],
   },
   tooltip: {
     theme: mode,

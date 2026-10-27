@@ -34,8 +34,8 @@ export const getAntdTheme = (mode: ThemeMode): ThemeConfig => ({
     ...antdTheme.token,
     colorLink: themeTokens['text/link'][mode],
     ...(mode === 'dark' && {
-      colorBgBase: '#111111',
-      colorTextBase: '#f0f0f0',
+      colorBgBase: themeTokens['bg/page'].dark,
+      colorTextBase: themeTokens['text/primary'].dark,
     }),
     // Descriptions and empty states read at 4.5:1 (WCAG AA); antd's 45% black
     // is 3.4:1. The dark algorithm's own value already passes.

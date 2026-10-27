@@ -12,6 +12,7 @@ import PageBasic from '@app/components/PageBasic';
 import { VSANNodeList } from '@app/features/vsan';
 import { StoragePoolInfo } from '@app/components/StoragePoolInfo';
 import { FaultyList, useFaultyResources } from '@app/features/resource';
+import { cssVar } from '@app/const/themeTokens';
 
 const HCIDashboard = () => {
   const { t } = useTranslation(['dashboard', 'common']);
@@ -37,7 +38,7 @@ const HCIDashboard = () => {
           {hasFaultyResources && (
             <ExclamationCircleFilled
               style={{
-                color: '#faad14',
+                color: cssVar('status/warning'),
                 fontSize: '14px',
               }}
             />

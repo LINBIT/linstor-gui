@@ -25,6 +25,7 @@ import { Popconfirm } from '@app/components/Popconfirm';
 import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
 import { withQuietToasts } from '@app/utils/toast';
 import { ItemList } from '@app/components/ItemList';
+import { cssVar } from '@app/const/themeTokens';
 
 export const UserManagement = () => {
   const { deleteUser } = useAuth();
@@ -157,7 +158,14 @@ export const UserManagement = () => {
                   >
                     <ItemList.Meta
                       avatar={
-                        <Avatar style={{ backgroundColor: '#f7a75c', verticalAlign: 'middle' }} size="large">
+                        <Avatar
+                          style={{
+                            backgroundColor: cssVar('brand/muted'),
+                            color: cssVar('text/on-brand'),
+                            verticalAlign: 'middle',
+                          }}
+                          size="large"
+                        >
                           {user.title.slice(0, 1).toUpperCase()}
                         </Avatar>
                       }

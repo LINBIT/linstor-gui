@@ -46,7 +46,7 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  border: 1px solid rgba(17, 24, 39, 0.18);
+  border: 1px solid var(--border-default);
   border-radius: 8px;
   background: transparent;
   pointer-events: none;
@@ -58,23 +58,15 @@
   overflow: hidden;
 }
 
-[data-theme='dark'] .storage-pool-chart .storage-pool-node-overlay {
-  border-color: rgba(240, 240, 240, 0.25);
-}
-
 .storage-pool-chart .storage-pool-node-tooltip {
   width: 100%;
-  background: rgba(255, 255, 255, 0.92);
+  background: color-mix(in srgb, var(--bg-page) 92%, transparent);
   padding: 10px 12px 12px;
   box-shadow: none;
   pointer-events: auto;
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: thin;
-}
-
-[data-theme='dark'] .storage-pool-chart .storage-pool-node-tooltip {
-  background: rgba(26, 26, 26, 0.92);
 }
 
 .storage-pool-chart .storage-pool-node-tooltip-content {
@@ -102,20 +94,12 @@
 .storage-pool-chart .storage-pool-node-tooltip-row.is-highlighted .storage-pool-node-tooltip-label {
   font-weight: 700;
   color: var(--text-primary);
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--bg-nav-item-hover);
 }
 
 .storage-pool-chart .storage-pool-node-tooltip-row.is-highlighted .storage-pool-node-tooltip-metric {
   color: var(--text-secondary);
-  background: rgba(0, 0, 0, 0.04);
-}
-
-[data-theme='dark'] .storage-pool-chart .storage-pool-node-tooltip-row.is-highlighted .storage-pool-node-tooltip-label,
-[data-theme='dark']
-  .storage-pool-chart
-  .storage-pool-node-tooltip-row.is-highlighted
-  .storage-pool-node-tooltip-metric {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--bg-nav-item-hover);
 }
 
 .storage-pool-chart .storage-pool-node-tooltip-label {
@@ -144,13 +128,9 @@
 }
 
 .storage-pool-chart .storage-pool-node-tooltip-metric.is-highlighted {
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--bg-nav-item-selected);
   color: var(--text-primary);
   font-weight: 600;
-}
-
-[data-theme='dark'] .storage-pool-chart .storage-pool-node-tooltip-metric.is-highlighted {
-  background: rgba(255, 255, 255, 0.1);
 }
 
 .storage-pool-chart .storage-pool-node-tooltip-metric-dot {

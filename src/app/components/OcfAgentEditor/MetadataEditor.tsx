@@ -4,6 +4,7 @@ import { Form, Card, Space } from 'antd';
 import { Input } from '@app/components/Input';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button } from '@app/components/Button';
+import { cssVar } from '@app/const/themeTokens';
 
 interface MetadataEditorProps {
   initialValues: Record<string, string | number | boolean>;
@@ -64,7 +65,10 @@ export const MetadataEditor: React.FC<MetadataEditorProps> = ({ initialValues, o
                   >
                     <Input placeholder={t('clusterSetup:property_value')} />
                   </Form.Item>
-                  <MinusCircleOutlined onClick={() => remove(name)} style={{ color: '#ff4d4f', cursor: 'pointer' }} />
+                  <MinusCircleOutlined
+                    onClick={() => remove(name)}
+                    style={{ color: cssVar('status/error'), cursor: 'pointer' }}
+                  />
                 </Space>
               ))}
               <Form.Item>

@@ -23,14 +23,14 @@ export const PROMOTER_TOOLTIP_STYLES = {
 
 const getServiceStatusColor = (status?: string) => {
   if (status === 'active' || status === 'running') {
-    return '#52c41a';
+    return cssVar('status/success');
   }
 
   if (status === 'failed') {
-    return '#ff4d4f';
+    return cssVar('status/error');
   }
 
-  return '#999';
+  return cssVar('icon/muted');
 };
 
 export const renderPromoterTree = (

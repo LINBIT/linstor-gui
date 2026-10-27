@@ -10,6 +10,7 @@ import { CloudServerOutlined, DatabaseOutlined, RocketOutlined } from '@ant-desi
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@app/components/Button';
+import { cssVar } from '@app/const/themeTokens';
 
 export interface SetupClusterCardProps {
   onStart: () => void;
@@ -22,7 +23,7 @@ export const SetupClusterCard: React.FC<SetupClusterCardProps> = ({ onStart, onD
   return (
     <Card
       style={{
-        borderColor: '#F79133',
+        borderColor: cssVar('brand/accent'),
         borderWidth: 2,
         // Subtle brand tint fading to the page background — theme-aware
         // (the old hardcoded #fff8f1→#fff washed the text out in dark mode).
@@ -37,8 +38,8 @@ export const SetupClusterCard: React.FC<SetupClusterCardProps> = ({ onStart, onD
             width: 56,
             height: 56,
             borderRadius: 12,
-            background: 'rgba(247, 145, 51, 0.12)',
-            color: '#F79133',
+            background: cssVar('bg/chip/brand'),
+            color: cssVar('brand/accent'),
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -58,11 +59,11 @@ export const SetupClusterCard: React.FC<SetupClusterCardProps> = ({ onStart, onD
           </Typography.Paragraph>
           <Space size={[24, 8]} wrap>
             <Space size={6}>
-              <CloudServerOutlined style={{ color: '#F79133' }} />
+              <CloudServerOutlined style={{ color: cssVar('brand/accent') }} />
               <Typography.Text>{t('clusterSetup:welcome_bullet_nodes')}</Typography.Text>
             </Space>
             <Space size={6}>
-              <DatabaseOutlined style={{ color: '#F79133' }} />
+              <DatabaseOutlined style={{ color: cssVar('brand/accent') }} />
               <Typography.Text>{t('clusterSetup:welcome_bullet_pools')}</Typography.Text>
             </Space>
           </Space>

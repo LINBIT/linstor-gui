@@ -18,6 +18,7 @@ import {
   filterAgentsByPlatform,
 } from './agentCatalog';
 import { labelRowCheckbox } from '@app/utils/rowSelection';
+import { cssVar } from '@app/const/themeTokens';
 
 interface AddAgentModalProps {
   visible: boolean;
@@ -184,7 +185,7 @@ export function AddAgentModal({
 
         <Input
           placeholder={t('common:search_agents_provider_name_description')}
-          prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
+          prefix={<SearchOutlined style={{ color: cssVar('icon/muted') }} />}
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           allowClear

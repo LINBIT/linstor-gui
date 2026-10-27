@@ -12,6 +12,7 @@ import type { ButtonProps as AntButtonProps } from 'antd';
 import { ExclamationCircleFilled } from '@ant-design/icons';
 
 import { Button, type ButtonProps } from '@app/components/Button';
+import { cssVar } from '@app/const/themeTokens';
 
 /**
  * Drop-in replacement for antd's Popconfirm that renders its confirm/cancel
@@ -89,7 +90,7 @@ export const Popconfirm: React.FC<PopconfirmProps> = ({
     <div style={{ maxWidth: 260 }}>
       <div style={{ display: 'flex', gap: 8 }}>
         <span style={{ display: 'flex', alignItems: 'flex-start', paddingTop: 2 }}>
-          {icon ?? <ExclamationCircleFilled style={{ color: '#faad14' }} />}
+          {icon ?? <ExclamationCircleFilled style={{ color: cssVar('status/warning') }} />}
         </span>
         <div>
           {title && <div style={{ fontWeight: 600 }}>{title}</div>}

@@ -8,6 +8,8 @@
  * Common storage pool color utilities
  */
 
+import { themeTokens } from '@app/const/themeTokens';
+
 // Base colors for storage pools
 export const BASE_STORAGE_POOL_COLORS = [
   '#F79133',
@@ -23,7 +25,7 @@ export const BASE_STORAGE_POOL_COLORS = [
 ];
 
 // Node total colors
-export const NODE_TOTAL_COLOR = '#3F3F3F';
+export const NODE_TOTAL_COLOR = themeTokens['icon/subtle'].light;
 
 // Convert hex color to rgba with specified opacity
 export const hexToRgba = (hex: string, opacity: number): string => {

@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { describe, it, expect, vi } from 'vitest';
+import { themeTokens } from '@app/const/themeTokens';
 import { buildChartOptions } from '../chartOptions';
 
 describe('buildChartOptions', () => {
@@ -16,14 +17,12 @@ describe('buildChartOptions', () => {
     expect(options.xaxis?.categories).toEqual(['n1', 'n2']);
   });
 
-  it.each([
-    ['light', '#373d3f', '#fff', '#e0e0e0'],
-    ['dark', '#e0e0e0', '#111111', '#2e2e2e'],
-  ] as const)('follows the %s theme', (mode, text, separator, grid) => {
+  // apex can't read CSS variables, so the options carry the tokens' values.
+  it.each(['light', 'dark'] as const)('follows the %s theme', (mode) => {
     const options = buildChartOptions(mode, [], vi.fn());
-    expect(options.chart?.foreColor).toBe(text);
-    expect(options.stroke?.colors).toEqual([separator]);
-    expect(options.grid?.borderColor).toBe(grid);
+    expect(options.chart?.foreColor).toBe(themeTokens['text/secondary'][mode]);
+    expect(options.stroke?.colors).toEqual([themeTokens['bg/page'][mode]]);
+    expect(options.grid?.borderColor).toBe(themeTokens['border/subtle'][mode]);
     expect(options.tooltip?.theme).toBe(mode);
   });
 

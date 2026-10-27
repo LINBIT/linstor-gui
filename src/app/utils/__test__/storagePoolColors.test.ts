@@ -142,7 +142,7 @@ describe('storagePoolColors', () => {
     });
 
     it('should have correct node total color', () => {
-      expect(NODE_TOTAL_COLOR).toBe('#3F3F3F');
+      expect(NODE_TOTAL_COLOR).toBe('#3f3f3f');
       expect(NODE_TOTAL_COLOR).toMatch(/^#[0-9A-F]{6}$/i);
     });
   });

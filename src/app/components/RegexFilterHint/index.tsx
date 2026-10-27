@@ -10,6 +10,7 @@ import { QuestionCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
 import { useLinstorVersion, MIN_API_VERSION } from '@app/hooks';
+import { cssVar } from '@app/const/themeTokens';
 
 /**
  * Info tooltip shown next to list search fields when the controller supports
@@ -30,7 +31,7 @@ export const RegexFilterHint: React.FC = () => {
 
   return (
     <Tooltip title={t('regex_filter_hint')}>
-      <QuestionCircleOutlined style={{ color: 'rgba(0, 0, 0, 0.45)' }} />
+      <QuestionCircleOutlined style={{ color: cssVar('icon/muted') }} />
     </Tooltip>
   );
 };

@@ -237,7 +237,7 @@ export const SyncFlowOverlay: React.FC<Props> = ({ containerRef, volumes, laneX 
     >
       <defs>
         <marker id={markerId} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-          <path d="M 0 0 L 10 5 L 0 10 Z" fill="#1890ff" />
+          <path d="M 0 0 L 10 5 L 0 10 Z" className="sync-flow-marker" />
         </marker>
       </defs>
 

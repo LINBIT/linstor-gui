@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { cssVar } from '@app/const/themeTokens';
 
 interface SplitViewProps {
   editor: React.ReactNode;
@@ -67,7 +68,7 @@ export const SplitView = ({ editor, preview, previewVisible, leftPanelWidth, onR
                   width: 3,
                   height: 3,
                   borderRadius: '50%',
-                  background: '#bfbfbf',
+                  background: cssVar('icon/muted'),
                 }}
               />
             ))}

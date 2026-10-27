@@ -22,6 +22,7 @@ import { getResourceState } from '@app/utils/resource';
 import { SyncFlowOverlay } from '../SyncFlowOverlay';
 import { calculatePercentage, connectionStatus } from './rows';
 import type { OverviewVolume, SubTableColumns } from './types';
+import { cssVar } from '@app/const/themeTokens';
 
 interface ExpandableSubTableProps {
   volumes: OverviewVolume[];
@@ -185,7 +186,7 @@ export const NodeVolumesTable: React.FC<NodeVolumesTableProps> = ({
           <LineChartOutlined
             onClick={() => handleStatsClick(record.node_name ?? '', record.resource_name ?? '')}
             style={{
-              color: grafanaEnabled ? '#1890ff' : '#d9d9d9',
+              color: grafanaEnabled ? cssVar('text/link') : cssVar('text/button/disabled'),
               cursor: grafanaEnabled ? 'pointer' : 'not-allowed',
             }}
             disabled={!grafanaEnabled}

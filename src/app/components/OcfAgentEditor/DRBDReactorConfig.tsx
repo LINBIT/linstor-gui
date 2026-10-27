@@ -7,6 +7,7 @@ import { InputNumber } from '@app/components/InputNumber';
 import { InfoCircleOutlined, PlusOutlined, MinusCircleOutlined, DownOutlined } from '@ant-design/icons';
 import { Button } from '@app/components/Button';
 import { Switch } from '@app/components/Switch';
+import { cssVar } from '@app/const/themeTokens';
 
 const { Option } = Select;
 
@@ -249,7 +250,7 @@ export const DRBDReactorConfig: React.FC<DRBDReactorConfigProps> = ({ initialVal
                 type="text"
                 icon={<MinusCircleOutlined />}
                 onClick={() => handleRemoveField(field.name)}
-                style={{ marginTop: '30px', color: '#ff4d4f' }}
+                style={{ marginTop: '30px', color: cssVar('status/error') }}
                 title={t('common:remove_field')}
               />
             </div>
@@ -272,7 +273,7 @@ const SpaceWithTooltip = ({ label, tooltip }: { label: string; tooltip: string }
   <span>
     {label}
     <Tooltip title={tooltip}>
-      <InfoCircleOutlined style={{ marginLeft: 8, color: '#1890ff' }} />
+      <InfoCircleOutlined style={{ marginLeft: 8, color: cssVar('interactive/primary') }} />
     </Tooltip>
   </span>
 );

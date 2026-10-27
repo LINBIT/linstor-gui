@@ -17,6 +17,7 @@ import { createResourceDefinition } from '@app/features/resourceDefinition/api';
 import { restoreSnapshot, restoreVolumeDefinition } from '../api';
 import { withQuietToasts } from '@app/utils/toast';
 import { replyError } from '@app/hooks/useDeleteAction';
+import { cssVar } from '@app/const/themeTokens';
 
 const RESTORE_MESSAGE_KEY = 'snapshot-restore';
 
@@ -113,7 +114,7 @@ const RestoreFrom: React.FC<RestoreFromProps> = ({ sourceResource, sourceSnapsho
               .includes(input.toLowerCase())
           }
         />
-        <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+        <div style={{ fontSize: '12px', color: cssVar('text/muted'), marginTop: '4px' }}>
           {t('snapshot:new_resource_tip', 'If you enter a new resource name, it will be created automatically')}
         </div>
       </Form.Item>

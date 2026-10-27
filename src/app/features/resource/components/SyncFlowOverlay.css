@@ -8,18 +8,18 @@
 
 .sync-flow-path-base {
   fill: none;
-  stroke: rgba(24, 144, 255, 0.18);
+  stroke: color-mix(in srgb, var(--interactive-primary) 18%, transparent);
   stroke-width: 2;
   stroke-linecap: round;
 }
 
 .sync-flow-path-flow {
   fill: none;
-  stroke: #1890ff;
+  stroke: var(--interactive-primary);
   stroke-width: 2.25;
   stroke-linecap: round;
   stroke-dasharray: 6 9;
-  filter: drop-shadow(0 0 3px rgba(24, 144, 255, 0.45));
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--interactive-primary) 45%, transparent));
   animation: sync-flow-dash 1.6s linear infinite;
 }
 
@@ -34,8 +34,8 @@
 }
 
 .sync-flow-label-bg {
-  fill: #ffffff;
-  stroke: rgba(24, 144, 255, 0.55);
+  fill: var(--bg-page);
+  stroke: color-mix(in srgb, var(--interactive-primary) 55%, transparent);
   stroke-width: 1;
   rx: 4;
   filter: drop-shadow(0 1px 2px rgba(15, 23, 42, 0.18));
@@ -44,7 +44,7 @@
 .sync-flow-label-text {
   font-size: 11px;
   font-weight: 600;
-  fill: #1d4ed8;
+  fill: var(--text-link);
   font-family:
     ui-sans-serif,
     system-ui,
@@ -56,9 +56,14 @@
 }
 
 .sync-flow-source-pulse {
-  fill: rgba(24, 144, 255, 0.85);
+  fill: color-mix(in srgb, var(--interactive-primary) 85%, transparent);
   animation: sync-flow-pulse 1.6s ease-in-out infinite;
-  filter: drop-shadow(0 0 4px rgba(24, 144, 255, 0.6));
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--interactive-primary) 60%, transparent));
+}
+
+/* The arrowhead at the end of a flow line. */
+.sync-flow-marker {
+  fill: var(--interactive-primary);
 }
 
 @keyframes sync-flow-pulse {

@@ -22,6 +22,7 @@ import { ExpandIconProps, NFSResource } from '../types';
 import { ExportBasePath } from '../const';
 import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
 import { labelRowCheckbox } from '@app/utils/rowSelection';
+import { cssVar } from '@app/const/themeTokens';
 
 type NFSListProps = {
   list: NFSResource[];
@@ -350,12 +351,12 @@ export const NFSList = ({
 
     return expanded ? (
       <DownOutlined
-        style={{ cursor: 'pointer', marginRight: 8, color: '#1890ff' }}
+        style={{ cursor: 'pointer', marginRight: 8, color: cssVar('text/link') }}
         onClick={(e) => onExpand(record, e)}
       />
     ) : (
       <RightOutlined
-        style={{ cursor: 'pointer', marginRight: 8, color: '#1890ff' }}
+        style={{ cursor: 'pointer', marginRight: 8, color: cssVar('text/link') }}
         onClick={(e) => onExpand(record, e)}
       />
     );

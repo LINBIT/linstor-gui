@@ -14,6 +14,7 @@ import { replyError } from '@app/hooks/useDeleteAction';
 import { withQuietToasts } from '@app/utils/toast';
 
 import { rollbackSnapshot } from '../api';
+import { cssVar } from '@app/const/themeTokens';
 
 const { Text } = Typography;
 
@@ -80,7 +81,7 @@ export const RollbackSnapshotForm: React.FC<RollbackSnapshotFormProps> = ({
     <Modal
       title={
         <Space>
-          <ExclamationCircleOutlined style={{ color: '#faad14' }} />
+          <ExclamationCircleOutlined style={{ color: cssVar('status/warning') }} />
           {t('snapshot:rollback_snapshot')}
         </Space>
       }

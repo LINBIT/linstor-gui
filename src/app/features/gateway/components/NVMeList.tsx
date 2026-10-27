@@ -21,6 +21,7 @@ import { SizeInput } from '@app/components/SizeInput';
 import { useTranslation } from 'react-i18next';
 import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
 import { labelRowCheckbox } from '@app/utils/rowSelection';
+import { cssVar } from '@app/const/themeTokens';
 
 type NVMeListProps = {
   list: NVMEOFResource[];
@@ -327,12 +328,12 @@ export const NVMeList = ({
 
     return expanded ? (
       <DownOutlined
-        style={{ cursor: 'pointer', marginRight: 8, color: '#1890ff' }}
+        style={{ cursor: 'pointer', marginRight: 8, color: cssVar('text/link') }}
         onClick={(e) => onExpand(record, e)}
       />
     ) : (
       <RightOutlined
-        style={{ cursor: 'pointer', marginRight: 8, color: '#1890ff' }}
+        style={{ cursor: 'pointer', marginRight: 8, color: cssVar('text/link') }}
         onClick={(e) => onExpand(record, e)}
       />
     );

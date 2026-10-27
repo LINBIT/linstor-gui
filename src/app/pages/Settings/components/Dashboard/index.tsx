@@ -15,6 +15,7 @@ import { CaretRightOutlined } from '@ant-design/icons';
 
 import { useSettings } from '@app/features/settings/useSettings';
 import Button from '@app/components/Button';
+import { cssVar } from '@app/const/themeTokens';
 
 const { Text, Title } = Typography;
 
@@ -353,10 +354,10 @@ const Dashboard: React.FC = () => {
           </div>
 
           {/* DRBD Dashboard Section - moved inside main card */}
-          <div style={{ marginTop: '2em', paddingTop: '2em', borderTop: '1px solid #f0f0f0' }}>
+          <div style={{ marginTop: '2em', paddingTop: '2em', borderTop: `1px solid ${cssVar('border/subtle')}` }}>
             <div style={{ marginBottom: '1em' }}>
               <div className="flex items-center gap-[1em] [&_.ant-switch]:min-w-[44px]">
-                <Text strong style={{ color: isEnabled ? 'inherit' : '#d9d9d9' }}>
+                <Text strong style={{ color: isEnabled ? 'inherit' : cssVar('text/button/disabled') }}>
                   {t('settings:drbd_dashboard')}
                 </Text>
                 <Switch
