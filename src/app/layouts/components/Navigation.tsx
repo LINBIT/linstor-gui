@@ -75,7 +75,7 @@ const Navigation: React.FC<NavigationProps> = ({
 }) => {
   const location = useLocation();
   const { t } = useTranslation(['menu']);
-  const [selectedMenu, setSelectedMenu] = React.useState('/dashboard');
+  const [selectedMenu, setSelectedMenu] = React.useState('');
   const [openKeys, setOpenKeys] = React.useState<string[]>([]);
   const { isFetched: versionFetched, hasMinVersion } = useLinstorVersion();
   // While the version is still loading we optimistically show the gated items
@@ -256,34 +256,35 @@ const Navigation: React.FC<NavigationProps> = ({
     haAvailable,
     authTokensAvailable,
   ]);
-  // Initialize openKeys on mount and when path changes
+  // Select the entry for the current page and open its group. A page below an
+  // entry (a node's detail page, a create or edit form) belongs to the entry
+  // whose path is the longest prefix of it; a page under no entry selects none.
   React.useEffect(() => {
-    const findParentKey = (pathname: string): string | null => {
-      for (const item of items) {
-        if (item && 'children' in item && Array.isArray(item.children)) {
-          const hasChild = item.children.some((child) => child && 'key' in child && child.key === pathname);
-          if (hasChild && item.key) {
-            return item.key as string;
-          }
-        }
-      }
-      return null;
-    };
+    const covers = (key: string) =>
+      key === location.pathname || (key !== '/' && location.pathname.startsWith(`${key}/`));
 
-    const parentKey = findParentKey(location.pathname);
-    if (parentKey) {
-      // Only set openKeys if sidebar is expanded (isNavOpen is false means expanded)
-      if (!isNavOpen) {
-        setOpenKeys([parentKey]);
+    type Entry = { key: string; parent?: string };
+    const entries = items.flatMap((item): Entry[] => {
+      if (!item || !('key' in item)) return [];
+      if ('children' in item && Array.isArray(item.children)) {
+        return item.children.flatMap((child): Entry[] =>
+          child && 'key' in child ? [{ key: child.key as string, parent: item.key as string }] : [],
+        );
       }
-      setSelectedMenu(location.pathname);
-    } else {
-      // If no parent, it might be a top-level item
-      const topLevelItem = items.find((item) => item?.key === location.pathname);
-      if (topLevelItem) {
-        setSelectedMenu(location.pathname);
-        setOpenKeys([]);
-      }
+      return [{ key: item.key as string }];
+    });
+    const match = entries
+      .filter((entry) => covers(entry.key))
+      .reduce<Entry | undefined>(
+        (best, entry) => (best && best.key.length >= entry.key.length ? best : entry),
+        undefined,
+      );
+
+    setSelectedMenu(match?.key ?? '');
+    // Groups follow the page only while the sidebar is expanded, and a page
+    // under no entry leaves the open groups as they are.
+    if (match && !isNavOpen) {
+      setOpenKeys(match.parent ? [match.parent] : []);
     }
   }, [location.pathname, items, isNavOpen]);
 
@@ -294,13 +295,12 @@ const Navigation: React.FC<NavigationProps> = ({
   return (
     <div className="[&_.ant-menu.ant-menu-sub.ant-menu-inline]:[background:none]">
       <Menu
-        defaultSelectedKeys={[selectedMenu]}
         mode="inline"
         theme="light"
         inlineCollapsed={isNavOpen}
         items={items}
         style={{ backgroundColor: 'transparent' }}
-        selectedKeys={[selectedMenu]}
+        selectedKeys={selectedMenu ? [selectedMenu] : []}
         openKeys={openKeys}
         onOpenChange={handleOpenChange}
       />

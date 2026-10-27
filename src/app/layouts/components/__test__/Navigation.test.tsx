@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useNavigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import Navigation from '../Navigation';
@@ -26,7 +26,13 @@ const version = (restApi: string) =>
 
 type Props = React.ComponentProps<typeof Navigation>;
 
-const renderNav = (path = '/', props: Props = {}) => {
+/** Navigates in-app, as a link elsewhere on the page would. */
+const GoTo = ({ to }: { to: string }) => {
+  const navigate = useNavigate();
+  return <button onClick={() => navigate(to)}>go</button>;
+};
+
+const renderNav = (path = '/', props: Props = {}, goTo?: string) => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
@@ -34,12 +40,14 @@ const renderNav = (path = '/', props: Props = {}) => {
     <QueryClientProvider client={client}>
       <MemoryRouter initialEntries={[path]}>
         <Navigation {...props} />
+        {goTo && <GoTo to={goTo} />}
       </MemoryRouter>
     </QueryClientProvider>,
   );
 };
 
 const link = (name: string) => screen.getByRole('link', { name });
+const selected = () => [...document.querySelectorAll('.ant-menu-item-selected')].map((e) => e.textContent);
 const openGroup = (title: string) => fireEvent.click(screen.getByText(title));
 const waitForVersion = () => waitFor(() => expect(mockedVersion).toHaveBeenCalled());
 
@@ -143,6 +151,36 @@ describe('Navigation', () => {
 
     expect(link('Snapshots').closest('.ant-menu-item')).toHaveClass('ant-menu-item-selected');
     expect(document.querySelector('.ant-menu-submenu-open')).toBeNull();
+  });
+
+  it('selects the entry a page belongs to and opens its group', async () => {
+    renderNav('/inventory/nodes/node-a');
+
+    await waitFor(() => expect(selected()).toEqual(['Nodes']));
+    expect(screen.getByText('Inventory').closest('.ant-menu-submenu')).toHaveClass('ant-menu-submenu-open');
+  });
+
+  it('selects DRBD Reactor in its editor', async () => {
+    renderNav('/reactor/edit/res1');
+
+    await waitFor(() => expect(selected()).toEqual(['DRBD Reactor']));
+    expect(screen.getByText('High Availability').closest('.ant-menu-submenu')).toHaveClass('ant-menu-submenu-open');
+  });
+
+  it("drops the previous page's entry when the next page is below another one", async () => {
+    renderNav('/settings', {}, '/reactor/edit/res1');
+    await waitFor(() => expect(selected()).toEqual(['Settings']));
+
+    fireEvent.click(screen.getByRole('button', { name: 'go' }));
+    await waitFor(() => expect(selected()).toEqual(['DRBD Reactor']));
+  });
+
+  it('selects nothing on a page under no entry, and not Dashboard for every path', async () => {
+    renderNav('/settings', {}, '/storage-configuration/resources/create');
+    await waitFor(() => expect(selected()).toEqual(['Settings']));
+
+    fireEvent.click(screen.getByRole('button', { name: 'go' }));
+    await waitFor(() => expect(selected()).toEqual([]));
   });
 
   it('does not expand the current group while the sidebar is collapsed', async () => {
