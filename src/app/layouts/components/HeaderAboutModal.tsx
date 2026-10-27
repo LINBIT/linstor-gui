@@ -13,10 +13,48 @@ import { UIMode } from '@app/features/settings/types';
 import { useSettings } from '@app/features/settings/useSettings';
 import { DotsIcon } from '@app/components/SVGIcon';
 import { linbitSdsVersion, uiVersion } from './aboutVersion';
+import { controllerActiveOn } from './controllerActiveOn';
+import { useQuery } from '@tanstack/react-query';
+import { getControllerConfig } from '@app/features/node/api';
+import { useControllerHa } from '@app/features/node/hooks/useActiveController';
 
 interface HeaderAboutModalProps {
   linstorVersion?: LINSTORVersionInfo;
 }
+
+/** Where the controller listens and runs; mounted only while the panel is open, so nothing is fetched before. */
+const ControllerRows: React.FC<HeaderAboutModalProps> = ({ linstorVersion }) => {
+  const { t } = useTranslation('about');
+  const { data: config } = useQuery({
+    queryKey: ['getControllerConfig'],
+    queryFn: getControllerConfig,
+  });
+  const ha = useControllerHa();
+
+  const bindingIp = [
+    ...new Set([config?.data?.http, config?.data?.https].filter((p) => p?.enabled).map((p) => p?.listen_address)),
+  ]
+    .filter(Boolean)
+    .join(', ');
+  const activeOn = controllerActiveOn(linstorVersion, ha.active);
+
+  return (
+    <>
+      {bindingIp && (
+        <div className="flex justify-between gap-4 text-base">
+          <span className="font-medium">{t('controller_ip')}</span>
+          <span>{bindingIp}</span>
+        </div>
+      )}
+      {activeOn && (
+        <div className="flex justify-between gap-4 text-base">
+          <span className="font-medium">{t('controller_active_on')}</span>
+          <span>{activeOn}</span>
+        </div>
+      )}
+    </>
+  );
+};
 
 const HeaderAboutModal: React.FC<HeaderAboutModalProps> = ({ linstorVersion }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -36,8 +74,6 @@ const HeaderAboutModal: React.FC<HeaderAboutModalProps> = ({ linstorVersion }) =
     window.localStorage.setItem('HCI_VSAN_HOST', host);
     window.location.reload();
   };
-
-  const hostName = window ? window.location.host : '';
 
   const version = uiVersion(import.meta.env.VITE_VERSION);
   const sdsVersion = linbitSdsVersion(import.meta.env.LINBIT_SDS_VERSION);
@@ -94,14 +130,7 @@ const HeaderAboutModal: React.FC<HeaderAboutModalProps> = ({ linstorVersion }) =
                         <span>{sdsVersion}</span>
                       </div>
                     )}
-                    <div className="flex justify-between gap-4 text-base">
-                      <span className="font-medium">{t('controller_ip')}</span>
-                      <span>0.0.0.0</span>
-                    </div>
-                    <div className="flex justify-between gap-4 text-base">
-                      <span className="font-medium">{t('controller_active_on')}</span>
-                      <span>{hostName}</span>
-                    </div>
+                    <ControllerRows linstorVersion={linstorVersion} />
                   </div>
                   <p className="text-sm opacity-75 leading-relaxed pt-7">{t('trademark')}</p>
                 </div>

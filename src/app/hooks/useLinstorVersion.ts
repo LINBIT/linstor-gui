@@ -19,6 +19,9 @@ export const MIN_API_VERSION = {
   REGEX_FILTER: '1.28.0',
   // GET /v1/view/error-reports: paged, sorted and filtered on the controller.
   ERROR_REPORT_PAGING: '1.30.0',
+  // host_name in GET /v1/controller/version. Builds reporting 1.30.0 before it
+  // landed lack the field, so callers check that it is there as well.
+  CONTROLLER_HOST_NAME: '1.30.0',
 } as const;
 
 export const useLinstorVersion = () => {

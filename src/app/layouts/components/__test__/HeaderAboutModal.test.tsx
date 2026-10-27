@@ -6,8 +6,13 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach, onTestFinished } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type { ReactElement } from 'react';
 
 import HeaderAboutModal from '../HeaderAboutModal';
+import { controllerActiveOn } from '../controllerActiveOn';
+import { getControllerConfig } from '@app/features/node/api';
+import { useControllerHa } from '@app/features/node/hooks/useActiveController';
 import { UIMode } from '@app/features/settings/types';
 import type { SettingsContextValue } from '@app/features/settings/useSettings';
 import { makeSettings } from '@app/__test__/helpers';
@@ -19,6 +24,34 @@ vi.mock('@app/features/settings/useSettings', async (orig) => ({
   useSettings: () => settings.current,
 }));
 
+vi.mock('@app/features/node/api', async (orig) => ({
+  ...(await orig()),
+  getControllerConfig: vi.fn(),
+}));
+
+vi.mock('@app/features/node/hooks/useActiveController', async (orig) => ({
+  ...(await orig()),
+  useControllerHa: vi.fn(),
+}));
+
+const listening = (http: string | null, https: string | null) =>
+  vi.mocked(getControllerConfig).mockResolvedValue({
+    data: {
+      http: { enabled: http !== null, listen_address: http ?? '0.0.0.0', port: 3370 },
+      https: { enabled: https !== null, listen_address: https ?? '0.0.0.0', port: 3371 },
+    },
+  } as never);
+
+const haActiveOn = (active?: string) =>
+  vi.mocked(useControllerHa).mockReturnValue({ enabled: !!active, active, standby: [], isPending: false });
+
+const renderAbout = (ui: ReactElement) =>
+  render(
+    <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+      {ui}
+    </QueryClientProvider>,
+  );
+
 const openAbout = async () => {
   const title = await screen.findByTitle('LINSTOR GUI Info');
   fireEvent.click(title.closest('svg') as SVGElement);
@@ -29,6 +62,8 @@ const row = (label: string) => screen.getByText(label).parentElement as HTMLElem
 describe('HeaderAboutModal', () => {
   beforeEach(() => {
     settings.current = makeSettings({ mode: UIMode.NORMAL });
+    listening('::', '::');
+    haActiveOn('node-b');
     vi.stubEnv('VITE_VERSION', '2.6.0');
     vi.stubEnv('LINBIT_SDS_VERSION', '1.0.1');
   });
@@ -39,7 +74,7 @@ describe('HeaderAboutModal', () => {
   });
 
   it('opens the about panel from the dots icon and closes it again', async () => {
-    render(<HeaderAboutModal linstorVersion={{ version: '1.35.0', rest_api_version: '1.30.0' }} />);
+    renderAbout(<HeaderAboutModal linstorVersion={{ version: '1.35.0', rest_api_version: '1.30.0' }} />);
 
     expect(screen.queryByText('LINBIT-SDS')).toBeNull();
     await openAbout();
@@ -48,8 +83,9 @@ describe('HeaderAboutModal', () => {
     expect(row('LINSTOR Version')).toHaveTextContent('1.35.0');
     expect(row('UI Version')).toHaveTextContent('2.6.0');
     expect(row('LINBIT SDS Version')).toHaveTextContent('1.0.1');
-    expect(row('Controller Active On')).toHaveTextContent(window.location.host);
-    expect(row('Controller Binding IP')).toHaveTextContent('0.0.0.0');
+    expect(row('Controller Active On')).toHaveTextContent('node-b');
+    expect(await screen.findByText('::')).toBeInTheDocument();
+    expect(row('Controller Binding IP')).toHaveTextContent('::');
 
     fireEvent.click(document.querySelector('.anticon-close')?.parentElement as HTMLElement);
     expect(screen.queryByText('LINBIT-SDS')).toBeNull();
@@ -58,7 +94,7 @@ describe('HeaderAboutModal', () => {
   it('reports unknown versions and hides the SDS row when the build set none', async () => {
     vi.stubEnv('VITE_VERSION', '');
     vi.stubEnv('LINBIT_SDS_VERSION', '');
-    render(<HeaderAboutModal />);
+    renderAbout(<HeaderAboutModal />);
     await openAbout();
 
     expect(row('LINSTOR Version')).toHaveTextContent('unknown');
@@ -76,7 +112,7 @@ describe('HeaderAboutModal', () => {
     onTestFinished(() => {
       Object.defineProperty(window, 'location', { configurable: true, value: location });
     });
-    render(<HeaderAboutModal />);
+    renderAbout(<HeaderAboutModal />);
     await openAbout();
 
     fireEvent.click(screen.getByText('DEV'));
@@ -95,7 +131,7 @@ describe('HeaderAboutModal', () => {
   it('closes the host dialog on cancel without saving', async () => {
     vi.stubEnv('VITE_VERSION', '');
     settings.current = makeSettings({ mode: UIMode.HCI });
-    render(<HeaderAboutModal />);
+    renderAbout(<HeaderAboutModal />);
     await openAbout();
 
     fireEvent.click(screen.getByText('DEV'));
@@ -111,10 +147,48 @@ describe('HeaderAboutModal', () => {
 
   it('does not offer the host override outside HCI mode or on release builds', async () => {
     vi.stubEnv('VITE_VERSION', '');
-    render(<HeaderAboutModal />);
+    renderAbout(<HeaderAboutModal />);
     await openAbout();
 
     fireEvent.click(screen.getByText('DEV'));
     expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('lists the address of each enabled REST listener once', async () => {
+    listening('192.168.1.10', null);
+    renderAbout(<HeaderAboutModal linstorVersion={{ version: '1.35.0', rest_api_version: '1.29.1' }} />);
+    await openAbout();
+
+    expect(await screen.findByText('192.168.1.10')).toBeInTheDocument();
+    expect(row('Controller Binding IP')).toHaveTextContent(/^Controller Binding IP192\.168\.1\.10$/);
+  });
+
+  it('leaves out the controller rows when nothing is known about them', async () => {
+    listening(null, null);
+    haActiveOn(undefined);
+    renderAbout(<HeaderAboutModal linstorVersion={{ version: '1.35.0', rest_api_version: '1.29.1' }} />);
+    await openAbout();
+
+    await waitFor(() => expect(getControllerConfig).toHaveBeenCalled());
+    expect(screen.queryByText('Controller Binding IP')).toBeNull();
+    expect(screen.queryByText('Controller Active On')).toBeNull();
+  });
+});
+
+describe('controllerActiveOn', () => {
+  it('takes the host name the controller reports once its REST API has the field', () => {
+    expect(controllerActiveOn({ rest_api_version: '1.30.0', host_name: 'node-a' }, 'node-b')).toBe('node-a');
+    expect(controllerActiveOn({ rest_api_version: '1.31.0', host_name: 'node-a' }, undefined)).toBe('node-a');
+  });
+
+  it('falls back to the controller HA node on a 1.30.0 build without host_name and on older controllers', () => {
+    expect(controllerActiveOn({ rest_api_version: '1.30.0' }, 'node-b')).toBe('node-b');
+    expect(controllerActiveOn({ rest_api_version: '1.30.0', host_name: '' }, 'node-b')).toBe('node-b');
+    expect(controllerActiveOn({ rest_api_version: '1.29.1', host_name: 'node-a' }, 'node-b')).toBe('node-b');
+    expect(controllerActiveOn(undefined, 'node-b')).toBe('node-b');
+  });
+
+  it('knows nothing without either', () => {
+    expect(controllerActiveOn({ rest_api_version: '1.29.1' }, undefined)).toBeUndefined();
   });
 });
