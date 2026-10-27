@@ -5,12 +5,13 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useMemo, useRef, useState } from 'react';
-import { Alert, Form, Modal, Space, Spin, Steps, Table, Tag, Typography, message } from 'antd';
+import { Alert, Form, Modal, Space, Spin, Steps, Table, Typography, message } from 'antd';
+import { Tag } from '@app/components/Tag';
 import { Input } from '@app/components/Input';
 import { InputNumber } from '@app/components/InputNumber';
 import { Select } from '@app/components/Select';
 import { DeviceSourceSelect, type DeviceSourceMode } from './DeviceSourceSelect';
-import { CheckCircleTwoTone, CloseCircleTwoTone, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, CloseCircleOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@app/components/Button';
@@ -522,7 +523,7 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
             <Typography.Text strong>{t('clusterSetup:step_nodes')}</Typography.Text>
             <div style={{ margin: '6px 0 12px' }}>
               {nodePlan.map((n) => (
-                <Tag key={n.name} color="blue" style={{ marginBottom: 4 }}>
+                <Tag key={n.name} tone="info" style={{ marginBottom: 4 }}>
                   {n.name} ({n.ip}:{n.port})
                 </Tag>
               ))}
@@ -533,7 +534,7 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
               {poolPlan.length === 0 ? (
                 <Typography.Text type="secondary">{t('clusterSetup:rg_skipped_none')}</Typography.Text>
               ) : (
-                <Tag color="blue" style={{ marginBottom: 4 }}>
+                <Tag tone="info" style={{ marginBottom: 4 }}>
                   {poolPlan[0].name} ({poolPlan[0].provider_kind}: {poolPlan[0].source}) —{' '}
                   {poolPlan.map((p) => p.node).join(', ')}
                 </Tag>
@@ -544,7 +545,7 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
             <div style={{ marginTop: 6 }}>
               {rgPlan ? (
                 <>
-                  <Tag color="blue">{rgPlan.name}</Tag>
+                  <Tag tone="info">{rgPlan.name}</Tag>
                   {Object.keys(rgPlan.props).length > 0 && (
                     <div style={{ marginTop: 8 }}>
                       {Object.entries(rgPlan.props).map(([k, v]) => (
@@ -582,14 +583,8 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
                 {nodeOutcomes.map((o) => (
                   <Tag
                     key={o.name}
-                    icon={
-                      o.status === 'success' ? (
-                        <CheckCircleTwoTone twoToneColor="#52c41a" />
-                      ) : (
-                        <CloseCircleTwoTone twoToneColor="#ff4d4f" />
-                      )
-                    }
-                    color={o.status === 'success' ? 'green' : 'red'}
+                    icon={o.status === 'success' ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
+                    tone={o.status === 'success' ? 'success' : 'danger'}
                     style={{ marginBottom: 4 }}
                   >
                     {o.name}
@@ -606,7 +601,7 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
                 {poolOutcomes.map((o) => (
                   <Tag
                     key={`${o.node}:${o.pool}`}
-                    color={o.status === 'success' ? 'green' : o.status === 'skipped' ? 'default' : 'red'}
+                    tone={o.status === 'success' ? 'success' : o.status === 'skipped' ? 'neutral' : 'danger'}
                     style={{ marginBottom: 4 }}
                   >
                     {o.node} / {o.pool}
@@ -620,9 +615,9 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
             <div style={{ marginTop: 12 }}>
               <Typography.Text strong>{t('clusterSetup:step_resource_group')}</Typography.Text>
               <div style={{ marginTop: 6 }}>
-                {rgOutcome.status === 'created' && <Tag color="green">{rgOutcome.name}</Tag>}
+                {rgOutcome.status === 'created' && <Tag tone="success">{rgOutcome.name}</Tag>}
                 {rgOutcome.status === 'error' && (
-                  <Tag color="red">
+                  <Tag tone="danger">
                     {rgOutcome.name}
                     {rgOutcome.message ? `: ${rgOutcome.message}` : ''}
                   </Tag>

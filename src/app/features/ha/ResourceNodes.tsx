@@ -5,12 +5,13 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
-import { Tag, Space, Tooltip } from 'antd';
+import { Space, Tooltip } from 'antd';
+import { Tag } from '@app/components/Tag';
 import { LoadingOutlined } from '@ant-design/icons';
 import { Link } from '@app/components/Link';
 import { useResources } from './useHA';
 import type { PromoterEntry } from './haStatus';
-import { ACTIVE_NODE_LINK_STYLE, ACTIVE_TAG_STYLE, PROMOTER_TOOLTIP_STYLES, renderPromoterTree } from './PromoterTree';
+import { ACTIVE_NODE_LINK_STYLE, PROMOTER_TOOLTIP_STYLES, renderPromoterTree } from './PromoterTree';
 
 interface ResourceNodesProps {
   resourceName: string;
@@ -82,11 +83,7 @@ export const ResourceNodes: React.FC<ResourceNodesProps> = ({ resourceName, reac
         // Highlight the active/primary node with the LINBIT brand color (same as
         // the "+ Add" button) instead of the default green success tag.
         const tag = (
-          <Tag
-            color={isPrimary ? undefined : 'default'}
-            key={resourceObj.node_name}
-            style={isPrimary ? ACTIVE_TAG_STYLE : undefined}
-          >
+          <Tag tone={isPrimary ? 'highlight' : 'neutral'} key={resourceObj.node_name}>
             {isPrimary ? (
               <Link to={`/inventory/nodes/${resourceObj.node_name}`} style={ACTIVE_NODE_LINK_STYLE}>
                 {resourceObj.node_name}

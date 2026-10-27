@@ -5,10 +5,10 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
-import { Tag, Tooltip } from 'antd';
+import { Tooltip } from 'antd';
 import { useTranslation } from 'react-i18next';
 
-import { cssVar } from '@app/const/themeTokens';
+import { Tag } from '@app/components/Tag';
 
 /** Marks the node the active controller runs on, in the brand chip colors. */
 export const ActiveControllerTag: React.FC = () => {
@@ -16,11 +16,7 @@ export const ActiveControllerTag: React.FC = () => {
 
   return (
     <Tooltip title={t('active_controller_tooltip')}>
-      <Tag
-        className="m-0"
-        variant="filled"
-        style={{ background: cssVar('bg/chip/brand'), color: cssVar('text/primary') }}
-      >
+      <Tag tone="brand" className="m-0">
         {t('active_controller')}
       </Tag>
     </Tooltip>

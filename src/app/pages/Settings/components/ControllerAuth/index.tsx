@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect, useState } from 'react';
-import { Alert, Card, Modal, Tag, Typography, message } from 'antd';
+import { Alert, Card, Modal, Typography, message } from 'antd';
+import { Tag } from '@app/components/Tag';
 import { Input } from '@app/components/Input';
 import { CheckCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
@@ -213,7 +214,7 @@ const ControllerAuth: React.FC = () => {
           )}
 
           {tokenAuthEnabled === true && (
-            <Tag color="success" icon={<CheckCircleOutlined />} style={{ alignSelf: 'flex-start' }}>
+            <Tag tone="success" icon={<CheckCircleOutlined />} style={{ alignSelf: 'flex-start' }}>
               {t('settings:controller_auth_already_initialized')}
             </Tag>
           )}

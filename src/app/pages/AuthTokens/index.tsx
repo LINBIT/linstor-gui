@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { useEffect, useState } from 'react';
-import { Alert, Card, DatePicker, Dropdown, Form, Modal, Space, Table, Tag, Typography, message } from 'antd';
+import { Alert, Card, DatePicker, Dropdown, Form, Modal, Space, Table, Typography, message } from 'antd';
+import { Tag } from '@app/components/Tag';
 import { Input } from '@app/components/Input';
 import type { ColumnsType } from 'antd/es/table';
 import { MoreOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
@@ -202,7 +203,7 @@ const AuthTokens = () => {
     {
       title: t('authToken:active'),
       dataIndex: 'is_active',
-      render: (value: boolean) => <Tag color={value ? 'green' : 'red'}>{booleanText(value)}</Tag>,
+      render: (value: boolean) => <Tag tone={value ? 'success' : 'danger'}>{booleanText(value)}</Tag>,
       filters: [
         { text: t('common:yes'), value: true },
         { text: t('common:no'), value: false },

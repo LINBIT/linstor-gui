@@ -4,7 +4,8 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { Flex, Tag, Dropdown } from 'antd';
+import { Flex, Dropdown } from 'antd';
+import { Tag } from '@app/components/Tag';
 import type { TableProps } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { MoreOutlined } from '@ant-design/icons';
@@ -18,23 +19,6 @@ import { connectionStatus } from './rows';
 import type { OverviewRow } from './types';
 
 type DefinitionColumns = NonNullable<TableProps<OverviewRow>['columns']>;
-
-const TAG_COLORS = [
-  '#FFCC9C',
-  '#EEEEEE',
-  '#E1C047',
-  '#C0854E',
-  '#F79133',
-  '#499BBB',
-  '#E1C047',
-  '#65BDED',
-  '#C0854E',
-  '#84E4E9',
-  '#FF6D6D',
-  '#5FD4A9',
-  '#C38EC8',
-  '#BBD45F',
-];
 
 export interface DefinitionActions {
   onEdit: (record: OverviewRow) => void;
@@ -84,11 +68,7 @@ export const useDefinitionColumns = (mode: UIMode | undefined, actions: Definiti
         return (
           <Flex gap="4px 0" wrap>
             {record?.layer_data?.map((layer, index) => {
-              return (
-                <Tag key={index} color={TAG_COLORS[index]} variant="filled">
-                  <span className="text-[var(--text-on-brand)]">{layer.type}</span>
-                </Tag>
-              );
+              return <Tag key={index}>{layer.type}</Tag>;
             })}
           </Flex>
         );
@@ -103,7 +83,7 @@ export const useDefinitionColumns = (mode: UIMode | undefined, actions: Definiti
         );
 
         if (isResizing) {
-          return <Tag color="orange">RESIZING</Tag>;
+          return <Tag tone="warning">RESIZING</Tag>;
         }
 
         const stateOfResources = rd.volumes?.map((e) => connectionStatus(e.resource));
@@ -113,7 +93,7 @@ export const useDefinitionColumns = (mode: UIMode | undefined, actions: Definiti
         // Filter out 'OK' and remove duplicates before joining
         const uniqueNonOKStates = Array.from(new Set(stateOfResources?.filter((e) => e !== 'OK')));
 
-        return <Tag color={isAllOK ? 'green' : 'red'}>{isAllOK ? 'OK' : uniqueNonOKStates.join(',')}</Tag>;
+        return <Tag tone={isAllOK ? 'success' : 'danger'}>{isAllOK ? 'OK' : uniqueNonOKStates.join(',')}</Tag>;
       },
     },
     {

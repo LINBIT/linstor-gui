@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Form, Space, Table, Tag, DatePicker, Dropdown } from 'antd';
+import { Form, Space, Table, DatePicker, Dropdown } from 'antd';
+import { Tag } from '@app/components/Tag';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
 import { Link } from '@app/components/Link';
@@ -319,7 +320,7 @@ export const List = () => {
       title: t('error_report:module'),
       key: 'module',
       dataIndex: 'module',
-      render: (_, { module }) => <Tag color={module === 'SATELLITE' ? 'cyan' : 'geekblue'}>{module}</Tag>,
+      render: (_, { module }) => <Tag tone="info">{module}</Tag>,
       ...serverSorter('module'),
     },
     {
@@ -329,7 +330,7 @@ export const List = () => {
       render: (_, { exception, exception_message }) => (
         <div>
           <p>{exception_message}</p>
-          <Tag color="red">{exception}</Tag>
+          <Tag tone="danger">{exception}</Tag>
         </div>
       ),
       ...serverSorter('exception_message'),

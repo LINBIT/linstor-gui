@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal, Table, Tag } from 'antd';
+import { Modal, Table } from 'antd';
+import { Tag } from '@app/components/Tag';
 import { Input } from '@app/components/Input';
 import { Button } from '@app/components/Button';
 import { SearchOutlined } from '@ant-design/icons';
@@ -28,11 +29,6 @@ interface AddAgentModalProps {
   onAgentChange: (agent: string) => void;
   agents: CatalogAgent[] | null;
 }
-
-const PLATFORM_COLORS: Record<AgentPlatform, string> = {
-  linux: 'blue',
-  windows: 'geekblue',
-};
 
 export function AddAgentModal({
   visible,
@@ -87,9 +83,7 @@ export function AddAgentModal({
       key: 'platform',
       width: 110,
       sorter: (a: { platform: AgentPlatform }, b: { platform: AgentPlatform }) => a.platform.localeCompare(b.platform),
-      render: (platform: AgentPlatform) => (
-        <Tag color={PLATFORM_COLORS[platform]}>{AGENT_PLATFORM_LABELS[platform]}</Tag>
-      ),
+      render: (platform: AgentPlatform) => <Tag tone="info">{AGENT_PLATFORM_LABELS[platform]}</Tag>,
     },
     {
       title: t('common:provider'),

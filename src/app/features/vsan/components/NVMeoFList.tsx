@@ -8,7 +8,8 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { deleteNVMeExport, getNVMeoFTarget } from '../api';
 
-import { notification, Space, Table, Tag } from 'antd';
+import { notification, Space, Table } from 'antd';
+import { Tag } from '@app/components/Tag';
 import type { TableProps } from 'antd';
 import { ErrorMessage, NVMeTarget } from '../types';
 import { REFETCH_INTERVAL } from '@app/const/time';
@@ -95,7 +96,7 @@ export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
       key: 'status',
       render: (status) => {
         const success = status === 'OK';
-        return <Tag color={success ? 'success' : 'error'}>{status}</Tag>;
+        return <Tag tone={success ? 'success' : 'danger'}>{status}</Tag>;
       },
       align: 'center',
     },

@@ -35,6 +35,9 @@ export const themeTokens = {
   'bg/chip/info': { light: '#dbebf1', dark: '#1a3040' },
   'bg/chip/brand': { light: '#fde9d6', dark: '#3a2010' },
   'bg/chip/neutral': { light: '#d9d9d9', dark: '#3d3d3d' },
+  'bg/chip/success': { light: '#e3f4d9', dark: '#1d2e14' },
+  'bg/chip/warning': { light: '#fff1d6', dark: '#33280f' },
+  'bg/chip/danger': { light: '#fde4e5', dark: '#3a1517' },
   'bg/button/secondary-hover': { light: '#ffdcbc', dark: '#4a2a15' },
   'bg/button/disabled': { light: '#f5f5f5', dark: 'rgba(255, 255, 255, 0.08)' },
   'bg/button/default-hover': { light: '#f5f5f5', dark: 'rgba(255, 255, 255, 0.08)' },
@@ -52,6 +55,11 @@ export const themeTokens = {
   'text/link/hover': { light: '#2c7fb8', dark: '#2c7fb8' },
   'text/link/active': { light: '#1e5a8a', dark: '#1e5a8a' },
   'text/on-dark': { light: '#ffffff', dark: '#ffffff' },
+  // Chip labels, each 4.5:1 (WCAG AA) or better on its chip in both modes.
+  'text/chip/info': { light: '#1e5a8a', dark: '#5aaccc' },
+  'text/chip/success': { light: '#237804', dark: '#95de64' },
+  'text/chip/warning': { light: '#874d00', dark: '#ffc130' },
+  'text/chip/danger': { light: '#a8071a', dark: '#ff6b72' },
   'text/button/disabled': { light: '#bfbfbf', dark: 'rgba(255, 255, 255, 0.3)' },
   /**
    * Label/icon color on top of brand (peach) fills. The fill stays light in

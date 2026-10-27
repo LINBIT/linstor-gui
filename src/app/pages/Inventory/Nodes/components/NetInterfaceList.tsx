@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
-import { Tag } from 'antd';
+import { Tag } from '@app/components/Tag';
 import { Button } from '@app/components/Button';
 import { CreateNetWorkInterfaceRequestBody, NetWorkInterface } from '@app/features/ip';
 import { NetInterfaceDetail } from './NetInterfaceDetail';
@@ -60,7 +60,7 @@ const NetInterfaceList: React.FC<Props> = ({ list, handleDeleteNetWorkInterface,
         >
           <ItemList.Meta title={item.name} description={item.address} />
           <div className="flex items-center gap-2">
-            {item.is_active && <Tag color="success">{t('node_detail:active')}</Tag>}
+            {item.is_active && <Tag tone="success">{t('node_detail:active')}</Tag>}
             {item.satellite_port !== undefined && (
               <span>
                 <span className="text-(--text-secondary)">{t('node_detail:tcp_port')}</span>{' '}

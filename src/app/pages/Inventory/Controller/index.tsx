@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { useMemo, useState } from 'react';
-import { Collapse, Empty, Skeleton, Tag } from 'antd';
+import { Collapse, Empty, Skeleton } from 'antd';
+import { Tag } from '@app/components/Tag';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
@@ -144,9 +145,7 @@ export const Controller = () => {
             label: (
               <span className="inline-flex flex-wrap items-center gap-3">
                 <span className="font-medium">{groupLabel(group.id)}</span>
-                <Tag className="m-0" variant="filled">
-                  {group.names.length}
-                </Tag>
+                <Tag className="m-0">{group.names.length}</Tag>
               </span>
             ),
             children: group.names.map((name) => (

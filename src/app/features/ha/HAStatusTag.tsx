@@ -5,9 +5,10 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
-import { Tag, Tooltip } from 'antd';
+import { Tooltip } from 'antd';
+import { Tag } from '@app/components/Tag';
 import type { PromoterEntry, ReactorStatus } from './haStatus';
-import { ACTIVE_TAG_STYLE, PROMOTER_TOOLTIP_STYLES, renderPromoterTree } from './PromoterTree';
+import { PROMOTER_TOOLTIP_STYLES, renderPromoterTree } from './PromoterTree';
 
 interface HAStatusTagProps {
   resourceName: string;
@@ -34,11 +35,7 @@ export const HAStatusTag: React.FC<HAStatusTagProps> = ({ resourceName, active, 
       )
     : null;
 
-  const tag = (
-    <Tag color={active ? undefined : 'default'} style={active ? ACTIVE_TAG_STYLE : undefined}>
-      {active ? 'Running' : 'Stopped'}
-    </Tag>
-  );
+  const tag = <Tag tone={active ? 'highlight' : 'neutral'}>{active ? 'Running' : 'Stopped'}</Tag>;
 
   return tooltipContent ? (
     <Tooltip title={tooltipContent} styles={PROMOTER_TOOLTIP_STYLES}>

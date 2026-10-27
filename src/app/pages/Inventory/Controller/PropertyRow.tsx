@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useState } from 'react';
-import { Tag } from 'antd';
+import { Tag } from '@app/components/Tag';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
@@ -125,11 +125,7 @@ export const PropertyRow: React.FC<PropertyRowProps> = ({ name, value, info, onS
                 {revealed ? t('controller:hide') : t('controller:show')}
               </Button>
             )}
-            {(unset || isDefault(value, info)) && (
-              <Tag className="m-0" variant="filled">
-                {t('controller:default')}
-              </Tag>
-            )}
+            {(unset || isDefault(value, info)) && <Tag className="m-0">{t('controller:default')}</Tag>}
           </div>
         )}
       </div>

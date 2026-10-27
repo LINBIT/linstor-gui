@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { useState, useMemo, useRef } from 'react';
-import { Space, Table, Tag, Dropdown, Modal, Spin, message } from 'antd';
+import { Space, Table, Dropdown, Modal, Spin, message } from 'antd';
+import { Tag } from '@app/components/Tag';
 import { Select } from '@app/components/Select';
 import { Input } from '@app/components/Input';
 import type { TableProps } from 'antd';
@@ -221,7 +222,7 @@ export const List = () => {
         <Tag>
           {text}
           <EyeOutlined
-            style={{ marginLeft: 8, cursor: 'pointer', color: '#499BBB' }}
+            style={{ marginLeft: 8, cursor: 'pointer', color: cssVar('text/link') }}
             onClick={() => handleViewContent(record)}
           />
         </Tag>
@@ -232,11 +233,7 @@ export const List = () => {
       key: 'deployed_to',
       render: (_, record) => {
         const deployedRd = getDeployedResource(record.path);
-        return deployedRd ? (
-          <Tag style={{ backgroundColor: '#FFCC9C', borderColor: '#FFCC9C', color: '#000' }}>{deployedRd}</Tag>
-        ) : (
-          <Tag color="gray">{t('not_deployed')}</Tag>
-        );
+        return deployedRd ? <Tag tone="highlight">{deployedRd}</Tag> : <Tag tone="neutral">{t('not_deployed')}</Tag>;
       },
     },
     {

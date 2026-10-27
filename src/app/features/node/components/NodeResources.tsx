@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
-import { Empty, Table, Tag, Tooltip } from 'antd';
+import { Empty, Table, Tooltip } from 'antd';
+import { Tag } from '@app/components/Tag';
 import type { TableProps } from 'antd';
 import { useTranslation } from 'react-i18next';
 
@@ -77,11 +78,11 @@ export const NodeResources: React.FC<NodeResourcesProps> = ({ resources, routePr
         const isPrimary = r.state?.in_use === true;
         return (
           <span className="inline-flex flex-wrap gap-y-1">
-            <Tag color={state.includes('Inconsistent') ? 'red' : 'geekblue'}>{state}</Tag>
-            {isPrimary && <Tag color="cyan">{t('common:primary')}</Tag>}
+            <Tag tone={state.includes('Inconsistent') ? 'danger' : 'info'}>{state}</Tag>
+            {isPrimary && <Tag tone="info">{t('common:primary')}</Tag>}
             {!isPrimary && r.state?.open === true && (
               <Tooltip title={t('resource:open_tooltip')}>
-                <Tag color="gold">{t('resource:open')}</Tag>
+                <Tag tone="warning">{t('resource:open')}</Tag>
               </Tooltip>
             )}
           </span>

@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
-import { Card, Descriptions, Popover, Tag } from 'antd';
+import { Card, Descriptions, Popover } from 'antd';
+import { Tag } from '@app/components/Tag';
 import type { DescriptionsProps } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { FaLinux, FaWindows } from 'react-icons/fa';
@@ -123,7 +124,7 @@ export const NodeSummary: React.FC<NodeSummaryProps> = ({ node, showPlatform, ac
           </span>
         )}
         {node?.flags?.map((flag) => (
-          <Tag key={flag} color="warning">
+          <Tag key={flag} tone="warning">
             {flag}
           </Tag>
         ))}

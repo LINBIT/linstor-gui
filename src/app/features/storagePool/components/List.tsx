@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Form, Space, Table, Tag, Dropdown } from 'antd';
+import { Form, Space, Table, Dropdown } from 'antd';
+import { Tag } from '@app/components/Tag';
 import { Select } from '@app/components/Select';
 import { Input } from '@app/components/Input';
 import { RegexFilterHint } from '@app/components/RegexFilterHint';
@@ -193,14 +194,6 @@ export const List = () => {
     setSelectedRowKeys([]);
   };
 
-  const providerKindColorMap = {
-    LVM: 'orange',
-    ZFS: 'blue',
-    LVM_THIN: 'green',
-    ZFS_THIN: 'purple',
-    DISKLESS: '',
-  };
-
   const columns: TableProps<StoragePool>['columns'] = [
     {
       title: t('storage_pool:name'),
@@ -236,8 +229,7 @@ export const List = () => {
       width: 120,
       dataIndex: 'provider_kind',
       render: (provider_kind: string) => {
-        const color = providerKindColorMap?.[provider_kind as keyof typeof providerKindColorMap] ?? 'default';
-        return <Tag color={color}>{provider_kind}</Tag>;
+        return <Tag>{provider_kind}</Tag>;
       },
     },
     {

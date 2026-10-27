@@ -41,7 +41,17 @@ export default tseslint.config(
           paths: [
             {
               name: 'antd',
-              importNames: ['Button', 'Popconfirm', 'Checkbox', 'Switch', 'Radio', 'Select', 'Input', 'InputNumber'],
+              importNames: [
+                'Button',
+                'Popconfirm',
+                'Checkbox',
+                'Switch',
+                'Radio',
+                'Select',
+                'Input',
+                'InputNumber',
+                'Tag',
+              ],
               message:
                 'Use the branded wrapper from @app/components/<Name> instead of the raw antd component (design system).',
             },
@@ -70,6 +80,7 @@ export default tseslint.config(
       'src/app/components/Select/**',
       'src/app/components/Input/**',
       'src/app/components/InputNumber/**',
+      'src/app/components/Tag/**',
     ],
     rules: {
       'no-restricted-imports': 'off',

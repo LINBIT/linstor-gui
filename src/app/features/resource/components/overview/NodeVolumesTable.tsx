@@ -5,7 +5,8 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React, { useRef } from 'react';
-import { Table, Tag, Dropdown, Tooltip, Modal } from 'antd';
+import { Table, Dropdown, Tooltip, Modal } from 'antd';
+import { Tag } from '@app/components/Tag';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LineChartOutlined, MoreOutlined } from '@ant-design/icons';
@@ -147,7 +148,7 @@ export const NodeVolumesTable: React.FC<NodeVolumesTableProps> = ({
       key: 'connection_status',
       render: (record) => {
         const status = connectionStatus(record?.resource);
-        return <Tag color={status === 'OK' ? 'green' : 'red'}>{status}</Tag>;
+        return <Tag tone={status === 'OK' ? 'success' : 'danger'}>{status}</Tag>;
       },
     },
     {
@@ -163,11 +164,11 @@ export const NodeVolumesTable: React.FC<NodeVolumesTableProps> = ({
         const isOpenSecondary = !isPrimaryNode && record.resource?.state?.open === true;
         return (
           <>
-            <Tag color={isInconsistent ? 'red' : 'geekblue'}>{stateStr}</Tag>
-            {isPrimaryNode && <Tag color="cyan">{t('common:primary')}</Tag>}
+            <Tag tone={isInconsistent ? 'danger' : 'info'}>{stateStr}</Tag>
+            {isPrimaryNode && <Tag tone="info">{t('common:primary')}</Tag>}
             {isOpenSecondary && (
               <Tooltip title={t('resource:open_tooltip')}>
-                <Tag color="gold">{t('resource:open')}</Tag>
+                <Tag tone="warning">{t('resource:open')}</Tag>
               </Tooltip>
             )}
           </>

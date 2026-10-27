@@ -56,7 +56,6 @@ export const getAntdTheme = (mode: ThemeMode): ThemeConfig => ({
       buttonColor: themeTokens['text/nav'][mode],
     },
     ...(mode === 'light' && {
-      Tag: { ...antdTheme.components?.Tag, ...LIGHT_TAG_TEXT },
       // antd draws the selected tab's label in colorPrimary, the peach that
       // reads at 1.5:1 on white. The label stays text-colored (and a hovered
       // one too); the deeper accent ink bar marks the selection.
@@ -69,26 +68,6 @@ export const getAntdTheme = (mode: ThemeMode): ThemeConfig => ({
     }),
   },
 });
-
-/**
- * Tag text on its tinted background at 4.5:1 (WCAG AA). antd writes a preset
- * tag in shade 7 of its palette and a status tag in the status color itself,
- * both too light for these; they take the next shade that passes. Light mode
- * only: the dark algorithm derives its own palette.
- */
-const LIGHT_TAG_TEXT = {
-  volcano7: '#ad2102',
-  orange7: '#ad4e00',
-  gold7: '#874d00',
-  yellow7: '#876800',
-  lime7: '#3f6600',
-  green7: '#237804',
-  cyan7: '#006d75',
-  colorSuccess: '#237804',
-  colorInfo: '#003eb3',
-  colorWarning: '#874d00',
-  colorError: '#a8071a',
-};
 
 export const antdTheme: ThemeConfig = {
   token: {

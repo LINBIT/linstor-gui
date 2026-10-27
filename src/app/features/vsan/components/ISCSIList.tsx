@@ -6,7 +6,8 @@
 
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { Space, Table, Tag, notification } from 'antd';
+import { Space, Table, notification } from 'antd';
+import { Tag } from '@app/components/Tag';
 import type { TableProps } from 'antd';
 
 import { ErrorMessage, ISCSITarget } from '../types';
@@ -95,7 +96,7 @@ export const ISCSIList = ({ complex }: ISCSIListProp) => {
       key: 'status',
       render: (status) => {
         const success = status === 'OK';
-        return <Tag color={success ? 'success' : 'error'}>{status}</Tag>;
+        return <Tag tone={success ? 'success' : 'danger'}>{status}</Tag>;
       },
       align: 'center',
     },

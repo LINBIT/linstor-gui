@@ -9,7 +9,8 @@ import {
 import { useSortable } from '@dnd-kit/sortable';
 import { useTranslation } from 'react-i18next';
 import { CSS } from '@dnd-kit/utilities';
-import { Card, Form, Space, Tag, Tooltip, Typography } from 'antd';
+import { Card, Form, Space, Tooltip, Typography } from 'antd';
+import { Tag } from '@app/components/Tag';
 import { Input } from '@app/components/Input';
 import { InputNumber } from '@app/components/InputNumber';
 import type { OcfAgentWithMetadata, Parameter, ParamEntry, ResourceAgent } from './types';
@@ -129,18 +130,14 @@ export function SortableAgentItem({
     if (isOcf && ocfAgent) {
       return {
         typeLabel: ocfAgent.agent_type,
-        typeColor: 'purple' as const,
         instanceLabel: ocfAgent.instance_name,
-        instanceColor: 'orange' as const,
       };
     } else {
       // Plain systemd unit
       const name = item.original.split(' ')[0]; // Take first part as name
       return {
         typeLabel: 'systemd',
-        typeColor: 'blue' as const,
         instanceLabel: name,
-        instanceColor: 'green' as const,
       };
     }
   };
@@ -202,13 +199,13 @@ export function SortableAgentItem({
 
           {/* Item info */}
           <Space size="small" style={{ flex: 1 }}>
-            <Tag color="blue">#{index + 1}</Tag>
-            {isOcf && <Tag color="cyan">OCF</Tag>}
-            <Tag color={displayInfo.typeColor}>{displayInfo.typeLabel}</Tag>
-            {isOcf && ocfAgent && <Tag color={displayInfo.instanceColor}>{displayInfo.instanceLabel}</Tag>}
-            {!isOcf && <Tag color={displayInfo.instanceColor}>{displayInfo.instanceLabel}</Tag>}
-            {isOcf && isLoadingMetadata && <Tag color="processing">{t('common:loading_metadata')}</Tag>}
-            {isOcf && !metadata && !isLoadingMetadata && <Tag color="warning">{t('common:metadata_not_found')}</Tag>}
+            <Tag>#{index + 1}</Tag>
+            {isOcf && <Tag tone="info">OCF</Tag>}
+            <Tag tone="info">{displayInfo.typeLabel}</Tag>
+            {isOcf && ocfAgent && <Tag>{displayInfo.instanceLabel}</Tag>}
+            {!isOcf && <Tag>{displayInfo.instanceLabel}</Tag>}
+            {isOcf && isLoadingMetadata && <Tag tone="info">{t('common:loading_metadata')}</Tag>}
+            {isOcf && !metadata && !isLoadingMetadata && <Tag tone="warning">{t('common:metadata_not_found')}</Tag>}
           </Space>
 
           {/* Delete button */}

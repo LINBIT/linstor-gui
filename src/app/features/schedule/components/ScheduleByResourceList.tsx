@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { logger } from '@app/utils/logger';
-import { Form, Table, message, Space, Dropdown, Tag } from 'antd';
+import { Form, Table, message, Space, Dropdown } from 'antd';
+import { Tag } from '@app/components/Tag';
 import { Input } from '@app/components/Input';
 import { Button } from '@app/components/Button';
 import type { TableProps } from 'antd';
@@ -134,7 +135,7 @@ export const ScheduleByResourceList = () => {
         dataIndex: 'rsc_dfn',
         key: 'rsc_dfn',
         render: (enabled) => {
-          return enabled ? <Tag color="green">{t('schedule:enabled')}</Tag> : '';
+          return enabled ? <Tag tone="success">{t('schedule:enabled')}</Tag> : '';
         },
       },
       {
@@ -142,7 +143,7 @@ export const ScheduleByResourceList = () => {
         dataIndex: 'rsc_grp',
         key: 'rsc_grp',
         render: (enabled) => {
-          return enabled ? <Tag color="green">{t('schedule:enabled')}</Tag> : '';
+          return enabled ? <Tag tone="success">{t('schedule:enabled')}</Tag> : '';
         },
       },
       {
@@ -150,7 +151,7 @@ export const ScheduleByResourceList = () => {
         dataIndex: 'ctrl',
         key: 'ctrl',
         render: (enabled) => {
-          return enabled ? <Tag color="green">{t('schedule:enabled')}</Tag> : '';
+          return enabled ? <Tag tone="success">{t('schedule:enabled')}</Tag> : '';
         },
       },
     ];

@@ -7,7 +7,8 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { logger } from '@app/utils/logger';
-import { Table, Tag, Popover, Space, Modal, Progress, Tooltip, notification } from 'antd';
+import { Table, Popover, Space, Modal, Progress, Tooltip, notification } from 'antd';
+import { Tag, type TagTone } from '@app/components/Tag';
 import { InputNumber } from '@app/components/InputNumber';
 import type { ColumnsType } from 'antd/es/table';
 import { getNodesFromVSAN, setNodeStandBy, setNodeMaintenance, getCloudStackNodes } from '../api';
@@ -16,7 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import { compareIPv4 } from '@app/utils/ip';
 import { InfoCircleOutlined, SettingOutlined } from '@ant-design/icons';
 
-import { cssVar, themeTokens } from '@app/const/themeTokens';
+import { cssVar } from '@app/const/themeTokens';
 import { CloudStackNode, ErrorMessage, Node } from '../types';
 import { UIMode } from '@app/features/settings/types';
 import { useUIMode } from '@app/features/settings/useSettings';
@@ -287,13 +288,13 @@ export const VSANNodeList = () => {
           content={() => (
             <div>
               <p>
-                <Tag color="success">Online</Tag>: Everything is ok
+                <Tag tone="success">Online</Tag>: Everything is ok
               </p>
               <p>
-                <Tag color="yellow">Standby</Tag>: Node is in standby
+                <Tag tone="warning">Standby</Tag>: Node is in standby
               </p>
               <p>
-                <Tag color="error">Error</Tag>: Something is wrong
+                <Tag tone="danger">Error</Tag>: Something is wrong
               </p>
             </div>
           )}
@@ -306,26 +307,26 @@ export const VSANNodeList = () => {
       dataIndex: 'address',
       key: 'online',
       render: (_, record) => {
-        let color: string;
+        let tone: TagTone;
         let statusText: string;
 
         if (!record.online) {
-          color = 'error';
+          tone = 'danger';
           statusText = 'Error';
         } else if (record.standby) {
-          color = 'yellow';
+          tone = 'warning';
           statusText = 'Standby';
         } else {
-          color = 'success';
+          tone = 'success';
           statusText = 'Online';
         }
 
         return (
           <>
-            <Tag color={color}>{statusText}</Tag>
-            {record.has_linstor_controller && <Tag color="#f79133">{isHCI ? 'LINSTOR' : 'Controller'}</Tag>}
-            {isHCI && record?.has_cloudstack_db && <Tag color="#155086">CS Manager</Tag>}
-            {isHCI && record?.has_cloudstack_nfs && <Tag color="#499BBB">NFS</Tag>}
+            <Tag tone={tone}>{statusText}</Tag>
+            {record.has_linstor_controller && <Tag tone="brand">{isHCI ? 'LINSTOR' : 'Controller'}</Tag>}
+            {isHCI && record?.has_cloudstack_db && <Tag tone="info">CS Manager</Tag>}
+            {isHCI && record?.has_cloudstack_nfs && <Tag tone="info">NFS</Tag>}
           </>
         );
       },
@@ -378,12 +379,11 @@ export const VSANNodeList = () => {
             : updateProcess?.label;
 
         const inProgress = updateProcess?.label === 'Downloading' || updateProcess?.label === 'Installing';
-        // A tag works out its tint from the color, so it needs a value rather than a CSS variable.
-        let tagColor = inProgress ? themeTokens['brand/accent'].light : 'success';
+        let tagTone: TagTone = inProgress ? 'brand' : 'success';
         let strokeColor = inProgress ? cssVar('brand/accent') : cssVar('status/success');
 
         if (updateProcess?.label === 'Error') {
-          tagColor = 'error';
+          tagTone = 'danger';
           strokeColor = cssVar('status/error');
           updateError = true;
           tooltip = updateProcess?.message ?? 'Update failed!';
@@ -409,14 +409,14 @@ export const VSANNodeList = () => {
               <div className="mt-1.5">
                 <Tooltip title={tooltip || ''}>
                   <Progress percent={progress} status="active" strokeColor={strokeColor} />
-                  <Tag color={tagColor}>{updateProcess?.label}</Tag>
+                  <Tag tone={tagTone}>{updateProcess?.label}</Tag>
                 </Tooltip>
               </div>
             )}
             {updateError && (
               <div className="mt-1.5">
                 <Tooltip title={tooltip || ''}>
-                  <Tag color="error">{updateProcess?.label}</Tag>
+                  <Tag tone="danger">{updateProcess?.label}</Tag>
                 </Tooltip>
               </div>
             )}

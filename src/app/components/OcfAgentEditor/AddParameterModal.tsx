@@ -1,4 +1,5 @@
-import { Form, Modal, Tag, Typography } from 'antd';
+import { Form, Modal, Typography } from 'antd';
+import { Tag } from '@app/components/Tag';
 import { useTranslation } from 'react-i18next';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
@@ -85,7 +86,7 @@ export function AddParameterModal({
         {selectedParam && selectedParamMeta && (
           <>
             <Form.Item label={t('clusterSetup:node_type')}>
-              <Tag color="blue">{selectedParamMeta.type}</Tag>
+              <Tag tone="info">{selectedParamMeta.type}</Tag>
             </Form.Item>
 
             <Form.Item label={t('authToken:description')}>
