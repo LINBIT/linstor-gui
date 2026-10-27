@@ -90,7 +90,7 @@ const CreateNVMEOfForm = () => {
 
   return (
     <Form<FormType>
-      style={{ maxWidth: 800 }}
+      className="max-w-[800px]"
       size="large"
       layout="vertical"
       form={form}
@@ -101,7 +101,7 @@ const CreateNVMEOfForm = () => {
         gross_size: false,
       }}
     >
-      <Alert title={t('nvme:creates_highly_available_nvme_target')} type="info" showIcon style={{ marginBottom: 24 }} />
+      <Alert title={t('nvme:creates_highly_available_nvme_target')} type="info" showIcon className="mb-6" />
       <Form.Item
         label={t('nvme:nqn')}
         name="nqn"
@@ -181,7 +181,7 @@ const CreateNVMEOfForm = () => {
           {t('common:submit')}
         </Button>
 
-        <Button type="secondary" onClick={backToList} style={{ marginLeft: '1em' }}>
+        <Button type="secondary" onClick={backToList} className="ml-[1em]">
           {t('common:cancel')}
         </Button>
       </Form.Item>

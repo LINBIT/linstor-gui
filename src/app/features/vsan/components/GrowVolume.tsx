@@ -98,7 +98,7 @@ export const GrowVolume = ({ resource, resource_group, current_kib, refetch }: G
         width={600}
         destroyOnHidden
         footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <div className="flex justify-end gap-2">
             <Button type="secondary" onClick={handleCancel}>
               Cancel
             </Button>

@@ -106,7 +106,7 @@ const CreateISCSIForm = () => {
 
   return (
     <Form<FormType>
-      style={{ maxWidth: 800 }}
+      className="max-w-[800px]"
       size="large"
       layout="vertical"
       form={form}
@@ -118,12 +118,7 @@ const CreateISCSIForm = () => {
         gross_size: false,
       }}
     >
-      <Alert
-        title={t('iscsi:creates_highly_available_iscsi_target')}
-        type="info"
-        showIcon
-        style={{ marginBottom: 24 }}
-      />
+      <Alert title={t('iscsi:creates_highly_available_iscsi_target')} type="info" showIcon className="mb-6" />
       <Form.Item
         label={t('iscsi:iqn')}
         name="iqn"
@@ -198,21 +193,15 @@ const CreateISCSIForm = () => {
                   ]}
                   noStyle
                 >
-                  <Input placeholder="192.168.1.1/24" style={{ width: '60%' }} />
+                  <Input placeholder="192.168.1.1/24" className="w-3/5" />
                 </Form.Item>
                 {fields.length > 0 ? (
-                  <MinusCircleOutlined
-                    className="dynamic-delete-button"
-                    style={{
-                      marginLeft: 10,
-                    }}
-                    onClick={() => remove(field.name)}
-                  />
+                  <MinusCircleOutlined className="dynamic-delete-button ml-2.5" onClick={() => remove(field.name)} />
                 ) : null}
               </Form.Item>
             ))}
             <Form.Item>
-              <Button type="dashed" onClick={() => add()} style={{ width: '60%' }}>
+              <Button type="dashed" onClick={() => add()} className="w-3/5">
                 {t('iscsi:add_service_ip')}
                 <PlusOutlined />
               </Button>
@@ -256,7 +245,7 @@ const CreateISCSIForm = () => {
           {t('common:submit')}
         </Button>
 
-        <Button type="secondary" onClick={backToList} style={{ marginLeft: '1em' }}>
+        <Button type="secondary" onClick={backToList} className="ml-[1em]">
           {t('common:cancel')}
         </Button>
       </Form.Item>

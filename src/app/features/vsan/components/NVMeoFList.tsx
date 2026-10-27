@@ -166,7 +166,7 @@ export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
         <>
           <p>This module allows exporting the highly available storage managed by LINSTOR via NVMe-oF.</p>
           <div className="mb-2.5">
-            <Button onClick={() => refetch()} style={{ marginRight: 10 }}>
+            <Button onClick={() => refetch()} className="mr-2.5">
               Reload
             </Button>
             <CreateNVMEOfForm refetch={refetch} />

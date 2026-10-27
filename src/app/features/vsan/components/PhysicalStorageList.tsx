@@ -75,7 +75,7 @@ export const PhysicalStorageList = () => {
   return (
     <div>
       <div className="mb-2.5">
-        <Button onClick={() => refetch()} style={{ marginRight: 10 }}>
+        <Button onClick={() => refetch()} className="mr-2.5">
           Reload
         </Button>
 
@@ -93,7 +93,7 @@ export const PhysicalStorageList = () => {
           expandedRowRender: (record) => {
             const nodes = Object.keys(record?.capacities) ?? [];
             return (
-              <div style={{ margin: 0 }}>
+              <div className="m-0">
                 {nodes.map((node) => {
                   return (
                     <div key={node}>

@@ -22,7 +22,6 @@ import { ExpandIconProps, NFSResource } from '../types';
 import { ExportBasePath } from '../const';
 import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
 import { labelRowCheckbox } from '@app/utils/rowSelection';
-import { cssVar } from '@app/const/themeTokens';
 
 type NFSListProps = {
   list: NFSResource[];
@@ -130,7 +129,7 @@ export const NFSList = ({
       render: (_, item) => {
         const ip = item?.service_ip;
         if (Array.isArray(ip)) {
-          return <pre style={{ margin: 0 }}>{ip.join(', ')}</pre>;
+          return <pre className="m-0">{ip.join(', ')}</pre>;
         }
         return <span>{ip || '-'}</span>;
       },
@@ -174,7 +173,7 @@ export const NFSList = ({
         return (
           <>
             <SupportStatus supported={isStarted} />
-            <span style={{ marginLeft: 4 }}>{item?.status?.service}</span>
+            <span className="ml-1">{item?.status?.service}</span>
           </>
         );
       },
@@ -187,7 +186,7 @@ export const NFSList = ({
         return (
           <>
             <SupportStatus supported={isOk} />
-            <span style={{ marginLeft: 4 }}>{item?.status?.state}</span>
+            <span className="ml-1">{item?.status?.state}</span>
           </>
         );
       },
@@ -289,7 +288,7 @@ export const NFSList = ({
         return (
           <>
             <SupportStatus supported={isOk} />
-            <span style={{ marginLeft: 4 }}>{state || 'Unknown'}</span>
+            <span className="ml-1">{state || 'Unknown'}</span>
           </>
         );
       },
@@ -321,21 +320,14 @@ export const NFSList = ({
     const volumes = getVolumesForResource(record);
 
     return (
-      <div
-        style={{
-          background: 'var(--bg-surface)',
-          padding: '16px',
-          margin: '-8px -8px -8px 24px',
-          borderRadius: '4px',
-        }}
-      >
+      <div className="bg-(--bg-surface) p-4 -my-2 -mr-2 ml-6 rounded">
         <Table<VolumeData>
           columns={volumeColumns}
           dataSource={volumes}
           pagination={false}
           size="small"
           rowKey="key"
-          style={{ background: 'var(--bg-page)' }}
+          className="bg-(--bg-page)"
         />
       </div>
     );
@@ -346,19 +338,13 @@ export const NFSList = ({
     const hasVolumes = (record.volumes ?? []).some((v) => (v?.number ?? 0) > 0);
 
     if (!hasVolumes) {
-      return <span style={{ width: 24, display: 'inline-block' }} />;
+      return <span className="w-[24px] inline-block" />;
     }
 
     return expanded ? (
-      <DownOutlined
-        style={{ cursor: 'pointer', marginRight: 8, color: cssVar('text/link') }}
-        onClick={(e) => onExpand(record, e)}
-      />
+      <DownOutlined className="cursor-pointer mr-2 text-(--text-link)" onClick={(e) => onExpand(record, e)} />
     ) : (
-      <RightOutlined
-        style={{ cursor: 'pointer', marginRight: 8, color: cssVar('text/link') }}
-        onClick={(e) => onExpand(record, e)}
-      />
+      <RightOutlined className="cursor-pointer mr-2 text-(--text-link)" onClick={(e) => onExpand(record, e)} />
     );
   };
 
@@ -404,7 +390,7 @@ export const NFSList = ({
 
       <br />
 
-      <Alert title={t('nfs:only_one_resource_note')} type="warning" showIcon style={{ marginBottom: 24 }} />
+      <Alert title={t('nfs:only_one_resource_note')} type="warning" showIcon className="mb-6" />
       <Table<NFSResource & NFSOperationStatus>
         bordered={false}
         columns={columns}

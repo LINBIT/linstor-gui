@@ -167,7 +167,7 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
           body: { maxHeight: '70vh', overflowY: 'auto' },
         }}
         footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <div className="flex justify-end gap-2">
             <Button type="secondary" onClick={handleCancel}>
               Cancel
             </Button>
@@ -228,7 +228,7 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
                   noStyle
                   rules={[{ required: true, message: 'IP prefix is required!' }]}
                 >
-                  <Select options={ipServiceOptions} style={{ minWidth: 140 }} placeholder="192.168.1." />
+                  <Select options={ipServiceOptions} className="min-w-[140px]" placeholder="192.168.1." />
                 </Form.Item>
                 <Form.Item name="service_ip" noStyle rules={[{ required: true, message: 'IP address is required!' }]}>
                   <Input placeholder="0" />
@@ -310,21 +310,14 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
                       </Form.Item>
 
                       {fields.length > 0 ? (
-                        <Button
-                          danger
-                          style={{
-                            marginLeft: 10,
-                            marginTop: 10,
-                          }}
-                          onClick={() => remove(field.name)}
-                        >
+                        <Button danger className="ml-2.5 mt-2.5" onClick={() => remove(field.name)}>
                           Delete
                         </Button>
                       ) : null}
                     </Form.Item>
                   ))}
                   <Form.Item>
-                    <Button type="dashed" onClick={() => add()} style={{ width: '60%' }}>
+                    <Button type="dashed" onClick={() => add()} className="w-3/5">
                       Volumes <PlusOutlined />
                     </Button>
                     <Form.ErrorList errors={errors} />
@@ -350,19 +343,18 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
                         ]}
                         noStyle
                       >
-                        <Input placeholder="192.168.0.0/16" style={{ width: '60%' }} />
+                        <Input placeholder="192.168.0.0/16" className="w-3/5" />
                       </Form.Item>
                       {fields.length > 0 ? (
                         <MinusCircleOutlined
-                          className="dynamic-delete-button"
+                          className="dynamic-delete-button ml-2.5"
                           onClick={() => remove(field.name)}
-                          style={{ marginLeft: 10 }}
                         />
                       ) : null}
                     </Form.Item>
                   ))}
                   <Form.Item>
-                    <Button type="dashed" onClick={() => add()} style={{ width: '60%' }}>
+                    <Button type="dashed" onClick={() => add()} className="w-3/5">
                       Allowed IPs <PlusOutlined />
                     </Button>
                     <Form.ErrorList errors={errors} />

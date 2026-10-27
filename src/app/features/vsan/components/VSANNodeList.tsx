@@ -336,7 +336,7 @@ export const VSANNodeList = () => {
         <Popover
           placement="top"
           content={() => (
-            <p style={{ width: 300 }}>
+            <p className="w-[300px]">
               If the standby button shows &quot;off&quot;, the node is online and running normally. If you turn the
               standby button on, all resources running on that node get moved to another node and the node is put into
               standby.Nodes in standby can be freely shut down without having to worry about any resources.

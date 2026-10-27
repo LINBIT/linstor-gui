@@ -21,7 +21,6 @@ import { useTranslation } from 'react-i18next';
 import { formatBytes } from '@app/utils/size';
 import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
 import { labelRowCheckbox } from '@app/utils/rowSelection';
-import { cssVar } from '@app/const/themeTokens';
 
 type ISCSIListProps = {
   list: ISCSIResource[];
@@ -131,7 +130,7 @@ export const ISCSIList = ({
       dataIndex: 'service_ips',
       key: 'service_ips',
       render: (_, item) => {
-        return <pre style={{ margin: 0 }}>{item?.service_ips?.join(', ')}</pre>;
+        return <pre className="m-0">{item?.service_ips?.join(', ')}</pre>;
       },
     },
     {
@@ -154,7 +153,7 @@ export const ISCSIList = ({
         return (
           <>
             <SupportStatus supported={isStarted} />
-            <span style={{ marginLeft: 4 }}>{item?.status?.service}</span>
+            <span className="ml-1">{item?.status?.service}</span>
           </>
         );
       },
@@ -252,7 +251,7 @@ export const ISCSIList = ({
         return (
           <>
             <SupportStatus supported={isOk} />
-            <span style={{ marginLeft: 4 }}>{state || 'Unknown'}</span>
+            <span className="ml-1">{state || 'Unknown'}</span>
           </>
         );
       },
@@ -300,21 +299,14 @@ export const ISCSIList = ({
     const volumes = getVolumesForTarget(record);
 
     return (
-      <div
-        style={{
-          background: 'var(--bg-surface)',
-          padding: '16px',
-          margin: '-8px -8px -8px 24px',
-          borderRadius: '4px',
-        }}
-      >
+      <div className="bg-(--bg-surface) p-4 -my-2 -mr-2 ml-6 rounded">
         <Table<VolumeData>
           columns={volumeColumns}
           dataSource={volumes}
           pagination={false}
           size="small"
           rowKey="key"
-          style={{ background: 'var(--bg-page)' }}
+          className="bg-(--bg-page)"
         />
       </div>
     );
@@ -325,19 +317,13 @@ export const ISCSIList = ({
     const hasVolumes = (record.volumes ?? []).some((v) => (v?.number ?? 0) > 0);
 
     if (!hasVolumes) {
-      return <span style={{ width: 24, display: 'inline-block' }} />;
+      return <span className="w-[24px] inline-block" />;
     }
 
     return expanded ? (
-      <DownOutlined
-        style={{ cursor: 'pointer', marginRight: 8, color: cssVar('text/link') }}
-        onClick={(e) => onExpand(record, e)}
-      />
+      <DownOutlined className="cursor-pointer mr-2 text-(--text-link)" onClick={(e) => onExpand(record, e)} />
     ) : (
-      <RightOutlined
-        style={{ cursor: 'pointer', marginRight: 8, color: cssVar('text/link') }}
-        onClick={(e) => onExpand(record, e)}
-      />
+      <RightOutlined className="cursor-pointer mr-2 text-(--text-link)" onClick={(e) => onExpand(record, e)} />
     );
   };
 
@@ -426,7 +412,7 @@ export const ISCSIList = ({
           <Form.Item label={t('common:size')} name="size" required>
             <SizeInput defaultUnit="GiB" />
           </Form.Item>
-          <div style={{ textAlign: 'right', marginTop: 16 }}>
+          <div className="text-right mt-4">
             <Space>
               <Button onClick={() => setLunModal(false)}>{t('common:cancel')}</Button>
               <Button type="primary" onClick={handleOk} loading={addingVolume}>

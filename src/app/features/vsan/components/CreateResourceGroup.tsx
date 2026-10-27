@@ -97,7 +97,7 @@ export const CreateResourceGroup = ({ refetch }: CreateResourceGroupProps) => {
         onCancel={handleCancel}
         width={800}
         footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <div className="flex justify-end gap-2">
             <Button type="secondary" onClick={handleCancel}>
               Cancel
             </Button>
@@ -108,7 +108,7 @@ export const CreateResourceGroup = ({ refetch }: CreateResourceGroupProps) => {
         }
       >
         <Form<FormType>
-          style={{ maxWidth: 800 }}
+          className="max-w-[800px]"
           size="large"
           layout="vertical"
           form={form}

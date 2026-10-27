@@ -127,7 +127,7 @@ const CreateNFSForm = () => {
 
   return (
     <Form<FormType>
-      style={{ maxWidth: 800 }}
+      className="max-w-[800px]"
       size="large"
       layout="vertical"
       form={form}
@@ -269,21 +269,14 @@ const CreateNFSForm = () => {
                 </Form.Item>
 
                 {fields.length > 0 ? (
-                  <Button
-                    danger
-                    style={{
-                      marginLeft: 10,
-                      marginTop: 10,
-                    }}
-                    onClick={() => remove(field.name)}
-                  >
+                  <Button danger className="ml-2.5 mt-2.5" onClick={() => remove(field.name)}>
                     {t('common:delete')}
                   </Button>
                 ) : null}
               </Form.Item>
             ))}
             <Form.Item>
-              <Button type="dashed" onClick={() => add()} style={{ width: '60%' }}>
+              <Button type="dashed" onClick={() => add()} className="w-3/5">
                 {t('nfs:volumes')} <PlusOutlined />
               </Button>
               <Form.ErrorList errors={errors} />
@@ -297,13 +290,7 @@ const CreateNFSForm = () => {
           <>
             {fields.map((field, index) => (
               <Form.Item
-                label={
-                  index === 0 ? (
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>{t('nfs:allowed_ips')}</span>
-                  ) : (
-                    ''
-                  )
-                }
+                label={index === 0 ? <span className="flex items-center gap-1">{t('nfs:allowed_ips')}</span> : ''}
                 required={false}
                 key={field.key}
                 tooltip="IP address mask of clients that are allowed access (default: 0.0.0.0/0)"
@@ -326,21 +313,15 @@ const CreateNFSForm = () => {
                   ]}
                   noStyle
                 >
-                  <Input placeholder="192.168.0.0/16" style={{ width: '80%' }} />
+                  <Input placeholder="192.168.0.0/16" className="w-4/5" />
                 </Form.Item>
                 {fields.length > 0 ? (
-                  <MinusCircleOutlined
-                    className="dynamic-delete-button"
-                    style={{
-                      marginLeft: 10,
-                    }}
-                    onClick={() => remove(field.name)}
-                  />
+                  <MinusCircleOutlined className="dynamic-delete-button ml-2.5" onClick={() => remove(field.name)} />
                 ) : null}
               </Form.Item>
             ))}
             <Form.Item>
-              <Button type="dashed" onClick={() => add()} style={{ width: '60%' }}>
+              <Button type="dashed" onClick={() => add()} className="w-3/5">
                 {t('nfs:allowed_ips')} <PlusOutlined />
               </Button>
               <Form.ErrorList errors={errors} />
@@ -354,7 +335,7 @@ const CreateNFSForm = () => {
           {t('common:submit')}
         </Button>
 
-        <Button type="secondary" onClick={backToList} style={{ marginLeft: '1em' }}>
+        <Button type="secondary" onClick={backToList} className="ml-[1em]">
           {t('common:cancel')}
         </Button>
       </Form.Item>

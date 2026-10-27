@@ -167,7 +167,7 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
         onCancel={handleCancel}
         width={800}
         footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <div className="flex justify-end gap-2">
             <Button type="secondary" onClick={handleCancel}>
               Cancel
             </Button>
@@ -179,7 +179,7 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
       >
         <div className="[&_.ant-form-item-explain]:flex [&_.ant-form-item-explain]:justify-between">
           <Form<FormType>
-            style={{ maxWidth: 800 }}
+            className="max-w-[800px]"
             size="large"
             layout="vertical"
             form={form}
@@ -281,7 +281,7 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
                   noStyle
                   rules={[{ required: true, message: 'IP prefix is required!' }]}
                 >
-                  <Select options={ipServiceOptions} style={{ minWidth: 140 }} placeholder="192.168.1." />
+                  <Select options={ipServiceOptions} className="min-w-[140px]" placeholder="192.168.1." />
                 </Form.Item>
                 <Form.Item name="service_ip" noStyle rules={[{ required: true, message: 'IP address is required!' }]}>
                   <Input placeholder="0" />
