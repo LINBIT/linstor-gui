@@ -70,7 +70,7 @@ export function AddParameterModal({
         </Button>,
       ]}
     >
-      <Form layout="vertical" style={{ marginTop: '16px' }}>
+      <Form layout="vertical" className="mt-4">
         <Form.Item label={t('common:parameter')}>
           <Select
             placeholder={t('common:select_parameter_add')}
@@ -90,14 +90,7 @@ export function AddParameterModal({
             </Form.Item>
 
             <Form.Item label={t('authToken:description')}>
-              <div
-                style={{
-                  padding: '12px',
-                  background: 'var(--bg-surface)',
-                  borderRadius: '4px',
-                  fontSize: '13px',
-                }}
-              >
+              <div className="p-3 bg-(--bg-surface) rounded text-[13px]">
                 {selectedParamMeta.longdesc || selectedParamMeta.shortdesc || t('common:no_description_available')}
               </div>
             </Form.Item>

@@ -18,7 +18,6 @@ import {
   filterAgentsByPlatform,
 } from './agentCatalog';
 import { labelRowCheckbox } from '@app/utils/rowSelection';
-import { cssVar } from '@app/const/themeTokens';
 
 interface AddAgentModalProps {
   visible: boolean;
@@ -156,7 +155,7 @@ export function AddAgentModal({
         </Button>,
       ]}
     >
-      <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div className="mt-4 flex flex-col gap-4">
         <Select
           mode="multiple"
           allowClear
@@ -165,7 +164,7 @@ export function AddAgentModal({
           options={platformOptions}
           placeholder={t('common:select_platform')}
           aria-label={t('common:filter_platform')}
-          style={{ width: '100%' }}
+          className="w-full"
         />
 
         <Table
@@ -185,7 +184,7 @@ export function AddAgentModal({
 
         <Input
           placeholder={t('common:search_agents_provider_name_description')}
-          prefix={<SearchOutlined style={{ color: cssVar('icon/muted') }} />}
+          prefix={<SearchOutlined className="text-(--icon-muted)" />}
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           allowClear

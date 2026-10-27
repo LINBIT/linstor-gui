@@ -7,7 +7,6 @@ import { InputNumber } from '@app/components/InputNumber';
 import { InfoCircleOutlined, PlusOutlined, MinusCircleOutlined, DownOutlined } from '@ant-design/icons';
 import { Button } from '@app/components/Button';
 import { Switch } from '@app/components/Switch';
-import { cssVar } from '@app/const/themeTokens';
 
 const { Option } = Select;
 
@@ -220,7 +219,7 @@ export const DRBDReactorConfig: React.FC<DRBDReactorConfigProps> = ({ initialVal
       case 'switch':
         return <Switch />;
       case 'number':
-        return <InputNumber style={{ width: '100%' }} />;
+        return <InputNumber className="w-full" />;
       case 'tags':
         return <Select mode="tags" placeholder={t('common:enter_values')} tokenSeparators={[',']} />;
       case 'input':
@@ -236,8 +235,8 @@ export const DRBDReactorConfig: React.FC<DRBDReactorConfigProps> = ({ initialVal
           if (!visibleFields.has(field.name)) return null;
 
           return (
-            <div key={field.name} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-              <div style={{ flex: 1 }}>
+            <div key={field.name} className="flex items-start gap-2">
+              <div className="flex-1">
                 <Form.Item
                   name={field.name}
                   valuePropName={field.type === 'switch' ? 'checked' : 'value'}
@@ -250,14 +249,14 @@ export const DRBDReactorConfig: React.FC<DRBDReactorConfigProps> = ({ initialVal
                 type="text"
                 icon={<MinusCircleOutlined />}
                 onClick={() => handleRemoveField(field.name)}
-                style={{ marginTop: '30px', color: cssVar('status/error') }}
+                className="mt-7.5 text-(--status-error)"
                 title={t('common:remove_field')}
               />
             </div>
           );
         })}
 
-        <div style={{ marginTop: '16px' }}>
+        <div className="mt-4">
           <Dropdown menu={{ items: menuItems }} disabled={menuItems.length === 0} trigger={['click']}>
             <Button type="dashed" block icon={<PlusOutlined />}>
               {t('common:add_configuration')} <DownOutlined />
@@ -273,7 +272,7 @@ const SpaceWithTooltip = ({ label, tooltip }: { label: string; tooltip: string }
   <span>
     {label}
     <Tooltip title={tooltip}>
-      <InfoCircleOutlined style={{ marginLeft: 8, color: cssVar('interactive/primary') }} />
+      <InfoCircleOutlined className="ml-2 text-(--interactive-primary)" />
     </Tooltip>
   </span>
 );

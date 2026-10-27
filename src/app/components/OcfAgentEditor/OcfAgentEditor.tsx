@@ -205,7 +205,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
 
   if (mode === 'edit' && !profile) {
     return (
-      <div style={{ textAlign: 'center', padding: '40px' }}>
+      <div className="text-center p-10">
         <Text type="secondary">{t('common:no_profile_selected')}</Text>
       </div>
     );
@@ -221,15 +221,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
           }
         `}
       </style>
-      <div
-        className="ocf-agent-editor sortable-list"
-        style={{
-          padding: '24px',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
+      <div className="ocf-agent-editor sortable-list p-6 h-full flex flex-col">
         <Tabs
           defaultActiveKey="services"
           tabBarExtraContent={
@@ -244,7 +236,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
               onTogglePreview={togglePreview}
             />
           }
-          style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
+          className="flex-1 overflow-hidden flex flex-col"
           items={[
             {
               key: 'services',
@@ -281,7 +273,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
               label: t('common:drbd_reactor_config'),
 
               children: splitView(
-                <div style={{ height: '100%', overflowY: 'auto', padding: '0 12px 24px 12px' }}>
+                <div className="h-full overflow-y-auto pt-0 pb-6 px-3">
                   <DRBDReactorConfig
                     initialValues={reactorConfig}
                     onValuesChange={(values) => doc.setReactorConfig(values)}
@@ -298,7 +290,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
               label: t('common:metadata'),
 
               children: splitView(
-                <div style={{ height: '100%', overflowY: 'auto', padding: '0 12px 24px 12px' }}>
+                <div className="h-full overflow-y-auto pt-0 pb-6 px-3">
                   <MetadataEditor
                     initialValues={metadataConfig}
                     onValuesChange={(values) => doc.setMetadataConfig(values)}

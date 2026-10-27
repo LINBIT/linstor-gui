@@ -4,7 +4,6 @@ import { Form, Card, Space } from 'antd';
 import { Input } from '@app/components/Input';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button } from '@app/components/Button';
-import { cssVar } from '@app/const/themeTokens';
 
 interface MetadataEditorProps {
   initialValues: Record<string, string | number | boolean>;
@@ -50,7 +49,7 @@ export const MetadataEditor: React.FC<MetadataEditorProps> = ({ initialValues, o
           {(fields, { add, remove }) => (
             <>
               {fields.map(({ key, name, ...restField }) => (
-                <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
+                <Space key={key} className="flex mb-2" align="baseline">
                   <Form.Item
                     {...restField}
                     name={[name, 'key']}
@@ -65,10 +64,7 @@ export const MetadataEditor: React.FC<MetadataEditorProps> = ({ initialValues, o
                   >
                     <Input placeholder={t('clusterSetup:property_value')} />
                   </Form.Item>
-                  <MinusCircleOutlined
-                    onClick={() => remove(name)}
-                    style={{ color: cssVar('status/error'), cursor: 'pointer' }}
-                  />
+                  <MinusCircleOutlined onClick={() => remove(name)} className="text-(--status-error) cursor-pointer" />
                 </Space>
               ))}
               <Form.Item>

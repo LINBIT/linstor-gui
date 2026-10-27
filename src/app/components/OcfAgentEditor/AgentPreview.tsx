@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Card, Spin, Typography } from 'antd';
 import type { OcfAgentWithMetadata, ParamEntry, ParsedOcfAgent } from './types';
-import { cssVar } from '@app/const/themeTokens';
 
 const { Text } = Typography;
 
@@ -57,24 +56,11 @@ export function AgentPreview({ parsedAgents, loading }: AgentPreviewProps) {
   };
 
   return (
-    <div
-      style={{
-        flex: 0.6,
-        overflow: 'hidden',
-        minWidth: 0,
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
+    <div className="flex-[0.6] overflow-hidden min-w-0 flex flex-col">
       <Card
         title={<Text strong>{t('common:live_preview_toml')}</Text>}
         variant="borderless"
-        style={{
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          boxShadow: 'none',
-        }}
+        className="h-full flex flex-col shadow-none"
         styles={{
           body: {
             padding: '16px',
@@ -86,21 +72,7 @@ export function AgentPreview({ parsedAgents, loading }: AgentPreviewProps) {
         }}
       >
         <Spin spinning={loading} description={t('common:generating_preview')}>
-          <div
-            style={{
-              background: cssVar('bg/surface'),
-              borderRadius: '8px',
-              padding: '16px',
-              fontFamily: 'monospace',
-              fontSize: '13px',
-              whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word',
-              border: `1px solid ${cssVar('border/default')}`,
-              overflow: 'auto',
-              flex: 1,
-              maxHeight: '100%',
-            }}
-          >
+          <div className="ocf-preview-code bg-(--bg-surface) rounded-lg p-4 font-[monospace] text-[13px] whitespace-pre-wrap [word-break:break-word] border border-(--border-default) overflow-auto flex-1 max-h-full">
             {generateTomlPreview()}
           </div>
         </Spin>

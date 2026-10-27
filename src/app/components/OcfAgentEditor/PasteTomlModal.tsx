@@ -29,7 +29,7 @@ export const PasteTomlModal = ({ open, onConfirm, onCancel }: PasteTomlModalProp
       width={800}
       destroyOnHidden
     >
-      <div style={{ marginBottom: 16 }}>
+      <div className="mb-4">
         <Text type="secondary">{t('common:paste_toml_hint')}</Text>
       </div>
       <Input.TextArea
@@ -37,7 +37,7 @@ export const PasteTomlModal = ({ open, onConfirm, onCancel }: PasteTomlModalProp
         placeholder="[[promoter]]&#10;  [promoter.resources.my-resource]&#10;    start = [ ... ]"
         value={pastedToml}
         onChange={(e) => setPastedToml(e.target.value)}
-        style={{ fontFamily: 'monospace' }}
+        className="font-[monospace]"
       />
     </Modal>
   );

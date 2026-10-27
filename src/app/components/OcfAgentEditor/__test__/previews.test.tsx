@@ -7,8 +7,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
-import { cssVar } from '@app/const/themeTokens';
-
 import { AgentPreview } from '../AgentPreview';
 import { TomlPreview } from '../TomlPreview';
 import type { OcfAgentWithMetadata } from '../types';
@@ -31,7 +29,7 @@ const unit = (original: string): OcfAgentWithMetadata => ({
   instanceId: 1,
 });
 
-const preview = () => document.querySelector('.ant-card-body > .ant-spin div[style]') as HTMLElement;
+const preview = () => document.querySelector('.ocf-preview-code') as HTMLElement;
 
 describe('AgentPreview', () => {
   it('renders the start array with quoting for values that need it', () => {
@@ -60,7 +58,7 @@ describe('AgentPreview', () => {
       ].join('\n'),
     );
     // The surface token switches with data-theme, so the preview follows dark mode.
-    expect(preview().style.background).toBe(cssVar('bg/surface'));
+    expect(preview()).toHaveClass('bg-(--bg-surface)');
   });
 
   it('renders an empty array and the loading state', () => {
@@ -77,7 +75,7 @@ describe('TomlPreview', () => {
 
     expect(screen.getByText('Live Preview (TOML)')).toBeInTheDocument();
     expect(preview().textContent).toBe('runner = "systemd"');
-    expect(preview().style.background).toBe(cssVar('bg/surface'));
+    expect(preview()).toHaveClass('bg-(--bg-surface)');
     expect(document.querySelector('.ant-spin-spinning')).toBeNull();
   });
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { cssVar } from '@app/const/themeTokens';
 
 interface SplitViewProps {
   editor: React.ReactNode;
@@ -16,22 +15,13 @@ export const SplitView = ({ editor, preview, previewVisible, leftPanelWidth, onR
   const { t } = useTranslation();
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        height: '100%',
-        overflow: 'hidden',
-        alignItems: 'stretch',
-      }}
-    >
+    <div className="flex h-full overflow-hidden items-stretch">
       {/* Left Panel - Editor */}
       <div
+        className="overflow-hidden flex flex-col"
         style={{
           flex: previewVisible ? `0 0 ${leftPanelWidth}%` : '1 1 100%',
           minWidth: previewVisible ? '20%' : 'auto',
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
         }}
       >
         {editor}
@@ -42,35 +32,11 @@ export const SplitView = ({ editor, preview, previewVisible, leftPanelWidth, onR
         <div
           onMouseDown={onResizeStart}
           title={t('common:drag_resize')}
-          style={{
-            cursor: 'col-resize',
-            width: 20,
-            userSelect: 'none',
-            flex: '0 0 auto',
-            alignSelf: 'stretch',
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'center',
-            paddingTop: 16,
-          }}
+          className="cursor-col-resize w-[20px] select-none flex-none self-stretch flex items-start justify-center pt-4"
         >
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 4,
-            }}
-          >
+          <div className="flex flex-col gap-1">
             {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                style={{
-                  width: 3,
-                  height: 3,
-                  borderRadius: '50%',
-                  background: cssVar('icon/muted'),
-                }}
-              />
+              <div key={i} className="w-[3px] h-[3px] rounded-full bg-(--icon-muted)" />
             ))}
           </div>
         </div>
@@ -78,13 +44,7 @@ export const SplitView = ({ editor, preview, previewVisible, leftPanelWidth, onR
 
       {/* Right Panel - Live Preview */}
       {previewVisible && (
-        <div
-          style={{
-            flex: `0 0 ${100 - leftPanelWidth}%`,
-            minWidth: '20%',
-            overflow: 'hidden',
-          }}
-        >
+        <div className="overflow-hidden" style={{ flex: `0 0 ${100 - leftPanelWidth}%`, minWidth: '20%' }}>
           {preview}
         </div>
       )}

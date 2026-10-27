@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next';
 import { Card, Spin, Typography } from 'antd';
-import { cssVar } from '@app/const/themeTokens';
 
 const { Text } = Typography;
 
@@ -13,25 +12,11 @@ interface TomlPreviewProps {
 export function TomlPreview({ content, loading = false, title }: TomlPreviewProps) {
   const { t } = useTranslation();
   return (
-    <div
-      style={{
-        flex: 1,
-        overflow: 'hidden',
-        minWidth: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-      }}
-    >
+    <div className="flex-1 overflow-hidden min-w-0 flex flex-col h-full">
       <Card
         title={<Text strong>{title ?? t('common:live_preview_toml')}</Text>}
         variant="borderless"
-        style={{
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          boxShadow: 'none',
-        }}
+        className="h-full flex flex-col shadow-none"
         styles={{
           body: {
             padding: '16px',
@@ -43,21 +28,7 @@ export function TomlPreview({ content, loading = false, title }: TomlPreviewProp
         }}
       >
         <Spin spinning={loading} description={t('common:generating_preview')}>
-          <div
-            style={{
-              background: cssVar('bg/surface'),
-              borderRadius: '8px',
-              padding: '16px',
-              fontFamily: 'monospace',
-              fontSize: '13px',
-              whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word',
-              border: `1px solid ${cssVar('border/default')}`,
-              overflow: 'auto',
-              flex: 1,
-              maxHeight: '100%',
-            }}
-          >
+          <div className="ocf-preview-code bg-(--bg-surface) rounded-lg p-4 font-[monospace] text-[13px] whitespace-pre-wrap [word-break:break-word] border border-(--border-default) overflow-auto flex-1 max-h-full">
             {content}
           </div>
         </Spin>

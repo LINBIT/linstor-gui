@@ -17,7 +17,6 @@ import type { OcfAgentWithMetadata, Parameter, ParamEntry, ResourceAgent } from 
 import { Button } from '@app/components/Button';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { Switch } from '@app/components/Switch';
-import { cssVar } from '@app/const/themeTokens';
 
 const { Text } = Typography;
 
@@ -102,13 +101,11 @@ export function SortableAgentItem({
   };
 
   const renderParamLabel = (param: Parameter) => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-      <span style={{ fontSize: '13px', color: cssVar('text/secondary') }}>{param.name}</span>
+    <div className="flex items-center gap-1">
+      <span className="text-[13px] text-(--text-secondary)">{param.name}</span>
       {(param.longdesc || param.shortdesc) && (
-        <Tooltip
-          title={<div style={{ whiteSpace: 'pre-wrap', maxWidth: '400px' }}>{param.longdesc || param.shortdesc}</div>}
-        >
-          <QuestionCircleOutlined style={{ color: cssVar('icon/muted'), fontSize: '12px' }} />
+        <Tooltip title={<div className="whitespace-pre-wrap max-w-[400px]">{param.longdesc || param.shortdesc}</div>}>
+          <QuestionCircleOutlined className="text-(--icon-muted) text-[12px]" />
         </Tooltip>
       )}
     </div>
@@ -117,7 +114,7 @@ export function SortableAgentItem({
   const renderParamControl = (param: Parameter) => {
     switch (param.type) {
       case 'integer':
-        return <InputNumber style={{ width: '100%' }} />;
+        return <InputNumber className="w-full" />;
       case 'boolean':
         return <Switch />;
       default:
@@ -152,53 +149,28 @@ export function SortableAgentItem({
     >
       <Card
         size="small"
-        style={{
-          background: cssVar('bg/surface'),
-          marginBottom: '8px',
-          borderRadius: '8px',
-          border: `1px solid ${cssVar('border/default')}`,
-          cursor: 'grab',
-        }}
+        className="bg-(--bg-surface) mb-2 rounded-lg border border-(--border-default) cursor-grab"
         styles={{ body: { padding: 0 } }}
       >
         {/* Header - always visible */}
         <div
-          style={{
-            padding: '12px 16px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            cursor: 'pointer',
-          }}
+          className="py-3 px-4 flex items-center gap-3 cursor-pointer"
           onClick={() => onExpand(panelKey)}
           {...attributes}
         >
           {/* Drag handle - only this element is draggable */}
-          <div
-            {...listeners}
-            style={{ cursor: 'grab', display: 'flex', alignItems: 'center' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <HolderOutlined
-              style={{
-                color: cssVar('icon/muted'),
-                fontSize: '16px',
-              }}
-            />
+          <div {...listeners} className="cursor-grab flex items-center" onClick={(e) => e.stopPropagation()}>
+            <HolderOutlined className="text-(--icon-muted) text-[16px]" />
           </div>
 
           {/* Expand/Collapse icon */}
           <CaretRightOutlined
-            style={{
-              color: cssVar('icon/muted'),
-              fontSize: '12px',
-              transition: 'transform 0.2s',
-              transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
-            }}
+            className="text-(--icon-muted) text-[12px]"
+            style={{ transition: 'transform 0.2s', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}
           />
 
           {/* Item info */}
-          <Space size="small" style={{ flex: 1 }}>
+          <Space size="small" className="flex-1">
             <Tag>#{index + 1}</Tag>
             {isOcf && <Tag tone="info">OCF</Tag>}
             <Tag tone="info">{displayInfo.typeLabel}</Tag>
@@ -222,26 +194,13 @@ export function SortableAgentItem({
 
         {/* Expanded content */}
         <div
-          style={{
-            padding: '16px',
-            borderTop: `1px solid ${cssVar('border/subtle')}`,
-            display: isExpanded ? 'block' : 'none',
-          }}
+          className="p-4 border-t border-t-(--border-subtle)"
+          style={{ display: isExpanded ? 'block' : 'none' }}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Original string (for reference) */}
-          <div style={{ marginBottom: '16px' }}>
-            <div
-              style={{
-                marginTop: '4px',
-                padding: '8px',
-                background: cssVar('bg/page'),
-                borderRadius: '4px',
-                fontFamily: 'monospace',
-                fontSize: '12px',
-                wordBreak: 'break-all',
-              }}
-            >
+          <div className="mb-4">
+            <div className="mt-1 p-2 bg-(--bg-page) rounded font-[monospace] text-[12px] break-all">
               {item.original}
             </div>
           </div>
@@ -256,29 +215,18 @@ export function SortableAgentItem({
 
           {/* OCF Agent with metadata */}
           {isOcf && metadata && (
-            <div style={{ marginBottom: '16px' }}>
-              <Text strong style={{ fontSize: '14px' }}>
+            <div className="mb-4">
+              <Text strong className="text-[14px]">
                 {metadata.name}
               </Text>
-              {metadata.shortdesc && (
-                <div style={{ color: cssVar('text/muted'), fontSize: '12px', marginTop: '4px' }}>
-                  {metadata.shortdesc}
-                </div>
-              )}
+              {metadata.shortdesc && <div className="text-(--text-muted) text-[12px] mt-1">{metadata.shortdesc}</div>}
             </div>
           )}
 
           {/* Form fields with metadata */}
           {isOcf && metadata && (
-            <div style={{ marginBottom: '16px' }}>
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: '12px',
-                }}
-              >
+            <div className="mb-4">
+              <div className="flex justify-between items-center mb-3">
                 <Text strong>{t('common:parameters')}</Text>
                 <Button size="small" icon={<PlusOutlined />} onClick={() => onAddParam?.(stableKey)}>
                   {t('common:add_parameter')}
@@ -300,9 +248,9 @@ export function SortableAgentItem({
                     : currentValue;
 
                 return (
-                  <div key={paramEntry.key} style={{ marginBottom: '12px' }}>
+                  <div key={paramEntry.key} className="mb-3">
                     {renderParamLabel(param)}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                    <div className="flex items-center gap-2 mt-1">
                       <Form.Item
                         key={param.name}
                         name={fieldName}
@@ -324,7 +272,7 @@ export function SortableAgentItem({
                               })
                             : undefined
                         }
-                        style={{ flex: 1, marginBottom: 0 }}
+                        className="flex-1 mb-0"
                       >
                         {renderParamControl(param)}
                       </Form.Item>
@@ -355,9 +303,9 @@ export function SortableAgentItem({
                     : currentValue;
 
                 return (
-                  <div key={paramName} style={{ marginBottom: '12px' }}>
+                  <div key={paramName} className="mb-3">
                     {renderParamLabel(param)}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                    <div className="flex items-center gap-2 mt-1">
                       <Form.Item
                         key={param.name}
                         name={fieldName}
@@ -379,7 +327,7 @@ export function SortableAgentItem({
                               })
                             : undefined
                         }
-                        style={{ flex: 1, marginBottom: 0 }}
+                        className="flex-1 mb-0"
                       >
                         {renderParamControl(param)}
                       </Form.Item>
@@ -401,15 +349,8 @@ export function SortableAgentItem({
           {isOcf && !metadata && ocfAgent && (
             <div>
               <Text strong>{t('common:parsed_parameters')}</Text>
-              <div
-                style={{
-                  marginTop: '8px',
-                  padding: '12px',
-                  background: cssVar('bg/page'),
-                  borderRadius: '4px',
-                }}
-              >
-                <pre style={{ margin: 0, fontSize: '12px' }}>{JSON.stringify(ocfAgent.params, null, 2)}</pre>
+              <div className="mt-2 p-3 bg-(--bg-page) rounded">
+                <pre className="m-0 text-[12px]">{JSON.stringify(ocfAgent.params, null, 2)}</pre>
               </div>
             </div>
           )}

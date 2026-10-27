@@ -89,7 +89,7 @@ export const ServicesPane = ({
   return (
     <Card
       title={
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <div className="flex justify-end">
           <Space>
             <Button icon={<PlusOutlined />} onClick={onAddSystemd}>
               {t('common:add_systemd_mount')}
@@ -101,7 +101,7 @@ export const ServicesPane = ({
         </div>
       }
       variant="borderless"
-      style={{ height: '100%', boxShadow: 'none' }}
+      className="h-full shadow-none"
       styles={{
         body: {
           padding: '16px',
@@ -121,7 +121,7 @@ export const ServicesPane = ({
         component={false}
       >
         {mode === 'create' && (
-          <div style={{ padding: '0 12px 12px 12px' }}>
+          <div className="pt-0 pb-3 px-3">
             <Form.Item
               name="resource_name"
               label={t('common:resource_name')}
@@ -152,7 +152,7 @@ export const ServicesPane = ({
         ) : (
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
             {/* drbd-reactor chains the start list: each entry depends on the one above it. */}
-            <Alert type="info" showIcon title={t('common:services_order_note')} style={{ marginBottom: 12 }} />
+            <Alert type="info" showIcon title={t('common:services_order_note')} className="mb-3" />
             <SortableContext items={items} strategy={verticalListSortingStrategy}>
               {parsedAgents.map((agentWithMeta, index) => {
                 const { item } = agentWithMeta;
