@@ -16,6 +16,7 @@ import type { OcfAgentWithMetadata, Parameter, ParamEntry, ResourceAgent } from 
 import { Button } from '@app/components/Button';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { Switch } from '@app/components/Switch';
+import { cssVar } from '@app/const/themeTokens';
 
 const { Text } = Typography;
 
@@ -35,7 +36,6 @@ export interface SortableItemProps {
   agentWithMeta: OcfAgentWithMetadata;
   metadata: ResourceAgent | null;
   isLoadingMetadata: boolean;
-  currentTheme: string;
   onDelete: (index: number) => void;
   onExpand: (key: string) => void;
   expandedKeys: Set<string>;
@@ -50,7 +50,6 @@ export function SortableAgentItem({
   agentWithMeta,
   metadata,
   isLoadingMetadata,
-  currentTheme,
   onDelete,
   onExpand,
   expandedKeys,
@@ -103,12 +102,12 @@ export function SortableAgentItem({
 
   const renderParamLabel = (param: Parameter) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-      <span style={{ fontSize: '13px', color: '#333' }}>{param.name}</span>
+      <span style={{ fontSize: '13px', color: cssVar('text/secondary') }}>{param.name}</span>
       {(param.longdesc || param.shortdesc) && (
         <Tooltip
           title={<div style={{ whiteSpace: 'pre-wrap', maxWidth: '400px' }}>{param.longdesc || param.shortdesc}</div>}
         >
-          <QuestionCircleOutlined style={{ color: '#999', fontSize: '12px' }} />
+          <QuestionCircleOutlined style={{ color: cssVar('icon/muted'), fontSize: '12px' }} />
         </Tooltip>
       )}
     </div>
@@ -157,10 +156,10 @@ export function SortableAgentItem({
       <Card
         size="small"
         style={{
-          background: currentTheme === 'dark' ? '#1e293b' : '#f8fafc',
+          background: cssVar('bg/surface'),
           marginBottom: '8px',
           borderRadius: '8px',
-          border: `1px solid ${currentTheme === 'dark' ? '#334155' : '#e2e8f0'}`,
+          border: `1px solid ${cssVar('border/default')}`,
           cursor: 'grab',
         }}
         styles={{ body: { padding: 0 } }}
@@ -185,7 +184,7 @@ export function SortableAgentItem({
           >
             <HolderOutlined
               style={{
-                color: '#999',
+                color: cssVar('icon/muted'),
                 fontSize: '16px',
               }}
             />
@@ -194,7 +193,7 @@ export function SortableAgentItem({
           {/* Expand/Collapse icon */}
           <CaretRightOutlined
             style={{
-              color: '#999',
+              color: cssVar('icon/muted'),
               fontSize: '12px',
               transition: 'transform 0.2s',
               transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
@@ -228,7 +227,7 @@ export function SortableAgentItem({
         <div
           style={{
             padding: '16px',
-            borderTop: `1px solid ${currentTheme === 'dark' ? '#334155' : '#e2e8f0'}`,
+            borderTop: `1px solid ${cssVar('border/subtle')}`,
             display: isExpanded ? 'block' : 'none',
           }}
           onClick={(e) => e.stopPropagation()}
@@ -239,7 +238,7 @@ export function SortableAgentItem({
               style={{
                 marginTop: '4px',
                 padding: '8px',
-                background: currentTheme === 'dark' ? '#0f172a' : '#f1f5f9',
+                background: cssVar('bg/page'),
                 borderRadius: '4px',
                 fontFamily: 'monospace',
                 fontSize: '12px',
@@ -265,7 +264,9 @@ export function SortableAgentItem({
                 {metadata.name}
               </Text>
               {metadata.shortdesc && (
-                <div style={{ color: '#666', fontSize: '12px', marginTop: '4px' }}>{metadata.shortdesc}</div>
+                <div style={{ color: cssVar('text/muted'), fontSize: '12px', marginTop: '4px' }}>
+                  {metadata.shortdesc}
+                </div>
               )}
             </div>
           )}
@@ -407,7 +408,7 @@ export function SortableAgentItem({
                 style={{
                   marginTop: '8px',
                   padding: '12px',
-                  background: currentTheme === 'dark' ? '#0f172a' : '#f1f5f9',
+                  background: cssVar('bg/page'),
                   borderRadius: '4px',
                 }}
               >

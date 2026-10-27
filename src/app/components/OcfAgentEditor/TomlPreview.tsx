@@ -1,16 +1,16 @@
 import { useTranslation } from 'react-i18next';
 import { Card, Spin, Typography } from 'antd';
+import { cssVar } from '@app/const/themeTokens';
 
 const { Text } = Typography;
 
 interface TomlPreviewProps {
   content: string;
   loading?: boolean;
-  currentTheme: string;
   title?: string;
 }
 
-export function TomlPreview({ content, loading = false, currentTheme, title }: TomlPreviewProps) {
+export function TomlPreview({ content, loading = false, title }: TomlPreviewProps) {
   const { t } = useTranslation();
   return (
     <div
@@ -45,14 +45,14 @@ export function TomlPreview({ content, loading = false, currentTheme, title }: T
         <Spin spinning={loading} description={t('common:generating_preview')}>
           <div
             style={{
-              background: currentTheme === 'dark' ? '#0f172a' : '#f1f5f9',
+              background: cssVar('bg/surface'),
               borderRadius: '8px',
               padding: '16px',
               fontFamily: 'monospace',
               fontSize: '13px',
               whiteSpace: 'pre-wrap',
               wordBreak: 'break-word',
-              border: `1px solid ${currentTheme === 'dark' ? '#334155' : '#e2e8f0'}`,
+              border: `1px solid ${cssVar('border/default')}`,
               overflow: 'auto',
               flex: 1,
               maxHeight: '100%',

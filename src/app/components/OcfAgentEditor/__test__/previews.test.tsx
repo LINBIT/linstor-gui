@@ -7,6 +7,8 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
+import { cssVar } from '@app/const/themeTokens';
+
 import { AgentPreview } from '../AgentPreview';
 import { TomlPreview } from '../TomlPreview';
 import type { OcfAgentWithMetadata } from '../types';
@@ -45,7 +47,6 @@ describe('AgentPreview', () => {
           unit('mysql.service'),
         ]}
         loading={false}
-        currentTheme="light"
       />,
     );
 
@@ -58,32 +59,32 @@ describe('AgentPreview', () => {
         '  ]',
       ].join('\n'),
     );
-    expect(preview().style.background).toBe('rgb(241, 245, 249)');
+    // The surface token switches with data-theme, so the preview follows dark mode.
+    expect(preview().style.background).toBe(cssVar('bg/surface'));
   });
 
-  it('renders an empty array, the dark palette and the loading state', () => {
-    const { container } = render(<AgentPreview parsedAgents={[]} loading currentTheme="dark" />);
+  it('renders an empty array and the loading state', () => {
+    const { container } = render(<AgentPreview parsedAgents={[]} loading />);
 
     expect(preview().textContent).toBe('start = [\n\n  ]');
-    expect(preview().style.background).toBe('rgb(15, 23, 42)');
     expect(container.querySelector('.ant-spin-spinning')).not.toBeNull();
   });
 });
 
 describe('TomlPreview', () => {
   it('shows the content under the default title', () => {
-    render(<TomlPreview content={'runner = "systemd"'} currentTheme="light" />);
+    render(<TomlPreview content={'runner = "systemd"'} />);
 
     expect(screen.getByText('Live Preview (TOML)')).toBeInTheDocument();
     expect(preview().textContent).toBe('runner = "systemd"');
+    expect(preview().style.background).toBe(cssVar('bg/surface'));
     expect(document.querySelector('.ant-spin-spinning')).toBeNull();
   });
 
-  it('accepts a custom title and the dark palette', () => {
-    render(<TomlPreview content="x = 1" currentTheme="dark" title="Metadata" loading />);
+  it('accepts a custom title and the loading state', () => {
+    render(<TomlPreview content="x = 1" title="Metadata" loading />);
 
     expect(screen.getByText('Metadata')).toBeInTheDocument();
-    expect(preview().style.background).toBe('rgb(15, 23, 42)');
     expect(document.querySelector('.ant-spin-spinning')).not.toBeNull();
   });
 });

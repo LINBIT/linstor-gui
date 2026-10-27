@@ -66,7 +66,6 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
   ref,
 ) {
   const { t } = useTranslation();
-  const currentTheme = 'light'; // Default to light theme
   const [internalForm] = Form.useForm();
 
   // Use external form in create mode, internal form in edit mode
@@ -259,7 +258,6 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
                   parsedAgents={parsedAgents}
                   allAgents={allAgents}
                   findAgentMetadata={agents.findAgentMetadata}
-                  currentTheme={currentTheme}
                   expandedKeys={agents.expandedKeys}
                   addedParams={params.addedParams}
                   onFinish={handleSave}
@@ -273,7 +271,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
                   onAddAgent={openAddModal}
                 />,
 
-                <AgentPreview parsedAgents={parsedAgents} loading={saving} currentTheme={currentTheme} />,
+                <AgentPreview parsedAgents={parsedAgents} loading={saving} />,
               ),
             },
 
@@ -290,11 +288,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
                   />
                 </div>,
 
-                <TomlPreview
-                  content={generateReactorConfigString(reactorConfig)}
-                  loading={saving}
-                  currentTheme={currentTheme}
-                />,
+                <TomlPreview content={generateReactorConfigString(reactorConfig)} loading={saving} />,
               ),
             },
 
@@ -311,11 +305,7 @@ export const OcfAgentEditor = forwardRef<OcfAgentEditorRef, OcfAgentEditorProps>
                   />
                 </div>,
 
-                <TomlPreview
-                  content={generateMetadataString(metadataConfig)}
-                  loading={saving}
-                  currentTheme={currentTheme}
-                />,
+                <TomlPreview content={generateMetadataString(metadataConfig)} loading={saving} />,
               ),
             },
           ]}

@@ -36,7 +36,6 @@ interface ServicesPaneProps {
   parsedAgents: OcfAgentWithMetadata[];
   allAgents: ResourceAgentsByProvider;
   findAgentMetadata: (agent: ParsedOcfAgent) => ResourceAgent | null;
-  currentTheme: string;
   expandedKeys: Set<string>;
   addedParams: Map<number, Set<string>>;
   onFinish: () => void;
@@ -62,7 +61,6 @@ export const ServicesPane = ({
   parsedAgents,
   allAgents,
   findAgentMetadata,
-  currentTheme,
   expandedKeys,
   addedParams,
   onFinish,
@@ -181,7 +179,6 @@ export const ServicesPane = ({
                     agentWithMeta={agentWithMeta}
                     metadata={metadata}
                     isLoadingMetadata={isLoadingMetadata}
-                    currentTheme={currentTheme}
                     onDelete={onDelete}
                     onExpand={onExpand}
                     expandedKeys={expandedKeys}
