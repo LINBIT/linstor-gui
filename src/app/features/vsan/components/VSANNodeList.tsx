@@ -16,7 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import { compareIPv4 } from '@app/utils/ip';
 import { InfoCircleOutlined, SettingOutlined } from '@ant-design/icons';
 
-import { BRAND_COLOR, ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
+import { cssVar, themeTokens } from '@app/const/themeTokens';
 import { CloudStackNode, ErrorMessage, Node } from '../types';
 import { UIMode } from '@app/features/settings/types';
 import { useUIMode } from '@app/features/settings/useSettings';
@@ -287,13 +287,13 @@ export const VSANNodeList = () => {
           content={() => (
             <div>
               <p>
-                <Tag color={SUCCESS_COLOR}>Online</Tag>: Everything is ok
+                <Tag color="success">Online</Tag>: Everything is ok
               </p>
               <p>
                 <Tag color="yellow">Standby</Tag>: Node is in standby
               </p>
               <p>
-                <Tag color={ERROR_COLOR}>Error</Tag>: Something is wrong
+                <Tag color="error">Error</Tag>: Something is wrong
               </p>
             </div>
           )}
@@ -310,13 +310,13 @@ export const VSANNodeList = () => {
         let statusText: string;
 
         if (!record.online) {
-          color = ERROR_COLOR;
+          color = 'error';
           statusText = 'Error';
         } else if (record.standby) {
           color = 'yellow';
           statusText = 'Standby';
         } else {
-          color = SUCCESS_COLOR;
+          color = 'success';
           statusText = 'Online';
         }
 
@@ -377,11 +377,14 @@ export const VSANNodeList = () => {
             ? `${updateProcess?.label}  ${updateProcess?.curStep} of ${updateProcess?.maxSteps}`
             : updateProcess?.label;
 
-        let color: string =
-          updateProcess?.label === 'Downloading' || updateProcess?.label === 'Installing' ? BRAND_COLOR : SUCCESS_COLOR;
+        const inProgress = updateProcess?.label === 'Downloading' || updateProcess?.label === 'Installing';
+        // A tag works out its tint from the color, so it needs a value rather than a CSS variable.
+        let tagColor = inProgress ? themeTokens['brand/accent'].light : 'success';
+        let strokeColor = inProgress ? cssVar('brand/accent') : cssVar('status/success');
 
         if (updateProcess?.label === 'Error') {
-          color = ERROR_COLOR;
+          tagColor = 'error';
+          strokeColor = cssVar('status/error');
           updateError = true;
           tooltip = updateProcess?.message ?? 'Update failed!';
         }
@@ -405,15 +408,15 @@ export const VSANNodeList = () => {
             {updating && (
               <div className="mt-1.5">
                 <Tooltip title={tooltip || ''}>
-                  <Progress percent={progress} status="active" strokeColor={color} />
-                  <Tag color={color}>{updateProcess?.label}</Tag>
+                  <Progress percent={progress} status="active" strokeColor={strokeColor} />
+                  <Tag color={tagColor}>{updateProcess?.label}</Tag>
                 </Tooltip>
               </div>
             )}
             {updateError && (
               <div className="mt-1.5">
                 <Tooltip title={tooltip || ''}>
-                  <Tag color={ERROR_COLOR}>{updateProcess?.label}</Tag>
+                  <Tag color="error">{updateProcess?.label}</Tag>
                 </Tooltip>
               </div>
             )}

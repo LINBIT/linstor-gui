@@ -50,7 +50,6 @@ vi.mock('react-i18next', () => ({
 
 // Import the component after mocking
 import { Button } from '../index';
-import { tokens } from '@app/const/color';
 import { cssVar } from '@app/const/themeTokens';
 
 describe('Button Component', () => {
@@ -331,9 +330,9 @@ describe('Button Component', () => {
     it('primary is the peach fill with the on-brand label in every state', () => {
       render(<Button type="primary">Primary</Button>);
       expect(vars('bg-color')).toEqual([
-        tokens.color.brand.primary,
-        tokens.color.brand.primaryHover,
-        tokens.color.brand.primaryHover,
+        cssVar('brand/muted'),
+        cssVar('brand/muted/hover'),
+        cssVar('brand/muted/hover'),
       ]);
       expect(vars('text-color')).toEqual(Array(3).fill(cssVar('text/on-brand')));
       expect(screen.getByTestId('ant-button').style.fontWeight).toBe('600');
@@ -344,7 +343,7 @@ describe('Button Component', () => {
       const style = screen.getByTestId('ant-button').style;
       expect(style.getPropertyValue('--ant-btn-border-width')).toBe('1.5px');
       expect(vars('border-color')).toEqual([
-        tokens.color.brand.primary,
+        cssVar('brand/muted'),
         cssVar('bg/button/secondary-hover'),
         cssVar('bg/button/secondary-hover'),
       ]);
@@ -356,16 +355,16 @@ describe('Button Component', () => {
       render(<Button danger>Delete</Button>);
       const style = screen.getByTestId('ant-button').style;
       expect(style.getPropertyValue('--ant-btn-border-width')).toBe('1.5px');
-      expect(vars('bg-color')).toEqual([cssVar('bg/page'), tokens.color.danger.base, tokens.color.danger.base]);
+      expect(vars('bg-color')).toEqual([cssVar('bg/page'), cssVar('bg/button/danger'), cssVar('bg/button/danger')]);
       expect(vars('border-color')).toEqual([
         cssVar('border/button/active'),
-        tokens.color.danger.base,
-        tokens.color.danger.base,
+        cssVar('bg/button/danger'),
+        cssVar('bg/button/danger'),
       ]);
       expect(vars('text-color')).toEqual([
         cssVar('border/button/active'),
-        tokens.color.danger.contrast,
-        tokens.color.danger.contrast,
+        cssVar('text/on-dark'),
+        cssVar('text/on-dark'),
       ]);
     });
 

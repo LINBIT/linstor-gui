@@ -16,11 +16,9 @@
  * `:root[data-theme="dark"]`. Naming: `bg/nav-item/selected` →
  * `--bg-nav-item-selected`.
  *
- * This table complements `color.ts` (brand palette for the component
- * primitives / antd theme): `brand/accent` here equals `tokens.color.brand
- * .accent` (#F79133) and `brand/muted` equals `tokens.color.brand.primary`
- * (#FFCC9C). Use `cssVar('...')` for surfaces/text that must follow the
- * light/dark mode; keep using `color.ts` for the mode-independent brand fills.
+ * This is the only color table. Use `cssVar('...')` in styles; the antd
+ * theme and anything else that has to parse a color read the value itself,
+ * `themeTokens[name][mode]`. Brand fills hold the same value in both modes.
  */
 
 import type { CSSProperties } from 'react';
@@ -39,6 +37,9 @@ export const themeTokens = {
   'bg/chip/neutral': { light: '#d9d9d9', dark: '#3d3d3d' },
   'bg/button/secondary-hover': { light: '#ffdcbc', dark: '#4a2a15' },
   'bg/button/disabled': { light: '#f5f5f5', dark: 'rgba(255, 255, 255, 0.08)' },
+  'bg/button/default-hover': { light: '#f5f5f5', dark: 'rgba(255, 255, 255, 0.08)' },
+  // A danger button fills red on hover, with a white label, in both modes.
+  'bg/button/danger': { light: '#da1e28', dark: '#da1e28' },
 
   'text/primary': { light: '#000000', dark: '#f0f0f0' },
   'text/secondary': { light: '#3f3f3f', dark: '#eeeeee' },
@@ -48,6 +49,8 @@ export const themeTokens = {
   // Link text: interactive/primary is a fill; as text on white it reads at
   // only 3.1:1, so light mode takes its darker step.
   'text/link': { light: '#317792', dark: '#5aaccc' },
+  'text/link/hover': { light: '#2c7fb8', dark: '#2c7fb8' },
+  'text/link/active': { light: '#1e5a8a', dark: '#1e5a8a' },
   'text/on-dark': { light: '#ffffff', dark: '#ffffff' },
   'text/button/disabled': { light: '#bfbfbf', dark: 'rgba(255, 255, 255, 0.3)' },
   /**
@@ -73,10 +76,17 @@ export const themeTokens = {
 
   'brand/accent': { light: '#f79133', dark: '#f79133' },
   'brand/muted': { light: '#ffcc9c', dark: '#ffcc9c' },
+  'brand/muted/hover': { light: '#ffdcbc', dark: '#ffdcbc' },
+  // Also the checked fill of checkboxes, radios and switches, where the
+  // lighter peach washes out at 16px.
+  'brand/muted/active': { light: '#ffba80', dark: '#ffba80' },
+  // Focus ring (box-shadow) around brand-bordered controls.
+  'brand/focus-ring': { light: 'rgba(255, 204, 156, 0.2)', dark: 'rgba(255, 204, 156, 0.2)' },
 
   'interactive/primary': { light: '#499bbb', dark: '#5aaccc' },
   'interactive/primary/dark': { light: '#317792', dark: '#3a8aaa' },
 
+  'status/success': { light: '#52c41a', dark: '#52c41a' },
   'status/error': { light: '#fa4d56', dark: '#ff6b72' },
   'status/warning': { light: '#ffc130', dark: '#ffc130' },
 
@@ -88,6 +98,9 @@ export const themeTokens = {
 } as const;
 
 export type ThemeTokenName = keyof typeof themeTokens;
+
+/** Corner radius of controls, in px. */
+export const CONTROL_RADIUS = 4;
 
 export type ThemeMode = 'light' | 'dark';
 

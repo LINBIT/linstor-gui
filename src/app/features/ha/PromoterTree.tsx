@@ -4,15 +4,14 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { tokens } from '@app/const/color';
 import { cssVar, type CssVars } from '@app/const/themeTokens';
 import type { PromoterEntry } from './haStatus';
 
 // The active/primary node and the "Running" status share the LINBIT brand color
 // (same as the "+ Add" button).
 export const ACTIVE_TAG_STYLE = {
-  backgroundColor: tokens.color.brand.primary,
-  borderColor: tokens.color.brand.primary,
+  backgroundColor: cssVar('brand/muted'),
+  borderColor: cssVar('brand/muted'),
   color: cssVar('text/on-brand'),
 };
 /** The active node's link sits on the peach tag: dark in every state rather

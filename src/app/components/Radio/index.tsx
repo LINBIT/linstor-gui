@@ -6,8 +6,7 @@
 
 import React from 'react';
 import { Radio as AntRadio, RadioProps as AntRadioProps, RadioGroupProps as AntRadioGroupProps } from 'antd';
-import { tokens } from '@app/const/color';
-import type { CssVars } from '@app/const/themeTokens';
+import { cssVar, type CssVars } from '@app/const/themeTokens';
 /** A checked radio button reads semibold on its peach fill; fill, label and
  *  hover colors come from the Radio tokens (the solid button style). */
 const CHECKED_BUTTON = '[&_.ant-radio-button-wrapper-checked]:font-semibold';
@@ -39,8 +38,8 @@ const IN_GROUP = [
 ].join(' ');
 
 const brandVars = (style?: React.CSSProperties): CssVars => ({
-  '--radio-brand': tokens.color.brand.primaryActive,
-  '--radio-brand-hover': tokens.color.brand.primaryHover,
+  '--radio-brand': cssVar('brand/muted/active'),
+  '--radio-brand-hover': cssVar('brand/muted/hover'),
   ...style,
 });
 

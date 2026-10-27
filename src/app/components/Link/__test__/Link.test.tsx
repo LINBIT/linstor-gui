@@ -9,7 +9,6 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { vi, describe, it, expect } from 'vitest';
 import { Link } from '../index';
-import { tokens } from '@app/const/color';
 import { cssVar } from '@app/const/themeTokens';
 
 const renderWithRouter = (component: React.ReactElement) => {
@@ -35,34 +34,34 @@ describe('Link Component', () => {
       'link',
       {
         '--link-text': cssVar('text/link'),
-        '--link-text-hover': tokens.color.link.hover,
-        '--link-text-active': tokens.color.link.active,
+        '--link-text-hover': cssVar('text/link/hover'),
+        '--link-text-active': cssVar('text/link/active'),
       },
     ],
     [
       'primary',
       {
-        '--link-text': tokens.color.brand.onPrimary,
-        '--link-bg': tokens.color.brand.primary,
-        '--link-bg-hover': tokens.color.brand.primaryHover,
-        '--link-border': tokens.color.brand.primary,
+        '--link-text': cssVar('text/on-brand'),
+        '--link-bg': cssVar('brand/muted'),
+        '--link-bg-hover': cssVar('brand/muted/hover'),
+        '--link-border': cssVar('brand/muted'),
       },
     ],
     [
       'secondary',
       {
-        '--link-text': tokens.color.brand.onPrimary,
+        '--link-text': cssVar('text/nav'),
         '--link-bg': 'transparent',
-        '--link-border': tokens.color.brand.primary,
-        '--link-bg-hover': tokens.color.brand.primaryHover,
+        '--link-border': cssVar('brand/muted'),
+        '--link-bg-hover': cssVar('bg/button/secondary-hover'),
       },
     ],
     [
       'default',
       {
-        '--link-text': tokens.color.brand.onPrimary,
-        '--link-border': tokens.color.neutral.borderDefault,
-        '--link-bg-hover': tokens.color.neutral.disabledBg,
+        '--link-text': cssVar('text/nav'),
+        '--link-border': cssVar('border/default'),
+        '--link-bg-hover': cssVar('bg/button/default-hover'),
       },
     ],
   ] as const)('a %s link carries its type and the token colors', (type, expected) => {
@@ -86,7 +85,7 @@ describe('Link Component', () => {
     );
     const link = screen.getByText('Overridden Link').closest('a') as HTMLAnchorElement;
     expect(link.style.getPropertyValue('--link-text')).toBe('red');
-    expect(link.style.getPropertyValue('--link-bg')).toBe(tokens.color.brand.primary);
+    expect(link.style.getPropertyValue('--link-bg')).toBe(cssVar('brand/muted'));
     expect(link.style.marginTop).toBe('4px');
   });
 

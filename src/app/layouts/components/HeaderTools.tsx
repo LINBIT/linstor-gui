@@ -16,7 +16,7 @@ import { useAuth } from '@app/features/authentication/useAuth';
 import { ChangePassword } from '@app/features/authentication/components/ChangePassword/ChangePassword';
 import { Mode } from '@app/hooks/useUIModeStorage';
 import { DEFAULT_ADMIN_USER_NAME } from '@app/const/settings';
-import { BRAND_COLOR, tokens } from '@app/const/color';
+import { cssVar } from '@app/const/themeTokens';
 import { getControllerVersion } from '@app/features/node/api';
 import { useFaultyResources } from '@app/features/resource/hooks/useFaultyResources';
 import { compareVersions } from '@app/utils/version';
@@ -89,7 +89,7 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
           >
             <UserIcon
               style={{
-                color: BRAND_COLOR,
+                color: cssVar('brand/accent'),
                 marginLeft: 2,
                 marginRight: '1rem',
               }}
@@ -120,7 +120,7 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
             }}
             className="flex items-center"
           >
-            <DeploymentUnitOutlined style={{ color: BRAND_COLOR, marginLeft: 2, marginRight: '1rem' }} />
+            <DeploymentUnitOutlined style={{ color: cssVar('brand/accent'), marginLeft: 2, marginRight: '1rem' }} />
 
             <span>{vsanModeFromSetting ? 'Switch to advanced mode' : 'Leave advanced mode'}</span>
           </a>
@@ -159,7 +159,7 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
             </div>
             <div
               className="flex h-10 cursor-pointer items-center rounded px-4 py-2 font-medium text-(--text-on-brand) decoration-2"
-              style={{ backgroundColor: tokens.color.brand.primaryHover }}
+              style={{ backgroundColor: cssVar('brand/muted/hover') }}
               onClick={handleSupportClick}
             >
               {t('about:unofficial_build_header_get_official')}{' '}

@@ -11,7 +11,6 @@ import { deleteNFSExport, getNFSExport } from '../api';
 import { notification, Space, Table, Tag } from 'antd';
 import type { TableProps } from 'antd';
 import { ErrorMessage, NFSExport, Volume } from '../types';
-import { ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
 import { REFETCH_INTERVAL } from '@app/const/time';
 import { formatBytes } from '@app/utils/size';
 import { GrowVolume } from './GrowVolume';
@@ -94,7 +93,7 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
       key: 'status',
       render: (status) => {
         const success = status === 'OK';
-        return <Tag color={success ? SUCCESS_COLOR : ERROR_COLOR}>{status}</Tag>;
+        return <Tag color={success ? 'success' : 'error'}>{status}</Tag>;
       },
       align: 'center',
     },

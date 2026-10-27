@@ -6,8 +6,7 @@
 
 import React from 'react';
 import { Button as AntButton, ButtonProps as AntButtonProps } from 'antd';
-import { tokens } from '@app/const/color';
-import { cssVar, type CssVars } from '@app/const/themeTokens';
+import { CONTROL_RADIUS, cssVar, type CssVars } from '@app/const/themeTokens';
 
 /** Trash icon of danger buttons. Inline rather than fetched (react-inlinesvg):
  *  a fetched icon arrives a frame after the button and widens it, which
@@ -43,7 +42,7 @@ const allStates = (name: string, value: string) => ({
  */
 const variantStyle = (type: ButtonType, danger: boolean, inactive: boolean, rounded: boolean): CssVars => {
   const style: CssVars = {};
-  if (rounded) style.borderRadius = tokens.radius;
+  if (rounded) style.borderRadius = CONTROL_RADIUS;
   if (!NATIVE_VARIANTS.includes(type)) {
     style.fontWeight = 600;
     Object.assign(style, allStates('text-color', cssVar('text/nav')));
@@ -54,23 +53,23 @@ const variantStyle = (type: ButtonType, danger: boolean, inactive: boolean, roun
       '--ant-btn-bg-color': cssVar('bg/page'),
       '--ant-btn-border-color': cssVar('border/button/active'),
       '--ant-btn-text-color': cssVar('border/button/active'),
-      '--ant-btn-bg-color-hover': tokens.color.danger.base,
-      '--ant-btn-border-color-hover': tokens.color.danger.base,
-      '--ant-btn-text-color-hover': tokens.color.danger.contrast,
-      '--ant-btn-bg-color-active': tokens.color.danger.base,
-      '--ant-btn-border-color-active': tokens.color.danger.base,
-      '--ant-btn-text-color-active': tokens.color.danger.contrast,
+      '--ant-btn-bg-color-hover': cssVar('bg/button/danger'),
+      '--ant-btn-border-color-hover': cssVar('bg/button/danger'),
+      '--ant-btn-text-color-hover': cssVar('text/on-dark'),
+      '--ant-btn-bg-color-active': cssVar('bg/button/danger'),
+      '--ant-btn-border-color-active': cssVar('bg/button/danger'),
+      '--ant-btn-text-color-active': cssVar('text/on-dark'),
     });
   } else if (type === 'primary') {
     Object.assign(style, allStates('text-color', cssVar('text/on-brand')), {
-      '--ant-btn-bg-color': tokens.color.brand.primary,
-      '--ant-btn-bg-color-hover': tokens.color.brand.primaryHover,
-      '--ant-btn-bg-color-active': tokens.color.brand.primaryHover,
+      '--ant-btn-bg-color': cssVar('brand/muted'),
+      '--ant-btn-bg-color-hover': cssVar('brand/muted/hover'),
+      '--ant-btn-bg-color-active': cssVar('brand/muted/hover'),
     });
   } else if (type === 'secondary') {
     Object.assign(style, {
       '--ant-btn-border-width': '1.5px',
-      '--ant-btn-border-color': tokens.color.brand.primary,
+      '--ant-btn-border-color': cssVar('brand/muted'),
       '--ant-btn-border-color-hover': cssVar('bg/button/secondary-hover'),
       '--ant-btn-border-color-active': cssVar('bg/button/secondary-hover'),
       '--ant-btn-bg-color-hover': cssVar('bg/button/secondary-hover'),

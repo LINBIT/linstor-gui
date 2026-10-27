@@ -54,6 +54,7 @@ import {
 } from '../api';
 import type { DrbdReactorFailure, DrbdReactorStatus } from '../api';
 import { List } from '../List';
+import { cssVar } from '@app/const/themeTokens';
 
 const MYSQL_KEY = 'files/etc/drbd-reactor.d/mysql.toml';
 const MYSQL_PATH = '/etc/drbd-reactor.d/mysql.toml';
@@ -179,7 +180,7 @@ describe('DRBD Reactor List', () => {
     expect(within(mysql).getByText('node-b')).toHaveAttribute('href', '/inventory/nodes/node-b');
     // setupTests stubs getComputedStyle, so read the inline style directly.
     const tagStyle = (node: string) => (within(mysql).getByText(node).closest('.ant-tag') as HTMLElement).style;
-    expect(tagStyle('node-a').backgroundColor).toBe('rgb(255, 204, 156)');
+    expect(tagStyle('node-a').backgroundColor).toBe(cssVar('brand/muted'));
     expect(tagStyle('node-b').backgroundColor).toBe('');
 
     expect(within(mysql).getByText(MYSQL_PATH)).toBeInTheDocument();

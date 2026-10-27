@@ -48,6 +48,7 @@ colors:
   # Interactive / status
   interactive-primary: "#499BBB"
   interactive-primary-dark: "#5AACCC"
+  status-success: "#52C41A"
   status-error: "#FA4D56"
   status-error-dark: "#FF6B72"
   status-warning: "#FFC130"
@@ -208,8 +209,8 @@ the custom properties.
 
 - **Never hardcode a hex value in feature code.** Use
   `var(--token-name)` in styles, `cssVar('token/name')` from
-  `@app/const/themeTokens`, or the `tokens` table in `@app/const/color` for
-  the mode-independent brand palette.
+  `@app/const/themeTokens`. Where a color has to be parsed (antd theme
+  seeds, a Tag's custom color), read `themeTokens[name][mode]`.
 - **Don't use `text-primary`/`icon-default` on brand fills** — they flip in
   dark mode; use `text-on-brand`.
 - Charts (ApexCharts) cannot read CSS custom properties — take the mode from

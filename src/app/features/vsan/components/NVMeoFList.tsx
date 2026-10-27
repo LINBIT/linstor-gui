@@ -11,7 +11,6 @@ import { deleteNVMeExport, getNVMeoFTarget } from '../api';
 import { notification, Space, Table, Tag } from 'antd';
 import type { TableProps } from 'antd';
 import { ErrorMessage, NVMeTarget } from '../types';
-import { ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
 import { REFETCH_INTERVAL } from '@app/const/time';
 import { CreateNVMEOfForm } from './CreateNVMEOfForm';
 import { formatBytes } from '@app/utils/size';
@@ -96,7 +95,7 @@ export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
       key: 'status',
       render: (status) => {
         const success = status === 'OK';
-        return <Tag color={success ? SUCCESS_COLOR : ERROR_COLOR}>{status}</Tag>;
+        return <Tag color={success ? 'success' : 'error'}>{status}</Tag>;
       },
       align: 'center',
     },

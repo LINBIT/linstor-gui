@@ -9,8 +9,6 @@ import { useTranslation } from 'react-i18next';
 import { Space, Table, Tag, notification } from 'antd';
 import type { TableProps } from 'antd';
 
-import { ERROR_COLOR, SUCCESS_COLOR } from '@app/const/color';
-
 import { ErrorMessage, ISCSITarget } from '../types';
 import { deleteISCISExport, getISCSITarget } from '../api';
 import { REFETCH_INTERVAL } from '@app/const/time';
@@ -97,7 +95,7 @@ export const ISCSIList = ({ complex }: ISCSIListProp) => {
       key: 'status',
       render: (status) => {
         const success = status === 'OK';
-        return <Tag color={success ? SUCCESS_COLOR : ERROR_COLOR}>{status}</Tag>;
+        return <Tag color={success ? 'success' : 'error'}>{status}</Tag>;
       },
       align: 'center',
     },

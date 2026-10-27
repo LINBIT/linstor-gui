@@ -6,7 +6,6 @@
 
 import React from 'react';
 import { Link as RouterLink, LinkProps as RouterLinkProps } from 'react-router-dom';
-import { tokens } from '@app/const/color';
 import { cssVar, type CssVars } from '@app/const/themeTokens';
 
 type LinkType = 'link' | 'primary' | 'secondary' | 'default';
@@ -30,45 +29,43 @@ const CLASSES: Record<LinkType, string> = {
   default: `${BUTTON_LIKE} border`,
 };
 
-const { brand, neutral, link } = tokens.color;
-
 /** Per-type colors, from the design tokens. */
 const COLORS: Record<LinkType, CssVars> = {
   link: {
     '--link-text': cssVar('text/link'),
-    '--link-text-hover': link.hover,
-    '--link-text-active': link.active,
-    '--link-focus': link.default,
+    '--link-text-hover': cssVar('text/link/hover'),
+    '--link-text-active': cssVar('text/link/active'),
+    '--link-focus': cssVar('interactive/primary'),
   },
   primary: {
-    '--link-text': brand.onPrimary,
-    '--link-bg': brand.primary,
-    '--link-border': brand.primary,
-    '--link-bg-hover': brand.primaryHover,
-    '--link-border-hover': brand.primaryHover,
-    '--link-bg-active': brand.primary,
-    '--link-border-active': brand.primary,
-    '--link-focus': brand.primary,
+    '--link-text': cssVar('text/on-brand'),
+    '--link-bg': cssVar('brand/muted'),
+    '--link-border': cssVar('brand/muted'),
+    '--link-bg-hover': cssVar('brand/muted/hover'),
+    '--link-border-hover': cssVar('brand/muted/hover'),
+    '--link-bg-active': cssVar('brand/muted'),
+    '--link-border-active': cssVar('brand/muted'),
+    '--link-focus': cssVar('brand/muted'),
   },
   secondary: {
-    '--link-text': brand.onPrimary,
+    '--link-text': cssVar('text/nav'),
     '--link-bg': 'transparent',
-    '--link-border': brand.primary,
-    '--link-bg-hover': brand.primaryHover,
-    '--link-border-hover': brand.primaryHover,
-    '--link-bg-active': brand.primaryHover,
-    '--link-border-active': brand.primaryHover,
-    '--link-focus': brand.primary,
+    '--link-border': cssVar('brand/muted'),
+    '--link-bg-hover': cssVar('bg/button/secondary-hover'),
+    '--link-border-hover': cssVar('bg/button/secondary-hover'),
+    '--link-bg-active': cssVar('bg/button/secondary-hover'),
+    '--link-border-active': cssVar('bg/button/secondary-hover'),
+    '--link-focus': cssVar('brand/muted'),
   },
   default: {
-    '--link-text': brand.onPrimary,
+    '--link-text': cssVar('text/nav'),
     '--link-bg': 'transparent',
-    '--link-border': neutral.borderDefault,
-    '--link-bg-hover': neutral.disabledBg,
-    '--link-border-hover': neutral.borderDefault,
+    '--link-border': cssVar('border/default'),
+    '--link-bg-hover': cssVar('bg/button/default-hover'),
+    '--link-border-hover': cssVar('border/default'),
     '--link-bg-active': cssVar('bg/chip/info'),
-    '--link-border-active': link.default,
-    '--link-focus': brand.primary,
+    '--link-border-active': cssVar('interactive/primary'),
+    '--link-focus': cssVar('brand/muted'),
   },
 };
 

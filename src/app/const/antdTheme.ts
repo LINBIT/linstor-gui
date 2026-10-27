@@ -7,8 +7,11 @@
 import { theme } from 'antd';
 import type { ThemeConfig } from 'antd';
 
-import { tokens } from './color';
-import { themeTokens, type ThemeMode } from './themeTokens';
+import { CONTROL_RADIUS, themeTokens, type ThemeMode, type ThemeTokenName } from './themeTokens';
+
+/** antd derives its palettes from real colors, so it takes the light value;
+ *  the brand ones are the same in both modes. */
+const value = (token: ThemeTokenName): string => themeTokens[token].light;
 
 /**
  * antd theme derived from the design tokens.
@@ -61,7 +64,7 @@ export const getAntdTheme = (mode: ThemeMode): ThemeConfig => ({
         itemSelectedColor: themeTokens['text/primary'].light,
         itemHoverColor: themeTokens['text/secondary'].light,
         itemActiveColor: themeTokens['text/primary'].light,
-        inkBarColor: tokens.color.brand.accent,
+        inkBarColor: value('brand/accent'),
       },
     }),
   },
@@ -90,16 +93,16 @@ const LIGHT_TAG_TEXT = {
 export const antdTheme: ThemeConfig = {
   token: {
     fontFamily: "'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif",
-    colorPrimary: tokens.color.brand.primary,
-    colorPrimaryHover: tokens.color.brand.primaryHover,
-    colorPrimaryActive: tokens.color.brand.primaryActive,
-    colorError: tokens.color.semantic.error,
-    colorSuccess: tokens.color.semantic.success,
-    colorLink: tokens.color.link.default,
-    colorLinkHover: tokens.color.link.hover,
-    colorLinkActive: tokens.color.link.active,
-    borderRadius: tokens.radius,
-    controlOutline: tokens.focusRing,
+    colorPrimary: value('brand/muted'),
+    colorPrimaryHover: value('brand/muted/hover'),
+    colorPrimaryActive: value('brand/muted/active'),
+    colorError: value('status/error'),
+    colorSuccess: value('status/success'),
+    colorLink: value('interactive/primary'),
+    colorLinkHover: value('text/link/hover'),
+    colorLinkActive: value('text/link/active'),
+    borderRadius: CONTROL_RADIUS,
+    controlOutline: value('brand/focus-ring'),
     motionDurationFast: '0.1s',
     motionDurationMid: '0.15s',
     motionDurationSlow: '0.2s',
@@ -109,54 +112,54 @@ export const antdTheme: ThemeConfig = {
     // button) label the peach fill in white, which nearly vanishes on it;
     // brand fills take the dark `text/on-brand`, as the project's Button does.
     Button: {
-      primaryColor: tokens.color.brand.onPrimary,
+      primaryColor: value('text/on-brand'),
     },
     // Selection controls (checkbox/radio/switch) sit on light row tints, where
     // the button peach #FFCC9C looks washed out at 16px. They use the deeper
     // primaryActive as their checked fill and the brand accent on hover.
     Switch: {
-      colorPrimary: tokens.color.brand.primaryActive,
-      colorPrimaryHover: tokens.color.brand.accent,
+      colorPrimary: value('brand/muted/active'),
+      colorPrimaryHover: value('brand/accent'),
     },
     Checkbox: {
-      colorPrimary: tokens.color.brand.primaryActive,
-      colorPrimaryHover: tokens.color.brand.accent,
+      colorPrimary: value('brand/muted/active'),
+      colorPrimaryHover: value('brand/accent'),
     },
     Radio: {
-      colorPrimary: tokens.color.brand.primaryActive,
-      colorPrimaryHover: tokens.color.brand.accent,
-      buttonSolidCheckedBg: tokens.color.brand.primaryActive,
-      buttonSolidCheckedHoverBg: tokens.color.brand.primaryHover,
-      buttonSolidCheckedActiveBg: tokens.color.brand.primaryHover,
-      buttonSolidCheckedColor: tokens.color.brand.onPrimary,
+      colorPrimary: value('brand/muted/active'),
+      colorPrimaryHover: value('brand/accent'),
+      buttonSolidCheckedBg: value('brand/muted/active'),
+      buttonSolidCheckedHoverBg: value('brand/muted/hover'),
+      buttonSolidCheckedActiveBg: value('brand/muted/hover'),
+      buttonSolidCheckedColor: value('text/on-brand'),
     },
     Input: {
-      activeBorderColor: tokens.color.brand.primary,
-      hoverBorderColor: tokens.color.brand.primary,
-      activeShadow: `0 0 0 2px ${tokens.focusRing}`,
+      activeBorderColor: value('brand/muted'),
+      hoverBorderColor: value('brand/muted'),
+      activeShadow: `0 0 0 2px ${value('brand/focus-ring')}`,
     },
     InputNumber: {
-      activeBorderColor: tokens.color.brand.primary,
-      hoverBorderColor: tokens.color.brand.primary,
-      activeShadow: `0 0 0 2px ${tokens.focusRing}`,
-      handleHoverColor: tokens.color.brand.primary,
+      activeBorderColor: value('brand/muted'),
+      hoverBorderColor: value('brand/muted'),
+      activeShadow: `0 0 0 2px ${value('brand/focus-ring')}`,
+      handleHoverColor: value('brand/muted'),
     },
     Select: {
-      hoverBorderColor: tokens.color.brand.primary,
-      activeBorderColor: tokens.color.brand.primary,
-      activeOutlineColor: tokens.focusRing,
-      optionSelectedBg: tokens.color.brand.primaryHover,
-      optionActiveBg: tokens.color.brand.primaryHover,
+      hoverBorderColor: value('brand/muted'),
+      activeBorderColor: value('brand/muted'),
+      activeOutlineColor: value('brand/focus-ring'),
+      optionSelectedBg: value('brand/muted/hover'),
+      optionActiveBg: value('brand/muted/hover'),
       // The peach fill stays light in dark mode, so its label has to stay dark
       // (design token `text/on-brand`) — antd's dark algorithm would otherwise
       // paint near-white text on it. The hovered option has no token of its
       // own; app.css covers that one.
-      optionSelectedColor: tokens.color.brand.onPrimary,
+      optionSelectedColor: value('text/on-brand'),
     },
     DatePicker: {
-      activeBorderColor: tokens.color.brand.primary,
-      hoverBorderColor: tokens.color.brand.primary,
-      activeShadow: `0 0 0 2px ${tokens.focusRing}`,
+      activeBorderColor: value('brand/muted'),
+      hoverBorderColor: value('brand/muted'),
+      activeShadow: `0 0 0 2px ${value('brand/focus-ring')}`,
     },
   },
 };
