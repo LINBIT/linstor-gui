@@ -8,7 +8,8 @@ checkVERSION:
 else
 checkVERSION:
 	lbvers.py check --base=$(BASE) --build=$(BUILD) --build-nr=$(BUILD_NR) --pkg-nr=$(PKG_NR) \
-		--debian-changelog=debian/changelog --rpm-spec=$(PROG).spec
+		--debian-changelog=debian/changelog --rpm-spec=$(PROG).spec \
+		--node-package-json=package.json --changelog=CHANGELOG.md
 endif
 
 .PHONY: .env

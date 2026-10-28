@@ -169,18 +169,22 @@ build:
     - node -v
     - echo "npm version:"
     - npm -v
-    - install /dev/null /usr/local/bin/lbvers.py # disable version checking
     # A release tag (vX.Y.Z) builds X.Y.Z: its commit carries the matching
-    # debian/changelog and spec entries. Anything else is a 0.0.0.<sha>
-    # snapshot with a generated changelog entry.
+    # debian/changelog and spec entries, which lbvers.py checks together with
+    # package.json and CHANGELOG.md, so this tarball is the one that gets
+    # published. Anything else is a 0.0.0.<sha> snapshot with a generated
+    # changelog entry and no version check.
     - |
       if [ -n "$CI_COMMIT_TAG" ]; then
         VERSION="${CI_COMMIT_TAG#v}"
+        ln -sf "$PWD/build-helpers/lbvers.py" /usr/local/bin/lbvers.py
+        make VERSION="$VERSION" BASE="$VERSION" BUILD=final BUILD_NR=1 PKG_NR=1 debrelease
       else
         VERSION="0.0.0.$CI_COMMIT_SHORT_SHA"
         build-helpers/dummy-release.sh linstor-gui $VERSION 1 linstor-gui.spec
+        install /dev/null /usr/local/bin/lbvers.py # disable version checking
+        make VERSION="$VERSION" debrelease
       fi
-    - make VERSION="$VERSION" debrelease
   artifacts:
     paths:
       - 'linstor-gui-*.tar.gz'
