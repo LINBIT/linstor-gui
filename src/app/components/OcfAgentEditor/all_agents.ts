@@ -1924,6 +1924,16 @@ export const allAgents = {
             type: 'boolean',
             default: 'false',
           },
+          {
+            name: 'allow_clone',
+            unique: false,
+            required: false,
+            shortdesc: 'allow cloning for non-shared encrypted devices',
+            longdesc:
+              'Allow the resource to run as a clone. dm-crypt is not cluster aware.\nOnly clone it when each node opens its own non-shared encrypted device,\nsuch as a LUKS device underneath DRBD. When cloned, define encrypted_dev\nby device path instead of UUID.',
+            type: 'boolean',
+            default: 'false',
+          },
         ],
         actions: [
           {
@@ -7556,7 +7566,7 @@ export const allAgents = {
         version: '1.0',
         shortdesc: 'This agent activates/deactivates logical volumes.',
         longdesc:
-          'This agent manages LVM activation/deactivation work for a given volume group.\n\nIt supports the following modes, controlled by the vg_access_mode parameter:\n\n* lvmlockd\n* system_id\n* clvmd\n* tagging\n\nNotes:\n\n1. There are two possible configuration combinations: lvmlockd+LVM-activate and\nclvm+LVM-activate. However, it is not possible to use both at the same time!\n\n2. Put all "lvmlockd"/"clvmd" volume groups into auto management by the agent\nif using the cluster to manage at least one of them.  If you manage some manually,\nthe stop action of the lvmlockd agent may fail and the node may get fenced,\nbecause some DLM lockspaces might be in use and cannot be closed automatically.\n\n3. The autoactivation property of volume group will be disabled when vg_access_mode\nis set to system_id.\n\nOption: OCF_CHECK_LEVEL\n\nThe standard monitor operation of depth 0 checks if the VG or LV is valid.\nIf you want deeper tests, set OCF_CHECK_LEVEL to 10:\n\n  10: read first 1 byte of the underlying device (raw read)\n\nIf there are many underlying devs in VG, it will only read one of the devs.\nThis is not perfect solution for detecting underlying devices livable.\ne.g. iscsi SAN IO timeout will return EIO, and it makes monitor failed.',
+          'This agent manages LVM activation/deactivation work for a given volume group.\n\nIt supports the following modes, controlled by the vg_access_mode parameter:\n\n* lvmlockd\n* system_id\n* clvmd\n* tagging\n* basic\n\nNotes:\n\n1. There are two possible configuration combinations: lvmlockd+LVM-activate and\nclvm+LVM-activate. However, it is not possible to use both at the same time!\n\n2. Put all "lvmlockd"/"clvmd" volume groups into auto management by the agent\nif using the cluster to manage at least one of them.  If you manage some manually,\nthe stop action of the lvmlockd agent may fail and the node may get fenced,\nbecause some DLM lockspaces might be in use and cannot be closed automatically.\n\n3. The autoactivation property of volume group will be disabled when vg_access_mode\nis set to system_id.\n\n4. The "basic" vg_access_mode activates and deactivates LVs without any\ncluster protection. Use it only for volume groups whose physical volumes no\nother node can see, for example local VGs that hold DRBD backing devices,\nwhere the resource can be cloned so each node activates its own copy of the VG.\nUsing "basic" on shared storage risks data corruption.\n\nOption: OCF_CHECK_LEVEL\n\nThe standard monitor operation of depth 0 checks if the VG or LV is valid.\nIf you want deeper tests, set OCF_CHECK_LEVEL to 10:\n\n  10: read first 1 byte of the underlying device (raw read)\n\nIf there are many underlying devs in VG, it will only read one of the devs.\nThis is not perfect solution for detecting underlying devices livable.\ne.g. iscsi SAN IO timeout will return EIO, and it makes monitor failed.',
         parameters: [
           {
             name: 'vgname',
@@ -7582,7 +7592,7 @@ export const allAgents = {
             required: true,
             shortdesc: 'The VG access mode',
             longdesc:
-              'This option decides which solution will be used to protect the volume group in\ncluster environment. Optional solutions are: lvmlockd, clvmd, system_id and\ntagging.',
+              'This option decides which solution will be used to protect the volume group in\ncluster environment. Optional solutions are: lvmlockd, clvmd, system_id,\ntagging and basic. "basic" provides no protection and is only safe for\nvolume groups whose physical volumes are local to one node.',
             type: 'string',
             default: '',
           },
@@ -7592,7 +7602,7 @@ export const allAgents = {
             required: false,
             shortdesc: 'Logical volume activation mode',
             longdesc:
-              'The activation mode decides the visibility of logical volumes in the cluster. There\nare two different modes: "shared" for cluster filesystem and "exclusive" for local\nfilesystem. With "shared", an LV can be activated concurrently from multiple nodes.\nWith "exclusive", an LV can be activated by one node at a time.\n\nThis option only has effect on "lvmlockd"/"clvmd" vg_access_mode. For "system_id"\nand "tagging", they always mean exclusive activation.',
+              'The activation mode decides the visibility of logical volumes in the cluster. There\nare two different modes: "shared" for cluster filesystem and "exclusive" for local\nfilesystem. With "shared", an LV can be activated concurrently from multiple nodes.\nWith "exclusive", an LV can be activated by one node at a time.\n\nThis option only has effect on "lvmlockd"/"clvmd" vg_access_mode. For "system_id"\nand "tagging", they always mean exclusive activation. For "basic", LVs are\nalways activated with a plain "-ay".',
             type: 'string',
             default: 'exclusive',
           },
@@ -17738,11 +17748,31 @@ export const allAgents = {
             name: 'settle_timeout',
             unique: false,
             required: false,
-            shortdesc: 'Seconds to wait for the pool state to settle after import',
+            shortdesc: 'Seconds start waits for the state to settle',
             longdesc:
-              'Seconds to wait after a successful import for the pool state to settle before\nreporting the pool as started.\n\n/proc/spl/kstat/zfs/<pool>/state is a lock-free snapshot of the root vdev\nstate, so shortly after an import it can still read OFFLINE or TRANSITIONING\nwhile vdevs are being reopened. Pacemaker starts the recurring monitor as soon\nas start returns, and the monitor treats anything other than ONLINE, DEGRADED\nor FAULTED as a hard error, so a reading taken inside that window fails a\nhealthy pool and triggers a needless recovery.\n\nThe pool state is read once before any waiting, so a pool that is already\nsettled - the common case - costs nothing. Set to 0 to disable the wait.',
+              "Seconds start may spend waiting for the pool state to settle after a\nsuccessful import.\n\n/proc/spl/kstat/zfs/<pool>/state is a lock-free snapshot of the root vdev\nstate, and after an import it does not simply transition once to ONLINE: it\noscillates while the vdevs are reopened. A single reading is ONLINE most of\nthe time while the pool is still unsettled, so start waits for three\nconsecutive healthy reads 100ms apart instead of one.\n\nPacemaker starts the recurring monitor as soon as start returns, and a reading\ntaken inside that window would fail a healthy pool and trigger a needless\nrecovery. The wait never fails the start; judging the pool is the monitor's\njob. The state is read before any waiting, so a pool that is already settled -\nthe common case - costs nothing. Set to 0 to disable it.",
             type: 'integer',
             default: '10',
+          },
+          {
+            name: 'monitor_settle_ms',
+            unique: false,
+            required: false,
+            shortdesc: 'Milliseconds the monitor re-reads',
+            longdesc:
+              'Milliseconds the recurring monitor may spend re-reading an unexpected pool\nstate before reporting it.\n\nThe same oscillation can be sampled by a monitor rather than by start - after\nan import this agent performed, or one it did not, such as a probe racing a\nmanual import. The monitor re-reads for at most this long and reports whatever\nthe pool settles on.\n\nThis is deliberately far smaller than settle_timeout: the monitor only has to\noutlast a burst, and every millisecond here delays the detection of a pool\nthat is genuinely offline. Set to 0 to report the first reading, as before.',
+            type: 'integer',
+            default: '500',
+          },
+          {
+            name: 'kstat_root',
+            unique: false,
+            required: false,
+            shortdesc: 'Root of the ZFS kstat tree',
+            longdesc:
+              'Root of the ZFS kstat tree: the agent reads the pool state from\nkstat_root/<pool>/state, which is a lock-free snapshot and therefore safe\nto poll from the monitor. The default matches every known ZFS build; override\nit only when ZFS keeps its kstat tree elsewhere, or to point the agent at a\nfake tree when testing.',
+            type: 'string',
+            default: '/proc/spl/kstat/zfs',
           },
         ],
         actions: [

@@ -318,10 +318,10 @@ export const windowsAgents = {
           {
             name: 'nic',
             unique: false,
-            required: true,
+            required: false,
             shortdesc: 'The network interface for the IP address',
             longdesc:
-              'The network interface where this cluster IP should be bound\nto. Example: "Ethernet Instance 0". This must match exactly\nthe Name of the network interface (which might be longer).',
+              'The network interface where this cluster IP should be bound\nto. Example: "Ethernet Instance 0". This must match exactly\nthe Name of the network interface (which might be longer).\nIf not specified, the interface whose subnet contains the\ncluster IP is used.',
             type: 'string',
             default: '',
           },
