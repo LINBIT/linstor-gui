@@ -40,9 +40,10 @@ export const themeTokens = {
   'bg/chip/danger': { light: '#fde4e5', dark: '#3a1517' },
   'bg/button/secondary-hover': { light: '#ffdcbc', dark: '#4a2a15' },
   'bg/button/disabled': { light: '#f5f5f5', dark: 'rgba(255, 255, 255, 0.08)' },
-  // The primary node's row in a resource's node table, and its hover.
-  'bg/row/primary': { light: '#e6fcd3', dark: '#1d3312' },
-  'bg/row/primary-hover': { light: '#c6ff94', dark: '#2a4d1a' },
+  // The primary node's row in a resource's node table, and its hover: a
+  // brand tint, light enough that the storage pool link in it stays at 4.5:1.
+  'bg/row/primary': { light: '#fff4ea', dark: '#3a2010' },
+  'bg/row/primary-hover': { light: '#fff1e3', dark: '#4a2a15' },
   'bg/button/default-hover': { light: '#f5f5f5', dark: 'rgba(255, 255, 255, 0.08)' },
   // A danger button fills red on hover, with a white label, in both modes.
   'bg/button/danger': { light: '#da1e28', dark: '#da1e28' },
