@@ -1,6 +1,30 @@
 # Changelog
 
-# 2.6.0 - unreleased
+# 2.7.0 - 2026-10-28
+
+### Added
+
+- Controller overview page
+- Node detail page
+- Active controller shown in the node list and About panel
+
+### Changed
+
+- Upgrade to React 19 and antd 6
+- Complete translations in all languages
+- Mobile-friendly layouts
+
+### Fixed
+
+- Cron schedules in the built GUI
+- Resource group edit losing settings
+- Dialogs showing values of the previous object
+
+### Security
+
+- Update dependencies to versions without known vulnerabilities
+
+# 2.6.0 - 2026-09-08
 
 ### Added
 
