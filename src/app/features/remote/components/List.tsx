@@ -26,6 +26,19 @@ import { Popconfirm } from '@app/components/Popconfirm';
 import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
 import { ActionColumnTitle } from '@app/components/ActionColumnTitle';
 
+/**
+ * A LINSTOR remote's url is the other controller's REST address, whose GUI is
+ * served under /ui. The remote LINSTOR generates for the cluster itself points
+ * at localhost, which in the browser is not the controller: that one is this GUI.
+ */
+const isLocalUrl = (url?: string) => {
+  try {
+    return ['localhost', '127.0.0.1', '[::1]'].includes(new URL(url ?? '').hostname);
+  } catch {
+    return false;
+  }
+};
+
 type RemoteQuery = {
   name?: string | null;
   type?: string | null;
@@ -214,27 +227,42 @@ export const List = () => {
       width: 150,
       fixed: 'right',
       align: 'center',
-      render: (record, info) => {
+      render: (record) => {
+        const backupsItem = record.type === 's3_remotes' || (record.type === 'linstor_remotes' && record.url);
         return (
           <Space size="small">
             <Dropdown
               menu={{
                 items: [
-                  {
-                    key: 'backups',
-                    label: t('remote:backups'),
-                    onClick: () => {
-                      if (record.type === 's3_remotes') {
-                        const url =
-                          mode === UIMode.HCI
-                            ? `/hci/remote/${record.remote_name}/backups`
-                            : `/remote/${record.remote_name}/backups`;
-                        navigate(url);
-                      } else {
-                        window.open(`${info.url}/ui/#!/storage-configuration/resources `);
-                      }
-                    },
-                  },
+                  ...(backupsItem
+                    ? [
+                        {
+                          key: 'backups',
+                          label: t('remote:backups'),
+                          onClick: () => {
+                            if (record.type === 's3_remotes') {
+                              navigate(
+                                mode === UIMode.HCI
+                                  ? `/hci/remote/${record.remote_name}/backups`
+                                  : `/remote/${record.remote_name}/backups`,
+                              );
+                            } else if (isLocalUrl(record.url)) {
+                              navigate(
+                                mode === UIMode.HCI
+                                  ? '/hci/storage-configuration/resource-overview'
+                                  : '/storage-configuration/resource-overview',
+                              );
+                            } else {
+                              window.open(
+                                `${record.url?.replace(/\/+$/, '')}/ui/#/storage-configuration/resource-overview`,
+                                '_blank',
+                                'noopener',
+                              );
+                            }
+                          },
+                        },
+                      ]
+                    : []),
                   {
                     key: 'delete',
                     label: (

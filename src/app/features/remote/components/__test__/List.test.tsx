@@ -153,8 +153,33 @@ describe('remote List', () => {
     menu = await openRowMenu('lin-b');
     fireEvent.click(within(menu).getByText('Backups'));
     expect(windowOpen).toHaveBeenCalledWith(
-      expect.stringContaining('http://other:3370/ui/#!/storage-configuration/resources'),
+      'http://other:3370/ui/#/storage-configuration/resource-overview',
+      '_blank',
+      'noopener',
     );
+  });
+
+  it('"Backups" of the remote LINSTOR generates for this cluster stays in this GUI', async () => {
+    vi.mocked(getRemoteList).mockResolvedValue({
+      data: { linstor_remotes: [{ remote_name: 'local-remote-generated-by-linstor', url: 'http://localhost:3370/' }] },
+    } as never);
+    renderList();
+    await screen.findByText('local-remote-generated-by-linstor');
+    const menu = await openRowMenu('local-remote-generated-by-linstor');
+    fireEvent.click(within(menu).getByText('Backups'));
+    expect(navigate).toHaveBeenCalledWith('/storage-configuration/resource-overview');
+    expect(windowOpen).not.toHaveBeenCalled();
+  });
+
+  it('offers no "Backups" for an EBS remote', async () => {
+    vi.mocked(getRemoteList).mockResolvedValue({
+      data: { ebs_remotes: [{ remote_name: 'ebs-c', region: 'eu-west-1', endpoint: 'ec2', availability_zone: 'a' }] },
+    } as never);
+    renderList();
+    await screen.findByText('ebs-c');
+    const menu = await openRowMenu('ebs-c');
+    expect(within(menu).queryByText('Backups')).not.toBeInTheDocument();
+    expect(within(menu).getByText('Delete')).toBeInTheDocument();
   });
 
   it('uses the HCI backup route in HCI mode', async () => {
