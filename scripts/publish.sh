@@ -55,7 +55,12 @@ else
 	repo_cmd="lbrepoctl add linstor-gui -v $version --rsync"
 fi
 
+# What the lbbuild account's .bashrc does for an interactive login, which a
+# command run over ssh does not get: the tools' directory on PATH, and as the
+# working directory.
 ssh -At "$host" "set -e
-curl -fsSL -o lbbuild/upstream/$tarball $pulp_url
+cd ~/lbbuild
+PATH=\$HOME/lbbuild:\$PATH
+curl -fsSL -o upstream/$tarball $pulp_url
 lbbuildctl build linstor-gui -v $version -a amd64
 $repo_cmd"
