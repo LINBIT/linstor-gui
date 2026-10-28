@@ -1217,7 +1217,7 @@ org_role = Viewer`,
     linstor_version: 'LINSTOR SÜRÜMÜ',
     ui_version: 'UI Sürümü',
     sds_version: 'LINBIT SDS Sürümü',
-    controller_ip: "Denetleyici Bağlama IP'si",
+    controller_address: 'Denetleyici Adresi',
     controller_active_on: 'Denetleyici Aktif',
     trademark:
       "LINSTOR-GUI özgür yazılımdır: Free Software Foundation tarafından yayınlanan GNU Genel Kamu Lisansı'nın 3. sürümü koşulları altında yeniden dağıtabilir ve/veya değiştirebilirsiniz. Bu program faydalı olacağı umuduyla dağıtılmaktadır, ancak HİÇBİR GARANTİ YOKTUR; hatta SATILABİLİRLİK veya BELİRLİ BİR AMACA UYGUNLUK konusunda zımni garanti bile yoktur. Daha fazla ayrıntı için GNU Genel Kamu Lisansı'na bakın.",

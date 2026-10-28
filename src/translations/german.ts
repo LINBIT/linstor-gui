@@ -1241,7 +1241,7 @@ org_role = Viewer`,
     linstor_version: 'LINSTOR VERSION',
     ui_version: 'UI Version',
     sds_version: 'LINBIT SDS Version',
-    controller_ip: 'Controller Binding IP',
+    controller_address: 'Controller-Adresse',
     controller_active_on: 'Controller aktiv auf',
     trademark:
       'LINSTOR-GUI ist freie Software: Sie können sie unter den Bedingungen der GNU General Public License, wie von der Free Software Foundation veröffentlicht, Version 3 der Lizenz, weiterverbreiten und/oder modifizieren. Dieses Programm wird in der Hoffnung verbreitet, dass es nützlich ist, aber OHNE JEDE GEWÄHRLEISTUNG; sogar ohne die implizite Gewährleistung der MARKTGÄNGIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK. Siehe die GNU General Public License für weitere Details.',

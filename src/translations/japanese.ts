@@ -1217,7 +1217,7 @@ org_role = Viewer`,
     linstor_version: 'LINSTORバージョン',
     ui_version: 'UIバージョン',
     sds_version: 'LINBIT SDS Version',
-    controller_ip: 'コントローラーバインディングIP',
+    controller_address: 'コントローラーアドレス',
     controller_active_on: 'コントローラーアクティブ',
     trademark:
       'LINSTOR-GUIはフリーソフトウェアです。Free Software Foundation が公開したGNU General Public License のバージョン3の条件下で再配布および/または変更することができます。このプログラムは有用であることを願って配布されていますが、いかなる保証もありません。商品性や特定の目的への適合性の黙示的保証さえもありません。詳細については、GNU General Public License を参照してください。',

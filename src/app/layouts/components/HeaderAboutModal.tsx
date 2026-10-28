@@ -14,38 +14,27 @@ import { useSettings } from '@app/features/settings/useSettings';
 import { DotsIcon } from '@app/components/SVGIcon';
 import { linbitSdsVersion, uiVersion } from './aboutVersion';
 import { controllerActiveOn } from './controllerActiveOn';
-import { useQuery } from '@tanstack/react-query';
-import { getControllerConfig } from '@app/features/node/api';
 import { useControllerHa } from '@app/features/node/hooks/useActiveController';
 
 interface HeaderAboutModalProps {
   linstorVersion?: LINSTORVersionInfo;
 }
 
-/** Where the controller listens and runs; mounted only while the panel is open, so nothing is fetched before. */
+/** Which controller the GUI talks to and where it runs; mounted only while the panel is open, so nothing is fetched before. */
 const ControllerRows: React.FC<HeaderAboutModalProps> = ({ linstorVersion }) => {
   const { t } = useTranslation('about');
-  const { data: config } = useQuery({
-    queryKey: ['getControllerConfig'],
-    queryFn: getControllerConfig,
-  });
   const ha = useControllerHa();
 
-  const bindingIp = [
-    ...new Set([config?.data?.http, config?.data?.https].filter((p) => p?.enabled).map((p) => p?.listen_address)),
-  ]
-    .filter(Boolean)
-    .join(', ');
+  // The base URL the requests go to: LINSTOR_HOST when set, the page's own origin otherwise
+  const address = window.localStorage.getItem('LINSTOR_HOST') || window.location.origin;
   const activeOn = controllerActiveOn(linstorVersion, ha.active);
 
   return (
     <>
-      {bindingIp && (
-        <div className="flex justify-between gap-4 text-base">
-          <span className="font-medium">{t('controller_ip')}</span>
-          <span>{bindingIp}</span>
-        </div>
-      )}
+      <div className="flex justify-between gap-4 text-base">
+        <span className="font-medium">{t('controller_address')}</span>
+        <span className="break-all text-right">{address}</span>
+      </div>
       {activeOn && (
         <div className="flex justify-between gap-4 text-base">
           <span className="font-medium">{t('controller_active_on')}</span>

@@ -1340,7 +1340,7 @@ org_role = Viewer`,
     linstor_version: 'LINSTOR 版本',
     ui_version: 'UI 版本',
     sds_version: 'LINBIT SDS 版本',
-    controller_ip: '控制器绑定 IP',
+    controller_address: '控制器地址',
     controller_active_on: '控制器活动于',
     trademark:
       'LINSTOR-GUI 是自由软件：您可以根据 GNU 通用公共许可证的条款（由自由软件基金会发布的许可证的第 3 版）重新分发或修改它。本程序是基于希望它将是有用的，但没有任何保证；甚至没有适销性或适用于特定目的的暗示保证。有关更多详细信息，请参阅 GNU 通用公共许可证。',
