@@ -6,7 +6,8 @@
 
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import i18n from 'i18next';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -83,6 +84,21 @@ describe('resource group CreateForm', () => {
     vi.mocked(spawnResourceGroup).mockResolvedValue(ok as never);
     vi.mocked(getResourceGroups).mockResolvedValue({ data: [] } as never);
     vi.mocked(getControllerVersion).mockResolvedValue({ data: { version: '1.35.3' } } as never);
+  });
+
+  // antd spaces out a two-character Chinese button label (取 消).
+  it('labels the second button Cancel when creating and Back when editing, in the UI language', async () => {
+    await i18n.changeLanguage('zh');
+    try {
+      const { unmount } = renderForm();
+      expect(await screen.findByRole('button', { name: /^取\s?消$/ })).toBeInTheDocument();
+      unmount();
+      renderForm({ isEdit: true, resourceGroup: 'rg-edit' });
+      expect(await screen.findByRole('button', { name: /^返\s?回$/ })).toBeInTheDocument();
+    } finally {
+      cleanup();
+      await i18n.changeLanguage('en');
+    }
   });
 
   it('refuses to submit without a name', async () => {

@@ -629,7 +629,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
         </Button>
 
         <Button type="secondary" onClick={backToList}>
-          {isEdit ? 'Back' : 'Cancel'}
+          {isEdit ? t('common:back') : t('common:cancel')}
         </Button>
       </div>
     </Form>
