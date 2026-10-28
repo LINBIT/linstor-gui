@@ -692,6 +692,7 @@ const fr = {
     please_select_nodes: 'Veuillez sélectionner des nœuds',
     delete_snapshots: 'Supprimer les instantanés',
     are_you_sure_delete_selected_snapshots: 'Voulez-vous vraiment supprimer les instantanés sélectionnés ?',
+    delete_confirm: 'Supprimer l’instantané {{name}} de {{resource}} ?',
     list: 'Liste des instantanés',
     resource_name: 'Nom de la ressource',
     node_names: 'Noms des nœuds',

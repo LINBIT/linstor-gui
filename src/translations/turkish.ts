@@ -687,6 +687,7 @@ const tr = {
     please_select_nodes: 'Lütfen düğümleri seçin',
     delete_snapshots: 'Anlık görüntüleri sil',
     are_you_sure_delete_selected_snapshots: 'Seçili anlık görüntüleri silmek istediğinizden emin misiniz?',
+    delete_confirm: '{{resource}} kaynağının {{name}} anlık görüntüsü silinsin mi?',
     list: 'Anlık Görüntü Listesi',
     resource_name: 'Kaynak Adı',
     node_names: 'Düğüm Adları',

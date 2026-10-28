@@ -772,6 +772,7 @@ const zh = {
     please_select_nodes: '请选择节点',
     delete_snapshots: '删除快照',
     are_you_sure_delete_selected_snapshots: '确定删除选中的快照？',
+    delete_confirm: '删除资源 {{resource}} 的快照 {{name}}？',
     list: '快照列表',
     resource_name: '资源名称',
     node_names: '节点名称',

@@ -688,6 +688,7 @@ const ru = {
     please_select_nodes: 'Выберите узлы',
     delete_snapshots: 'Удалить снимки',
     are_you_sure_delete_selected_snapshots: 'Действительно удалить выбранные снимки?',
+    delete_confirm: 'Удалить снимок {{name}} ресурса {{resource}}?',
     list: 'Список снимков',
     resource_name: 'Имя ресурса',
     node_names: 'Имена узлов',

@@ -686,6 +686,7 @@ const ja = {
     please_select_nodes: 'ノードを選択してください',
     delete_snapshots: 'スナップショットを削除',
     are_you_sure_delete_selected_snapshots: '選択したスナップショットを削除してもよろしいですか。',
+    delete_confirm: '{{resource}} のスナップショット {{name}} を削除しますか？',
     list: 'スナップショットリスト',
     resource_name: 'リソース名',
     node_names: 'ノード名',

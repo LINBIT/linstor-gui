@@ -695,6 +695,7 @@ const de = {
     please_select_nodes: 'Bitte Knoten auswählen',
     delete_snapshots: 'Snapshots löschen',
     are_you_sure_delete_selected_snapshots: 'Ausgewählte Snapshots wirklich löschen?',
+    delete_confirm: 'Snapshot {{name}} von {{resource}} löschen?',
     list: 'Snapshot-Liste',
     resource_name: 'Ressourcenname',
     node_names: 'Knotennamen',

@@ -690,6 +690,7 @@ const es = {
     please_select_nodes: 'Seleccione los nodos',
     delete_snapshots: 'Eliminar instantáneas',
     are_you_sure_delete_selected_snapshots: '¿Seguro que desea eliminar las instantáneas seleccionadas?',
+    delete_confirm: '¿Eliminar la instantánea {{name}} de {{resource}}?',
     list: 'Lista de instantáneas',
     resource_name: 'Nombre del recurso',
     node_names: 'Nombres de nodos',

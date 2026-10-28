@@ -836,6 +836,7 @@ const en = {
     please_select_nodes: 'Please select nodes',
     delete_snapshots: 'Delete snapshots',
     are_you_sure_delete_selected_snapshots: 'Are you sure to delete selected snapshots?',
+    delete_confirm: 'Delete snapshot {{name}} of {{resource}}?',
     list: 'Snapshot List',
     resource_name: 'Resource Name',
     node_names: 'Node Names',

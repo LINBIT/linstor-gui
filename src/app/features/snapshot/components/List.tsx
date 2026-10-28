@@ -328,14 +328,15 @@ export const List = () => {
                 {
                   key: 'delete',
                   label: (
-                    <span
-                      className="cursor-pointer"
-                      onClick={() => {
-                        void del.run([record]);
-                      }}
+                    <Popconfirm
+                      key="delete"
+                      title={t('snapshot:delete_confirm', { name: record.name, resource: record.resource_name })}
+                      okText={t('common:yes')}
+                      cancelText={t('common:no')}
+                      onConfirm={() => del.run([record])}
                     >
-                      {t('common:delete')}
-                    </span>
+                      <div className="w-full text-red-600">{t('common:delete')}</div>
+                    </Popconfirm>
                   ),
                 },
               ],

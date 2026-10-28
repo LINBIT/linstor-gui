@@ -207,11 +207,16 @@ describe('snapshot List', () => {
     expect(navigate).toHaveBeenLastCalledWith('/hci/snapshot');
   });
 
-  it('deletes from the row menu and refetches', async () => {
+  it('deletes from the row menu after a confirmation naming the snapshot, then refetches', async () => {
     renderList();
     await screen.findByText('snap-old');
     const menu = await openRowMenu('snap-old');
-    fireEvent.click(within(menu).getByText('Delete'));
+    const entry = within(menu).getByText('Delete');
+    expect(entry).toHaveClass('text-red-600');
+    fireEvent.click(entry);
+    expect(await screen.findByText('Delete snapshot snap-old of res-a?')).toBeInTheDocument();
+    expect(deleteSnapshot).not.toHaveBeenCalled();
+    fireEvent.click(await screen.findByRole('button', { name: 'Yes' }));
     await waitFor(() => expect(deleteSnapshot).toHaveBeenCalledWith('res-a', 'snap-old'));
     await waitFor(() => expect(getSnapshots).toHaveBeenCalledTimes(2));
     expect(deleteSnapshot).toHaveBeenCalledTimes(1);
