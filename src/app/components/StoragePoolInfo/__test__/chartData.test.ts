@@ -34,12 +34,12 @@ const pool = (node: string, name: string, total: number, free: number, kind = 'L
 describe('buildChartData', () => {
   it('is empty without data or pools', () => {
     const empty = { series: [], categories: [], nodeSummaries: {}, totalNodeCount: 0 };
-    expect(buildChartData(undefined)).toEqual(empty);
-    expect(buildChartData(response([]))).toEqual(empty);
+    expect(buildChartData(undefined, 'light')).toEqual(empty);
+    expect(buildChartData(response([]), 'light')).toEqual(empty);
   });
 
   it('leaves out diskless pools and the nodes that only have those', () => {
-    const data = buildChartData(response([pool('n1', 'sp', 100, 40), pool('n2', 'dl', 0, 0, 'DISKLESS')]));
+    const data = buildChartData(response([pool('n1', 'sp', 100, 40), pool('n2', 'dl', 0, 0, 'DISKLESS')]), 'light');
     expect(data.categories).toEqual(['n1']);
     expect(data.totalNodeCount).toBe(1);
   });
@@ -47,6 +47,7 @@ describe('buildChartData', () => {
   it('stacks used over free per pool and adds the node totals with more than one pool', () => {
     const data = buildChartData(
       response([pool('n1', 'a', 100, 40), pool('n1', 'b', 200, 50), pool('n2', 'a', 300, 100)]),
+      'light',
     );
     // n1 carries more used space (210 against 200), so it comes first.
     expect(data.categories).toEqual(['n1', 'n2']);
@@ -60,14 +61,25 @@ describe('buildChartData', () => {
     ]);
   });
 
+  it('draws the node totals in the gray of the current theme', () => {
+    const pools = response([pool('n1', 'a', 100, 40), pool('n1', 'b', 200, 50)]);
+    const nodeColors = (mode: 'light' | 'dark') =>
+      buildChartData(pools, mode)
+        .series.filter((s) => s.group === 'NodeAll')
+        .map((s) => s.color);
+    expect(nodeColors('light')).toEqual(['#3f3f3f', 'rgba(63, 63, 63, 0.2)']);
+    expect(nodeColors('dark')).toEqual(['#8c8c8c', 'rgba(140, 140, 140, 0.2)']);
+  });
+
   it('draws no node totals for a single pool', () => {
-    const data = buildChartData(response([pool('n1', 'a', 100, 40), pool('n2', 'a', 100, 10)]));
+    const data = buildChartData(response([pool('n1', 'a', 100, 40), pool('n2', 'a', 100, 10)]), 'light');
     expect(data.series.map((s) => s.group)).toEqual(['a', 'a']);
   });
 
   it('summarises each node by pool, skipping pools it lacks, then the node total', () => {
     const data = buildChartData(
       response([pool('n1', 'a', 100, 40), pool('n1', 'b', 200, 50), pool('n2', 'a', 300, 100)]),
+      'light',
     );
     expect(data.nodeSummaries.n2.map(({ label, free, used }) => ({ label, free, used }))).toEqual([
       { label: 'a', free: 100, used: 200 },
@@ -79,7 +91,7 @@ describe('buildChartData', () => {
 
   it('draws only the 20 nodes with the most used space, and counts all of them', () => {
     const pools = Array.from({ length: 25 }, (_, i) => pool(`n${i}`, 'a', 1000, 1000 - i));
-    const data = buildChartData(response(pools));
+    const data = buildChartData(response(pools), 'light');
     expect(data.totalNodeCount).toBe(25);
     expect(data.categories).toHaveLength(20);
     expect(data.categories[0]).toBe('n24');

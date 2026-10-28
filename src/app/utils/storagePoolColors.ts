@@ -8,7 +8,7 @@
  * Common storage pool color utilities
  */
 
-import { themeTokens } from '@app/const/themeTokens';
+import { themeTokens, type ThemeMode } from '@app/const/themeTokens';
 
 // Base colors for storage pools
 export const BASE_STORAGE_POOL_COLORS = [
@@ -24,8 +24,9 @@ export const BASE_STORAGE_POOL_COLORS = [
   '#BBD45F',
 ];
 
-// Node total colors
-export const NODE_TOTAL_COLOR = themeTokens['icon/subtle'].light;
+// Node total colors, per theme: the chart can't read CSS variables, and the
+// light mode's dark gray barely shows on the dark page.
+export const nodeTotalColor = (mode: ThemeMode): string => themeTokens['icon/subtle'][mode];
 
 // Convert hex color to rgba with specified opacity
 export const hexToRgba = (hex: string, opacity: number): string => {
@@ -83,7 +84,7 @@ export const getStoragePoolColorPair = (index: number): ColorPair => {
 /**
  * Get node total color pair
  */
-export const getNodeTotalColorPair = (): ColorPair => ({
-  used: NODE_TOTAL_COLOR,
-  free: hexToRgba(NODE_TOTAL_COLOR, 0.2),
+export const getNodeTotalColorPair = (mode: ThemeMode): ColorPair => ({
+  used: nodeTotalColor(mode),
+  free: hexToRgba(nodeTotalColor(mode), 0.2),
 });

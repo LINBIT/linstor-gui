@@ -8,6 +8,7 @@ import { groupBy, union } from 'lodash';
 import type { getStoragePool } from '@app/features/storagePool';
 import { generateStoragePoolColorPairs, getNodeTotalColorPair } from '@app/utils/storagePoolColors';
 import { normalizeStoragePoolSpace } from '@app/utils/storagePoolSpace';
+import type { ThemeMode } from '@app/const/themeTokens';
 import { MAX_NODES_TO_RENDER } from './constants';
 import type { ChartData, ChartItem, NodeSummaryItem, SeriesItem } from './types';
 
@@ -17,7 +18,7 @@ export const formatLegendLabel = (seriesName: string): string => seriesName.repl
 
 /** The stacked series (used and free per pool, plus node totals when there is
  *  more than one pool), the rendered nodes and each node's per-pool summary. */
-export const buildChartData = (poolsData: PoolsResponse | undefined): ChartData => {
+export const buildChartData = (poolsData: PoolsResponse | undefined, mode: ThemeMode): ChartData => {
   if (!poolsData || poolsData?.data?.length === 0) {
     return {
       series: [],
@@ -57,7 +58,7 @@ export const buildChartData = (poolsData: PoolsResponse | undefined): ChartData 
   const allPools = union(...allNodes.map((node) => groupedByNode[node].map((sp) => sp.storage_pool_name)));
 
   const colorPairs = generateStoragePoolColorPairs(allPools.length);
-  const nodeColorPair = getNodeTotalColorPair();
+  const nodeColorPair = getNodeTotalColorPair(mode);
 
   const nodeTotals: Record<string, number> = {};
   const nodeUsed: Record<string, number> = {};

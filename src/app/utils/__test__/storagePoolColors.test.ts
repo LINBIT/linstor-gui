@@ -7,7 +7,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   BASE_STORAGE_POOL_COLORS,
-  NODE_TOTAL_COLOR,
+  nodeTotalColor,
   hexToRgba,
   generateStoragePoolColorPairs,
   getStoragePoolColor,
@@ -114,18 +114,16 @@ describe('storagePoolColors', () => {
   });
 
   describe('getNodeTotalColorPair', () => {
-    it('should return node total color pair', () => {
-      const nodePair = getNodeTotalColorPair();
-      expect(nodePair.used).toBe(NODE_TOTAL_COLOR);
+    it('is the dark gray in light mode, the free part at 20%', () => {
+      const nodePair = getNodeTotalColorPair('light');
+      expect(nodePair.used).toBe('#3f3f3f');
       expect(nodePair.free).toBe(`rgba(63, 63, 63, 0.2)`);
     });
 
-    it('should always return the same colors', () => {
-      const pair1 = getNodeTotalColorPair();
-      const pair2 = getNodeTotalColorPair();
-
-      expect(pair1.used).toBe(pair2.used);
-      expect(pair1.free).toBe(pair2.free);
+    it('is a lighter gray in dark mode, where the dark one barely shows on the page', () => {
+      const nodePair = getNodeTotalColorPair('dark');
+      expect(nodePair.used).toBe('#8c8c8c');
+      expect(nodePair.free).toBe(`rgba(140, 140, 140, 0.2)`);
     });
   });
 
@@ -141,9 +139,9 @@ describe('storagePoolColors', () => {
       });
     });
 
-    it('should have correct node total color', () => {
-      expect(NODE_TOTAL_COLOR).toBe('#3f3f3f');
-      expect(NODE_TOTAL_COLOR).toMatch(/^#[0-9A-F]{6}$/i);
+    it('takes the node total color from the icon/subtle token of each mode', () => {
+      expect(nodeTotalColor('light')).toBe('#3f3f3f');
+      expect(nodeTotalColor('dark')).toBe('#8c8c8c');
     });
   });
 });

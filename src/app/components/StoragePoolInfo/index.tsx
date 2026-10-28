@@ -23,7 +23,7 @@ export const StoragePoolInfo: React.FC = () => {
   const { mode } = useThemeMode();
   const { height } = useWindowSize();
 
-  const { chartData, seriesTotals, isPending } = useStoragePoolChartData();
+  const { chartData, seriesTotals, isPending } = useStoragePoolChartData(mode);
   const {
     chartContainerRef,
     hoveredNode,
