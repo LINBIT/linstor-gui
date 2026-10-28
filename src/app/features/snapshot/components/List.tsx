@@ -271,9 +271,13 @@ export const List = () => {
         return (
           <span>
             {isSuccessful ? (
-              <CheckCircleFilled className="text-[24px] text-(--text-chip-success)" />
+              <span className="text-(--icon-success)">
+                <CheckCircleFilled className="text-[24px]" />
+              </span>
             ) : (
-              <CloseCircleFilled className="text-[24px] text-(--icon-muted)" />
+              <span className="text-(--icon-muted)">
+                <CloseCircleFilled className="text-[24px]" />
+              </span>
             )}
           </span>
         );

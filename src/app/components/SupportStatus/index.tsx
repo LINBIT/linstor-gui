@@ -12,13 +12,20 @@ export interface SupportStatusProps {
   className?: string;
 }
 
+/** The color sits on a wrapper the icon inherits from: antd's static message
+ *  holder injects an unlayered `.anticon { color: inherit }` that would beat a
+ *  utility class on the icon itself. */
 export const SupportStatus: React.FC<SupportStatusProps> = ({ supported, className = '' }) => {
   return (
     <span className={className}>
       {supported ? (
-        <CheckCircleFilled className="text-[16px] text-(--text-chip-success)" />
+        <span className="text-(--icon-success)">
+          <CheckCircleFilled className="text-[16px]" />
+        </span>
       ) : (
-        <CloseCircleFilled className="text-[16px] text-(--icon-muted)" />
+        <span className="text-(--icon-muted)">
+          <CloseCircleFilled className="text-[16px]" />
+        </span>
       )}
     </span>
   );

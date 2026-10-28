@@ -99,6 +99,9 @@ export const themeTokens = {
   'interactive/primary/dark': { light: '#317792', dark: '#3a8aaa' },
 
   'status/success': { light: '#52c41a', dark: '#52c41a' },
+  // A success check icon: clearly green, 3:1 on the page, the surface and a
+  // tinted row (non-text contrast); text/chip/success is the text green.
+  'icon/success': { light: '#389e0d', dark: '#52c41a' },
   'status/error': { light: '#fa4d56', dark: '#ff6b72' },
   'status/warning': { light: '#ffc130', dark: '#ffc130' },
 

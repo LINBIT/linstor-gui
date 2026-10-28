@@ -160,9 +160,13 @@ export const List = () => {
         return (
           <div>
             {success ? (
-              <CheckCircleFilled className="text-[16px] text-(--text-chip-success)" />
+              <span className="text-(--icon-success)">
+                <CheckCircleFilled className="text-[16px]" />
+              </span>
             ) : (
-              <CloseCircleFilled className="text-[16px] text-(--icon-muted)" />
+              <span className="text-(--icon-muted)">
+                <CloseCircleFilled className="text-[16px]" />
+              </span>
             )}{' '}
             <span>{success ? t('common:success') : t('common:failed')}</span>
           </div>
