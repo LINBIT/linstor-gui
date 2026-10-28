@@ -32,6 +32,8 @@ const ResourceOverview = lazy(() => import('@app/pages/SoftwareDefined/Resources
 const ResourceDefinitionCreate = lazy(() => import('@app/pages/SoftwareDefined/ResourceDefinitions/create'));
 const ResourceDefinitionEdit = lazy(() => import('@app/pages/SoftwareDefined/ResourceDefinitions/edit'));
 const List = lazy(() => import('@app/pages/Snapshot'));
+const FilesList = lazy(() => import('@app/pages/Files'));
+const CreateFile = lazy(() => import('@app/pages/Files/create'));
 const ISCSIList = lazy(() => import('@app/pages/Gateway/iscsi'));
 const ISCSICreate = lazy(() => import('@app/pages/Gateway/iscsi/Create'));
 const NFSList = lazy(() => import('@app/pages/Gateway/nfs'));
@@ -164,6 +166,20 @@ const hci = [
     label: 'snapshot',
     path: '/hci/snapshot',
     title: 'LINSTOR | HCI | Snapshot',
+  },
+  // Files
+  {
+    component: FilesList,
+    exact: true,
+    label: 'files',
+    path: '/hci/files',
+    title: 'LINSTOR | HCI | Files',
+  },
+  {
+    component: CreateFile,
+    exact: true,
+    path: '/hci/files/create',
+    title: 'LINSTOR | HCI | Files | Create',
   },
   // Backup/DR
   {

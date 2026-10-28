@@ -11,6 +11,8 @@ import { useTranslation } from 'react-i18next';
 import TextArea from 'antd/es/input/TextArea';
 
 import Button from '@app/components/Button';
+import { UIMode } from '@app/features/settings/types';
+import { useUIMode } from '@app/features/settings/useSettings';
 import { useCreateOrUpdateFile } from '../';
 
 type FormType = {
@@ -22,6 +24,7 @@ const CreateFileForm = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm<FormType>();
   const { t } = useTranslation(['files', 'common']);
+  const listPath = useUIMode() === UIMode.HCI ? '/hci/files' : '/files';
 
   const createOrUpdateMutation = useCreateOrUpdateFile();
 
@@ -35,7 +38,7 @@ const CreateFileForm = () => {
       { extFileName: values.path, body },
       {
         onSuccess: () => {
-          navigate('/files');
+          navigate(listPath);
         },
       },
     );
@@ -76,7 +79,7 @@ const CreateFileForm = () => {
           {t('common:submit')}
         </Button>
 
-        <Button type="text" onClick={() => navigate('/files')} className="ml-2">
+        <Button type="text" onClick={() => navigate(listPath)} className="ml-2">
           {t('common:cancel')}
         </Button>
       </Form.Item>

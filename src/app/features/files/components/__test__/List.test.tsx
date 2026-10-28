@@ -17,6 +17,12 @@ vi.mock('../../api', () => ({
   deployFile: vi.fn(),
   undeployFile: vi.fn(),
 }));
+let uiMode = 'NORMAL';
+vi.mock('@app/features/settings/useSettings', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@app/features/settings/useSettings')>()),
+  useUIMode: () => uiMode,
+}));
+
 vi.mock('@app/features/resourceDefinition/api', () => ({
   getResourceDefinition: vi.fn(),
 }));
@@ -68,6 +74,7 @@ const openRowMenu = async (path: string) => {
 
 describe('files List', () => {
   beforeEach(() => {
+    uiMode = 'NORMAL';
     vi.clearAllMocks();
     vi.mocked(getFiles).mockResolvedValue({ data: files } as never);
     vi.mocked(getResourceDefinition).mockResolvedValue({ data: resourceDefinitions } as never);
@@ -90,6 +97,12 @@ describe('files List', () => {
     expect(screen.queryByText(REACTOR)).not.toBeInTheDocument();
     expect(screen.getByText('Total 2 items')).toBeInTheDocument();
     expect((screen.getByText('+ Add File') as HTMLElement).closest('a')).toHaveAttribute('href', '/files/create');
+  });
+
+  it('links "+ Add File" to the HCI create page in HCI mode', async () => {
+    uiMode = 'HCI';
+    renderList();
+    expect((await screen.findByText('+ Add File')).closest('a')).toHaveAttribute('href', '/hci/files/create');
   });
 
   it('the switch reveals the DRBD Reactor configuration files', async () => {

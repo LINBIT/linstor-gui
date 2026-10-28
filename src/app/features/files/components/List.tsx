@@ -29,11 +29,14 @@ import { uniqId } from '@app/utils/stringUtils';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { Switch } from '@app/components/Switch';
 import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
+import { UIMode } from '@app/features/settings/types';
+import { useUIMode } from '@app/features/settings/useSettings';
 
 const DRBD_REACTOR_CONFIG_PREFIX = '/etc/drbd-reactor.d/';
 
 export const List = () => {
   const { t } = useTranslation(['files', 'common']);
+  const mode = useUIMode();
   const [selectedFilePath, setSelectedFilePath] = useState<string | null>(null);
   const [showContentModal, setShowContentModal] = useState(false);
   const [showDeployModal, setShowDeployModal] = useState(false);
@@ -315,7 +318,7 @@ export const List = () => {
   return (
     <>
       <div className="flex items-center justify-between gap-4 mb-4">
-        <Link type="primary" to="/files/create">
+        <Link type="primary" to={mode === UIMode.HCI ? '/hci/files/create' : '/files/create'}>
           + {t('add_file')}
         </Link>
 

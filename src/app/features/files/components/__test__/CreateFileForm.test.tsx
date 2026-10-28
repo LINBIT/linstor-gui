@@ -22,6 +22,12 @@ vi.mock('@app/features/resourceDefinition/api', () => ({
 }));
 
 const navigate = vi.fn();
+let uiMode = 'NORMAL';
+vi.mock('@app/features/settings/useSettings', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@app/features/settings/useSettings')>()),
+  useUIMode: () => uiMode,
+}));
+
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
   return { ...actual, useNavigate: () => navigate };
@@ -44,6 +50,7 @@ const renderForm = () => {
 describe('CreateFileForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    uiMode = 'NORMAL';
     vi.mocked(createOrUpdateFile).mockResolvedValue({ data: [{ ret_code: 1 }] } as never);
   });
 
@@ -90,5 +97,12 @@ describe('CreateFileForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(navigate).toHaveBeenCalledWith('/files');
     expect(createOrUpdateFile).not.toHaveBeenCalled();
+  });
+
+  it('returns to the HCI file list in HCI mode', () => {
+    uiMode = 'HCI';
+    renderForm();
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(navigate).toHaveBeenCalledWith('/hci/files');
   });
 });
