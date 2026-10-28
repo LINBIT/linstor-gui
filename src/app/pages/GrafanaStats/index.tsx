@@ -15,7 +15,6 @@ import TimeRangeSelector from '@app/components/TimeRangeSelector';
 import PageBasic from '@app/components/PageBasic';
 import { usePreloadIframes, useThemeMode } from '@app/hooks';
 import { useSettings } from '@app/features/settings/useSettings';
-import { cssVar } from '@app/const/themeTokens';
 
 const { Title } = Typography;
 
@@ -180,15 +179,7 @@ const GrafanaStats: React.FC = () => {
   const renderIframe = (url: string, title: string) => {
     if (!url) {
       return (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100%',
-            color: cssVar('text/muted'),
-          }}
-        >
+        <div className="flex items-center justify-center h-full text-(--text-muted)">
           {t('settings:drbd_dashboard_not_configured')}
         </div>
       );
@@ -204,9 +195,7 @@ const GrafanaStats: React.FC = () => {
           setError(t('settings:failed_to_load_dashboard'));
           setLoading(false);
         }}
-        style={{
-          display: 'block',
-        }}
+        className="block"
       />
     );
   };
@@ -247,7 +236,7 @@ const GrafanaStats: React.FC = () => {
                   {t('settings:go_to_settings')}
                 </Button>
               }
-              style={{ marginTop: 16 }}
+              className="mt-4"
             />
           )}
 

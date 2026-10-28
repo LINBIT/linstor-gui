@@ -38,7 +38,7 @@ const ExpandableSubTable: React.FC<ExpandableSubTableProps> = ({ volumes, column
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   return (
-    <div ref={containerRef} style={{ position: 'relative', paddingLeft: SYNC_LANE_WIDTH }}>
+    <div ref={containerRef} className="relative" style={{ paddingLeft: SYNC_LANE_WIDTH }}>
       <Table
         bordered
         size="small"
@@ -282,7 +282,7 @@ export const NodeVolumesTable: React.FC<NodeVolumesTableProps> = ({
               }}
             >
               <span className="cursor-pointer text-(--icon-subtle) hover:text-(--icon-default) flex items-center justify-center w-8 h-8">
-                <MoreOutlined style={{ fontSize: 18 }} />
+                <MoreOutlined className="text-[18px]" />
               </span>
             </Dropdown>
           </>

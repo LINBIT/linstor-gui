@@ -25,7 +25,6 @@ import { Popconfirm } from '@app/components/Popconfirm';
 import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
 import { withQuietToasts } from '@app/utils/toast';
 import { ItemList } from '@app/components/ItemList';
-import { cssVar } from '@app/const/themeTokens';
 
 export const UserManagement = () => {
   const { deleteUser } = useAuth();
@@ -108,7 +107,7 @@ export const UserManagement = () => {
           title="bg"
         />
         <div className="max-h-[calc(100vh-200px)] min-w-0 flex-[4] overflow-y-auto rounded-2xl border border-(--border-subtle) p-6 md:rounded-l-none md:border-l-0">
-          <Alert title={t('users:removal_warning')} type="warning" showIcon style={{ marginBottom: 20 }} />
+          <Alert title={t('users:removal_warning')} type="warning" showIcon className="mb-5" />
           {isAdminOrNotEnabled && (
             <>
               <div>
@@ -147,7 +146,7 @@ export const UserManagement = () => {
                         description={t('users:delete_user_description', { name: user.title })}
                         okText={t('users:yes')}
                         cancelText={t('users:no')}
-                        icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+                        icon={<QuestionCircleOutlined className="text-(--status-error)" />}
                         onConfirm={() => del.run([user.title])}
                       >
                         <Button danger disabled={!isAdmin}>
@@ -158,14 +157,7 @@ export const UserManagement = () => {
                   >
                     <ItemList.Meta
                       avatar={
-                        <Avatar
-                          style={{
-                            backgroundColor: cssVar('brand/muted'),
-                            color: cssVar('text/on-brand'),
-                            verticalAlign: 'middle',
-                          }}
-                          size="large"
-                        >
+                        <Avatar className="bg-(--brand-muted) text-(--text-on-brand) align-middle" size="large">
                           {user.title.slice(0, 1).toUpperCase()}
                         </Avatar>
                       }
@@ -181,7 +173,7 @@ export const UserManagement = () => {
               />
             </>
           ) : (
-            <p style={{ marginTop: 10 }}>{t('users:no_user')}</p>
+            <p className="mt-2.5">{t('users:no_user')}</p>
           )}
         </div>
       </div>

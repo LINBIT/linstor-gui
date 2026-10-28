@@ -168,7 +168,7 @@ const NodeDetail: React.FC = () => {
 
   return (
     <PageBasic title={t('title')} showBack>
-      <Space orientation="vertical" size="middle" style={{ display: 'flex' }}>
+      <Space orientation="vertical" size="middle" className="flex">
         <NodeSummary
           node={nodeData}
           showPlatform={!!platformAvailable}

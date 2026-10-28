@@ -42,7 +42,7 @@ const AddColumnModal: React.FC<AddColumnModalProps> = ({ isVisible, onConfirm, o
       open={isVisible}
       onCancel={onCancel}
       footer={
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+        <div className="flex justify-end gap-2">
           <Button type="secondary" onClick={onCancel}>
             {t('common:cancel')}
           </Button>
@@ -59,7 +59,7 @@ const AddColumnModal: React.FC<AddColumnModalProps> = ({ isVisible, onConfirm, o
           rules={[{ required: true, message: 'Please enter column data index' }]}
         >
           <Select
-            style={{ width: '100%' }}
+            className="w-full"
             placeholder={t('common:enter_column_data_index')}
             options={options}
             showSearch

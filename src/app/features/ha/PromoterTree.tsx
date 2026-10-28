@@ -44,20 +44,12 @@ export const renderPromoterTree = (
   const dependencies = promoter.dependencies ?? [];
 
   return (
-    <div
-      style={{
-        fontSize: 12,
-        minWidth: 520,
-        overflowX: 'auto',
-        fontFamily: 'monospace',
-        whiteSpace: 'nowrap',
-      }}
-    >
-      <div style={{ fontFamily: 'inherit', marginBottom: 4 }}>
+    <div className="text-[12px] min-w-[520px] overflow-x-auto font-[monospace] whitespace-nowrap">
+      <div className="mb-1 font-[inherit]">
         Promoter: Resource {resourceName} currently {promoter.status} on {titleNodeLabel ?? activeNodeLabel}
       </div>
       {promoter.target ? (
-        <div style={{ fontFamily: 'inherit' }}>
+        <div className="font-[inherit]">
           <span style={{ color: symbolColor }}>{symbol}</span> {promoter.target.name}{' '}
           <span style={{ color: getServiceStatusColor(promoter.target.status) }}>({promoter.target.status})</span>
         </div>
@@ -66,7 +58,7 @@ export const renderPromoterTree = (
         const branch = index === dependencies.length - 1 ? '└─' : '├─';
 
         return (
-          <div key={dep.name} style={{ fontFamily: 'inherit', paddingLeft: 14 }}>
+          <div key={dep.name} className="pl-3.5 font-[inherit]">
             <span style={{ color: symbolColor }}>{symbol}</span> {branch} {dep.name}{' '}
             <span style={{ color: getServiceStatusColor(dep.status) }}>({dep.status})</span>
           </div>

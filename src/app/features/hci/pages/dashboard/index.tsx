@@ -12,7 +12,6 @@ import PageBasic from '@app/components/PageBasic';
 import { VSANNodeList } from '@app/features/vsan';
 import { StoragePoolInfo } from '@app/components/StoragePoolInfo';
 import { FaultyList, useFaultyResources } from '@app/features/resource';
-import { cssVar } from '@app/const/themeTokens';
 
 const HCIDashboard = () => {
   const { t } = useTranslation(['dashboard', 'common']);
@@ -34,15 +33,8 @@ const HCIDashboard = () => {
     {
       key: 'faultylist',
       label: (
-        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          {hasFaultyResources && (
-            <ExclamationCircleFilled
-              style={{
-                color: cssVar('status/warning'),
-                fontSize: '14px',
-              }}
-            />
-          )}
+        <span className="flex items-center gap-1">
+          {hasFaultyResources && <ExclamationCircleFilled className="text-(--status-warning) text-[14px]" />}
           Faulty Resources
         </span>
       ),

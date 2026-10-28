@@ -138,7 +138,7 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
 
   return (
     <Form<FormType>
-      style={{ maxWidth: 500 }}
+      className="max-w-[500px]"
       size="large"
       layout="vertical"
       form={form}
@@ -217,7 +217,7 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
           {t('common:submit')}
         </Button>
 
-        <Button type="text" onClick={backToList} style={{ marginLeft: '8px' }}>
+        <Button type="text" onClick={backToList} className="ml-2">
           {t('common:cancel')}
         </Button>
       </Form.Item>

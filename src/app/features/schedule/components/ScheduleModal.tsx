@@ -134,7 +134,7 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
         width={800}
         destroyOnHidden
         footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <div className="flex justify-end gap-2">
             <Button type="secondary" onClick={handleCancel}>
               {t('common:cancel')}
             </Button>
@@ -187,7 +187,7 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
             tooltip="The number of snapshots that are basis for a full backup to keep locally"
             rules={[{ type: 'number', min: 0, message: 'Must be a positive number' }]}
           >
-            <InputNumber placeholder={t('schedule:enter_number_local_snapshots')} style={{ width: '100%' }} />
+            <InputNumber placeholder={t('schedule:enter_number_local_snapshots')} className="w-full" />
           </Form.Item>
 
           {/* Keep Remote */}
@@ -197,7 +197,7 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
             tooltip="The number of full backups to keep at the remote"
             rules={[{ type: 'number', min: 0, message: 'Must be a positive number' }]}
           >
-            <InputNumber placeholder={t('schedule:enter_number_remote_backups')} style={{ width: '100%' }} />
+            <InputNumber placeholder={t('schedule:enter_number_remote_backups')} className="w-full" />
           </Form.Item>
 
           {/* On Failure */}
@@ -220,7 +220,7 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
             tooltip="How many times a failed backup should be retried if on_failure is RETRY"
             rules={[{ type: 'number', min: 0, message: 'Must be a positive number' }]}
           >
-            <InputNumber placeholder={t('schedule:enter_max_retries_optional')} style={{ width: '100%' }} />
+            <InputNumber placeholder={t('schedule:enter_max_retries_optional')} className="w-full" />
           </Form.Item>
         </Form>
       </Modal>

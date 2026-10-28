@@ -168,7 +168,7 @@ export const useDefinitionColumns = (mode: UIMode | undefined, actions: Definiti
             }}
           >
             <span className="cursor-pointer text-(--icon-subtle) hover:text-(--icon-default) flex items-center justify-center w-8 h-8">
-              <MoreOutlined style={{ fontSize: 18 }} />
+              <MoreOutlined className="text-[18px]" />
             </span>
           </Dropdown>
         );

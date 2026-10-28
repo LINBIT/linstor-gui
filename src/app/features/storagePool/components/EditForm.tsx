@@ -114,7 +114,7 @@ const EditForm = () => {
   };
 
   return (
-    <Form style={{ maxWidth: 600 }} size="large" layout="vertical" form={form} onFinish={onFinish}>
+    <Form className="max-w-[600px]" size="large" layout="vertical" form={form} onFinish={onFinish}>
       <Form.Item
         name="pool_name"
         label={t('storage_pool:storage_pool_name')}
@@ -184,7 +184,7 @@ const EditForm = () => {
           Submit
         </Button>
 
-        <Button type="text" onClick={backToStoragePoolList} style={{ marginLeft: '1em' }}>
+        <Button type="text" onClick={backToStoragePoolList} className="ml-[1em]">
           Cancel
         </Button>
       </Form.Item>

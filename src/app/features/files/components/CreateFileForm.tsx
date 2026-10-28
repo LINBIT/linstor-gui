@@ -42,7 +42,7 @@ const CreateFileForm = () => {
   };
 
   return (
-    <Form<FormType> style={{ maxWidth: 700 }} size="large" layout="vertical" form={form} onFinish={onFinish}>
+    <Form<FormType> className="max-w-[700px]" size="large" layout="vertical" form={form} onFinish={onFinish}>
       <Form.Item
         label={t('path')}
         name="path"
@@ -76,7 +76,7 @@ const CreateFileForm = () => {
           {t('common:submit')}
         </Button>
 
-        <Button type="text" onClick={() => navigate('/files')} style={{ marginLeft: 8 }}>
+        <Button type="text" onClick={() => navigate('/files')} className="ml-2">
           {t('common:cancel')}
         </Button>
       </Form.Item>

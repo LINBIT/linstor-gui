@@ -249,7 +249,7 @@ export const List = () => {
                 ],
               }}
             >
-              <MoreOutlined style={{ cursor: 'pointer', fontSize: 16 }} />
+              <MoreOutlined className="cursor-pointer text-[16px]" />
             </Dropdown>
           </Space>
         );
@@ -267,7 +267,7 @@ export const List = () => {
           initialValues={{
             show_default: true,
           }}
-          style={{ display: 'flex', alignItems: 'center' }}
+          className="flex items-center"
         >
           <Form.Item name="name" label={t('common:name')}>
             <Input placeholder={t('common:name')} />
@@ -275,7 +275,7 @@ export const List = () => {
 
           <Form.Item name="type" label={t('remote:type')}>
             <Select
-              style={{ width: 180 }}
+              className="w-[180px]"
               allowClear
               placeholder={t('remote:select_type')}
               options={[

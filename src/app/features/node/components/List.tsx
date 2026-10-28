@@ -179,10 +179,10 @@ export const List = () => {
     render: (platform, record) => {
       if (platform === 'LINUX') {
         return (
-          <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+          <span className="inline-flex items-center">
             <Tooltip title={record.os_variant}>
-              <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                <FaLinux style={{ fontSize: '32px', marginRight: 6 }} />
+              <span className="inline-flex items-center">
+                <FaLinux className="text-[32px] mr-1.5" />
               </span>
             </Tooltip>{' '}
             {platform}
@@ -191,10 +191,10 @@ export const List = () => {
       }
       if (platform === 'WINDOWS') {
         return (
-          <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+          <span className="inline-flex items-center">
             <Tooltip title={record.os_variant}>
-              <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-                <FaWindows style={{ fontSize: '28px', marginRight: 6 }} />
+              <span className="inline-flex items-center">
+                <FaWindows className="text-[28px] mr-1.5" />
               </span>
             </Tooltip>{' '}
             {platform}
@@ -262,7 +262,7 @@ export const List = () => {
           <>
             <SupportStatus supported={connected} />
 
-            <span style={{ marginLeft: 4 }}>{item.connection_status}</span>
+            <span className="ml-1">{item.connection_status}</span>
           </>
         );
       },

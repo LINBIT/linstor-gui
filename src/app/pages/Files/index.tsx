@@ -16,7 +16,7 @@ const FilesList: React.FunctionComponent = () => {
 
   return (
     <PageBasic title={t('title')}>
-      <Typography.Paragraph type="secondary" style={{ marginTop: -8, marginBottom: 16 }}>
+      <Typography.Paragraph type="secondary" className="-mt-2 mb-4">
         {t('description')}
       </Typography.Paragraph>
       <List />

@@ -28,7 +28,7 @@ const Dashboard: React.FunctionComponent = () => {
     <PageBasic title={t('dashboard:title')}>
       {showSetup ? (
         <>
-          <div style={{ marginBottom: 16 }}>
+          <div className="mb-4">
             <SetupClusterCard onStart={() => setWizardOpen(true)} onDismiss={dismiss} />
           </div>
           <SetupClusterWizard open={wizardOpen} onClose={() => setWizardOpen(false)} onCompleted={() => refetch()} />

@@ -71,7 +71,7 @@ const CloneForm = ({ resource, isUsingZFS }: SpawnFormProps) => {
           </>
         }
       >
-        <Form<FormType> style={{ maxWidth: 700 }} size="large" layout="vertical" form={form} onFinish={onFinish}>
+        <Form<FormType> className="max-w-[700px]" size="large" layout="vertical" form={form} onFinish={onFinish}>
           <Form.Item name="name" label={t('common:name')} required>
             <Input placeholder={t('resource:input_clone_name')} />
           </Form.Item>

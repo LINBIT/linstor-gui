@@ -123,7 +123,7 @@ export const List = () => {
                 ],
               }}
             >
-              <MoreOutlined style={{ cursor: 'pointer', fontSize: 16 }} />
+              <MoreOutlined className="cursor-pointer text-[16px]" />
             </Dropdown>
           </Space>
         );
@@ -134,12 +134,12 @@ export const List = () => {
   return (
     <>
       <SearchForm>
-        <Form form={form} layout="inline" style={{ display: 'flex', alignItems: 'center' }}>
+        <Form form={form} layout="inline" className="flex items-center">
           <Form.Item name="name" label={t('common:name')}>
             <Input placeholder={t('common:name')} onChange={(e) => setSearchName(e.target.value)} allowClear />
           </Form.Item>
 
-          <Form.Item style={{ marginLeft: 'auto', marginRight: 0 }}>
+          <Form.Item className="mr-0 ml-auto">
             <ScheduleModal refetch={refetch} />
           </Form.Item>
         </Form>

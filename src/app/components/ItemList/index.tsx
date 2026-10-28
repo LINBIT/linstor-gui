@@ -20,7 +20,7 @@ type ItemListProps<T> = {
 
 const ItemList = <T,>({ items = [], rowKey, renderItem }: ItemListProps<T>) =>
   items.length ? (
-    <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+    <ul className="m-0 p-0 list-none">
       {items.map((item, index) => (
         <React.Fragment key={rowKey ? rowKey(item, index) : index}>{renderItem(item, index)}</React.Fragment>
       ))}
@@ -57,18 +57,7 @@ const Item = ({ actions, className, style, onClick, children }: ItemProps) => {
     >
       {children}
       {actions?.length ? (
-        <ul
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            gap: token.marginXS,
-            margin: 0,
-            padding: 0,
-            listStyle: 'none',
-            flex: 'none',
-          }}
-        >
+        <ul className="flex flex-wrap items-center m-0 p-0 list-none flex-none" style={{ gap: token.marginXS }}>
           {actions.map((action, index) => (
             <li key={index}>{action}</li>
           ))}
@@ -87,9 +76,9 @@ type MetaProps = {
 const Meta = ({ avatar, title, description }: MetaProps) => {
   const { token } = theme.useToken();
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-start', gap: token.margin, flex: 1, minWidth: 0 }}>
+    <div className="flex items-start flex-1 min-w-0" style={{ gap: token.margin }}>
       {avatar}
-      <div style={{ minWidth: 0 }}>
+      <div className="min-w-0">
         {title ? <div style={{ color: token.colorText, marginBottom: token.marginXXS }}>{title}</div> : null}
         {description ? <div style={{ color: token.colorTextDescription }}>{description}</div> : null}
       </div>

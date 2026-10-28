@@ -137,11 +137,11 @@ const ConfigEditor = () => {
       onBack={handleBack}
     >
       <Card
-        style={{ height: 'calc(100vh - 160px)', display: 'flex', flexDirection: 'column' }}
+        className="flex flex-col h-[calc(100vh-160px)]"
         styles={{ body: { flex: 1, overflow: 'hidden', padding: 0 } }}
       >
         {isLoading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+          <div className="flex justify-center items-center h-full">
             <Spin description={t('common:loading')} />
           </div>
         ) : (

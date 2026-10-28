@@ -271,9 +271,9 @@ export const List = () => {
         return (
           <span>
             {isSuccessful ? (
-              <CheckCircleFilled style={{ color: 'green', fontSize: '24px' }} />
+              <CheckCircleFilled className="text-[24px] text-(--text-chip-success)" />
             ) : (
-              <CloseCircleFilled style={{ color: 'grey', fontSize: '24px' }} />
+              <CloseCircleFilled className="text-[24px] text-(--icon-muted)" />
             )}
           </span>
         );
@@ -316,7 +316,7 @@ export const List = () => {
                   key: 'restore',
                   label: (
                     <span
-                      style={{ cursor: 'pointer' }}
+                      className="cursor-pointer"
                       onClick={() => {
                         handleOpenRestoreModal(record.resource_name ?? '', record.name ?? '');
                       }}
@@ -329,7 +329,7 @@ export const List = () => {
                   key: 'delete',
                   label: (
                     <span
-                      style={{ cursor: 'pointer' }}
+                      className="cursor-pointer"
                       onClick={() => {
                         void del.run([record]);
                       }}
@@ -341,7 +341,7 @@ export const List = () => {
               ],
             }}
           >
-            <MoreOutlined style={{ cursor: 'pointer', fontSize: 16 }} />
+            <MoreOutlined className="cursor-pointer text-[16px]" />
           </Dropdown>
         </Space>
       ),
@@ -361,7 +361,7 @@ export const List = () => {
         >
           <Form.Item name="nodes" label={t('common:node')}>
             <Select
-              style={{ width: 180 }}
+              className="w-[180px]"
               allowClear
               placeholder={t('error_report:please_select_node')}
               options={nodes?.data?.map((e) => ({
@@ -373,7 +373,7 @@ export const List = () => {
 
           <Form.Item name="resources" label={t('common:resource')}>
             <Select
-              style={{ width: 180 }}
+              className="w-[180px]"
               allowClear
               placeholder={t('snapshot:please_select_resource')}
               options={uniqBy(resourceList?.data, 'name')?.map((e) => ({

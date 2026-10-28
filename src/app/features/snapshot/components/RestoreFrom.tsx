@@ -17,7 +17,6 @@ import { createResourceDefinition } from '@app/features/resourceDefinition/api';
 import { restoreSnapshot, restoreVolumeDefinition } from '../api';
 import { withQuietToasts } from '@app/utils/toast';
 import { replyError } from '@app/hooks/useDeleteAction';
-import { cssVar } from '@app/const/themeTokens';
 
 const RESTORE_MESSAGE_KEY = 'snapshot-restore';
 
@@ -91,7 +90,7 @@ const RestoreFrom: React.FC<RestoreFromProps> = ({ sourceResource, sourceSnapsho
 
   return (
     <Form form={form} layout="vertical">
-      <Form.Item label={t('snapshot:source_info', 'Source Information')} style={{ marginBottom: '8px' }}>
+      <Form.Item label={t('snapshot:source_info', 'Source Information')} className="mb-2">
         <div>
           {t('snapshot:resource')}: {sourceResource}
         </div>
@@ -102,7 +101,7 @@ const RestoreFrom: React.FC<RestoreFromProps> = ({ sourceResource, sourceSnapsho
 
       <Form.Item label={t('snapshot:target_resource', 'Target Resource')} required>
         <AutoComplete
-          style={{ width: '100%' }}
+          className="w-full"
           placeholder={t('snapshot:select_target', 'Select target resource')}
           value={targetInput}
           onChange={setTargetInput}
@@ -114,12 +113,12 @@ const RestoreFrom: React.FC<RestoreFromProps> = ({ sourceResource, sourceSnapsho
               .includes(input.toLowerCase())
           }
         />
-        <div style={{ fontSize: '12px', color: cssVar('text/muted'), marginTop: '4px' }}>
+        <div className="text-[12px] text-(--text-muted) mt-1">
           {t('snapshot:new_resource_tip', 'If you enter a new resource name, it will be created automatically')}
         </div>
       </Form.Item>
 
-      <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
+      <Form.Item className="mb-0 text-right">
         <Space>
           {onCancel && (
             <Button type="secondary" onClick={onCancel}>

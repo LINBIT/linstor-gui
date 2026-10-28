@@ -45,9 +45,7 @@ const PropertySelector: React.FC<PropertySelectorProps> = ({ options, handleAddP
         placeholder={t('common:select_property')}
         size="large"
         options={options}
-        style={{
-          width: '70%',
-        }}
+        className="w-[70%]"
         allowClear
         value={selected}
         onChange={handleChange}

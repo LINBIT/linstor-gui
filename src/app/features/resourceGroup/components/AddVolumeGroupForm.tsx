@@ -65,7 +65,7 @@ const AddVolumeGroupForm = ({ resource_group, isInDropdown = false, refetch }: A
         open={open}
         onCancel={() => setOpen(false)}
         footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+          <div className="flex justify-end gap-2">
             <Button type="secondary" onClick={() => setOpen(false)}>
               {t('common:cancel')}
             </Button>
@@ -81,7 +81,7 @@ const AddVolumeGroupForm = ({ resource_group, isInDropdown = false, refetch }: A
             label={t('common:volume_number', 'Volume Number')}
             tooltip={t('common:volume_number_hint', 'Leave blank to auto-assign the next volume number.')}
           >
-            <InputNumber min={0} style={{ width: '100%' }} placeholder={t('common:auto', 'Auto')} />
+            <InputNumber min={0} className="w-full" placeholder={t('common:auto', 'Auto')} />
           </Form.Item>
         </Form>
       </Modal>

@@ -212,7 +212,7 @@ export const List = () => {
 
   const columns: TableProps<CreateResourceGroupRequestBody>['columns'] = [
     {
-      title: <span style={{ whiteSpace: 'nowrap' }}>{t('resource_group:name')}</span>,
+      title: <span className="whitespace-nowrap">{t('resource_group:name')}</span>,
       key: 'name',
       dataIndex: 'name',
       width: 200,
@@ -226,7 +226,7 @@ export const List = () => {
       showSorterTooltip: false,
     },
     {
-      title: <span style={{ whiteSpace: 'nowrap' }}>{t('resource_group:place_count')}</span>,
+      title: <span className="whitespace-nowrap">{t('resource_group:place_count')}</span>,
       key: 'place_count',
       width: 120,
       align: 'center',
@@ -334,7 +334,7 @@ export const List = () => {
         if (propEntries.length === 0) return null;
 
         return (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
+          <div className="flex flex-col items-start gap-1">
             {propEntries.map(([key, value], index) => {
               let displayValue: string;
               if (Array.isArray(value)) {
@@ -353,10 +353,10 @@ export const List = () => {
               return (
                 <Tooltip
                   key={index}
-                  title={<span style={{ whiteSpace: 'pre-line' }}>{tooltipContent}</span>}
+                  title={<span className="whitespace-pre-line">{tooltipContent}</span>}
                   placement="top"
                 >
-                  <Tag style={{ margin: 0, cursor: 'default' }}>
+                  <Tag className="m-0 cursor-default">
                     {key}: {displayValue}
                   </Tag>
                 </Tooltip>
@@ -419,7 +419,7 @@ export const List = () => {
               ],
             }}
           >
-            <MoreOutlined style={{ cursor: 'pointer', fontSize: 16 }} />
+            <MoreOutlined className="cursor-pointer text-[16px]" />
           </Dropdown>
         </Space>
       ),

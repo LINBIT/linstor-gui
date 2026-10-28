@@ -55,7 +55,7 @@ const SpawnForm = ({ resource }: SpawnFormProps) => {
         open={showSpawnForm}
         onCancel={() => setShowSpawnForm(false)}
         footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <div className="flex justify-end gap-2">
             <Button type="secondary" onClick={() => setShowSpawnForm(false)}>
               {t('common:cancel')}
             </Button>
@@ -71,7 +71,7 @@ const SpawnForm = ({ resource }: SpawnFormProps) => {
         width={800}
       >
         <Form<FormType>
-          style={{ maxWidth: 700 }}
+          className="max-w-[700px]"
           size="large"
           layout="vertical"
           form={form}

@@ -148,7 +148,7 @@ const CronInput: React.FC<CronInputProps> = ({ value = '', onChange }) => {
 
       {inputError && (
         <div className="mt-1">
-          <Alert title={inputError} type="error" showIcon style={{ padding: '2px 8px', fontSize: '12px' }} />
+          <Alert title={inputError} type="error" showIcon className="py-0.5 px-2 text-[12px]" />
         </div>
       )}
 

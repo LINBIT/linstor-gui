@@ -14,7 +14,6 @@ import { replyError } from '@app/hooks/useDeleteAction';
 import { withQuietToasts } from '@app/utils/toast';
 
 import { rollbackSnapshot } from '../api';
-import { cssVar } from '@app/const/themeTokens';
 
 const { Text } = Typography;
 
@@ -81,7 +80,7 @@ export const RollbackSnapshotForm: React.FC<RollbackSnapshotFormProps> = ({
     <Modal
       title={
         <Space>
-          <ExclamationCircleOutlined style={{ color: cssVar('status/warning') }} />
+          <ExclamationCircleOutlined className="text-(--status-warning)" />
           {t('snapshot:rollback_snapshot')}
         </Space>
       }
@@ -96,7 +95,7 @@ export const RollbackSnapshotForm: React.FC<RollbackSnapshotFormProps> = ({
         </Button>,
       ]}
     >
-      <Space orientation="vertical" style={{ width: '100%' }}>
+      <Space orientation="vertical" className="w-full">
         <Text>
           {t('snapshot:rollback_confirmation_message', {
             resource,

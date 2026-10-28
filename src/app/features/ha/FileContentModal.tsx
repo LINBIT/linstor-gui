@@ -49,18 +49,7 @@ export const FileContentModal: React.FC<FileContentModalProps> = ({ filePath, vi
       {contentLoading ? (
         <Text type="secondary">{t('common:loading')}</Text>
       ) : decodedContent ? (
-        <pre
-          style={{
-            background: 'var(--bg-surface)',
-            padding: 12,
-            borderRadius: 4,
-            margin: 0,
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-all',
-          }}
-        >
-          {decodedContent}
-        </pre>
+        <pre className="bg-(--bg-surface) p-3 rounded m-0 whitespace-pre-wrap break-all">{decodedContent}</pre>
       ) : (
         <Text type="secondary">-</Text>
       )}

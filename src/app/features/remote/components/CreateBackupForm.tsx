@@ -81,7 +81,7 @@ const CreateBackupForm = ({ refetch }: CreateBackupFormProps) => {
         onCancel={() => setModelOpen(false)}
         width={800}
         footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+          <div className="flex justify-end gap-2">
             <Button onClick={() => setModelOpen(false)}>{t('common:cancel')}</Button>
             <Button type="primary" loading={createBackupMutation.isPending} onClick={() => form.submit()}>
               {t('common:submit')}
@@ -92,7 +92,7 @@ const CreateBackupForm = ({ refetch }: CreateBackupFormProps) => {
         mask={{ closable: false }}
       >
         <Form<FormType>
-          style={{ maxWidth: 700 }}
+          className="max-w-[700px]"
           size="large"
           layout="vertical"
           form={form}

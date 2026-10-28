@@ -56,7 +56,7 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onCreate, onCance
               form={form}
               layout="vertical"
               name="form_in_modal"
-              style={{ width: '100%', maxWidth: 450 }}
+              className="w-full max-w-[450px]"
               onFinish={onCreate}
               autoComplete="off"
             >

@@ -72,7 +72,7 @@ export const SizeInput = ({ value, onChange, placeholder, disabled, defaultUnit,
           }
         }}
         value={sizeUnit}
-        style={{ width: 96, flex: 'none' }}
+        className="w-[96px] flex-none"
       />
     </Space.Compact>
   );

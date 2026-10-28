@@ -29,7 +29,6 @@ import { uniqId } from '@app/utils/stringUtils';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { Switch } from '@app/components/Switch';
 import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
-import { cssVar } from '@app/const/themeTokens';
 
 const DRBD_REACTOR_CONFIG_PREFIX = '/etc/drbd-reactor.d/';
 
@@ -221,10 +220,7 @@ export const List = () => {
       render: (text, record) => (
         <Tag>
           {text}
-          <EyeOutlined
-            style={{ marginLeft: 8, cursor: 'pointer', color: cssVar('text/link') }}
-            onClick={() => handleViewContent(record)}
-          />
+          <EyeOutlined className="ml-2 cursor-pointer text-(--text-link)" onClick={() => handleViewContent(record)} />
         </Tag>
       ),
     },
@@ -318,7 +314,7 @@ export const List = () => {
 
   return (
     <>
-      <div className="flex items-center justify-between gap-4" style={{ marginBottom: 16 }}>
+      <div className="flex items-center justify-between gap-4 mb-4">
         <Link type="primary" to="/files/create">
           + {t('add_file')}
         </Link>
@@ -359,7 +355,7 @@ export const List = () => {
         width={700}
       >
         <Spin spinning={modifyLoading}>
-          <div style={{ marginBottom: 8 }}>
+          <div className="mb-2">
             <strong>{t('file')}:</strong> {modifyFilePath}
           </div>
           <Input.TextArea
@@ -393,19 +389,11 @@ export const List = () => {
       >
         <Spin spinning={contentLoading}>
           {fileContent?.data?.content ? (
-            <pre
-              style={{
-                background: 'var(--bg-surface)',
-                padding: 16,
-                borderRadius: 4,
-                overflow: 'auto',
-                maxHeight: 400,
-              }}
-            >
+            <pre className="bg-(--bg-surface) p-4 rounded overflow-auto max-h-[400px]">
               {decodeContent(fileContent.data.content)}
             </pre>
           ) : (
-            <div style={{ padding: 16, textAlign: 'center', color: cssVar('text/muted') }}>{t('no_content')}</div>
+            <div className="p-4 text-center text-(--text-muted)">{t('no_content')}</div>
           )}
         </Spin>
       </Modal>
@@ -423,14 +411,14 @@ export const List = () => {
         okText={t('common:confirm')}
         cancelText={t('common:cancel')}
       >
-        <div style={{ padding: '16px 0' }}>
-          <div style={{ marginBottom: 8 }}>
+        <div className="py-4 px-0">
+          <div className="mb-2">
             <strong>{t('file')}:</strong> {selectedFilePath}
           </div>
           <div>
-            <label style={{ display: 'block', marginBottom: 8 }}>{t('select_resource')}</label>
+            <label className="block mb-2">{t('select_resource')}</label>
             <Select
-              style={{ width: '100%' }}
+              className="w-full"
               placeholder={
                 availableResources.length === 0 && !rdLoading
                   ? t('already_deployed_to_all')

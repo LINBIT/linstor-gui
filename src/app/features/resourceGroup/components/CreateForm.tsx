@@ -529,7 +529,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
 
       <div className="mb-5">
         <a
-          style={{ fontSize: 16 }}
+          className="text-[16px]"
           onClick={() => {
             setExpand(!expand);
           }}

@@ -313,7 +313,7 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
           open={modalVisible}
           onCancel={handleModalClose}
           footer={
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+            <div className="flex justify-end gap-2">
               <Button type="secondary" onClick={handleModalClose}>
                 Cancel
               </Button>
@@ -328,7 +328,7 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
             body: { maxHeight: '70vh', overflow: 'auto', padding: '24px' },
           }}
         >
-          <div style={{ minHeight: 400 }}>
+          <div className="min-h-[400px]">
             <SingleSelectDescription
               options={formItemList
                 .filter((e) => e.hide)
@@ -346,16 +346,16 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
 
             {/* Aux props inline */}
             {auxProps.map((prop, index) => (
-              <div key={prop.id} style={{ display: 'flex', flexDirection: 'column', marginBottom: '12px' }}>
+              <div key={prop.id} className="flex flex-col mb-3">
                 {index === 0 && (
-                  <div style={{ display: 'flex', fontWeight: 'bold', marginBottom: '8px' }}>
-                    <div style={{ width: '40%' }}>Name</div>
-                    <div style={{ width: '40%' }}>Value</div>
-                    <div style={{ width: '20%' }} />
+                  <div className="flex font-bold mb-2">
+                    <div className="w-2/5">Name</div>
+                    <div className="w-2/5">Value</div>
+                    <div className="w-1/5" />
                   </div>
                 )}
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <div style={{ width: '40%' }}>
+                <div className="flex items-center">
+                  <div className="w-2/5">
                     <Input
                       value={prop.name}
                       onChange={(e) => {
@@ -364,10 +364,10 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
                       }}
                       placeholder={t('common:please_input_property_name')}
                       addonBefore="Aux/"
-                      style={{ fontWeight: 'normal' }}
+                      className="font-normal"
                     />
                   </div>
-                  <div style={{ width: '40%', marginLeft: '8px' }}>
+                  <div className="w-2/5 ml-2">
                     <Input
                       value={prop.value}
                       onChange={(e) => {
@@ -375,10 +375,10 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
                         handleAuxChange({ id: prop.id, name: prop.name, value: newValue });
                       }}
                       placeholder={t('common:please_input_property_value')}
-                      style={{ fontWeight: 'normal' }}
+                      className="font-normal"
                     />
                   </div>
-                  <div style={{ width: '20%', textAlign: 'right' }}>
+                  <div className="w-1/5 text-right">
                     <Button
                       danger
                       icon={<DeleteOutlined />}
@@ -415,7 +415,7 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
                   content: 'Please fill in all required fields.',
                 })
               }
-              style={{ marginTop: '2em' }}
+              className="mt-[2em]"
             >
               {formItems.map((item) => {
                 if (item.hide) return null;
@@ -456,7 +456,7 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
                     );
                     break;
                   case 'integer':
-                    element = <InputNumber style={{ width: '100%' }} />;
+                    element = <InputNumber className="w-full" />;
                     break;
                   case 'text_area':
                     element = <Input.TextArea rows={4} />;
@@ -483,7 +483,7 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
                 }
 
                 return (
-                  <div key={item.id} style={{ display: 'flex', alignItems: 'center', marginBottom: '1em' }}>
+                  <div key={item.id} className="flex items-center mb-[1em]">
                     <Form.Item {...commonFormProps} valuePropName={item.type === 'checkbox' ? 'checked' : undefined}>
                       {element}
                     </Form.Item>
@@ -491,7 +491,7 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
                       danger
                       icon={<DeleteOutlined />}
                       shape="circle"
-                      style={{ marginLeft: 8 }}
+                      className="ml-2"
                       onClick={() => handleRemoveProperty(item.name)}
                       onMouseEnter={(e) => (e.currentTarget.parentElement!.style.fontWeight = 'bold')}
                       onMouseLeave={(e) => (e.currentTarget.parentElement!.style.fontWeight = 'normal')}

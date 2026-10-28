@@ -134,7 +134,7 @@ const SpawnForm = ({ resource_group, isInDropdown = false }: SpawnFormProps) => 
         open={showSpawnForm}
         onCancel={() => setShowSpawnForm(false)}
         footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+          <div className="flex justify-end gap-2">
             <Button type="secondary" onClick={() => setShowSpawnForm(false)}>
               {t('common:cancel')}
             </Button>
@@ -150,7 +150,7 @@ const SpawnForm = ({ resource_group, isInDropdown = false }: SpawnFormProps) => 
         }
         width={800}
       >
-        <Form<FormType> style={{ maxWidth: 700 }} size="large" layout="vertical" form={form} onFinish={onFinish}>
+        <Form<FormType> className="max-w-[700px]" size="large" layout="vertical" form={form} onFinish={onFinish}>
           {selectResourceGroup && (
             <Form.Item
               name="resource_group"

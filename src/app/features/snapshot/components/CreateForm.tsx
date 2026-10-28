@@ -100,7 +100,7 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
           setOpen(false);
         }}
         footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+          <div className="flex justify-end gap-2">
             <Button
               type="secondary"
               onClick={() => {
@@ -131,9 +131,9 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
           </div>
         }
       >
-        <Form<FormType> style={{ maxWidth: 700 }} size="large" layout="vertical" form={form}>
+        <Form<FormType> className="max-w-[700px]" size="large" layout="vertical" form={form}>
           {resource && !canDoSnapshot && !isPending && (
-            <div style={{ color: 'red', marginBottom: 20 }}>
+            <div className="mb-5 text-(--text-chip-danger)">
               The storage pool does not support snapshots, please select another resource
             </div>
           )}

@@ -219,7 +219,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
 
   return (
     <Form<FormType>
-      style={{ maxWidth: 700 }}
+      className="max-w-[700px]"
       size="large"
       layout="vertical"
       form={form}
@@ -314,7 +314,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
           {t('common:submit')}
         </Button>
 
-        <Button type="secondary" onClick={backToList} style={{ marginLeft: '1em' }}>
+        <Button type="secondary" onClick={backToList} className="ml-[1em]">
           {t('common:cancel')}
         </Button>
       </Form.Item>

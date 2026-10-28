@@ -325,7 +325,7 @@ export const List = () => {
             }}
           >
             <span className="cursor-pointer text-(--icon-subtle) hover:text-(--icon-default) flex items-center justify-center w-8 h-8">
-              <MoreOutlined style={{ fontSize: 18 }} />
+              <MoreOutlined className="text-[18px]" />
             </span>
           </Dropdown>
         </Space>
@@ -346,7 +346,7 @@ export const List = () => {
         >
           <Form.Item name="nodes" label={t('common:node')}>
             <Select
-              style={{ width: 180 }}
+              className="w-[180px]"
               allowClear
               placeholder={t('error_report:please_select_node')}
               options={nodes?.data?.map((e) => ({

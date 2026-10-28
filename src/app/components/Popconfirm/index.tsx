@@ -12,7 +12,6 @@ import type { ButtonProps as AntButtonProps } from 'antd';
 import { ExclamationCircleFilled } from '@ant-design/icons';
 
 import { Button, type ButtonProps } from '@app/components/Button';
-import { cssVar } from '@app/const/themeTokens';
 
 /**
  * Drop-in replacement for antd's Popconfirm that renders its confirm/cancel
@@ -87,17 +86,17 @@ export const Popconfirm: React.FC<PopconfirmProps> = ({
   };
 
   const content = (
-    <div style={{ maxWidth: 260 }}>
-      <div style={{ display: 'flex', gap: 8 }}>
-        <span style={{ display: 'flex', alignItems: 'flex-start', paddingTop: 2 }}>
-          {icon ?? <ExclamationCircleFilled style={{ color: cssVar('status/warning') }} />}
+    <div className="max-w-[260px]">
+      <div className="flex gap-2">
+        <span className="flex items-start pt-0.5">
+          {icon ?? <ExclamationCircleFilled className="text-(--status-warning)" />}
         </span>
         <div>
-          {title && <div style={{ fontWeight: 600 }}>{title}</div>}
-          {description && <div style={{ marginTop: 4 }}>{description}</div>}
+          {title && <div className="font-semibold">{title}</div>}
+          {description && <div className="mt-1">{description}</div>}
         </div>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 12 }}>
+      <div className="flex justify-end gap-2 mt-3">
         <Button size="small" type="secondary" onClick={handleCancel} {...(cancelButtonProps as Partial<ButtonProps>)}>
           {cancelText ?? t('common:no')}
         </Button>

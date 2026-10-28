@@ -16,9 +16,9 @@ export const SupportStatus: React.FC<SupportStatusProps> = ({ supported, classNa
   return (
     <span className={className}>
       {supported ? (
-        <CheckCircleFilled style={{ color: 'green', fontSize: '16px' }} />
+        <CheckCircleFilled className="text-[16px] text-(--text-chip-success)" />
       ) : (
-        <CloseCircleFilled style={{ color: 'grey', fontSize: '16px' }} />
+        <CloseCircleFilled className="text-[16px] text-(--icon-muted)" />
       )}
     </span>
   );

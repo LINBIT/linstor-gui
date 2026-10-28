@@ -53,7 +53,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ open, onCreate,
       footer={null}
       width={960}
       onCancel={handleCancel}
-      style={{ maxWidth: '90vw', padding: '16px' }}
+      className="p-4 max-w-[90vw]"
     >
       <div className="flex min-h-[400px] flex-row max-md:h-auto max-md:min-h-auto max-md:flex-col max-md:items-center max-md:justify-center max-md:gap-0">
         <img
@@ -68,7 +68,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ open, onCreate,
             name="form_in_modal"
             initialValues={{ modifier: 'public' }}
             onFinish={onCreate}
-            style={{ minWidth: 300 }}
+            className="min-w-[300px]"
           >
             <h3>{admin ? t('reset_password') : t('change_password')}</h3>
             {!admin && !init && (

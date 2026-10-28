@@ -44,7 +44,7 @@ export const OverviewToolbar: React.FC<OverviewToolbarProps> = ({ form, rows, mo
             <>
               {t('common:name')}
               <Tooltip title={t('resource:search_placeholder')}>
-                <QuestionCircleOutlined style={{ marginLeft: 5 }} />
+                <QuestionCircleOutlined className="ml-[5px]" />
               </Tooltip>
             </>
           }
@@ -60,7 +60,7 @@ export const OverviewToolbar: React.FC<OverviewToolbarProps> = ({ form, rows, mo
           <Select
             showSearch
             allowClear
-            style={{ width: 200 }}
+            className="w-[200px]"
             options={uniqBy(
               rows?.map((e) => ({
                 label: e.resource_group_name,

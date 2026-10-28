@@ -56,7 +56,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ redirectTo }) => {
   return (
     <Form
       name="basic"
-      style={{ width: '368px' }}
+      className="w-[368px]"
       initialValues={{ login: true }}
       onFinish={onFinish}
       autoComplete="off"
@@ -69,11 +69,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ redirectTo }) => {
           type="error"
           closable
           onClose={() => setIsError(false)}
-          style={{
-            marginBottom: 16,
-            marginTop: 16,
-            width: '100%',
-          }}
+          className="mb-4 mt-4 w-full"
         />
       )}
       <Form.Item
@@ -82,7 +78,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ redirectTo }) => {
         rules={[{ required: true, message: 'Please input your username!' }]}
         className="mb-[27px]"
       >
-        <Input style={{ height: 40 }} />
+        <Input className="h-[40px]" />
       </Form.Item>
 
       <Form.Item
@@ -94,7 +90,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ redirectTo }) => {
         ]}
         className="mb-[27px]"
       >
-        <Input.Password style={{ height: 40 }} />
+        <Input.Password className="h-[40px]" />
       </Form.Item>
 
       <Form.Item className="mb-0">

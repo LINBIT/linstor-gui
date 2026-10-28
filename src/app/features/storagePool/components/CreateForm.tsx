@@ -174,7 +174,7 @@ const CreateForm = () => {
 
   return (
     <Form
-      style={{ maxWidth: 600 }}
+      className="max-w-[600px]"
       size="large"
       layout="vertical"
       form={form}
@@ -380,7 +380,7 @@ const CreateForm = () => {
           {t('common:submit')}
         </Button>
 
-        <Button type="text" onClick={backToStoragePoolList} style={{ marginLeft: '1em' }}>
+        <Button type="text" onClick={backToStoragePoolList} className="ml-[1em]">
           {t('common:cancel')}
         </Button>
       </Form.Item>

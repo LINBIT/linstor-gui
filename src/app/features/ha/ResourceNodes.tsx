@@ -12,7 +12,6 @@ import { Link } from '@app/components/Link';
 import { useResources } from './useHA';
 import type { PromoterEntry } from './haStatus';
 import { ACTIVE_NODE_LINK_STYLE, PROMOTER_TOOLTIP_STYLES, renderPromoterTree } from './PromoterTree';
-import { cssVar } from '@app/const/themeTokens';
 
 interface ResourceNodesProps {
   resourceName: string;
@@ -23,7 +22,7 @@ export const ResourceNodes: React.FC<ResourceNodesProps> = ({ resourceName, reac
   const { data: resourcesView, isLoading } = useResources(resourceName);
 
   if (isLoading) {
-    return <LoadingOutlined spin style={{ color: cssVar('icon/muted') }} />;
+    return <LoadingOutlined spin className="text-(--icon-muted)" />;
   }
 
   const resourceNodes =

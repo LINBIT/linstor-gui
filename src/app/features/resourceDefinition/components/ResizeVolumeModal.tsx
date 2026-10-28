@@ -123,16 +123,16 @@ export const ResizeVolumeModal: React.FC<ResizeVolumeModalProps> = ({ open, onCl
         <Form form={form} layout="vertical">
           {volumeDefinitions?.data?.map((vol) => (
             <Form.Item key={vol.volume_number} label={`Volume ${vol.volume_number}`} required>
-              <Space.Compact style={{ width: '100%' }}>
+              <Space.Compact className="w-full">
                 <Form.Item
                   name={`vol_${vol.volume_number}_size`}
                   noStyle
                   rules={[{ required: true, message: 'Please input size' }]}
                 >
-                  <Input type="number" style={{ width: '50%' }} />
+                  <Input type="number" className="w-1/2" />
                 </Form.Item>
                 <Form.Item name={`vol_${vol.volume_number}_unit`} noStyle rules={[{ required: true }]}>
-                  <Select style={{ width: '25%' }}>
+                  <Select className="w-1/4">
                     {sizeOptions.map((opt) => (
                       <Option key={opt.value} value={opt.value}>
                         {opt.label}
@@ -140,15 +140,8 @@ export const ResizeVolumeModal: React.FC<ResizeVolumeModalProps> = ({ open, onCl
                     ))}
                   </Select>
                 </Form.Item>
-                <Form.Item
-                  name="gross"
-                  valuePropName="checked"
-                  noStyle
-                  style={{ display: 'flex', alignItems: 'center' }}
-                >
-                  <Checkbox style={{ alignItems: 'center', alignSelf: 'center', marginLeft: '8px' }}>
-                    Gross Size
-                  </Checkbox>
+                <Form.Item name="gross" valuePropName="checked" noStyle className="flex items-center">
+                  <Checkbox className="items-center ml-2 self-center">Gross Size</Checkbox>
                 </Form.Item>
               </Space.Compact>
             </Form.Item>

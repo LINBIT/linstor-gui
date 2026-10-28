@@ -323,7 +323,7 @@ export const ScheduleByResourceList = () => {
           initialValues={{
             show_default: true,
           }}
-          style={{ display: 'flex', alignItems: 'center' }}
+          className="flex items-center"
         >
           <Form.Item name="origin_rsc" label={t('schedule:resource')}>
             <Input
@@ -342,7 +342,7 @@ export const ScheduleByResourceList = () => {
             <EnableScheduleForm onSuccess={refetch} />
           </Form.Item>
 
-          <Form.Item style={{ marginLeft: 'auto', marginRight: 0 }}>
+          <Form.Item className="mr-0 ml-auto">
             <Button
               type="secondary"
               onClick={() => {

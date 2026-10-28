@@ -367,7 +367,7 @@ export const List = () => {
               ],
             }}
           >
-            <MoreOutlined style={{ cursor: 'pointer', fontSize: 16 }} />
+            <MoreOutlined className="cursor-pointer text-[16px]" />
           </Dropdown>
         </Space>
       ),
@@ -401,19 +401,10 @@ export const List = () => {
   return (
     <>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-        <Form
-          form={form}
-          name="error_report"
-          layout="inline"
-          style={{
-            gap: '8px 16px',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-          }}
-        >
-          <Form.Item name="node" label={t('common:node')} style={{ marginBottom: '0' }}>
+        <Form form={form} name="error_report" layout="inline" className="flex-wrap items-center gap-x-4 gap-y-2">
+          <Form.Item name="node" label={t('common:node')} className="mb-0">
             <Select
-              style={{ width: 180 }}
+              className="w-[180px]"
               allowClear
               placeholder={t('error_report:please_select_node')}
               options={nodes?.data?.map((e) => ({
@@ -423,9 +414,9 @@ export const List = () => {
             />
           </Form.Item>
 
-          <Form.Item name="module" label={t('error_report:module')} style={{ marginBottom: '0' }}>
+          <Form.Item name="module" label={t('error_report:module')} className="mb-0">
             <Select
-              style={{ width: 180 }}
+              className="w-[180px]"
               allowClear
               placeholder={t('error_report:please_select_module')}
               options={modules.map((e) => ({
@@ -435,11 +426,11 @@ export const List = () => {
             />
           </Form.Item>
 
-          <Form.Item name="range" label={t('error_report:time_range')} style={{ marginBottom: '0' }}>
+          <Form.Item name="range" label={t('error_report:time_range')} className="mb-0">
             <RangePicker />
           </Form.Item>
 
-          <Form.Item style={{ marginBottom: '0' }}>
+          <Form.Item className="mb-0">
             <Space size="small">
               <Button
                 type="primary"

@@ -15,7 +15,6 @@ import type { useReactorActions } from './useReactorActions';
 import { HAStatusTag } from './HAStatusTag';
 import { HARowActions } from './HARowActions';
 import { ResourceNodes } from './ResourceNodes';
-import { cssVar } from '@app/const/themeTokens';
 
 const { Text } = Typography;
 
@@ -43,7 +42,7 @@ export const useHAColumns = ({ reactor, onViewFile, onDelete }: Options): Column
       width: 100,
       render: (_, record) => {
         if (reactorStatusLoading) {
-          return <LoadingOutlined spin style={{ color: cssVar('icon/muted') }} />;
+          return <LoadingOutlined spin className="text-(--icon-muted)" />;
         }
         return (
           <HAStatusTag
@@ -70,10 +69,7 @@ export const useHAColumns = ({ reactor, onViewFile, onDelete }: Options): Column
             {configFiles.map((file) => (
               <Text key={file} code>
                 {file.replace('files/', '/')}
-                <EyeOutlined
-                  style={{ marginLeft: 8, cursor: 'pointer', color: cssVar('text/link') }}
-                  onClick={() => onViewFile(file)}
-                />
+                <EyeOutlined className="ml-2 cursor-pointer text-(--text-link)" onClick={() => onViewFile(file)} />
               </Text>
             ))}
           </Space>

@@ -103,7 +103,7 @@ const CreateForm = ({ editing, node, refetch }: FormProps) => {
         ]}
       >
         <Form<FormType>
-          style={{ maxWidth: 600 }}
+          className="max-w-[600px]"
           size="large"
           layout="vertical"
           form={form}

@@ -88,11 +88,11 @@ export const FaultyList = () => {
         return (
           <span>
             {in_use ? (
-              <CheckCircleFilled style={{ color: 'green', fontSize: '16px' }} />
+              <CheckCircleFilled className="text-[16px] text-(--text-chip-success)" />
             ) : (
-              <CloseCircleFilled style={{ color: 'grey', fontSize: '16px' }} />
+              <CloseCircleFilled className="text-[16px] text-(--icon-muted)" />
             )}
-            <span style={{ marginLeft: 8 }}>{usage}</span>
+            <span className="ml-2">{usage}</span>
           </span>
         );
       },

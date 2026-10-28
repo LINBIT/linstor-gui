@@ -153,16 +153,16 @@ export const List = () => {
         if (record?.shipping) {
           return (
             <div>
-              <span style={{ color: 'orange', fontWeight: 500 }}>{t('common:creating')}</span>
+              <span className="font-medium text-(--text-chip-warning)">{t('common:creating')}</span>
             </div>
           );
         }
         return (
           <div>
             {success ? (
-              <CheckCircleFilled style={{ color: 'green', fontSize: '16px' }} />
+              <CheckCircleFilled className="text-[16px] text-(--text-chip-success)" />
             ) : (
-              <CloseCircleFilled style={{ color: 'grey', fontSize: '16px' }} />
+              <CloseCircleFilled className="text-[16px] text-(--icon-muted)" />
             )}{' '}
             <span>{success ? t('common:success') : t('common:failed')}</span>
           </div>
@@ -234,7 +234,7 @@ export const List = () => {
             </Space>
           </Form.Item>
 
-          <Form.Item style={{ marginLeft: 'auto', marginRight: 0 }}>
+          <Form.Item className="mr-0 ml-auto">
             <CreateBackupForm refetch={refetch} />
           </Form.Item>
         </Form>
