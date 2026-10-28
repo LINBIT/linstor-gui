@@ -122,6 +122,14 @@ describe('ScheduleByResourceList', () => {
     expect(screen.getByText('Total 3 items')).toBeInTheDocument();
   });
 
+  // With no active schedule the controller answers {} without a data field.
+  it('shows an empty list when the controller answers without data', async () => {
+    vi.mocked(getScheduleByResource).mockResolvedValue({ data: {} } as never);
+    renderList();
+    expect(await screen.findByText('No data', { selector: '.ant-empty-description' })).toBeInTheDocument();
+    expect(screen.queryByText('res-active')).not.toBeInTheDocument();
+  });
+
   it('"Show All" drops the active-only filter', async () => {
     renderList();
     await screen.findByText('res-active');

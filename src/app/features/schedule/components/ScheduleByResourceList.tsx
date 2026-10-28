@@ -48,7 +48,8 @@ export const ScheduleByResourceList = () => {
       const params = showAll ? {} : { 'active-only': true };
       const res = await getScheduleByResource(params);
 
-      return res?.data?.data;
+      // With no active schedule the controller answers {} without data.
+      return res?.data?.data ?? [];
     },
   });
 
