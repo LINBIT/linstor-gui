@@ -43,7 +43,7 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
     mutationFn: (iqn: string) => deleteNFSExport(iqn),
     onSuccess: () => {
       api.success({
-        title: 'Target has been deleted!',
+        title: t('vsan:nfs_deleted'),
       });
       refetch();
     },
@@ -58,12 +58,12 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
 
   const columns: TableProps<DataType>['columns'] = [
     {
-      title: 'Name',
+      title: t('common:name'),
       dataIndex: 'name',
       key: 'name',
     },
     {
-      title: 'Export Path',
+      title: t('nfs:export_path'),
       dataIndex: 'path',
       key: 'path',
       render: (path) => {
@@ -71,17 +71,17 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
       },
     },
     {
-      title: 'On Node',
+      title: t('iscsi:on_node'),
       dataIndex: 'node',
       key: 'node',
     },
     {
-      title: 'Service IP',
+      title: t('nfs:service_ip'),
       dataIndex: 'service_ip',
       key: 'service_ip',
     },
     {
-      title: 'Size',
+      title: t('common:size'),
       dataIndex: 'size',
       key: 'size',
       render: (size) => {
@@ -89,7 +89,7 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
       },
     },
     {
-      title: 'Status',
+      title: t('common:status'),
       dataIndex: 'status',
       key: 'status',
       render: (status) => {
@@ -102,7 +102,7 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
 
   if (complex) {
     columns.push({
-      title: 'Action',
+      title: t('common:action'),
       key: 'action',
       render: (_, target) => {
         if (!target.children) {
@@ -125,7 +125,7 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
               }}
             >
               <Button type="default" danger loading={deleteMutation.isPending}>
-                Delete
+                {t('common:delete')}
               </Button>
             </Popconfirm>
           </Space>
@@ -200,10 +200,10 @@ export const NFSExportList = ({ complex }: NFSExportListProp) => {
       {contextHolder}
       {complex && (
         <>
-          <p>This module allows exporting the highly available storage managed by LINSTOR via an NFS export.</p>
+          <p>{t('vsan:nfs_intro')}</p>
           <div className="mb-2.5">
             <Button onClick={() => refetch()} className="mr-2.5">
-              Reload
+              {t('common:reload')}
             </Button>
             <CreateNFSForm refetch={refetch} disabled={listData.length >= 1} />
           </div>

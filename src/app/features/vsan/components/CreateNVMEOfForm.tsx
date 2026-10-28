@@ -108,7 +108,7 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
     mutationFn: variablesOnly(createNVMEExport),
     onSuccess: () => {
       api.success({
-        title: 'Create NVMe-oF Export successfully',
+        title: t('vsan:create_nvme_success'),
       });
       setCreateFormModal(false);
 
@@ -158,7 +158,7 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
     <>
       {contextHolder}
       <Button type="primary" onClick={() => setCreateFormModal(true)}>
-        Create
+        {t('common:create')}
       </Button>
 
       <Modal
@@ -169,10 +169,10 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
         footer={
           <div className="flex justify-end gap-2">
             <Button type="secondary" onClick={handleCancel}>
-              Cancel
+              {t('common:cancel')}
             </Button>
             <Button type="primary" onClick={handleOk} loading={createMutation.isPending}>
-              Create
+              {t('common:create')}
             </Button>
           </div>
         }
@@ -188,14 +188,7 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
               gross_size: true,
             }}
           >
-            <Form.Item
-              label="NQN"
-              required
-              tooltip="The NQN uniquely identifies a NVMe-oF target.
-        Fill out your company's domain name and choose a unique name within that domain. Your initiator will then be able to identify the target using this NQN.
-
-        Example: nqn.2020-01.com.linbit:nvme:vmstorage"
-            >
+            <Form.Item label="NQN" required tooltip={t('nvme:nqn_tooltip')}>
               <Space.Compact size="large">
                 <Space.Addon>nqn.</Space.Addon>
                 <Form.Item
@@ -257,7 +250,7 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
               label={t('common:resource_group')}
               name="resource_group"
               required
-              rules={[{ required: true, message: 'Please select resource group!' }]}
+              rules={[{ required: true, message: t('common:resource_group_required') }]}
             >
               <Select
                 allowClear
@@ -269,21 +262,16 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
               />
             </Form.Item>
 
-            <Form.Item
-              label={t('iscsi:service_ips')}
-              required
-              tooltip="This is the IP address under which the iSCSI target will be reachable. This must be an address within one of the hosts subnets.
-            The service IP is a newly assigned address and should not already belong to a host."
-            >
+            <Form.Item label={t('iscsi:service_ips')} required tooltip={t('vsan:service_ip_tooltip')}>
               <Space>
                 <Form.Item
                   name="service_ip_prefix"
                   noStyle
-                  rules={[{ required: true, message: 'IP prefix is required!' }]}
+                  rules={[{ required: true, message: t('common:ip_prefix_required') }]}
                 >
                   <Select options={ipServiceOptions} className="min-w-[140px]" placeholder="192.168.1." />
                 </Form.Item>
-                <Form.Item name="service_ip" noStyle rules={[{ required: true, message: 'IP address is required!' }]}>
+                <Form.Item name="service_ip" noStyle rules={[{ required: true, message: t('common:ip_required') }]}>
                   <Input placeholder="0" />
                 </Form.Item>
               </Space>
@@ -295,12 +283,12 @@ const CreateNVMEOfForm = ({ refetch }: CreateNVMEOfFormProps) => {
                 <Form.Item
                   name="size"
                   className="min-w-[220px] flex-1"
-                  rules={[{ required: true, message: 'Size is required!' }]}
+                  rules={[{ required: true, message: t('common:size_required') }]}
                 >
                   {gross_size ? <SizeInput disabled={gross_size} /> : <SizeInput />}
                 </Form.Item>
                 <Form.Item name="gross_size" valuePropName="checked">
-                  <Checkbox>Use all available</Checkbox>
+                  <Checkbox>{t('vsan:use_all_available')}</Checkbox>
                 </Form.Item>
               </div>
             </Form.Item>

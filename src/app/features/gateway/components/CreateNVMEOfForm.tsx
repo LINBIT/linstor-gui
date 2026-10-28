@@ -109,13 +109,10 @@ const CreateNVMEOfForm = () => {
         rules={[
           {
             required: true,
-            message: 'NQN is required!',
+            message: t('nvme:nqn_required'),
           },
         ]}
-        tooltip="The NQN uniquely identifies a NVMe-oF target.
-        Fill out your company's domain name and choose a unique name within that domain. Your initiator will then be able to identify the target using this NQN.
-
-        Example: nqn.2020-01.com.linbit:nvme:vmstorage"
+        tooltip={t('nvme:nqn_tooltip')}
       >
         <Space.Compact size="large">
           <Space.Addon>nqn.</Space.Addon>
@@ -129,7 +126,7 @@ const CreateNVMEOfForm = () => {
       <Form.Item
         label={t('nvme:resource_group')}
         name="resource_group"
-        tooltip="LINSTOR resource group to use (default: DfltRscGrp)"
+        tooltip={t('common:gateway_resource_group_tooltip')}
       >
         <Select
           allowClear
@@ -148,17 +145,16 @@ const CreateNVMEOfForm = () => {
         rules={[
           {
             required: true,
-            message: 'IP address is required!',
+            message: t('common:ip_required'),
           },
           {
-            message: 'Please input valid IP address and subnet mask, like 192.168.1.1/24, 10.10.1.1/24 ',
+            message: t('common:ip_cidr_invalid'),
             pattern: new RegExp(
               '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[1-2]?[0-9])$',
             ),
           },
         ]}
-        tooltip="This is the IP address under which the NVMe-oF target will be reachable. This must be an address within one of the hosts subnets.
-        The service IP is a newly assigned address and should not already belong to a host."
+        tooltip={t('nvme:service_ip_tooltip')}
       >
         <Input placeholder="192.168.1.1/24" />
       </Form.Item>
@@ -171,7 +167,7 @@ const CreateNVMEOfForm = () => {
         label={t('iscsi:gross_size')}
         name="gross_size"
         valuePropName="checked"
-        tooltip="Make all size options specify gross size, i.e. the actual space used on disk"
+        tooltip={t('common:gross_size_tooltip')}
       >
         <Checkbox />
       </Form.Item>

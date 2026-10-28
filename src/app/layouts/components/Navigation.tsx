@@ -87,14 +87,14 @@ const Navigation: React.FC<NavigationProps> = ({
   const items: MenuItem[] = React.useMemo(() => {
     if (vsanModeFromSetting) {
       return [
-        getItem(<Link to="/vsan/dashboard">Dashboard</Link>, '/vsan/dashboard', <PieChartOutlined />),
+        getItem(<Link to="/vsan/dashboard">{t('dashboard')}</Link>, '/vsan/dashboard', <PieChartOutlined />),
         getItem(
-          <Link to="/vsan/physical-storage">Physical Storage</Link>,
+          <Link to="/vsan/physical-storage">{t('common:physical_storage')}</Link>,
           '/vsan/physical-storage',
           <MdOutlineStorage />,
         ),
         getItem(
-          <Link to="/vsan/resource-groups">Resource Groups</Link>,
+          <Link to="/vsan/resource-groups">{t('resource_groups')}</Link>,
           '/vsan/resource-groups',
           <ContainerOutlined />,
         ),
@@ -105,9 +105,9 @@ const Navigation: React.FC<NavigationProps> = ({
           '/vsan/nfs',
           <SVG src={NFS} width="16" height="16" className="text-(--icon-default)" />,
         ),
-        getItem(<Link to="/vsan/error-reports">Error Reports</Link>, '/vsan/error-reports', <WarningOutlined />),
-        getItem(<Link to="/vsan/users">Users</Link>, '/vsan/users', <UserOutlined />),
-        getItem(<Link to="/vsan/about">About</Link>, '/vsan/about', <InfoCircleOutlined />),
+        getItem(<Link to="/vsan/error-reports">{t('error_reports')}</Link>, '/vsan/error-reports', <WarningOutlined />),
+        getItem(<Link to="/vsan/users">{t('users')}</Link>, '/vsan/users', <UserOutlined />),
+        getItem(<Link to="/vsan/about">{t('about')}</Link>, '/vsan/about', <InfoCircleOutlined />),
       ];
     } else if (hciModeFromSetting) {
       const hciItems = [

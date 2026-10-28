@@ -13,14 +13,11 @@ export const ResourceGroup = () => {
   return (
     <PageBasic title={t('common:resource_groups')}>
       <p>
-        Here you can create resource groups from your storage pools.
+        {t('vsan:rg_intro_1')}
         <br />
-        A resource group is a LINSTOR concept. It can be thought of as a template for resource creation. It defines a
-        storage pool to use and how many replicas of the data to create.
+        {t('vsan:rg_intro_2')}
         <br />
-        When the resource group is instantiated, for example, when it is used to spawn a resource, LINSTOR will
-        automatically take storage from the specified storage pool and place the resource on the appropriate number of
-        nodes.
+        {t('vsan:rg_intro_3')}
       </p>
 
       <ResourceGroupList />

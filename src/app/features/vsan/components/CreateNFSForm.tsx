@@ -88,7 +88,7 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
     mutationFn: variablesOnly(createNFSExport),
     onSuccess: () => {
       api.success({
-        title: 'Create NFS Export successfully',
+        title: t('vsan:create_nfs_success'),
       });
 
       setCreateFormModal(false);
@@ -155,7 +155,7 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
     <>
       {contextHolder}
       <Button type="primary" onClick={() => setCreateFormModal(true)} disabled={disabled}>
-        Create
+        {t('common:create')}
       </Button>
 
       <Modal
@@ -169,10 +169,10 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
         footer={
           <div className="flex justify-end gap-2">
             <Button type="secondary" onClick={handleCancel}>
-              Cancel
+              {t('common:cancel')}
             </Button>
             <Button type="primary" onClick={handleOk} loading={createMutation.isPending}>
-              Create
+              {t('common:create')}
             </Button>
           </div>
         }
@@ -194,7 +194,7 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
               rules={[
                 {
                   required: true,
-                  message: 'Name is required!',
+                  message: t('common:name_required'),
                 },
               ]}
             >
@@ -204,7 +204,7 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
               label={t('common:resource_group')}
               name="resource_group"
               required
-              rules={[{ required: true, message: 'Please select resource group!' }]}
+              rules={[{ required: true, message: t('common:resource_group_required') }]}
             >
               <Select
                 allowClear
@@ -216,21 +216,16 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
               />
             </Form.Item>
 
-            <Form.Item
-              label={t('iscsi:service_ips')}
-              required
-              tooltip="This is the IP address under which the iSCSI target will be reachable. This must be an address within one of the hosts subnets.
-            The service IP is a newly assigned address and should not already belong to a host."
-            >
+            <Form.Item label={t('iscsi:service_ips')} required tooltip={t('vsan:service_ip_tooltip')}>
               <Space>
                 <Form.Item
                   name="service_ip_prefix"
                   noStyle
-                  rules={[{ required: true, message: 'IP prefix is required!' }]}
+                  rules={[{ required: true, message: t('common:ip_prefix_required') }]}
                 >
                   <Select options={ipServiceOptions} className="min-w-[140px]" placeholder="192.168.1." />
                 </Form.Item>
-                <Form.Item name="service_ip" noStyle rules={[{ required: true, message: 'IP address is required!' }]}>
+                <Form.Item name="service_ip" noStyle rules={[{ required: true, message: t('common:ip_required') }]}>
                   <Input placeholder="0" />
                 </Form.Item>
               </Space>
@@ -242,12 +237,12 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
                 <Form.Item
                   name="size_kib"
                   className="min-w-[220px] flex-1"
-                  rules={[{ required: true, message: 'Size is required!' }]}
+                  rules={[{ required: true, message: t('common:size_required') }]}
                 >
                   <SizeInput disabled={gross_size} />
                 </Form.Item>
                 <Form.Item name="gross_size" valuePropName="checked">
-                  <Checkbox>Use all available</Checkbox>
+                  <Checkbox>{t('vsan:use_all_available')}</Checkbox>
                 </Form.Item>
               </div>
             </Form.Item>
@@ -255,7 +250,7 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
             <Form.Item
               name="export_path"
               label={t('nfs:export_path')}
-              rules={[{ required: true, message: 'Export path is required!' }]}
+              rules={[{ required: true, message: t('common:export_path_required') }]}
             >
               <Input placeholder="/" />
             </Form.Item>
@@ -267,7 +262,7 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
               rules={[
                 {
                   required: true,
-                  message: 'File system is required!',
+                  message: t('common:file_system_required'),
                 },
               ]}
             >
@@ -311,7 +306,7 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
 
                       {fields.length > 0 ? (
                         <Button danger className="ml-2.5 mt-2.5" onClick={() => remove(field.name)}>
-                          Delete
+                          {t('common:delete')}
                         </Button>
                       ) : null}
                     </Form.Item>
@@ -338,7 +333,7 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
                           {
                             required: true,
                             whitespace: true,
-                            message: 'Please input something like 192.168.0.0/16',
+                            message: t('common:cidr_example'),
                           },
                         ]}
                         noStyle

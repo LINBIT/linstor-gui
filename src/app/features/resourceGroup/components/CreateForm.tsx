@@ -316,7 +316,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
             rules={[
               {
                 required: true,
-                message: 'Resource group name is required!',
+                message: t('common:resource_group_name_required'),
               },
             ]}
           >
@@ -345,11 +345,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
                   <Popover
                     content={
                       <div className="w-[400px]">
-                        <p>
-                          If option enabled, will create a resource (or resources) when you create this resource group.
-                          Created resource(s) will have the name of the resource definition that you specify. If option
-                          disabled, will create the resource group only.
-                        </p>
+                        <p>{t('resource_group:spawn_on_create_help')}</p>
                       </div>
                     }
                     title={t('resource_group:spawn_on_create')}
@@ -371,11 +367,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
                 <Popover
                   content={
                     <div className="w-[400px]">
-                      <p>
-                        If option is selected, place diskless instances of resources created from this resource group on
-                        any remaining nodes after fulfilling the diskful resource placement count in the LINSTOR
-                        cluster.
-                      </p>
+                      <p>{t('resource_group:diskless_on_remaining_help')}</p>
                     </div>
                   }
                   title={drbdLayer ? t('resource_group:drbd_protocol') : t('resource_group:replication')}
@@ -396,10 +388,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
                 <Popover
                   content={
                     <div className="w-[400px]">
-                      <p>
-                        Select storage pool. Resources created from this resource group will be automatically placed
-                        into selected storage pool.
-                      </p>
+                      <p>{t('resource_group:storage_pool_help')}</p>
                     </div>
                   }
                   title={t('resource_group:storage_pool')}
@@ -461,10 +450,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
                 <Popover
                   content={
                     <div className="w-[400px]">
-                      <p>
-                        Select LINSTOR layers. Only storage pools having the selected LINSTOR layers will be considered
-                        for automatic resource placement when creating resources from this resource group.
-                      </p>
+                      <p>{t('resource_group:layers_help')}</p>
                     </div>
                   }
                   title={t('resource_group:linstor_layers')}
@@ -485,7 +471,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
               }))}
               onChange={(val) => {
                 if (!layer_stack?.includes('drbd') && val.includes('drbd')) {
-                  message.info('Please make sure you have drbd-kmod installed on the nodes you wish to use DRBD on');
+                  message.info(t('resource_group:drbd_kmod_hint'));
                 }
               }}
             />
@@ -500,10 +486,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
                 <Popover
                   content={
                     <div className="w-[400px]">
-                      <p>
-                        Select storage providers. Only storage pools backed by the selected storage providers will be
-                        considered for automatic resource placement when creating resources from this resource group.
-                      </p>
+                      <p>{t('resource_group:providers_help')}</p>
                     </div>
                   }
                   title={t('resource_group:storage_providers')}
@@ -600,7 +583,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
                 rules={[
                   {
                     required: true,
-                    message: 'Resource definition name is required!',
+                    message: t('common:resource_definition_name_required'),
                   },
                 ]}
               >
@@ -616,7 +599,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
 
             <Col xs={24} lg={12}>
               <Form.Item name="definition_only" valuePropName="checked">
-                <Checkbox>Definition Only</Checkbox>
+                <Checkbox>{t('common:definition_only')}</Checkbox>
               </Form.Item>
             </Col>
           </Row>

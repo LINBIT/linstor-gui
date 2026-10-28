@@ -75,7 +75,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ redirectTo }) => {
       <Form.Item
         label={t('common:username')}
         name="username"
-        rules={[{ required: true, message: 'Please input your username!' }]}
+        rules={[{ required: true, message: t('common:username_required') }]}
         className="mb-[27px]"
       >
         <Input className="h-[40px]" />
@@ -85,8 +85,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ redirectTo }) => {
         label={t('common:password')}
         name="password"
         rules={[
-          { required: true, message: 'Please input your password!' },
-          { min: 5, message: 'Password must be at least 5 characters long!' },
+          { required: true, message: t('common:password_required') },
+          { min: 5, message: t('common:password_min_length') },
         ]}
         className="mb-[27px]"
       >
@@ -95,7 +95,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ redirectTo }) => {
 
       <Form.Item className="mb-0">
         <Button htmlType="submit" type="primary">
-          Log in
+          {t('common:log_in')}
         </Button>
       </Form.Item>
     </Form>

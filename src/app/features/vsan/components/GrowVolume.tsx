@@ -51,7 +51,7 @@ export const GrowVolume = ({ resource, resource_group, current_kib, refetch }: G
     },
     onSuccess: () => {
       api.success({
-        title: 'Resize volume successfully',
+        title: t('vsan:resize_success'),
       });
       refetch();
       setModalOpen(false);
@@ -100,7 +100,7 @@ export const GrowVolume = ({ resource, resource_group, current_kib, refetch }: G
         footer={
           <div className="flex justify-end gap-2">
             <Button type="secondary" onClick={handleCancel}>
-              Cancel
+              {t('common:cancel')}
             </Button>
             <Button type="primary" onClick={handleOk} loading={resizeMutation.isPending}>
               Grow
@@ -124,7 +124,7 @@ export const GrowVolume = ({ resource, resource_group, current_kib, refetch }: G
                 {use_all ? <SizeInput disabled={use_all} /> : <SizeInput defaultUnit="KiB" />}
               </Form.Item>
               <Form.Item name="use_all" valuePropName="checked">
-                <Checkbox>Use all available</Checkbox>
+                <Checkbox>{t('vsan:use_all_available')}</Checkbox>
               </Form.Item>
             </div>
           </Form.Item>

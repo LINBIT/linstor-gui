@@ -87,12 +87,12 @@ const GrafanaCharts: React.FC<GrafanaChartsProps> = ({ hostname }) => {
   }
 
   const panels: ChartPanel[] = [
-    { id: grafanaConfig.panelIds.cpu, title: 'CPU Usage', key: 'cpu' },
-    { id: grafanaConfig.panelIds.memory, title: 'Memory Usage', key: 'memory' },
-    { id: grafanaConfig.panelIds.network, title: 'Network Traffic', key: 'network' },
-    { id: grafanaConfig.panelIds.disk, title: 'Disk I/O', key: 'disk' },
-    { id: grafanaConfig.panelIds.diskIops, title: 'Disk IOps', key: 'diskIops' },
-    { id: grafanaConfig.panelIds.ioUsage, title: 'I/O Usage Read/Write', key: 'ioUsage' },
+    { id: grafanaConfig.panelIds.cpu, title: t('common:cpu_usage'), key: 'cpu' },
+    { id: grafanaConfig.panelIds.memory, title: t('common:memory_usage'), key: 'memory' },
+    { id: grafanaConfig.panelIds.network, title: t('common:network_traffic'), key: 'network' },
+    { id: grafanaConfig.panelIds.disk, title: t('common:disk_io'), key: 'disk' },
+    { id: grafanaConfig.panelIds.diskIops, title: t('common:disk_iops'), key: 'diskIops' },
+    { id: grafanaConfig.panelIds.ioUsage, title: t('common:io_usage'), key: 'ioUsage' },
   ];
 
   // Filter out panels without IDs

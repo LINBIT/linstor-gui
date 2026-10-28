@@ -48,7 +48,7 @@ export const Login = ({ redirectTo }: LoginProps) => {
           {/* Form content */}
           <div className="px-4 md:pl-[37px]">
             <h3 className="text-lg font-normal text-(--text-primary) text-center md:text-left mb-6 md:mb-0">
-              Log into to Your Account
+              {t('common:log_in_title')}
             </h3>
 
             {/* Alert for default credentials */}

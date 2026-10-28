@@ -48,10 +48,10 @@ const AuxiliaryPropInput: React.FC<AuxiliaryPropInputProp> = ({
       {isFirst && (
         <div className="flex font-bold mb-2">
           <div className="w-2/5">
-            <Text>Property Name</Text>
+            <Text>{t('common:property_name')}</Text>
           </div>
           <div className="w-2/5">
-            <Text>Property Value</Text>
+            <Text>{t('common:property_value')}</Text>
           </div>
           <div className="w-1/5" />
         </div>

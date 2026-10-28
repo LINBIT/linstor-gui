@@ -95,7 +95,11 @@ export const AddToNodeModal: React.FC<AddToNodeModalProps> = ({
     >
       {/* Dropped with the dialog, so the next opening starts from its own object, not what was entered last. */}
       <Form form={form} layout="vertical" initialValues={{ drbd_diskless: false }} clearOnDestroy>
-        <Form.Item name="node" label={t('common:node')} rules={[{ required: true, message: 'Please select a node' }]}>
+        <Form.Item
+          name="node"
+          label={t('common:node')}
+          rules={[{ required: true, message: t('common:node_required') }]}
+        >
           <Select placeholder={t('node:node_list')} showSearch optionFilterProp="children">
             {nodeList.map((node) => (
               <Select.Option key={node.name} value={node.name}>

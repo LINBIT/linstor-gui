@@ -514,7 +514,7 @@ describe('OcfAgentEditor', () => {
 
       fireEvent.click(toolbar('Save'));
       expect(await screen.findByText('Please fix validation errors')).toBeInTheDocument();
-      expect(await screen.findByText('Please select resource')).toBeInTheDocument();
+      expect(await screen.findByText('Please select a resource')).toBeInTheDocument();
       expect(onSave).not.toHaveBeenCalled();
     });
   });

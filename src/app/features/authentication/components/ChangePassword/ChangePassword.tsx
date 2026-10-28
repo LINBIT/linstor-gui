@@ -75,7 +75,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ open, onCreate,
               <Form.Item
                 name="currentPassword"
                 label={t('current_password')}
-                rules={[{ required: true, message: 'Please input current password!' }]}
+                rules={[{ required: true, message: t('common:current_password_required') }]}
               >
                 <Input.Password />
               </Form.Item>
@@ -84,8 +84,8 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ open, onCreate,
               name="newPassword"
               label={t('new_password')}
               rules={[
-                { required: true, message: 'Please input new password!' },
-                { min: 5, message: 'Password must be at least 5 characters long!' },
+                { required: true, message: t('common:new_password_required') },
+                { min: 5, message: t('common:password_min_length') },
               ]}
             >
               <Input.Password />
@@ -95,7 +95,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ open, onCreate,
               label={t('confirm_password')}
               dependencies={['newPassword']}
               rules={[
-                { required: true, message: 'Please input new password again!' },
+                { required: true, message: t('common:new_password_again_required') },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
                     if (!value || getFieldValue('newPassword') === value) {

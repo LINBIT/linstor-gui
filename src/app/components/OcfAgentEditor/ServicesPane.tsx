@@ -125,7 +125,7 @@ export const ServicesPane = ({
             <Form.Item
               name="resource_name"
               label={t('common:resource_name')}
-              rules={[{ required: true, message: 'Please select resource' }]}
+              rules={[{ required: true, message: t('common:resource_required') }]}
             >
               <Select
                 placeholder={t('common:select_resource')}
@@ -138,7 +138,7 @@ export const ServicesPane = ({
             <Form.Item
               name="file_path"
               label={t('common:config_file')}
-              rules={[{ required: true, message: 'Please enter filename' }]}
+              rules={[{ required: true, message: t('common:filename_required') }]}
             >
               <Input addonBefore="/etc/drbd-reactor.d/" addonAfter=".toml" placeholder="my-resource" />
             </Form.Item>

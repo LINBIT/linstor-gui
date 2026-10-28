@@ -127,7 +127,7 @@ export const ResizeVolumeModal: React.FC<ResizeVolumeModalProps> = ({ open, onCl
                 <Form.Item
                   name={`vol_${vol.volume_number}_size`}
                   noStyle
-                  rules={[{ required: true, message: 'Please input size' }]}
+                  rules={[{ required: true, message: t('common:size_required') }]}
                 >
                   <Input type="number" className="w-1/2" />
                 </Form.Item>
@@ -141,7 +141,7 @@ export const ResizeVolumeModal: React.FC<ResizeVolumeModalProps> = ({ open, onCl
                   </Select>
                 </Form.Item>
                 <Form.Item name="gross" valuePropName="checked" noStyle className="flex items-center">
-                  <Checkbox className="items-center ml-2 self-center">Gross Size</Checkbox>
+                  <Checkbox className="items-center ml-2 self-center">{t('common:gross_size')}</Checkbox>
                 </Form.Item>
               </Space.Compact>
             </Form.Item>

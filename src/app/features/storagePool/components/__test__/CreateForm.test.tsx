@@ -80,7 +80,7 @@ describe('storage pool CreateForm', () => {
   it('requires a name, a node and a device for a new device', async () => {
     renderForm();
     submit();
-    expect(await screen.findByText('Enter storage pool name')).toBeInTheDocument();
+    expect(await screen.findByText('Please input storage pool name!')).toBeInTheDocument();
     expect(screen.getByText('Please select nodes!')).toBeInTheDocument();
     expect(screen.getByText('Please select device path!')).toBeInTheDocument();
     expect(createPhysicalStorage).not.toHaveBeenCalled();

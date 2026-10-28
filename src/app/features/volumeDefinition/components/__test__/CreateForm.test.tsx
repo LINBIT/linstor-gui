@@ -79,7 +79,7 @@ describe('volume definition CreateForm', () => {
     await openModal();
     fireEvent.click(screen.getByRole('button', { name: 'Spawn' }));
     expect(await screen.findByText('Please select resource definition!')).toBeInTheDocument();
-    expect(screen.getByText('Please input size!')).toBeInTheDocument();
+    expect(screen.getByText('Please input a size')).toBeInTheDocument();
     expect(createVolumeDefinition).not.toHaveBeenCalled();
     expect(refetch).not.toHaveBeenCalled();
   });

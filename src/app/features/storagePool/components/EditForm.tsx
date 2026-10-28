@@ -120,10 +120,10 @@ const EditForm = () => {
         label={t('storage_pool:storage_pool_name')}
         required
         rules={[
-          { required: true, message: 'Please input storage pool name!' },
+          { required: true, message: t('storage_pool:name_required') },
           {
             pattern: new RegExp('^(?!-)[a-zA-Z_][a-zA-Z0-9_-]{1,47}[-a-zA-Z0-9_]$'),
-            message: 'Please input a valid storage pool name!',
+            message: t('storage_pool:name_invalid'),
           },
         ]}
       >
@@ -134,7 +134,7 @@ const EditForm = () => {
         label={t('common:nodes')}
         name="node"
         required
-        rules={[{ required: true, message: 'Please select nodes!' }]}
+        rules={[{ required: true, message: t('common:nodes_required') }]}
       >
         <Select
           disabled
@@ -181,11 +181,11 @@ const EditForm = () => {
 
       <Form.Item>
         <Button type="primary" htmlType="submit" loading={updateStoragePoolMutation.isPending}>
-          Submit
+          {t('common:submit')}
         </Button>
 
         <Button type="text" onClick={backToStoragePoolList} className="ml-[1em]">
-          Cancel
+          {t('common:cancel')}
         </Button>
       </Form.Item>
     </Form>

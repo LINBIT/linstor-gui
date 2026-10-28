@@ -229,7 +229,7 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
         rules={[
           {
             required: true,
-            message: 'Resource definition name is required!',
+            message: t('common:resource_definition_name_required'),
           },
         ]}
       >
@@ -263,7 +263,7 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
             label={t('common:node')}
             name="node"
             required
-            rules={[{ required: true, message: 'Please select nodes!' }]}
+            rules={[{ required: true, message: t('common:nodes_required') }]}
           >
             <Select
               allowClear

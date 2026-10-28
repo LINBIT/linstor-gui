@@ -31,7 +31,7 @@ export const ResourceGroupList = () => {
     mutationFn: variablesOnly(deleteResourceGroup),
     onSuccess: () => {
       api.success({
-        title: 'Delete resource group successfully',
+        title: t('vsan:delete_rg_success'),
       });
       refetch();
     },
@@ -46,12 +46,12 @@ export const ResourceGroupList = () => {
 
   const columns: TableProps<VsanResourceGroup>['columns'] = [
     {
-      title: 'Name',
+      title: t('common:name'),
       dataIndex: 'name',
       key: 'name',
     },
     {
-      title: 'Storage Pool',
+      title: t('common:storage_pool'),
       dataIndex: 'select_filter',
       key: 'storage_pool',
       render: (select_filter) => {
@@ -59,7 +59,7 @@ export const ResourceGroupList = () => {
       },
     },
     {
-      title: 'Replica Count',
+      title: t('vsan:replica_count'),
       dataIndex: 'select_filter',
       key: 'place_count',
       render: (select_filter) => {
@@ -67,7 +67,7 @@ export const ResourceGroupList = () => {
       },
     },
     {
-      title: 'Action',
+      title: t('common:action'),
       key: 'action',
       render: (_, record) => {
         return (
@@ -80,7 +80,7 @@ export const ResourceGroupList = () => {
             }}
           >
             <Button type="default" danger loading={deleteMutation.isPending}>
-              Delete
+              {t('common:delete')}
             </Button>
           </Popconfirm>
         );
@@ -93,7 +93,7 @@ export const ResourceGroupList = () => {
       {contextHolder}
       <div className="mb-2.5">
         <Button onClick={() => refetch()} className="mr-2.5">
-          Reload
+          {t('common:reload')}
         </Button>
 
         <CreateResourceGroup refetch={refetch} />

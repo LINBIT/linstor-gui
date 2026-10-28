@@ -87,8 +87,8 @@ export const NodeVolumesTable: React.FC<NodeVolumesTableProps> = ({
   const handleStatsClick = (nodeName: string, resourceName: string) => {
     if (!grafanaConfig?.enable) {
       Modal.warning({
-        title: 'Grafana Dashboard Not Enabled',
-        content: 'Please enable and configure Grafana Dashboard in Settings to view stats.',
+        title: t('common:grafana_not_enabled_title'),
+        content: t('common:grafana_not_enabled_text'),
       });
       return;
     }
@@ -177,7 +177,7 @@ export const NodeVolumesTable: React.FC<NodeVolumesTableProps> = ({
       },
     },
     {
-      title: 'Stats',
+      title: t('common:stats'),
       key: 'stats',
       width: 10,
       align: 'center',

@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import PageBasic from '@app/components/PageBasic';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 import { PhysicalStorageList } from '@app/features/vsan';
 
@@ -14,18 +14,13 @@ export const PhysicalStorage = () => {
   return (
     <PageBasic title={t('common:physical_storage')}>
       <div>
-        <p>
-          Below is a representation of which storage devices are present on which of your nodes. Check the respective
-          boxes to combine multiple storage devices into a storage pool. LINSTOR will then view this storage pool as a
-          single &quot;chunk&quot; of storage and use it to create virtual storage volumes.
-        </p>
-        <p>Hover over the entries to see the path for each device on a particular node.</p>
-        <b>Important:</b> To appear on this list, a storage device:
+        <p>{t('vsan:ps_intro')}</p>
+        <p>{t('vsan:ps_hover')}</p>
+        <Trans i18nKey="vsan:ps_important" components={[<b key="b" />]} />
         <ul className="list-disc pl-8">
-          <li>Must be greater than 1 GiB.</li>
+          <li>{t('vsan:ps_min_size')}</li>
           <li>
-            Must be <b>completely empty</b>. This includes file systems, LVM signatures, and others. If there is
-            existing data on the device, wipe it first (for example, using <code>wipefs -a</code>).
+            <Trans i18nKey="vsan:ps_empty" components={[<b key="b" />, <code key="c" />]} />
           </li>
         </ul>
       </div>

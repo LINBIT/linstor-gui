@@ -113,7 +113,7 @@ const CreateForm = ({ refetch, simple }: CreateFormProps) => {
             label={t('common:resource_definition')}
             name="resource"
             required
-            rules={[{ required: true, message: 'Please select resource definition!' }]}
+            rules={[{ required: true, message: t('common:resource_definition_required') }]}
           >
             <Select
               allowClear
@@ -129,7 +129,7 @@ const CreateForm = ({ refetch, simple }: CreateFormProps) => {
             name="size"
             label={t('common:size')}
             required
-            rules={[{ required: true, message: 'Please input size!' }]}
+            rules={[{ required: true, message: t('common:size_required') }]}
           >
             <SizeInput />
           </Form.Item>

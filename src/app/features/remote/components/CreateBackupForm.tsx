@@ -107,7 +107,7 @@ const CreateBackupForm = ({ refetch }: CreateBackupFormProps) => {
             name="rsc_name"
             label={t('common:resource')}
             required
-            rules={[{ required: true, message: 'Please select a resource' }]}
+            rules={[{ required: true, message: t('common:resource_required') }]}
           >
             <Select
               options={uniqBy(resourceList?.data, 'name').map((e) => ({

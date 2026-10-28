@@ -39,13 +39,13 @@ export const ManageModal: React.FC<ManageModalProps> = ({ open, onClose, unmanag
       { resourceName: manageResource, filePath: manageFile },
       {
         onSuccess: () => {
-          message.success(`"${manageFile}" is now managed under resource "${manageResource}"`);
+          message.success(t('ha:managed', { file: manageFile, resource: manageResource }));
           onClose();
           setManageFile(undefined);
           setManageResource(undefined);
         },
         onError: (err) => {
-          message.error(`Failed to manage: ${err instanceof Error ? err.message : err}`);
+          message.error(t('ha:manage_failed', { error: err instanceof Error ? err.message : String(err) }));
         },
       },
     );
@@ -65,14 +65,14 @@ export const ManageModal: React.FC<ManageModalProps> = ({ open, onClose, unmanag
             loading={manageMutation.isPending}
             onClick={handleManageSubmit}
           >
-            Manage
+            {t('ha:manage')}
           </Button>
         </div>
       }
     >
       <div className="flex flex-col gap-4 py-2">
         <div>
-          <Text strong>Configuration File</Text>
+          <Text strong>{t('ha:configuration_file')}</Text>
           <Select
             className="w-full mt-1"
             placeholder={t('ha:select_unmanaged_configuration_file')}
@@ -82,7 +82,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ open, onClose, unmanag
           />
         </div>
         <div>
-          <Text strong>Resource Definition</Text>
+          <Text strong>{t('common:resource_definition')}</Text>
           <Select
             className="w-full mt-1"
             placeholder={t('files:select_resource_placeholder')}

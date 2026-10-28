@@ -52,7 +52,7 @@ export const HARowActions: React.FC<HARowActionsProps> = ({
     { type: 'divider' },
     {
       key: 'evict',
-      label: 'Evict',
+      label: t('ha:evict'),
       disabled: !getPrimaryNode(record.name) || !getConfigName(record),
       onClick: () => {
         const activeNode = getPrimaryNode(record.name);
@@ -60,8 +60,8 @@ export const HARowActions: React.FC<HARowActionsProps> = ({
         if (!activeNode || !configName) return;
 
         const modal = Modal.confirm({
-          title: 'Evict Resource',
-          content: `Evict configuration "${configName}" from active node "${activeNode}"? This will trigger failover.`,
+          title: t('ha:evict_title'),
+          content: t('ha:evict_confirm', { config: configName, node: activeNode }),
           footer: (
             <div className="flex justify-end gap-2 mt-4">
               <Button onClick={() => modal.destroy()}>{t('common:cancel')}</Button>
@@ -72,7 +72,7 @@ export const HARowActions: React.FC<HARowActionsProps> = ({
                   onEvict(record);
                 }}
               >
-                Evict
+                {t('ha:evict')}
               </Button>
             </div>
           ),
@@ -92,10 +92,10 @@ export const HARowActions: React.FC<HARowActionsProps> = ({
         if (!configName) return;
 
         const modal = Modal.confirm({
-          title: isActive ? 'Stop Resource' : 'Start Resource',
+          title: isActive ? t('ha:stop_title') : t('ha:start_title'),
           content: isActive
-            ? `Stop configuration "${configName}"? This will disable the HA service on all nodes.`
-            : `Start configuration "${configName}"? This will enable the HA service on all nodes.`,
+            ? t('ha:stop_confirm', { config: configName })
+            : t('ha:start_confirm', { config: configName }),
           footer: (
             <div className="flex justify-end gap-2 mt-4">
               <Button onClick={() => modal.destroy()}>{t('common:cancel')}</Button>
@@ -120,14 +120,14 @@ export const HARowActions: React.FC<HARowActionsProps> = ({
     },
     {
       key: 'unmanage',
-      label: 'Unmanage',
+      label: t('ha:unmanage'),
       disabled: configFiles.length === 0,
       onClick: () => {
         if (configFiles.length === 0) return;
         const filePath = configFiles[0].replace('files', '');
         const modal = Modal.confirm({
-          title: 'Unmanage Resource',
-          content: `Stop LINSTOR from managing the HA configuration for "${record.name}"? The configuration file will remain on disk but LINSTOR will no longer track or sync it.`,
+          title: t('ha:unmanage_title'),
+          content: t('ha:unmanage_confirm', { name: record.name }),
           footer: (
             <div className="flex justify-end gap-2 mt-4">
               <Button onClick={() => modal.destroy()}>{t('common:cancel')}</Button>
@@ -138,18 +138,20 @@ export const HARowActions: React.FC<HARowActionsProps> = ({
                     { resourceName: record.name, filePath },
                     {
                       onSuccess: () => {
-                        message.success(`"${record.name}" is no longer managed by LINSTOR`);
+                        message.success(t('ha:unmanaged', { name: record.name }));
                         modal.destroy();
                       },
                       onError: (err) => {
-                        message.error(`Failed to unmanage: ${err instanceof Error ? err.message : err}`);
+                        message.error(
+                          t('ha:unmanage_failed', { error: err instanceof Error ? err.message : String(err) }),
+                        );
                         modal.destroy();
                       },
                     },
                   );
                 }}
               >
-                Unmanage
+                {t('ha:unmanage')}
               </Button>
             </div>
           ),
@@ -169,7 +171,7 @@ export const HARowActions: React.FC<HARowActionsProps> = ({
         if (configFiles.length > 0) {
           onDelete(record);
         } else {
-          message.warning('No configuration file found to delete');
+          message.warning(t('ha:no_config_to_delete'));
         }
       },
     },

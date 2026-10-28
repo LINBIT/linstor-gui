@@ -126,7 +126,7 @@ const CreateISCSIForm = () => {
         rules={[
           {
             required: true,
-            message: 'IQN is required!',
+            message: t('iscsi:iqn_required'),
           },
         ]}
       >
@@ -143,7 +143,7 @@ const CreateISCSIForm = () => {
       <Form.Item
         label={t('iscsi:resource_group')}
         name="resource_group"
-        tooltip="LINSTOR resource group to use (default: DfltRscGrp)"
+        tooltip={t('common:gateway_resource_group_tooltip')}
       >
         <Select
           allowClear
@@ -162,16 +162,16 @@ const CreateISCSIForm = () => {
         rules={[
           {
             required: true,
-            message: 'IP address is required!',
+            message: t('common:ip_required'),
           },
           {
-            message: 'Please input valid IP address and subnet mask, like 192.168.1.1/24, 10.10.1.1/24 ',
+            message: t('common:ip_cidr_invalid'),
             pattern: new RegExp(
               '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[1-2]?[0-9])$',
             ),
           },
         ]}
-        tooltip="Must be valid IP address, like 192.168.1.1/24, 10.10.1.1/24"
+        tooltip={t('common:ip_cidr_tooltip')}
       >
         <Input placeholder="192.168.1.1/24" />
       </Form.Item>
@@ -188,7 +188,7 @@ const CreateISCSIForm = () => {
                     {
                       required: true,
                       whitespace: true,
-                      message: 'Input valid service ip like 192.168.0.0/16',
+                      message: t('common:cidr_example'),
                     },
                   ]}
                   noStyle
@@ -219,24 +219,16 @@ const CreateISCSIForm = () => {
         label={t('iscsi:gross_size')}
         name="gross_size"
         valuePropName="checked"
-        tooltip="Make all size options specify gross size, i.e. the actual space used on disk"
+        tooltip={t('common:gross_size_tooltip')}
       >
         <Checkbox />
       </Form.Item>
 
-      <Form.Item
-        label={t('common:username')}
-        name="username"
-        tooltip="Set the username to use for CHAP authentication (optional)"
-      >
+      <Form.Item label={t('common:username')} name="username" tooltip={t('iscsi:chap_username_tooltip')}>
         <Input placeholder={t('iscsi:chap_username')} />
       </Form.Item>
 
-      <Form.Item
-        label={t('common:password')}
-        name="password"
-        tooltip="Set the password to use for CHAP authentication (optional)"
-      >
+      <Form.Item label={t('common:password')} name="password" tooltip={t('iscsi:chap_password_tooltip')}>
         <Input.Password placeholder={t('iscsi:chap_password')} />
       </Form.Item>
 

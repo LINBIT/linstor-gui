@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import PageBasic from '@app/components/PageBasic';
 
 import { Modal } from 'antd';
@@ -25,8 +25,8 @@ export const About = () => {
 
   return (
     <PageBasic title={t('common:about_linbit_vsan')}>
-      <p>This product was proudly created by LINBIT.</p>
-      <h2>GUI version</h2>
+      <p>{t('vsan:about_created_by')}</p>
+      <h2>{t('vsan:about_gui_version')}</h2>
       <p
         onClick={() => {
           if (import.meta.env.VITE_VERSION?.indexOf('DEV') !== -1) {
@@ -36,21 +36,11 @@ export const About = () => {
       >
         {import.meta.env.VITE_VERSION ? import.meta.env.VITE_VERSION : 'DEV'}
       </p>
-      <h2>Open Source</h2>
-      <p>
-        At LINBIT we leverage on the advantages of working with Open Source components. We are standing and building on
-        the shoulders of giants. With that it is our desire to contribute to this wonderful pool of open source
-        components.
-      </p>
-      <p>
-        While Open Source makes our jobs more enjoyable it does not feed us and our families by itself. The GUI that
-        glues all the open source parts together (&quot;LINBIT VSAN&quot;) is a closed source component by LINBIT. In
-        order to use the complete LINBIT VSAN you need to get a support and update subscription for it. You will be
-        amazed by the value of our support services, which are delivered with the same passion with which we develop
-        software.
-      </p>
-      <h2>Components</h2>
-      <p>LINBIT develops and maintains these components of LINBIT VSAN:</p>
+      <h2>{t('vsan:about_open_source')}</h2>
+      <p>{t('vsan:about_open_source_1')}</p>
+      <p>{t('vsan:about_open_source_2')}</p>
+      <h2>{t('vsan:about_components')}</h2>
+      <p>{t('vsan:about_components_intro')}</p>
       <ul className="list-disc pl-8">
         <li>linstor-appliance, proprietary</li>
         <li>
@@ -103,21 +93,19 @@ export const About = () => {
         </li>
       </ul>
       <p>
-        The source code of these components is available at{' '}
-        <a target="_blank" href="https://github.com/LINBIT" rel="noreferrer">
-          github.com/LINBIT
-        </a>
-        .
+        <Trans
+          i18nKey="vsan:about_source_code"
+          components={{ 1: <a target="_blank" href="https://github.com/LINBIT" rel="noreferrer" /> }}
+        />
       </p>
       <p>
-        LINBIT VSAN is based on the LINUX distribution{' '}
-        <a target="_blank" href="https://almalinux.org/" rel="noreferrer">
-          AlmaLinux
-        </a>
-        , and contains many packages that are provided by the AlmaLinux team.
+        <Trans
+          i18nKey="vsan:about_based_on"
+          components={{ 1: <a target="_blank" href="https://almalinux.org/" rel="noreferrer" /> }}
+        />
       </p>
-      <h2>Authors</h2>
-      <p>These fellow LINBITers helped create this product:</p>
+      <h2>{t('vsan:about_authors')}</h2>
+      <p>{t('vsan:about_authors_intro')}</p>
       <ul className="list-disc pl-8">
         <li>Christoph Böhmwalder - DRBD, linstor-gateway, linstor-appliance, frontend, packaging, testing</li>
         <li>Rene Peinthor - LINSTOR, linstor-appliance</li>
@@ -138,7 +126,7 @@ export const About = () => {
         }}
         onCancel={() => setHostModal(false)}
       >
-        <span>VSAN Host(for debug only)</span>:
+        <span>{t('vsan:debug_host', { name: 'VSAN' })}</span>:
         <br />
         <Input value={host} onChange={(evt) => setHost(evt.target.value)} placeholder="https://192.168.0.1:1443" />
       </Modal>

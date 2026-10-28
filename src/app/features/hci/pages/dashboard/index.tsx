@@ -35,7 +35,7 @@ const HCIDashboard = () => {
       label: (
         <span className="flex items-center gap-1">
           {hasFaultyResources && <ExclamationCircleFilled className="text-(--status-warning) text-[14px]" />}
-          Faulty Resources
+          {t('common:faulty_resources')}
         </span>
       ),
       children: <FaultyList />,

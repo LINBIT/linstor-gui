@@ -26,13 +26,13 @@ export const EnterPassphrase: React.FC = () => {
     onMutate: () => {
       messageApi.open({
         type: 'info',
-        content: 'Validating passphrase...',
+        content: t('settings:passphrase_validating'),
       });
     },
     onSuccess: () => {
       messageApi.open({
         type: 'success',
-        content: 'Unlock successfully.',
+        content: t('settings:passphrase_unlocked'),
       });
       setTimeout(() => {
         window.location.reload();
@@ -41,7 +41,7 @@ export const EnterPassphrase: React.FC = () => {
     onError: () => {
       messageApi.open({
         type: 'error',
-        content: 'Failed to unlock.',
+        content: t('settings:passphrase_unlock_failed'),
       });
     },
   });
@@ -50,13 +50,13 @@ export const EnterPassphrase: React.FC = () => {
     if (!passphrase) {
       messageApi.open({
         type: 'error',
-        content: 'Please enter the passphrase.',
+        content: t('settings:passphrase_required'),
       });
       return;
     } else {
       enterPassphrase.mutate(passphrase);
     }
-  }, [passphrase, messageApi, enterPassphrase]);
+  }, [passphrase, messageApi, enterPassphrase, t]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -99,7 +99,7 @@ export const EnterPassphrase: React.FC = () => {
           />
         </div>
         <Button type="primary" onClick={handleSave}>
-          Unlock
+          {t('common:unlock')}
         </Button>
       </Modal>
     </>

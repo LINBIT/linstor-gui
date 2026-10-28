@@ -48,7 +48,7 @@ export const ISCSIList = ({ complex }: ISCSIListProp) => {
     mutationFn: variablesOnly(deleteISCISExport),
     onSuccess: () => {
       api.success({
-        title: 'Delete ISCSI target successfully',
+        title: t('vsan:delete_iscsi_success'),
       });
       refetch();
     },
@@ -73,17 +73,17 @@ export const ISCSIList = ({ complex }: ISCSIListProp) => {
       key: 'lun',
     },
     {
-      title: 'On Node',
+      title: t('iscsi:on_node'),
       dataIndex: 'node',
       key: 'node',
     },
     {
-      title: 'Service IP',
+      title: t('nfs:service_ip'),
       dataIndex: 'service_ip',
       key: 'service_ip',
     },
     {
-      title: 'Size',
+      title: t('common:size'),
       dataIndex: 'size',
       key: 'size',
       render: (size) => {
@@ -91,7 +91,7 @@ export const ISCSIList = ({ complex }: ISCSIListProp) => {
       },
     },
     {
-      title: 'Status',
+      title: t('common:status'),
       dataIndex: 'status',
       key: 'status',
       render: (status) => {
@@ -104,7 +104,7 @@ export const ISCSIList = ({ complex }: ISCSIListProp) => {
 
   if (complex) {
     columns.push({
-      title: 'Action',
+      title: t('common:action'),
       key: 'action',
       render: (_, target) => {
         return (
@@ -124,7 +124,7 @@ export const ISCSIList = ({ complex }: ISCSIListProp) => {
               }}
             >
               <Button type="default" danger loading={deleteMutation.isPending}>
-                Delete
+                {t('common:delete')}
               </Button>
             </Popconfirm>
           </Space>
@@ -166,14 +166,11 @@ export const ISCSIList = ({ complex }: ISCSIListProp) => {
       {contextHolder}
       {complex && (
         <>
-          <p>
-            Here, the new storage managed by LINSTOR can be exposed as an iSCSI target. This allows you to use the
-            replicated storage with an iSCSI initiator.
-          </p>
+          <p>{t('vsan:iscsi_intro')}</p>
 
           <div className="mb-2.5">
             <Button onClick={() => refetch()} className="mr-2.5">
-              Reload
+              {t('common:reload')}
             </Button>
             <CreateISCSIForm refetch={refetch} />
           </div>

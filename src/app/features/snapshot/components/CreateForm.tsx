@@ -133,9 +133,7 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
       >
         <Form<FormType> className="max-w-[700px]" size="large" layout="vertical" form={form}>
           {resource && !canDoSnapshot && !isPending && (
-            <div className="mb-5 text-(--text-chip-danger)">
-              The storage pool does not support snapshots, please select another resource
-            </div>
+            <div className="mb-5 text-(--text-chip-danger)">{t('snapshot:pool_no_snapshots')}</div>
           )}
           <Form.Item name="name" label={t('snapshot:snapshot_name')} required>
             <Input placeholder={t('snapshot:please_input_snapshot_name')} />
@@ -145,7 +143,7 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
             label={t('snapshot:resource_name')}
             name="resource_name"
             required
-            rules={[{ required: true, message: 'Please select nodes!' }]}
+            rules={[{ required: true, message: t('common:nodes_required') }]}
           >
             <Select allowClear placeholder={t('snapshot:please_select_resource')} options={resourceList} />
           </Form.Item>

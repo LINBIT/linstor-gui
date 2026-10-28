@@ -315,10 +315,10 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
           footer={
             <div className="flex justify-end gap-2">
               <Button type="secondary" onClick={handleModalClose}>
-                Cancel
+                {t('common:cancel')}
               </Button>
               <Button type="primary" onClick={() => form.submit()}>
-                Submit
+                {t('common:submit')}
               </Button>
             </div>
           }
@@ -349,8 +349,8 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
               <div key={prop.id} className="flex flex-col mb-3">
                 {index === 0 && (
                   <div className="flex font-bold mb-2">
-                    <div className="w-2/5">Name</div>
-                    <div className="w-2/5">Value</div>
+                    <div className="w-2/5">{t('common:name')}</div>
+                    <div className="w-2/5">{t('common:value')}</div>
                     <div className="w-1/5" />
                   </div>
                 )}
@@ -411,8 +411,8 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
               onFinish={handleSubmitData}
               onFinishFailed={() =>
                 Modal.error({
-                  title: 'Validation Error',
-                  content: 'Please fill in all required fields.',
+                  title: t('common:validation_error'),
+                  content: t('common:fill_required_fields'),
                 })
               }
               className="mt-[2em]"
@@ -425,7 +425,7 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
                   initialValue: item.defaultValue,
                   tooltip: item.tipLabel,
                   style: { marginBottom: 0, flexGrow: 1 },
-                  rules: [{ required: true, message: `Please input ${item.label}` }],
+                  rules: [{ required: true, message: t('common:input_required', { label: item.label }) }],
                 };
 
                 let element: React.ReactNode;

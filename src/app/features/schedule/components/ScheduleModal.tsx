@@ -48,13 +48,13 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
   const createMutation = useMutation({
     mutationFn: variablesOnly(createSchedule),
     onSuccess: () => {
-      message.success('Schedule created successfully!');
+      message.success(t('schedule:created'));
       refetch();
       handleCancel();
     },
     onError: (error) => {
       logger.error('Error creating schedule:', error);
-      message.error('Failed to create schedule.');
+      message.error(t('schedule:create_failed'));
     },
   });
 
@@ -76,7 +76,7 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
 
     onError: (error) => {
       logger.error('Error modifying schedule:', error);
-      message.error('Failed to modify schedule.');
+      message.error(t('schedule:modify_failed'));
     },
   });
 
@@ -157,8 +157,8 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
             label={t('schedule:schedule_name')}
             name="schedule_name"
             rules={[
-              { required: true, message: 'Schedule name is required' },
-              { max: 50, message: 'Schedule name cannot exceed 50 characters' },
+              { required: true, message: t('schedule:name_required') },
+              { max: 50, message: t('schedule:name_too_long') },
             ]}
           >
             <Input placeholder={t('schedule:enter_schedule_name')} disabled={!!schedule} />
@@ -168,7 +168,7 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
           <Form.Item
             label={t('schedule:full_cron_expression')}
             name="full_cron"
-            rules={[{ required: true, message: 'Please enter a full cron expression' }]}
+            rules={[{ required: true, message: t('schedule:full_cron_required') }]}
           >
             {/* <Input placeholder={t('schedule:enter_full_cron_expression_e_g')} /> */}
             <CronInput />
@@ -184,8 +184,8 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
           <Form.Item
             label={t('schedule:keep_local_snapshots')}
             name="keep_local"
-            tooltip="The number of snapshots that are basis for a full backup to keep locally"
-            rules={[{ type: 'number', min: 0, message: 'Must be a positive number' }]}
+            tooltip={t('schedule:keep_local_tooltip')}
+            rules={[{ type: 'number', min: 0, message: t('common:positive_number') }]}
           >
             <InputNumber placeholder={t('schedule:enter_number_local_snapshots')} className="w-full" />
           </Form.Item>
@@ -194,8 +194,8 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
           <Form.Item
             label={t('schedule:keep_remote_backups')}
             name="keep_remote"
-            tooltip="The number of full backups to keep at the remote"
-            rules={[{ type: 'number', min: 0, message: 'Must be a positive number' }]}
+            tooltip={t('schedule:keep_remote_tooltip')}
+            rules={[{ type: 'number', min: 0, message: t('common:positive_number') }]}
           >
             <InputNumber placeholder={t('schedule:enter_number_remote_backups')} className="w-full" />
           </Form.Item>
@@ -204,12 +204,12 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
           <Form.Item
             label={t('schedule:on_failure')}
             name="on_failure"
-            tooltip="Action to take when a backup fails"
-            rules={[{ required: true, message: 'Please select an action for failure' }]}
+            tooltip={t('schedule:on_failure_tooltip')}
+            rules={[{ required: true, message: t('schedule:on_failure_required') }]}
           >
             <Select>
-              <Option value="SKIP">Skip</Option>
-              <Option value="RETRY">Retry</Option>
+              <Option value="SKIP">{t('common:skip')}</Option>
+              <Option value="RETRY">{t('common:retry')}</Option>
             </Select>
           </Form.Item>
 
@@ -217,8 +217,8 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
           <Form.Item
             label={t('schedule:max_retries')}
             name="max_retries"
-            tooltip="How many times a failed backup should be retried if on_failure is RETRY"
-            rules={[{ type: 'number', min: 0, message: 'Must be a positive number' }]}
+            tooltip={t('schedule:max_retries_tooltip')}
+            rules={[{ type: 'number', min: 0, message: t('common:positive_number') }]}
           >
             <InputNumber placeholder={t('schedule:enter_max_retries_optional')} className="w-full" />
           </Form.Item>

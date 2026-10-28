@@ -112,7 +112,7 @@ export const List = () => {
 
   const columns: TableProps<BackupItem>['columns'] = [
     {
-      title: <span>Resource</span>,
+      title: <span>{t('common:resource')}</span>,
       key: 'resource',
       dataIndex: 'origin_rsc',
       sorter: (a, b) => {
@@ -125,12 +125,12 @@ export const List = () => {
       showSorterTooltip: false,
     },
     {
-      title: 'Snapshot',
+      title: t('common:snapshot'),
       key: 'snapshot',
       dataIndex: 'origin_snap',
     },
     {
-      title: 'Finished At',
+      title: t('remote:finished_at'),
       key: 'finished_at',
       dataIndex: 'finished_timestamp',
       render: (finished_timestamp) => {
@@ -146,7 +146,7 @@ export const List = () => {
       showSorterTooltip: false,
     },
     {
-      title: 'Status',
+      title: t('common:status'),
       key: 'status',
       dataIndex: 'success',
       render: (success, record) => {

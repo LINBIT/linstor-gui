@@ -149,7 +149,7 @@ const CreateNFSForm = () => {
         rules={[
           {
             required: true,
-            message: 'Name is required!',
+            message: t('common:name_required'),
           },
         ]}
       >
@@ -158,7 +158,7 @@ const CreateNFSForm = () => {
       <Form.Item
         label={t('common:resource_group')}
         name="resource_group"
-        tooltip="LINSTOR resource group to use (default: DfltRscGrp)"
+        tooltip={t('common:gateway_resource_group_tooltip')}
       >
         <Select
           allowClear
@@ -197,16 +197,16 @@ const CreateNFSForm = () => {
         rules={[
           {
             required: true,
-            message: 'Service IP is required!',
+            message: t('common:service_ip_required'),
           },
           {
-            message: 'Please input valid IP address and subnet mask, like 192.168.1.1/24, 10.10.1.1/24 ',
+            message: t('common:ip_cidr_invalid'),
             pattern: new RegExp(
               '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[1-2]?[0-9])$',
             ),
           },
         ]}
-        tooltip="Must be valid service IP address, like 192.168.1.1/24, 10.10.1.1/24"
+        tooltip={t('common:ip_cidr_tooltip')}
       >
         <Input placeholder="192.168.1.1/24" />
       </Form.Item>
@@ -215,15 +215,11 @@ const CreateNFSForm = () => {
         <SizeInput placeholder="10G" />
       </Form.Item>
 
-      <Form.Item
-        name="export_path"
-        label={t('nfs:export_path')}
-        tooltip="Export path relative to /srv/gateway-exports, default is /"
-      >
+      <Form.Item name="export_path" label={t('nfs:export_path')} tooltip={t('nfs:export_path_tooltip')}>
         <Input placeholder="/data" />
       </Form.Item>
 
-      <Form.Item label={t('nfs:file_system')} name="file_system" tooltip="File system type to use (default: ext4)">
+      <Form.Item label={t('nfs:file_system')} name="file_system" tooltip={t('nfs:file_system_tooltip')}>
         <Select
           options={[
             {
@@ -242,7 +238,7 @@ const CreateNFSForm = () => {
         label={t('iscsi:gross_size')}
         name="gross_size"
         valuePropName="checked"
-        tooltip="Make all size options specify gross size, i.e. the actual space used on disk"
+        tooltip={t('common:gross_size_tooltip')}
       >
         <Checkbox />
       </Form.Item>
@@ -255,7 +251,7 @@ const CreateNFSForm = () => {
                 <Form.Item
                   label={t('common:size')}
                   name={[index, 'size_kib']}
-                  rules={[{ required: true, message: 'Size is required!' }]}
+                  rules={[{ required: true, message: t('common:size_required') }]}
                 >
                   <SizeInput placeholder="10G" />
                 </Form.Item>
@@ -263,7 +259,7 @@ const CreateNFSForm = () => {
                 <Form.Item
                   label={t('nfs:export_path')}
                   name={[index, 'export_path']}
-                  rules={[{ required: true, message: 'Export path is required!' }]}
+                  rules={[{ required: true, message: t('common:export_path_required') }]}
                 >
                   <Input placeholder="/data" />
                 </Form.Item>
@@ -293,7 +289,7 @@ const CreateNFSForm = () => {
                 label={index === 0 ? <span className="flex items-center gap-1">{t('nfs:allowed_ips')}</span> : ''}
                 required={false}
                 key={field.key}
-                tooltip="IP address mask of clients that are allowed access (default: 0.0.0.0/0)"
+                tooltip={t('nfs:allowed_ips_tooltip')}
               >
                 <Form.Item
                   {...field}
@@ -302,10 +298,10 @@ const CreateNFSForm = () => {
                     {
                       required: false,
                       whitespace: true,
-                      message: 'Please input something like 192.168.0.0/16',
+                      message: t('common:cidr_example'),
                     },
                     {
-                      message: 'Please input valid IP address and subnet mask, like 192.168.1.1/24, 10.10.1.1/24 ',
+                      message: t('common:ip_cidr_invalid'),
                       pattern: new RegExp(
                         '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[1-2]?[0-9])$',
                       ),

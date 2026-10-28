@@ -48,7 +48,7 @@ export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
     mutationFn: (nqn: string) => deleteNVMeExport(nqn),
     onSuccess: () => {
       api.success({
-        title: 'Delete NVMe-oF target successfully',
+        title: t('vsan:delete_nvme_success'),
       });
       refetch();
     },
@@ -73,17 +73,17 @@ export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
       key: 'lun',
     },
     {
-      title: 'On Node',
+      title: t('iscsi:on_node'),
       dataIndex: 'node',
       key: 'node',
     },
     {
-      title: 'Service IP',
+      title: t('nfs:service_ip'),
       dataIndex: 'service_ip',
       key: 'service_ip',
     },
     {
-      title: 'Size',
+      title: t('common:size'),
       dataIndex: 'size',
       key: 'size',
       render: (size) => {
@@ -91,7 +91,7 @@ export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
       },
     },
     {
-      title: 'Status',
+      title: t('common:status'),
       dataIndex: 'status',
       key: 'status',
       render: (status) => {
@@ -104,7 +104,7 @@ export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
 
   if (complex) {
     columns.push({
-      title: 'Action',
+      title: t('common:action'),
       key: 'action',
       render: (_, target) => {
         const names = target.nqn.split(':');
@@ -122,7 +122,7 @@ export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
               onConfirm={() => deleteTarget.mutate(target.nqn)}
             >
               <Button danger loading={deleteTarget.isPending}>
-                Delete
+                {t('common:delete')}
               </Button>
             </Popconfirm>
           </Space>
@@ -164,10 +164,10 @@ export const NVMeoFList = ({ complex }: NVMeoFListProp) => {
       {contextHolder}
       {complex && (
         <>
-          <p>This module allows exporting the highly available storage managed by LINSTOR via NVMe-oF.</p>
+          <p>{t('vsan:nvme_intro')}</p>
           <div className="mb-2.5">
             <Button onClick={() => refetch()} className="mr-2.5">
-              Reload
+              {t('common:reload')}
             </Button>
             <CreateNVMEOfForm refetch={refetch} />
           </div>

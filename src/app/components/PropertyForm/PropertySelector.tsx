@@ -62,11 +62,11 @@ const PropertySelector: React.FC<PropertySelectorProps> = ({ options, handleAddP
         )}
       />
       <Button className="add" type="primary" onClick={handleAdd} disabled={!selected}>
-        Add
+        {t('common:add')}
       </Button>
 
       <Button className="add" type="secondary" onClick={() => handleAddAuxProp()}>
-        Add Auxiliary Property
+        {t('common:add_auxiliary_property')}
       </Button>
     </div>
   );

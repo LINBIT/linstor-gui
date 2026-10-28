@@ -239,14 +239,14 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
         rules={[
           {
             required: true,
-            message: 'Resource definition name is required!',
+            message: t('common:resource_definition_name_required'),
           },
           {
             pattern: /^[A-Za-z0-9.+_-]{1,127}$/,
-            message: 'Resource definition name is invalid!',
+            message: t('common:resource_definition_name_invalid'),
           },
         ]}
-        tooltip="Accepts only alphanumeric, ., +, _, and - characters. For example: res1, res.1, res+1, res_1, res-1"
+        tooltip={t('resource_definition:name_tooltip')}
       >
         <Input placeholder={t('resource_definition:please_input_resource_definition_name')} disabled={isEdit} />
       </Form.Item>
@@ -255,7 +255,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
         label={t('resource_definition:resource_group_name')}
         name="resource_group_name"
         required
-        rules={[{ required: true, message: 'Please select resource group!' }]}
+        rules={[{ required: true, message: t('common:resource_group_required') }]}
       >
         <Select
           allowClear
@@ -291,7 +291,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
               rules={[
                 {
                   required: true,
-                  message: 'Size is required when spawn-on-create is enabled!',
+                  message: t('resource_group:size_required_spawn'),
                 },
               ]}
             >

@@ -112,7 +112,7 @@ describe('ResourceGroupList', () => {
       const dialog = await openDialog();
 
       fireEvent.click(dialogButton(dialog, 'Create'));
-      expect(await screen.findByText('Please input resource group name!')).toBeInTheDocument();
+      expect(await screen.findByText('Resource group name is required!')).toBeInTheDocument();
       expect(mocked.create).not.toHaveBeenCalled();
 
       fireEvent.change(within(dialog).getByPlaceholderText('Name'), { target: { value: 'rg3' } });

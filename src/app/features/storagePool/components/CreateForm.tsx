@@ -222,10 +222,10 @@ const CreateForm = () => {
         label={t('storage_pool:storage_pool_name')}
         required
         rules={[
-          { required: true, message: 'Enter storage pool name' },
+          { required: true, message: t('storage_pool:name_required') },
           {
             pattern: new RegExp('^(?!-)[a-zA-Z_][a-zA-Z0-9_-]{1,47}[-a-zA-Z0-9_]$'),
-            message: 'Please input a valid storage pool name!',
+            message: t('storage_pool:name_invalid'),
           },
         ]}
       >
@@ -236,7 +236,7 @@ const CreateForm = () => {
         <Form.Item
           name="multiple_nodes"
           label={t('storage_pool:multiple_nodes')}
-          tooltip="Create the storage pool on more than one node."
+          tooltip={t('storage_pool:multiple_nodes_tooltip')}
         >
           <Switch />
         </Form.Item>
@@ -246,8 +246,8 @@ const CreateForm = () => {
         label={t('storage_pool:node')}
         name="node"
         required
-        rules={[{ required: true, message: 'Please select nodes!' }]}
-        tooltip="Select the node or nodes to create the storage pool on."
+        rules={[{ required: true, message: t('common:nodes_required') }]}
+        tooltip={t('storage_pool:nodes_tooltip')}
       >
         <Select
           allowClear
@@ -261,12 +261,7 @@ const CreateForm = () => {
         />
       </Form.Item>
 
-      <Form.Item
-        label={t('storage_pool:type')}
-        name="provider_kind"
-        required
-        tooltip="Select the type of logical volume that the storage pool will carve out storage volumes from the physical storage. NOTE: Some LINSTOR features, such as volume snapshots, are only supported on thin-provisioned volumes."
-      >
+      <Form.Item label={t('storage_pool:type')} name="provider_kind" required tooltip={t('storage_pool:type_tooltip')}>
         <Select
           allowClear
           showSearch
@@ -288,7 +283,7 @@ const CreateForm = () => {
             label={t('storage_pool:device_path')}
             name="device_path"
             required
-            rules={[{ required: true, message: 'Please select device path!' }]}
+            rules={[{ required: true, message: t('storage_pool:device_path_required') }]}
             tooltip={t('storage_pool:device_path_tooltip')}
           >
             <Select
@@ -320,7 +315,7 @@ const CreateForm = () => {
                       label={t('storage_pool:sed')}
                       name="sed"
                       valuePropName="checked"
-                      tooltip="Self Encrypting Drive"
+                      tooltip={t('storage_pool:sed_tooltip')}
                     >
                       <Switch />
                     </Form.Item>
@@ -337,14 +332,14 @@ const CreateForm = () => {
                         <Form.Item
                           label={t('storage_pool:vdo_slab_size')}
                           name="vdo_slab_size_kib"
-                          tooltip="The size of the VDO slab."
+                          tooltip={t('storage_pool:vdo_slab_tooltip')}
                         >
                           <SizeInput />
                         </Form.Item>
                         <Form.Item
                           label={t('storage_pool:vdo_logical_size')}
                           name="vdo_logical_size_kib"
-                          tooltip="The logical size of the VDO volume."
+                          tooltip={t('storage_pool:vdo_logical_tooltip')}
                         >
                           <SizeInput />
                         </Form.Item>

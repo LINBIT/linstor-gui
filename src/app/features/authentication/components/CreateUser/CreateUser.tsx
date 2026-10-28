@@ -63,7 +63,7 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onCreate, onCance
               <Form.Item
                 label={t('username')}
                 name="username"
-                rules={[{ required: true, message: 'Please input your username!' }]}
+                rules={[{ required: true, message: t('common:username_required') }]}
               >
                 <Input />
               </Form.Item>
@@ -72,8 +72,8 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onCreate, onCance
                 label={t('password')}
                 name="password"
                 rules={[
-                  { required: true, message: 'Please input your password!' },
-                  { min: 5, message: 'Password must be at least 5 characters long!' },
+                  { required: true, message: t('common:password_required') },
+                  { min: 5, message: t('common:password_min_length') },
                 ]}
               >
                 <Input.Password />
@@ -83,7 +83,7 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onCreate, onCance
                 label={t('confirm_password')}
                 name="password_validate"
                 rules={[
-                  { required: true, message: 'Please input your password!' },
+                  { required: true, message: t('common:password_required') },
                   ({ getFieldValue }) => ({
                     validator(_, value) {
                       if (!value || getFieldValue('password') === value) {

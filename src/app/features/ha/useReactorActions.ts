@@ -6,6 +6,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { message } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNodes } from '@app/features/node/hooks/useNode';
 import {
@@ -32,6 +33,7 @@ import {
  * stop and start. Each action ends once the polled status shows its result.
  */
 export const useReactorActions = () => {
+  const { t } = useTranslation(['ha']);
   const queryClient = useQueryClient();
 
   // Get all nodes for reactor status query
@@ -75,15 +77,15 @@ export const useReactorActions = () => {
     message.destroy('evict-in-progress');
     message.success(
       outcome.status === 'migrated'
-        ? `"${resourceName}" migrated to ${outcome.newNode}`
-        : `"${resourceName}" evicted successfully`,
+        ? t('ha:migrated', { name: resourceName, node: outcome.newNode })
+        : t('ha:evicted', { name: resourceName }),
     );
     setEvictingResource(null);
     setEvictStartedAt(null);
     queryClient.invalidateQueries({ queryKey: ['drbd-reactor-status'] });
     queryClient.invalidateQueries({ queryKey: ['resources-view'] });
     queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] });
-  }, [queryClient, reactorStatus, reactorStatusUpdatedAt, evictStartedAt, evictingResource]);
+  }, [queryClient, reactorStatus, reactorStatusUpdatedAt, evictStartedAt, evictingResource, t]);
 
   useEffect(() => {
     if (!stoppingResource || !reactorStatus) return;
@@ -91,13 +93,13 @@ export const useReactorActions = () => {
     if (isResourceActiveInStatus(reactorStatus, stoppingResource)) return;
 
     message.destroy('stop-in-progress');
-    message.success(`"${stoppingResource}" stopped successfully`);
+    message.success(t('ha:stopped', { name: stoppingResource }));
     setStoppingResource(null);
     setStopStartedAt(null);
     queryClient.invalidateQueries({ queryKey: ['drbd-reactor-status'] });
     queryClient.invalidateQueries({ queryKey: ['resources-view'] });
     queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] });
-  }, [queryClient, reactorStatus, reactorStatusUpdatedAt, stopStartedAt, stoppingResource]);
+  }, [queryClient, reactorStatus, reactorStatusUpdatedAt, stopStartedAt, stoppingResource, t]);
 
   const [startingResource, setStartingResource] = useState<string | null>(null);
   const [startStartedAt, setStartStartedAt] = useState<number | null>(null);
@@ -108,13 +110,13 @@ export const useReactorActions = () => {
     if (!isResourceActiveInStatus(reactorStatus, startingResource)) return;
 
     message.destroy('start-in-progress');
-    message.success(`"${startingResource}" started successfully`);
+    message.success(t('ha:started', { name: startingResource }));
     setStartingResource(null);
     setStartStartedAt(null);
     queryClient.invalidateQueries({ queryKey: ['drbd-reactor-status'] });
     queryClient.invalidateQueries({ queryKey: ['resources-view'] });
     queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] });
-  }, [queryClient, reactorStatus, reactorStatusUpdatedAt, startStartedAt, startingResource]);
+  }, [queryClient, reactorStatus, reactorStatusUpdatedAt, startStartedAt, startingResource, t]);
 
   const getPrimaryNode = (resourceName: string): string | null => activeNodeInStatus(reactorStatus, resourceName);
 
@@ -131,7 +133,7 @@ export const useReactorActions = () => {
   const handleStop = async (record: HARecord) => {
     const configName = getConfigName(record);
     if (!configName) {
-      message.warning(`Resource "${record.name}" has no DRBD Reactor configuration file — stop is not possible.`);
+      message.warning(t('ha:no_config_stop', { name: record.name }));
       return;
     }
 
@@ -139,13 +141,13 @@ export const useReactorActions = () => {
     const allNodes = resourceNodesInStatus(reactorStatus, record.name);
 
     if (allNodes.length === 0) {
-      message.warning(`Resource "${record.name}" is not present on any node.`);
+      message.warning(t('ha:not_on_any_node', { name: record.name }));
       return;
     }
 
     const nonActiveNodes = allNodes.filter((n) => n !== activeNode);
 
-    message.loading({ content: `Stopping "${record.name}"...`, key: 'stop-in-progress', duration: 0 });
+    message.loading({ content: t('ha:stopping', { name: record.name }), key: 'stop-in-progress', duration: 0 });
 
     try {
       // Step 1: Disable on all non-active nodes first
@@ -159,7 +161,7 @@ export const useReactorActions = () => {
       }
 
       message.loading({
-        content: `Stopping "${record.name}", waiting for DRBD Reactor status…`,
+        content: t('ha:stopping_wait', { name: record.name }),
         key: 'stop-in-progress',
         duration: 0,
       });
@@ -171,7 +173,7 @@ export const useReactorActions = () => {
       setStoppingResource(null);
       setStopStartedAt(null);
       message.destroy('stop-in-progress');
-      message.error(`Failed to stop "${record.name}": ${err}`);
+      message.error(t('ha:stop_failed', { name: record.name, error: String(err) }));
     }
   };
 
@@ -181,7 +183,7 @@ export const useReactorActions = () => {
   const handleStart = async (record: HARecord) => {
     const configName = getConfigName(record);
     if (!configName) {
-      message.warning(`Resource "${record.name}" has no DRBD Reactor configuration file — start is not possible.`);
+      message.warning(t('ha:no_config_start', { name: record.name }));
       return;
     }
 
@@ -190,16 +192,16 @@ export const useReactorActions = () => {
     const targetNodes = allNodes.length > 0 ? allNodes : nodeNames;
 
     if (targetNodes.length === 0) {
-      message.warning(`No nodes available to start "${record.name}".`);
+      message.warning(t('ha:no_nodes_to_start', { name: record.name }));
       return;
     }
 
-    message.loading({ content: `Starting "${record.name}"...`, key: 'start-in-progress', duration: 0 });
+    message.loading({ content: t('ha:starting', { name: record.name }), key: 'start-in-progress', duration: 0 });
 
     try {
       await enableMutation.mutateAsync({ nodes: targetNodes, config: configName });
       message.loading({
-        content: `Starting "${record.name}", waiting for DRBD Reactor status…`,
+        content: t('ha:starting_wait', { name: record.name }),
         key: 'start-in-progress',
         duration: 0,
       });
@@ -209,7 +211,7 @@ export const useReactorActions = () => {
       void refetchReactorStatus();
     } catch (err) {
       message.destroy('start-in-progress');
-      message.error(`Failed to start "${record.name}": ${err}`);
+      message.error(t('ha:start_failed', { name: record.name, error: String(err) }));
     }
   };
 
@@ -217,18 +219,18 @@ export const useReactorActions = () => {
     const primaryNode = getPrimaryNode(record.name);
 
     if (!primaryNode) {
-      message.warning(`Resource "${record.name}" has no active node — evict is not possible in this state.`);
+      message.warning(t('ha:no_active_node_evict', { name: record.name }));
       return;
     }
 
     const configName = getConfigName(record);
     if (!configName) {
-      message.warning(`Resource "${record.name}" has no DRBD Reactor configuration file — evict is not possible.`);
+      message.warning(t('ha:no_config_evict', { name: record.name }));
       return;
     }
 
     message.loading({
-      content: `Evicting "${record.name}" from ${primaryNode}, waiting for completion…`,
+      content: t('ha:evicting', { name: record.name, node: primaryNode }),
       key: 'evict-in-progress',
       duration: 0,
     });
@@ -242,7 +244,11 @@ export const useReactorActions = () => {
             setEvictingResource(null);
             setEvictStartedAt(null);
             message.destroy('evict-in-progress');
-            message.error(`Evict failed: ${decodeExecText(result.stderr_utf8) || `exit code ${result.exit_code}`}`);
+            message.error(
+              t('ha:evict_failed', {
+                error: decodeExecText(result.stderr_utf8) || t('ha:exit_code', { code: result.exit_code }),
+              }),
+            );
             return;
           }
 
@@ -253,7 +259,7 @@ export const useReactorActions = () => {
               syncEvictedResourceInStatus(currentStatus, record.name, result.active_node as string),
             );
             message.destroy('evict-in-progress');
-            message.success(`"${record.name}" migrated to ${result.active_node}`);
+            message.success(t('ha:migrated', { name: record.name, node: result.active_node }));
             queryClient.invalidateQueries({ queryKey: ['drbd-reactor-status'] });
             queryClient.invalidateQueries({ queryKey: ['resources-view'] });
             queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] });
@@ -261,7 +267,7 @@ export const useReactorActions = () => {
           }
 
           message.loading({
-            content: `Evicting "${record.name}" from ${primaryNode}, waiting for DRBD Reactor status…`,
+            content: t('ha:evicting_wait', { name: record.name, node: primaryNode }),
             key: 'evict-in-progress',
             duration: 0,
           });
@@ -274,7 +280,7 @@ export const useReactorActions = () => {
           setEvictingResource(null);
           setEvictStartedAt(null);
           message.destroy('evict-in-progress');
-          message.error(`Evict failed: ${err}`);
+          message.error(t('ha:evict_failed', { error: String(err) }));
         },
       },
     );

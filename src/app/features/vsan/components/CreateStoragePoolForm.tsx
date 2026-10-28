@@ -192,7 +192,7 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
       },
     },
     {
-      title: 'All',
+      title: t('vsan:all'),
       key: 'all',
       render: (_, record) => (
         <Checkbox
@@ -283,7 +283,7 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
     mutationFn: variablesOnly(createPool),
     onSuccess: () => {
       api.success({
-        title: 'Create successfully',
+        title: t('vsan:create_success'),
       });
 
       setCreateFormModal(false);
@@ -368,7 +368,7 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
     <>
       {contextHolder}
       <Button type="primary" onClick={() => setCreateFormModal(true)}>
-        Create
+        {t('common:create')}
       </Button>
 
       <Modal
@@ -379,7 +379,7 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
         footer={
           <div className="flex justify-end gap-2">
             <Button type="secondary" onClick={handleCancel}>
-              Cancel
+              {t('common:cancel')}
             </Button>
             <Button type="primary" onClick={handleOk} loading={createMutation.isPending}>
               {add_to_existing ? 'Add' : 'Create'}
@@ -399,24 +399,22 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
           }}
         >
           <Form.Item
-            tooltip="The name of a resource group has to be at least 3 characters long and can not be longer than 48 characters.
-Valid characters are a-z, A-Z, and 0-9 as well as _ and -
-Be aware that the name cannot start or end with - and cannot start with a number."
+            tooltip={t('vsan:sp_name_tooltip')}
             name="poolName"
             label={t('storage_pool:storage_pool_name')}
             required
             rules={[
               {
                 required: true,
-                message: 'Name is required!',
+                message: t('common:name_required'),
               },
               {
                 min: 3,
-                message: 'Name must be at least 3 characters!',
+                message: t('common:name_min_3'),
               },
               {
                 max: 48,
-                message: 'Name must be at most 48 characters!',
+                message: t('common:name_max_48'),
               },
               {
                 pattern: /^([A-Za-z_][A-Za-z0-9_-]+)$/,
@@ -434,11 +432,11 @@ Be aware that the name cannot start or end with - and cannot start with a number
 
           <Form.Item
             label={t('common:add_create_new_pool')}
-            tooltip="You can choose whether to create a new storage pool from the selected disks or to add them to an existing storage pool."
+            tooltip={t('vsan:add_to_existing_tooltip')}
             name="add_to_existing"
             valuePropName="checked"
           >
-            <Checkbox>Add to existing pool</Checkbox>
+            <Checkbox>{t('vsan:add_to_existing_pool')}</Checkbox>
           </Form.Item>
 
           <Form.Item
@@ -446,22 +444,16 @@ Be aware that the name cannot start or end with - and cannot start with a number
             name="providerKind"
             tooltip={
               <div>
-                <p>LVM: Simply allocate storage using LVM, the Logical Volume Manager.</p>
-                <p>
-                  LVM Thin: Instead of allocating all blocks on a backing device immediately, only create a block when
-                  it is written. This is known as thin provisioning and is our recommendation for LINSTOR storage pools.
-                </p>
-                <p>
-                  LVM+VDO: VDO offers additional deduplication and compression features for LVM volumes. At least 10 GiB
-                  per disk are neccessary for VDO.
-                </p>
+                <p>{t('vsan:lvm_help')}</p>
+                <p>{t('vsan:lvm_thin_help')}</p>
+                <p>{t('vsan:lvm_vdo_help')}</p>
               </div>
             }
             required
             rules={[
               {
                 required: true,
-                message: 'Storage pool type is required!',
+                message: t('storage_pool:type_required'),
               },
             ]}
           >

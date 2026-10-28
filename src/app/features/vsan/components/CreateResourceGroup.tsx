@@ -51,7 +51,7 @@ export const CreateResourceGroup = ({ refetch }: CreateResourceGroupProps) => {
     mutationFn: variablesOnly(createResourceGroup),
     onSuccess: () => {
       api.success({
-        title: 'Create resource group successfully',
+        title: t('vsan:create_rg_success'),
       });
 
       setCreateFormModal(false);
@@ -88,7 +88,7 @@ export const CreateResourceGroup = ({ refetch }: CreateResourceGroupProps) => {
     <>
       {contextHolder}
       <Button type="primary" onClick={() => setCreateFormModal(true)}>
-        Create
+        {t('common:create')}
       </Button>
 
       <Modal
@@ -99,10 +99,10 @@ export const CreateResourceGroup = ({ refetch }: CreateResourceGroupProps) => {
         footer={
           <div className="flex justify-end gap-2">
             <Button type="secondary" onClick={handleCancel}>
-              Cancel
+              {t('common:cancel')}
             </Button>
             <Button type="primary" onClick={handleOk} loading={createMutation.isPending}>
-              Create
+              {t('common:create')}
             </Button>
           </div>
         }
@@ -122,10 +122,8 @@ export const CreateResourceGroup = ({ refetch }: CreateResourceGroupProps) => {
             label={t('node_detail:resource_group')}
             name="name"
             required
-            rules={[{ required: true, message: 'Please input resource group name!' }]}
-            tooltip="The name of a resource group has to be at least 2 characters long and can not be longer than 48 characters.
-            Valid characters are a-z, A-Z, and 0-9 as well as _ and -
-            Be aware that the name cannot start or end with - and cannot start with a number."
+            rules={[{ required: true, message: t('common:resource_group_name_required') }]}
+            tooltip={t('vsan:rg_name_tooltip')}
           >
             <Input placeholder={t('common:name')} />
           </Form.Item>
@@ -134,8 +132,8 @@ export const CreateResourceGroup = ({ refetch }: CreateResourceGroupProps) => {
             label={t('common:storage_pool')}
             name="poolName"
             required
-            rules={[{ required: true, message: 'Please select resource group!' }]}
-            tooltip="The option '---any---' means that LINSTOR will choose an available storage pool for the resource group on its own."
+            rules={[{ required: true, message: t('common:resource_group_required') }]}
+            tooltip={t('vsan:any_pool_tooltip')}
           >
             <Select
               allowClear
@@ -157,7 +155,7 @@ export const CreateResourceGroup = ({ refetch }: CreateResourceGroupProps) => {
                 required: true,
               },
             ]}
-            tooltip="At LINBIT, in general, we use the expression 2 replicas to indicate that the data is stored on 2 storage devices. If you set the replica to 3, it means that the data will be stored on 3 storage devices."
+            tooltip={t('vsan:replicas_tooltip')}
           >
             <Input type="number" min={1} />
           </Form.Item>

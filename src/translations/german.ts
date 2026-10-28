@@ -275,6 +275,69 @@ const de = {
     creating: 'Wird erstellt...',
     failed: 'Fehlgeschlagen',
     total_items: 'Gesamt {{total}} Einträge',
+    ip_required: 'IP-Adresse ist erforderlich',
+    ip_invalid: 'Bitte eine gültige IP-Adresse eingeben',
+    ip_cidr_invalid: 'Bitte eine gültige IP-Adresse mit Subnetzmaske eingeben, z. B. 192.168.1.1/24, 10.10.1.1/24',
+    cidr_example: 'Bitte ein Netz wie 192.168.0.0/16 eingeben',
+    ip_prefix_required: 'IP-Präfix ist erforderlich',
+    service_ip_required: 'Service-IP ist erforderlich',
+    port_invalid: 'Bitte einen gültigen Port eingeben (0-65535)',
+    nodes_required: 'Bitte Knoten auswählen',
+    node_required: 'Bitte einen Knoten auswählen',
+    resource_required: 'Bitte eine Ressource auswählen',
+    resource_definition_required: 'Bitte eine Ressourcendefinition auswählen',
+    resource_definition_name_required: 'Name der Ressourcendefinition ist erforderlich',
+    resource_definition_name_invalid: 'Name der Ressourcendefinition ist ungültig',
+    resource_group_name_required: 'Name der Ressourcengruppe ist erforderlich',
+    name_required: 'Name ist erforderlich',
+    name_min_3: 'Der Name muss mindestens 3 Zeichen lang sein',
+    name_max_48: 'Der Name darf höchstens 48 Zeichen lang sein',
+    export_path_required: 'Exportpfad ist erforderlich',
+    file_system_required: 'Dateisystem ist erforderlich',
+    positive_number: 'Muss eine positive Zahl sein',
+    username_required: 'Bitte den Benutzernamen eingeben',
+    password_required: 'Bitte das Passwort eingeben',
+    password_min_length: 'Das Passwort muss mindestens 5 Zeichen lang sein',
+    current_password_required: 'Bitte das aktuelle Passwort eingeben',
+    new_password_required: 'Bitte das neue Passwort eingeben',
+    new_password_again_required: 'Bitte das neue Passwort erneut eingeben',
+    input_required: 'Bitte {{label}} eingeben',
+    filename_required: 'Bitte einen Dateinamen eingeben',
+    column_title_required: 'Bitte den Spaltentitel eingeben',
+    column_index_required: 'Bitte den Datenindex der Spalte eingeben',
+    gateway_resource_group_tooltip: 'Zu verwendende LINSTOR-Ressourcengruppe (Standard: DfltRscGrp)',
+    gross_size_tooltip:
+      'Alle Größenangaben als Bruttogröße verwenden, also als tatsächlich belegten Platz auf der Platte',
+    ip_cidr_tooltip: 'Muss eine gültige IP-Adresse mit Subnetzmaske sein, z. B. 192.168.1.1/24, 10.10.1.1/24',
+    gross_size: 'Bruttogröße',
+    retry: 'Wiederholen',
+    faulty_resources: 'Fehlerhafte Ressourcen',
+    continue: 'Weiter',
+    value: 'Wert',
+    property_name: 'Eigenschaftsname',
+    property_value: 'Eigenschaftswert',
+    add_auxiliary_property: 'Hilfseigenschaft hinzufügen',
+    log_in: 'Anmelden',
+    log_in_title: 'Bei Ihrem Konto anmelden',
+    timestamp: 'Zeitpunkt',
+    message: 'Meldung',
+    cause: 'Ursache',
+    details: 'Details',
+    not_found_title: 'Entschuldigung',
+    not_found_text: 'Zu der aufgerufenen Adresse gibt es keine Seite.',
+    take_me_home: 'Zur Startseite',
+    cpu_usage: 'CPU-Auslastung',
+    memory_usage: 'Speichernutzung',
+    network_traffic: 'Netzwerkverkehr',
+    disk_io: 'Platten-E/A',
+    disk_iops: 'Platten-IOPS',
+    io_usage: 'E/A-Nutzung Lesen/Schreiben',
+    validation_error: 'Validierungsfehler',
+    fill_required_fields: 'Bitte alle Pflichtfelder ausfüllen.',
+    stats: 'Statistik',
+    grafana_not_enabled_title: 'Grafana-Dashboard nicht aktiviert',
+    grafana_not_enabled_text:
+      'Bitte das Grafana-Dashboard in den Einstellungen aktivieren und einrichten, um Statistiken zu sehen.',
   },
   menu: {
     authentication: 'Authentifizierung',
@@ -311,6 +374,7 @@ const de = {
     'backup&dr': 'Backup / DR',
     schedule_list: 'Zeitplanung',
     ha: 'HA',
+    about: 'Über',
   },
   node: {
     please_input_node_name: 'Bitte Knotennamen eingeben',
@@ -338,6 +402,9 @@ const de = {
     create_node: 'Knoten erstellen',
     edit_node: 'Knoten bearbeiten',
     lost_tooltip_offline_required: 'Nur offline Knoten können als verloren markiert werden',
+    name_required: 'Knotenname ist erforderlich',
+    ip_tooltip: 'Muss eine gültige IP-Adresse sein, z. B. 192.168.1.1, 10.10.1.1',
+    port_tooltip: 'Muss ein gültiger Port sein',
   },
   node_detail: {
     title: 'Knotendetails',
@@ -434,6 +501,17 @@ const de = {
     sed: 'SED aktiviert',
     vdo: 'VDO aktiviert',
     zfs_pool_name: 'ZFS Pool-Name',
+    name_required: 'Bitte den Namen des Speicherpools eingeben',
+    name_invalid: 'Bitte einen gültigen Namen für den Speicherpool eingeben',
+    type_required: 'Typ des Speicherpools ist erforderlich',
+    device_path_required: 'Bitte den Gerätepfad auswählen',
+    multiple_nodes_tooltip: 'Den Speicherpool auf mehr als einem Knoten anlegen.',
+    nodes_tooltip: 'Den Knoten oder die Knoten wählen, auf denen der Speicherpool angelegt wird.',
+    type_tooltip:
+      'Den Typ des logischen Volumes wählen, aus dem der Speicherpool Speichervolumes auf dem physischen Speicher anlegt. Hinweis: Einige LINSTOR-Funktionen wie Volume-Snapshots funktionieren nur mit Thin-Provisioning.',
+    sed_tooltip: 'Selbstverschlüsselndes Laufwerk',
+    vdo_slab_tooltip: 'Die Größe des VDO-Slabs.',
+    vdo_logical_tooltip: 'Die logische Größe des VDO-Volumes.',
   },
   ip_address: {
     list: 'IP-Adressen-Liste',
@@ -507,6 +585,19 @@ const de = {
       'Ressourcen dieser Ressourcengruppe werden nur auf diesen Knoten platziert. Ohne Angabe auf allen Knoten.',
     not_reported:
       'Diese LINSTOR-Version meldet die aktuelle Einstellung nicht; sie bleibt erhalten, sofern Sie hier nichts auswählen.',
+    size_required_spawn: 'Die Größe ist erforderlich, wenn „Beim Erstellen erzeugen“ aktiviert ist',
+    spawn_on_create_help:
+      'Wenn aktiviert, wird mit dieser Ressourcengruppe auch eine oder mehrere Ressourcen angelegt, benannt nach der angegebenen Ressourcendefinition. Wenn deaktiviert, wird nur die Ressourcengruppe angelegt.',
+    diskless_on_remaining_help:
+      'Wenn ausgewählt, erhalten aus dieser Ressourcengruppe erstellte Ressourcen auf allen übrigen Knoten des LINSTOR-Clusters diskless Instanzen, sobald die Anzahl der Instanzen mit Platte erreicht ist.',
+    storage_pool_help:
+      'Speicherpool auswählen. Aus dieser Ressourcengruppe erstellte Ressourcen werden automatisch dort platziert.',
+    layers_help:
+      'LINSTOR-Schichten auswählen. Bei der automatischen Platzierung von Ressourcen aus dieser Gruppe werden nur Speicherpools mit den gewählten Schichten berücksichtigt.',
+    providers_help:
+      'Speicheranbieter auswählen. Bei der automatischen Platzierung von Ressourcen aus dieser Gruppe werden nur Speicherpools der gewählten Anbieter berücksichtigt.',
+    drbd_kmod_hint:
+      'Stellen Sie sicher, dass drbd-kmod auf den Knoten installiert ist, auf denen Sie DRBD verwenden möchten',
   },
   resource_definition: {
     please_input_resource_definition_name: 'Bitte Namen der Ressourcendefinition eingeben',
@@ -521,6 +612,8 @@ const de = {
     state: 'Status',
     create: 'Ressourcendefinition erstellen',
     edit: 'Ressourcendefinition bearbeiten',
+    name_tooltip:
+      'Nur Buchstaben, Ziffern sowie ., +, _ und - sind erlaubt. Beispiele: res1, res.1, res+1, res_1, res-1',
   },
   volume_definition: {
     please_select_resource_definition: 'Bitte Ressourcendefinition auswählen',
@@ -641,6 +734,9 @@ const de = {
     adding_volume: 'Volume wird hinzugefügt',
     deleting_volume: 'Volume wird gelöscht',
     add_service_ip: 'Service IP hinzufügen',
+    iqn_required: 'IQN ist erforderlich',
+    chap_username_tooltip: 'Benutzername für die CHAP-Authentifizierung (optional)',
+    chap_password_tooltip: 'Passwort für die CHAP-Authentifizierung (optional)',
   },
   nfs: {
     are_you_sure_delete_export: 'Export {{name}} wirklich löschen?',
@@ -669,6 +765,9 @@ const de = {
     volumes: 'Volumes',
     allowed_ips: 'Erlaubte IPs',
     volume_number: 'Bandnr.',
+    export_path_tooltip: 'Exportpfad relativ zu /srv/gateway-exports, Standard ist /',
+    file_system_tooltip: 'Zu verwendender Dateisystemtyp (Standard: ext4)',
+    allowed_ips_tooltip: 'IP-Adressmaske der Clients mit Zugriff (Standard: 0.0.0.0/0)',
   },
   nvme: {
     creates_highly_available_nvme_target:
@@ -688,6 +787,11 @@ const de = {
     adding_volume: 'Volume wird hinzugefügt',
     deleting_volume: 'Volume wird gelöscht',
     add_service_ip: 'Service IP hinzufügen',
+    nqn_required: 'NQN ist erforderlich',
+    nqn_tooltip:
+      'Der NQN identifiziert ein NVMe-oF-Ziel eindeutig. Geben Sie die Domain Ihres Unternehmens an und wählen Sie darin einen eindeutigen Namen. Ihr Initiator erkennt das Ziel dann an diesem NQN.\n\nBeispiel: nqn.2020-01.com.linbit:nvme:vmstorage',
+    service_ip_tooltip:
+      'Die IP-Adresse, unter der das NVMe-oF-Ziel erreichbar ist. Sie muss in einem der Subnetze der Hosts liegen. Die Service-IP wird neu vergeben und darf noch keinem Host gehören.',
   },
   snapshot: {
     please_input_snapshot_name: 'Bitte Snapshot-Namen eingeben',
@@ -732,6 +836,7 @@ const de = {
     resource: 'Ressource',
     snapshot: 'Snapshot',
     new_resource_tip: 'Wenn Sie einen neuen Ressourcennamen eingeben, wird dieser automatisch erstellt',
+    pool_no_snapshots: 'Der Speicherpool unterstützt keine Snapshots, bitte eine andere Ressource wählen',
   },
   users: {
     please_check_username_password_try: 'Bitte prüfen Sie Benutzernamen und Passwort und versuchen Sie es erneut',
@@ -793,6 +898,7 @@ const de = {
     url: 'URL',
     use_path_style: 'Path Style verwenden',
     backup_count: 'Backup-Anzahl',
+    finished_at: 'Abgeschlossen um',
   },
   schedule: {
     cron_expression: 'Cron-Ausdruck',
@@ -880,6 +986,20 @@ const de = {
     failed_to_fetch_remote_list: 'Remote-Liste abrufen fehlgeschlagen',
     failed_to_fetch_resource_list: 'Ressourcen-Liste abrufen fehlgeschlagen',
     failed_to_fetch_resource_group_list: 'Ressourcengruppen-Liste abrufen fehlgeschlagen',
+    name_required: 'Name des Zeitplans ist erforderlich',
+    name_too_long: 'Der Name des Zeitplans darf höchstens 50 Zeichen lang sein',
+    on_failure_required: 'Bitte eine Aktion für den Fehlerfall auswählen',
+    full_cron_required: 'Bitte einen Cron-Ausdruck für die Vollsicherung eingeben',
+    created: 'Zeitplan angelegt',
+    create_failed: 'Der Zeitplan konnte nicht angelegt werden.',
+    modify_failed: 'Der Zeitplan konnte nicht geändert werden.',
+    keep_local_tooltip: 'Anzahl der lokal aufbewahrten Snapshots, die Grundlage einer Vollsicherung sind',
+    keep_remote_tooltip: 'Anzahl der auf dem Remote aufbewahrten Vollsicherungen',
+    on_failure_tooltip: 'Aktion, wenn eine Sicherung fehlschlägt',
+    max_retries_tooltip:
+      'Wie oft eine fehlgeschlagene Sicherung wiederholt wird, wenn die Fehleraktion „Wiederholen“ ist',
+    open_cron_editor: 'Cron-Editor öffnen',
+    next_executions: 'Die nächsten 5 Ausführungszeiten:',
   },
 
   settings: {
@@ -1107,6 +1227,14 @@ org_role = Viewer`,
     passphrase_not_match: 'Die beiden Passphrases stimmen nicht überein!',
     confirm_passphrase_placeholder: 'Passphrase bestätigen',
     logo_size_error: 'Die Logo-Dateigröße sollte 16KB nicht überschreiten.',
+    controller_auth_checking: 'Controller-Authentifizierung wird geprüft…',
+    controller_auth_required_title: 'Controller-Token erforderlich',
+    controller_auth_required_text:
+      'Die Token-Authentifizierung des LINSTOR-Controllers ist aktiviert. Geben Sie ein gültiges Bearer-Token ein, um fortzufahren.',
+    passphrase_validating: 'Passphrase wird geprüft…',
+    passphrase_unlocked: 'Erfolgreich entsperrt.',
+    passphrase_unlock_failed: 'Entsperren fehlgeschlagen.',
+    passphrase_required: 'Bitte die Passphrase eingeben.',
   },
   about: {
     linstor_version: 'LINSTOR VERSION',
@@ -1143,6 +1271,49 @@ org_role = Viewer`,
     config_files: 'Konfigurationsdateien',
     drbd_info: 'DRBD Info',
     edit_config: 'Konfiguration bearbeiten',
+    evict: 'Verdrängen',
+    manage: 'Verwalten',
+    unmanage: 'Nicht mehr verwalten',
+    evict_title: 'Ressource verdrängen',
+    evict_confirm:
+      'Konfiguration „{{config}}“ vom aktiven Knoten „{{node}}“ verdrängen? Dadurch wird ein Failover ausgelöst.',
+    stop_title: 'Ressource stoppen',
+    start_title: 'Ressource starten',
+    stop_confirm: 'Konfiguration „{{config}}“ stoppen? Dadurch wird der HA-Dienst auf allen Knoten deaktiviert.',
+    start_confirm: 'Konfiguration „{{config}}“ starten? Dadurch wird der HA-Dienst auf allen Knoten aktiviert.',
+    unmanage_title: 'Ressource nicht mehr verwalten',
+    unmanage_confirm:
+      'Soll LINSTOR die HA-Konfiguration von „{{name}}“ nicht mehr verwalten? Die Konfigurationsdatei bleibt auf der Platte, wird von LINSTOR aber nicht mehr verfolgt oder synchronisiert.',
+    unmanaged: '„{{name}}“ wird nicht mehr von LINSTOR verwaltet',
+    unmanage_failed: 'Verwaltung konnte nicht beendet werden: {{error}}',
+    no_config_to_delete: 'Keine Konfigurationsdatei zum Löschen gefunden',
+    managed: '„{{file}}“ wird jetzt unter der Ressource „{{resource}}“ verwaltet',
+    manage_failed: 'Verwaltung fehlgeschlagen: {{error}}',
+    configuration_file: 'Konfigurationsdatei',
+    migrated: '„{{name}}“ wurde nach {{node}} verschoben',
+    evicted: '„{{name}}“ wurde verdrängt',
+    stopped: '„{{name}}“ wurde gestoppt',
+    started: '„{{name}}“ wurde gestartet',
+    no_config_stop:
+      'Ressource „{{name}}“ hat keine DRBD-Reactor-Konfigurationsdatei und kann daher nicht gestoppt werden.',
+    no_config_start:
+      'Ressource „{{name}}“ hat keine DRBD-Reactor-Konfigurationsdatei und kann daher nicht gestartet werden.',
+    no_config_evict:
+      'Ressource „{{name}}“ hat keine DRBD-Reactor-Konfigurationsdatei und kann daher nicht verdrängt werden.',
+    no_active_node_evict:
+      'Ressource „{{name}}“ hat keinen aktiven Knoten und kann daher gerade nicht verdrängt werden.',
+    not_on_any_node: 'Ressource „{{name}}“ ist auf keinem Knoten vorhanden.',
+    no_nodes_to_start: 'Keine Knoten verfügbar, um „{{name}}“ zu starten.',
+    stopping: '„{{name}}“ wird gestoppt…',
+    stopping_wait: '„{{name}}“ wird gestoppt, warte auf den DRBD-Reactor-Status…',
+    stop_failed: '„{{name}}“ konnte nicht gestoppt werden: {{error}}',
+    starting: '„{{name}}“ wird gestartet…',
+    starting_wait: '„{{name}}“ wird gestartet, warte auf den DRBD-Reactor-Status…',
+    start_failed: '„{{name}}“ konnte nicht gestartet werden: {{error}}',
+    evicting: '„{{name}}“ wird von {{node}} verdrängt, warte auf den Abschluss…',
+    evicting_wait: '„{{name}}“ wird von {{node}} verdrängt, warte auf den DRBD-Reactor-Status…',
+    evict_failed: 'Verdrängen fehlgeschlagen: {{error}}',
+    exit_code: 'Exit-Code {{code}}',
   },
   files: {
     title: 'Externe Dateien',
@@ -1337,6 +1508,93 @@ org_role = Viewer`,
     rg_skipped: 'Schritt „Ressourcengruppe“ übersprungen.',
     ha_needs_three_nodes:
       'Die HA-Vorlage setzt für das Quorum mindestens drei Knoten voraus. Der aktuelle Cluster hat {{count}}.',
+  },
+  vsan: {
+    create_iscsi_success: 'iSCSI-Export angelegt',
+    create_nfs_success: 'NFS-Export angelegt',
+    create_nvme_success: 'NVMe-oF-Export angelegt',
+    create_rg_success: 'Ressourcengruppe angelegt',
+    create_success: 'Erfolgreich angelegt',
+    resize_success: 'Volume-Größe geändert',
+    delete_iscsi_success: 'iSCSI-Ziel gelöscht',
+    nfs_deleted: 'Ziel wurde gelöscht!',
+    delete_nvme_success: 'NVMe-oF-Ziel gelöscht',
+    delete_rg_success: 'Ressourcengruppe gelöscht',
+    update_failed: 'Knoten konnte nicht aktualisiert werden!',
+    update_finished: 'Aktualisierung für Knoten {{node}} abgeschlossen',
+    standby_changed: 'Standby-Status geändert!',
+    all: 'Alle',
+    type: 'Typ',
+    deployed_on_nodes: 'Auf Knoten bereitgestellt',
+    replica_count: 'Anzahl der Replikate',
+    vm_count: 'Anzahl VMs',
+    update: 'Aktualisieren',
+    add_nodes: 'Knoten hinzufügen',
+    delete_nodes: 'Knoten löschen',
+    online: 'Online',
+    standby: 'Standby',
+    error: 'Fehler',
+    online_hint: 'Alles in Ordnung',
+    standby_hint: 'Knoten ist im Standby',
+    error_hint: 'Etwas stimmt nicht',
+    standby_warning_move:
+      'Wird ein Knoten in den Standby versetzt, werden alle darauf laufenden Ressourcen auf einen anderen Knoten verschoben.',
+    standby_warning_replicas: 'Dadurch haben Ihre Ressourcen eventuell weniger Replikate als gewünscht.',
+    standby_warning_confirm: 'Möchten Sie wirklich fortfahren?',
+    use_all_available: 'Gesamten verfügbaren Platz nutzen',
+    enable_chap: 'CHAP-Authentifizierung aktivieren',
+    chap_tooltip:
+      'Mit Benutzername und Passwort hier gegenseitige CHAP-Authentifizierung einrichten und den Zugriff auf das iSCSI-Ziel einschränken.',
+    service_ip_tooltip:
+      'Unter dieser IP-Adresse ist das Ziel erreichbar. Sie muss in einem der Subnetze der Hosts liegen. Die Service-IP wird neu vergeben und darf noch keinem Host gehören.',
+    rg_name_tooltip:
+      'Der Name einer Ressourcengruppe muss 2 bis 48 Zeichen lang sein.\nErlaubt sind a-z, A-Z und 0-9 sowie _ und -\nDer Name darf nicht mit - beginnen oder enden und nicht mit einer Ziffer beginnen.',
+    sp_name_tooltip:
+      'Der Name eines Speicherpools muss 3 bis 48 Zeichen lang sein.\nErlaubt sind a-z, A-Z und 0-9 sowie _ und -\nDer Name darf nicht mit - beginnen oder enden und nicht mit einer Ziffer beginnen.',
+    any_pool_tooltip:
+      'Die Option „---any---“ bedeutet, dass LINSTOR selbst einen verfügbaren Speicherpool für die Ressourcengruppe wählt.',
+    replicas_tooltip:
+      'Bei LINBIT bedeuten 2 Replikate in der Regel, dass die Daten auf 2 Speichergeräten liegen. Mit 3 Replikaten liegen die Daten auf 3 Speichergeräten.',
+    add_to_existing_pool: 'Zu vorhandenem Pool hinzufügen',
+    add_to_existing_tooltip:
+      'Sie können aus den gewählten Platten einen neuen Speicherpool anlegen oder sie einem vorhandenen hinzufügen.',
+    lvm_help: 'LVM: Speicher einfach mit LVM, dem Logical Volume Manager, zuweisen.',
+    lvm_thin_help:
+      'LVM Thin: Blöcke werden nicht sofort alle auf dem Gerät zugewiesen, sondern erst beim Schreiben angelegt. Das heißt Thin-Provisioning und ist unsere Empfehlung für LINSTOR-Speicherpools.',
+    lvm_vdo_help:
+      'LVM+VDO: VDO ergänzt LVM-Volumes um Deduplizierung und Komprimierung. VDO braucht mindestens 10 GiB pro Platte.',
+    iscsi_intro:
+      'Hier lässt sich der von LINSTOR verwaltete Speicher als iSCSI-Ziel bereitstellen, sodass ein iSCSI-Initiator den replizierten Speicher nutzen kann.',
+    nfs_intro: 'Mit diesem Modul lässt sich der hochverfügbare, von LINSTOR verwaltete Speicher per NFS exportieren.',
+    nvme_intro:
+      'Mit diesem Modul lässt sich der hochverfügbare, von LINSTOR verwaltete Speicher per NVMe-oF exportieren.',
+    ps_intro:
+      'Unten sehen Sie, welche Speichergeräte auf welchen Knoten vorhanden sind. Markieren Sie die entsprechenden Kästchen, um mehrere Geräte zu einem Speicherpool zusammenzufassen. LINSTOR behandelt diesen Pool dann als einen „Block“ Speicher und legt daraus virtuelle Volumes an.',
+    ps_hover: 'Fahren Sie mit der Maus über die Einträge, um den Pfad jedes Geräts auf dem jeweiligen Knoten zu sehen.',
+    ps_important: '<0>Wichtig:</0> Damit ein Speichergerät hier erscheint, muss es:',
+    ps_min_size: 'größer als 1 GiB sein.',
+    ps_empty:
+      '<0>vollständig leer</0> sein, also auch ohne Dateisysteme, LVM-Signaturen und Ähnliches. Liegen bereits Daten darauf, löschen Sie sie zuerst (zum Beispiel mit <1>wipefs -a</1>).',
+    rg_intro_1: 'Hier legen Sie Ressourcengruppen aus Ihren Speicherpools an.',
+    rg_intro_2:
+      'Eine Ressourcengruppe ist ein LINSTOR-Konzept, eine Art Vorlage zum Anlegen von Ressourcen. Sie legt fest, welcher Speicherpool genutzt wird und wie viele Replikate der Daten entstehen.',
+    rg_intro_3:
+      'Wird die Ressourcengruppe instanziiert, etwa um eine Ressource zu erzeugen, nimmt LINSTOR automatisch Speicher aus dem angegebenen Pool und platziert die Ressource auf der passenden Anzahl von Knoten.',
+    about_created_by: 'Dieses Produkt wurde mit Stolz von LINBIT entwickelt.',
+    about_gui_version: 'GUI-Version',
+    about_open_source: 'Open Source',
+    about_open_source_1:
+      'Bei LINBIT nutzen wir die Vorteile von Open-Source-Komponenten. Wir stehen und bauen auf den Schultern von Riesen und möchten selbst zu diesem wunderbaren Fundus beitragen.',
+    about_open_source_2:
+      'Open Source macht unsere Arbeit angenehmer, ernährt uns und unsere Familien aber nicht allein. Die GUI, die alle Open-Source-Teile zusammenführt („LINBIT VSAN“), ist eine Closed-Source-Komponente von LINBIT. Für das vollständige LINBIT VSAN brauchen Sie ein Support- und Update-Abonnement. Der Wert unseres Supports, den wir mit derselben Leidenschaft leisten wie die Entwicklung, wird Sie überzeugen.',
+    about_components: 'Komponenten',
+    about_components_intro: 'LINBIT entwickelt und pflegt diese Komponenten von LINBIT VSAN:',
+    about_source_code: 'Der Quellcode dieser Komponenten ist unter <1>github.com/LINBIT</1> verfügbar.',
+    about_based_on:
+      'LINBIT VSAN basiert auf der Linux-Distribution <1>AlmaLinux</1> und enthält viele Pakete des AlmaLinux-Teams.',
+    about_authors: 'Autoren',
+    about_authors_intro: 'Diese LINBIT-Kolleginnen und -Kollegen haben an diesem Produkt mitgewirkt:',
+    debug_host: '{{name}}-Host (nur zum Debuggen)',
   },
 };
 

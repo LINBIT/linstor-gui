@@ -141,7 +141,7 @@ const CronInput: React.FC<CronInputProps> = ({ value = '', onChange }) => {
         status={inputError ? 'error' : ''}
         addonAfter={
           <Button type="link" onClick={handleOpenModal}>
-            Open Cron Editor
+            {t('schedule:open_cron_editor')}
           </Button>
         }
       />
@@ -159,10 +159,10 @@ const CronInput: React.FC<CronInputProps> = ({ value = '', onChange }) => {
         footer={
           <Space>
             <Button type="secondary" onClick={handleModalClose}>
-              Cancel
+              {t('common:cancel')}
             </Button>
             <Button type="primary" onClick={handleOk} disabled={!!error}>
-              OK
+              {t('common:ok')}
             </Button>
           </Space>
         }
@@ -186,7 +186,7 @@ const CronInput: React.FC<CronInputProps> = ({ value = '', onChange }) => {
         )}
 
         <div className="mt-4">
-          <h3>Next 5 Execution Times:</h3>
+          <h3>{t('schedule:next_executions')}</h3>
           <ul>
             {previewExecutions.map((time, index) => (
               <li key={index}>

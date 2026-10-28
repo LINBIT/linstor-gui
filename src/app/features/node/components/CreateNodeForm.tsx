@@ -155,7 +155,7 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
         rules={[
           {
             required: true,
-            message: 'Node name is required!',
+            message: t('node:name_required'),
           },
         ]}
       >
@@ -166,7 +166,7 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
         label={t('node:node_type')}
         name="type"
         required
-        rules={[{ required: true, message: 'Please select node type!' }]}
+        rules={[{ required: true, message: t('node:please_select_node_type') }]}
       >
         <Select
           allowClear
@@ -185,14 +185,14 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
         rules={[
           {
             required: true,
-            message: 'IP address is required!',
+            message: t('common:ip_required'),
           },
           {
             pattern: /\b(?:\d{1,3}\.){3}\d{1,3}\b/,
-            message: 'Please input valid IP address',
+            message: t('common:ip_invalid'),
           },
         ]}
-        tooltip="Must be valid IP address, like 192.168.1.1, 10.10.1.1"
+        tooltip={t('node:ip_tooltip')}
       >
         <Input placeholder={t('node_detail:please_input_ip_address')} />
       </Form.Item>
@@ -201,11 +201,11 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
         name="satellite_port"
         label={t('node:default_port')}
         required
-        tooltip="Must be valid port"
+        tooltip={t('node:port_tooltip')}
         rules={[
           {
             pattern: /^([1-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/,
-            message: 'Please input valid port, 0-65535',
+            message: t('common:port_invalid'),
           },
         ]}
       >

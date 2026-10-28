@@ -68,10 +68,10 @@ describe('CreateISCSIForm', () => {
 
     fireEvent.click(dialogButton(dialog, 'Create'));
 
-    expect(await screen.findByText('Please select resource group!')).toBeInTheDocument();
+    expect(await screen.findByText('Please select a resource group')).toBeInTheDocument();
     expect(await screen.findByText('IP prefix is required!')).toBeInTheDocument();
     expect(await screen.findByText('IP address is required!')).toBeInTheDocument();
-    expect(await screen.findByText('Size is required!')).toBeInTheDocument();
+    expect(await screen.findByText('Please input a size')).toBeInTheDocument();
     expect(createISCSIExport).not.toHaveBeenCalled();
   });
 

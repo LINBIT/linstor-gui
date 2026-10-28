@@ -76,7 +76,7 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
     mutationFn: variablesOnly(createISCSIExport),
     onSuccess: () => {
       api.success({
-        title: 'Create iSCSI Export successfully',
+        title: t('vsan:create_iscsi_success'),
       });
 
       setCreateFormModal(false);
@@ -154,7 +154,7 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
     <>
       {contextHolder}
       <Button type="primary" onClick={() => setCreateFormModal(true)}>
-        Create
+        {t('common:create')}
       </Button>
 
       <Modal
@@ -165,10 +165,10 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
         footer={
           <div className="flex justify-end gap-2">
             <Button type="secondary" onClick={handleCancel}>
-              Cancel
+              {t('common:cancel')}
             </Button>
             <Button type="primary" onClick={handleOk} loading={createMutation.isPending}>
-              Create
+              {t('common:create')}
             </Button>
           </div>
         }
@@ -238,7 +238,7 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
               label={t('common:resource_group')}
               name="resource_group"
               required
-              rules={[{ required: true, message: 'Please select resource group!' }]}
+              rules={[{ required: true, message: t('common:resource_group_required') }]}
             >
               <Select
                 allowClear
@@ -250,21 +250,16 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
               />
             </Form.Item>
 
-            <Form.Item
-              label={t('iscsi:service_ips')}
-              required
-              tooltip="This is the IP address under which the iSCSI target will be reachable. This must be an address within one of the hosts subnets.
-            The service IP is a newly assigned address and should not already belong to a host."
-            >
+            <Form.Item label={t('iscsi:service_ips')} required tooltip={t('vsan:service_ip_tooltip')}>
               <Space>
                 <Form.Item
                   name="service_ip_prefix"
                   noStyle
-                  rules={[{ required: true, message: 'IP prefix is required!' }]}
+                  rules={[{ required: true, message: t('common:ip_prefix_required') }]}
                 >
                   <Select options={ipServiceOptions} className="min-w-[140px]" placeholder="192.168.1." />
                 </Form.Item>
-                <Form.Item name="service_ip" noStyle rules={[{ required: true, message: 'IP address is required!' }]}>
+                <Form.Item name="service_ip" noStyle rules={[{ required: true, message: t('common:ip_required') }]}>
                   <Input placeholder="0" />
                 </Form.Item>
               </Space>
@@ -276,35 +271,27 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
                 <Form.Item
                   name="size"
                   className="min-w-[220px] flex-1"
-                  rules={[{ required: true, message: 'Size is required!' }]}
+                  rules={[{ required: true, message: t('common:size_required') }]}
                 >
                   {gross_size ? <SizeInput disabled={gross_size} /> : <SizeInput />}
                 </Form.Item>
                 <Form.Item name="gross_size" valuePropName="checked">
-                  <Checkbox>Use all available</Checkbox>
+                  <Checkbox>{t('vsan:use_all_available')}</Checkbox>
                 </Form.Item>
               </div>
             </Form.Item>
 
             <Form.Item name="enable_chap" valuePropName="checked">
-              <Checkbox>Enable CHAP Authentication</Checkbox>
+              <Checkbox>{t('vsan:enable_chap')}</Checkbox>
             </Form.Item>
 
             {enable_chap && (
               <>
-                <Form.Item
-                  name="username"
-                  label={t('common:username')}
-                  tooltip="Configure mutual CHAP authentication to restrict access to the iSCSI target by supplying a username and password here."
-                >
+                <Form.Item name="username" label={t('common:username')} tooltip={t('vsan:chap_tooltip')}>
                   <Input />
                 </Form.Item>
 
-                <Form.Item
-                  name="password"
-                  label={t('common:password')}
-                  tooltip="Configure mutual CHAP authentication to restrict access to the iSCSI target by supplying a username and password here"
-                >
+                <Form.Item name="password" label={t('common:password')} tooltip={t('vsan:chap_tooltip')}>
                   <Input.Password />
                 </Form.Item>
               </>

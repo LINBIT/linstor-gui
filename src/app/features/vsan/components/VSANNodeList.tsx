@@ -145,7 +145,7 @@ export const VSANNodeList = () => {
         });
 
         api.error({
-          title: 'Failed to update node!',
+          title: t('vsan:update_failed'),
           description: progress?.error,
           duration: 0,
         });
@@ -165,7 +165,7 @@ export const VSANNodeList = () => {
       });
 
       api.success({
-        title: 'Update finished for node: ' + nodeName,
+        title: t('vsan:update_finished', { node: nodeName }),
       });
     });
   };
@@ -181,7 +181,7 @@ export const VSANNodeList = () => {
     },
     onSuccess: () => {
       api.success({
-        title: 'Standby status changed!',
+        title: t('vsan:standby_changed'),
       });
 
       nodesFromVSAN.refetch();
@@ -255,14 +255,14 @@ export const VSANNodeList = () => {
 
   const columns: ColumnsType<Node> = [
     {
-      title: 'Node Name',
+      title: t('storage_pool:node_name'),
       dataIndex: 'hostname',
       key: 'hostname',
       sorter: (a, b) => a.hostname.localeCompare(b.hostname),
       showSorterTooltip: false,
     },
     {
-      title: 'Default IP',
+      title: t('node_detail:default_ip'),
       dataIndex: 'service_ip',
       key: 'service_ip',
       sorter: (a, b) => compareIPv4(a.service_ip, b.service_ip),
@@ -271,7 +271,7 @@ export const VSANNodeList = () => {
     ...(isHCI
       ? [
           {
-            title: 'VM Count',
+            title: t('vsan:vm_count'),
             dataIndex: 'num_vms',
             key: 'num_vms',
             sorter: (a: { num_vms?: number }, b: { num_vms?: number }) => (a.num_vms || 0) - (b.num_vms || 0),
@@ -288,19 +288,19 @@ export const VSANNodeList = () => {
           content={() => (
             <div>
               <p>
-                <Tag tone="success">Online</Tag>: Everything is ok
+                <Tag tone="success">{t('vsan:online')}</Tag>: {t('vsan:online_hint')}
               </p>
               <p>
-                <Tag tone="warning">Standby</Tag>: Node is in standby
+                <Tag tone="warning">{t('vsan:standby')}</Tag>: {t('vsan:standby_hint')}
               </p>
               <p>
-                <Tag tone="danger">Error</Tag>: Something is wrong
+                <Tag tone="danger">{t('vsan:error')}</Tag>: {t('vsan:error_hint')}
               </p>
             </div>
           )}
         >
           <span>
-            Status &nbsp; <InfoCircleOutlined />
+            {t('common:status')} &nbsp; <InfoCircleOutlined />
           </span>
         </Popover>
       ),
@@ -312,13 +312,13 @@ export const VSANNodeList = () => {
 
         if (!record.online) {
           tone = 'danger';
-          statusText = 'Error';
+          statusText = t('vsan:error');
         } else if (record.standby) {
           tone = 'warning';
-          statusText = 'Standby';
+          statusText = t('vsan:standby');
         } else {
           tone = 'success';
-          statusText = 'Online';
+          statusText = t('vsan:online');
         }
 
         return (
@@ -362,7 +362,7 @@ export const VSANNodeList = () => {
       },
     },
     {
-      title: 'Action',
+      title: t('common:action'),
       key: 'action',
       render: (_, record) => {
         const updating = updatingInfo[record.hostname]?.upgrading ?? false;
@@ -401,7 +401,7 @@ export const VSANNodeList = () => {
                 onConfirm={() => upgradeNode(record.hostname)}
               >
                 <Button disabled={!record.standby} type="default" loading={updating}>
-                  Update
+                  {t('vsan:update')}
                 </Button>
               </Popconfirm>
             </Space>
@@ -432,7 +432,7 @@ export const VSANNodeList = () => {
       <div className="mb-2.5 flex justify-between">
         <Space>
           <Button type="default" onClick={() => nodesFromVSAN.refetch()}>
-            Reload
+            {t('common:reload')}
           </Button>
 
           <Button type="primary">
@@ -445,7 +445,7 @@ export const VSANNodeList = () => {
               target="_blank"
               rel="noreferrer"
             >
-              Add Nodes
+              {t('vsan:add_nodes')}
             </a>
           </Button>
 
@@ -459,7 +459,7 @@ export const VSANNodeList = () => {
               target="_blank"
               rel="noreferrer"
             >
-              Delete Nodes
+              {t('vsan:delete_nodes')}
             </a>
           </Button>
         </Space>
@@ -481,11 +481,9 @@ export const VSANNodeList = () => {
         onOk={() => doStandBy(standbyHost)}
         onCancel={() => setShowStandbyWarning(false)}
       >
-        <p>
-          By putting a node into standby, all resources currently running on that node will be moved to another node.
-        </p>
-        <p>This might cause your resources to have less replicas than you wanted.</p>
-        <p>Are you sure you want to continue?</p>
+        <p>{t('vsan:standby_warning_move')}</p>
+        <p>{t('vsan:standby_warning_replicas')}</p>
+        <p>{t('vsan:standby_warning_confirm')}</p>
       </Modal>
 
       <Modal
@@ -497,7 +495,7 @@ export const VSANNodeList = () => {
         }}
         onCancel={() => setIntervalModal(false)}
       >
-        <span>Refresh Interval</span>:{' '}
+        <span>{t('common:refresh_interval')}</span>:{' '}
         <Space.Compact>
           <InputNumber
             defaultValue={refetchInterval ?? 60}

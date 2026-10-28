@@ -85,7 +85,7 @@ export const ResourceMigrateForm: React.FC<CollectionCreateFormProps> = ({
           rules={[
             {
               required: true,
-              message: 'Please select node!',
+              message: t('common:node_required'),
             },
           ]}
         >

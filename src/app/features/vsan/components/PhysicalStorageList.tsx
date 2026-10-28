@@ -10,6 +10,7 @@ import { getStoragePool } from '../api';
 import type { VsanStoragePool } from '../types';
 
 import { Table } from 'antd';
+import { useTranslation } from 'react-i18next';
 import type { TableProps } from 'antd';
 import { REFETCH_INTERVAL } from '@app/const/time';
 import { formatBytes } from '@app/utils/size';
@@ -33,6 +34,7 @@ export const PhysicalStorageList = () => {
     refetchInterval: REFETCH_INTERVAL,
   });
 
+  const { t } = useTranslation();
   const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
 
   const handleExpand = (expanded: boolean, record: VsanStoragePool) => {
@@ -41,18 +43,18 @@ export const PhysicalStorageList = () => {
 
   const columns: TableProps<DataType>['columns'] = [
     {
-      title: 'Name',
+      title: t('common:name'),
       dataIndex: 'name',
       key: 'name',
     },
     {
-      title: 'Type',
+      title: t('vsan:type'),
       dataIndex: 'providerKind',
       key: 'providerKind',
     },
     Table.EXPAND_COLUMN,
     {
-      title: 'Deployed on Nodes',
+      title: t('vsan:deployed_on_nodes'),
       dataIndex: 'capacities',
       key: 'capacities',
       render: (capacities) => {
@@ -76,7 +78,7 @@ export const PhysicalStorageList = () => {
     <div>
       <div className="mb-2.5">
         <Button onClick={() => refetch()} className="mr-2.5">
-          Reload
+          {t('common:reload')}
         </Button>
 
         <CreateStoragePoolForm refetch={refetch} />
@@ -89,7 +91,7 @@ export const PhysicalStorageList = () => {
         loading={isPending}
         expandable={{
           // The expand column's header, for screen readers (antd leaves it empty).
-          columnTitle: <span className="sr-only">Detail</span>,
+          columnTitle: <span className="sr-only">{t('common:detail')}</span>,
           expandedRowRender: (record) => {
             const nodes = Object.keys(record?.capacities) ?? [];
             return (

@@ -105,7 +105,7 @@ describe('ResizeVolumeModal', () => {
     fireEvent.change(sizes()[2], { target: { value: '' } });
     fireEvent.click(within(dialog()).getByRole('button', { name: 'OK' }));
 
-    expect(await screen.findByText('Please input size')).toBeInTheDocument();
+    expect(await screen.findByText('Please input a size')).toBeInTheDocument();
     expect(updateVolumeDefinition).not.toHaveBeenCalled();
   });
 

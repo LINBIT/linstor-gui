@@ -56,7 +56,7 @@ const AddColumnModal: React.FC<AddColumnModalProps> = ({ isVisible, onConfirm, o
         <Form.Item
           label={t('common:column_data_index')}
           name="dataIndex"
-          rules={[{ required: true, message: 'Please enter column data index' }]}
+          rules={[{ required: true, message: t('common:column_index_required') }]}
         >
           <Select
             className="w-full"
@@ -69,7 +69,7 @@ const AddColumnModal: React.FC<AddColumnModalProps> = ({ isVisible, onConfirm, o
         <Form.Item
           label={t('common:column_title')}
           name="title"
-          rules={[{ required: true, message: 'Please enter column title' }]}
+          rules={[{ required: true, message: t('common:column_title_required') }]}
         >
           <Input placeholder={t('common:enter_column_title')} />
         </Form.Item>

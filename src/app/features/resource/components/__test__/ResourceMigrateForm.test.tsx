@@ -16,6 +16,7 @@ const mockT = vi.fn((key: string) => {
     'resource:migrate': 'Migrate Resource',
     'common:confirm': 'Confirm',
     'common:cancel': 'Cancel',
+    'common:node_required': 'Please select a node',
     'resource:from': 'From',
     'resource:resource': 'Resource',
     'resource:to': 'To',
@@ -85,7 +86,7 @@ describe('ResourceMigrateForm', () => {
     expect(screen.getByDisplayValue('node2')).toBeDisabled();
     fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
 
-    expect(await screen.findByText('Please select node!')).toBeInTheDocument();
+    expect(await screen.findByText('Please select a node')).toBeInTheDocument();
     expect(mockOnCreate).not.toHaveBeenCalled();
   });
 
@@ -315,7 +316,7 @@ describe('ResourceMigrateForm', () => {
       fireEvent.click(screen.getByRole('button', { name: /confirm/i }));
 
       await waitFor(() => {
-        expect(screen.getByText('Please select node!')).toBeInTheDocument();
+        expect(screen.getByText('Please select a node')).toBeInTheDocument();
       });
 
       expect(mockOnCreate).not.toHaveBeenCalled();
@@ -336,7 +337,7 @@ describe('ResourceMigrateForm', () => {
       fireEvent.click(screen.getByRole('button', { name: /confirm/i }));
 
       await waitFor(() => {
-        expect(screen.getByText('Please select node!')).toBeInTheDocument();
+        expect(screen.getByText('Please select a node')).toBeInTheDocument();
       });
     });
   });

@@ -152,7 +152,7 @@ const HeaderAboutModal: React.FC<HeaderAboutModalProps> = ({ linstorVersion }) =
                 </div>
               }
             >
-              <span>HCI Host(for debug only)</span>:
+              <span>{t('vsan:debug_host', { name: 'HCI' })}</span>:
               <br />
               <Input
                 value={host}

@@ -214,16 +214,16 @@ const ControllerAuthGate = ({ children }: ControllerAuthGateProps) => {
         {state === 'checking' ? (
           <div className="py-12 flex flex-col items-center gap-4">
             <Spin size="large" />
-            <Typography.Text type="secondary">Checking controller authentication…</Typography.Text>
+            <Typography.Text type="secondary">{t('settings:controller_auth_checking')}</Typography.Text>
           </div>
         ) : (
           <div className="flex flex-col gap-4">
             <div>
               <Typography.Title level={3} className="!mb-2">
-                Controller Token Required
+                {t('settings:controller_auth_required_title')}
               </Typography.Title>
               <Typography.Paragraph type="secondary" className="!mb-0">
-                LINSTOR controller token authentication is enabled. Enter a valid Bearer token to continue.
+                {t('settings:controller_auth_required_text')}
               </Typography.Paragraph>
             </div>
 
@@ -233,7 +233,7 @@ const ControllerAuthGate = ({ children }: ControllerAuthGateProps) => {
               <Form.Item
                 label={t('settings:controller_auth_token')}
                 name="token"
-                rules={[{ required: true, message: 'Please enter the controller token.' }]}
+                rules={[{ required: true, message: t('settings:controller_auth_token_required') }]}
               >
                 <Input.Password
                   placeholder={t('settings:controller_auth_token_placeholder')}
@@ -244,7 +244,7 @@ const ControllerAuthGate = ({ children }: ControllerAuthGateProps) => {
 
               <div className="flex justify-end">
                 <Button type="primary" htmlType="submit" loading={submitting}>
-                  Continue
+                  {t('common:continue')}
                 </Button>
               </div>
             </Form>
