@@ -784,6 +784,7 @@ const zh = {
     module: '模块',
     content: '内容',
     detail_title: '错误日志详情',
+    not_found: '错误日志 {{id}} 不存在。',
     list_title: '错误日志列表',
     download_sos: '下载 SOS 报告',
     time_range: '时间范围',

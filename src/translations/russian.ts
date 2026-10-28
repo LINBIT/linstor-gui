@@ -527,6 +527,7 @@ const ru = {
     module: 'Модуль',
     content: 'Содержимое',
     detail_title: 'Детали отчета об ошибке',
+    not_found: 'Отчет об ошибке {{id}} не существует.',
     list_title: 'Список отчетов об ошибках',
     download_sos: 'Скачать отчет SOS',
     time_range: 'Временной диапазон',

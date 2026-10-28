@@ -529,6 +529,7 @@ const es = {
     module: 'Módulo',
     content: 'Contenido',
     detail_title: 'Detalle del informe de errores',
+    not_found: 'El informe de errores {{id}} no existe.',
     list_title: 'Lista de informes de errores',
     download_sos: 'Descargar informe SOS',
     time_range: 'Rango de tiempo',

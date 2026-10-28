@@ -529,6 +529,7 @@ const fr = {
     module: 'Module',
     content: 'Contenu',
     detail_title: "Détail du rapport d'erreur",
+    not_found: "Le rapport d'erreur {{id}} n'existe pas.",
     list_title: "Liste des rapports d'erreurs",
     download_sos: 'Télécharger le rapport SOS',
     time_range: 'Plage de temps',

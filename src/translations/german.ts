@@ -533,6 +533,7 @@ const de = {
     module: 'Modul',
     content: 'Inhalt',
     detail_title: 'Fehlerbericht-Details',
+    not_found: 'Der Fehlerbericht {{id}} existiert nicht.',
     list_title: 'Fehlerbericht-Liste',
     download_sos: 'SOS-Bericht herunterladen',
     time_range: 'Zeitbereich',

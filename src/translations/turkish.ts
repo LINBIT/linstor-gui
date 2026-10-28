@@ -526,6 +526,7 @@ const tr = {
     module: 'Modül',
     content: 'İçerik',
     detail_title: 'Hata Raporu Detayı',
+    not_found: '{{id}} hata raporu mevcut değil.',
     list_title: 'Hata Raporu Listesi',
     download_sos: 'SOS Raporu İndir',
     time_range: 'Zaman Aralığı',

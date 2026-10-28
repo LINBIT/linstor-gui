@@ -526,6 +526,7 @@ const ja = {
     module: 'モジュール',
     content: '内容',
     detail_title: 'エラーレポート詳細',
+    not_found: 'エラーレポート {{id}} は存在しません。',
     list_title: 'エラーレポートリスト',
     download_sos: 'SOSレポートダウンロード',
     time_range: '時間範囲',

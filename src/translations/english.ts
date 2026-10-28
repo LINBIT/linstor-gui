@@ -677,6 +677,7 @@ const en = {
     module: 'Module',
     content: 'Content',
     detail_title: 'Error Report Detail',
+    not_found: 'The error report {{id}} does not exist.',
     list_title: 'Error Report List',
     download_sos: 'Download SOS Report',
     time_range: 'Time Range',
