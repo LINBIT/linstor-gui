@@ -52,7 +52,9 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = resolve(HERE, '..');
 
 const DEFAULTS = {
-  repo: 'https://gitlab.at.linbit.com/drbd/ocf-resource-agents-rust.git',
+  // Internal repo: SSH works for whoever has access; CI passes its own
+  // --repo with a job token, as it cannot use SSH.
+  repo: 'git@gitlab.at.linbit.com:drbd/ocf-resource-agents-rust.git',
   ref: null,
   src: null,
   fromJson: null,
@@ -220,15 +222,19 @@ async function format(source, filepath) {
 
 /** A repo URL fit to be committed: CI clones with a job token in the userinfo
  *  (https://gitlab-ci-token:<token>@host/...), and this URL is recorded in the
- *  generated file. */
+ *  generated file. SSH remotes are recorded as their https form, so a local
+ *  clone over SSH and CI's https clone produce the same file. */
 export function scrubUrl(url) {
+  const scp = /^[^@/]+@([^:/]+):(.+)$/.exec(url);
+  if (scp) return `https://${scp[1]}/${scp[2]}`;
   try {
     const parsed = new URL(url);
+    if (parsed.protocol === 'ssh:') return `https://${parsed.hostname}${parsed.pathname}`;
     parsed.username = '';
     parsed.password = '';
     return parsed.toString();
   } catch {
-    // Not a URL at all (an scp-style or local path); nothing to leak.
+    // Not a URL at all (a local path); nothing to leak.
     return url;
   }
 }

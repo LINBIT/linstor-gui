@@ -115,9 +115,14 @@ describe('scrubUrl', () => {
     );
   });
 
-  it('leaves a plain URL and an scp-style remote alone', () => {
+  it('leaves a plain URL and a local path alone', () => {
     expect(scrubUrl('https://gitlab.example.com/drbd/x.git')).toBe('https://gitlab.example.com/drbd/x.git');
-    expect(scrubUrl('git@gitlab.example.com:drbd/x.git')).toBe('git@gitlab.example.com:drbd/x.git');
+    expect(scrubUrl('/srv/git/x.git')).toBe('/srv/git/x.git');
+  });
+
+  it('records SSH remotes as https, so local and CI runs write the same file', () => {
+    expect(scrubUrl('git@gitlab.example.com:drbd/x.git')).toBe('https://gitlab.example.com/drbd/x.git');
+    expect(scrubUrl('ssh://git@gitlab.example.com:222/drbd/x.git')).toBe('https://gitlab.example.com/drbd/x.git');
   });
 });
 
