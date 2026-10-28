@@ -99,7 +99,7 @@ export const UserManagement = () => {
 
   return (
     <PageBasic title={t('users:title')}>
-      <div className="flex h-[calc(100vh-200px)] rounded-2xl bg-(--bg-page)">
+      <div className="flex h-[calc(100vh-200px)] overflow-hidden rounded-2xl bg-(--bg-page)">
         {/* The picture only when there is room beside the list. */}
         <img
           className="hidden h-[calc(100vh-200px)] min-w-0 flex-1 object-cover opacity-20 md:block"
