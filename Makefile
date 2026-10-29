@@ -104,7 +104,8 @@ debrelease-docker: checkVERSION ## build a release in a node container
 
 sbom/linstor-gui.cdx.json: package.json package-lock.json
 	test -d sbom || mkdir sbom
-	npm sbom --sbom-format cyclonedx --sbom-type application > $@
+	# not "npm sbom": it emits invalid vcs URLs, see https://github.com/npm/cli/issues/9144
+	npx --yes @cyclonedx/cyclonedx-npm@6.0.1 --omit dev --output-file $@
 
 sbom/linstor-gui.spdx.json: package.json package-lock.json
 	test -d sbom || mkdir sbom
