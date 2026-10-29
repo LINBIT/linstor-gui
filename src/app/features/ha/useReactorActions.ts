@@ -20,6 +20,8 @@ import { getEvictOutcome } from './evict';
 import {
   type HARecord,
   type ReactorStatus,
+  REACTOR_STATUS_POLL_MS,
+  TAKEOVER_WAIT_MS,
   activeNodeInStatus,
   decodeExecText,
   getConfigName,
@@ -48,6 +50,9 @@ export const useReactorActions = () => {
   const [evictStartedAt, setEvictStartedAt] = useState<number | null>(null);
   const [stoppingResource, setStoppingResource] = useState<string | null>(null);
   const [stopStartedAt, setStopStartedAt] = useState<number | null>(null);
+  // An evict that named the node taking over: that node still has to start the services, so the status
+  // is polled until it reports them active (or the wait runs out), not just read once while they start.
+  const [takeover, setTakeover] = useState<{ resourceName: string; node: string; startedAt: number } | null>(null);
 
   // Fetch reactor status once for the page, then temporarily switch to polling while an evict is in flight.
   const {
@@ -55,7 +60,11 @@ export const useReactorActions = () => {
     isLoading: reactorStatusLoading,
     dataUpdatedAt: reactorStatusUpdatedAt,
     refetch: refetchReactorStatus,
-  } = useDrbdReactorStatus(nodeNames, nodeNames.length > 0, evictingResource || stoppingResource ? 5000 : false);
+  } = useDrbdReactorStatus(
+    nodeNames,
+    nodeNames.length > 0,
+    evictingResource || stoppingResource || takeover ? REACTOR_STATUS_POLL_MS : false,
+  );
   const { data: reactorFailures } = useDrbdReactorFailures(nodeNames);
 
   // Evict mutation
@@ -86,6 +95,13 @@ export const useReactorActions = () => {
     queryClient.invalidateQueries({ queryKey: ['resources-view'] });
     queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] });
   }, [queryClient, reactorStatus, reactorStatusUpdatedAt, evictStartedAt, evictingResource, t]);
+
+  useEffect(() => {
+    if (!takeover || !reactorStatus || reactorStatusUpdatedAt <= takeover.startedAt) return;
+    const started = activeNodeInStatus(reactorStatus, takeover.resourceName) === takeover.node;
+    if (!started && reactorStatusUpdatedAt - takeover.startedAt < TAKEOVER_WAIT_MS) return;
+    setTakeover(null);
+  }, [reactorStatus, reactorStatusUpdatedAt, takeover]);
 
   useEffect(() => {
     if (!stoppingResource || !reactorStatus) return;
@@ -260,7 +276,7 @@ export const useReactorActions = () => {
             );
             message.destroy('evict-in-progress');
             message.success(t('ha:migrated', { name: record.name, node: result.active_node }));
-            queryClient.invalidateQueries({ queryKey: ['drbd-reactor-status'] });
+            setTakeover({ resourceName: record.name, node: result.active_node, startedAt: Date.now() });
             queryClient.invalidateQueries({ queryKey: ['resources-view'] });
             queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] });
             return;

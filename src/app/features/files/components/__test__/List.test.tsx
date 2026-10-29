@@ -108,7 +108,7 @@ describe('files List', () => {
   it('the switch reveals the DRBD Reactor configuration files', async () => {
     renderList();
     await screen.findByText(MOUNT);
-    fireEvent.click(screen.getByRole('switch'));
+    fireEvent.click(screen.getByRole('switch', { name: 'Show DRBD Reactor configuration files' }));
     expect(await screen.findByText(REACTOR)).toBeInTheDocument();
     expect(screen.getByText('Total 3 items')).toBeInTheDocument();
   });
@@ -130,7 +130,7 @@ describe('files List', () => {
     fireEvent.click(within(menu).getByText('Deploy'));
     expect(await screen.findByText('Deploy to Resource')).toBeInTheDocument();
 
-    const select = screen.getByRole('combobox');
+    const select = screen.getByRole('combobox', { name: 'Select Resource' });
     // Typing filters by what the user reads, not by an internal value.
     fireEvent.change(select, { target: { value: 'res-b' } });
     const options = await screen.findAllByText(/^res-/, { selector: '.ant-select-item-option-content' });

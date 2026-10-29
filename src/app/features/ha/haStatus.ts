@@ -31,6 +31,12 @@ export type PromoterEntry = NonNullable<DrbdReactorStatus['promoter']>[number];
 
 export type ReactorStatus = Record<string, DrbdReactorStatus>;
 
+/** How often the status is read while an evict, stop or takeover settles. */
+export const REACTOR_STATUS_POLL_MS = 5000;
+
+/** How long the node that took over after an evict gets to report its services active. */
+export const TAKEOVER_WAIT_MS = 60_000;
+
 /** The resource's deployed drbd-reactor config files (external-file props). */
 export const reactorConfigFiles = (record: HARecord) =>
   Object.keys(record.props || {}).filter((key) => key.startsWith('files/etc/drbd-reactor.d/'));

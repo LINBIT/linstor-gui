@@ -111,10 +111,10 @@ const addUnit = async (name: string, type?: 'Mount') => {
   fireEvent.click(toolbar('Add Systemd/Mount'));
   const dialog = await screen.findByRole('dialog');
   if (type) {
-    fireEvent.mouseDown(within(dialog).getByRole('combobox'));
+    fireEvent.mouseDown(within(dialog).getByRole('combobox', { name: 'Unit Type' }));
     await pickOption(type);
   }
-  fireEvent.change(within(dialog).getByRole('textbox'), { target: { value: name } });
+  fireEvent.change(within(dialog).getByRole('textbox', { name: 'Unit Name' }), { target: { value: name } });
   fireEvent.click(within(dialog).getByRole('button', { name: 'Add' }));
 };
 
@@ -193,10 +193,12 @@ describe('OcfAgentEditor', () => {
     expand(first);
     expect(first).toHaveTextContent('ocf:heartbeat:IPaddr2 vip ip=10.0.0.5 cidr_netmask=24');
     expect(within(first).getByText('Parameters')).toBeInTheDocument();
-    const inputs = within(first).getAllByRole('textbox') as HTMLInputElement[];
-    expect(inputs.map((input) => input.value)).toEqual(['10.0.0.5', '24']);
+    // Each parameter input is named after its parameter.
+    const ip = within(first).getByRole('textbox', { name: 'ip' }) as HTMLInputElement;
+    expect(ip.value).toBe('10.0.0.5');
+    expect((within(first).getByRole('textbox', { name: 'cidr_netmask' }) as HTMLInputElement).value).toBe('24');
 
-    fireEvent.change(inputs[0], { target: { value: '10.0.0.6' } });
+    fireEvent.change(ip, { target: { value: '10.0.0.6' } });
 
     expect(first).toHaveTextContent('ocf:heartbeat:IPaddr2 vip ip=10.0.0.6 cidr_netmask=24');
     await waitFor(() => expect(toolbar('Save')).toBeEnabled());
@@ -228,7 +230,7 @@ describe('OcfAgentEditor', () => {
 
     expect(await screen.findByText('Parameter lvs_support added')).toBeInTheDocument();
     expect(previewText()).toContain('lvs_support=false');
-    const toggle = within(first).getByRole('switch');
+    const toggle = within(first).getByRole('switch', { name: 'lvs_support' });
     expect(toggle).not.toBeChecked();
 
     fireEvent.click(toggle);
@@ -250,7 +252,7 @@ describe('OcfAgentEditor', () => {
     fireEvent.click(within(dialog).getByRole('button', { name: 'Add' }));
     expect(await screen.findByText('Please enter a unit name')).toBeInTheDocument();
 
-    fireEvent.change(within(dialog).getByRole('textbox'), { target: { value: 'nginx' } });
+    fireEvent.change(within(dialog).getByRole('textbox', { name: 'Unit Name' }), { target: { value: 'nginx' } });
     fireEvent.click(within(dialog).getByRole('button', { name: 'Add' }));
     expect(await screen.findByText('Added service unit: nginx.service')).toBeInTheDocument();
     let all = await waitForItems(container, 3);

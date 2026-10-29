@@ -111,14 +111,15 @@ export function SortableAgentItem({
     </div>
   );
 
+  // The parameter name above the control is a plain text label, so it names the control here.
   const renderParamControl = (param: Parameter) => {
     switch (param.type) {
       case 'integer':
-        return <InputNumber className="w-full" />;
+        return <InputNumber className="w-full" aria-label={param.name} />;
       case 'boolean':
-        return <Switch />;
+        return <Switch aria-label={param.name} />;
       default:
-        return <Input />;
+        return <Input aria-label={param.name} />;
     }
   };
 

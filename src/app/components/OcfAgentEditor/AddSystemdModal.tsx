@@ -50,6 +50,7 @@ export const AddSystemdModal = ({ open, onAdd, onCancel }: AddSystemdModalProps)
       <Form layout="vertical">
         <Form.Item label={t('common:unit_type')} required>
           <Select
+            aria-label={t('common:unit_type')}
             value={systemdType}
             onChange={(value) => setSystemdType(value)}
             options={[
@@ -64,6 +65,7 @@ export const AddSystemdModal = ({ open, onAdd, onCancel }: AddSystemdModalProps)
           extra={systemdType === 'mount' ? t('common:examples_mount_unit') : t('common:examples_service_unit')}
         >
           <Input
+            aria-label={t('common:unit_name')}
             value={systemdUnitName}
             onChange={(e) => setSystemdUnitName(e.target.value)}
             placeholder={systemdType === 'mount' ? 'var-lib-mysql.mount' : 'mysql.service'}

@@ -33,6 +33,12 @@ vi.mock('@app/features/node/hooks/useNode', () => ({
   useNodes: () => ({ data: [{ name: 'node-a' }, { name: 'node-b' }], isLoading: false }),
 }));
 
+// Poll fast, so waiting for a node to start its services takes milliseconds, not seconds.
+vi.mock('../haStatus', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../haStatus')>()),
+  REACTOR_STATUS_POLL_MS: 50,
+}));
+
 const navigate = vi.fn();
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
@@ -303,6 +309,53 @@ describe('DRBD Reactor List', () => {
 
     await waitFor(() => expect(evictDrbdReactor).toHaveBeenCalledWith(['node-a'], 'mysql', true));
     expect(await screen.findByText('"ha-mysql" migrated to node-b')).toBeInTheDocument();
+  });
+
+  it('the evict confirm button moves, it does not show the delete icon', async () => {
+    renderList();
+    const mysql = (await screen.findByText('ha-mysql')).closest('tr') as HTMLElement;
+    await within(mysql).findByText('Running');
+    const menu = await openRowMenu('ha-mysql');
+    fireEvent.click(within(menu).getByText('Evict'));
+    const evict = await confirmDialogButton('Evict');
+    expect(evict.querySelector('.anticon-swap')).not.toBeNull();
+    // A danger Button without an icon of its own gets the inline trash svg.
+    expect(evict.querySelectorAll('svg')).toHaveLength(1);
+    fireEvent.click(await confirmDialogButton('Cancel'));
+  });
+
+  it('after an evict, reads the status until the node that took over runs the services', async () => {
+    // The node that took over reports its services inactive while it starts them, then active.
+    const startingStatus: Record<string, DrbdReactorStatus> = {
+      'node-a': { promoter: [mysqlPromoter('inactive')] },
+      'node-b': { promoter: [{ ...mysqlPromoter('inactive'), primary_on: 'node-b' }] },
+    };
+    const takenOverStatus: Record<string, DrbdReactorStatus> = {
+      'node-a': { promoter: [mysqlPromoter('inactive')] },
+      'node-b': { promoter: [{ ...mysqlPromoter('active'), primary_on: 'node-b' }] },
+    };
+    vi.mocked(getDrbdReactorStatus)
+      .mockImplementationOnce(later(report(runningStatus)))
+      .mockImplementationOnce(later(report(startingStatus)))
+      .mockImplementationOnce(later(report(startingStatus)))
+      .mockImplementation(later(report(takenOverStatus)));
+    renderList();
+    const mysql = (await screen.findByText('ha-mysql')).closest('tr') as HTMLElement;
+    await within(mysql).findByText('Running');
+    const menu = await openRowMenu('ha-mysql');
+    fireEvent.click(within(menu).getByText('Evict'));
+    fireEvent.click(await confirmDialogButton('Evict'));
+    expect(await screen.findByText('"ha-mysql" migrated to node-b')).toBeInTheDocument();
+
+    // The page went past the in-between Stopped and shows the services running on node-b.
+    await waitFor(() => expect(getDrbdReactorStatus).toHaveBeenCalledTimes(4));
+    await waitFor(() =>
+      expect(within(rowOf('ha-mysql')).getByText('node-b').closest('.ant-tag')).toHaveAttribute(
+        'data-tone',
+        'highlight',
+      ),
+    );
+    expect(within(rowOf('ha-mysql')).getByText('Running')).toBeInTheDocument();
   });
 
   it('reports an evict the node refused', async () => {

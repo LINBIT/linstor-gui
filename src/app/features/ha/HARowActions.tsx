@@ -8,7 +8,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Modal, Dropdown, MenuProps, message } from 'antd';
-import { MoreOutlined, DeleteOutlined } from '@ant-design/icons';
+import { MoreOutlined, DeleteOutlined, PoweroffOutlined, SwapOutlined } from '@ant-design/icons';
 import { Button } from '@app/components/Button';
 import type { useUnmanageHA } from './useHA';
 import { type HARecord, getConfigName, reactorConfigFiles } from './haStatus';
@@ -65,8 +65,10 @@ export const HARowActions: React.FC<HARowActionsProps> = ({
           footer: (
             <div className="flex justify-end gap-2 mt-4">
               <Button onClick={() => modal.destroy()}>{t('common:cancel')}</Button>
+              {/* An evict moves the services to another node; a danger Button's default trash icon reads as delete. */}
               <Button
                 danger
+                icon={<SwapOutlined aria-hidden />}
                 onClick={() => {
                   modal.destroy();
                   onEvict(record);
@@ -102,6 +104,7 @@ export const HARowActions: React.FC<HARowActionsProps> = ({
               <Button
                 type="primary"
                 danger={isActive}
+                icon={isActive ? <PoweroffOutlined aria-hidden /> : undefined}
                 onClick={() => {
                   modal.destroy();
                   if (isActive) {

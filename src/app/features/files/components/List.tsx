@@ -324,7 +324,7 @@ export const List = () => {
 
         <Space>
           <span>{t('show_reactor_files')}</span>
-          <Switch checked={showReactorFiles} onChange={setShowReactorFiles} />
+          <Switch aria-label={t('show_reactor_files')} checked={showReactorFiles} onChange={setShowReactorFiles} />
         </Space>
       </div>
 
@@ -421,6 +421,7 @@ export const List = () => {
           <div>
             <label className="block mb-2">{t('select_resource')}</label>
             <Select
+              aria-label={t('select_resource')}
               className="w-full"
               placeholder={
                 availableResources.length === 0 && !rdLoading
