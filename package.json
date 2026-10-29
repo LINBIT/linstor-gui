@@ -39,6 +39,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.63.0",
+    "@tailwindcss/vite": "^4.0.11",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.7",
@@ -80,7 +81,6 @@
     "@fontsource/roboto": "^5.2.10",
     "@noble/ciphers": "^2.4.0",
     "@noble/hashes": "^2.4.0",
-    "@tailwindcss/vite": "^4.0.11",
     "@tanstack/react-query": "^5.104.0",
     "antd": "^6.6.5",
     "apexcharts": "^7.6.1",
