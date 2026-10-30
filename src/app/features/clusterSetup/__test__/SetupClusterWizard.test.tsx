@@ -65,14 +65,7 @@ const footerButton = (name: string) =>
     (el) => el.textContent === name,
   ) as HTMLElement;
 
-// The service picker is a controlled Select outside any named Form.Item, so it
-// has no label association; find it through its form item.
-const serviceSelect = () => {
-  const item = Array.from(document.querySelectorAll('.ant-form-item')).find(
-    (el) => el.querySelector('label')?.textContent === 'Service',
-  ) as HTMLElement;
-  return item.querySelector('[role="combobox"]') as HTMLElement;
-};
+const serviceSelect = () => screen.getByRole('combobox', { name: 'Service' });
 
 const pickOption = async (combobox: HTMLElement, title: string) => {
   fireEvent.mouseDown(combobox);
@@ -89,11 +82,10 @@ const fillNodes = (nodes: Array<{ name: string; ip: string }>) => {
   nodes.forEach((_, i) => {
     if (i > 0) fireEvent.click(button('plus Add another node'));
   });
-  const names = screen.getAllByPlaceholderText('node01');
-  const ips = screen.getAllByPlaceholderText('10.0.0.1');
+  // Each row's inputs are named after their column and row, not just by their placeholders.
   nodes.forEach((n, i) => {
-    fireEvent.change(names[i], { target: { value: n.name } });
-    fireEvent.change(ips[i], { target: { value: n.ip } });
+    fireEvent.change(screen.getByRole('textbox', { name: `Name ${i + 1}` }), { target: { value: n.name } });
+    fireEvent.change(screen.getByRole('textbox', { name: `IP address ${i + 1}` }), { target: { value: n.ip } });
   });
 };
 
@@ -144,14 +136,15 @@ describe('SetupClusterWizard', () => {
     it('keeps at least one node row', () => {
       renderWizard();
 
-      const remove = () => screen.getAllByRole('button', { name: 'minus-circle' });
-      expect(remove()[0]).toBeDisabled();
+      const remove = (row: number) => screen.getByRole('button', { name: `Delete ${row}` });
+      expect(remove(1)).toBeDisabled();
+      expect(screen.getByRole('spinbutton', { name: 'Port 1' })).toHaveValue('3366');
 
       fireEvent.click(button('plus Add another node'));
       expect(screen.getAllByPlaceholderText('node01')).toHaveLength(2);
-      expect(remove()[0]).toBeEnabled();
+      expect(remove(1)).toBeEnabled();
 
-      fireEvent.click(remove()[1]);
+      fireEvent.click(remove(2));
       expect(screen.getAllByPlaceholderText('node01')).toHaveLength(1);
     });
 
@@ -222,6 +215,7 @@ describe('SetupClusterWizard', () => {
       expect(screen.getByText('gui01 (10.0.0.1:3366)')).toBeInTheDocument();
       expect(screen.getByText(/lvm-thin-pool \(LVM_THIN: vg1\/pool1\)/)).toHaveTextContent('gui01, gui02');
       expect(screen.getByText('vm-data')).toBeInTheDocument();
+      expect(screen.getByText('Place count: 2')).toBeInTheDocument();
       expect(createNode).not.toHaveBeenCalled();
     });
 

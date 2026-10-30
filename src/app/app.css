@@ -270,6 +270,14 @@ iframe {
   color: var(--text-on-brand);
 }
 
+/* A finished step's check mark: antd draws it in colorPrimary, the brand peach,
+ * on a pale peach circle, where it all but disappears in light mode. It takes
+ * the on-brand dark ink there, as the selected option's check above. In dark
+ * mode the circle is dark and the peach check reads fine. */
+:root:not([data-theme='dark']) .ant-steps .ant-steps-item-finish .ant-steps-item-icon {
+  color: var(--text-on-brand);
+}
+
 /* Theme-aware brand mark in the top bar: dark lettering on the white header,
  * white lettering when data-theme="dark". */
 :root:not([data-theme='dark']) .logo-on-dark {

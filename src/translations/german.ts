@@ -1444,7 +1444,7 @@ org_role = Viewer`,
     dismiss: 'Ausblenden',
     step_resource_group: 'Ressourcengruppe',
     rg_hint:
-      'Optional. Legen Sie jetzt eine Ressourcengruppe an oder überspringen Sie diesen Schritt. Eine Vorlage füllt sinnvolle Standardwerte für typische Workloads vor — jedes Feld bleibt änderbar.',
+      'Optional: Legen Sie jetzt eine Ressourcengruppe an oder überspringen Sie diesen Schritt. Die Auswahl eines Dienstes füllt empfohlene DRBD-Eigenschaften aus, die Sie weiterhin ändern können.',
     preset_label: 'Vorlage',
     preset_placeholder: '— keine —',
     preset_vm: 'VM (allgemein)',
@@ -1489,6 +1489,8 @@ org_role = Viewer`,
     ha_cmd_copy_failed: 'Kopieren fehlgeschlagen — markieren Sie den Befehlstext und kopieren Sie ihn manuell',
     ha_cmd_outro:
       'Das Skript fragt vor jeder Änderung nach einer Bestätigung und bricht ab, wenn der Cluster bereits HA-konfiguriert wirkt. Richten Sie anschließend Clients und Integrationen (Proxmox, CSI, …) auf alle Controller-IPs aus — die vollständige Referenz finden Sie im LINSTOR-Benutzerhandbuch.',
+    ha_cmd_outro_vip:
+      'Das Skript fragt vor jeder Änderung nach einer Bestätigung und bricht ab, wenn der Cluster bereits HA-konfiguriert wirkt. Richten Sie anschließend Clients und Integrationen (Proxmox, CSI, …) auf die Controller-VIP {{address}} aus — die vollständige Referenz finden Sie im LINSTOR-Benutzerhandbuch.',
     create_cluster: 'Cluster erstellen',
     creating_cluster: 'Cluster wird erstellt…',
     pool_skipped_node_failed: 'übersprungen — Knoten wurde nicht erstellt',

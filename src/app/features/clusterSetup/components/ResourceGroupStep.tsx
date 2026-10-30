@@ -98,8 +98,14 @@ export const ResourceGroupStep = forwardRef<ResourceGroupStepHandle, ResourceGro
         <InputNumber min={1} max={32} className="w-[160px]" />
       </Form.Item>
 
-      <Form.Item label={t('clusterSetup:service_label')} extra={t('clusterSetup:service_hint')}>
+      {/* Not a form field (it only pre-fills the properties), so the label is tied to the select by hand. */}
+      <Form.Item
+        label={t('clusterSetup:service_label')}
+        htmlFor="cluster-setup-rg-service"
+        extra={t('clusterSetup:service_hint')}
+      >
         <Select
+          id="cluster-setup-rg-service"
           value={service}
           onChange={(value) => applyService(value as ServiceKey)}
           placeholder={t('clusterSetup:service_placeholder')}

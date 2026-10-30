@@ -26,7 +26,7 @@ describe('ResourceGroupStep', () => {
     render(<ResourceGroupStep nodeCount={3} />);
     expect(screen.getByLabelText(/Resource group name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Place count/i)).toBeInTheDocument();
-    expect(screen.getByRole('combobox')).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Service' })).toBeInTheDocument();
   });
 
   it('pre-fills the property rows when a service is chosen', async () => {

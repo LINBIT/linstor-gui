@@ -50,6 +50,13 @@ export const getAntdTheme = (mode: ThemeMode): ThemeConfig => ({
     // button with the dark on-brand label. The circle's border, dot and hover
     // live in the Radio wrapper: antd's colorBorder also draws radio button
     // borders.
+    // An info alert takes the info chip colors (as a Tag's info tone) instead of antd's blue.
+    Alert: {
+      ...antdTheme.components?.Alert,
+      colorInfo: themeTokens['text/chip/info'][mode],
+      colorInfoBg: themeTokens['bg/chip/info'][mode],
+      colorInfoBorder: themeTokens['bg/chip/info'][mode],
+    },
     Radio: {
       ...antdTheme.components?.Radio,
       colorText: themeTokens['text/nav'][mode],
@@ -134,6 +141,11 @@ export const antdTheme: ThemeConfig = {
       // paint near-white text on it. The hovered option has no token of its
       // own; app.css covers that one.
       optionSelectedColor: value('text/on-brand'),
+    },
+    // The current step's number sits on the peach fill: dark on-brand text, as on a primary Button,
+    // instead of antd's white.
+    Steps: {
+      colorTextLightSolid: value('text/on-brand'),
     },
     DatePicker: {
       activeBorderColor: value('brand/muted'),

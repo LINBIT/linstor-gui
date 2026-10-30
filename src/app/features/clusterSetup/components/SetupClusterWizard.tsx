@@ -406,7 +406,7 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
                           rules={[{ required: true, message: t('clusterSetup:required') }]}
                           className="mb-0"
                         >
-                          <Input placeholder="node01" />
+                          <Input placeholder="node01" aria-label={`${t('clusterSetup:node_name')} ${idx + 1}`} />
                         </Form.Item>
                       ),
                     },
@@ -419,7 +419,7 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
                           rules={[{ required: true, message: t('clusterSetup:required') }]}
                           className="mb-0"
                         >
-                          <Input placeholder="10.0.0.1" />
+                          <Input placeholder="10.0.0.1" aria-label={`${t('clusterSetup:node_ip')} ${idx + 1}`} />
                         </Form.Item>
                       ),
                     },
@@ -433,7 +433,12 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
                           rules={[{ required: true, message: t('clusterSetup:required') }]}
                           className="mb-0"
                         >
-                          <InputNumber min={1} max={65535} className="w-full" />
+                          <InputNumber
+                            min={1}
+                            max={65535}
+                            className="w-full"
+                            aria-label={`${t('clusterSetup:node_port')} ${idx + 1}`}
+                          />
                         </Form.Item>
                       ),
                     },
@@ -444,7 +449,8 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
                       render: (_, _row, idx) => (
                         <Button
                           type="text"
-                          icon={<MinusCircleOutlined />}
+                          icon={<MinusCircleOutlined aria-hidden />}
+                          aria-label={`${t('common:delete')} ${idx + 1}`}
                           disabled={fields.length <= 1}
                           onClick={() => remove(idx)}
                         />
@@ -546,6 +552,11 @@ const WizardSession: React.FC<SetupClusterWizardProps & { afterClose: () => void
               {rgPlan ? (
                 <>
                   <Tag tone="info">{rgPlan.name}</Tag>
+                  {rgPlan.select_filter.place_count !== undefined && (
+                    <div className="mt-2">
+                      {t('clusterSetup:place_count')}: {rgPlan.select_filter.place_count}
+                    </div>
+                  )}
                   {Object.keys(rgPlan.props).length > 0 && (
                     <div className="mt-2">
                       {Object.entries(rgPlan.props).map(([k, v]) => (

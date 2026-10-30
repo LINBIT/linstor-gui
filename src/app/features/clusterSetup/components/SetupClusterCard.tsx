@@ -31,7 +31,7 @@ export const SetupClusterCard: React.FC<SetupClusterCardProps> = ({ onStart, onD
       styles={{ body: { padding: 24 } }}
     >
       <Space size="large" align="start" className="w-full" wrap>
-        <div className="flex size-14 flex-none items-center justify-center rounded-xl bg-(--bg-chip-brand) text-[28px] text-(--brand-accent)">
+        <div className="flex size-14 flex-none items-center justify-center rounded bg-(--bg-chip-brand) text-[28px] text-(--brand-accent)">
           <RocketOutlined />
         </div>
 

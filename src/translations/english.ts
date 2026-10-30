@@ -417,7 +417,7 @@ const en = {
     dismiss: 'Dismiss',
     step_resource_group: 'Resource group',
     rg_hint:
-      'Optional. Create one resource group now, or skip to finish. Picking a preset pre-fills sensible defaults for common workloads — you can still tweak each field.',
+      'Optional: create a resource group now, or skip this step. Choosing a Service fills in recommended DRBD properties, which you can still change.',
     preset_label: 'Preset',
     preset_placeholder: '— none —',
     preset_vm: 'VM (general)',
@@ -461,6 +461,8 @@ const en = {
     ha_cmd_copy_failed: 'Copy failed — select the command text and copy it manually',
     ha_cmd_outro:
       'The script asks for confirmation before changing anything and aborts if the cluster already looks HA-configured. Afterwards, point clients and integrations (Proxmox, CSI, …) at all controller IPs — see the LINSTOR user guide for the full reference.',
+    ha_cmd_outro_vip:
+      'The script asks for confirmation before changing anything and aborts if the cluster already looks HA-configured. Afterwards, point clients and integrations (Proxmox, CSI, …) at the controller VIP {{address}} — see the LINSTOR user guide for the full reference.',
     create_cluster: 'Create cluster',
     creating_cluster: 'Creating cluster…',
     pool_skipped_node_failed: 'skipped — node was not created',

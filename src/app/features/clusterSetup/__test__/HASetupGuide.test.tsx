@@ -115,8 +115,13 @@ describe('HASetupGuide', () => {
     // no VIP by default — the option is opt-in
     expect(commandText()).not.toContain('--vip');
 
+    expect(screen.getByText(/at all controller IPs/)).toBeInTheDocument();
+
     fireEvent.change(screen.getByLabelText(/Controller virtual IP/i), { target: { value: '10.0.0.100/24' } });
     await waitFor(() => expect(commandText()).toContain('--vip 10.0.0.100/24'));
+    // With a VIP, clients go to that one address, not to every controller.
+    expect(screen.getByText(/at the controller VIP 10\.0\.0\.100 —/)).toBeInTheDocument();
+    expect(screen.queryByText(/at all controller IPs/)).toBeNull();
   });
 
   it('refuses a VIP without a prefix length', async () => {

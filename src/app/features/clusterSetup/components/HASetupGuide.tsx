@@ -27,20 +27,6 @@ import {
 // ships with linstor-controller — the wizard only assembles the command line
 // for it, so the operator can paste it into a shell on the controller node.
 
-const codeStyle: React.CSSProperties = {
-  background: 'var(--bg-surface)',
-  border: '1px solid var(--border-subtle)',
-  padding: '12px 14px',
-  borderRadius: 6,
-  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-  fontSize: 12,
-  lineHeight: 1.5,
-  overflow: 'auto',
-  margin: '8px 0 0',
-  whiteSpace: 'pre-wrap',
-  wordBreak: 'break-all',
-};
-
 interface HASetupGuideProps {
   /** Storage pool the wizard just created — used for the controller-DB resource. */
   storagePool?: string;
@@ -149,10 +135,14 @@ const HAGuideBody: React.FC<HASetupGuideProps> = ({ storagePool, nodes }) => {
         {t('clusterSetup:ha_cmd_copy')}
       </Button>
 
-      <pre style={codeStyle}>{command}</pre>
+      <pre className="mt-2 mb-0 overflow-auto rounded border border-(--border-subtle) bg-(--bg-surface) px-3.5 py-3 font-mono text-[12px] leading-normal whitespace-pre-wrap break-all">
+        {command}
+      </pre>
 
       <Typography.Paragraph type="secondary" className="mt-3 mb-0">
-        {t('clusterSetup:ha_cmd_outro')}
+        {vip.trim() && !vipInvalid
+          ? t('clusterSetup:ha_cmd_outro_vip', { address: vip.trim().split('/')[0] })
+          : t('clusterSetup:ha_cmd_outro')}
       </Typography.Paragraph>
     </div>
   );

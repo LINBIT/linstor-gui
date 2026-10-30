@@ -1414,7 +1414,7 @@ org_role = Viewer`,
     dismiss: 'Kapat',
     step_resource_group: 'Kaynak grubu',
     rg_hint:
-      'İsteğe bağlı. Şimdi bir kaynak grubu oluşturun veya bu adımı atlayın. Bir ön ayar seçmek yaygın iş yükleri için makul varsayılanları doldurur — her alanı yine de değiştirebilirsiniz.',
+      'İsteğe bağlı: şimdi bir kaynak grubu oluşturun veya bu adımı atlayın. Bir servis seçmek önerilen DRBD özelliklerini doldurur; bunları yine de değiştirebilirsiniz.',
     preset_label: 'Ön ayar',
     preset_placeholder: '— yok —',
     preset_vm: 'VM (genel)',
@@ -1459,6 +1459,8 @@ org_role = Viewer`,
     ha_cmd_copy_failed: 'Kopyalama başarısız — komut metnini seçip elle kopyalayın',
     ha_cmd_outro:
       "Betik herhangi bir değişiklik yapmadan önce onay ister ve küme zaten HA yapılandırılmış görünüyorsa durur. Ardından istemcileri ve entegrasyonları (Proxmox, CSI, …) tüm denetleyici IP'lerine yönlendirin — tam başvuru için LINSTOR kullanıcı kılavuzuna bakın.",
+    ha_cmd_outro_vip:
+      "Betik herhangi bir değişiklik yapmadan önce onay ister ve küme zaten HA yapılandırılmış görünüyorsa durur. Ardından istemcileri ve entegrasyonları (Proxmox, CSI, …) denetleyici VIP'si {{address}} adresine yönlendirin — tam başvuru için LINSTOR kullanıcı kılavuzuna bakın.",
     create_cluster: 'Kümeyi oluştur',
     creating_cluster: 'Küme oluşturuluyor…',
     pool_skipped_node_failed: 'atlandı — düğüm oluşturulmadı',

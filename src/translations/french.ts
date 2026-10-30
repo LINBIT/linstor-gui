@@ -1436,7 +1436,7 @@ org_role = Viewer`,
     dismiss: 'Masquer',
     step_resource_group: 'Groupe de ressources',
     rg_hint:
-      'Facultatif. Créez un groupe de ressources maintenant ou passez à la fin. Choisir un préréglage pré-remplit des valeurs par défaut adaptées aux charges de travail courantes — chaque champ reste modifiable.',
+      'Facultatif : créez un groupe de ressources maintenant ou passez cette étape. Choisir un service remplit les propriétés DRBD recommandées, que vous pouvez encore modifier.',
     preset_label: 'Préréglage',
     preset_placeholder: '— aucun —',
     preset_vm: 'VM (général)',
@@ -1481,6 +1481,8 @@ org_role = Viewer`,
     ha_cmd_copy_failed: 'Échec de la copie — sélectionnez le texte de la commande et copiez-le manuellement',
     ha_cmd_outro:
       "Le script demande confirmation avant toute modification et s'interrompt si le cluster semble déjà configuré en HA. Ensuite, orientez les clients et les intégrations (Proxmox, CSI, …) vers toutes les IP du contrôleur — voir le guide de l'utilisateur LINSTOR pour la référence complète.",
+    ha_cmd_outro_vip:
+      "Le script demande confirmation avant toute modification et s'interrompt si le cluster semble déjà configuré en HA. Ensuite, orientez les clients et les intégrations (Proxmox, CSI, …) vers la VIP du contrôleur {{address}} — voir le guide de l'utilisateur LINSTOR pour la référence complète.",
     create_cluster: 'Créer le cluster',
     creating_cluster: 'Création du cluster…',
     pool_skipped_node_failed: "ignoré — le nœud n'a pas été créé",

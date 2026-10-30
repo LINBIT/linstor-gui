@@ -453,7 +453,7 @@ const zh = {
     done_description: '节点和存储池都已注册，现在可以去其它页面创建资源、管理复制了。',
     dismiss: '忽略',
     step_resource_group: '资源组',
-    rg_hint: '可选。可以现在创建一个资源组，也可以跳过。选择 preset 会按常见场景预填字段，预填后你仍然可以单独调整。',
+    rg_hint: '可选：可以现在创建一个资源组，也可以跳过这一步。选择服务后会填入推荐的 DRBD 属性，填入后仍可修改。',
     preset_label: '预设',
     preset_placeholder: '— 不选 —',
     preset_vm: 'VM（通用虚拟化）',
@@ -494,6 +494,8 @@ const zh = {
     ha_cmd_copy_failed: '复制失败——请手动选中命令文本复制',
     ha_cmd_outro:
       '脚本在做任何变更前会先确认,如果集群看起来已配置过 HA 会直接中止。完成后请把客户端和集成(Proxmox、CSI 等)指向所有 controller 的 IP——完整说明见 LINSTOR 用户手册。',
+    ha_cmd_outro_vip:
+      '脚本在做任何变更前会先确认,如果集群看起来已配置过 HA 会直接中止。完成后请把客户端和集成(Proxmox、CSI 等)指向 controller 的 VIP {{address}}——完整说明见 LINSTOR 用户手册。',
     create_cluster: '创建集群',
     creating_cluster: '正在创建集群…',
     pool_skipped_node_failed: '已跳过 — 节点未创建成功',
