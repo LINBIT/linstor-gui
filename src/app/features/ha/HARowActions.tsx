@@ -17,6 +17,8 @@ interface HARowActionsProps {
   record: HARecord;
   getPrimaryNode: (resourceName: string) => string | null;
   isResourceActive: (resourceName: string) => boolean;
+  /** An evict, stop or start of this resource has not settled yet: the menu is closed to it until then. */
+  settling: boolean;
   onEvict: (record: HARecord) => void;
   onStop: (record: HARecord) => void;
   onStart: (record: HARecord) => void;
@@ -29,6 +31,7 @@ export const HARowActions: React.FC<HARowActionsProps> = ({
   record,
   getPrimaryNode,
   isResourceActive,
+  settling,
   onEvict,
   onStop,
   onStart,
@@ -181,8 +184,15 @@ export const HARowActions: React.FC<HARowActionsProps> = ({
   ];
 
   return (
-    <Dropdown menu={{ items }}>
-      <span className="cursor-pointer text-(--icon-subtle) hover:text-(--icon-default)">
+    <Dropdown menu={{ items }} disabled={settling}>
+      <span
+        aria-disabled={settling || undefined}
+        className={
+          settling
+            ? 'cursor-not-allowed text-(--icon-muted)'
+            : 'cursor-pointer text-(--icon-subtle) hover:text-(--icon-default)'
+        }
+      >
         <MoreOutlined />
       </span>
     </Dropdown>

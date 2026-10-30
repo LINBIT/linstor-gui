@@ -16,9 +16,11 @@ import { ACTIVE_NODE_LINK_STYLE, PROMOTER_TOOLTIP_STYLES, renderPromoterTree } f
 interface ResourceNodesProps {
   resourceName: string;
   reactorStatus?: Record<string, { promoter?: Array<{ drbd_resource: string; primary_on: string; status: string }> }>;
+  /** The node an evict moved the resource to, highlighted while it is still starting the services. */
+  takeoverNode?: string | null;
 }
 
-export const ResourceNodes: React.FC<ResourceNodesProps> = ({ resourceName, reactorStatus }) => {
+export const ResourceNodes: React.FC<ResourceNodesProps> = ({ resourceName, reactorStatus, takeoverNode }) => {
   const { data: resourcesView, isLoading } = useResources(resourceName);
 
   if (isLoading) {
@@ -37,8 +39,8 @@ export const ResourceNodes: React.FC<ResourceNodesProps> = ({ resourceName, reac
   }
 
   // Find primary node from reactor status
-  let primaryNodeFromReactor: string | null = null;
-  if (reactorStatus) {
+  let primaryNodeFromReactor: string | null = takeoverNode ?? null;
+  if (reactorStatus && !primaryNodeFromReactor) {
     for (const nodeStatus of Object.values(reactorStatus)) {
       const promoter = nodeStatus.promoter?.find((p) => p.drbd_resource === resourceName);
       if (promoter && promoter.status === 'active') {

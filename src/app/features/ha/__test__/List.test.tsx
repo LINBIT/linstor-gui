@@ -116,6 +116,36 @@ const renderList = () => {
 
 const rowOf = (name: string) => screen.getByText(name).closest('tr') as HTMLElement;
 
+// A row whose evict, stop or start has not settled: Status spins instead of a Running or Stopped tag, and the
+// row menu is closed. The Nodes column keeps showing the nodes.
+const expectSettling = (name: string) => {
+  const row = rowOf(name);
+  expect(within(row).getAllByRole('img', { name: 'loading' })).toHaveLength(1);
+  expect(within(row).queryByText(/^(Running|Stopped)$/)).toBeNull();
+  expect(within(row).getByRole('img', { name: 'more' }).parentElement).toHaveAttribute('aria-disabled', 'true');
+};
+
+const highlightedNode = (name: string) =>
+  within(rowOf(name))
+    .queryAllByText(/^node-/)
+    .filter((node) => node.closest('.ant-tag')?.getAttribute('data-tone') === 'highlight')
+    .map((node) => node.textContent);
+
+const expectSettled = (name: string) => {
+  const row = rowOf(name);
+  expect(within(row).queryByRole('img', { name: 'loading' })).toBeNull();
+  expect(within(row).getByRole('img', { name: 'more' }).parentElement).not.toHaveAttribute('aria-disabled');
+};
+
+// A promise the test resolves itself, to hold a request open while it looks at the page.
+const deferred = <T,>() => {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((r) => {
+    resolve = r;
+  });
+  return { promise, resolve };
+};
+
 const openRowMenu = async (name: string) => {
   fireEvent.mouseEnter(within(rowOf(name)).getByRole('img', { name: 'more' }));
   let menu: HTMLElement | undefined;
@@ -347,14 +377,38 @@ describe('DRBD Reactor List', () => {
     fireEvent.click(await confirmDialogButton('Evict'));
     expect(await screen.findByText('"ha-mysql" migrated to node-b')).toBeInTheDocument();
 
-    // The page went past the in-between Stopped and shows the services running on node-b.
+    // While node-b starts the services the row shows no in-between Stopped, and node-b, which the evict
+    // named, is already the highlighted node.
+    expectSettling('ha-mysql');
+    expect(highlightedNode('ha-mysql')).toEqual(['node-b']);
+
+    // Then it shows the services running on node-b.
     await waitFor(() => expect(getDrbdReactorStatus).toHaveBeenCalledTimes(4));
-    await waitFor(() =>
-      expect(within(rowOf('ha-mysql')).getByText('node-b').closest('.ant-tag')).toHaveAttribute(
-        'data-tone',
-        'highlight',
-      ),
-    );
+    expect(await within(rowOf('ha-mysql')).findByText('Running')).toBeInTheDocument();
+    expect(highlightedNode('ha-mysql')).toEqual(['node-b']);
+    expectSettled('ha-mysql');
+  });
+
+  it('while the evict request runs, the row spins and its menu is closed', async () => {
+    const evict = deferred<unknown>();
+    vi.mocked(evictDrbdReactor).mockReturnValue(evict.promise as never);
+    renderList();
+    const mysql = (await screen.findByText('ha-mysql')).closest('tr') as HTMLElement;
+    await within(mysql).findByText('Running');
+    const menu = await openRowMenu('ha-mysql');
+    fireEvent.click(within(menu).getByText('Evict'));
+    fireEvent.click(await confirmDialogButton('Evict'));
+
+    await waitFor(() => expectSettling('ha-mysql'));
+    // Where the evict goes is not known yet: node-a stays the highlighted node.
+    expect(highlightedNode('ha-mysql')).toEqual(['node-a']);
+    // The other row is not affected.
+    expect(within(rowOf('ha-stopped')).getByText('Stopped')).toBeInTheDocument();
+
+    await act(async () => evict.resolve([{ node: 'node-a', exit_code: 1, stderr_utf8: 'resource is not active' }]));
+    // A refused evict leaves the row as it was.
+    expect(await screen.findByText('Evict failed: resource is not active')).toBeInTheDocument();
+    expectSettled('ha-mysql');
     expect(within(rowOf('ha-mysql')).getByText('Running')).toBeInTheDocument();
   });
 
@@ -392,6 +446,7 @@ describe('DRBD Reactor List', () => {
       await screen.findByText('Stop configuration "mysql"? This will disable the HA service on all nodes.'),
     ).toBeInTheDocument();
     fireEvent.click(await confirmDialogButton('Stop'));
+    await waitFor(() => expectSettling('ha-mysql'));
 
     await waitFor(() => expect(disableDrbdReactor).toHaveBeenCalledTimes(2));
     expect(vi.mocked(disableDrbdReactor).mock.calls).toEqual([
@@ -400,6 +455,7 @@ describe('DRBD Reactor List', () => {
     ]);
     expect(await screen.findByText('"ha-mysql" stopped successfully')).toBeInTheDocument();
     expect(await within(rowOf('ha-mysql')).findByText('Stopped')).toBeInTheDocument();
+    expectSettled('ha-mysql');
   });
 
   it('start enables the config on every cluster node when the reactor does not list it', async () => {
@@ -412,7 +468,10 @@ describe('DRBD Reactor List', () => {
       },
       'node-b': { promoter: [mysqlPromoter('inactive')] },
     };
+    // The services take a few reads to come up after the enable: the page keeps reading until they do.
     vi.mocked(getDrbdReactorStatus)
+      .mockImplementationOnce(later(report(runningStatus)))
+      .mockImplementationOnce(later(report(runningStatus)))
       .mockImplementationOnce(later(report(runningStatus)))
       .mockImplementation(later(report(startedStatus)));
     renderList();
@@ -421,10 +480,26 @@ describe('DRBD Reactor List', () => {
     const menu = await openRowMenu('ha-stopped');
     fireEvent.click(within(menu).getByText('Start'));
     fireEvent.click(await confirmDialogButton('Start'));
+    await waitFor(() => expectSettling('ha-stopped'));
 
     await waitFor(() => expect(enableDrbdReactor).toHaveBeenCalledWith(['node-a', 'node-b'], 'stopped'));
     expect(await screen.findByText('"ha-stopped" started successfully')).toBeInTheDocument();
     expect(await within(rowOf('ha-stopped')).findByText('Running')).toBeInTheDocument();
+    expectSettled('ha-stopped');
+  });
+
+  it('a stop that fails leaves the row as it was', async () => {
+    vi.mocked(disableDrbdReactor).mockRejectedValue(new Error('connection refused'));
+    renderList();
+    const mysql = (await screen.findByText('ha-mysql')).closest('tr') as HTMLElement;
+    await within(mysql).findByText('Running');
+    const menu = await openRowMenu('ha-mysql');
+    fireEvent.click(within(menu).getByText('Stop'));
+    fireEvent.click(await confirmDialogButton('Stop'));
+
+    expect(await screen.findByText(/Failed to stop "ha-mysql"/)).toBeInTheDocument();
+    expectSettled('ha-mysql');
+    expect(within(rowOf('ha-mysql')).getByText('Running')).toBeInTheDocument();
   });
 
   it('unmanage undeploys the file but keeps it', async () => {

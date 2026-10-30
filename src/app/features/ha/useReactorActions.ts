@@ -50,9 +50,22 @@ export const useReactorActions = () => {
   const [evictStartedAt, setEvictStartedAt] = useState<number | null>(null);
   const [stoppingResource, setStoppingResource] = useState<string | null>(null);
   const [stopStartedAt, setStopStartedAt] = useState<number | null>(null);
+  const [startingResource, setStartingResource] = useState<string | null>(null);
+  const [startStartedAt, setStartStartedAt] = useState<number | null>(null);
   // An evict that named the node taking over: that node still has to start the services, so the status
   // is polled until it reports them active (or the wait runs out), not just read once while they start.
   const [takeover, setTakeover] = useState<{ resourceName: string; node: string; startedAt: number } | null>(null);
+  // Resources whose evict, stop or start request has been sent and not answered yet; once it is answered,
+  // the evict, takeover, stop or start state above takes over until the status shows the result.
+  const [requestedResources, setRequestedResources] = useState<ReadonlySet<string>>(new Set());
+  const markRequested = (resourceName: string, requested: boolean) =>
+    setRequestedResources((current) => {
+      if (current.has(resourceName) === requested) return current;
+      const next = new Set(current);
+      if (requested) next.add(resourceName);
+      else next.delete(resourceName);
+      return next;
+    });
 
   // Fetch reactor status once for the page, then temporarily switch to polling while an evict is in flight.
   const {
@@ -63,7 +76,7 @@ export const useReactorActions = () => {
   } = useDrbdReactorStatus(
     nodeNames,
     nodeNames.length > 0,
-    evictingResource || stoppingResource || takeover ? REACTOR_STATUS_POLL_MS : false,
+    evictingResource || stoppingResource || startingResource || takeover ? REACTOR_STATUS_POLL_MS : false,
   );
   const { data: reactorFailures } = useDrbdReactorFailures(nodeNames);
 
@@ -117,9 +130,6 @@ export const useReactorActions = () => {
     queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] });
   }, [queryClient, reactorStatus, reactorStatusUpdatedAt, stopStartedAt, stoppingResource, t]);
 
-  const [startingResource, setStartingResource] = useState<string | null>(null);
-  const [startStartedAt, setStartStartedAt] = useState<number | null>(null);
-
   useEffect(() => {
     if (!startingResource || !reactorStatus) return;
     if (startStartedAt !== null && reactorStatusUpdatedAt <= startStartedAt) return;
@@ -135,6 +145,21 @@ export const useReactorActions = () => {
   }, [queryClient, reactorStatus, reactorStatusUpdatedAt, startStartedAt, startingResource, t]);
 
   const getPrimaryNode = (resourceName: string): string | null => activeNodeInStatus(reactorStatus, resourceName);
+
+  /**
+   * Whether an evict, stop or start of the resource has not settled yet: from the moment it is sent until the
+   * status shows its result. Its running state is in between until then, so the row does not show one.
+   */
+  const isResourceSettling = (resourceName: string): boolean =>
+    requestedResources.has(resourceName) ||
+    evictingResource?.resourceName === resourceName ||
+    takeover?.resourceName === resourceName ||
+    stoppingResource === resourceName ||
+    startingResource === resourceName;
+
+  /** The node an evict moved the resource to while that node still starts the services, else null. */
+  const getTakeoverNode = (resourceName: string): string | null =>
+    takeover?.resourceName === resourceName ? takeover.node : null;
 
   /**
    * Check if a resource is currently active (running on any node).
@@ -164,6 +189,7 @@ export const useReactorActions = () => {
     const nonActiveNodes = allNodes.filter((n) => n !== activeNode);
 
     message.loading({ content: t('ha:stopping', { name: record.name }), key: 'stop-in-progress', duration: 0 });
+    markRequested(record.name, true);
 
     try {
       // Step 1: Disable on all non-active nodes first
@@ -190,6 +216,8 @@ export const useReactorActions = () => {
       setStopStartedAt(null);
       message.destroy('stop-in-progress');
       message.error(t('ha:stop_failed', { name: record.name, error: String(err) }));
+    } finally {
+      markRequested(record.name, false);
     }
   };
 
@@ -213,6 +241,7 @@ export const useReactorActions = () => {
     }
 
     message.loading({ content: t('ha:starting', { name: record.name }), key: 'start-in-progress', duration: 0 });
+    markRequested(record.name, true);
 
     try {
       await enableMutation.mutateAsync({ nodes: targetNodes, config: configName });
@@ -228,6 +257,8 @@ export const useReactorActions = () => {
     } catch (err) {
       message.destroy('start-in-progress');
       message.error(t('ha:start_failed', { name: record.name, error: String(err) }));
+    } finally {
+      markRequested(record.name, false);
     }
   };
 
@@ -250,6 +281,7 @@ export const useReactorActions = () => {
       key: 'evict-in-progress',
       duration: 0,
     });
+    markRequested(record.name, true);
 
     evictMutation.mutate(
       { nodes: [primaryNode], resource: configName, wait: true },
@@ -298,6 +330,7 @@ export const useReactorActions = () => {
           message.destroy('evict-in-progress');
           message.error(t('ha:evict_failed', { error: String(err) }));
         },
+        onSettled: () => markRequested(record.name, false),
       },
     );
   };
@@ -310,6 +343,8 @@ export const useReactorActions = () => {
     disableMutation,
     getPrimaryNode,
     isResourceActive,
+    isResourceSettling,
+    getTakeoverNode,
     handleStop,
     handleStart,
     handleEvict,

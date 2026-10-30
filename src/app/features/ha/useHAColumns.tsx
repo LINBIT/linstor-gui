@@ -41,7 +41,7 @@ export const useHAColumns = ({ reactor, onViewFile, onDelete }: Options): Column
       key: 'status',
       width: 100,
       render: (_, record) => {
-        if (reactorStatusLoading) {
+        if (reactorStatusLoading || reactor.isResourceSettling(record.name)) {
           return <LoadingOutlined spin className="text-(--icon-muted)" />;
         }
         return (
@@ -56,7 +56,13 @@ export const useHAColumns = ({ reactor, onViewFile, onDelete }: Options): Column
     {
       title: t('common:nodes'),
       key: 'nodes',
-      render: (_, record) => <ResourceNodes resourceName={record.name} reactorStatus={reactorStatus} />,
+      render: (_, record) => (
+        <ResourceNodes
+          resourceName={record.name}
+          reactorStatus={reactorStatus}
+          takeoverNode={reactor.getTakeoverNode(record.name)}
+        />
+      ),
     },
     {
       title: t('ha:config_files'),
@@ -87,6 +93,7 @@ export const useHAColumns = ({ reactor, onViewFile, onDelete }: Options): Column
           record={record}
           getPrimaryNode={reactor.getPrimaryNode}
           isResourceActive={reactor.isResourceActive}
+          settling={reactor.isResourceSettling(record.name)}
           onEvict={reactor.handleEvict}
           onStop={reactor.handleStop}
           onStart={reactor.handleStart}
