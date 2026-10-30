@@ -83,4 +83,22 @@ export const calculatePercentage = (allocated: number = 0, total: number = 0): s
 export const auxPropKeys = (rows: OverviewRow[] | undefined) =>
   Array.from(new Set(rows?.flatMap((item) => Object.keys(item.props ?? {}).filter((key) => key.startsWith('Aux')))));
 
+// A replication state in which data is moving, or about to, between two replicas.
+const SYNCING_REPLICATION_STATE = /^(Sync|PausedSync|StartingSync|Verify|WFBitMap)/;
+
+/**
+ * Whether any volume of the resource view is syncing or waiting for a sync: a replication state
+ * in which data moves between replicas, or an Inconsistent disk (which usually precedes the sync).
+ */
+export const hasSyncingVolume = (resources: ResourceDataType[] | undefined): boolean =>
+  (resources ?? []).some((resource) =>
+    (resource.volumes ?? []).some(
+      (volume) =>
+        volume.state?.disk_state === 'Inconsistent' ||
+        Object.values(volume.state?.replication_states ?? {}).some((peer) =>
+          SYNCING_REPLICATION_STATE.test(peer?.replication_state ?? ''),
+        ),
+    ),
+  );
+
 export const resourceKey = (vol: OverviewVolume) => `${vol.resource_name ?? ''}@${vol.node_name ?? ''}`;

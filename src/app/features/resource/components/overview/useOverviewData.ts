@@ -8,7 +8,13 @@ import { useCallback, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getResourceDefinition, ResourceDefinitionListQuery } from '@app/features/resourceDefinition';
 import { getResources } from '../../api';
-import { mergeOverviewRows } from './rows';
+import { hasSyncingVolume, mergeOverviewRows } from './rows';
+
+/** How often the live resource state is read while a volume syncs, so its progress moves. */
+export const SYNC_POLL_MS = 1000;
+
+/** How often it is read otherwise: the full view grows with the cluster (MBs at thousands of resources). */
+export const IDLE_POLL_MS = 10000;
 
 /** The overview's rows: the definitions matching `query`, each with its deployed volumes. */
 export const useOverviewData = (query: ResourceDefinitionListQuery) => {
@@ -37,9 +43,9 @@ export const useOverviewData = (query: ResourceDefinitionListQuery) => {
 
   // Live state (disk_state, replication_states, done_percentage, in_use) is
   // fetched separately so it can poll fast during a sync without re-pulling
-  // the heavier resource-definition payload. Constant 1s cadence so we don't
-  // need to "detect" sync before going fast — the /v1/view/resources call is
-  // a single lightweight endpoint.
+  // the resource-definition payload. Fast only while something syncs: the view
+  // holds every resource of the cluster, so at a 1s cadence a large cluster
+  // pulls megabytes a second and the controller builds the whole view each time.
   const {
     data: resourcesView,
     isPending: rvLoading,
@@ -47,7 +53,7 @@ export const useOverviewData = (query: ResourceDefinitionListQuery) => {
   } = useQuery({
     queryKey: ['getResourcesView'],
     queryFn: fetchResourcesView,
-    refetchInterval: 1000,
+    refetchInterval: (q) => (hasSyncingVolume(q.state.data) ? SYNC_POLL_MS : IDLE_POLL_MS),
     refetchIntervalInBackground: false,
   });
 
