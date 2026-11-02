@@ -130,6 +130,12 @@ console.warn = (...args: unknown[]) => {
   reportWarning(...args);
 };
 
+// Node's own warnings (a deprecated API, MaxListenersExceededWarning, an
+// unhandled-rejection notice) bypass console.warn; Node still prints them.
+process.on('warning', (warning) => {
+  unexpectedLogs.push(['warn', [`${warning.name}: ${warning.message}`]]);
+});
+
 // Whatever reaches the two above was not expected: a test that makes the GUI
 // log an error on purpose captures it (captureConsoleError in @app/testing/console) and
 // asserts on it. Anything else fails the test that logged it, so the run's

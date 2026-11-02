@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 /// <reference types="vitest" />
-import { defineConfig, loadEnv } from 'vite';
+import { createLogger, defineConfig, loadEnv, type Plugin } from 'vite';
 import { configDefaults } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
@@ -25,6 +25,37 @@ const snapshotVersion = (): string => {
     // A source tarball has no .git; packaging passes VERSION anyway.
     return version;
   }
+};
+
+/**
+ * A logger that counts warnings, and a plugin that fails the build if there
+ * were any. The build is meant to print none, and a warning that only scrolls
+ * past in a CI log goes unnoticed: a new chunk over chunkSizeWarningLimit, a
+ * rolldown or plugin warning. Vite routes all of them through its logger.
+ */
+const warningGate = (): { logger: ReturnType<typeof createLogger>; plugin: Plugin } => {
+  const logger = createLogger();
+  let warnings = 0;
+  const { warn, warnOnce } = logger;
+  logger.warn = (msg, options) => {
+    warnings += 1;
+    warn(msg, options);
+  };
+  logger.warnOnce = (msg, options) => {
+    warnings += 1;
+    warnOnce(msg, options);
+  };
+  return {
+    logger,
+    plugin: {
+      name: 'linstor-gui:no-build-warnings',
+      apply: 'build',
+      // After writeBundle, where vite reports the chunk sizes.
+      closeBundle() {
+        if (warnings) this.error(`The build printed ${warnings} warning(s); fix them, see above.`);
+      },
+    },
+  };
 };
 
 // https://vitejs.dev/config/
@@ -51,8 +82,11 @@ export default defineConfig(({ mode, command }) => {
   // Check if coverage is requested via CLI argument
   const isCoverageMode = process.argv.includes('--coverage');
 
+  const gate = warningGate();
+
   return {
-    plugins: [react(), tailwindcss()],
+    customLogger: gate.logger,
+    plugins: [react(), tailwindcss(), gate.plugin],
 
     resolve: {
       extensions: ['.js', '.ts', '.tsx', '.jsx'],
@@ -115,7 +149,8 @@ export default defineConfig(({ mode, command }) => {
       // further: apexcharts (~630 kB: its core alone is ~470 kB, plus the
       // types and features @app/components/Chart registers), and the OCF agent
       // catalog data behind the reactor editor. Anything else crossing 500 kB
-      // should still warn, so the limit only covers those two.
+      // should still warn, which fails the build (warningGate), so the limit
+      // only covers those two.
       chunkSizeWarningLimit: 650,
       cssCodeSplit: true,
       // Vite's default oxc minifier; terser took 95% of the build time.
