@@ -102,6 +102,20 @@ type-check:
   script:
     - npm run type-check
 
+# schema.ts and gatewayschema.ts are generated from the vendored OpenAPI specs
+# and never edited by hand: regenerate them and fail if anything differs, so a
+# spec update cannot land without its types, nor a hand edit go unnoticed.
+generated-schema:
+  stage: test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
+  before_script:
+    - npm ci
+  script:
+    - npm run generate-api
+    - git diff --exit-code -- src/app/apis
+
 test:
   stage: test
   rules:

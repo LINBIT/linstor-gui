@@ -7369,6 +7369,8 @@ export interface components {
             git_hash?: string;
             build_time?: string;
             rest_api_version?: string;
+            /** @description The host name of the machine the controller runs on */
+            host_name?: string;
         };
         DatabaseBackupRequest: {
             backup_name?: string;
