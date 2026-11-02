@@ -220,6 +220,15 @@ export default defineConfig(({ mode, command }) => {
         provider: 'v8',
         reporter: ['text', 'json', 'html', 'cobertura'],
         reportsDirectory: './coverage',
+        // Floors just under the coverage on main (85.75 / 76.72 / 83.96 / 86.99
+        // when set): an MR that lowers it fails the test job. Raise them when
+        // coverage grows.
+        thresholds: {
+          statements: 85,
+          branches: 76,
+          functions: 83,
+          lines: 86,
+        },
         // v8 only instruments files a test imports, so without an explicit
         // include the ~220 untested source files never reach the denominator
         // and the reported number was more than double the real one.
