@@ -145,13 +145,13 @@ export default defineConfig(({ mode, command }) => {
       // whole group — apexcharts, every antd component — into the entry.
       // Pages are lazy (routes/), so the bundler's own split is the smaller one.
       sourcemap: false, // Disable sourcemaps in production
-      // Two lazy chunks sit between 500 and 650 kB and cannot be split
-      // further: apexcharts (~630 kB: its core alone is ~470 kB, plus the
-      // types and features @app/components/Chart registers), and the OCF agent
-      // catalog data behind the reactor editor. Anything else crossing 500 kB
-      // should still warn, which fails the build (warningGate), so the limit
-      // only covers those two.
-      chunkSizeWarningLimit: 650,
+      // Two lazy chunks sit between 500 and 720 kB and cannot be split
+      // further: apexcharts (~710 kB: apexcharts 8's core, which grew by
+      // ~80 kB over 7, plus the types and features @app/components/Chart
+      // registers), and the OCF agent catalog data behind the reactor editor
+      // (~540 kB). Anything else crossing 500 kB should still warn, which
+      // fails the build (warningGate), so the limit only covers those two.
+      chunkSizeWarningLimit: 720,
       cssCodeSplit: true,
       // Vite's default oxc minifier; terser took 95% of the build time.
       rolldownOptions: {

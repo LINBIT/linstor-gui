@@ -21,3 +21,9 @@ CLAUDE.md
 test-results/
 playwright-report/
 e2e-junit.xml
+
+docs/
+
+# Screenshots taken while checking a change land in the repo root; none belong there.
+/*.png
+/*.jpg

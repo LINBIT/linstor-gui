@@ -145,7 +145,7 @@ e2e:
   # A stage of its own: in the test stage it ran next to the unit tests on the
   # same runner and both slowed down.
   stage: e2e
-  image: mcr.microsoft.com/playwright:v1.63.0-noble
+  image: mcr.microsoft.com/playwright:v1.64.1-noble
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "main"
