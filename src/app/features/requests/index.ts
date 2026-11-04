@@ -6,6 +6,8 @@
 
 import createClient from 'openapi-fetch';
 import { paths } from '@app/apis/schema';
+import i18n from 'i18next';
+import { message } from 'antd';
 import { handleAPICallRes, toastsAreQuiet } from '@app/utils/toast';
 import { components } from '@app/apis/schema';
 import {
@@ -37,13 +39,28 @@ const SECRET_REPLY_PATHS = ['/v1/controller/auth/'];
 
 /**
  * Logs a reply to the sidebar and, unless the action asked for quiet, toasts
- * it once. 401 belongs to the auth gate; every other error status carries an
- * ApiCallRc list too (403 for a refused external file, 409, 500...).
+ * it once. 401 belongs to the auth gate; every other error status from the
+ * controller carries an ApiCallRc list too (403 for a refused external file,
+ * 409, 500...).
  */
-const reportReply = (url: string, res: Response, notify: boolean): void => {
-  // A download (SOS report tarball) is not a reply to report; cloning it would
-  // only hold the whole file in memory twice.
-  if (res.status === 401 || !res.headers.get('Content-Type')?.includes('json')) {
+const reportReply = (request: Request, res: Response, notify: boolean): void => {
+  const url = request.url;
+  if (res.status === 401) {
+    return;
+  }
+  if (!res.headers.get('Content-Type')?.includes('json')) {
+    // Not the controller answering: a proxy in front of it (502 Bad Gateway
+    // while it fails over) or a server in its place. A failed write would
+    // otherwise end in silence; a failed read only leaves its list empty, and
+    // polls would repeat the toast every few seconds.
+    if (!res.ok && notify && request.method !== 'GET') {
+      message.error({
+        content: i18n.t('common:action_failed', { message: `HTTP ${res.status} ${res.statusText}`.trim() }),
+        duration: 10,
+      });
+    }
+    // A download (SOS report tarball) is not a reply to report; cloning it
+    // would only hold the whole file in memory twice.
     return;
   }
   if (SECRET_REPLY_PATHS.some((path) => new URL(url, window.location.href).pathname.includes(path))) {
@@ -80,7 +97,7 @@ const linstorFetch = async (request: Request): Promise<Response> => {
   if (res.status === 401) {
     emitControllerAuthRequired();
   }
-  reportReply(request.url, res, notify);
+  reportReply(request, res, notify);
   return res;
 };
 

@@ -37,6 +37,7 @@ const ja = {
     resource_name_required: 'リソース名は必須です',
     file_path_required: 'ファイルパスは必須です',
     failed_to_save: '保存に失敗しました: {{message}}',
+    action_failed: '操作に失敗しました: {{message}}',
     agent_removed: 'エージェントを削除しました',
     parameter_added: 'パラメータ {{name}} を追加しました',
     parameter_removed: 'パラメータ {{name}} を削除しました',

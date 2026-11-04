@@ -14,6 +14,8 @@ vi.hoisted(() => window.localStorage.setItem('LINSTOR_HOST', 'http://controller.
 
 const toast = vi.hoisted(() => ({ handleAPICallRes: vi.fn(), toastsAreQuiet: vi.fn(() => false) }));
 vi.mock('@app/utils/toast', () => toast);
+const antd = vi.hoisted(() => ({ message: { error: vi.fn() } }));
+vi.mock('antd', () => antd);
 const auth = vi.hoisted(() => ({
   emitControllerAuthRequired: vi.fn(),
   required: false,
@@ -118,6 +120,29 @@ describe('controller client', () => {
     await get('/v1/sos-report/download', { parseAs: 'blob' });
     await settle();
     expect(toast.handleAPICallRes).not.toHaveBeenCalled();
+    // A failed read only leaves its list empty: no toast, or polls repeat it.
+    expect(antd.message.error).not.toHaveBeenCalled();
+  });
+
+  it('reports a write that a proxy in front of the controller refused with an error page', async () => {
+    fetchMock.mockResolvedValue(
+      new Response('<html>Bad Gateway</html>', {
+        status: 502,
+        statusText: 'Bad Gateway',
+        headers: { 'Content-Type': 'text/html' },
+      }),
+    );
+    await post('/v1/resource-groups', { body: { name: 'rg', description: '' } });
+    expect(antd.message.error).toHaveBeenCalledWith(
+      expect.objectContaining({ content: 'The action failed: HTTP 502 Bad Gateway' }),
+    );
+
+    // An action that reports its own outcome keeps it quiet.
+    antd.message.error.mockClear();
+    toast.toastsAreQuiet.mockReturnValueOnce(true);
+    fetchMock.mockResolvedValue(reply(502, '<html>Bad Gateway</html>', 'text/html'));
+    await post('/v1/resource-groups', { body: { name: 'rg', description: '' } });
+    expect(antd.message.error).not.toHaveBeenCalled();
   });
 
   it('unwrap returns the data, or throws the reply error for an HTTP error', async () => {

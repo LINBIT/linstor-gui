@@ -38,6 +38,7 @@ const de = {
     resource_name_required: 'Ressourcenname ist erforderlich',
     file_path_required: 'Dateipfad ist erforderlich',
     failed_to_save: 'Speichern fehlgeschlagen: {{message}}',
+    action_failed: 'Die Aktion ist fehlgeschlagen: {{message}}',
     agent_removed: 'Agent entfernt',
     parameter_added: 'Parameter {{name}} hinzugefügt',
     parameter_removed: 'Parameter {{name}} entfernt',

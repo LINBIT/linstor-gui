@@ -38,6 +38,7 @@ const en = {
     resource_name_required: 'Resource name is required',
     file_path_required: 'File path is required',
     failed_to_save: 'Failed to save: {{message}}',
+    action_failed: 'The action failed: {{message}}',
     agent_removed: 'Agent removed',
     parameter_added: 'Parameter {{name}} added',
     parameter_removed: 'Parameter {{name}} removed',

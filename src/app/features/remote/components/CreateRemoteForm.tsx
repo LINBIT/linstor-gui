@@ -35,12 +35,16 @@ const CreateRemoteForm = ({ refetch }: CreateRemoteFormProps) => {
   const remote_type = Form.useWatch('remote_type', form);
 
   const createS3RemoteMutation = useMutation({
+    // onFinish reports a failure itself.
+    meta: { reportsErrors: true },
     mutationFn: (data: S3RemoteCreateRequestBody) => {
       return createS3Remote(data);
     },
   });
 
   const createLINSTORRemoteMutation = useMutation({
+    // onFinish reports a failure itself.
+    meta: { reportsErrors: true },
     mutationFn: (data: LINSTORRemoteCreateRequestBody) => {
       return createLINSTORRemote(data);
     },

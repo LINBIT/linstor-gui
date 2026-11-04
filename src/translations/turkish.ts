@@ -38,6 +38,7 @@ const tr = {
     resource_name_required: 'Kaynak adı gereklidir',
     file_path_required: 'Dosya yolu gereklidir',
     failed_to_save: 'Kaydedilemedi: {{message}}',
+    action_failed: 'İşlem başarısız oldu: {{message}}',
     agent_removed: 'Ajan kaldırıldı',
     parameter_added: '{{name}} parametresi eklendi',
     parameter_removed: '{{name}} parametresi kaldırıldı',

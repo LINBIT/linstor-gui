@@ -6,7 +6,9 @@
 
 import { createRoot } from 'react-dom/client';
 import { App } from './app';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { createQueryClient } from '@app/queryClient';
+import { reportUnhandledError } from '@app/utils/unhandledError';
 
 import { i18n } from './i18n';
 
@@ -21,7 +23,10 @@ const setupDevTools = async () => {
   new VConsole();
 };
 
-const queryClient = new QueryClient();
+const queryClient = createQueryClient();
+// A submit handler that awaits a request without catching it would otherwise
+// fail silently, like a mutation without an onError (see createQueryClient).
+window.addEventListener('unhandledrejection', (event) => reportUnhandledError(event.reason));
 const domNode = document.getElementById('root') || document.createElement('div');
 const root = createRoot(domNode);
 

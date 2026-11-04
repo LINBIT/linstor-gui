@@ -38,6 +38,7 @@ const es = {
     resource_name_required: 'El nombre del recurso es obligatorio',
     file_path_required: 'La ruta del archivo es obligatoria',
     failed_to_save: 'No se pudo guardar: {{message}}',
+    action_failed: 'La acción falló: {{message}}',
     agent_removed: 'Agente eliminado',
     parameter_added: 'Parámetro {{name}} añadido',
     parameter_removed: 'Parámetro {{name}} eliminado',

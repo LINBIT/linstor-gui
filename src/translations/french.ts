@@ -38,6 +38,7 @@ const fr = {
     resource_name_required: 'Le nom de la ressource est obligatoire',
     file_path_required: 'Le chemin du fichier est obligatoire',
     failed_to_save: 'Échec de l’enregistrement : {{message}}',
+    action_failed: 'L’action a échoué : {{message}}',
     agent_removed: 'Agent supprimé',
     parameter_added: 'Paramètre {{name}} ajouté',
     parameter_removed: 'Paramètre {{name}} supprimé',

@@ -48,6 +48,8 @@ const CreateBackupForm = ({ refetch }: CreateBackupFormProps) => {
   });
 
   const createBackupMutation = useMutation({
+    // onFinish reports a failure itself.
+    meta: { reportsErrors: true },
     mutationFn: (data: RemoteBackupCreateRequestBody) => {
       return createBackup(remote_name ?? '', data);
     },

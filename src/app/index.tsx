@@ -29,6 +29,8 @@ import { ThemeModeProvider, useThemeMode } from '@app/hooks';
 
 import '@app/app.css';
 
+const FORM_CONFIG = { scrollToFirstError: true } as const;
+
 // message/notification/Modal.confirm render in a root of their own, outside
 // the providers below, so they get the theme and the cascade layer here.
 // holderRender wraps only what antd puts inside its own ConfigProvider: that
@@ -94,7 +96,9 @@ const ThemedApp: React.FunctionComponent = () => {
     // before Tailwind's utilities: a utility class then restyles an antd
     // component without !important.
     <StyleProvider layer>
-      <ConfigProvider theme={getAntdTheme(mode)} locale={locale}>
+      {/* A submit that fails validation on a field out of view would look
+        like it did nothing: scroll to the first error. */}
+      <ConfigProvider theme={getAntdTheme(mode)} locale={locale} form={FORM_CONFIG}>
         <NavProvider>
           <ControllerAuthGate>
             {/* Inside the gate: the settings query must not go out before a

@@ -39,6 +39,7 @@ export const useDeleteFile = () => {
 
 export const useDeployFile = () => {
   return useMutation({
+    meta: { reportsErrors: true },
     mutationFn: ({ resource, extFileName }: { resource: string; extFileName: string }) =>
       deployFile(resource, extFileName),
   });
@@ -46,6 +47,7 @@ export const useDeployFile = () => {
 
 export const useUndeployFile = () => {
   return useMutation({
+    meta: { reportsErrors: true },
     mutationFn: ({ resource, extFileName }: { resource: string; extFileName: string }) =>
       undeployFile(resource, extFileName),
   });

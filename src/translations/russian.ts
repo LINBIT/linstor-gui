@@ -38,6 +38,7 @@ const ru = {
     resource_name_required: 'Укажите имя ресурса',
     file_path_required: 'Укажите путь к файлу',
     failed_to_save: 'Не удалось сохранить: {{message}}',
+    action_failed: 'Действие не выполнено: {{message}}',
     agent_removed: 'Агент удалён',
     parameter_added: 'Параметр {{name}} добавлен',
     parameter_removed: 'Параметр {{name}} удалён',

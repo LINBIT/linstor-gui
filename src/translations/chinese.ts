@@ -38,6 +38,7 @@ const zh = {
     resource_name_required: '资源名称必填',
     file_path_required: '文件路径必填',
     failed_to_save: '保存失败：{{message}}',
+    action_failed: '操作失败：{{message}}',
     agent_removed: '已移除该代理',
     parameter_added: '已添加参数 {{name}}',
     parameter_removed: '已移除参数 {{name}}',

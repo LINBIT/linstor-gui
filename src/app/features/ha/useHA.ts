@@ -115,6 +115,7 @@ export const useFileContent = (filePath: string) => {
 export const useCreateFile = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { reportsErrors: true },
     mutationFn: ({ filePath, content }: { filePath: string; content: string }) => unwrap(createFile(filePath, content)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] });
@@ -127,6 +128,7 @@ export const useCreateFile = () => {
 export const useDeployFile = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { reportsErrors: true },
     mutationFn: ({ resourceName, filePath }: { resourceName: string; filePath: string }) =>
       unwrap(deployFile(resourceName, filePath)),
     onSuccess: () => {
@@ -164,6 +166,7 @@ export const useDrbdReactorFailures = (nodes: string[]) => {
 export const useEvictDrbdReactor = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { reportsErrors: true },
     mutationFn: ({ nodes, resource, wait = false }: { nodes: string[]; resource: string; wait?: boolean }) =>
       evictDrbdReactor(nodes, resource, wait),
     onSuccess: () => {
@@ -176,6 +179,7 @@ export const useEvictDrbdReactor = () => {
 export const useDisableDrbdReactor = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { reportsErrors: true },
     mutationFn: ({ nodes, config, now = false }: { nodes: string[]; config: string; now?: boolean }) =>
       disableDrbdReactor(nodes, config, now),
     onSuccess: () => {
@@ -188,6 +192,7 @@ export const useDisableDrbdReactor = () => {
 export const useEnableDrbdReactor = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { reportsErrors: true },
     mutationFn: ({ nodes, config }: { nodes: string[]; config: string }) => enableDrbdReactor(nodes, config),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['drbd-reactor-status'] });
@@ -211,6 +216,7 @@ export const useRestartDrbdReactor = () => {
 export const useUnmanageHA = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { reportsErrors: true },
     mutationFn: ({ resourceName, filePath }: { resourceName: string; filePath: string }) =>
       withQuietToasts(() => unwrap(undeployFile(resourceName, filePath))),
     onSuccess: () => {
@@ -224,6 +230,7 @@ export const useUnmanageHA = () => {
 export const useManageHA = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { reportsErrors: true },
     mutationFn: ({ resourceName, filePath }: { resourceName: string; filePath: string }) =>
       withQuietToasts(() => unwrap(deployFile(resourceName, filePath))),
     onSuccess: () => {
