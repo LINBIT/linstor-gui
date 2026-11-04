@@ -60,7 +60,11 @@ export default defineConfig({
     },
     {
       command: `npx vite preview --host 127.0.0.1 --port ${guiPort} --strictPort`,
-      env: { VITE_LINSTOR_API_HOST: `http://127.0.0.1:${mockPort}` },
+      // The mock also stands in for linstor-gateway where a scenario does.
+      env: {
+        VITE_LINSTOR_API_HOST: `http://127.0.0.1:${mockPort}`,
+        VITE_GATEWAY_API_HOST: `http://127.0.0.1:${mockPort}`,
+      },
       url: `http://127.0.0.1:${guiPort}/`,
       reuseExistingServer: !CI,
     },

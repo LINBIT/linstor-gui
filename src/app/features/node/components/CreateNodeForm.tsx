@@ -26,7 +26,7 @@ import {
   UpdateNodeRequestBody,
 } from '@app/features/node';
 import { capitalize } from '@app/utils/stringUtils';
-import { fullySuccess } from '@app/features/requests';
+import { fullySuccess, unwrap } from '@app/features/requests';
 
 type FormType = {
   name: string;
@@ -84,8 +84,10 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
     mutationFn: (data: { node: string; body: UpdateNodeRequestBody }) => updateNode(data),
   });
 
+  // unwrap: a node the controller refuses (its name taken, say) rejects, so
+  // the form stays with what was typed instead of going back to the list.
   const createNodeMutation = useMutation({
-    mutationFn: (data: NodeCreateRequestBody) => createNode(data),
+    mutationFn: (data: NodeCreateRequestBody) => unwrap(createNode(data)),
     onSuccess: () => {
       backToList();
     },

@@ -246,37 +246,43 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
       return;
     }
 
-    const rgRes = await createResourceGroupMutation.mutateAsync(rg);
-    if (fullySuccess(rgRes.data)) {
-      const modifyResourceGroupRes = await updateResourceGroupMutation.mutateAsync({
-        resource_group: values.name,
-      });
+    // A request that fails without a reply rejects; the mutation cache has
+    // reported it (createQueryClient), so the submit only stops here.
+    try {
+      const rgRes = await createResourceGroupMutation.mutateAsync(rg);
+      if (fullySuccess(rgRes.data)) {
+        const modifyResourceGroupRes = await updateResourceGroupMutation.mutateAsync({
+          resource_group: values.name,
+        });
 
-      const addVolumeRes = await addVolumeToResourceGroupMutation.mutateAsync({
-        resource_group: values.name,
-      });
+        const addVolumeRes = await addVolumeToResourceGroupMutation.mutateAsync({
+          resource_group: values.name,
+        });
 
-      if (fullySuccess(addVolumeRes.data) && fullySuccess(modifyResourceGroupRes.data)) {
-        // If spawn-on-create is enabled, spawn resources
-        if (values.deploy && values.resource_definition_name && values.size) {
-          const spawnData = {
-            resource_group: values.name,
-            resource_definition_name: values.resource_definition_name,
-            resource_definition_external_name: undefined,
-            volume_sizes: [values.size],
-            partial: false,
-            definitions_only: values.definition_only || false,
-          };
+        if (fullySuccess(addVolumeRes.data) && fullySuccess(modifyResourceGroupRes.data)) {
+          // If spawn-on-create is enabled, spawn resources
+          if (values.deploy && values.resource_definition_name && values.size) {
+            const spawnData = {
+              resource_group: values.name,
+              resource_definition_name: values.resource_definition_name,
+              resource_definition_external_name: undefined,
+              volume_sizes: [values.size],
+              partial: false,
+              definitions_only: values.definition_only || false,
+            };
 
-          try {
-            await spawnResourceGroupMutation.mutateAsync(spawnData);
-          } catch (error) {
-            logger.debug('Error spawning resources:', error);
+            try {
+              await spawnResourceGroupMutation.mutateAsync(spawnData);
+            } catch (error) {
+              logger.debug('Error spawning resources:', error);
+            }
           }
-        }
 
-        backToList();
+          backToList();
+        }
       }
+    } catch (error) {
+      logger.debug(error);
     }
   };
 

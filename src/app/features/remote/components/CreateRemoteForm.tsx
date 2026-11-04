@@ -59,23 +59,22 @@ const CreateRemoteForm = ({ refetch }: CreateRemoteFormProps) => {
   ) => {
     const { remote_type, ...rest } = values;
 
+    // A remote the controller refuses keeps the dialog with what was typed.
     try {
+      let error: string | undefined;
       if (remote_type === 's3_remotes') {
-        const error = apiErrorMessage(await createS3RemoteMutation.mutateAsync(rest as S3RemoteCreateRequestBody));
-
-        if (error !== undefined) {
-          messageApi.error(error);
-        }
+        error = apiErrorMessage(await createS3RemoteMutation.mutateAsync(rest as S3RemoteCreateRequestBody));
       } else if (remote_type === 'linstor_remotes') {
-        const error = apiErrorMessage(await createLINSTORRemoteMutation.mutateAsync(rest));
-
-        if (error !== undefined) {
-          messageApi.error(error);
-        }
+        error = apiErrorMessage(await createLINSTORRemoteMutation.mutateAsync(rest));
+      }
+      if (error !== undefined) {
+        messageApi.error(error);
+        return;
       }
     } catch (error) {
       logger.error('create remote error', error);
       messageApi.error('Create remote error');
+      return;
     }
 
     setModelOpen(false);

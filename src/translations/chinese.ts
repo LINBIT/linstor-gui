@@ -1029,7 +1029,6 @@ const zh = {
     select_resource_placeholder: '选择资源定义',
     deploy_success: '文件部署成功',
     deploy_failed: '文件部署失败',
-    already_deployed: '文件已部署到此资源',
     already_deployed_to_all: '文件已部署到所有资源',
     deployed_to: '已部署到',
     not_deployed: '未部署',

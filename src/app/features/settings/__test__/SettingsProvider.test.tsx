@@ -182,6 +182,20 @@ describe('SettingsProvider', () => {
       expect(reload).not.toHaveBeenCalled();
     });
 
+    it('enabling a gateway that answers at its new host reloads instead of warning', async () => {
+      const { settings, loaded } = setup();
+      await loaded();
+      // Off until now, so nothing has found it yet.
+      expect(settings().gatewayAvailable).toBe(false);
+      vi.mocked(service.get).mockResolvedValue({ data: { status: 'ok' } } as never);
+      await act(() => settings().setGatewayMode({ gatewayEnabled: true, customHost: true, host: 'http://gw:2' }));
+
+      expect(window.localStorage.getItem('GATEWAY_HOST')).toBe('http://gw:2');
+      expect(service.get).toHaveBeenCalledWith('/api/v2/status');
+      expect(notify).not.toHaveBeenCalledWith(expect.stringContaining('not available'), expect.anything());
+      await waitFor(() => expect(reload).toHaveBeenCalled(), { timeout: 3000 });
+    });
+
     it('disabling clears the host and reports the reset', async () => {
       const { settings, loaded } = setup();
       await loaded();

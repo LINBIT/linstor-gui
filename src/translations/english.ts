@@ -1170,7 +1170,6 @@ const en = {
     modify_file: 'Modify File',
     modify_success: 'File modified successfully',
     modify_failed: 'File modification failed',
-    already_deployed: 'File is already deployed to this resource',
     already_deployed_to_all: 'File is already deployed to all resources',
     deployed_to: 'Deployed To',
     not_deployed: 'Not Deployed',

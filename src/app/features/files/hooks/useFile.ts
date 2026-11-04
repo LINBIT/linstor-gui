@@ -7,6 +7,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import { getResourceDefinition } from '@app/features/resourceDefinition/api';
+import { unwrap } from '@app/features/requests';
 import { createOrUpdateFile, deleteFile, deployFile, getFile, getFiles, undeployFile } from '../api';
 
 export const useFiles = (includeContent = false) => {
@@ -24,10 +25,13 @@ export const useFile = (extFileName: string) => {
   });
 };
 
+// The writes unwrap: a request the controller refuses rejects, so callers
+// report it instead of running their success path (going back to the list,
+// "File deployed successfully").
 export const useCreateOrUpdateFile = () => {
   return useMutation({
     mutationFn: ({ extFileName, body }: { extFileName: string; body: Parameters<typeof createOrUpdateFile>[1] }) =>
-      createOrUpdateFile(extFileName, body),
+      unwrap(createOrUpdateFile(extFileName, body)),
   });
 };
 
@@ -41,7 +45,7 @@ export const useDeployFile = () => {
   return useMutation({
     meta: { reportsErrors: true },
     mutationFn: ({ resource, extFileName }: { resource: string; extFileName: string }) =>
-      deployFile(resource, extFileName),
+      unwrap(deployFile(resource, extFileName)),
   });
 };
 
@@ -49,7 +53,7 @@ export const useUndeployFile = () => {
   return useMutation({
     meta: { reportsErrors: true },
     mutationFn: ({ resource, extFileName }: { resource: string; extFileName: string }) =>
-      undeployFile(resource, extFileName),
+      unwrap(undeployFile(resource, extFileName)),
   });
 };
 

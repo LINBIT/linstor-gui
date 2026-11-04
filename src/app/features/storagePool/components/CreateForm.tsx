@@ -24,6 +24,7 @@ import { SizeInput } from '@app/components/SizeInput';
 import { Switch } from '@app/components/Switch';
 import { useTranslation } from 'react-i18next';
 import { Radio } from '@app/components/Radio';
+import { unwrap } from '@app/features/requests';
 
 type FormType = {
   create_type: 'new' | 'existing';
@@ -67,10 +68,12 @@ const CreateForm = () => {
     enabled: !!node && create_type === 'new',
   });
 
+  // Both mutations unwrap: a pool the controller refuses rejects, so the
+  // form stays instead of going back to the list as if it had been created.
   const createStoragePoolWithPhysicalStorage = useMutation({
     mutationFn: (data: CreatePhysicalStorageRequestBody & { node: string }) => {
       const { node, ...rest } = data;
-      return createPhysicalStorage(node, rest);
+      return unwrap(createPhysicalStorage(node, rest));
     },
   });
 
@@ -82,9 +85,8 @@ const CreateForm = () => {
     ) => {
       const { node, ...rest } = data;
 
-      return createStoragePool(node, rest);
+      return unwrap(createStoragePool(node, rest));
     },
-    onSuccess: () => backToStoragePoolList(),
   });
 
   const typeListForNewDevice = [
@@ -160,13 +162,12 @@ const CreateForm = () => {
         external_locking: false,
       };
 
-      if (Array.isArray(selectedNode)) {
-        selectedNode.forEach((e) => {
-          createStoragePoolWithExistingVolumeGroup.mutate({ node: e, ...body });
-        });
-      } else {
-        createStoragePoolWithExistingVolumeGroup.mutate({ node: selectedNode, ...body });
-      }
+      // One request per node, and one step back once all are done: going
+      // back on each success went back once per node, out of the GUI.
+      const targets = Array.isArray(selectedNode) ? selectedNode : [selectedNode];
+      Promise.all(targets.map((e) => createStoragePoolWithExistingVolumeGroup.mutateAsync({ node: e, ...body })))
+        .then(() => backToStoragePoolList())
+        .catch(() => undefined);
     }
   };
 

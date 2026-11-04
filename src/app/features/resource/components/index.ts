@@ -7,5 +7,5 @@
 export { CreateResourceForm } from './CreateResourceForm';
 export { ResourceMigrateForm } from './ResourceMigrateForm';
 export { OverviewList } from './OverviewList';
-export { CloneForm } from './Clone';
+export { CloneModal } from './Clone';
 export { FaultyList } from './FaultyList';

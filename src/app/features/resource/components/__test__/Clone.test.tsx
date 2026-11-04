@@ -8,258 +8,75 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { CloneForm } from '../Clone';
+import { CloneModal } from '../Clone';
 
-// Mock the translation hook
-const mockT = vi.fn((key: string) => {
-  const translations: Record<string, string> = {
-    'common:clone': 'Clone',
-    'common:name': 'Name',
-    'common:use_zfs_clone': 'Use ZFS Clone',
-    'resource:input_clone_name': 'Input clone name',
-  };
-  return translations[key] || key;
+const { cloneResourceDefinition } = vi.hoisted(() => ({ cloneResourceDefinition: vi.fn() }));
+
+vi.mock('@app/features/resourceDefinition', () => ({ cloneResourceDefinition }));
+
+// What openapi-fetch resolves with: a reply and its status.
+const reply = (status: number, body: unknown) => ({
+  data: status < 400 ? body : undefined,
+  error: status < 400 ? undefined : body,
+  response: new Response(null, { status }),
 });
 
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: mockT,
-  }),
-}));
-
-// Mock the API
-vi.mock('@app/features/resourceDefinition', () => ({
-  cloneResourceDefinition: vi.fn(),
-}));
-
-const createQueryClient = () =>
-  new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  });
-
-const renderWithQueryClient = (component: React.ReactElement) => {
-  const queryClient = createQueryClient();
-  return render(<QueryClientProvider client={queryClient}>{component}</QueryClientProvider>);
+const renderModal = (props: Partial<React.ComponentProps<typeof CloneModal>> = {}) => {
+  const onClose = vi.fn();
+  const onSuccess = vi.fn();
+  const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
+  render(
+    <QueryClientProvider client={queryClient}>
+      <CloneModal open resource="demo" onClose={onClose} onSuccess={onSuccess} {...props} />
+    </QueryClientProvider>,
+  );
+  return { onClose, onSuccess };
 };
 
-describe('CloneForm', () => {
+const cloneAs = (name: string) => {
+  fireEvent.change(screen.getByLabelText('Name'), { target: { value: name } });
+  fireEvent.click(screen.getByRole('button', { name: 'Clone' }));
+};
+
+describe('CloneModal', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    cloneResourceDefinition.mockReset();
   });
 
-  describe('Basic Rendering', () => {
-    it('should render clone trigger', () => {
-      renderWithQueryClient(<CloneForm resource="test-resource" />);
+  it('clones the definition under the new name, then closes and refreshes the list', async () => {
+    cloneResourceDefinition.mockResolvedValue(reply(201, [{ ret_code: 1, message: 'cloned' }]));
+    const { onClose, onSuccess } = renderModal();
 
-      expect(screen.getByText('Clone')).toBeInTheDocument();
-    });
+    cloneAs('demo-clone');
 
-    it('should not show modal initially', () => {
-      renderWithQueryClient(<CloneForm resource="test-resource" />);
-
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    });
+    await waitFor(() => expect(onSuccess).toHaveBeenCalled());
+    expect(cloneResourceDefinition).toHaveBeenCalledWith('demo', { name: 'demo-clone', use_zfs_clone: undefined });
+    expect(onClose).toHaveBeenCalled();
   });
 
-  describe('Modal Interaction', () => {
-    it('should open modal when clicking clone trigger', async () => {
-      renderWithQueryClient(<CloneForm resource="test-resource" />);
+  it('stays open when the controller refuses the clone', async () => {
+    cloneResourceDefinition.mockResolvedValue(reply(500, [{ ret_code: -1, message: 'name taken' }]));
+    const { onClose, onSuccess } = renderModal();
 
-      // Click the first Clone text (the trigger)
-      const cloneButtons = screen.getAllByText('Clone');
-      fireEvent.click(cloneButtons[0]);
+    cloneAs('demo');
 
-      await waitFor(() => {
-        expect(screen.getByRole('dialog')).toBeInTheDocument();
-      });
-    });
-
-    it('should close modal when clicking cancel', async () => {
-      renderWithQueryClient(<CloneForm resource="test-resource" />);
-
-      // Open modal first
-      const cloneButtons = screen.getAllByText('Clone');
-      fireEvent.click(cloneButtons[0]);
-
-      await waitFor(() => {
-        expect(screen.getByRole('dialog')).toBeInTheDocument();
-      });
-
-      // Click cancel - just verify it doesn't crash
-      fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
-
-      // Modal should still exist in DOM but be closed (Ant Design behavior)
-      expect(screen.getByRole('dialog')).toBeInTheDocument();
-    });
+    await waitFor(() => expect(cloneResourceDefinition).toHaveBeenCalled());
+    // Let the rejected mutation settle before asserting nothing followed it.
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Clone' })).not.toHaveClass('ant-btn-loading'));
+    expect(onClose).not.toHaveBeenCalled();
+    expect(onSuccess).not.toHaveBeenCalled();
+    expect(screen.getByLabelText('Name')).toHaveValue('demo');
   });
 
-  describe('Form Fields', () => {
-    it('should render name input field', async () => {
-      renderWithQueryClient(<CloneForm resource="test-resource" />);
-
-      const cloneButtons = screen.getAllByText('Clone');
-      fireEvent.click(cloneButtons[0]);
-
-      await waitFor(() => {
-        expect(screen.getByPlaceholderText('Input clone name')).toBeInTheDocument();
-      });
-    });
-
-    it('should render ZFS clone checkbox', async () => {
-      renderWithQueryClient(<CloneForm resource="test-resource" />);
-
-      const cloneButtons = screen.getAllByText('Clone');
-      fireEvent.click(cloneButtons[0]);
-
-      await waitFor(() => {
-        expect(screen.getByRole('checkbox')).toBeInTheDocument();
-        expect(screen.getByText('Use ZFS Clone')).toBeInTheDocument();
-      });
-    });
-
-    it('should enable ZFS clone checkbox when using ZFS', async () => {
-      renderWithQueryClient(<CloneForm resource="test-resource" isUsingZFS={true} />);
-
-      const cloneButtons = screen.getAllByText('Clone');
-      fireEvent.click(cloneButtons[0]);
-
-      await waitFor(() => {
-        const checkbox = screen.getByRole('checkbox');
-        expect(checkbox).not.toBeDisabled();
-      });
-    });
-
-    it('should disable ZFS clone checkbox when not using ZFS', async () => {
-      renderWithQueryClient(<CloneForm resource="test-resource" isUsingZFS={false} />);
-
-      const cloneButtons = screen.getAllByText('Clone');
-      fireEvent.click(cloneButtons[0]);
-
-      await waitFor(() => {
-        const checkbox = screen.getByRole('checkbox');
-        expect(checkbox).toBeDisabled();
-      });
-    });
-
-    it('should disable ZFS clone checkbox by default', async () => {
-      renderWithQueryClient(<CloneForm resource="test-resource" />);
-
-      const cloneButtons = screen.getAllByText('Clone');
-      fireEvent.click(cloneButtons[0]);
-
-      await waitFor(() => {
-        const checkbox = screen.getByRole('checkbox');
-        expect(checkbox).toBeDisabled();
-      });
-    });
+  it('offers a ZFS clone only for a definition on ZFS', () => {
+    renderModal({ isUsingZFS: false });
+    expect(screen.getByRole('checkbox', { name: 'Use ZFS Clone' })).toBeDisabled();
   });
 
-  describe('Form Interaction', () => {
-    it('should allow typing in name input', async () => {
-      renderWithQueryClient(<CloneForm resource="test-resource" />);
-
-      const cloneButtons = screen.getAllByText('Clone');
-      fireEvent.click(cloneButtons[0]);
-
-      await waitFor(() => {
-        const nameInput = screen.getByPlaceholderText('Input clone name');
-        fireEvent.change(nameInput, { target: { value: 'cloned-resource' } });
-        expect(nameInput).toHaveValue('cloned-resource');
-      });
-    });
-
-    it('should allow checking ZFS clone checkbox when enabled', async () => {
-      renderWithQueryClient(<CloneForm resource="test-resource" isUsingZFS={true} />);
-
-      const cloneButtons = screen.getAllByText('Clone');
-      fireEvent.click(cloneButtons[0]);
-
-      await waitFor(() => {
-        const checkbox = screen.getByRole('checkbox');
-        fireEvent.click(checkbox);
-        expect(checkbox).toBeChecked();
-      });
-    });
-  });
-
-  describe('Props Handling', () => {
-    it('should handle missing resource prop', () => {
-      renderWithQueryClient(<CloneForm />);
-
-      expect(screen.getByText('Clone')).toBeInTheDocument();
-    });
-
-    it('should handle resource prop correctly', () => {
-      renderWithQueryClient(<CloneForm resource="my-resource" />);
-
-      expect(screen.getByText('Clone')).toBeInTheDocument();
-    });
-  });
-
-  describe('Modal Configuration', () => {
-    it('should have correct modal title', async () => {
-      renderWithQueryClient(<CloneForm resource="test-resource" />);
-
-      const cloneButtons = screen.getAllByText('Clone');
-      fireEvent.click(cloneButtons[0]);
-
-      await waitFor(() => {
-        expect(screen.getAllByText('Clone').length).toBeGreaterThan(1);
-      });
-    });
-
-    it('should have correct modal width', async () => {
-      renderWithQueryClient(<CloneForm resource="test-resource" />);
-
-      fireEvent.click(screen.getByText('Clone'));
-
-      await waitFor(() => {
-        const modal = screen.getByRole('dialog');
-        expect(modal).toBeInTheDocument();
-      });
-    });
-  });
-
-  describe('Button States', () => {
-    it('should show Clone button in modal', async () => {
-      renderWithQueryClient(<CloneForm resource="test-resource" />);
-
-      const cloneButtons = screen.getAllByText('Clone');
-      fireEvent.click(cloneButtons[0]);
-
-      await waitFor(() => {
-        const allCloneButtons = screen.getAllByRole('button', { name: /clone/i });
-        expect(allCloneButtons.length).toBeGreaterThan(0);
-      });
-    });
-
-    it('should show Cancel button in modal', async () => {
-      renderWithQueryClient(<CloneForm resource="test-resource" />);
-
-      const cloneButtons = screen.getAllByText('Clone');
-      fireEvent.click(cloneButtons[0]);
-
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
-      });
-    });
-  });
-
-  describe('Translation Keys', () => {
-    it('should use correct translation keys', async () => {
-      renderWithQueryClient(<CloneForm resource="test-resource" />);
-
-      const cloneButtons = screen.getAllByText('Clone');
-      fireEvent.click(cloneButtons[0]);
-
-      await waitFor(() => {
-        expect(mockT).toHaveBeenCalledWith('common:clone');
-        expect(mockT).toHaveBeenCalledWith('common:name');
-        expect(mockT).toHaveBeenCalledWith('common:use_zfs_clone');
-      });
-    });
+  it('closes on cancel without cloning', () => {
+    const { onClose } = renderModal();
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(onClose).toHaveBeenCalled();
+    expect(cloneResourceDefinition).not.toHaveBeenCalled();
   });
 });

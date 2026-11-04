@@ -14,7 +14,6 @@ import { Link } from '@app/components/Link';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { ActionColumnTitle } from '@app/components/ActionColumnTitle';
 import { UIMode } from '@app/features/settings/types';
-import { CloneForm } from '../Clone';
 import { connectionStatus } from './rows';
 import type { OverviewRow } from './types';
 
@@ -24,6 +23,7 @@ export interface DefinitionActions {
   onEdit: (record: OverviewRow) => void;
   onAddToNode: (record: OverviewRow) => void;
   onAdjust: (record: OverviewRow) => void;
+  onClone: (record: OverviewRow) => void;
   onResize: (record: OverviewRow) => void;
   onDefinitionProperties: (record: OverviewRow) => void;
   onVolumeDefinitionProperties: (record: OverviewRow) => void;
@@ -102,7 +102,6 @@ export const useDefinitionColumns = (mode: UIMode | undefined, actions: Definiti
       width: 10,
       fixed: 'right',
       render: (_, record) => {
-        const isUsingZFS = record.volumes?.every((e) => e.provider_kind === 'ZFS');
         return (
           <Dropdown
             menu={{
@@ -131,7 +130,8 @@ export const useDefinitionColumns = (mode: UIMode | undefined, actions: Definiti
                 },
                 {
                   key: 'clone',
-                  label: <CloneForm resource={record.name ?? ''} isUsingZFS={isUsingZFS} />,
+                  label: t('common:clone'),
+                  onClick: () => actions.onClone(record),
                 },
                 {
                   key: 'resize',

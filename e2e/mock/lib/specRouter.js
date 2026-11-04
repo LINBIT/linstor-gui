@@ -121,7 +121,8 @@ const getMulti = (url, key) => {
  * Build the request handler for a scenario.
  *
  * The scenario may expose:
- *   - `handlers`: { [operationId]: (ctx) => any }
+ *   - `handlers`: { [operationId]: (ctx) => any }, or keyed by
+ *     "METHOD /path/template" for an operation without an operationId
  *      ctx = { req, res, params, query, url, route, spec, scenario, helpers }
  *      Return value is sent as JSON. Or call res yourself and return undefined.
  *      Throw to fall through to the spec-driven default.
@@ -193,6 +194,14 @@ export const createSpecHandler = (scenario) => {
       );
     }
 
+    // linstor-gateway's API is not in the LINSTOR spec; a scenario that
+    // stands in for a gateway answers it: gateway({ method, path, body })
+    // returns [status, payload].
+    if (url.pathname.startsWith('/api/v2/') && scenario.gateway) {
+      const [status, payload] = scenario.gateway({ method, path: url.pathname, body: await readJsonBody(req) });
+      return json(res, status, payload);
+    }
+
     const route = routes.find((r) => r.method === method && r.regex.test(url.pathname));
     if (!route) {
       // Not in the spec at all. Be generous: return [] under /v1/ for GETs,
@@ -226,7 +235,9 @@ export const createSpecHandler = (scenario) => {
       },
     };
 
-    const handler = scenario.handlers?.[route.operationId];
+    // Operations the spec gives no operationId (the remote and backup ones)
+    // are overridden by "METHOD /path/template" instead.
+    const handler = scenario.handlers?.[route.operationId ?? `${route.method} ${route.pathTemplate}`];
 
     let body;
     if (handler) {

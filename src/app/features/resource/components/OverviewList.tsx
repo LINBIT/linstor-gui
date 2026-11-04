@@ -32,6 +32,7 @@ import { NodeVolumesTable } from './overview/NodeVolumesTable';
 import { OverviewToolbar } from './overview/OverviewToolbar';
 import { CreateSnapshotModal } from './overview/CreateSnapshotModal';
 import { useUrlQuery } from './overview/useUrlQuery';
+import { CloneModal } from './Clone';
 
 export const OverviewList = () => {
   // The definition a row menu acted on, and the deployed resource a sub-row
@@ -52,6 +53,7 @@ export const OverviewList = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [resizeModalOpen, setResizeModalOpen] = useState(false);
+  const [cloneModalOpen, setCloneModalOpen] = useState(false);
   const [migrateModalOpen, setMigrateModalOpen] = useState(false);
   const [addToNodeModalOpen, setAddToNodeModalOpen] = useState(false);
   const [currentResource, setCurrentResource] = useState<string>();
@@ -138,6 +140,10 @@ export const OverviewList = () => {
       setAddToNodeModalOpen(true);
     },
     onAdjust: (record) => adjustResourceGroupMutation.mutate({ resource_group: record.resource_group_name ?? '' }),
+    onClone: (record) => {
+      setCurrentDefinition(record);
+      setCloneModalOpen(true);
+    },
     onResize: (record) => {
       setCurrentDefinition(record);
       setResizeModalOpen(true);
@@ -264,6 +270,16 @@ export const OverviewList = () => {
         onClose={() => setAddToNodeModalOpen(false)}
         resourceName={currentResource ?? ''}
         usedNodes={usedNodes}
+        onSuccess={() => {
+          refetch();
+        }}
+      />
+
+      <CloneModal
+        open={cloneModalOpen}
+        resource={currentDefinition?.name}
+        isUsingZFS={currentDefinition?.volumes?.every((e) => e.provider_kind === 'ZFS')}
+        onClose={() => setCloneModalOpen(false)}
         onSuccess={() => {
           refetch();
         }}

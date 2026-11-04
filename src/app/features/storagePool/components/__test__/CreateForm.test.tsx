@@ -183,6 +183,41 @@ describe('storage pool CreateForm', () => {
     await waitFor(() => expect(navigate).toHaveBeenCalledWith(-1));
   });
 
+  it('an existing volume group on two nodes creates both pools and goes back once', async () => {
+    renderForm();
+    fireEvent.click(screen.getByText('Existing Device'));
+    typeName('pool-vg');
+    await pick(nodeSelect(), 'node-1');
+    await pick(nodeSelect(), 'node-2');
+    fireEvent.change(await screen.findByPlaceholderText('Volume Group/Thin Pool Name'), {
+      target: { value: 'vg0' },
+    });
+    submit();
+
+    await waitFor(() => expect(createStoragePool).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(navigate).toHaveBeenCalled());
+    // Going back once per node left the GUI.
+    await new Promise((r) => setTimeout(r, 20));
+    expect(navigate).toHaveBeenCalledTimes(1);
+  });
+
+  it('stays on the page when the controller refuses a pool', async () => {
+    // openapi-fetch resolves an error reply rather than rejecting.
+    vi.mocked(createPhysicalStorage).mockResolvedValue({
+      error: [{ ret_code: -1, message: 'pool exists' }],
+      response: new Response(null, { status: 500 }),
+    } as never);
+    renderForm();
+    typeName('pool-taken');
+    await pick(nodeSelect(), 'node-1');
+    await waitFor(() => expect(getPhysicalStoragePoolByNode).toHaveBeenCalled());
+    await pick(deviceSelect(), '/dev/sdb');
+    submit();
+    await waitFor(() => expect(createPhysicalStorage).toHaveBeenCalled());
+    await new Promise((r) => setTimeout(r, 20));
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
   it('picking a ZFS kind reminds about ZFS and relabels the pool field', async () => {
     renderForm();
     fireEvent.click(screen.getByText('Existing Device'));

@@ -132,7 +132,7 @@ describe('CreateRemoteForm', () => {
     vi.mocked(createS3Remote).mockResolvedValue({
       error: [{ message: 'bucket does not exist' }, { message: 'check the region' }],
     } as never);
-    renderForm();
+    const refetch = renderForm();
     await open();
     type('Please input name', 's3-x');
     type('Please input endpoint', 'e');
@@ -142,6 +142,9 @@ describe('CreateRemoteForm', () => {
     type('Please input secret key', 's');
     submit();
     expect(await screen.findByText('bucket does not exist, check the region')).toBeInTheDocument();
+    // Refused: the dialog stays with what was typed, to correct it.
+    expect(screen.getByPlaceholderText('Please input name')).toHaveValue('s3-x');
+    expect(refetch).not.toHaveBeenCalled();
   });
 
   it('reports a transport failure', async () => {
@@ -157,5 +160,6 @@ describe('CreateRemoteForm', () => {
     submit();
     expect(await screen.findByText('Create remote error')).toBeInTheDocument();
     expect(errors).toHaveBeenCalledWith('create remote error', expect.any(Error));
+    expect(screen.getByPlaceholderText('Please input name')).toHaveValue('lin-x');
   });
 });

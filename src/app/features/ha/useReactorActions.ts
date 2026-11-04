@@ -30,6 +30,9 @@ import {
   syncEvictedResourceInStatus,
 } from './haStatus';
 
+// The one message an evict shows: its progress, then its outcome in place.
+const EVICT_MESSAGE_KEY = 'evict-in-progress';
+
 /**
  * The cluster's DRBD Reactor status and the actions that change it: evict,
  * stop and start. Each action ends once the polled status shows its result.
@@ -96,12 +99,16 @@ export const useReactorActions = () => {
     const outcome = getEvictOutcome(reactorStatus, evictingResource);
     if (outcome.status === 'waiting') return;
 
-    message.destroy('evict-in-progress');
-    message.success(
-      outcome.status === 'migrated'
-        ? t('ha:migrated', { name: resourceName, node: outcome.newNode })
-        : t('ha:evicted', { name: resourceName }),
-    );
+    // The outcome takes the progress message's place (same key). Destroying
+    // the progress message and opening another at times left the progress
+    // message on screen for good when the evict answered at once.
+    message.success({
+      key: EVICT_MESSAGE_KEY,
+      content:
+        outcome.status === 'migrated'
+          ? t('ha:migrated', { name: resourceName, node: outcome.newNode })
+          : t('ha:evicted', { name: resourceName }),
+    });
     setEvictingResource(null);
     setEvictStartedAt(null);
     queryClient.invalidateQueries({ queryKey: ['drbd-reactor-status'] });
@@ -278,7 +285,7 @@ export const useReactorActions = () => {
 
     message.loading({
       content: t('ha:evicting', { name: record.name, node: primaryNode }),
-      key: 'evict-in-progress',
+      key: EVICT_MESSAGE_KEY,
       duration: 0,
     });
     markRequested(record.name, true);
@@ -291,12 +298,12 @@ export const useReactorActions = () => {
           if (result && result.exit_code !== 0) {
             setEvictingResource(null);
             setEvictStartedAt(null);
-            message.destroy('evict-in-progress');
-            message.error(
-              t('ha:evict_failed', {
+            message.error({
+              key: EVICT_MESSAGE_KEY,
+              content: t('ha:evict_failed', {
                 error: decodeExecText(result.stderr_utf8) || t('ha:exit_code', { code: result.exit_code }),
               }),
-            );
+            });
             return;
           }
 
@@ -306,8 +313,10 @@ export const useReactorActions = () => {
             queryClient.setQueryData<ReactorStatus | undefined>(['drbd-reactor-status', nodeNames], (currentStatus) =>
               syncEvictedResourceInStatus(currentStatus, record.name, result.active_node as string),
             );
-            message.destroy('evict-in-progress');
-            message.success(t('ha:migrated', { name: record.name, node: result.active_node }));
+            message.success({
+              key: EVICT_MESSAGE_KEY,
+              content: t('ha:migrated', { name: record.name, node: result.active_node }),
+            });
             setTakeover({ resourceName: record.name, node: result.active_node, startedAt: Date.now() });
             queryClient.invalidateQueries({ queryKey: ['resources-view'] });
             queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] });
@@ -316,7 +325,7 @@ export const useReactorActions = () => {
 
           message.loading({
             content: t('ha:evicting_wait', { name: record.name, node: primaryNode }),
-            key: 'evict-in-progress',
+            key: EVICT_MESSAGE_KEY,
             duration: 0,
           });
           const startedAt = Date.now();
@@ -327,8 +336,7 @@ export const useReactorActions = () => {
         onError: (err) => {
           setEvictingResource(null);
           setEvictStartedAt(null);
-          message.destroy('evict-in-progress');
-          message.error(t('ha:evict_failed', { error: String(err) }));
+          message.error({ key: EVICT_MESSAGE_KEY, content: t('ha:evict_failed', { error: String(err) }) });
         },
         onSettled: () => markRequested(record.name, false),
       },

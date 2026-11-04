@@ -154,17 +154,34 @@ describe('files List', () => {
     expect(options.map((o) => o.textContent)).toEqual(['res-a', 'res-b']);
   });
 
-  it('tells an "already deployed" failure apart from a generic one', async () => {
-    vi.mocked(deployFile).mockRejectedValue(new Error('file already exists on resource'));
+  const deployTo = async (resource: string) => {
     renderList();
     await screen.findByText(MOUNT);
     const menu = await openRowMenu(CONF);
     fireEvent.click(within(menu).getByText('Deploy'));
     await screen.findByText('Deploy to Resource');
     fireEvent.mouseDown(screen.getByRole('combobox'));
-    fireEvent.click(await screen.findByText('res-b', { selector: '.ant-select-item-option-content' }));
+    fireEvent.click(await screen.findByText(resource, { selector: '.ant-select-item-option-content' }));
     fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
-    expect(await screen.findByText('File is already deployed to this resource')).toBeInTheDocument();
+  };
+
+  it('a deploy the controller refuses is not reported as deployed, and the dialog stays', async () => {
+    // openapi-fetch resolves an error reply; the request proxy shows its reason.
+    vi.mocked(deployFile).mockResolvedValue({
+      error: [{ ret_code: -1, message: 'file already exists on resource' }],
+      response: new Response(null, { status: 500 }),
+    } as never);
+    await deployTo('res-b');
+    await waitFor(() => expect(deployFile).toHaveBeenCalledWith('res-b', CONF));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Confirm' })).not.toHaveClass('ant-btn-loading'));
+    expect(screen.queryByText('File deployed successfully')).not.toBeInTheDocument();
+    expect(screen.getByText('Deploy to Resource')).toBeVisible();
+  });
+
+  it('a deploy that gets no reply at all says the deployment failed', async () => {
+    vi.mocked(deployFile).mockRejectedValue(new TypeError('Failed to fetch'));
+    await deployTo('res-b');
+    expect(await screen.findByText('File deployment failed')).toBeInTheDocument();
   });
 
   it('undeploys a deployed file from its resource after confirm', async () => {

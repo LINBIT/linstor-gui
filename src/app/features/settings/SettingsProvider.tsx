@@ -170,7 +170,13 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         if (showToast) {
           notify(`LINSTOR-Gateway ${gatewayEnabled ? 'enabled' : 'disabled'}!`, { type: 'success' });
         }
-        if (gatewayAvailable) {
+        // gatewayAvailable describes the gateway before this save (none, when
+        // it was off), so a gateway just turned on is probed at its new host;
+        // judging by the old state reported a working gateway as missing.
+        const available = gatewayEnabled
+          ? await getGatewayStatus(customHost && host ? host : defaultGatewayHost())
+          : gatewayAvailable;
+        if (available) {
           reloadSoon();
         } else if (gatewayEnabled) {
           notify('LINSTOR-Gateway is not available. To ensure functionality, installing linstor-gateway is required.', {
@@ -183,7 +189,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         notify('Cannot connect to LINSTOR-Gateway', { type: 'error' });
       }
     },
-    [gatewayAvailable, saveKey],
+    [gatewayAvailable, getGatewayStatus, saveKey],
   );
 
   const saveGrafanaConfig = useCallback(

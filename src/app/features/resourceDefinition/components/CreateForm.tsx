@@ -154,58 +154,64 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
       select_filter: { place_count: Number(values.place_count) },
     };
 
-    const rdRes = await createResourceDefinitionMutation.mutateAsync(resourceDefinitionData);
+    // A request that fails without a reply rejects; the mutation cache has
+    // reported it (createQueryClient), so the submit only stops here.
+    try {
+      const rdRes = await createResourceDefinitionMutation.mutateAsync(resourceDefinitionData);
 
-    if (fullySuccess(rdRes.data)) {
-      // Only create volume definition if we have a size
-      if (values.size) {
-        const vdRes = await createVolumeDefinitionMutation.mutateAsync({
-          ...volumeDefinitionData,
-          resource: values.name,
-        });
-
-        if (fullySuccess(vdRes.data)) {
-          if (values.deploy) {
-            try {
-              const autoPlaceRes = await autoPlaceMutation.mutateAsync({
-                ...deployData,
-                resource: values.name,
-              });
-              if (fullySuccess(autoPlaceRes.data)) {
-                backToList();
-              } else {
-                logger.debug('Auto-place failed:', autoPlaceRes.data);
-                backToList();
-              }
-            } catch (error) {
-              logger.debug('Error during auto-place:', error);
-              // Still navigate back even if auto-place fails
-              backToList();
-            }
-          } else {
-            backToList();
-          }
-        }
-      } else if (values.deploy) {
-        // If no size but deploy is true, try auto-place anyway
-        try {
-          const autoPlaceRes = await autoPlaceMutation.mutateAsync({
-            ...deployData,
+      if (fullySuccess(rdRes.data)) {
+        // Only create volume definition if we have a size
+        if (values.size) {
+          const vdRes = await createVolumeDefinitionMutation.mutateAsync({
+            ...volumeDefinitionData,
             resource: values.name,
           });
-          if (fullySuccess(autoPlaceRes.data)) {
-            backToList();
-          } else {
-            logger.debug('Auto-place failed:', autoPlaceRes.data);
+
+          if (fullySuccess(vdRes.data)) {
+            if (values.deploy) {
+              try {
+                const autoPlaceRes = await autoPlaceMutation.mutateAsync({
+                  ...deployData,
+                  resource: values.name,
+                });
+                if (fullySuccess(autoPlaceRes.data)) {
+                  backToList();
+                } else {
+                  logger.debug('Auto-place failed:', autoPlaceRes.data);
+                  backToList();
+                }
+              } catch (error) {
+                logger.debug('Error during auto-place:', error);
+                // Still navigate back even if auto-place fails
+                backToList();
+              }
+            } else {
+              backToList();
+            }
+          }
+        } else if (values.deploy) {
+          // If no size but deploy is true, try auto-place anyway
+          try {
+            const autoPlaceRes = await autoPlaceMutation.mutateAsync({
+              ...deployData,
+              resource: values.name,
+            });
+            if (fullySuccess(autoPlaceRes.data)) {
+              backToList();
+            } else {
+              logger.debug('Auto-place failed:', autoPlaceRes.data);
+              backToList();
+            }
+          } catch (error) {
+            logger.debug('Error during auto-place:', error);
             backToList();
           }
-        } catch (error) {
-          logger.debug('Error during auto-place:', error);
+        } else {
           backToList();
         }
-      } else {
-        backToList();
       }
+    } catch (error) {
+      logger.debug(error);
     }
   };
 

@@ -31,6 +31,7 @@ import { Switch } from '@app/components/Switch';
 import { deletingRowClass, useDeleteAction } from '@app/hooks/useDeleteAction';
 import { UIMode } from '@app/features/settings/types';
 import { useUIMode } from '@app/features/settings/useSettings';
+import { ApiError } from '@app/features/requests';
 
 const DRBD_REACTOR_CONFIG_PREFIX = '/etc/drbd-reactor.d/';
 
@@ -120,13 +121,8 @@ export const List = () => {
             queryClient.invalidateQueries({ queryKey: ['resourceDefinitions'] });
           },
           onError: (error: unknown) => {
-            // Check if it's already deployed error
-            const errorMsg = (error as { message?: string } | undefined)?.message || '';
-            if (errorMsg.includes('already') || errorMsg.includes('exists')) {
-              message.error(t('already_deployed'));
-            } else {
-              message.error(t('deploy_failed'));
-            }
+            // A refusal: the request proxy showed the controller's reason.
+            if (!(error instanceof ApiError)) message.error(t('deploy_failed'));
           },
         },
       );
@@ -147,8 +143,8 @@ export const List = () => {
           message.success(t('undeploy_success'));
           queryClient.invalidateQueries({ queryKey: ['resourceDefinitions'] });
         },
-        onError: () => {
-          message.error(t('undeploy_failed'));
+        onError: (error: unknown) => {
+          if (!(error instanceof ApiError)) message.error(t('undeploy_failed'));
         },
       },
     );
@@ -200,8 +196,8 @@ export const List = () => {
           setModifyContent('');
           refetch();
         },
-        onError: () => {
-          message.error(t('modify_failed'));
+        onError: (error: unknown) => {
+          if (!(error instanceof ApiError)) message.error(t('modify_failed'));
         },
       },
     );

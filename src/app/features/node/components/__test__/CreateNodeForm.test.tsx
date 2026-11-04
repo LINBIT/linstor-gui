@@ -104,6 +104,22 @@ describe('CreateNodeForm', () => {
     await waitFor(() => expect(hoisted.navigate).toHaveBeenCalledWith(-1));
   });
 
+  it('stays on the form with what was typed when the controller refuses the node', async () => {
+    // openapi-fetch resolves an error reply rather than rejecting.
+    vi.mocked(createNode).mockResolvedValue({
+      error: [{ ret_code: -1, message: 'name taken' }],
+      response: new Response(null, { status: 500 }),
+    } as never);
+    renderForm();
+    fillCreateForm();
+    submit();
+
+    await waitFor(() => expect(createNode).toHaveBeenCalled());
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Submit' })).not.toHaveClass('ant-btn-loading'));
+    expect(hoisted.navigate).not.toHaveBeenCalled();
+    expect(field('^Name$')).toHaveValue('gui04');
+  });
+
   it('sends the node type that was picked', async () => {
     const { container } = renderForm();
     fillCreateForm();
