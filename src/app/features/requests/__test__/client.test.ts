@@ -104,6 +104,39 @@ describe('controller client', () => {
     expect(toast.handleAPICallRes).toHaveBeenCalledTimes(1);
   });
 
+  it('reports the list a reply wraps in an object (a clone), success or refusal', async () => {
+    const started = (messages: unknown[]) => ({
+      location: '/v1/resource-definitions/r1/clone/r2',
+      source_name: 'r1',
+      clone_name: 'r2',
+      messages,
+    });
+    const cloned = [{ ret_code: 20447233, message: "New resource definition 'r2' cloned from 'r1'." }];
+    const clone = () =>
+      post('/v1/resource-definitions/{resource}/clone', {
+        params: { path: { resource: 'r1' } },
+        body: { name: 'r2' },
+      });
+
+    fetchMock.mockResolvedValue(reply(201, started(cloned)));
+    await clone();
+    await settle();
+    expect(toast.handleAPICallRes).toHaveBeenCalledWith(cloned, expect.any(String), true);
+
+    fetchMock.mockResolvedValue(reply(500, started(refused)));
+    const failure = await unwrap(clone()).catch((e: unknown) => e);
+    await settle();
+    expect(toast.handleAPICallRes).toHaveBeenLastCalledWith(refused, expect.any(String), true);
+    expect(failure).toMatchObject({ status: 500, message: 'The path does not have a whitelisted parent' });
+  });
+
+  it('reports nothing for a reply that carries no ApiCallRc list', async () => {
+    fetchMock.mockResolvedValue(reply(200, { name: 'n1' }));
+    await get('/v1/nodes');
+    await settle();
+    expect(toast.handleAPICallRes).not.toHaveBeenCalled();
+  });
+
   it('never logs replies that carry tokens', async () => {
     fetchMock.mockResolvedValue(reply(201, [{ ret_code: 1, message: 'Init token abc', obj_refs: { token: 'abc' } }]));
     await post('/v1/controller/auth/initialize-token-auth', {

@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { test, expect, pick, toast, type Page } from '../fixtures';
+import { test, expect, keepsHolding, pick, toast, type Page } from '../fixtures';
 
 const remoteRow = (page: Page, name: string) =>
   page.getByRole('row').filter({ has: page.getByRole('cell', { name, exact: true }) });
@@ -60,7 +60,10 @@ test('a remote whose name is taken is refused once, and the dialog keeps what wa
 
   dialog = await fillS3(page, 'e2e-taken');
   await dialog.getByRole('button', { name: 'Submit' }).click();
-  await expect(toast(page, "A remote with the name 'e2e-taken' already exists.")).toHaveCount(1);
-  await expect(dialog).toBeVisible();
+  await expect(toast(page, "A remote with the name 'e2e-taken' already exists.").first()).toBeVisible();
+  await keepsHolding(async () => {
+    expect(await toast(page, 'already exists').count()).toBe(1);
+    expect(await dialog.isVisible()).toBe(true);
+  });
   await expect(dialog.getByLabel('Name', { exact: true })).toHaveValue('e2e-taken');
 });

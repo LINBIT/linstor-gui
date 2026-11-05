@@ -18,7 +18,7 @@ import {
   withControllerAuthHeaders,
 } from '@app/utils/controllerAuth';
 
-import { replyError } from './reply';
+import { rcList, replyError } from './reply';
 
 type APICALLRC = components['schemas']['ApiCallRc'];
 type APICALLRCLIST = components['schemas']['ApiCallRcList'];
@@ -71,8 +71,9 @@ const reportReply = (request: Request, res: Response, notify: boolean): void => 
     .json()
     .then((data) => {
       // The GUI's own key-value-store writes are not user actions.
-      if (!(res.ok && url.includes('key-value-store'))) {
-        handleAPICallRes(data, url, notify);
+      const list = rcList(data);
+      if (list && !(res.ok && url.includes('key-value-store'))) {
+        handleAPICallRes(list as APICALLRCLIST, url, notify);
       }
     })
     // Not JSON (an empty 204, an HTML error page): nothing to report.
@@ -113,20 +114,6 @@ const partiallySuccess = (res?: APICALLRCLIST) => {
     return false;
   }
   return res.some((item) => item.ret_code < 0) && res.some((item) => item.ret_code > 0);
-};
-
-/**
- * The messages of an error response, joined; undefined when there is none.
- * openapi-fetch does not throw on an HTTP error, it puts the body in `error`.
- */
-const apiErrorMessage = (res?: { error?: unknown }): string | undefined => {
-  if (!Array.isArray(res?.error)) {
-    return undefined;
-  }
-  return (res.error as { message?: string }[])
-    .map((e) => e?.message)
-    .filter(Boolean)
-    .join(', ');
 };
 
 /** A controller reply that was an HTTP error. */
@@ -179,7 +166,6 @@ export {
   OPTIONS as options,
   fullySuccess,
   partiallySuccess,
-  apiErrorMessage,
   unwrap,
   ApiError,
   replyError,

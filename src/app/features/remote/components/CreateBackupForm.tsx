@@ -6,7 +6,7 @@
 
 import { useState } from 'react';
 import { logger } from '@app/utils/logger';
-import { apiErrorMessage } from '@app/features/requests';
+import { ApiError, unwrap } from '@app/features/requests';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Form, Modal, message } from 'antd';
 import { Select } from '@app/components/Select';
@@ -55,16 +55,18 @@ const CreateBackupForm = ({ refetch }: CreateBackupFormProps) => {
     },
   });
 
+  // A backup the controller refuses keeps the dialog with what was picked.
   const onFinish = async (values: FormType) => {
     try {
-      const error = apiErrorMessage(await createBackupMutation.mutateAsync(values));
-
-      if (error !== undefined) {
-        messageApi.error(error);
-      }
+      await unwrap(createBackupMutation.mutateAsync(values));
     } catch (error) {
-      logger.error('create backup error', error);
-      messageApi.error('Create backup error');
+      // A reply, refusal or proxy error page, was shown by the request layer;
+      // only a request that got none is reported here.
+      if (!(error instanceof ApiError)) {
+        logger.error('create backup error', error);
+        messageApi.error('Create backup error');
+      }
+      return;
     }
 
     setModelOpen(false);

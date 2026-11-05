@@ -6,7 +6,7 @@
 
 import { useState } from 'react';
 import { logger } from '@app/utils/logger';
-import { apiErrorMessage } from '@app/features/requests';
+import { ApiError, unwrap } from '@app/features/requests';
 import { useMutation } from '@tanstack/react-query';
 import { Form, Modal, message } from 'antd';
 import { Input } from '@app/components/Input';
@@ -61,19 +61,18 @@ const CreateRemoteForm = ({ refetch }: CreateRemoteFormProps) => {
 
     // A remote the controller refuses keeps the dialog with what was typed.
     try {
-      let error: string | undefined;
       if (remote_type === 's3_remotes') {
-        error = apiErrorMessage(await createS3RemoteMutation.mutateAsync(rest as S3RemoteCreateRequestBody));
+        await unwrap(createS3RemoteMutation.mutateAsync(rest as S3RemoteCreateRequestBody));
       } else if (remote_type === 'linstor_remotes') {
-        error = apiErrorMessage(await createLINSTORRemoteMutation.mutateAsync(rest));
-      }
-      if (error !== undefined) {
-        messageApi.error(error);
-        return;
+        await unwrap(createLINSTORRemoteMutation.mutateAsync(rest));
       }
     } catch (error) {
-      logger.error('create remote error', error);
-      messageApi.error('Create remote error');
+      // A reply, refusal or proxy error page, was shown by the request layer;
+      // only a request that got none is reported here.
+      if (!(error instanceof ApiError)) {
+        logger.error('create remote error', error);
+        messageApi.error('Create remote error');
+      }
       return;
     }
 

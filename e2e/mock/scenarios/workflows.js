@@ -78,12 +78,22 @@ const RC = {
 const reply = (...entries) => entries.map(([ret_code, message]) => ({ ret_code, message }));
 
 /** Answers like a refusing controller: an error status and an ApiCallRc list. */
-const refuse = (res, status, message) => {
-  const body = JSON.stringify(reply([RC.ERROR, message]));
+const refuse = (res, status, message) => send(res, status, reply([RC.ERROR, message]));
+
+const send = (res, status, reply) => {
+  const body = JSON.stringify(reply);
   res.writeHead(status, { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) });
   res.end(body);
   return null;
 };
+
+/** A clone reply, success or not: ResourceDefinitionCloneStarted, its ApiCallRc list in `messages`. */
+const cloneStarted = (source, name, messages) => ({
+  location: `/v1/resource-definitions/${source}/clone/${name}`,
+  source_name: source,
+  clone_name: name,
+  messages,
+});
 
 const placeCountOf = (groupName) =>
   resourceGroups.find((rg) => rg.name === groupName)?.select_filter?.place_count ?? 2;
@@ -426,7 +436,8 @@ export default {
     resourceGroupSpawn: ({ params, body, res }) => {
       const name = body?.resource_definition_name;
       if (resourceDefinitions.some((rd) => rd.name === name)) {
-        return refuse(res, 500, `A resource definition with the name '${name}' already exists.`);
+        const taken = reply([RC.ERROR, `A resource definition with the name '${name}' already exists`]);
+        return send(res, 500, cloneStarted(params.resource, name, taken));
       }
       const rd = defineResource({
         name,
@@ -461,7 +472,8 @@ export default {
       const source = resourceDefinitions.find((r) => r.name === params.resource);
       const name = body?.name;
       if (resourceDefinitions.some((rd) => rd.name === name)) {
-        return refuse(res, 500, `A resource definition with the name '${name}' already exists.`);
+        const taken = reply([RC.ERROR, `A resource definition with the name '${name}' already exists`]);
+        return send(res, 500, cloneStarted(params.resource, name, taken));
       }
       const rd = defineResource({
         name,
@@ -469,7 +481,11 @@ export default {
         sizeKib: source.volume_definitions?.[0]?.size_kib ?? DEFAULT_SIZE_KIB,
       });
       place(rd, resources.filter((r) => r.name === source.name).length);
-      return reply([RC.RD_CREATED, `New resource definition '${name}' cloned from '${source.name}'.`]);
+      return cloneStarted(
+        source.name,
+        name,
+        reply([RC.RD_CREATED, `New resource definition '${name}' cloned from '${source.name}'.`]),
+      );
     },
     volumeDefinitionModify: ({ params, body, res }) => {
       const rd = resourceDefinitions.find((r) => r.name === params.resource);
@@ -477,7 +493,7 @@ export default {
       const sizeKib = body?.size_kib;
       if (vd && sizeKib !== undefined) {
         if (sizeKib < vd.size_kib) {
-          return refuse(res, 400, `Shrinking volume definition '${params.volume_number}' of '${params.resource}' is not supported.`);
+          return refuse(res, 500, `Shrinking volume definition '${params.volume_number}' of '${params.resource}' is not supported.`);
         }
         vd.size_kib = sizeKib;
         for (const r of resources.filter((x) => x.name === params.resource)) {

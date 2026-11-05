@@ -6,6 +6,19 @@
 
 type RcLike = { message?: string; ret_code?: number };
 
+/**
+ * The ApiCallRc list of a reply body: most replies are the list itself, some
+ * wrap it in an object (a clone answers ResourceDefinitionCloneStarted, its
+ * list in `messages`). Undefined when the body carries none.
+ */
+export const rcList = (body: unknown): unknown[] | undefined => {
+  if (Array.isArray(body)) {
+    return body;
+  }
+  const messages = (body as { messages?: unknown } | null | undefined)?.messages;
+  return Array.isArray(messages) ? messages : undefined;
+};
+
 export const rcFailures = (list: unknown): RcLike[] =>
   Array.isArray(list)
     ? list.filter(
@@ -25,7 +38,8 @@ export const rcFailures = (list: unknown): RcLike[] =>
  */
 export const replyError = (res: unknown): string | undefined => {
   if (res && typeof res === 'object' && 'error' in res && (res as { error?: unknown }).error) {
-    const err = (res as { error: unknown }).error;
+    const body = (res as { error: unknown }).error;
+    const err = rcList(body) ?? body;
     if (Array.isArray(err)) {
       // An error reply still lists the steps that worked ("... adjusted.",
       // "Deployed ... on 'n1'"); only the failures say what went wrong.

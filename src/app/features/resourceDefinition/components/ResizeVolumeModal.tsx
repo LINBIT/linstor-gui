@@ -12,6 +12,7 @@ import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getVolumeDefinitionListByResource, updateVolumeDefinition } from '../api';
+import { unwrap } from '@app/features/requests';
 import { sizeOptions, convertRoundUp } from '@app/utils/size';
 import { useTranslation } from 'react-i18next';
 import { Checkbox } from '@app/components/Checkbox';
@@ -43,12 +44,16 @@ export const ResizeVolumeModal: React.FC<ResizeVolumeModalProps> = ({ open, onCl
     enabled: open && !!resourceName,
   });
 
+  // A size the controller refuses (shrinking, more than the pools hold) throws,
+  // so the dialog stays open with it; the request layer shows the reason.
   const mutation = useMutation({
     mutationFn: (vars: { volNr: number; size: number; gross?: boolean }) =>
-      updateVolumeDefinition(resourceName, vars.volNr, {
-        size_kib: vars.size,
-        ...(vars.gross && { flags: ['GROSS_SIZE'] }),
-      }),
+      unwrap(
+        updateVolumeDefinition(resourceName, vars.volNr, {
+          size_kib: vars.size,
+          ...(vars.gross && { flags: ['GROSS_SIZE'] }),
+        }),
+      ),
   });
 
   useEffect(() => {

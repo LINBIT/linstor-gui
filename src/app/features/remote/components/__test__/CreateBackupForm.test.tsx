@@ -99,20 +99,24 @@ describe('CreateBackupForm', () => {
     await waitFor(() => expect(createBackup).toHaveBeenCalledWith('s3-a', { rsc_name: 'res-a', incremental: false }));
   });
 
-  it("shows the controller's errors, and a generic one on transport failure", async () => {
-    vi.mocked(createBackup).mockResolvedValue({ error: [{ message: 'no snapshot support' }] } as never);
-    renderForm();
+  it('keeps the dialog when the controller refuses, and reports a transport failure itself', async () => {
+    vi.mocked(createBackup).mockResolvedValue({ error: [{ ret_code: -1, message: 'no snapshot support' }] } as never);
+    const refetch = renderForm();
     await open();
     await pickResource('res-a');
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
-    expect(await screen.findByText('no snapshot support')).toBeInTheDocument();
+    await waitFor(() => expect(createBackup).toHaveBeenCalledTimes(1));
+    // The request layer showed the controller's reason; the form adds no second toast.
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Submit' })).not.toHaveClass('ant-btn-loading'));
+    expect(screen.queryByText('no snapshot support')).not.toBeInTheDocument();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(refetch).not.toHaveBeenCalled();
 
     vi.mocked(createBackup).mockRejectedValue(new Error('offline'));
     const errors = captureConsoleError();
-    fireEvent.click(screen.getByRole('button', { name: '+ Add' }));
-    await pickResource('res-b');
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
     expect(await screen.findByText('Create backup error')).toBeInTheDocument();
     expect(errors).toHaveBeenCalledWith('create backup error', expect.any(Error));
+    expect(refetch).not.toHaveBeenCalled();
   });
 });

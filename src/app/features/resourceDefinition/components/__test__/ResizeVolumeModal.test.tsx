@@ -122,6 +122,24 @@ describe('ResizeVolumeModal', () => {
     expect(screen.queryByText('Operation Successful')).toBeNull();
   });
 
+  it('stays open without success when the controller refuses the size', async () => {
+    // openapi-fetch resolves on an HTTP error, the refusal in `error`.
+    vi.mocked(updateVolumeDefinition).mockResolvedValue({
+      error: [{ ret_code: -1, message: 'Shrinking is not supported' }],
+      response: new Response(null, { status: 500 }),
+    } as never);
+    const { onClose, onSuccess } = renderModal();
+    await waitFor(() => expect(sizes()).toHaveLength(3));
+
+    fireEvent.change(sizes()[2], { target: { value: '50' } });
+    fireEvent.click(within(dialog()).getByRole('button', { name: 'OK' }));
+
+    await waitFor(() => expect(logger.error).toHaveBeenCalledWith(expect.any(Error)));
+    expect(onClose).not.toHaveBeenCalled();
+    expect(onSuccess).not.toHaveBeenCalled();
+    expect(screen.queryByText('Operation Successful')).toBeNull();
+  });
+
   it('closes on cancel without resizing', async () => {
     const { onClose } = renderModal();
     await waitFor(() => expect(sizes()).toHaveLength(3));

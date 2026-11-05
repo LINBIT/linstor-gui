@@ -128,9 +128,12 @@ describe('CreateRemoteForm', () => {
     expect(ebs.closest('.ant-select-item')).toHaveClass('ant-select-item-option-disabled');
   });
 
-  it("shows the controller's error messages when the create is refused", async () => {
+  it('keeps the dialog when the create is refused, without a second toast', async () => {
     vi.mocked(createS3Remote).mockResolvedValue({
-      error: [{ message: 'bucket does not exist' }, { message: 'check the region' }],
+      error: [
+        { ret_code: -1, message: 'bucket does not exist' },
+        { ret_code: -1, message: 'check the region' },
+      ],
     } as never);
     const refetch = renderForm();
     await open();
@@ -141,7 +144,10 @@ describe('CreateRemoteForm', () => {
     type('Please input access key', 'a');
     type('Please input secret key', 's');
     submit();
-    expect(await screen.findByText('bucket does not exist, check the region')).toBeInTheDocument();
+    await waitFor(() => expect(createS3Remote).toHaveBeenCalledTimes(1));
+    // The request layer showed the controller's reason; the form adds no second toast.
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Submit' })).not.toHaveClass('ant-btn-loading'));
+    expect(screen.queryByText(/bucket does not exist/)).not.toBeInTheDocument();
     // Refused: the dialog stays with what was typed, to correct it.
     expect(screen.getByPlaceholderText('Please input name')).toHaveValue('s3-x');
     expect(refetch).not.toHaveBeenCalled();

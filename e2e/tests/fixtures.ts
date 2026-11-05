@@ -26,6 +26,21 @@ export const toastTexts = (page: Page) => page.locator('.ant-message-notice').al
 export const toast = (page: Page, text: string | RegExp) => page.locator('.ant-message-notice', { hasText: text });
 
 /**
+ * Checks that `assertion` keeps holding for `ms`, not only once: a dialog that
+ * stays open (it is still visible while its close animation runs), a toast
+ * shown once (a duplicate comes a moment after the first). The assertion
+ * must check the page as it is now: a retrying expect would wait for the
+ * state instead (and `timeout: 0` means no timeout at all).
+ */
+export const keepsHolding = async (assertion: () => Promise<void>, ms = 1500) => {
+  const until = Date.now() + ms;
+  do {
+    await assertion();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  } while (Date.now() < until);
+};
+
+/**
  * Picks `option` in the select labelled `label` inside `scope` (a page, or a
  * dialog). antd renders its options twice: a hidden accessible list (role
  * "option") and the visible items a user clicks, so the visible one is
