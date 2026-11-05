@@ -16,6 +16,7 @@ import { Button } from '@app/components/Button';
 import { formatBytes } from '@app/utils/size';
 
 import { createPool, getNodesFromVSAN, getPhysicalStorage, getStoragePool } from '../api';
+import { vsanStoragePoolsKey } from '../const';
 
 import {
   Disk,
@@ -103,7 +104,7 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
   });
 
   const { data: storagePool } = useQuery({
-    queryKey: ['getStoragePool'],
+    queryKey: vsanStoragePoolsKey,
     queryFn: () => getStoragePool(),
   });
 

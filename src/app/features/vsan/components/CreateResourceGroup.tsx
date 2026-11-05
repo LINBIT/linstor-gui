@@ -14,6 +14,7 @@ import { Select } from '@app/components/Select';
 
 import { Button } from '@app/components/Button';
 import { createResourceGroup, getStoragePool } from '../api';
+import { vsanStoragePoolsKey } from '../const';
 import { DEFAULT_SP } from '@app/const/type';
 import { ErrorMessage } from '@app/features/vsan';
 import { variablesOnly } from '@app/utils/mutation';
@@ -35,7 +36,7 @@ export const CreateResourceGroup = ({ refetch }: CreateResourceGroupProps) => {
   const [createFormModal, setCreateFormModal] = useState(false);
 
   const { data: storagePool } = useQuery({
-    queryKey: ['getStoragePool'],
+    queryKey: vsanStoragePoolsKey,
     queryFn: () => getStoragePool(),
   });
 

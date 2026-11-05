@@ -5,7 +5,9 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { PhysicalStorageList } from '../PhysicalStorageList';
 import { getStoragePool, getPhysicalStorage, getNodesFromVSAN } from '../../api';
@@ -42,6 +44,21 @@ describe('PhysicalStorageList', () => {
     expect(pool1).toHaveTextContent('node2: 2.00 GiB');
     expect(rowByText(container, 'pool2')).toHaveTextContent('node1: 512.00 MiB');
     expect(screen.queryByText('DfltDisklessStorPool')).toBeNull();
+  });
+
+  it("does not read the dashboard's LINSTOR storage pools as its own", async () => {
+    // The dashboard was opened first and cached the LINSTOR list.
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    client.setQueryData(['getStoragePool'], { data: [{ storage_pool_name: 'pool1', node_name: 'node1' }] });
+    const { container } = render(
+      <QueryClientProvider client={client}>
+        <MemoryRouter>
+          <PhysicalStorageList />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+    await waitFor(() => expect(tableRows(container)).toHaveLength(2));
+    expect(rowByText(container, 'pool1')).toHaveTextContent('node2: 2.00 GiB');
   });
 
   it('expands one row at a time by clicking it', async () => {

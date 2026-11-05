@@ -7,6 +7,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { getStoragePool } from '../api';
+import { vsanStoragePoolsKey } from '../const';
 import type { VsanStoragePool } from '../types';
 
 import { Table } from 'antd';
@@ -29,7 +30,7 @@ interface DataType {
 
 export const PhysicalStorageList = () => {
   const { data, isPending, refetch } = useQuery({
-    queryKey: ['getStoragePool'],
+    queryKey: vsanStoragePoolsKey,
     queryFn: () => getStoragePool(),
     refetchInterval: REFETCH_INTERVAL,
   });
