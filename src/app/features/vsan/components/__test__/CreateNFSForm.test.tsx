@@ -29,7 +29,7 @@ const openForm = async (disabled?: boolean) => {
   if (disabled) {
     return { ...utils, dialog: null as unknown as HTMLElement, refetch };
   }
-  fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+  fireEvent.click(screen.getByRole('button', { name: '+ Add' }));
   const dialog = await openDialog();
   return { ...utils, dialog, refetch };
 };
@@ -57,7 +57,7 @@ describe('CreateNFSForm', () => {
 
   it('can be disabled from the outside', async () => {
     await openForm(true);
-    expect(screen.getByRole('button', { name: 'Create' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '+ Add' })).toBeDisabled();
   });
 
   it('validates the required fields', async () => {
@@ -198,7 +198,7 @@ describe('CreateNFSForm', () => {
     fireEvent.click(dialogButton(dialog, 'Cancel'));
     await expectModalClosed();
 
-    fireEvent.click(screen.getAllByRole('button', { name: 'Create' })[0]);
+    fireEvent.click(screen.getAllByRole('button', { name: '+ Add' })[0]);
     const reopened = await openDialog();
     expect((within(reopened).getByPlaceholderText('Please input name: my_export') as HTMLInputElement).value).toBe('');
   });

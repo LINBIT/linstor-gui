@@ -68,7 +68,7 @@ describe('Inventory pages', () => {
 
   it('storage pool create shows the description above the form', () => {
     renderPage(<StoragePoolCreate />);
-    expect(screen.getByRole('heading', { name: 'Add Storage Pool' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Create Storage Pool' })).toBeInTheDocument();
     expect(screen.getByTestId('storage-pool-create')).toBeInTheDocument();
   });
 

@@ -33,7 +33,7 @@ const openForm = async () => {
   const refetch = vi.fn();
   const utils = renderWithClient(<CreateNVMEOfForm refetch={refetch} />);
   await waitFor(() => expect(getNetWorkInterfaces).toHaveBeenCalled());
-  fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+  fireEvent.click(screen.getByRole('button', { name: '+ Add' }));
   const dialog = await openDialog();
   return { ...utils, dialog, refetch };
 };
@@ -165,7 +165,7 @@ describe('CreateNVMEOfForm', () => {
     fireEvent.click(dialogButton(dialog, 'Cancel'));
     await expectModalClosed();
 
-    fireEvent.click(screen.getAllByRole('button', { name: 'Create' })[0]);
+    fireEvent.click(screen.getAllByRole('button', { name: '+ Add' })[0]);
     const reopened = await openDialog();
     expect((within(reopened).getByPlaceholderText('unique-name') as HTMLInputElement).value).toBe('');
   });

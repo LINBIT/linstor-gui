@@ -154,7 +154,7 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
     <>
       {contextHolder}
       <Button type="primary" onClick={() => setCreateFormModal(true)}>
-        {t('common:create')}
+        + {t('common:add')}
       </Button>
 
       <Modal

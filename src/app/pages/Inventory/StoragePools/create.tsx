@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 const StoragePoolCreate = () => {
   const { t } = useTranslation('storage_pool');
   return (
-    <PageBasic title={t('add_title')}>
+    <PageBasic title={t('create_title')}>
       <StoragePoolCreateForm />
     </PageBasic>
   );

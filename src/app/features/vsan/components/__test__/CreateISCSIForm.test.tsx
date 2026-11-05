@@ -34,7 +34,7 @@ const openForm = async () => {
   const refetch = vi.fn();
   const utils = renderWithClient(<CreateISCSIForm refetch={refetch} />);
   await waitFor(() => expect(getNetWorkInterfaces).toHaveBeenCalled());
-  fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+  fireEvent.click(screen.getByRole('button', { name: '+ Add' }));
   const dialog = await openDialog();
   return { ...utils, dialog, refetch };
 };
@@ -207,7 +207,7 @@ describe('CreateISCSIForm', () => {
     await expectModalClosed();
 
     // The closed dialog keeps its footer in the DOM; the trigger comes first.
-    fireEvent.click(screen.getAllByRole('button', { name: 'Create' })[0]);
+    fireEvent.click(screen.getAllByRole('button', { name: '+ Add' })[0]);
     const reopened = await openDialog();
     expect((within(reopened).getByPlaceholderText('yyyy-mm') as HTMLInputElement).value).toBe('');
   });
