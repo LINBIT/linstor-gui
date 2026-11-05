@@ -183,6 +183,27 @@ describe('storage pool CreateForm', () => {
     await waitFor(() => expect(navigate).toHaveBeenCalledWith(-1));
   });
 
+  it('a diskless pool asks for no volume group and sends no driver name', async () => {
+    renderForm();
+    fireEvent.click(screen.getByText('Existing Device'));
+    await waitFor(() => expect(screen.queryByText('Multiple Nodes')).not.toBeInTheDocument());
+    typeName('pool-dl');
+    await pick(nodeSelect(), 'node-2');
+    fireEvent.mouseDown(typeSelect());
+    fireEvent.click(await screen.findByText('DISKLESS', { selector: '.ant-select-item-option-content' }));
+    await waitFor(() => expect(screen.queryByPlaceholderText('Volume Group/Thin Pool Name')).not.toBeInTheDocument());
+    submit();
+
+    await waitFor(() =>
+      expect(createStoragePool).toHaveBeenCalledWith('node-2', {
+        storage_pool_name: 'pool-dl',
+        provider_kind: 'DISKLESS',
+        external_locking: false,
+      }),
+    );
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith(-1));
+  });
+
   it('an existing volume group on two nodes creates both pools and goes back once', async () => {
     renderForm();
     fireEvent.click(screen.getByText('Existing Device'));

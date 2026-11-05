@@ -310,6 +310,10 @@ export default {
       if (storagePools.some((p) => p.node_name === params.node && p.storage_pool_name === name)) {
         return refuse(res, 500, `A storage pool with the name '${name}' already exists on node '${params.node}'.`);
       }
+      const backing = body?.props?.['StorDriver/StorPoolName'];
+      if (backing !== undefined && !/^[a-zA-Z0-9_/-]+$/.test(backing)) {
+        return refuse(res, 500, `Invalid property(StorDriver/StorPoolName) value: ${backing}`);
+      }
       addStoragePool(params.node, name, body?.provider_kind, body?.props);
       return reply([RC.SP_CREATED, `New storage pool '${name}' on node '${params.node}' registered.`]);
     },

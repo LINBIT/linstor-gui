@@ -153,12 +153,16 @@ const CreateForm = () => {
     if (create_type === 'existing') {
       const { storage_pool_name, provider_kind, storage_driver_name, node: selectedNode } = values;
 
+      // A diskless pool has no volume group or pool behind it; the
+      // controller refuses an empty StorDriver/StorPoolName.
       const body = {
         storage_pool_name: storage_pool_name,
         provider_kind,
-        props: {
-          'StorDriver/StorPoolName': storage_driver_name,
-        },
+        ...(provider_kind !== 'DISKLESS' && {
+          props: {
+            'StorDriver/StorPoolName': storage_driver_name,
+          },
+        }),
         external_locking: false,
       };
 
@@ -354,7 +358,7 @@ const CreateForm = () => {
         </>
       )}
 
-      {create_type === 'existing' && (
+      {create_type === 'existing' && provider_kind !== 'DISKLESS' && (
         <Form.Item
           name="storage_driver_name"
           label={isZSFType ? t('storage_pool:zfs_pool') : t('storage_pool:lvm_pool')}

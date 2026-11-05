@@ -90,6 +90,23 @@ test('a storage pool is created from an existing volume group on two nodes', asy
   await expect(rowWith(page, 'e2evg', 'node03')).toBeVisible();
 });
 
+test('a diskless storage pool is created without a volume group', async ({ page }) => {
+  await page.goto('#/inventory/storage-pools');
+  await page.goto('#/inventory/storage-pools/create');
+  await page.getByText('Existing Device').click();
+  await page.getByLabel('Storage Pool Name').fill('e2edl');
+  await pick(page, 'Node', 'node02');
+  await page.keyboard.press('Escape');
+  await pick(page, 'Type', 'DISKLESS');
+  // Nothing backs a diskless pool, so there is nothing to name.
+  await expect(page.getByLabel('Volume Group/Thin Pool')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Submit' }).click();
+  await expect(toast(page, "New storage pool 'e2edl' on node 'node02' registered.")).toBeVisible();
+  await expect(page).toHaveURL(/#\/inventory\/storage-pools$/);
+  await searchPools(page, 'e2edl');
+  await expect(rowWith(page, 'e2edl', 'node02')).toContainText('DISKLESS');
+});
+
 test('a ZFS storage pool is created on a new device', async ({ page }) => {
   await page.goto('#/inventory/storage-pools');
   await page.goto('#/inventory/storage-pools/create');
