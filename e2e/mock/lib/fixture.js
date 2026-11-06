@@ -53,7 +53,6 @@ export const buildStoragePools = ({ nodeNames, storagePoolsPerNode = 2 }) => {
         uuid: fakeUuid(seed * 7 + 17),
         reports: [],
         supports_snapshots: true,
-        shared_space: null,
       });
     }
     pools.push({
@@ -109,7 +108,6 @@ export const buildResourceDefinitionAndResources = ({
 
   const resourceDefinition = {
     name,
-    external_name: null,
     props: {
       DrbdPrimarySetOn: placements[0]?.nodeName ?? '',
     },
@@ -234,8 +232,8 @@ export const standardControllerConfig = () => ({
   debug: {},
   log: { level: 'INFO' },
   db: { connection_url: 'mock://localhost' },
-  http: { listen_addr: '0.0.0.0', port: 3370 },
-  https: { listen_addr: '0.0.0.0', port: 3371 },
+  http: { listen_address: '0.0.0.0', port: 3370 },
+  https: { listen_address: '0.0.0.0', port: 3371 },
   ldap: {},
 });
 

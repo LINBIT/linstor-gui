@@ -169,6 +169,11 @@ export const buildHandlers = ({
     // ---- error reports ----
     errorReportList: () => [],
 
+    // ---- drbd-reactor ----
+    // Every node asked runs drbd-reactor, without a promoter.
+    nodeExecDrbdReactorStatus: ({ body }) =>
+      (body?.nodes ?? []).map((node) => ({ node, exit_code: 0, stdout_utf8: JSON.stringify({ promoter: [] }) })),
+
     // ---- remotes / files / schedules ----
     // (These are listed in the spec under various operationIds; falling through
     //  to the schema-driven default returns shapes the GUI accepts.)

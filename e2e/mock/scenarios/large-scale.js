@@ -61,7 +61,6 @@ const buildAll = () => {
 
     resourceDefinitions.push({
       name,
-      external_name: null,
       props: { DrbdPrimarySetOn: NODE_NAMES[(r - 1) % NODE_NAMES.length] },
       flags: [],
       layer_data: [

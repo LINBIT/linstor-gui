@@ -6,13 +6,27 @@
 
 import { test as base, expect, type Locator, type Page } from '@playwright/test';
 
-// Every test fails on an uncaught error in the page, whatever it asserts.
-export const test = base.extend<{ page: Page }>({
-  page: async ({ page }, runTest) => {
+/** Set per project in playwright.config.ts: the mock this project's GUI talks to. */
+export type MockOptions = { mockURL: string };
+
+/** The mock's replies that differed from the LINSTOR spec since the last call. */
+const takeViolations = async (mockURL: string): Promise<unknown[]> =>
+  (await fetch(`${mockURL}/__mock/violations`)).json() as Promise<unknown[]>;
+
+// Every test fails on an uncaught error in the page, and on a mock reply that
+// the controller would not send (e2e/mock/lib/specCheck.js), whatever it
+// asserts.
+export const test = base.extend<{ page: Page } & MockOptions>({
+  mockURL: ['', { option: true }],
+  page: async ({ page, mockURL }, runTest) => {
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
+    // A reply to the previous test can still arrive after it ended; it is not
+    // this test's. A polled request that repeats shows up again below.
+    await takeViolations(mockURL);
     await runTest(page);
     expect(errors, 'uncaught errors in the page').toEqual([]);
+    expect(await takeViolations(mockURL), 'mock replies that differ from the LINSTOR spec').toEqual([]);
   },
 });
 

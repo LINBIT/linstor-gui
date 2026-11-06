@@ -7,7 +7,7 @@
 const DEFAULT_DEPTH = 6;
 const DEFAULT_ARRAY_SIZE = 1;
 
-const resolveRef = (spec, ref) => {
+export const resolveRef = (spec, ref) => {
   if (typeof ref !== 'string' || !ref.startsWith('#/')) return null;
   const parts = ref.slice(2).split('/');
   let cursor = spec;

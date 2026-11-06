@@ -76,7 +76,6 @@ const STORAGE_POOLS = NODE_NAMES.flatMap((nodeName, i) => [
     uuid: fakeUuid(200 + i),
     reports: [],
     supports_snapshots: true,
-    shared_space: null,
   },
   {
     storage_pool_name: 'DfltDisklessStorPool',
@@ -94,7 +93,6 @@ const RESOURCE_GROUPS = buildResourceGroups().map((g) => ({ ...g, name: RESOURCE
 
 const RESOURCE_DEFINITION = {
   name: RESOURCE_NAME,
-  external_name: null,
   props: { DrbdPrimarySetOn: SOURCE_NODE },
   flags: [],
   layer_data: [

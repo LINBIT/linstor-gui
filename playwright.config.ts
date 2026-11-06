@@ -6,6 +6,8 @@
 
 import { defineConfig, devices } from '@playwright/test';
 
+import type { MockOptions } from './e2e/tests/fixtures';
+
 // End-to-end tests: the built GUI (vite preview, run `npm run build` first)
 // against the API mock in e2e/mock. Each scenario gets its own mock and its
 // own preview server proxied to it; a project runs the tests in
@@ -26,7 +28,7 @@ interface WebServer {
   reuseExistingServer: boolean;
 }
 
-export default defineConfig({
+export default defineConfig<MockOptions>({
   testDir: './e2e/tests',
   workers: 1,
   fullyParallel: false,
@@ -45,10 +47,14 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
-  projects: SCENARIOS.map(({ name, guiPort }) => ({
+  projects: SCENARIOS.map(({ name, mockPort, guiPort }) => ({
     name,
     testMatch: `${name}/**/*.spec.ts`,
-    use: { ...devices['Desktop Chrome'], baseURL: `http://127.0.0.1:${guiPort}/` },
+    use: {
+      ...devices['Desktop Chrome'],
+      baseURL: `http://127.0.0.1:${guiPort}/`,
+      mockURL: `http://127.0.0.1:${mockPort}`,
+    },
   })),
   webServer: SCENARIOS.flatMap(({ name, mockPort, guiPort }): WebServer[] => [
     {

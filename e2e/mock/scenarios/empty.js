@@ -78,7 +78,6 @@ const buildStoragePoolFromBody = (nodeName, body) => ({
   uuid: nextUuid(),
   reports: [],
   supports_snapshots: true,
-  shared_space: null,
 });
 
 const ok = () => [{ ret_code: 1, message: 'OK' }];

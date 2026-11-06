@@ -42,7 +42,6 @@ const STORAGE_POOLS = NODE_NAMES.flatMap((node, i) => [
     uuid: fakeUuid(100 + i),
     reports: [],
     supports_snapshots: false,
-    shared_space: null,
   },
   {
     storage_pool_name: 'DfltDisklessStorPool',

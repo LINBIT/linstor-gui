@@ -140,7 +140,6 @@ const addStoragePool = (node, name, kind, props = {}) => {
     uuid: nextUuid(),
     reports: [],
     supports_snapshots: true,
-    shared_space: null,
   });
 };
 
@@ -353,7 +352,7 @@ export default {
         origin_snap: snap,
         origin_node: 'node01',
         success: true,
-        shippable: true,
+        shipping: false,
         restorable: true,
         vlms: [],
       });
@@ -364,12 +363,17 @@ export default {
     // The GUI encodes a file's path before openapi-fetch encodes the URL, and
     // the controller URL-decodes the name it receives again (Files.java), so
     // the routed parameter is decoded once more here.
-    'GET /v1/files': () => [...files.values()].map(({ path, flags }) => ({ path, flags })),
+    // The list carries no content; alt_suffixes only where a file has some.
+    'GET /v1/files': () => [...files.values()].map(({ path, alt_suffixes }) => ({ path, ...(alt_suffixes && { alt_suffixes }) })),
     'GET /v1/files/{extFileName}': ({ params, res }) =>
       files.get(fileName(params)) ?? refuse(res, 404, `External file '${fileName(params)}' not found.`),
     'PUT /v1/files/{extFileName}': ({ params, body }) => {
       const created = !files.has(fileName(params));
-      files.set(fileName(params), { path: fileName(params), flags: [], content: body?.content ?? '' });
+      files.set(fileName(params), {
+        path: fileName(params),
+        content: body?.content ?? '',
+        ...(body?.alt_suffixes?.length && { alt_suffixes: body.alt_suffixes }),
+      });
       return reply([
         created ? RC.FILE_CREATED : RC.FILE_MODIFIED,
         `External file '${fileName(params)}' ${created ? 'created' : 'modified'}.`,

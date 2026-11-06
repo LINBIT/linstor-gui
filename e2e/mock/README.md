@@ -18,6 +18,24 @@ For each request:
 So scenarios only need to declare the data they care about; everything else
 returns plausible JSON shaped exactly like the real controller would.
 
+## Replies are checked against the spec
+
+Every reply to a spec operation, whoever sends it (an override's return
+value, an override writing `res` itself, a default), is checked against the
+schema the spec declares for its status (`lib/specCheck.js`). An object may
+only carry the properties its schema names. A request from the GUI to a path
+or method the spec does not have is recorded too.
+
+Nothing is refused: the mismatch is recorded, and `GET /__mock/violations`
+hands the list over and starts a fresh one. The e2e fixture
+(`e2e/tests/fixtures.ts`) reads it after every test and fails the test when it
+is not empty, so a scenario cannot answer in a shape the controller never
+sends.
+
+Where the spec is wrong about the controller, `CORRECTIONS` in
+`lib/specCheck.js` says what the controller sends instead; each entry was
+checked against a real controller.
+
 ## Run
 
 The end-to-end tests start it themselves (`npm run e2e`, see

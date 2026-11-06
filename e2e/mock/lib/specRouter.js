@@ -14,6 +14,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { mockFromSchema, pickSuccessResponseSchema } from './schemaMock.js';
+import { correctedSchema, createReplyChecker, watchReply } from './specCheck.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -73,6 +74,8 @@ const compileRoutes = (spec) => {
   });
   return routes;
 };
+
+const RC_LIST_REF = '#/components/schemas/ApiCallRcList';
 
 const json = (res, status, payload) => {
   const body = JSON.stringify(payload);
@@ -134,13 +137,14 @@ const getMulti = (url, key) => {
 export const createSpecHandler = (scenario) => {
   const spec = loadSpec();
   const routes = compileRoutes(spec);
+  const checker = createReplyChecker(spec);
 
   // Pre-compute default response bodies for every operation (single mock
   // generation per boot, not per request).
   const defaultResponses = new Map();
   for (const route of routes) {
     const { schema, status } = pickSuccessResponseSchema(route.operation, spec);
-    defaultResponses.set(route, { status, schema });
+    defaultResponses.set(route, { status, schema: correctedSchema(route, status) ?? schema });
   }
 
   const readJsonBody = (req) =>
@@ -175,6 +179,9 @@ export const createSpecHandler = (scenario) => {
 
     if (method === 'OPTIONS') return corsPreflight(res);
 
+    // The e2e fixture reads what replied outside the spec (specCheck.js).
+    if (url.pathname === '/__mock/violations') return checker.serve(req, res);
+
     if (url.pathname === '/metrics') {
       return text(
         res,
@@ -204,6 +211,7 @@ export const createSpecHandler = (scenario) => {
 
     const route = routes.find((r) => r.method === method && r.regex.test(url.pathname));
     if (!route) {
+      checker.notInSpec(req, url.pathname);
       // Not in the spec at all. Be generous: return [] under /v1/ for GETs,
       // accept everything else with an OK envelope.
       if (method === 'GET' && url.pathname.startsWith('/v1/')) return json(res, 200, []);
@@ -218,6 +226,8 @@ export const createSpecHandler = (scenario) => {
     });
 
     const requestBody = await readJsonBody(req);
+
+    watchReply(res, (status, sent) => checker.checkReply(route, status, sent));
 
     const ctx = {
       req,
@@ -254,20 +264,20 @@ export const createSpecHandler = (scenario) => {
     }
 
     if (body === undefined) {
-      if (method !== 'GET') {
+      const fallback = defaultResponses.get(route);
+      if (method !== 'GET' && (!fallback?.schema || fallback.schema.$ref === RC_LIST_REF)) {
         // Generic success envelope for any mutation that no scenario handler
         // overrode. Schema-driven defaults would produce ret_code: 0 which the
         // GUI treats as failure.
         body = [{ ret_code: 1, message: 'OK' }];
+      } else if (fallback?.schema) {
+        // Also a mutation that answers with something else (an exec result,
+        // a clone-started object) gets that shape, or the reply check fails.
+        body = mockFromSchema(fallback.schema, spec);
+      } else if (url.pathname.startsWith('/v1/')) {
+        body = [];
       } else {
-        const fallback = defaultResponses.get(route);
-        if (fallback?.schema) {
-          body = mockFromSchema(fallback.schema, spec);
-        } else if (url.pathname.startsWith('/v1/')) {
-          body = [];
-        } else {
-          body = [{ ret_code: 1, message: 'OK' }];
-        }
+        body = [{ ret_code: 1, message: 'OK' }];
       }
     }
 
