@@ -851,7 +851,6 @@ const ru = {
     current_password: 'Текущий пароль',
     username: 'Имя пользователя',
     password: 'Пароль',
-    add: 'Добавить',
     password_changed: 'Пароль успешно изменен',
     password_reset: 'Пароль успешно сброшен',
     password_change_failed: 'Не удалось изменить пароль',

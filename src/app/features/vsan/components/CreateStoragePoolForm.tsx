@@ -384,7 +384,7 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
               {t('common:cancel')}
             </Button>
             <Button type="primary" onClick={handleOk} loading={createMutation.isPending}>
-              {add_to_existing ? 'Add' : 'Create'}
+              {t('common:submit')}
             </Button>
           </div>
         }

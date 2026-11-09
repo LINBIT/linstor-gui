@@ -168,7 +168,7 @@ const CreateISCSIForm = ({ refetch }: CreateISCSIFormProps) => {
               {t('common:cancel')}
             </Button>
             <Button type="primary" onClick={handleOk} loading={createMutation.isPending}>
-              {t('common:create')}
+              {t('common:submit')}
             </Button>
           </div>
         }

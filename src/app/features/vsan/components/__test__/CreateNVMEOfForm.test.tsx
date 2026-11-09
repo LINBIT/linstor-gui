@@ -56,7 +56,7 @@ describe('CreateNVMEOfForm', () => {
   it('validates the required fields', async () => {
     const { dialog } = await openForm();
 
-    fireEvent.click(dialogButton(dialog, 'Create'));
+    fireEvent.click(dialogButton(dialog, 'Submit'));
 
     expect(await screen.findByText('Please select a resource group')).toBeInTheDocument();
     expect(await screen.findByText('IP prefix is required!')).toBeInTheDocument();
@@ -78,7 +78,7 @@ describe('CreateNVMEOfForm', () => {
     await waitFor(() => expect(size.value).toBe(String(10 * GIB - 64 * 1024)));
     expect(size).toBeDisabled();
 
-    fireEvent.click(dialogButton(dialog, 'Create'));
+    fireEvent.click(dialogButton(dialog, 'Submit'));
 
     await waitFor(() =>
       expect(createNVMEExport).toHaveBeenCalledWith({
@@ -109,7 +109,7 @@ describe('CreateNVMEOfForm', () => {
     // The unit picker fell back to KiB while the input was disabled.
     await selectOption(combos(dialog)[2], 'GiB');
     fireEvent.change(size, { target: { value: '3' } });
-    fireEvent.click(dialogButton(dialog, 'Create'));
+    fireEvent.click(dialogButton(dialog, 'Submit'));
 
     await waitFor(() =>
       expect(createNVMEExport).toHaveBeenCalledWith(
@@ -130,12 +130,12 @@ describe('CreateNVMEOfForm', () => {
     await selectOption(combos(dialog)[0], /^rg1 /);
     await selectOption(combos(dialog)[1], '10.0.0.');
     fireEvent.change(within(dialog).getByPlaceholderText('0'), { target: { value: '5' } });
-    fireEvent.click(dialogButton(dialog, 'Create'));
+    fireEvent.click(dialogButton(dialog, 'Submit'));
     await new Promise((resolve) => setTimeout(resolve, 50));
     expect(createNVMEExport).not.toHaveBeenCalled();
 
     fillNqn(dialog, '2024-12', 'com.linbit', 'vol1');
-    fireEvent.click(dialogButton(dialog, 'Create'));
+    fireEvent.click(dialogButton(dialog, 'Submit'));
     await waitFor(() =>
       expect(createNVMEExport).toHaveBeenCalledWith(
         expect.objectContaining({ nqn: 'nqn.2024-12.com.linbit:nvme:vol1' }),
@@ -151,7 +151,7 @@ describe('CreateNVMEOfForm', () => {
     await selectOption(combos(dialog)[0], /^rg1 /);
     await selectOption(combos(dialog)[1], '10.0.0.');
     fireEvent.change(within(dialog).getByPlaceholderText('0'), { target: { value: '5' } });
-    fireEvent.click(dialogButton(dialog, 'Create'));
+    fireEvent.click(dialogButton(dialog, 'Submit'));
 
     expect(await screen.findByText('Create failed')).toBeInTheDocument();
     expect(screen.getByText('nqn exists')).toBeInTheDocument();

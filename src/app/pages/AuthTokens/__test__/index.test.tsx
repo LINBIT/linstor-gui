@@ -223,7 +223,7 @@ describe('AuthTokens page', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /authToken:create/ }));
     fireEvent.change(screen.getByLabelText('authToken:description'), { target: { value: 'new-token' } });
-    fireEvent.click(screen.getByRole('button', { name: 'common:create' }));
+    fireEvent.click(screen.getByRole('button', { name: 'common:submit' }));
 
     await waitFor(() => {
       expect(mockPost).toHaveBeenCalledWith('/v1/controller/auth/token', { body: { description: 'new-token' } });

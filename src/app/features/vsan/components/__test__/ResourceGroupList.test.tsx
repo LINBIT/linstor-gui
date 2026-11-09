@@ -111,12 +111,12 @@ describe('ResourceGroupList', () => {
       fireEvent.click(screen.getByRole('button', { name: '+ Create' }));
       const dialog = await openDialog();
 
-      fireEvent.click(dialogButton(dialog, 'Create'));
+      fireEvent.click(dialogButton(dialog, 'Submit'));
       expect(await screen.findByText('Resource group name is required!')).toBeInTheDocument();
       expect(mocked.create).not.toHaveBeenCalled();
 
       fireEvent.change(within(dialog).getByPlaceholderText('Name'), { target: { value: 'rg3' } });
-      fireEvent.click(dialogButton(dialog, 'Create'));
+      fireEvent.click(dialogButton(dialog, 'Submit'));
 
       await waitFor(() => expect(mocked.create).toHaveBeenCalledWith({ name: 'rg3', placeCount: 2, poolName: null }));
       expect(await screen.findByText('Create resource group successfully')).toBeInTheDocument();
@@ -135,7 +135,7 @@ describe('ResourceGroupList', () => {
       await selectOption(within(dialog).getByRole('combobox'), 'pool1');
       expect(document.querySelector('.ant-select-item[title="DfltDisklessStorPool"]')).toBeNull();
       fireEvent.change(within(dialog).getByRole('spinbutton'), { target: { value: '3' } });
-      fireEvent.click(dialogButton(dialog, 'Create'));
+      fireEvent.click(dialogButton(dialog, 'Submit'));
 
       await waitFor(() =>
         expect(mocked.create).toHaveBeenCalledWith({ name: 'rg3', placeCount: 3, poolName: 'pool1' }),
@@ -149,7 +149,7 @@ describe('ResourceGroupList', () => {
       fireEvent.click(screen.getByRole('button', { name: '+ Create' }));
       const dialog = await openDialog();
       fireEvent.change(within(dialog).getByPlaceholderText('Name'), { target: { value: 'rg1' } });
-      fireEvent.click(dialogButton(dialog, 'Create'));
+      fireEvent.click(dialogButton(dialog, 'Submit'));
 
       expect(await screen.findByText('Name taken')).toBeInTheDocument();
       expect(screen.getByText('pick another')).toBeInTheDocument();

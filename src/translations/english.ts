@@ -1002,7 +1002,6 @@ const en = {
     dont_show_again: "Don't show this again",
     username: 'Username',
     password: 'Password',
-    add: 'Add',
     password_changed: 'Password changed successfully',
     password_reset: 'Password reset successfully',
     password_change_failed: 'Password change failed',

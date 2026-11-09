@@ -21,7 +21,7 @@ const open = async () => {
   fireEvent.click(screen.getByRole('button', { name: 'Add a user' }));
   await screen.findByLabelText('Username');
 };
-const submit = () => fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+const submit = () => fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
 describe('CreateUser', () => {
   beforeEach(() => {

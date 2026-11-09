@@ -858,7 +858,6 @@ const es = {
     current_password: 'Contraseña actual',
     username: 'Nombre de usuario',
     password: 'Contraseña',
-    add: 'Añadir',
     password_changed: 'Contraseña cambiada con éxito',
     password_reset: 'Contraseña restablecida con éxito',
     password_change_failed: 'Falló el cambio de contraseña',

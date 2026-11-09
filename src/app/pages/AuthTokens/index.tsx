@@ -372,7 +372,7 @@ const AuthTokens = () => {
               {t('common:cancel')}
             </Button>
             <Button type="primary" onClick={() => form.submit()} loading={creating}>
-              {t('common:create')}
+              {t('common:submit')}
             </Button>
           </div>
         }

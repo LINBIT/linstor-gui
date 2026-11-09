@@ -63,7 +63,7 @@ describe('CreateNFSForm', () => {
   it('validates the required fields', async () => {
     const { dialog } = await openForm();
 
-    fireEvent.click(dialogButton(dialog, 'Create'));
+    fireEvent.click(dialogButton(dialog, 'Submit'));
 
     expect(await screen.findByText('Name is required!')).toBeInTheDocument();
     expect(await screen.findByText('Please select a resource group')).toBeInTheDocument();
@@ -79,7 +79,7 @@ describe('CreateNFSForm', () => {
     const { dialog, refetch } = await openForm();
 
     await fillRequired(dialog);
-    fireEvent.click(dialogButton(dialog, 'Create'));
+    fireEvent.click(dialogButton(dialog, 'Submit'));
 
     await waitFor(() =>
       expect(createNFSExport).toHaveBeenCalledWith({
@@ -107,7 +107,7 @@ describe('CreateNFSForm', () => {
     await waitFor(() => expect(size.value).toBe(String(10 * GIB - 64 * 1024)));
     expect(size).toBeDisabled();
 
-    fireEvent.click(dialogButton(dialog, 'Create'));
+    fireEvent.click(dialogButton(dialog, 'Submit'));
     await waitFor(() =>
       expect(createNFSExport).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -139,7 +139,7 @@ describe('CreateNFSForm', () => {
     fireEvent.click(within(dialog).getAllByRole('button', { name: 'Delete' })[1]);
     await waitFor(() => expect(within(dialog).getAllByPlaceholderText('Please input export path: /')).toHaveLength(1));
 
-    fireEvent.click(dialogButton(dialog, 'Create'));
+    fireEvent.click(dialogButton(dialog, 'Submit'));
     await waitFor(() =>
       expect(createNFSExport).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -163,14 +163,14 @@ describe('CreateNFSForm', () => {
     expect(ips).toHaveLength(2);
 
     fireEvent.change(ips[0], { target: { value: '10.0.0.0/24' } });
-    fireEvent.click(dialogButton(dialog, 'Create'));
+    fireEvent.click(dialogButton(dialog, 'Submit'));
     expect(await screen.findByText('Please input something like 192.168.0.0/16')).toBeInTheDocument();
     expect(createNFSExport).not.toHaveBeenCalled();
 
     fireEvent.click(dialog.querySelectorAll('.dynamic-delete-button')[1] as HTMLElement);
     await waitFor(() => expect(within(dialog).getAllByPlaceholderText('192.168.0.0/16')).toHaveLength(1));
 
-    fireEvent.click(dialogButton(dialog, 'Create'));
+    fireEvent.click(dialogButton(dialog, 'Submit'));
     await waitFor(() =>
       expect(createNFSExport).toHaveBeenCalledWith(expect.objectContaining({ allowed_ips: ['10.0.0.0/24'] })),
     );
@@ -181,7 +181,7 @@ describe('CreateNFSForm', () => {
     const { dialog, refetch } = await openForm();
 
     await fillRequired(dialog);
-    fireEvent.click(dialogButton(dialog, 'Create'));
+    fireEvent.click(dialogButton(dialog, 'Submit'));
 
     expect(await screen.findByText('Create failed')).toBeInTheDocument();
     expect(screen.getByText('name exists')).toBeInTheDocument();

@@ -853,7 +853,6 @@ const tr = {
     current_password: 'Mevcut şifre',
     username: 'Kullanıcı adı',
     password: 'Şifre',
-    add: 'Ekle',
     password_changed: 'Şifre başarıyla değiştirildi',
     password_reset: 'Şifre başarıyla sıfırlandı',
     password_change_failed: 'Şifre değişimi başarısız',

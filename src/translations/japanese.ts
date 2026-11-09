@@ -851,7 +851,6 @@ const ja = {
     current_password: '現在のパスワード',
     username: 'ユーザー名',
     password: 'パスワード',
-    add: '追加',
     password_changed: 'パスワード変更成功',
     password_reset: 'パスワードリセット成功',
     password_change_failed: 'パスワード変更失敗',

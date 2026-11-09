@@ -38,7 +38,7 @@ const open = async () => {
 };
 const type = (placeholder: string, value: string) =>
   fireEvent.change(screen.getByPlaceholderText(placeholder), { target: { value } });
-const confirm = () => fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+const confirm = () => fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
 const expectModalClosed = () =>
   waitFor(() => {

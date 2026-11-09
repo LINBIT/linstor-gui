@@ -99,7 +99,7 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onCreate, onCance
 
               <Form.Item>
                 <Button type="primary" htmlType="submit">
-                  {t('add')}
+                  {t('common:submit')}
                 </Button>
               </Form.Item>
             </Form>

@@ -414,7 +414,7 @@ export const NVMeList = ({
             <Space>
               <Button onClick={() => setLunModal(false)}>{t('common:cancel')}</Button>
               <Button type="primary" onClick={handleOk} loading={addingVolume}>
-                {t('common:confirm')}
+                {t('common:submit')}
               </Button>
             </Space>
           </div>

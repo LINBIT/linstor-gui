@@ -98,7 +98,7 @@ const CreateForm = ({ editing, node, refetch }: FormProps) => {
                 });
             }}
           >
-            {t('common:confirm')}
+            {t('common:submit')}
           </Button>,
         ]}
       >

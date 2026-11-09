@@ -94,7 +94,7 @@ const CreateForm = ({ refetch, simple }: CreateFormProps) => {
               {t('common:cancel')}
             </Button>
             <Button type="primary" onClick={submit} loading={createVD.isPending}>
-              {t('common:spawn')}
+              {t('common:submit')}
             </Button>
           </>
         }

@@ -865,7 +865,6 @@ const de = {
     current_password: 'Aktuelles Passwort',
     username: 'Benutzername',
     password: 'Passwort',
-    add: 'Hinzufügen',
     password_changed: 'Passwort erfolgreich geändert',
     password_reset: 'Passwort erfolgreich zurückgesetzt',
     password_change_failed: 'Passwort-Änderung fehlgeschlagen',

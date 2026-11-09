@@ -106,7 +106,7 @@ describe('CreateStoragePoolForm', () => {
     expect(boxes(rows[0])[0]).toBeChecked();
 
     fireEvent.change(nameInput(dialog), { target: { value: 'pool_new' } });
-    fireEvent.click(dialogButton(dialog, 'Create'));
+    fireEvent.click(dialogButton(dialog, 'Submit'));
 
     await waitFor(() =>
       expect(createPool).toHaveBeenCalledWith({
@@ -133,7 +133,7 @@ describe('CreateStoragePoolForm', () => {
     expect(boxes(rows[0])[0]).not.toBeChecked();
 
     fireEvent.change(nameInput(dialog), { target: { value: 'pool_new' } });
-    fireEvent.click(dialogButton(dialog, 'Create'));
+    fireEvent.click(dialogButton(dialog, 'Submit'));
 
     await waitFor(() =>
       expect(createPool).toHaveBeenCalledWith(
@@ -146,7 +146,7 @@ describe('CreateStoragePoolForm', () => {
     const { dialog } = await openForm();
     await waitForMatrix(dialog);
 
-    fireEvent.click(dialogButton(dialog, 'Create'));
+    fireEvent.click(dialogButton(dialog, 'Submit'));
     expect(await screen.findByText('Name is required!')).toBeInTheDocument();
 
     fireEvent.change(nameInput(dialog), { target: { value: 'ab' } });
@@ -171,7 +171,7 @@ describe('CreateStoragePoolForm', () => {
     expect(within(dialog).queryByText('Add or create new pool')).toBeNull();
     fireEvent.click(within(dialog).getByText('Add to existing pool'));
 
-    expect(await within(dialog).findByRole('button', { name: 'Add' })).toBeInTheDocument();
+    expect(await within(dialog).findByRole('button', { name: 'Submit' })).toBeInTheDocument();
     expect(within(dialog).queryByPlaceholderText('Please input pool name')).toBeNull();
     await waitFor(() => expect(within(dialog).getByText('pool1')).toBeInTheDocument());
 
@@ -181,7 +181,7 @@ describe('CreateStoragePoolForm', () => {
     expect(document.querySelector('.ant-select-item[title="DfltDisklessStorPool"]')).toBeNull();
     await selectOption(poolSelect, 'pool2');
 
-    fireEvent.click(dialogButton(dialog, 'Add'));
+    fireEvent.click(dialogButton(dialog, 'Submit'));
     await waitFor(() =>
       expect(createPool).toHaveBeenCalledWith(
         expect.objectContaining({ poolName: 'pool2', diskPaths: { n2: ['/dev/sdd'] }, nodes: ['n2'] }),
@@ -212,7 +212,7 @@ describe('CreateStoragePoolForm', () => {
     await selectOption(typeSelect(), 'LVM+VDO');
 
     fireEvent.change(nameInput(dialog), { target: { value: 'vdo_pool' } });
-    fireEvent.click(dialogButton(dialog, 'Create'));
+    fireEvent.click(dialogButton(dialog, 'Submit'));
     await waitFor(() =>
       expect(createPool).toHaveBeenCalledWith(expect.objectContaining({ providerKind: 'LVM+VDO', nodes: ['n1'] })),
     );
@@ -225,7 +225,7 @@ describe('CreateStoragePoolForm', () => {
 
     fireEvent.click(boxes(rows[0])[1]);
     fireEvent.change(nameInput(dialog), { target: { value: 'pool_new' } });
-    fireEvent.click(dialogButton(dialog, 'Create'));
+    fireEvent.click(dialogButton(dialog, 'Submit'));
 
     expect(await screen.findByText('Create failed')).toBeInTheDocument();
     expect(screen.getByText('device busy')).toBeInTheDocument();

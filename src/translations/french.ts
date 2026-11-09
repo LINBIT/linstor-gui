@@ -862,7 +862,6 @@ const fr = {
     current_password: 'Mot de passe actuel',
     username: "Nom d'utilisateur",
     password: 'Mot de passe',
-    add: 'Ajouter',
     password_changed: 'Mot de passe changé avec succès',
     password_reset: 'Mot de passe réinitialisé avec succès',
     password_change_failed: 'Échec du changement de mot de passe',

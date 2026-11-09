@@ -224,7 +224,7 @@ describe('ISCSIList Component', () => {
 
       fireEvent.click(screen.getAllByTestId('dropdown-item-add_volume')[0]);
 
-      expect(screen.getByRole('button', { name: /common:confirm/ })).toHaveAttribute('data-loading', 'true');
+      expect(screen.getByRole('button', { name: /common:submit/ })).toHaveAttribute('data-loading', 'true');
     });
 
     it('does not show the confirm button as loading by default', () => {
@@ -232,7 +232,7 @@ describe('ISCSIList Component', () => {
 
       fireEvent.click(screen.getAllByTestId('dropdown-item-add_volume')[0]);
 
-      expect(screen.getByRole('button', { name: /common:confirm/ })).not.toHaveAttribute('data-loading', 'true');
+      expect(screen.getByRole('button', { name: /common:submit/ })).not.toHaveAttribute('data-loading', 'true');
     });
   });
 

@@ -820,7 +820,6 @@ const zh = {
     change_password: '修改密码',
     username: '用户名',
     password: '密码',
-    add: '添加用户',
     current_password: '当前密码',
     password_changed: '密码修改成功',
     // UserManagement page

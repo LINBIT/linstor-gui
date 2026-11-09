@@ -33,7 +33,7 @@ test('controller token auth: initialize, manage tokens, disable', async ({ page 
     .first()
     .click();
   await page.getByLabel('Description').fill('e2e-token');
-  await page.getByRole('dialog').getByRole('button', { name: 'Create' }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Submit' }).click();
   await expect(page.getByText('e2e-token-2', { exact: true }).first()).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(page.getByRole('cell', { name: 'e2e-token', exact: true })).toBeVisible();

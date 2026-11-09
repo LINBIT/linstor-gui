@@ -77,7 +77,7 @@ describe('volume definition CreateForm', () => {
   it('refuses to spawn without a resource definition and a size', async () => {
     const { refetch } = renderForm();
     await openModal();
-    fireEvent.click(screen.getByRole('button', { name: 'Spawn' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
     expect(await screen.findByText('Please select resource definition!')).toBeInTheDocument();
     expect(screen.getByText('Please input a size')).toBeInTheDocument();
     expect(createVolumeDefinition).not.toHaveBeenCalled();
@@ -89,7 +89,7 @@ describe('volume definition CreateForm', () => {
     await openModal();
     await pickResource('res-b');
     fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '2' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Spawn' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
     await waitFor(() =>
       expect(createVolumeDefinition).toHaveBeenCalledWith('res-b', { volume_definition: { size_kib: 2 * GIB } }),
@@ -104,7 +104,7 @@ describe('volume definition CreateForm', () => {
     await openModal();
     await pickResource('res-a');
     fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '1' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Spawn' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
     await waitFor(() => expect(createVolumeDefinition).toHaveBeenCalled());
     await new Promise((r) => setTimeout(r, 20));

@@ -49,7 +49,7 @@ describe('AddVolumeGroupForm', () => {
     const refetch = vi.fn();
     renderForm({ refetch });
     await open();
-    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
     await waitFor(() => expect(addVolumeToResourceGroup).toHaveBeenCalledWith('rg-a', {}));
     await waitFor(() => expect(refetch).toHaveBeenCalled());
@@ -63,7 +63,7 @@ describe('AddVolumeGroupForm', () => {
     renderForm();
     await open();
     fireEvent.change(screen.getByPlaceholderText('Auto'), { target: { value: '7' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
     await waitFor(() => expect(addVolumeToResourceGroup).toHaveBeenCalledWith('rg-a', { volume_number: 7 }));
   });
 
@@ -72,7 +72,7 @@ describe('AddVolumeGroupForm', () => {
     const refetch = vi.fn();
     renderForm({ refetch });
     await open();
-    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
     expect(await screen.findByText('volume number in use')).toBeInTheDocument();
     expect(screen.getByText('Add Volume Group — rg-a')).toBeInTheDocument();

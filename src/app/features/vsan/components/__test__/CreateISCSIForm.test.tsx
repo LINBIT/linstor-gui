@@ -66,7 +66,7 @@ describe('CreateISCSIForm', () => {
   it('validates every required field before posting', async () => {
     const { dialog } = await openForm();
 
-    fireEvent.click(dialogButton(dialog, 'Create'));
+    fireEvent.click(dialogButton(dialog, 'Submit'));
 
     expect(await screen.findByText('Please select a resource group')).toBeInTheDocument();
     expect(await screen.findByText('IP prefix is required!')).toBeInTheDocument();
@@ -95,7 +95,7 @@ describe('CreateISCSIForm', () => {
     const { dialog, refetch } = await openForm();
 
     await fillRequired(dialog);
-    fireEvent.click(dialogButton(dialog, 'Create'));
+    fireEvent.click(dialogButton(dialog, 'Submit'));
 
     await waitFor(() =>
       expect(createISCSIExport).toHaveBeenCalledWith({
@@ -122,7 +122,7 @@ describe('CreateISCSIForm', () => {
 
     const submitInvalid = async (time: string, domain: string, name: string) => {
       fillIqn(dialog, time, domain, name);
-      fireEvent.click(dialogButton(dialog, 'Create'));
+      fireEvent.click(dialogButton(dialog, 'Submit'));
       await new Promise((resolve) => setTimeout(resolve, 50));
       expect(createISCSIExport).not.toHaveBeenCalled();
     };
@@ -134,7 +134,7 @@ describe('CreateISCSIForm', () => {
 
     // The same submit goes through once the parts are well formed.
     fillIqn(dialog, '2024-01', 'com.linbit', 'good_name-1');
-    fireEvent.click(dialogButton(dialog, 'Create'));
+    fireEvent.click(dialogButton(dialog, 'Submit'));
     await waitFor(() =>
       expect(createISCSIExport).toHaveBeenCalledWith(
         expect.objectContaining({ iqn: 'iqn.2024-01.com.linbit:good_name-1' }),
@@ -156,7 +156,7 @@ describe('CreateISCSIForm', () => {
     await waitFor(() => expect(size.value).toBe(String(20 * GIB - 64 * 1024)));
     expect(size).toBeDisabled();
 
-    fireEvent.click(dialogButton(dialog, 'Create'));
+    fireEvent.click(dialogButton(dialog, 'Submit'));
     await waitFor(() =>
       expect(createISCSIExport).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -177,7 +177,7 @@ describe('CreateISCSIForm', () => {
     fireEvent.click(within(dialog).getByRole('checkbox', { name: 'Enable CHAP Authentication' }));
     fireEvent.change(await within(dialog).findByLabelText('Username'), { target: { value: 'chapuser' } });
     fireEvent.change(within(dialog).getByLabelText('Password'), { target: { value: 'chappw' } });
-    fireEvent.click(dialogButton(dialog, 'Create'));
+    fireEvent.click(dialogButton(dialog, 'Submit'));
 
     await waitFor(() =>
       expect(createISCSIExport).toHaveBeenCalledWith(
@@ -191,7 +191,7 @@ describe('CreateISCSIForm', () => {
     const { dialog, refetch } = await openForm();
 
     await fillRequired(dialog);
-    fireEvent.click(dialogButton(dialog, 'Create'));
+    fireEvent.click(dialogButton(dialog, 'Submit'));
 
     expect(await screen.findByText('Create failed')).toBeInTheDocument();
     expect(screen.getByText('iqn exists')).toBeInTheDocument();
