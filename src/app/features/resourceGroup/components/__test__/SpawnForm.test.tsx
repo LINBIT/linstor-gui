@@ -31,13 +31,15 @@ const renderSpawn = (props: React.ComponentProps<typeof SpawnForm> = {}) => {
   );
 };
 
+// The trigger comes first; a dialog closing again may still be in the tree.
 const openModal = async () => {
-  fireEvent.click(screen.getByRole('button', { name: 'Spawn' }));
+  fireEvent.click(screen.getAllByRole('button', { name: 'Spawn' })[0]);
   await screen.findByPlaceholderText('Please input resource name');
 };
 
 // The trigger and the modal footer both say "Spawn"; the footer one is last.
-const footerSpawn = () => screen.getAllByRole('button', { name: 'Spawn' }).at(-1) as HTMLElement;
+// While it is loading, its spinner adds "loading" to its name.
+const footerSpawn = () => screen.getAllByRole('button', { name: /Spawn$/ }).at(-1) as HTMLElement;
 
 // antd keeps a closed Modal in the DOM, hidden; "closed" means the wrap is
 // display:none (or gone entirely).
@@ -177,6 +179,69 @@ describe('SpawnForm', () => {
     await waitFor(() => expect(footerSpawn()).toBeEnabled());
     fireEvent.click(footerSpawn());
     await waitFor(() => expect(spawnResourceGroup).toHaveBeenCalledWith('rg-b', expect.anything()));
+  });
+
+  const fillAndSpawn = async (name: string, size: string) => {
+    fireEvent.change(screen.getByPlaceholderText('Please input resource name'), { target: { value: name } });
+    fireEvent.change(screen.getByRole('spinbutton'), { target: { value: size } });
+    await waitFor(() => expect(footerSpawn()).toBeEnabled());
+    fireEvent.click(footerSpawn());
+  };
+
+  it('stays open until the spawn is answered', async () => {
+    let answer: (value: unknown) => void = () => undefined;
+    vi.mocked(spawnResourceGroup).mockReturnValue(new Promise((resolve) => (answer = resolve)) as never);
+    renderSpawn({ resource_group: 'rg-a' });
+    await openModal();
+    await fillAndSpawn('res-6', '3');
+
+    await waitFor(() => expect(footerSpawn()).toHaveClass('ant-btn-loading'));
+    expect(screen.getByPlaceholderText('Please input resource name')).toBeVisible();
+
+    answer({ data: [{ ret_code: 1 }] });
+    await expectModalClosed();
+  });
+
+  it('after a spawn, the next one starts from an empty form', async () => {
+    renderSpawn({ resource_group: 'rg-a' });
+    await openModal();
+    await fillAndSpawn('res-7', '33');
+    await expectModalClosed();
+
+    await openModal();
+    expect(screen.getByPlaceholderText('Please input resource name')).toHaveValue('');
+    expect(screen.getByRole('spinbutton')).toHaveValue(null);
+    // Typed into again, the size is what was typed, not added to the last one.
+    fireEvent.change(screen.getByPlaceholderText('Please input resource name'), { target: { value: 'res-8' } });
+    fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '3' } });
+    await waitFor(() => expect(footerSpawn()).toBeEnabled());
+    fireEvent.click(footerSpawn());
+    await waitFor(() =>
+      expect(spawnResourceGroup).toHaveBeenLastCalledWith(
+        'rg-a',
+        expect.objectContaining({ resource_definition_name: 'res-8', volume_sizes: [3 * GIB] }),
+      ),
+    );
+  });
+
+  it('a refused spawn keeps the dialog open with what was typed, to send again', async () => {
+    vi.mocked(spawnResourceGroup).mockResolvedValueOnce({
+      error: [{ ret_code: -4611686018406153700, message: 'Resource definition already exists' }],
+      response: new Response(null, { status: 409 }),
+    } as never);
+    renderSpawn({ resource_group: 'rg-a' });
+    await openModal();
+    await fillAndSpawn('res-9', '2');
+
+    await waitFor(() => expect(footerSpawn()).not.toHaveClass('ant-btn-loading'));
+    // Still visible while a close animates, so wait for a close that must not come.
+    await expect(expectModalClosed()).rejects.toThrow();
+    expect(screen.getByPlaceholderText('Please input resource name')).toHaveValue('res-9');
+    expect(screen.getByRole('spinbutton')).toHaveValue(2);
+
+    fireEvent.click(footerSpawn());
+    await expectModalClosed();
+    expect(spawnResourceGroup).toHaveBeenCalledTimes(2);
   });
 
   it('cancel closes without spawning', async () => {

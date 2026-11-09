@@ -15,6 +15,7 @@ import { Button } from '@app/components/Button';
 import { SizeInput } from '@app/components/SizeInput';
 import { SpawnRequest } from '../types';
 import { spawnResourceGroup, getResourceGroups, getResourceGroupVolumeGroups } from '../api';
+import { unwrap } from '@app/features/requests';
 import { useTranslation } from 'react-i18next';
 
 type FormType = {
@@ -81,8 +82,16 @@ const SpawnForm = ({ resource_group, isInDropdown = false }: SpawnFormProps) => 
   // Always render at least one size input (single-volume-group / unknown case).
   const volumeGroupCount = Math.max(volumeGroups.length, 1);
 
+  // The dialog stays open until the controller answers: a refused spawn keeps
+  // what was typed to send again, a spawn that went through closes it and
+  // leaves an empty form for the next one (the reply itself is toasted by the
+  // request layer).
   const spawnMutation = useMutation({
-    mutationFn: ({ rg, data }: { rg: string; data: SpawnRequest }) => spawnResourceGroup(rg, data),
+    mutationFn: ({ rg, data }: { rg: string; data: SpawnRequest }) => unwrap(spawnResourceGroup(rg, data)),
+    onSuccess: () => {
+      setShowSpawnForm(false);
+      form.resetFields();
+    },
   });
 
   const onFinish = async (values: FormType) => {
@@ -115,7 +124,6 @@ const SpawnForm = ({ resource_group, isInDropdown = false }: SpawnFormProps) => 
     };
 
     spawnMutation.mutate({ rg, data: submitData });
-    setShowSpawnForm(false);
   };
 
   const isMultiVolume = volumeGroupCount > 1;
