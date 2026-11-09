@@ -167,12 +167,9 @@ export const HARowActions: React.FC<HARowActionsProps> = ({
     { type: 'divider' },
     {
       key: 'delete',
-      label: <span className="text-red-600">{t('common:delete')}</span>,
-      icon: (
-        <span className="text-red-600">
-          <DeleteOutlined />
-        </span>
-      ),
+      danger: true,
+      label: t('common:delete'),
+      icon: <DeleteOutlined />,
       onClick: () => {
         if (configFiles.length > 0) {
           onDelete(record);

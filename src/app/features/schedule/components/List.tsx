@@ -111,6 +111,7 @@ export const List = () => {
                   },
                   {
                     key: 'delete',
+                    danger: true,
                     label: (
                       <Popconfirm
                         title={t('schedule:delete_schedule', { name: record.schedule_name })}

@@ -265,6 +265,7 @@ export const List = () => {
                     : []),
                   {
                     key: 'delete',
+                    danger: true,
                     label: (
                       <Popconfirm
                         title={t('remote:delete_remote_object', { name: record.remote_name })}

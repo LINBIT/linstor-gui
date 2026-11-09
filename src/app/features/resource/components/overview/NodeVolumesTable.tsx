@@ -259,6 +259,7 @@ export const NodeVolumesTable: React.FC<NodeVolumesTableProps> = ({
                   },
                   {
                     key: 'delete',
+                    danger: true,
                     disabled: holdsDevice,
                     label: holdsDevice ? (
                       <Tooltip title={t('resource:delete_blocked_in_use')} placement="left">
@@ -274,7 +275,7 @@ export const NodeVolumesTable: React.FC<NodeVolumesTableProps> = ({
                         })}
                         onConfirm={() => onDelete(record)}
                       >
-                        <div className="w-full text-red-600">{t('common:delete')}</div>
+                        <div className="w-full">{t('common:delete')}</div>
                       </Popconfirm>
                     ),
                   },

@@ -204,13 +204,14 @@ export const ISCSIList = ({
                   },
                   {
                     key: 'delete',
+                    danger: true,
                     label: (
                       <Popconfirm
                         key="delete"
                         title={t('iscsi:are_you_sure_delete_target', { name: record.iqn })}
                         onConfirm={() => (record.iqn ? del.run([record.iqn]) : undefined)}
                       >
-                        <div className="w-full text-red-600">{t('common:delete')}</div>
+                        <div className="w-full">{t('common:delete')}</div>
                       </Popconfirm>
                     ),
                   },

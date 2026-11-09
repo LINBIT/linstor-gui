@@ -153,6 +153,7 @@ export const useDefinitionColumns = (mode: UIMode | undefined, actions: Definiti
                 },
                 {
                   key: 'delete',
+                  danger: true,
                   label: (
                     <Popconfirm
                       key="delete"
@@ -160,7 +161,7 @@ export const useDefinitionColumns = (mode: UIMode | undefined, actions: Definiti
                       description={t('resource:are_you_sure_delete_resource', { name: record.name })}
                       onConfirm={() => actions.onDelete(record)}
                     >
-                      <div className="w-full text-red-600">{t('common:delete')}</div>
+                      <div className="w-full">{t('common:delete')}</div>
                     </Popconfirm>
                   ),
                 },

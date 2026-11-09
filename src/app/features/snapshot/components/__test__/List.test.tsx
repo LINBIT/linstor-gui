@@ -212,7 +212,7 @@ describe('snapshot List', () => {
     await screen.findByText('snap-old');
     const menu = await openRowMenu('snap-old');
     const entry = within(menu).getByText('Delete');
-    expect(entry).toHaveClass('text-red-600');
+    expect(entry.closest('.ant-dropdown-menu-item')).toHaveClass('ant-dropdown-menu-item-danger');
     fireEvent.click(entry);
     expect(await screen.findByText('Delete snapshot snap-old of res-a?')).toBeInTheDocument();
     expect(deleteSnapshot).not.toHaveBeenCalled();

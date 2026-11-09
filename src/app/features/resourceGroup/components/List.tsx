@@ -405,6 +405,7 @@ export const List = () => {
                 },
                 {
                   key: 'delete',
+                  danger: true,
                   label: (
                     <Popconfirm
                       key="delete"

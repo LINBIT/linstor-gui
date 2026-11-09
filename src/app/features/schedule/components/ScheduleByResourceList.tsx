@@ -290,6 +290,7 @@ export const ScheduleByResourceList = () => {
                       ]),
                   {
                     key: 'delete',
+                    danger: true,
                     label: (
                       <Popconfirm
                         title={t('schedule:delete_schedule_confirm', {

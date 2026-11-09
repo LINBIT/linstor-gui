@@ -187,6 +187,15 @@ describe('error report List before REST 1.30.0 (everything in the browser)', () 
     expect(navigate).toHaveBeenCalledWith('/error-reports/AAAA-000001');
   });
 
+  it('the row menu shows Delete as a danger item and View as a plain one', async () => {
+    renderList();
+    await screen.findByText('AAAA-000001');
+    const menu = await openRowMenu('AAAA-000001');
+    const item = (text: string) => within(menu).getByText(text).closest('.ant-dropdown-menu-item');
+    expect(item('Delete')).toHaveClass('ant-dropdown-menu-item-danger');
+    expect(item('View')).not.toHaveClass('ant-dropdown-menu-item-danger');
+  });
+
   it('deletes one report after confirm and refetches', async () => {
     renderList();
     await screen.findByText('AAAA-000001');

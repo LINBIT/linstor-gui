@@ -299,6 +299,7 @@ export const List = () => {
                 },
                 {
                   key: 'delete',
+                  danger: true,
                   label: (
                     <Popconfirm
                       key="delete"
@@ -309,7 +310,7 @@ export const List = () => {
                       })}
                       onConfirm={() => del.run([record])}
                     >
-                      <div className="w-full text-red-600">{t('common:delete')}</div>
+                      <div className="w-full">{t('common:delete')}</div>
                     </Popconfirm>
                   ),
                 },

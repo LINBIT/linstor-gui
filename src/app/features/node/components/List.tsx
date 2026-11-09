@@ -312,6 +312,7 @@ export const List = () => {
                 },
                 {
                   key: 'delete',
+                  danger: true,
                   label: (
                     <Popconfirm
                       key="delete"
@@ -319,12 +320,13 @@ export const List = () => {
                       description={t('node:are_you_sure_delete_node', { name: record.name })}
                       onConfirm={() => del.run([record])}
                     >
-                      <div className="w-full text-red-600">{t('common:delete')}</div>
+                      <div className="w-full">{t('common:delete')}</div>
                     </Popconfirm>
                   ),
                 },
                 {
                   key: 'lost',
+                  danger: true,
                   label: (
                     <Popconfirm
                       key="lost"
@@ -334,7 +336,7 @@ export const List = () => {
                         lostMutation.mutate(record.name || '');
                       }}
                     >
-                      <div className="w-full text-red-600">{t('common:lost')}</div>
+                      <div className="w-full">{t('common:lost')}</div>
                     </Popconfirm>
                   ),
                 },

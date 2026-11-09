@@ -258,6 +258,7 @@ const AuthTokens = () => {
               },
               {
                 key: 'delete',
+                danger: true,
                 disabled: updatingTokenId === token.id || deletingTokenId === token.id,
                 label: (
                   <Popconfirm
@@ -268,7 +269,7 @@ const AuthTokens = () => {
                     cancelText={t('authToken:cancel')}
                     onConfirm={() => handleDelete(token)}
                   >
-                    <div className="w-full text-red-600">{t('authToken:delete')}</div>
+                    <div className="w-full">{t('authToken:delete')}</div>
                   </Popconfirm>
                 ),
               },

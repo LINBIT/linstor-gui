@@ -187,6 +187,7 @@ export const List = () => {
                 items: [
                   {
                     key: 'delete',
+                    danger: true,
                     label: (
                       <Popconfirm
                         title={t('remote:delete_backup', { name: record.origin_snap })}
