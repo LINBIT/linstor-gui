@@ -166,6 +166,9 @@ describe('CreateStoragePoolForm', () => {
     const rows = await waitForMatrix(dialog);
 
     fireEvent.click(boxes(rows[2])[2]);
+    // One label names the box (it used to carry a second one above it).
+    expect(within(dialog).getByRole('checkbox', { name: /^Add to existing pool/ })).not.toBeChecked();
+    expect(within(dialog).queryByText('Add or create new pool')).toBeNull();
     fireEvent.click(within(dialog).getByText('Add to existing pool'));
 
     expect(await within(dialog).findByRole('button', { name: 'Add' })).toBeInTheDocument();

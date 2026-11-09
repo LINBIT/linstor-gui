@@ -31,6 +31,7 @@ import {
 import { Table } from 'antd';
 import type { TableProps } from 'antd';
 import { Checkbox } from '@app/components/Checkbox';
+import { InlineFormItem } from '@app/components/InlineFormItem';
 import { variablesOnly } from '@app/utils/mutation';
 
 interface DataType {
@@ -431,14 +432,14 @@ const CreateStoragePoolForm = ({ refetch }: CreateStoragePoolFormProps) => {
             )}
           </Form.Item>
 
-          <Form.Item
-            label={t('common:add_create_new_pool')}
+          <InlineFormItem
+            label={t('vsan:add_to_existing_pool')}
             tooltip={t('vsan:add_to_existing_tooltip')}
             name="add_to_existing"
             valuePropName="checked"
           >
-            <Checkbox>{t('vsan:add_to_existing_pool')}</Checkbox>
-          </Form.Item>
+            <Checkbox />
+          </InlineFormItem>
 
           <Form.Item
             label={t('common:storage_pool_type')}

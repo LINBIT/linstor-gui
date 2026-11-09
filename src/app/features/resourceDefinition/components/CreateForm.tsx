@@ -26,6 +26,8 @@ import { SizeInput } from '@app/components/SizeInput';
 import { useTranslation } from 'react-i18next';
 import { Checkbox } from '@app/components/Checkbox';
 import { Switch } from '@app/components/Switch';
+import { InlineFormItem } from '@app/components/InlineFormItem';
+
 import { Radio } from '@app/components/Radio';
 
 // A ret_code packs severity, operation, object and outcome (linstor-server
@@ -282,9 +284,9 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
       </Form.Item>
 
       {!isEdit && (
-        <Form.Item label={t('common:spawn_on_create')} name="deploy" valuePropName="checked">
+        <InlineFormItem label={t('common:spawn_on_create')} name="deploy" valuePropName="checked">
           <Switch defaultChecked />
-        </Form.Item>
+        </InlineFormItem>
       )}
 
       {deploy && (

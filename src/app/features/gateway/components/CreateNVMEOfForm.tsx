@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Form, Space, Alert } from 'antd';
 import { Checkbox } from '@app/components/Checkbox';
+import { InlineFormItem } from '@app/components/InlineFormItem';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
@@ -163,14 +164,14 @@ const CreateNVMEOfForm = () => {
         <SizeInput placeholder="10G" />
       </Form.Item>
 
-      <Form.Item
+      <InlineFormItem
         label={t('iscsi:gross_size')}
         name="gross_size"
         valuePropName="checked"
         tooltip={t('common:gross_size_tooltip')}
       >
         <Checkbox />
-      </Form.Item>
+      </InlineFormItem>
 
       <Form.Item>
         <Button type="primary" htmlType="submit" loading={createMutation.isPending}>

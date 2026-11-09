@@ -22,6 +22,8 @@ import {
 import { useNodes } from '@app/features/node';
 import { SizeInput } from '@app/components/SizeInput';
 import { Switch } from '@app/components/Switch';
+import { InlineFormItem } from '@app/components/InlineFormItem';
+
 import { useTranslation } from 'react-i18next';
 import { Radio } from '@app/components/Radio';
 import { unwrap } from '@app/features/requests';
@@ -246,13 +248,13 @@ const CreateForm = () => {
       </Form.Item>
 
       {create_type === 'new' && (
-        <Form.Item
+        <InlineFormItem
           name="multiple_nodes"
           label={t('storage_pool:multiple_nodes')}
           tooltip={t('storage_pool:multiple_nodes_tooltip')}
         >
           <Switch />
-        </Form.Item>
+        </InlineFormItem>
       )}
 
       <Form.Item
@@ -327,20 +329,20 @@ const CreateForm = () => {
                     >
                       <Input placeholder={t('storage_pool:enter_pool_name')} />
                     </Form.Item>
-                    <Form.Item
+                    <InlineFormItem
                       label={t('storage_pool:sed')}
                       name="sed"
                       valuePropName="checked"
                       tooltip={t('storage_pool:sed_tooltip')}
                     >
                       <Switch />
-                    </Form.Item>
+                    </InlineFormItem>
                     {
                       // VDO is only available for LVM and LVM_THIN
                       provider_kind === 'LVM' || provider_kind === 'LVM_THIN' ? (
-                        <Form.Item label={t('storage_pool:vdo')} name="vdo_enable" valuePropName="checked">
+                        <InlineFormItem label={t('storage_pool:vdo')} name="vdo_enable" valuePropName="checked">
                           <Switch />
-                        </Form.Item>
+                        </InlineFormItem>
                       ) : null
                     }
                     {vdo_enable && (

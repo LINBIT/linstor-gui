@@ -95,7 +95,6 @@ const de = {
     please_input_export_path: 'Bitte Exportpfad eingeben: /',
     replica_count: 'Anzahl Replikate:',
     please_input_pool_name: 'Bitte Poolnamen eingeben',
-    add_create_new_pool: 'Pool hinzufügen oder neu anlegen',
     storage_pool_type: 'Speicherpool-Typ',
     grow_volume: 'Volume vergrößern',
     delete_iscsi_target: 'iSCSI-Target löschen',

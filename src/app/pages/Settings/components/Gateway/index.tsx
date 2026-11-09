@@ -8,6 +8,7 @@ import React, { useEffect } from 'react';
 import { Form, Card, Alert, Typography, Space, Spin } from 'antd';
 import { Input } from '@app/components/Input';
 import { Switch } from '@app/components/Switch';
+import { InlineFormItem } from '@app/components/InlineFormItem';
 
 import { useSettings } from '@app/features/settings/useSettings';
 import { CheckCircleOutlined, StopOutlined, LoadingOutlined } from '@ant-design/icons';
@@ -84,14 +85,14 @@ const Gateway: React.FC = () => {
               host: gatewayHost || OriginHost,
             }}
           >
-            <Form.Item
+            <InlineFormItem
               label={t('settings:gateway_mode')}
               extra={t('settings:gateway_mode_description')}
               name="isChecked"
               valuePropName="checked"
             >
               <Switch aria-label="gateway-mode" checkedChildren={t('common:on')} unCheckedChildren={t('common:off')} />
-            </Form.Item>
+            </InlineFormItem>
 
             {isChecked && (
               <>
@@ -103,7 +104,7 @@ const Gateway: React.FC = () => {
                   className="mb-[1.5em]"
                 />
 
-                <Form.Item
+                <InlineFormItem
                   label={t('settings:custom_host')}
                   extra={t('settings:custom_host_description')}
                   name="customHost"
@@ -114,7 +115,7 @@ const Gateway: React.FC = () => {
                     checkedChildren={t('settings:custom')}
                     unCheckedChildren={t('settings:default')}
                   />
-                </Form.Item>
+                </InlineFormItem>
 
                 <Form.Item
                   label={

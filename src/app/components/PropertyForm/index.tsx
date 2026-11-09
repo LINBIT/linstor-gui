@@ -18,6 +18,7 @@ import { Select } from '@app/components/Select';
 import { DeleteOutlined } from '@ant-design/icons';
 import Button from '@app/components/Button';
 import { Checkbox } from '@app/components/Checkbox';
+import { InlineFormItem } from '@app/components/InlineFormItem';
 import { Radio } from '@app/components/Radio';
 
 interface PropertyFormProps {
@@ -482,11 +483,14 @@ const PropertyForm = forwardRef<PropertyFormRef, PropertyFormProps>(
                     return null;
                 }
 
+                // A checkbox sits on the same line as its label.
+                const PropertyItem = item.type === 'checkbox' ? InlineFormItem : Form.Item;
                 return (
                   <div key={item.id} className="flex items-center mb-[1em]">
-                    <Form.Item {...commonFormProps} valuePropName={item.type === 'checkbox' ? 'checked' : undefined}>
+                    <PropertyItem {...commonFormProps} valuePropName={item.type === 'checkbox' ? 'checked' : undefined}>
                       {element}
-                    </Form.Item>
+                    </PropertyItem>
+
                     <Button
                       danger
                       icon={<DeleteOutlined />}

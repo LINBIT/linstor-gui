@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next';
 import { createLINSTORRemote, createS3Remote } from '../api';
 import { LINSTORRemoteCreateRequestBody, S3RemoteCreateRequestBody } from '../types';
 import { Switch } from '@app/components/Switch';
+import { InlineFormItem } from '@app/components/InlineFormItem';
 
 type RemoteType = 's3_remotes' | 'linstor_remotes' | 'ebs_remotes';
 
@@ -153,9 +154,9 @@ const CreateRemoteForm = ({ refetch }: CreateRemoteFormProps) => {
                 <Input.TextArea placeholder={t('remote:please_input_secret_key')} />
               </Form.Item>
 
-              <Form.Item name="use_path_style" label={t('remote:use_path_style')}>
+              <InlineFormItem name="use_path_style" label={t('remote:use_path_style')}>
                 <Switch />
-              </Form.Item>
+              </InlineFormItem>
             </>
           )}
 

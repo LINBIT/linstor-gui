@@ -7,6 +7,7 @@ import { InputNumber } from '@app/components/InputNumber';
 import { InfoCircleOutlined, PlusOutlined, MinusCircleOutlined, DownOutlined } from '@ant-design/icons';
 import { Button } from '@app/components/Button';
 import { Switch } from '@app/components/Switch';
+import { InlineFormItem } from '@app/components/InlineFormItem';
 
 const { Option } = Select;
 
@@ -234,22 +235,27 @@ export const DRBDReactorConfig: React.FC<DRBDReactorConfigProps> = ({ initialVal
         {ALL_FIELDS.map((field) => {
           if (!visibleFields.has(field.name)) return null;
 
+          // An on/off field sits on the same line as its label, so its remove
+          // button lines up with that line rather than with a control under it.
+          const isSwitch = field.type === 'switch';
+          const FieldItem = isSwitch ? InlineFormItem : Form.Item;
           return (
             <div key={field.name} className="flex items-start gap-2">
               <div className="flex-1">
-                <Form.Item
+                <FieldItem
                   name={field.name}
-                  valuePropName={field.type === 'switch' ? 'checked' : 'value'}
+                  valuePropName={isSwitch ? 'checked' : 'value'}
                   label={<SpaceWithTooltip label={field.label} tooltip={field.tooltip} />}
                 >
                   {renderFieldInput(field)}
-                </Form.Item>
+                </FieldItem>
               </div>
               <Button
                 type="text"
                 icon={<MinusCircleOutlined />}
                 onClick={() => handleRemoveField(field.name)}
-                className="mt-7.5 text-(--status-error)"
+                className={`${isSwitch ? '' : 'mt-7.5 '}text-(--status-error)`}
+
                 title={t('common:remove_field')}
               />
             </div>

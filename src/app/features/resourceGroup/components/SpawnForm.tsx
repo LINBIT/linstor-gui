@@ -11,6 +11,7 @@ import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 import { Checkbox } from '@app/components/Checkbox';
 import { Button } from '@app/components/Button';
+import { InlineFormItem } from '@app/components/InlineFormItem';
 
 import { SizeInput } from '@app/components/SizeInput';
 import { SpawnRequest } from '../types';
@@ -207,7 +208,7 @@ const SpawnForm = ({ resource_group, isInDropdown = false }: SpawnFormProps) => 
           })}
 
           {isMultiVolume && (
-            <Form.Item
+            <InlineFormItem
               name="partial"
               valuePropName="checked"
               label={t('common:partial', 'Partial')}
@@ -218,10 +219,10 @@ const SpawnForm = ({ resource_group, isInDropdown = false }: SpawnFormProps) => 
               })}
             >
               <Checkbox />
-            </Form.Item>
+            </InlineFormItem>
           )}
 
-          <Form.Item
+          <InlineFormItem
             name="definitions_only"
             valuePropName="checked"
             label={t('common:definition_only', 'Definition only')}
@@ -231,7 +232,7 @@ const SpawnForm = ({ resource_group, isInDropdown = false }: SpawnFormProps) => 
             )}
           >
             <Checkbox />
-          </Form.Item>
+          </InlineFormItem>
         </Form>
       </Modal>
     </>

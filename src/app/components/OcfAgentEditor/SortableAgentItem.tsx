@@ -111,7 +111,8 @@ export function SortableAgentItem({
     </div>
   );
 
-  // The parameter name above the control is a plain text label, so it names the control here.
+  // The parameter name beside (an on/off switch) or above the control is a plain
+  // text label, so it names the control here.
   const renderParamControl = (param: Parameter) => {
     switch (param.type) {
       case 'integer':
@@ -250,8 +251,9 @@ export function SortableAgentItem({
 
                 return (
                   <div key={paramEntry.key} className="mb-3">
-                    {renderParamLabel(param)}
-                    <div className="flex items-center gap-2 mt-1">
+                    {param.type !== 'boolean' && renderParamLabel(param)}
+                    <div className={`flex items-center gap-2 ${param.type === 'boolean' ? '' : 'mt-1'}`}>
+                      {param.type === 'boolean' && renderParamLabel(param)}
                       <Form.Item
                         key={param.name}
                         name={fieldName}
@@ -305,8 +307,9 @@ export function SortableAgentItem({
 
                 return (
                   <div key={paramName} className="mb-3">
-                    {renderParamLabel(param)}
-                    <div className="flex items-center gap-2 mt-1">
+                    {param.type !== 'boolean' && renderParamLabel(param)}
+                    <div className={`flex items-center gap-2 ${param.type === 'boolean' ? '' : 'mt-1'}`}>
+                      {param.type === 'boolean' && renderParamLabel(param)}
                       <Form.Item
                         key={param.name}
                         name={fieldName}

@@ -93,7 +93,6 @@ const es = {
     please_input_export_path: 'Introduzca la ruta de exportación: /',
     replica_count: 'Número de réplicas:',
     please_input_pool_name: 'Introduzca el nombre del pool',
-    add_create_new_pool: 'Añadir o crear un pool',
     storage_pool_type: 'Tipo de pool de almacenamiento',
     grow_volume: 'Ampliar volumen',
     delete_iscsi_target: 'Eliminar el destino iSCSI',

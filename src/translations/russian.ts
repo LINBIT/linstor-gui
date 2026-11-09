@@ -93,7 +93,6 @@ const ru = {
     please_input_export_path: 'Введите путь экспорта: /',
     replica_count: 'Число реплик:',
     please_input_pool_name: 'Введите имя пула',
-    add_create_new_pool: 'Добавить или создать пул',
     storage_pool_type: 'Тип пула хранения',
     grow_volume: 'Увеличить том',
     delete_iscsi_target: 'Удалить цель iSCSI',

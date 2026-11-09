@@ -9,6 +9,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { Form, Upload, message } from 'antd';
 import { Input } from '@app/components/Input';
 import { Switch } from '@app/components/Switch';
+import { InlineFormItem } from '@app/components/InlineFormItem';
 import SVG from 'react-inlinesvg';
 import { isSvg } from '@app/utils/isSvg';
 
@@ -72,14 +73,14 @@ export const SVGFileUpload: React.FunctionComponent = () => {
 
   return (
     <Form<FormType> layout="vertical" className="max-w-[600px] ml-0" form={form}>
-      <Form.Item
+      <InlineFormItem
         label={t('settings:custom_logo')}
         valuePropName="checked"
         name="customLogoEnabled"
         extra={t('settings:custom_logo_description')}
       >
         <Switch />
-      </Form.Item>
+      </InlineFormItem>
 
       {customLogoEnabledFromForm && (
         <>

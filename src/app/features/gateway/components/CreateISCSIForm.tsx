@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Form, Space, Alert } from 'antd';
 import { Checkbox } from '@app/components/Checkbox';
+import { InlineFormItem } from '@app/components/InlineFormItem';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
@@ -215,14 +216,14 @@ const CreateISCSIForm = () => {
         <SizeInput placeholder="10G" />
       </Form.Item>
 
-      <Form.Item
+      <InlineFormItem
         label={t('iscsi:gross_size')}
         name="gross_size"
         valuePropName="checked"
         tooltip={t('common:gross_size_tooltip')}
       >
         <Checkbox />
-      </Form.Item>
+      </InlineFormItem>
 
       <Form.Item label={t('common:username')} name="username" tooltip={t('iscsi:chap_username_tooltip')}>
         <Input placeholder={t('iscsi:chap_username')} />

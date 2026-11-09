@@ -93,7 +93,6 @@ const tr = {
     please_input_export_path: 'Lütfen dışa aktarma yolunu girin: /',
     replica_count: 'Kopya sayısı:',
     please_input_pool_name: 'Lütfen havuz adını girin',
-    add_create_new_pool: 'Havuz ekle veya oluştur',
     storage_pool_type: 'Depolama Havuzu Türü',
     grow_volume: 'Birimi büyüt',
     delete_iscsi_target: 'iSCSI hedefini sil',

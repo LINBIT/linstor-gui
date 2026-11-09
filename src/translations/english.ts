@@ -93,7 +93,6 @@ const en = {
     please_input_export_path: 'Please input export path: /',
     replica_count: 'Replica count:',
     please_input_pool_name: 'Please input pool name',
-    add_create_new_pool: 'Add or create new pool',
     storage_pool_type: 'Storage Pool Type',
     grow_volume: 'Grow volume',
     delete_iscsi_target: 'Delete the ISCSI target',

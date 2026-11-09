@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { getResources } from '@app/features/resource';
 import { uniqBy } from 'lodash';
 import { Switch } from '@app/components/Switch';
+import { InlineFormItem } from '@app/components/InlineFormItem';
 
 type FormType = {
   rsc_name: string;
@@ -122,9 +123,9 @@ const CreateBackupForm = ({ refetch }: CreateBackupFormProps) => {
             />
           </Form.Item>
 
-          <Form.Item name="incremental" label={t('schedule:inc_cron')}>
+          <InlineFormItem name="incremental" label={t('schedule:inc_cron')}>
             <Switch />
-          </Form.Item>
+          </InlineFormItem>
         </Form>
       </Modal>
     </>

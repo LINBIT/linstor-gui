@@ -92,7 +92,6 @@ const ja = {
     please_input_export_path: 'エクスポートパスを入力してください: /',
     replica_count: 'レプリカ数:',
     please_input_pool_name: 'プール名を入力してください',
-    add_create_new_pool: 'プールを追加または新規作成',
     storage_pool_type: 'ストレージプールの種類',
     grow_volume: 'ボリュームを拡張',
     delete_iscsi_target: 'iSCSI ターゲットを削除',

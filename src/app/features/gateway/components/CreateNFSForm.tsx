@@ -10,6 +10,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Form } from 'antd';
 import { Checkbox } from '@app/components/Checkbox';
+import { InlineFormItem } from '@app/components/InlineFormItem';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
@@ -234,14 +235,14 @@ const CreateNFSForm = () => {
         />
       </Form.Item>
 
-      <Form.Item
+      <InlineFormItem
         label={t('iscsi:gross_size')}
         name="gross_size"
         valuePropName="checked"
         tooltip={t('common:gross_size_tooltip')}
       >
         <Checkbox />
-      </Form.Item>
+      </InlineFormItem>
 
       <Form.List name="volumes">
         {(fields, { add, remove }, { errors }) => (

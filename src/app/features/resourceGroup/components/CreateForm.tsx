@@ -38,6 +38,8 @@ import { SizeInput } from '@app/components/SizeInput';
 import { useTranslation } from 'react-i18next';
 import { Checkbox } from '@app/components/Checkbox';
 import { Switch } from '@app/components/Switch';
+import { InlineFormItem } from '@app/components/InlineFormItem';
+
 import type { components } from '@app/apis/schema';
 
 type FormType = {
@@ -342,7 +344,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
           </Form.Item>
 
           {!isEdit && (
-            <Form.Item
+            <InlineFormItem
               label={
                 <div className="flex">
                   <div className="mr-1">
@@ -364,7 +366,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
               valuePropName="checked"
             >
               <Switch defaultChecked />
-            </Form.Item>
+            </InlineFormItem>
           )}
 
           <Form.Item name="diskless_on_remaining" valuePropName="checked">

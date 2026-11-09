@@ -20,6 +20,8 @@ import { autoPlace, resourceCreateOnNode, resourceModify, getResources } from '.
 import { AutoPlaceRequestBody, ResourceCreateRequestBody, ResourceModifyRequestBody } from '../types';
 import { useTranslation } from 'react-i18next';
 import { Switch } from '@app/components/Switch';
+import { InlineFormItem } from '@app/components/InlineFormItem';
+
 import { Radio } from '@app/components/Radio';
 
 type FormType = {
@@ -297,9 +299,9 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
             <Input placeholder={t('resource:please_input_place_count')} type="number" min={0} />
           </Form.Item>
 
-          <Form.Item name="diskless" label={t('common:diskless_on_remaining')}>
+          <InlineFormItem name="diskless" label={t('common:diskless_on_remaining')}>
             <Switch />
-          </Form.Item>
+          </InlineFormItem>
         </>
       )}
 

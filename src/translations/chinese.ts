@@ -93,7 +93,6 @@ const zh = {
     please_input_export_path: '请输入导出路径：/',
     replica_count: '副本数：',
     please_input_pool_name: '请输入池名称',
-    add_create_new_pool: '添加或新建池',
     storage_pool_type: '存储池类型',
     grow_volume: '扩容卷',
     delete_iscsi_target: '删除 iSCSI 目标',
