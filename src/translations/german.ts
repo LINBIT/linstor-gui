@@ -481,10 +481,10 @@ const de = {
     create_title: 'Speicherpool erstellen',
     new_device: 'Neues Gerät',
     new_device_description:
-      'Beim Erstellen eines Speicherpools mit einem neuen Gerät stellen Sie sicher, dass das Gerät leer ist.',
+      'Legt auf einem oder mehreren leeren Geräten einen LVM- oder ZFS-Pool an und darauf einen Speicherpool.',
     existing_device: 'Vorhandenes Gerät',
     existing_device_description:
-      'Um ein vorhandenes Gerät zu verwenden, erstellen Sie zuerst eine Volume-Gruppe und ein logisches Volume mit LVM CLI-Befehlen.',
+      'Verwendet einen Pool, der auf den Knoten bereits existiert: eine LVM-Volume-Group oder einen Thin-Pool oder einen ZFS-Pool. Ein Diskless-Pool braucht keinen.',
     storage_pool_name: 'Speicherpool-Name',
     node: 'Knoten',
     type: 'Typ',
@@ -492,7 +492,6 @@ const de = {
     zfs_pool: 'Pool-Name',
     zfs_toast:
       'Sie müssen ZFS auf dem Knoten installieren und konfigurieren, bevor Sie einen ZFS-Speicherpool erstellen.',
-    multiple_nodes: 'Mehrere Knoten',
     device_path: 'Gerätepfad',
     device_path_tooltip:
       'Wählen Sie den Pfad des physischen Geräts aus, das den Speicherpool unterstützt. Das Gerät sollte leer sein.',
@@ -505,13 +504,25 @@ const de = {
     name_invalid: 'Bitte einen gültigen Namen für den Speicherpool eingeben',
     type_required: 'Typ des Speicherpools ist erforderlich',
     device_path_required: 'Bitte den Gerätepfad auswählen',
-    multiple_nodes_tooltip: 'Den Speicherpool auf mehr als einem Knoten anlegen.',
     nodes_tooltip: 'Den Knoten oder die Knoten wählen, auf denen der Speicherpool angelegt wird.',
     type_tooltip:
       'Den Typ des logischen Volumes wählen, aus dem der Speicherpool Speichervolumes auf dem physischen Speicher anlegt. Hinweis: Einige LINSTOR-Funktionen wie Volume-Snapshots funktionieren nur mit Thin-Provisioning.',
     sed_tooltip: 'Selbstverschlüsselndes Laufwerk',
     vdo_slab_tooltip: 'Die Größe des VDO-Slabs.',
     vdo_logical_tooltip: 'Die logische Größe des VDO-Volumes.',
+    common_devices_only: 'Es werden nur die Geräte aufgeführt, die alle {{count}} gewählten Knoten haben.',
+    select_node_first: 'Wählen Sie zuerst einen Knoten.',
+    no_device: 'Kein Gerät verwendbar. LINSTOR bietet ein Gerät nur an, wenn alles hiervon zutrifft:',
+    device_rule_size: 'Größer als 1 GiB.',
+    device_rule_whole:
+      'Ein Gerät der obersten Ebene wie /dev/sda, keine Partition, ohne Partitionen oder andere Geräte darauf.',
+    device_rule_blank: 'Kein Dateisystem und keine andere Signatur, die blkid erkennt.',
+    device_rule_drbd: 'Kein DRBD-Gerät.',
+    vdo_tooltip: 'Virtual Data Optimizer: dedupliziert und komprimiert die Daten unter dem Pool. Nur für LVM.',
+    zfs_pool_name_tooltip: 'Name des ZFS-Pools',
+    lvm_pool_name_tooltip: 'Name der VG oder VG/Thin-Pool',
+    zfs_pool_placeholder: 'Name des ZFS-Pools',
+    lvm_pool_placeholder: 'Name der Volume Group/des Thin-Pools',
   },
   ip_address: {
     list: 'IP-Adressen-Liste',

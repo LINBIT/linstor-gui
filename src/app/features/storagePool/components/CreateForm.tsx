@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Collapse, Form, message, Tooltip } from 'antd';
+import { Collapse, Form, message } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
@@ -27,21 +27,82 @@ import { InlineFormItem } from '@app/components/InlineFormItem';
 import { useTranslation } from 'react-i18next';
 import { Radio } from '@app/components/Radio';
 import { unwrap } from '@app/features/requests';
+import { formatBytes } from '@app/utils/size';
 
 type FormType = {
   create_type: 'new' | 'existing';
   storage_pool_name: string;
   pool_name?: string;
-  node: string | string[];
+  node?: string[];
   provider_kind: ProviderKind;
   device_paths?: string[];
   storage_driver_name: string;
-  multiple_nodes: boolean;
   sed?: boolean;
   vdo_enable?: boolean;
   vdo_slab_size_kib?: number;
   vdo_logical_size_kib?: number;
 };
+
+type PhysicalDevice = { device?: string; size?: number; rotational?: boolean; model?: string };
+
+type DeviceChoice = {
+  path: string;
+  /** Size in bytes on each node. */
+  sizes: number[];
+  /** Left out when the nodes disagree. */
+  rotational?: boolean;
+  model?: string;
+};
+
+/** The devices every node has, by path, with what the nodes say about them. */
+const commonDevices = (perNode: PhysicalDevice[][]): DeviceChoice[] => {
+  const [first = [], ...others] = perNode;
+  return first.flatMap((device) => {
+    const path = device.device;
+    if (!path) {
+      return [];
+    }
+    const found = others.map((list) => list.find((e) => e.device === path));
+    if (found.some((e) => !e)) {
+      return [];
+    }
+    const all = [device, ...(found as PhysicalDevice[])];
+    const agreed = <T,>(value: (e: PhysicalDevice) => T) =>
+      all.every((e) => value(e) === value(device)) ? value(device) : undefined;
+    return [
+      {
+        path,
+        sizes: all.flatMap((e) => (typeof e.size === 'number' ? [e.size] : [])),
+        rotational: agreed((e) => e.rotational),
+        model: agreed((e) => e.model?.trim() || undefined),
+      },
+    ];
+  });
+};
+
+/** `1.82 TiB`, or the range when the nodes' devices differ: `100.00–120.00 GiB`. */
+const sizeLabel = (sizes: number[]) => {
+  if (sizes.length === 0) {
+    return undefined;
+  }
+  const low = formatBytes(Math.min(...sizes) / 1024);
+  const high = formatBytes(Math.max(...sizes) / 1024);
+  if (low === high) {
+    return low;
+  }
+  const [lowNumber, lowUnit] = low.split(' ');
+  const [highNumber, highUnit] = high.split(' ');
+  return lowUnit === highUnit ? `${lowNumber}–${highNumber} ${highUnit}` : `${low}–${high}`;
+};
+
+const deviceDetails = (device: DeviceChoice) =>
+  [
+    sizeLabel(device.sizes),
+    device.rotational === undefined ? undefined : device.rotational ? 'HDD' : 'SSD',
+    device.model,
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
 const CreateForm = () => {
   const nodes = useNodes();
@@ -54,7 +115,6 @@ const CreateForm = () => {
   const provider_kind = Form.useWatch('provider_kind', form);
   const node = Form.useWatch('node', form);
   const create_type = Form.useWatch('create_type', form);
-  const multiple_nodes = Form.useWatch('multiple_nodes', form);
   const vdo_enable = Form.useWatch('vdo_enable', form);
 
   const backToStoragePoolList = () => {
@@ -64,16 +124,15 @@ const CreateForm = () => {
     navigate(-1);
   };
 
-  const selectedNodes = !node ? [] : Array.isArray(node) ? node : [node];
+  const selectedNodes = node ?? [];
 
   // The same device paths are sent to every selected node, so only the
   // devices all of them have are offered.
-  const { data: devicePaths } = useQuery({
+  const { data: devices, isFetching: devicesLoading } = useQuery({
     queryKey: ['getPhysicalStoragePoolByNode', selectedNodes],
     queryFn: async () => {
       const replies = await Promise.all(selectedNodes.map((e) => getPhysicalStoragePoolByNode({ node: e })));
-      const perNode = replies.map((reply) => (reply.data ?? []).flatMap((e) => (e.device ? [e.device] : [])));
-      return perNode[0].filter((device) => perNode.every((paths) => paths.includes(device)));
+      return commonDevices(replies.map((reply) => reply.data ?? []));
     },
     enabled: selectedNodes.length > 0 && create_type === 'new',
   });
@@ -154,7 +213,7 @@ const CreateForm = () => {
 
       // mutate() returns void, so Promise.all over it resolved at once and the
       // page left before the controller had answered; wait for the requests.
-      const targets = Array.isArray(node) ? node : [node];
+      const targets = values.node ?? [];
       Promise.all(targets.map((e) => createStoragePoolWithPhysicalStorage.mutateAsync({ node: e, ...body })))
         .then(() => backToStoragePoolList())
         .catch(() => undefined);
@@ -178,7 +237,8 @@ const CreateForm = () => {
 
       // One request per node, and one step back once all are done: going
       // back on each success went back once per node, out of the GUI.
-      const targets = Array.isArray(selectedNode) ? selectedNode : [selectedNode];
+      const targets = selectedNode ?? [];
+
       Promise.all(targets.map((e) => createStoragePoolWithExistingVolumeGroup.mutateAsync({ node: e, ...body })))
         .then(() => backToStoragePoolList())
         .catch(() => undefined);
@@ -199,7 +259,14 @@ const CreateForm = () => {
       }}
       onFinish={onFinish}
     >
-      <Form.Item name="create_type">
+      <Form.Item
+        name="create_type"
+        extra={t(
+          create_type === 'existing'
+            ? 'storage_pool:existing_device_description'
+            : 'storage_pool:new_device_description',
+        )}
+      >
         <Radio.Group
           onChange={() => {
             form.setFieldsValue({
@@ -216,18 +283,8 @@ const CreateForm = () => {
           }}
           optionType="button"
           options={[
-            {
-              value: 'new',
-              label: <Tooltip title={t('storage_pool:new_device_description')}>{t('storage_pool:new_device')}</Tooltip>,
-            },
-            {
-              value: 'existing',
-              label: (
-                <Tooltip title={t('storage_pool:existing_device_description')}>
-                  {t('storage_pool:existing_device')}
-                </Tooltip>
-              ),
-            },
+            { value: 'new', label: t('storage_pool:new_device') },
+            { value: 'existing', label: t('storage_pool:existing_device') },
           ]}
         />
       </Form.Item>
@@ -247,16 +304,6 @@ const CreateForm = () => {
         <Input placeholder={t('storage_pool:enter_storage_pool_name')} />
       </Form.Item>
 
-      {create_type === 'new' && (
-        <InlineFormItem
-          name="multiple_nodes"
-          label={t('storage_pool:multiple_nodes')}
-          tooltip={t('storage_pool:multiple_nodes_tooltip')}
-        >
-          <Switch />
-        </InlineFormItem>
-      )}
-
       <Form.Item
         label={t('storage_pool:node')}
         name="node"
@@ -272,7 +319,7 @@ const CreateForm = () => {
             label: e.name,
             value: e.name,
           }))}
-          mode={create_type !== 'new' || multiple_nodes ? 'multiple' : undefined}
+          mode="multiple"
           // Devices chosen for other nodes may not exist on these.
           onChange={() => form.setFieldValue('device_paths', undefined)}
         />
@@ -302,20 +349,47 @@ const CreateForm = () => {
             required
             rules={[{ required: true, message: t('storage_pool:device_path_required') }]}
             tooltip={t('storage_pool:device_path_tooltip')}
+            extra={
+              selectedNodes.length > 1
+                ? t('storage_pool:common_devices_only', { count: selectedNodes.length })
+                : undefined
+            }
           >
             <Select
               allowClear
               mode="multiple"
               placeholder={t('storage_pool:select_path_physical_device')}
-              options={devicePaths?.map((e) => ({
-                label: e,
-                value: e,
-              }))}
+              loading={devicesLoading}
+              // The chosen tags show the path; the list also says what each device is.
+              options={devices?.map((e) => ({ label: e.path, value: e.path, details: deviceDetails(e) }))}
+              optionRender={(option) => (
+                <div className="flex justify-between gap-4">
+                  <span>{option.label}</span>
+                  <span className="mr-2 text-(--ant-color-text-description)">{option.data.details}</span>
+                </div>
+              )}
+              notFoundContent={
+                selectedNodes.length === 0 ? (
+                  t('storage_pool:select_node_first')
+                ) : devicesLoading ? undefined : (
+                  <div className="px-2 py-1 text-(--ant-color-text)">
+                    <p>{t('storage_pool:no_device')}</p>
+                    <ul className="list-disc pl-5 mt-1">
+                      <li>{t('storage_pool:device_rule_size')}</li>
+                      <li>{t('storage_pool:device_rule_whole')}</li>
+                      <li>{t('storage_pool:device_rule_blank')}</li>
+                      <li>{t('storage_pool:device_rule_drbd')}</li>
+                    </ul>
+                  </div>
+                )
+              }
             />
           </Form.Item>
 
           <Collapse
             ghost
+            // Its fields line up with the ones above instead of being indented.
+            className="[&_.ant-collapse-header]:px-0! [&_.ant-collapse-body]:px-0!"
             items={[
               {
                 key: '1',
@@ -325,7 +399,9 @@ const CreateForm = () => {
                     <Form.Item
                       label={isZSFType ? t('storage_pool:zfs_pool_name') : t('storage_pool:lvm_pool_name')}
                       name="pool_name"
-                      tooltip={isZSFType ? 'ZSF Pool Name' : 'VG or VG/Thinpool Name'}
+                      tooltip={
+                        isZSFType ? t('storage_pool:zfs_pool_name_tooltip') : t('storage_pool:lvm_pool_name_tooltip')
+                      }
                     >
                       <Input placeholder={t('storage_pool:enter_pool_name')} />
                     </Form.Item>
@@ -340,7 +416,12 @@ const CreateForm = () => {
                     {
                       // VDO is only available for LVM and LVM_THIN
                       provider_kind === 'LVM' || provider_kind === 'LVM_THIN' ? (
-                        <InlineFormItem label={t('storage_pool:vdo')} name="vdo_enable" valuePropName="checked">
+                        <InlineFormItem
+                          label={t('storage_pool:vdo')}
+                          name="vdo_enable"
+                          valuePropName="checked"
+                          tooltip={t('storage_pool:vdo_tooltip')}
+                        >
                           <Switch />
                         </InlineFormItem>
                       ) : null
@@ -377,7 +458,9 @@ const CreateForm = () => {
           label={isZSFType ? t('storage_pool:zfs_pool') : t('storage_pool:lvm_pool')}
           required
         >
-          <Input placeholder={`${isZSFType ? 'ZFS Pool name' : 'Volume Group/Thin Pool Name'}`} />
+          <Input
+            placeholder={isZSFType ? t('storage_pool:zfs_pool_placeholder') : t('storage_pool:lvm_pool_placeholder')}
+          />
         </Form.Item>
       )}
 

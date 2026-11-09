@@ -57,9 +57,10 @@ test('a storage pool is created on a new device, listed and deleted', async ({ p
   await page.goto('#/inventory/storage-pools');
   await page.goto('#/inventory/storage-pools/create');
   await page.getByLabel('Storage Pool Name').fill('e2esp');
+  // Several nodes and several devices can be picked, so each list stays open.
   await pick(page, 'Node', 'node01');
+  await page.keyboard.press('Escape');
   await pick(page, 'Device Path', '/dev/sdb');
-  // Several devices can be picked, so the list stays open.
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Submit' }).click();
   await expect(toast(page, "Successfully created storage pool 'e2esp' on node 'node01'.")).toBeVisible();
@@ -77,6 +78,7 @@ test('a storage pool is created over two new devices', async ({ page }) => {
   await page.goto('#/inventory/storage-pools/create');
   await page.getByLabel('Storage Pool Name').fill('e2etwo');
   await pick(page, 'Node', 'node03');
+  await page.keyboard.press('Escape');
   await pick(page, 'Device Path', '/dev/sdb');
   await pick(page, 'Device Path', '/dev/sdc');
   await page.keyboard.press('Escape');
@@ -95,7 +97,8 @@ test('a storage pool is created from an existing volume group on two nodes', asy
   await page.goto('#/inventory/storage-pools/create');
   await page.getByText('Existing Device').click();
   await page.getByLabel('Storage Pool Name').fill('e2evg');
-  // Always several nodes for an existing pool.
+  // A pool on each of them.
+
   await pick(page, 'Node', 'node02');
   await pick(page, 'Node', 'node03');
   await page.keyboard.press('Escape');
@@ -132,6 +135,7 @@ test('a ZFS storage pool is created on a new device', async ({ page }) => {
   await page.goto('#/inventory/storage-pools/create');
   await page.getByLabel('Storage Pool Name').fill('e2ezfs');
   await pick(page, 'Node', 'node02');
+  await page.keyboard.press('Escape');
   await pick(page, 'Type', 'ZFS');
   await pick(page, 'Device Path', '/dev/sdc');
   await page.keyboard.press('Escape');

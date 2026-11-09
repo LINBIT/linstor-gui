@@ -59,9 +59,18 @@ export const keepsHolding = async (assertion: () => Promise<void>, ms = 1500) =>
  * dialog). antd renders its options twice: a hidden accessible list (role
  * "option") and the visible items a user clicks, so the visible one is
  * clicked by its title.
+ *
+ * The visible list is virtual: only the items in view exist, so an option
+ * scrolled out of it cannot be found. Where the select can be searched, the
+ * option is typed first, as a user would, which brings it into the list.
  */
 export const pick = async (scope: Page | Locator, label: string, option: string) => {
-  await scope.getByLabel(label, { exact: true }).click();
+  const field = scope.getByLabel(label, { exact: true });
+  await field.click();
+  if (await field.isEditable()) {
+    await field.fill(option);
+  }
   const page = 'page' in scope ? scope.page() : scope;
+
   await page.locator(`.ant-select-dropdown:visible .ant-select-item-option[title="${option}"]`).click();
 };

@@ -50,10 +50,18 @@ const renderForm = () => {
   );
 };
 
+// A device option shows its path and, beside it, what the device is.
+const OPTION = '.ant-select-item-option-content, .ant-select-item-option-content > div > span:first-child';
+
 const pick = async (combobox: HTMLElement, label: string) => {
   fireEvent.mouseDown(combobox);
-  fireEvent.click(await screen.findByText(label, { selector: '.ant-select-item-option-content' }));
+  fireEvent.click(await screen.findByText(label, { selector: OPTION }));
 };
+
+const listedDevices = async () =>
+  (await screen.findAllByText(/^\/dev\//, { selector: OPTION })).map((d) => d.textContent);
+
+const GIB = 1024 ** 3;
 
 // New-device form order: node, type, device path.
 const nodeSelect = () => screen.getAllByRole('combobox')[0];
@@ -98,8 +106,7 @@ describe('storage pool CreateForm', () => {
     await pick(nodeSelect(), 'node-2');
     await waitFor(() => expect(getPhysicalStoragePoolByNode).toHaveBeenCalledWith({ node: 'node-2' }));
     fireEvent.mouseDown(deviceSelect());
-    const devices = await screen.findAllByText(/^\/dev\//, { selector: '.ant-select-item-option-content' });
-    expect(devices.map((d) => d.textContent)).toEqual(['/dev/sdb', '/dev/sdc']);
+    expect(await listedDevices()).toEqual(['/dev/sdb', '/dev/sdc']);
   });
 
   it('creates physical storage plus pool on one node, then goes back', async () => {
@@ -128,10 +135,11 @@ describe('storage pool CreateForm', () => {
     await waitFor(() => expect(navigate).toHaveBeenCalledWith(-1));
   });
 
-  it('creates on every node when multiple nodes is on', async () => {
+  it('creates on every chosen node, with no switch to allow several', async () => {
     renderForm();
     typeName('pool-multi');
-    fireEvent.click(screen.getByRole('switch'));
+    expect(screen.queryByText('Multiple Nodes')).toBeNull();
+    expect(screen.queryByRole('switch')).toBeNull();
     await pick(nodeSelect(), 'node-1');
     await pick(nodeSelect(), 'node-2');
     await waitFor(() => expect(getPhysicalStoragePoolByNode).toHaveBeenCalledWith({ node: 'node-1' }));
@@ -167,16 +175,75 @@ describe('storage pool CreateForm', () => {
       ({ node }) => Promise.resolve({ data: devicesByNode[node].map((device) => ({ device, size: 1 })) }) as never,
     );
     renderForm();
-    fireEvent.click(screen.getByRole('switch'));
     await pick(nodeSelect(), 'node-1');
     await pick(nodeSelect(), 'node-2');
     await waitFor(() => expect(getPhysicalStoragePoolByNode).toHaveBeenCalledWith({ node: 'node-2' }));
 
     fireEvent.mouseDown(deviceSelect());
-    await waitFor(async () => {
-      const devices = await screen.findAllByText(/^\/dev\//, { selector: '.ant-select-item-option-content' });
-      expect(devices.map((d) => d.textContent)).toEqual(['/dev/sdc']);
-    });
+    await waitFor(async () => expect(await listedDevices()).toEqual(['/dev/sdc']));
+    expect(screen.getByText('Only the devices that all 2 chosen nodes have are listed.')).toBeInTheDocument();
+  });
+
+  it('says what each device is: size, HDD or SSD, model; a chosen one shows only its path', async () => {
+    vi.mocked(getPhysicalStoragePoolByNode).mockResolvedValue({
+      data: [
+        { device: '/dev/sdb', size: 2 * 1024 * GIB, rotational: false, model: 'Samsung 870 ' },
+        { device: '/dev/sdc', size: 4 * GIB, rotational: true, model: '' },
+      ],
+    } as never);
+    renderForm();
+    await pick(nodeSelect(), 'node-1');
+    fireEvent.mouseDown(deviceSelect());
+    expect(await screen.findByText('2.00 TiB · SSD · Samsung 870')).toBeInTheDocument();
+    expect(screen.getByText('4.00 GiB · HDD')).toBeInTheDocument();
+
+    await pick(deviceSelect(), '/dev/sdb');
+    const tag = document.querySelector('.ant-select-selection-item[title="/dev/sdb"]') as HTMLElement;
+    expect(tag).toHaveTextContent(/^\/dev\/sdb$/);
+  });
+
+  it('with several nodes, a device whose size differs shows the range, and what they disagree on is left out', async () => {
+    const byNode: Record<string, object[]> = {
+      'node-1': [{ device: '/dev/sdc', size: 100 * GIB, rotational: false, model: 'A' }],
+      'node-2': [{ device: '/dev/sdc', size: 120 * GIB, rotational: true, model: 'A' }],
+    };
+    vi.mocked(getPhysicalStoragePoolByNode).mockImplementation(
+      ({ node }) => Promise.resolve({ data: byNode[node] }) as never,
+    );
+    renderForm();
+    await pick(nodeSelect(), 'node-1');
+    await pick(nodeSelect(), 'node-2');
+    await waitFor(() => expect(getPhysicalStoragePoolByNode).toHaveBeenCalledWith({ node: 'node-2' }));
+    fireEvent.mouseDown(deviceSelect());
+    expect(await screen.findByText('100.00–120.00 GiB · A')).toBeInTheDocument();
+  });
+
+  it('an empty device list says what LINSTOR takes', async () => {
+    vi.mocked(getPhysicalStoragePoolByNode).mockResolvedValue({ data: [] } as never);
+    renderForm();
+    fireEvent.mouseDown(deviceSelect());
+    expect(await screen.findByText('Select a node first.')).toBeInTheDocument();
+
+    await pick(nodeSelect(), 'node-1');
+    fireEvent.mouseDown(deviceSelect());
+    expect(await screen.findByText(/^No device can be used\./)).toBeInTheDocument();
+    expect(screen.getByText('Larger than 1 GiB.')).toBeInTheDocument();
+    expect(screen.getByText('Not a DRBD device.')).toBeInTheDocument();
+  });
+
+  it('explains the chosen mode under the buttons', async () => {
+    renderForm();
+    expect(screen.getByText(/^Creates an LVM or ZFS pool on one or more empty devices/)).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Existing Device'));
+    expect(await screen.findByText(/^Uses a pool that already exists on the nodes/)).toBeInTheDocument();
+    expect(screen.queryByText(/^Creates an LVM or ZFS pool/)).toBeNull();
+  });
+
+  it('VDO has a tooltip', async () => {
+    renderForm();
+    fireEvent.click(screen.getByText('Advanced Options'));
+    const vdo = await screen.findByText('VDO Enabled');
+    expect(vdo.closest('label')?.querySelector('.ant-form-item-tooltip')).not.toBeNull();
   });
 
   it('removing every chosen device asks for one again', async () => {
@@ -222,7 +289,6 @@ describe('storage pool CreateForm', () => {
   it('an existing volume group creates the pool directly with the driver name', async () => {
     renderForm();
     fireEvent.click(screen.getByText('Existing Device'));
-    await waitFor(() => expect(screen.queryByText('Multiple Nodes')).not.toBeInTheDocument());
     typeName('pool-vg');
     await pick(nodeSelect(), 'node-2');
     fireEvent.mouseDown(typeSelect());
@@ -249,8 +315,8 @@ describe('storage pool CreateForm', () => {
   it('a diskless pool asks for no volume group and sends no driver name', async () => {
     renderForm();
     fireEvent.click(screen.getByText('Existing Device'));
-    await waitFor(() => expect(screen.queryByText('Multiple Nodes')).not.toBeInTheDocument());
     typeName('pool-dl');
+
     await pick(nodeSelect(), 'node-2');
     fireEvent.mouseDown(typeSelect());
     fireEvent.click(await screen.findByText('DISKLESS', { selector: '.ant-select-item-option-content' }));

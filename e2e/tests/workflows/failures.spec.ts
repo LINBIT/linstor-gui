@@ -78,6 +78,7 @@ const FORMS: Form[] = [
     fill: async (page) => {
       await page.getByLabel('Storage Pool Name').fill('e2efail');
       await pick(page, 'Node', 'node03');
+      await page.keyboard.press('Escape');
       await pick(page, 'Device Path', '/dev/sdb');
       await page.keyboard.press('Escape');
     },
