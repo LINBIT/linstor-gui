@@ -75,7 +75,7 @@ describe('resourceDefinition CreateForm', () => {
   it('creates a definition in the default group without spawning', async () => {
     renderWithClient(<CreateForm />);
 
-    expect(screen.getByRole('switch')).not.toBeChecked();
+    expect(screen.getByRole('switch', { name: 'Spawn on create' })).not.toBeChecked();
     expect(screen.queryByPlaceholderText('Please input size')).toBeNull();
     fireEvent.change(nameInput(), { target: { value: 'rd9' } });
     submit();

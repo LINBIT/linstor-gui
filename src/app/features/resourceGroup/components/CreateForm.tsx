@@ -365,7 +365,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
               name="deploy"
               valuePropName="checked"
             >
-              <Switch defaultChecked />
+              <Switch />
             </InlineFormItem>
           )}
 

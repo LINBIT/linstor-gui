@@ -285,7 +285,7 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
 
       {!isEdit && (
         <InlineFormItem label={t('common:spawn_on_create')} name="deploy" valuePropName="checked">
-          <Switch defaultChecked />
+          <Switch />
         </InlineFormItem>
       )}
 

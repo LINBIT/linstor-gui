@@ -110,6 +110,7 @@ describe('resource group CreateForm', () => {
 
   it('creates the group, then adds the first volume group, then goes back', async () => {
     renderForm();
+    expect(screen.getByRole('switch', { name: /Spawn on create/ })).not.toBeChecked();
     typeName('rg-new');
     fireEvent.change(screen.getByPlaceholderText('Please input description'), { target: { value: 'for tests' } });
     fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '3' } });
