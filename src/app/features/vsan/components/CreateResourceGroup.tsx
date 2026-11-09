@@ -89,7 +89,7 @@ export const CreateResourceGroup = ({ refetch }: CreateResourceGroupProps) => {
     <>
       {contextHolder}
       <Button type="primary" onClick={() => setCreateFormModal(true)}>
-        + {t('common:add')}
+        + {t('common:create')}
       </Button>
 
       <Modal

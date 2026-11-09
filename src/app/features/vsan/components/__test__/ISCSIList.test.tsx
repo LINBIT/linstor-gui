@@ -102,14 +102,14 @@ describe('ISCSIList', () => {
 
     expect(screen.queryByText(/pending/)).toBeNull();
     expect(screen.queryByRole('button', { name: 'Delete' })).toBeNull();
-    expect(screen.queryByRole('button', { name: '+ Add' })).toBeNull();
+    expect(screen.queryByRole('button', { name: '+ Create' })).toBeNull();
   });
 
   it('adds the description, create button and actions in complex mode', async () => {
     const { container } = await renderList(true);
 
     expect(screen.getByText(/exposed as an iSCSI target/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '+ Add' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '+ Create' })).toBeInTheDocument();
     expect(within(rowByText(container, 'tgt1')).getByRole('button', { name: 'Grow' })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Reload' }));

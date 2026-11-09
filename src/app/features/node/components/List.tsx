@@ -412,7 +412,7 @@ export const List = () => {
         </Form>
 
         <Link type="primary" to={mode === UIMode.HCI ? '/hci/inventory/nodes/create' : '/inventory/nodes/create'}>
-          + {t('common:add')}
+          + {t('common:create')}
         </Link>
       </SearchForm>
 

@@ -10,7 +10,7 @@ import { test, expect } from '../fixtures';
 // so this runs against the build rather than as a unit test.
 test('the schedule dialog accepts cron expressions and previews their runs', async ({ page }) => {
   await page.goto('#/schedule/list');
-  await page.getByRole('button', { name: '+ Add' }).click();
+  await page.getByRole('button', { name: '+ Create' }).click();
   const dialog = page.getByRole('dialog', { name: 'Create Schedule' });
   await expect(dialog.getByRole('textbox').nth(1)).toHaveValue('0 0 * * *');
   await expect(dialog.getByText('Invalid cron expression. Please check the format.')).toHaveCount(0);

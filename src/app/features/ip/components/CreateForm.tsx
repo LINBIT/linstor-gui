@@ -63,7 +63,7 @@ const CreateForm = ({ editing, node, refetch }: FormProps) => {
           setOpen(true);
         }}
       >
-        {t('add_network_interface')}
+        {t('create_network_interface')}
       </Button>
       <Modal
         open={open}

@@ -369,7 +369,7 @@ export const ISCSIList = ({
 
         {onCreate && (
           <Button type="primary" onClick={onCreate}>
-            + {t('common:add')}
+            + {t('common:create')}
           </Button>
         )}
       </SearchForm>

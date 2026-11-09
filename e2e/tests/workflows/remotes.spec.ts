@@ -11,7 +11,7 @@ const remoteRow = (page: Page, name: string) =>
 
 const openCreateRemote = async (page: Page) => {
   await page.goto('#/remote/list');
-  await page.getByRole('button', { name: '+ Add' }).click();
+  await page.getByRole('button', { name: '+ Create' }).click();
   return page.getByRole('dialog').filter({ hasText: 'Create' });
 };
 
@@ -37,7 +37,7 @@ test('an S3 remote is added, a backup is shipped to it, and the remote is delete
   await row.getByRole('img', { name: 'more' }).click();
   await page.getByRole('menuitem', { name: 'Backups' }).click();
   await expect(page).toHaveURL(/#\/remote\/e2e-s3\/backups$/);
-  await page.getByRole('button', { name: '+ Add' }).click();
+  await page.getByRole('button', { name: '+ Create' }).click();
   const backup = page.getByRole('dialog').filter({ hasText: 'Create' });
   await pick(backup, 'Resource', 'demo');
   await backup.getByRole('button', { name: 'Submit' }).click();

@@ -476,7 +476,7 @@ export const List = () => {
               : '/storage-configuration/resource-groups/create'
           }
         >
-          + {t('common:add')}
+          + {t('common:create')}
         </Link>
       </SearchForm>
 

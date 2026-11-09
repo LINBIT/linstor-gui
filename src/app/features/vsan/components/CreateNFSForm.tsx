@@ -155,7 +155,7 @@ const CreateNFSForm = ({ refetch, disabled }: CreateNFSFormProps) => {
     <>
       {contextHolder}
       <Button type="primary" onClick={() => setCreateFormModal(true)} disabled={disabled}>
-        + {t('common:add')}
+        + {t('common:create')}
       </Button>
 
       <Modal

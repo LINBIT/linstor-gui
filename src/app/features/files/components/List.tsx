@@ -315,7 +315,7 @@ export const List = () => {
     <>
       <div className="flex items-center justify-between gap-4 mb-4">
         <Link type="primary" to={mode === UIMode.HCI ? '/hci/files/create' : '/files/create'}>
-          + {t('add_file')}
+          + {t('common:create')}
         </Link>
 
         <Space>

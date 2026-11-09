@@ -34,7 +34,7 @@ const renderForm = (props: Partial<React.ComponentProps<typeof CreateForm>> = {}
 };
 
 const openModal = async () => {
-  fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Create' }));
   await screen.findByText('Create Volume Definition');
 };
 
@@ -59,10 +59,10 @@ describe('volume definition CreateForm', () => {
 
   it('renders a button, or plain text in simple mode', () => {
     const { unmount } = renderForm();
-    expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
     unmount();
     renderForm({ simple: true });
-    expect(screen.queryByRole('button', { name: 'Add' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Create' })).not.toBeInTheDocument();
     expect(screen.getByText('Create Volume Definition')).toBeInTheDocument();
   });
 

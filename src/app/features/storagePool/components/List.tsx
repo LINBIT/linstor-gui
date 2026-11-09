@@ -398,7 +398,7 @@ export const List = () => {
           type="primary"
           to={mode === UIMode.HCI ? '/hci/inventory/storage-pools/create' : '/inventory/storage-pools/create'}
         >
-          + {t('common:add')}
+          + {t('common:create')}
         </Link>
       </SearchForm>
 

@@ -37,7 +37,7 @@ const renderForm = () => {
 };
 
 const open = async () => {
-  fireEvent.click(screen.getByRole('button', { name: '+ Add' }));
+  fireEvent.click(screen.getByRole('button', { name: '+ Create' }));
   await screen.findByText('Create');
 };
 

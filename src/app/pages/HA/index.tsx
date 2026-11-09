@@ -37,7 +37,7 @@ const HA = () => {
       title={t('ha:list')}
       extra={
         <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/reactor/create')}>
-          {t('common:add')}
+          {t('common:create')}
         </Button>
       }
     >

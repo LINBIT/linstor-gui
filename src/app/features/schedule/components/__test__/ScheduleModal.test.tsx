@@ -56,7 +56,7 @@ describe('ScheduleModal', () => {
   describe('create', () => {
     it('opens from the add button with a daily full backup and no incremental one, and requires a name', async () => {
       renderModal();
-      fireEvent.click(screen.getByRole('button', { name: '+ Add' }));
+      fireEvent.click(screen.getByRole('button', { name: '+ Create' }));
       expect(await screen.findByText('Create Schedule')).toBeInTheDocument();
       expect(fullCron()).toHaveValue('0 0 * * *');
       expect(incCron()).toHaveValue('');
@@ -68,7 +68,7 @@ describe('ScheduleModal', () => {
 
     it('creates a schedule with the full cron it shows, and without an incremental one', async () => {
       renderModal();
-      fireEvent.click(screen.getByRole('button', { name: '+ Add' }));
+      fireEvent.click(screen.getByRole('button', { name: '+ Create' }));
       await screen.findByText('Create Schedule');
       fireEvent.change(screen.getByPlaceholderText('Enter schedule name'), { target: { value: 'daily' } });
       submit();
@@ -83,7 +83,7 @@ describe('ScheduleModal', () => {
 
     it('requires a full cron once it is emptied', async () => {
       renderModal();
-      fireEvent.click(screen.getByRole('button', { name: '+ Add' }));
+      fireEvent.click(screen.getByRole('button', { name: '+ Create' }));
       await screen.findByText('Create Schedule');
       fireEvent.change(screen.getByPlaceholderText('Enter schedule name'), { target: { value: 'daily' } });
       setCron(fullCron(), '');
@@ -94,7 +94,7 @@ describe('ScheduleModal', () => {
 
     it('posts the filled fields with SKIP as the default failure action', async () => {
       const refetch = renderModal();
-      fireEvent.click(screen.getByRole('button', { name: '+ Add' }));
+      fireEvent.click(screen.getByRole('button', { name: '+ Create' }));
       await screen.findByText('Create Schedule');
 
       fireEvent.change(screen.getByPlaceholderText('Enter schedule name'), { target: { value: 'nightly' } });
@@ -119,7 +119,7 @@ describe('ScheduleModal', () => {
 
     it('sends RETRY with max retries when chosen', async () => {
       renderModal();
-      fireEvent.click(screen.getByRole('button', { name: '+ Add' }));
+      fireEvent.click(screen.getByRole('button', { name: '+ Create' }));
       await screen.findByText('Create Schedule');
 
       fireEvent.change(screen.getByPlaceholderText('Enter schedule name'), { target: { value: 'retrying' } });
@@ -136,7 +136,7 @@ describe('ScheduleModal', () => {
 
     it('rejects a negative keep count before sending', async () => {
       renderModal();
-      fireEvent.click(screen.getByRole('button', { name: '+ Add' }));
+      fireEvent.click(screen.getByRole('button', { name: '+ Create' }));
       await screen.findByText('Create Schedule');
       fireEvent.change(screen.getByPlaceholderText('Enter schedule name'), { target: { value: 'neg' } });
       setCron(fullCron(), '0 3 * * *');
@@ -150,7 +150,7 @@ describe('ScheduleModal', () => {
       vi.mocked(createSchedule).mockRejectedValue(new Error('exists'));
       const errors = captureConsoleError();
       const refetch = renderModal();
-      fireEvent.click(screen.getByRole('button', { name: '+ Add' }));
+      fireEvent.click(screen.getByRole('button', { name: '+ Create' }));
       await screen.findByText('Create Schedule');
       fireEvent.change(screen.getByPlaceholderText('Enter schedule name'), { target: { value: 'dup' } });
       setCron(fullCron(), '0 3 * * *');

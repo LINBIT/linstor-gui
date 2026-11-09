@@ -79,7 +79,7 @@ const CreateForm = ({ refetch, simple }: CreateFormProps) => {
         </div>
       ) : (
         <Button type="primary" onClick={() => setShowCreateForm(true)}>
-          {t('common:add')}
+          {t('common:create')}
         </Button>
       )}
 

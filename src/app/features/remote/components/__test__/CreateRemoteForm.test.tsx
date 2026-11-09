@@ -29,7 +29,7 @@ const renderForm = () => {
 };
 
 const open = async () => {
-  fireEvent.click(screen.getByRole('button', { name: '+ Add' }));
+  fireEvent.click(screen.getByRole('button', { name: '+ Create' }));
   await screen.findByPlaceholderText('Please input name');
   // The fields of the chosen type (S3 first) follow one render later.
   await screen.findByPlaceholderText('Please input endpoint');

@@ -96,13 +96,13 @@ describe('files List', () => {
     expect(within(rowOf(CONF)).getByText('Not Deployed')).toBeInTheDocument();
     expect(screen.queryByText(REACTOR)).not.toBeInTheDocument();
     expect(screen.getByText('Total 2 items')).toBeInTheDocument();
-    expect((screen.getByText('+ Add File') as HTMLElement).closest('a')).toHaveAttribute('href', '/files/create');
+    expect((screen.getByText('+ Create') as HTMLElement).closest('a')).toHaveAttribute('href', '/files/create');
   });
 
-  it('links "+ Add File" to the HCI create page in HCI mode', async () => {
+  it('links "+ Create" to the HCI create page in HCI mode', async () => {
     uiMode = 'HCI';
     renderList();
-    expect((await screen.findByText('+ Add File')).closest('a')).toHaveAttribute('href', '/hci/files/create');
+    expect((await screen.findByText('+ Create')).closest('a')).toHaveAttribute('href', '/hci/files/create');
   });
 
   it('the switch reveals the DRBD Reactor configuration files', async () => {

@@ -122,7 +122,7 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
         <span onClick={showModal}>{schedule ? t('common:edit') : t('common:create')}</span>
       ) : (
         <Button onClick={showModal} type="secondary">
-          {schedule ? t('common:edit') : `+ ${t('common:add')}`}
+          {schedule ? t('common:edit') : `+ ${t('common:create')}`}
         </Button>
       )}
 

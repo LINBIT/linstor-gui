@@ -95,14 +95,14 @@ describe('NFSExportList', () => {
 
   it('disables creating a second export while one exists', async () => {
     await renderList(true);
-    await waitFor(() => expect(screen.getByRole('button', { name: '+ Add' })).toBeDisabled());
+    await waitFor(() => expect(screen.getByRole('button', { name: '+ Create' })).toBeDisabled());
     expect(screen.getByText(/via an NFS export/)).toBeInTheDocument();
   });
 
   it('allows creating when there is no export yet', async () => {
     vi.mocked(getNFSExport).mockResolvedValue({ data: [] } as never);
     await renderList(true);
-    await waitFor(() => expect(screen.getByRole('button', { name: '+ Add' })).toBeEnabled());
+    await waitFor(() => expect(screen.getByRole('button', { name: '+ Create' })).toBeEnabled());
   });
 
   it('shows the actions on the export row only and deletes after confirmation', async () => {

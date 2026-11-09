@@ -33,8 +33,8 @@ const renderForm = () => {
 };
 
 const open = async () => {
-  fireEvent.click(screen.getByRole('button', { name: 'Add Network Interface' }));
-  await screen.findByText('Create network interface');
+  fireEvent.click(screen.getByRole('button', { name: 'Create network interface' }));
+  await screen.findByRole('dialog', { name: 'Create network interface' });
 };
 const type = (placeholder: string, value: string) =>
   fireEvent.change(screen.getByPlaceholderText(placeholder), { target: { value } });
@@ -111,7 +111,7 @@ describe('network interface CreateForm', () => {
     await waitFor(() => expect(createNetWorkInterface).toHaveBeenCalled());
     await new Promise((r) => setTimeout(r, 20));
     expect(refetch).not.toHaveBeenCalled();
-    expect(screen.getByText('Create network interface')).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: 'Create network interface' })).toBeVisible();
   });
 
   it('cancel closes without creating', async () => {

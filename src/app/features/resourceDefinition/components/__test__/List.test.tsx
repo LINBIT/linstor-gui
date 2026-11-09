@@ -130,7 +130,7 @@ describe('resourceDefinition List', () => {
 
   it('navigates to the create page', async () => {
     await renderList();
-    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+    fireEvent.click(screen.getByRole('button', { name: '+ Create' }));
     expect(navigate).toHaveBeenCalledWith('/storage-configuration/resource-definitions/create');
   });
 

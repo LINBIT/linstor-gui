@@ -51,7 +51,7 @@ const pools = [
 const openForm = async () => {
   const refetch = vi.fn();
   const utils = renderWithClient(<CreateStoragePoolForm refetch={refetch} />);
-  fireEvent.click(screen.getByRole('button', { name: '+ Add' }));
+  fireEvent.click(screen.getByRole('button', { name: '+ Create' }));
   const dialog = await openDialog();
   return { ...utils, dialog, refetch };
 };
@@ -252,7 +252,7 @@ describe('CreateStoragePoolForm', () => {
     fireEvent.click(dialogButton(dialog, 'Cancel'));
     await expectModalClosed();
 
-    fireEvent.click(screen.getAllByRole('button', { name: '+ Add' })[0]);
+    fireEvent.click(screen.getAllByRole('button', { name: '+ Create' })[0]);
     const reopened = await openDialog();
     const again = await waitForMatrix(reopened);
     expect(boxes(again[0])[1]).not.toBeChecked();

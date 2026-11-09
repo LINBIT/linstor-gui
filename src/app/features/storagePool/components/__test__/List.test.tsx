@@ -241,7 +241,7 @@ describe('storage pool List', () => {
     renderList();
     const lvm = (await screen.findByText('pool-lvm')).closest('tr') as HTMLElement;
     expect(within(lvm).getByText('node-1').closest('a')).toHaveAttribute('href', '/hci/inventory/nodes/node-1');
-    expect(screen.getByText('+ Add').closest('a')).toHaveAttribute('href', '/hci/inventory/storage-pools/create');
+    expect(screen.getByText('+ Create').closest('a')).toHaveAttribute('href', '/hci/inventory/storage-pools/create');
     const menu = await openRowMenu('pool-lvm');
     fireEvent.click(within(menu).getByText('Edit'));
     expect(navigate).toHaveBeenCalledWith('/hci/inventory/storage-pools/node-1/pool-lvm/edit');

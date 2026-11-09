@@ -108,7 +108,7 @@ describe('ResourceGroupList', () => {
       mocked.create.mockResolvedValue({} as never);
       await renderList();
 
-      fireEvent.click(screen.getByRole('button', { name: '+ Add' }));
+      fireEvent.click(screen.getByRole('button', { name: '+ Create' }));
       const dialog = await openDialog();
 
       fireEvent.click(dialogButton(dialog, 'Create'));
@@ -128,7 +128,7 @@ describe('ResourceGroupList', () => {
       mocked.create.mockResolvedValue({} as never);
       await renderList();
 
-      fireEvent.click(screen.getByRole('button', { name: '+ Add' }));
+      fireEvent.click(screen.getByRole('button', { name: '+ Create' }));
       const dialog = await openDialog();
 
       fireEvent.change(within(dialog).getByPlaceholderText('Name'), { target: { value: 'rg3' } });
@@ -146,7 +146,7 @@ describe('ResourceGroupList', () => {
       mocked.create.mockRejectedValue(apiError('Name taken', undefined, 'pick another'));
       await renderList();
 
-      fireEvent.click(screen.getByRole('button', { name: '+ Add' }));
+      fireEvent.click(screen.getByRole('button', { name: '+ Create' }));
       const dialog = await openDialog();
       fireEvent.change(within(dialog).getByPlaceholderText('Name'), { target: { value: 'rg1' } });
       fireEvent.click(dialogButton(dialog, 'Create'));

@@ -294,7 +294,7 @@ export const List = () => {
         </Form>
 
         <Button type="primary" onClick={() => navigate('/storage-configuration/resource-definitions/create')}>
-          {t('common:add')}
+          + {t('common:create')}
         </Button>
       </SearchForm>
 

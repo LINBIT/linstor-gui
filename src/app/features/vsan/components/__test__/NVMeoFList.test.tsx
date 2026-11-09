@@ -87,7 +87,7 @@ describe('NVMeoFList', () => {
     await renderList(true);
 
     expect(screen.getByText(/via NVMe-oF/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '+ Add' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '+ Create' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Reload' }));
     await waitFor(() => expect(getNVMeoFTarget).toHaveBeenCalledTimes(2));
   });

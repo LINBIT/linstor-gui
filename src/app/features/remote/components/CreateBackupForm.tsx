@@ -78,7 +78,7 @@ const CreateBackupForm = ({ refetch }: CreateBackupFormProps) => {
     <>
       {contextHolder}
       <Button type="secondary" onClick={() => setModelOpen(true)}>
-        + {t('common:add')}
+        + {t('common:create')}
       </Button>
       <Modal
         title={t('common:create')}

@@ -220,7 +220,7 @@ describe('node List', () => {
       'href',
       '/hci/inventory/nodes/gui01',
     );
-    expect(screen.getByRole('link', { name: /Add/ })).toHaveAttribute('href', '/hci/inventory/nodes/create');
+    expect(screen.getByRole('link', { name: /Create/ })).toHaveAttribute('href', '/hci/inventory/nodes/create');
   });
 
   it('shows the platform column only on a controller new enough to report it', async () => {

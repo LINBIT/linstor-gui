@@ -90,7 +90,7 @@ const CreateSnapshotForm = ({ refetch }: CollectionCreateFormProps) => {
           setOpen(true);
         }}
       >
-        + {t('common:add')}
+        + {t('common:create')}
       </Button>
       <Modal
         open={open}
