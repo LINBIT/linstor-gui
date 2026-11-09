@@ -59,6 +59,8 @@ test('a storage pool is created on a new device, listed and deleted', async ({ p
   await page.getByLabel('Storage Pool Name').fill('e2esp');
   await pick(page, 'Node', 'node01');
   await pick(page, 'Device Path', '/dev/sdb');
+  // Several devices can be picked, so the list stays open.
+  await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Submit' }).click();
   await expect(toast(page, "Successfully created storage pool 'e2esp' on node 'node01'.")).toBeVisible();
   await expect(page).toHaveURL(/#\/inventory\/storage-pools$/);
@@ -68,6 +70,24 @@ test('a storage pool is created on a new device, listed and deleted', async ({ p
   await deleteFromRowMenu(page, 'e2esp', 'node01');
   await expect(toast(page, "Storage pool 'e2esp' on node 'node01' deleted.")).toBeVisible();
   await expect(rowWith(page, 'e2esp', 'node01')).toHaveCount(0);
+});
+
+test('a storage pool is created over two new devices', async ({ page }) => {
+  await page.goto('#/inventory/storage-pools');
+  await page.goto('#/inventory/storage-pools/create');
+  await page.getByLabel('Storage Pool Name').fill('e2etwo');
+  await pick(page, 'Node', 'node03');
+  await pick(page, 'Device Path', '/dev/sdb');
+  await pick(page, 'Device Path', '/dev/sdc');
+  await page.keyboard.press('Escape');
+  const request = page.waitForRequest((r) => r.method() === 'POST' && /\/v1\/physical-storage\/node03$/.test(r.url()));
+  await page.getByRole('button', { name: 'Submit' }).click();
+  // One pool over both devices, not one per device.
+  expect((await request).postDataJSON().device_paths).toEqual(['/dev/sdb', '/dev/sdc']);
+  await expect(toast(page, "Successfully created storage pool 'e2etwo' on node 'node03'.")).toBeVisible();
+  await expect(page).toHaveURL(/#\/inventory\/storage-pools$/);
+  await searchPools(page, 'e2etwo');
+  await expect(rowWith(page, 'e2etwo', 'node03')).toBeVisible();
 });
 
 test('a storage pool is created from an existing volume group on two nodes', async ({ page }) => {
@@ -114,6 +134,7 @@ test('a ZFS storage pool is created on a new device', async ({ page }) => {
   await pick(page, 'Node', 'node02');
   await pick(page, 'Type', 'ZFS');
   await pick(page, 'Device Path', '/dev/sdc');
+  await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Submit' }).click();
   await expect(toast(page, "Successfully created storage pool 'e2ezfs' on node 'node02'.")).toBeVisible();
   await searchPools(page, 'e2ezfs');

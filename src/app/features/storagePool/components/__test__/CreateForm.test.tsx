@@ -143,6 +143,69 @@ describe('storage pool CreateForm', () => {
     await waitFor(() => expect(navigate).toHaveBeenCalledWith(-1));
   });
 
+  it('a pool on a new device can be built from several devices', async () => {
+    renderForm();
+    typeName('pool-two');
+    await pick(nodeSelect(), 'node-1');
+    await waitFor(() => expect(getPhysicalStoragePoolByNode).toHaveBeenCalled());
+    await pick(deviceSelect(), '/dev/sdb');
+    await pick(deviceSelect(), '/dev/sdc');
+    submit();
+
+    await waitFor(() => expect(createPhysicalStorage).toHaveBeenCalledTimes(1));
+    expect(vi.mocked(createPhysicalStorage).mock.calls[0][1]).toMatchObject({
+      device_paths: ['/dev/sdb', '/dev/sdc'],
+    });
+  });
+
+  it('with several nodes, only the devices every one of them has are offered', async () => {
+    const devicesByNode: Record<string, string[]> = {
+      'node-1': ['/dev/sdb', '/dev/sdc'],
+      'node-2': ['/dev/sdc', '/dev/sdd'],
+    };
+    vi.mocked(getPhysicalStoragePoolByNode).mockImplementation(
+      ({ node }) => Promise.resolve({ data: devicesByNode[node].map((device) => ({ device, size: 1 })) }) as never,
+    );
+    renderForm();
+    fireEvent.click(screen.getByRole('switch'));
+    await pick(nodeSelect(), 'node-1');
+    await pick(nodeSelect(), 'node-2');
+    await waitFor(() => expect(getPhysicalStoragePoolByNode).toHaveBeenCalledWith({ node: 'node-2' }));
+
+    fireEvent.mouseDown(deviceSelect());
+    await waitFor(async () => {
+      const devices = await screen.findAllByText(/^\/dev\//, { selector: '.ant-select-item-option-content' });
+      expect(devices.map((d) => d.textContent)).toEqual(['/dev/sdc']);
+    });
+  });
+
+  it('removing every chosen device asks for one again', async () => {
+    renderForm();
+    typeName('pool-none');
+    await pick(nodeSelect(), 'node-1');
+    await waitFor(() => expect(getPhysicalStoragePoolByNode).toHaveBeenCalled());
+    await pick(deviceSelect(), '/dev/sdb');
+    // Clicking a chosen option again takes it out.
+    await pick(deviceSelect(), '/dev/sdb');
+    submit();
+
+    expect(await screen.findByText('Please select device path!')).toBeInTheDocument();
+    expect(createPhysicalStorage).not.toHaveBeenCalled();
+  });
+
+  it('changing the node drops the devices chosen for the previous one', async () => {
+    renderForm();
+    typeName('pool-moved');
+    await pick(nodeSelect(), 'node-1');
+    await waitFor(() => expect(getPhysicalStoragePoolByNode).toHaveBeenCalled());
+    await pick(deviceSelect(), '/dev/sdb');
+    await pick(nodeSelect(), 'node-2');
+    submit();
+
+    expect(await screen.findByText('Please select device path!')).toBeInTheDocument();
+    expect(createPhysicalStorage).not.toHaveBeenCalled();
+  });
+
   it('stays on the page when a physical storage request fails', async () => {
     vi.mocked(createPhysicalStorage).mockRejectedValue(new Error('device busy'));
     renderForm();

@@ -30,9 +30,9 @@ type FormType = {
   create_type: 'new' | 'existing';
   storage_pool_name: string;
   pool_name?: string;
-  node: string;
+  node: string | string[];
   provider_kind: ProviderKind;
-  device_path: string;
+  device_paths?: string[];
   storage_driver_name: string;
   multiple_nodes: boolean;
   sed?: boolean;
@@ -62,10 +62,18 @@ const CreateForm = () => {
     navigate(-1);
   };
 
-  const { data: devicePathOptions } = useQuery({
-    queryKey: ['getPhysicalStoragePoolByNode', node],
-    queryFn: () => getPhysicalStoragePoolByNode({ node: Array.isArray(node) ? node[0] : node }),
-    enabled: !!node && create_type === 'new',
+  const selectedNodes = !node ? [] : Array.isArray(node) ? node : [node];
+
+  // The same device paths are sent to every selected node, so only the
+  // devices all of them have are offered.
+  const { data: devicePaths } = useQuery({
+    queryKey: ['getPhysicalStoragePoolByNode', selectedNodes],
+    queryFn: async () => {
+      const replies = await Promise.all(selectedNodes.map((e) => getPhysicalStoragePoolByNode({ node: e })));
+      const perNode = replies.map((reply) => (reply.data ?? []).flatMap((e) => (e.device ? [e.device] : [])));
+      return perNode[0].filter((device) => perNode.every((paths) => paths.includes(device)));
+    },
+    enabled: selectedNodes.length > 0 && create_type === 'new',
   });
 
   // Both mutations unwrap: a pool the controller refuses rejects, so the
@@ -120,7 +128,7 @@ const CreateForm = () => {
         storage_pool_name,
         pool_name,
         provider_kind,
-        device_path,
+        device_paths,
         sed,
         vdo_enable,
         vdo_slab_size_kib,
@@ -131,7 +139,7 @@ const CreateForm = () => {
         pool_name: pool_name ? pool_name : storage_pool_name,
         provider_kind,
         raid_level: 'JBOD',
-        device_paths: [device_path],
+        device_paths: device_paths ?? [],
         with_storage_pool: {
           name: storage_pool_name,
           external_locking: false,
@@ -195,7 +203,7 @@ const CreateForm = () => {
             form.setFieldsValue({
               storage_pool_name: '',
               pool_name: '',
-              device_path: '',
+              device_paths: undefined,
               storage_driver_name: '',
               sed: false,
               vdo_enable: false,
@@ -263,6 +271,8 @@ const CreateForm = () => {
             value: e.name,
           }))}
           mode={create_type !== 'new' || multiple_nodes ? 'multiple' : undefined}
+          // Devices chosen for other nodes may not exist on these.
+          onChange={() => form.setFieldValue('device_paths', undefined)}
         />
       </Form.Item>
 
@@ -286,17 +296,18 @@ const CreateForm = () => {
         <>
           <Form.Item
             label={t('storage_pool:device_path')}
-            name="device_path"
+            name="device_paths"
             required
             rules={[{ required: true, message: t('storage_pool:device_path_required') }]}
             tooltip={t('storage_pool:device_path_tooltip')}
           >
             <Select
               allowClear
+              mode="multiple"
               placeholder={t('storage_pool:select_path_physical_device')}
-              options={devicePathOptions?.data?.map((e) => ({
-                label: e.device,
-                value: e.device,
+              options={devicePaths?.map((e) => ({
+                label: e,
+                value: e,
               }))}
             />
           </Form.Item>

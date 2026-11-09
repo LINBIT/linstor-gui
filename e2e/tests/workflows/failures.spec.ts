@@ -79,6 +79,7 @@ const FORMS: Form[] = [
       await page.getByLabel('Storage Pool Name').fill('e2efail');
       await pick(page, 'Node', 'node03');
       await pick(page, 'Device Path', '/dev/sdb');
+      await page.keyboard.press('Escape');
     },
   },
   {
@@ -101,6 +102,9 @@ for (const form of FORMS) {
     for (const failure of FAILURES) {
       await test.step(failure.name, async () => {
         await page.goto(form.list);
+        // Two hash changes in a row can leave the last step's form mounted,
+        // with what it chose still in it; wait for it to be gone.
+        await expect(page.getByRole('button', { name: 'Submit' })).toHaveCount(0);
         await page.goto(form.create);
         await form.fill(page);
         let sent = 0;
