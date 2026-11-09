@@ -191,6 +191,33 @@ describe('Navigation', () => {
     expect(document.querySelector('.ant-menu-submenu-open')).toBeNull();
   });
 
+  // Every entry, at the top or inside a group, carries an icon, so the
+  // entries of all groups line up with each other.
+  it.each([
+    ['normal', '/', {}],
+    ['HCI', '/hci/dashboard', { hciModeFromSetting: true }],
+    ['VSAN', '/vsan/dashboard', { vsanModeFromSetting: true }],
+  ] as const)('gives every entry of the %s menu an icon', async (_mode, path, mode) => {
+    renderNav(path, {
+      ...mode,
+      authenticationEnabled: false,
+      grafanaConfig: { baseUrl: 'https://grafana.test' } as never,
+      KVS: { gatewayEnabled: true },
+      gatewayAvailable: true,
+    });
+    await waitForVersion();
+
+    const groups = [...document.querySelectorAll<HTMLElement>('.ant-menu-submenu-title')];
+    groups.forEach((group) => fireEvent.click(group));
+    await waitFor(() =>
+      expect(document.querySelectorAll('.ant-menu-sub .ant-menu-item').length).toBeGreaterThanOrEqual(groups.length),
+    );
+
+    const entries = [...document.querySelectorAll('.ant-menu-item, .ant-menu-submenu-title')];
+    const bare = entries.filter((entry) => !entry.querySelector('.ant-menu-item-icon')).map((e) => e.textContent);
+    expect(bare).toEqual([]);
+  });
+
   it('renders the VSAN menu in VSAN mode', async () => {
     renderNav('/vsan/dashboard', { vsanModeFromSetting: true });
     await waitForVersion();

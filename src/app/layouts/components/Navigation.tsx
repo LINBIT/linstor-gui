@@ -4,22 +4,27 @@ import { Menu, MenuProps } from 'antd';
 import { useTranslation } from 'react-i18next';
 import {
   CloudServerOutlined,
+  ClusterOutlined,
   ContainerOutlined,
+  ControlOutlined,
   DatabaseOutlined,
   DesktopOutlined,
   FieldTimeOutlined,
   FileProtectOutlined,
   FileOutlined,
+  IdcardOutlined,
   InfoCircleOutlined,
   KeyOutlined,
   NodeIndexOutlined,
   PieChartOutlined,
+  ProfileOutlined,
   SafetyOutlined,
   SettingOutlined,
+  ThunderboltOutlined,
   UserOutlined,
   WarningOutlined,
 } from '@ant-design/icons';
-import { LuDatabaseBackup } from 'react-icons/lu';
+import { LuDatabaseBackup, LuLayers } from 'react-icons/lu';
 import { RiDashboard2Line } from 'react-icons/ri';
 import { MdOutlineStorage } from 'react-icons/md';
 import { BsHddRack } from 'react-icons/bs';
@@ -31,6 +36,8 @@ import { GrafanaConfig } from '@app/features/settings/types';
 import { useLinstorVersion, MIN_API_VERSION } from '@app/hooks';
 
 type MenuItem = Required<MenuProps>['items'][number];
+
+const nfsIcon = <SVG src={NFS} width="16" height="16" className="text-(--icon-default)" />;
 
 interface KVSSettings {
   gatewayEnabled?: boolean;
@@ -100,11 +107,7 @@ const Navigation: React.FC<NavigationProps> = ({
         ),
         getItem(<Link to="/vsan/iscsi">iSCSI</Link>, '/vsan/iscsi', <BsHddRack />),
         getItem(<Link to="/vsan/nvmeof">NVMe-oF</Link>, '/vsan/nvmeof', <BsNvme />),
-        getItem(
-          <Link to="/vsan/nfs">NFS</Link>,
-          '/vsan/nfs',
-          <SVG src={NFS} width="16" height="16" className="text-(--icon-default)" />,
-        ),
+        getItem(<Link to="/vsan/nfs">NFS</Link>, '/vsan/nfs', nfsIcon),
         getItem(<Link to="/vsan/error-reports">{t('error_reports')}</Link>, '/vsan/error-reports', <WarningOutlined />),
         getItem(<Link to="/vsan/users">{t('users')}</Link>, '/vsan/users', <UserOutlined />),
         getItem(<Link to="/vsan/about">{t('about')}</Link>, '/vsan/about', <InfoCircleOutlined />),
@@ -113,18 +116,28 @@ const Navigation: React.FC<NavigationProps> = ({
       const hciItems = [
         getItem(<Link to="/hci/dashboard">{t('dashboard')}</Link>, '/hci/dashboard', <PieChartOutlined />),
         getItem(`${t('inventory')}`, '/hci/inventory', <DesktopOutlined />, [
-          getItem(<Link to="/hci/inventory/nodes">{t('node')}</Link>, '/hci/inventory/nodes'),
-          getItem(<Link to="/hci/inventory/controller">{t('controller')}</Link>, '/hci/inventory/controller'),
-          getItem(<Link to="/hci/inventory/storage-pools">{t('storage_pools')}</Link>, '/hci/inventory/storage-pools'),
+          getItem(<Link to="/hci/inventory/nodes">{t('node')}</Link>, '/hci/inventory/nodes', <ClusterOutlined />),
+          getItem(
+            <Link to="/hci/inventory/controller">{t('controller')}</Link>,
+            '/hci/inventory/controller',
+            <ControlOutlined />,
+          ),
+          getItem(
+            <Link to="/hci/inventory/storage-pools">{t('storage_pools')}</Link>,
+            '/hci/inventory/storage-pools',
+            <LuLayers />,
+          ),
         ]),
         getItem(`${t('software_defined')}`, '/hci/storage-configuration', <DatabaseOutlined />, [
           getItem(
             <Link to="/hci/storage-configuration/resource-groups">{t('resource_groups')}</Link>,
             '/hci/storage-configuration/resource-groups',
+            <ContainerOutlined />,
           ),
           getItem(
             <Link to="/hci/storage-configuration/resource-overview">{t('resource_overview')}</Link>,
             '/hci/storage-configuration/resource-overview',
+            <ProfileOutlined />,
           ),
         ]),
         getItem(`${t('backup&dr')}`, '/hci/backup-and-dr', <LuDatabaseBackup />, [
@@ -142,17 +155,17 @@ const Navigation: React.FC<NavigationProps> = ({
       ];
 
       const settingsAndUsers = [
-        getItem(`${t('authentication')}`, '/hci/authentication', <UserOutlined />, [
-          getItem(<Link to="/hci/users">{t('users')}</Link>, '/hci/users'),
+        getItem(`${t('authentication')}`, '/hci/authentication', <KeyOutlined />, [
+          getItem(<Link to="/hci/users">{t('users')}</Link>, '/hci/users', <UserOutlined />),
         ]),
         getItem(<Link to="/hci/settings">{t('settings')}</Link>, '/hci/settings', <SettingOutlined />),
       ];
 
       const gatewayItems = [
         getItem('Gateway', '/hci/gateway', <NodeIndexOutlined />, [
-          getItem(<Link to="/hci/gateway/nfs">NFS</Link>, '/hci/gateway/nfs'),
-          getItem(<Link to="/hci/gateway/iscsi">iSCSI</Link>, '/hci/gateway/iscsi'),
-          getItem(<Link to="/hci/gateway/nvme-of">NVMe-oF</Link>, '/hci/gateway/nvme-of'),
+          getItem(<Link to="/hci/gateway/nfs">NFS</Link>, '/hci/gateway/nfs', nfsIcon),
+          getItem(<Link to="/hci/gateway/iscsi">iSCSI</Link>, '/hci/gateway/iscsi', <BsHddRack />),
+          getItem(<Link to="/hci/gateway/nvme-of">NVMe-oF</Link>, '/hci/gateway/nvme-of', <BsNvme />),
         ]),
       ];
 
@@ -176,18 +189,28 @@ const Navigation: React.FC<NavigationProps> = ({
       const normalItems = [
         getItem(<Link to="/">{t('dashboard')}</Link>, '/', <PieChartOutlined />),
         getItem(`${t('inventory')}`, '/inventory', <DesktopOutlined />, [
-          getItem(<Link to="/inventory/nodes">{t('node')}</Link>, '/inventory/nodes'),
-          getItem(<Link to="/inventory/controller">{t('controller')}</Link>, '/inventory/controller'),
-          getItem(<Link to="/inventory/storage-pools">{t('storage_pools')}</Link>, '/inventory/storage-pools'),
+          getItem(<Link to="/inventory/nodes">{t('node')}</Link>, '/inventory/nodes', <ClusterOutlined />),
+          getItem(
+            <Link to="/inventory/controller">{t('controller')}</Link>,
+            '/inventory/controller',
+            <ControlOutlined />,
+          ),
+          getItem(
+            <Link to="/inventory/storage-pools">{t('storage_pools')}</Link>,
+            '/inventory/storage-pools',
+            <LuLayers />,
+          ),
         ]),
         getItem(`${t('software_defined')}`, '/storage-configuration', <DatabaseOutlined />, [
           getItem(
             <Link to="/storage-configuration/resource-groups">{t('resource_groups')}</Link>,
             '/storage-configuration/resource-groups',
+            <ContainerOutlined />,
           ),
           getItem(
             <Link to="/storage-configuration/resource-overview">{t('resource_overview')}</Link>,
             '/storage-configuration/resource-overview',
+            <ProfileOutlined />,
           ),
         ]),
         getItem(`${t('backup&dr')}`, '/backup-and-dr', <LuDatabaseBackup />, [
@@ -202,8 +225,8 @@ const Navigation: React.FC<NavigationProps> = ({
         ...(haAvailable
           ? [
               getItem(`${t('high_availability')}`, '/high-availability', <SafetyOutlined />, [
-                getItem(<Link to="/reactor">{t('reactor')}</Link>, '/reactor'),
-                getItem(<Link to="/files">{t('files')}</Link>, '/files'),
+                getItem(<Link to="/reactor">{t('reactor')}</Link>, '/reactor', <ThunderboltOutlined />),
+                getItem(<Link to="/files">{t('files')}</Link>, '/files', <FileOutlined />),
               ]),
             ]
           : []),
@@ -213,17 +236,19 @@ const Navigation: React.FC<NavigationProps> = ({
 
       const settingsAndUsers = [
         getItem(`${t('authentication')}`, '/authentication', <KeyOutlined />, [
-          getItem(<Link to="/users">{t('users')}</Link>, '/users'),
-          ...(authTokensAvailable ? [getItem(<Link to="/auth-tokens">{t('auth_tokens')}</Link>, '/auth-tokens')] : []),
+          getItem(<Link to="/users">{t('users')}</Link>, '/users', <UserOutlined />),
+          ...(authTokensAvailable
+            ? [getItem(<Link to="/auth-tokens">{t('auth_tokens')}</Link>, '/auth-tokens', <IdcardOutlined />)]
+            : []),
         ]),
         getItem(<Link to="/settings">{t('settings')}</Link>, '/settings', <SettingOutlined />),
       ];
 
       const gatewayItems = [
         getItem('Gateway', '/gateway', <NodeIndexOutlined />, [
-          getItem(<Link to="/gateway/nfs">NFS</Link>, '/gateway/nfs'),
-          getItem(<Link to="/gateway/iscsi">iSCSI</Link>, '/gateway/iscsi'),
-          getItem(<Link to="/gateway/nvme-of">NVMe-oF</Link>, '/gateway/nvme-of'),
+          getItem(<Link to="/gateway/nfs">NFS</Link>, '/gateway/nfs', nfsIcon),
+          getItem(<Link to="/gateway/iscsi">iSCSI</Link>, '/gateway/iscsi', <BsHddRack />),
+          getItem(<Link to="/gateway/nvme-of">NVMe-oF</Link>, '/gateway/nvme-of', <BsNvme />),
         ]),
       ];
 
