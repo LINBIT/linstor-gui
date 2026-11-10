@@ -2,13 +2,34 @@
 
 # Unreleased
 
+### Added
+
+- Storage pools on several new devices
+- Device size and type in the storage pool form
+- Icons for sidebar entries inside a group
+- Loading skeletons on detail pages, edit forms and the Dashboard
+
 ### Changed
 
 - HA status read every second during evict, stop and start, only from the nodes of that resource
+- Storage pool nodes picked without a Multiple Nodes switch
+- Switches and checkboxes on the same line as their label
+- Create and Submit wording on create buttons and dialogs
+- Delete and Lost in row action menus shown as danger items
+- Update dependencies
 
 ### Fixed
 
 - Spawn, Add Volume Group and schedule Edit open from anywhere on their menu row; a refused volume group keeps its dialog open, and the reply is toasted once
+- Header faulty-resource icon opens the faulty resources list
+- Dashboard showing all resources healthy while loading
+- HA list during evict, stop and start
+- Spawn dialog losing a refused spawn
+- Diskless pool on an existing device refused
+- VSAN Physical Storage blanking the GUI
+- Refused resize, clone, remote or backup reported wrongly
+- Errors of a submit without a controller reply not shown
+- Cluster setup wizard labels and HA guide VIP
 
 # 2.7.0 - 2026-10-28
 
