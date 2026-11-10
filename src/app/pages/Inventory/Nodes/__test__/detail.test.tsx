@@ -411,6 +411,44 @@ describe('NodeDetail', () => {
     expect(tableRows(panel)).toHaveLength(2);
   });
 
+  it('shows skeletons, not "none", while the node and its sections load', () => {
+    const never = () => new Promise(() => undefined) as never;
+    vi.mocked(getNodes).mockReturnValue(never());
+    vi.mocked(getStoragePool).mockReturnValue(never());
+    vi.mocked(getAllResources).mockReturnValue(never());
+    vi.mocked(getNetWorkInterfaceByNode).mockReturnValue(never());
+    const { container } = renderDetailPage();
+
+    const summary = container.querySelector('.ant-card') as HTMLElement;
+    expect(summary.querySelector('.ant-skeleton')).not.toBeNull();
+    expect(within(summary).queryByText('-')).toBeNull();
+
+    for (const [tab, none] of [
+      ['Storage pools', 'No storage pools with storage on this node'],
+      ['Resources', 'No resources on this node'],
+    ]) {
+      const panel = openTab(tab);
+      expect(panel.querySelector('.ant-skeleton')).not.toBeNull();
+      expect(within(panel).queryByText(none)).toBeNull();
+    }
+    const interfacesPanel = openTab('Network interfaces');
+    expect(interfacesPanel.querySelector('.ant-skeleton')).not.toBeNull();
+    // Adding an interface does not wait for the list.
+    expect(screen.getByTestId('create-interface')).toBeInTheDocument();
+  });
+
+  it('fills in each section as its own data arrives', async () => {
+    vi.mocked(getAllResources).mockReturnValue(new Promise(() => undefined) as never);
+    await renderDetail();
+
+    expect(await screen.findByRole('meter', { name: 'Used capacity of pool-a' })).toBeInTheDocument();
+    const resourcesPanel = openTab('Resources');
+    expect(resourcesPanel.querySelector('.ant-skeleton')).not.toBeNull();
+    expect(
+      screen.getByRole('heading', { name: 'gui01' }).closest('.ant-card')?.querySelector('.ant-skeleton'),
+    ).toBeNull();
+  });
+
   it('renders without a node instead of throwing on an empty node list', async () => {
     vi.mocked(getNodes).mockResolvedValue({ data: [] } as never);
     renderDetailPage();

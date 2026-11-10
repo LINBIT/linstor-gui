@@ -53,7 +53,15 @@ describe('ErrorReportDetail', () => {
     vi.mocked(getErrorReportById).mockResolvedValue({ data: [{ text: 'ERROR REPORT 6AB3756C' }] } as never);
     renderDetail('6AB3756C-00000-000000');
     expect(await screen.findByText('ERROR REPORT 6AB3756C')).toBeInTheDocument();
+    expect(document.querySelector('.ant-skeleton')).toBeNull();
     expect(getErrorReportById).toHaveBeenCalledWith('6AB3756C-00000-000000');
+  });
+
+  it('shows a skeleton of the text, and no "not found", while the report loads', () => {
+    vi.mocked(getErrorReportById).mockReturnValue(new Promise(() => undefined) as never);
+    const { container } = renderDetail('6AB3756C-00000-000000');
+    expect(container.querySelector('.ant-skeleton')).not.toBeNull();
+    expect(screen.queryByText(/not_found/)).toBeNull();
   });
 
   it('says the report was not found when the controller returns no report', async () => {

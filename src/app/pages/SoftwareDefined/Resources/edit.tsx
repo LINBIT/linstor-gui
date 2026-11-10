@@ -7,9 +7,10 @@
 import { FunctionComponent } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Empty, Skeleton } from 'antd';
+import { Empty } from 'antd';
 
 import PageBasic from '@app/components/PageBasic';
+import { FormSkeleton } from '@app/components/FormSkeleton';
 import { CreateResourceForm, getResources } from '@app/features/resource';
 import { useTranslation } from 'react-i18next';
 
@@ -31,7 +32,7 @@ const ResourceEdit: FunctionComponent = () => {
   // The form reads its initial values once, so it mounts only after the
   // resource has arrived, and again for another resource or node.
   const content = isPending ? (
-    <Skeleton active />
+    <FormSkeleton fields={2} className="max-w-[600px]" />
   ) : detailData ? (
     <CreateResourceForm
       key={`${node}/${resource}`}

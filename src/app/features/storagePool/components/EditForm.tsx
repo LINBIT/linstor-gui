@@ -11,6 +11,7 @@ import { Form } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
+import { FormSkeleton } from '@app/components/FormSkeleton';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import {
@@ -47,7 +48,7 @@ const EditForm = () => {
     navigate('/inventory/storage-pools');
   };
 
-  const { data: nodePools } = useQuery({
+  const { data: nodePools, isPending: poolsPending } = useQuery({
     queryKey: ['getStoragePoolByNode', node],
     queryFn: () => getStoragePoolByNode(node),
   });
@@ -112,6 +113,11 @@ const EditForm = () => {
       },
     );
   };
+
+  // The form fills in from the pool once it is there; until then its shape.
+  if (poolsPending) {
+    return <FormSkeleton fields={5} className="max-w-[600px]" />;
+  }
 
   return (
     <Form className="max-w-[600px]" size="large" layout="vertical" form={form} onFinish={onFinish}>

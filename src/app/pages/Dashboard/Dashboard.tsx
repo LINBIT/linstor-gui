@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import PageBasic from '@app/components/PageBasic';
-import { StoragePoolInfo } from '@app/components/StoragePoolInfo';
+import { StoragePoolInfo, StoragePoolInfoSkeleton } from '@app/components/StoragePoolInfo';
 import { FaultyList } from '@app/features/resource';
 import { SetupClusterCard, SetupClusterWizard, useClusterEmpty } from '@app/features/clusterSetup';
 
@@ -17,9 +17,14 @@ const Dashboard: React.FunctionComponent = () => {
   const { empty, dismissed, isFetched, dismiss, refetch } = useClusterEmpty();
   const [wizardOpen, setWizardOpen] = useState(false);
 
-  // Don't flash either layout before the node count resolves.
+  // Don't flash either layout before the node count resolves: the overview's
+  // shape, as most clusters have nodes and land on it.
   if (!isFetched) {
-    return <PageBasic title={t('dashboard:title')} />;
+    return (
+      <PageBasic title={t('dashboard:title')}>
+        <StoragePoolInfoSkeleton />
+      </PageBasic>
+    );
   }
 
   const showSetup = empty && !dismissed;

@@ -144,7 +144,7 @@ const renderWithQueryClient = (component: React.ReactElement) => {
   return render(<QueryClientProvider client={queryClient}>{component}</QueryClientProvider>);
 };
 
-// The chart renders (empty) while the pools load; wait for the series.
+// The chart replaces the skeleton once the pools have loaded; wait for the series.
 const loadedChart = () =>
   waitFor(() => {
     const chart = screen.getByTestId('mock-chart');
@@ -171,12 +171,15 @@ describe('StoragePoolInfo', () => {
       expect(screen.getByText('Storage Pool Overview')).toBeInTheDocument();
     });
 
-    it('should show loading spinner when data is loading', () => {
+    it('shows a skeleton as tall as the chart, not the chart, while the pools load', () => {
       mockGetStoragePool.mockImplementation(() => new Promise(() => {})); // Never resolves
 
-      renderWithQueryClient(<StoragePoolInfo />);
+      const { container } = renderWithQueryClient(<StoragePoolInfo />);
 
-      expect(screen.getByTestId('mock-chart')).toBeInTheDocument();
+      expect(screen.queryByTestId('mock-chart')).not.toBeInTheDocument();
+      const skeleton = container.querySelector('.ant-skeleton-node');
+      expect(skeleton).toBeInTheDocument();
+      expect((skeleton as HTMLElement).style.height).toBe('500px');
     });
   });
 
@@ -381,7 +384,7 @@ describe('StoragePoolInfo', () => {
   });
 
   describe('responsive behavior', () => {
-    it('should adjust chart height based on window size', () => {
+    it('should adjust chart height based on window size', async () => {
       // Mock smaller window size
       mockUseWindowSize.mockReturnValue({
         width: 1200,
@@ -392,7 +395,7 @@ describe('StoragePoolInfo', () => {
 
       renderWithQueryClient(<StoragePoolInfo />);
 
-      const chartElement = screen.getByTestId('mock-chart');
+      const chartElement = await screen.findByTestId('mock-chart');
 
       // Should use height 300 when window height <= 900
       expect(chartElement.getAttribute('data-height')).toBe('300');

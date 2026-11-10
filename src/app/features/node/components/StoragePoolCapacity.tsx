@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
-import { Empty } from 'antd';
+import { Empty, Skeleton } from 'antd';
 import { WarningFilled } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
@@ -28,6 +28,8 @@ interface StoragePoolCapacityProps {
   pools: CapacityPool[];
   /** Prefix of the storage pool list route ('' or '/hci'). */
   routePrefix?: string;
+  /** The pools have not arrived yet: show their shape, not "no storage pools". */
+  loading?: boolean;
 }
 
 const percentOf = (used: number, total: number) => (total > 0 ? Math.round((used / total) * 100) : 0);
@@ -87,8 +89,13 @@ const CapacityRow: React.FC<{ label: React.ReactNode; detail?: string; used: num
  * Used of total per storage pool on the node, then all of them together.
  * Diskless pools hold no data and are left out.
  */
-export const StoragePoolCapacity: React.FC<StoragePoolCapacityProps> = ({ node, pools, routePrefix = '' }) => {
+export const StoragePoolCapacity: React.FC<StoragePoolCapacityProps> = ({ node, pools, routePrefix = '', loading }) => {
   const { t } = useTranslation('node_detail');
+
+  if (loading) {
+    // A label line over a meter, twice.
+    return <Skeleton active title={false} paragraph={{ rows: 4, width: ['40%', '100%', '40%', '100%'] }} />;
+  }
   const withStorage = pools.filter((p) => p.provider_kind !== 'DISKLESS' && p.storage_pool_name);
 
   if (withStorage.length === 0) {

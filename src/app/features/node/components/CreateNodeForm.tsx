@@ -13,6 +13,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import Button from '@app/components/Button';
+import { FormSkeleton } from '@app/components/FormSkeleton';
 
 import {
   createNode,
@@ -52,7 +53,7 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
 
   const { node } = useParams() as { node: string };
 
-  const { data: nodeDetail } = useQuery({
+  const { data: nodeDetail, isLoading: nodeLoading } = useQuery({
     queryKey: ['getNodeDetailByName', node],
     queryFn: () => getNodes({ nodes: [node] }),
     enabled: !!node && editing,
@@ -137,6 +138,11 @@ const CreateNodeForm = ({ editing }: CreateNodeFormProps) => {
 
     createNodeMutation.mutate(data as NodeCreateRequestBody);
   };
+
+  // The form fills in from the node once it is there; until then its shape.
+  if (editing && nodeLoading) {
+    return <FormSkeleton fields={4} className="max-w-[500px]" />;
+  }
 
   return (
     <Form<FormType>

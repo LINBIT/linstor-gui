@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
-import { Empty, Table, Tooltip } from 'antd';
+import { Empty, Skeleton, Table, Tooltip } from 'antd';
 import { Tag } from '@app/components/Tag';
 import type { TableProps } from 'antd';
 import { useTranslation } from 'react-i18next';
@@ -18,6 +18,8 @@ interface NodeResourcesProps {
   resources: ResourceDataType[];
   /** Prefix of the resource overview route ('' or '/hci'). */
   routePrefix?: string;
+  /** The resources have not arrived yet: show their shape, not "no resources". */
+  loading?: boolean;
 }
 
 /** A value per volume, once each (a resource's volumes usually share a pool). */
@@ -36,8 +38,12 @@ const Count: React.FC<{ label: string; value: number }> = ({ label, value }) => 
 );
 
 /** The resources deployed on the node: how many and in which role, then each one. */
-export const NodeResources: React.FC<NodeResourcesProps> = ({ resources, routePrefix = '' }) => {
+export const NodeResources: React.FC<NodeResourcesProps> = ({ resources, routePrefix = '', loading }) => {
   const { t } = useTranslation(['node_detail', 'common', 'resource', 'volume']);
+
+  if (loading) {
+    return <Skeleton active title={false} paragraph={{ rows: 5, width: ['50%', '100%', '100%', '100%', '100%'] }} />;
+  }
 
   if (resources.length === 0) {
     return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('node_detail:no_resources')} />;

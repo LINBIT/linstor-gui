@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
+import { Skeleton } from 'antd';
 import { Tag } from '@app/components/Tag';
 import { Button } from '@app/components/Button';
 import { CreateNetWorkInterfaceRequestBody, NetWorkInterface } from '@app/features/ip';
@@ -17,11 +18,22 @@ interface Props {
   list: NetWorkInterface[];
   handleDeleteNetWorkInterface: (netinterface: string) => void;
   handleSetActiveNetWorkInterface: (data: CreateNetWorkInterfaceRequestBody) => void;
+  /** The interfaces have not arrived yet. */
+  loading?: boolean;
 }
 
-const NetInterfaceList: React.FC<Props> = ({ list, handleDeleteNetWorkInterface, handleSetActiveNetWorkInterface }) => {
+const NetInterfaceList: React.FC<Props> = ({
+  list,
+  handleDeleteNetWorkInterface,
+  handleSetActiveNetWorkInterface,
+  loading,
+}) => {
   const hasSingleNetworkInterface = Array.isArray(list) && list.length === 1;
   const { t } = useTranslation(['common', 'node_detail']);
+
+  if (loading) {
+    return <Skeleton active title={false} paragraph={{ rows: 2, width: ['30%', '45%'] }} />;
+  }
 
   return (
     <ItemList

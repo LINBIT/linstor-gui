@@ -24,6 +24,7 @@ vi.mock('@app/components/PageBasic', () => ({
 
 vi.mock('@app/components/StoragePoolInfo', () => ({
   StoragePoolInfo: () => <div data-testid="storage-pool-info">SP</div>,
+  StoragePoolInfoSkeleton: () => <div data-testid="storage-pool-info-skeleton" />,
 }));
 vi.mock('@app/features/resource', () => ({
   FaultyList: () => <div data-testid="faulty-list">FL</div>,
@@ -47,6 +48,14 @@ describe('Dashboard', () => {
   beforeEach(() => {
     window.localStorage.clear();
     mockGetNodes.mockReset();
+  });
+
+  it('shows the overview skeleton, and neither layout, until the node count is known', () => {
+    mockGetNodes.mockImplementation(() => new Promise(() => {}));
+    renderDashboard();
+    expect(screen.getByTestId('storage-pool-info-skeleton')).toBeInTheDocument();
+    expect(screen.queryByTestId('storage-pool-info')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Welcome — let's set up your LINSTOR cluster/i)).not.toBeInTheDocument();
   });
 
   it('shows only SetupClusterCard when nodes list is empty', async () => {

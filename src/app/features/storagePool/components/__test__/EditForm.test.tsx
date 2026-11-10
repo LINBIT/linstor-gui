@@ -72,6 +72,13 @@ describe('storage pool EditForm', () => {
     vi.mocked(updateStoragePool).mockResolvedValue({ data: [{ ret_code: 1 }] } as never);
   });
 
+  it('shows the shape of the form, not an empty one, while the pool loads', () => {
+    vi.mocked(getStoragePoolByNode).mockReturnValue(new Promise(() => undefined) as never);
+    renderForm();
+    expect(document.querySelector('[aria-busy="true"] .ant-skeleton')).not.toBeNull();
+    expect(screen.queryByPlaceholderText('Please input storage pool name')).toBeNull();
+  });
+
   it('loads the pool from its node and locks everything but the network', async () => {
     renderForm();
     const name = await screen.findByPlaceholderText('Please input storage pool name');
@@ -117,8 +124,7 @@ describe('storage pool EditForm', () => {
 
   it('cancel refreshes the list query and goes back', async () => {
     const refetch = renderForm();
-    await waitFor(() => expect(getStoragePoolByNode).toHaveBeenCalled());
-    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Cancel' }));
     expect(refetch).toHaveBeenCalledWith({ queryKey: ['getStoragePool'] });
     expect(navigate).toHaveBeenCalledWith('/inventory/storage-pools');
     expect(updateStoragePool).not.toHaveBeenCalled();

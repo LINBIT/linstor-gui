@@ -215,37 +215,15 @@ describe('FaultyList', () => {
   });
 
   describe('Loading State', () => {
-    it('should show loading state in table', () => {
-      mockQuery({
-        data: [],
-        isLoading: true,
-        error: null,
-      } as any);
+    // isLoading is the first load only: no data yet.
+    it('shows a skeleton, not "all healthy", until the resources are known', () => {
+      mockQuery({ data: undefined, isLoading: true });
 
-      renderWithProviders(<FaultyList />);
+      const { container } = renderWithProviders(<FaultyList />);
 
-      expect(screen.getByText('All resources are healthy')).toBeInTheDocument();
-    });
-
-    it('should show loading when data is present but loading', () => {
-      const mockFaultyResources = [
-        {
-          name: 'test-resource',
-          node_name: 'test-node',
-          create_timestamp: '2024-01-01T00:00:00Z',
-          state: { in_use: false },
-          layer_object: { drbd: { connections: {} } },
-        },
-      ];
-
-      mockQuery({
-        data: mockFaultyResources,
-        isLoading: true,
-      });
-
-      renderWithProviders(<FaultyList />);
-
-      expect(screen.getByRole('table')).toBeInTheDocument();
+      expect(container.querySelector('.ant-skeleton')).not.toBeNull();
+      expect(screen.queryByText('All resources are healthy')).toBeNull();
+      expect(screen.queryByRole('table')).toBeNull();
     });
   });
 

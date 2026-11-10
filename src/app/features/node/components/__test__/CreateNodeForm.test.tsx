@@ -160,6 +160,22 @@ describe('CreateNodeForm', () => {
     expect(createNode).not.toHaveBeenCalled();
   });
 
+  it('shows the shape of the form, not an empty one, while the node under edit loads', () => {
+    hoisted.params.node = 'gui01';
+    vi.mocked(getNodes).mockReturnValue(new Promise(() => undefined) as never);
+    const { container } = renderForm(true);
+
+    expect(container.querySelector('[aria-busy="true"] .ant-skeleton')).not.toBeNull();
+    expect(screen.queryByRole('textbox')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Submit' })).toBeNull();
+  });
+
+  it('opens a new node form at once, without waiting on anything', () => {
+    renderForm();
+    expect(screen.getByRole('button', { name: 'Submit' })).toBeInTheDocument();
+    expect(getNodes).not.toHaveBeenCalled();
+  });
+
   it('loads the node under edit and locks its name', async () => {
     hoisted.params.node = 'gui01';
     renderForm(true);

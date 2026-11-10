@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
-import { Spin } from 'antd';
+import { Skeleton } from 'antd';
 import Chart from '@app/components/Chart';
 import './index.css';
 import { useWindowSize, useThemeMode } from '@app/hooks';
@@ -18,6 +18,22 @@ import { useSeriesHighlight } from './useSeriesHighlight';
 import { OverviewHeader } from './OverviewHeader';
 import { NodeTooltip } from './NodeTooltip';
 import { ChartLegend } from './ChartLegend';
+
+/** The chart's place while the pools load: as tall as the chart, so nothing below it moves. */
+const ChartSkeleton: React.FC<{ height: number }> = ({ height }) => (
+  <Skeleton.Node active className="!block" style={{ width: '100%', height }} />
+);
+
+/** The whole overview card before anything is known, not even whether there are pools to chart. */
+export const StoragePoolInfoSkeleton: React.FC = () => {
+  const { height } = useWindowSize();
+  return (
+    <div className="border-2 border-[color:var(--border-subtle)] rounded px-[34px] py-[30px]">
+      <Skeleton active title={{ width: 280 }} paragraph={false} className="mb-4" />
+      <ChartSkeleton height={height > 900 ? 500 : 300} />
+    </div>
+  );
+};
 
 export const StoragePoolInfo: React.FC = () => {
   const { mode } = useThemeMode();
@@ -71,7 +87,9 @@ export const StoragePoolInfo: React.FC = () => {
   return (
     <div className="border-2 border-[color:var(--border-subtle)] rounded px-[34px] py-[30px]">
       <OverviewHeader nodeCount={nodeCount} totalNodeCount={chartData.totalNodeCount} />
-      <Spin spinning={isPending}>
+      {isPending ? (
+        <ChartSkeleton height={chartHeight} />
+      ) : (
         <div
           className={`storage-pool-chart relative ${nodeCount >= 5 ? 'overflow-x-auto' : 'overflow-x-visible'}${
             isBottomLegendHover ? ' is-legend-hovering' : ''
@@ -124,7 +142,7 @@ export const StoragePoolInfo: React.FC = () => {
             }}
           />
         </div>
-      </Spin>
+      )}
     </div>
   );
 };

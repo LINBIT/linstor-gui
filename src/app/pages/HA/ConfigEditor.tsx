@@ -8,7 +8,7 @@ import { useState, useEffect, useRef } from 'react';
 import { logger } from '@app/utils/logger';
 import { useTranslation } from 'react-i18next';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { Typography, Spin, Card, Modal, message } from 'antd';
+import { Typography, Skeleton, Spin, Card, Modal, message } from 'antd';
 
 import PageBasic from '@app/components/PageBasic';
 import { Button } from '@app/components/Button';
@@ -128,7 +128,10 @@ const ConfigEditor = () => {
     );
   }
 
-  const isLoading = (!isCreate && (haLoading || contentLoading || !loaded)) || isCreating || isDeploying;
+  // Reading the config shows the editor's shape; saving it keeps the spinner,
+  // as nothing new is coming to fill that shape.
+  const isReading = !isCreate && (haLoading || contentLoading || !loaded);
+  const isSaving = isCreating || isDeploying;
 
   return (
     <PageBasic
@@ -140,7 +143,11 @@ const ConfigEditor = () => {
         className="flex flex-col h-[calc(100vh-160px)]"
         styles={{ body: { flex: 1, overflow: 'hidden', padding: 0 } }}
       >
-        {isLoading ? (
+        {isReading ? (
+          <div className="p-6">
+            <Skeleton active paragraph={{ rows: 10 }} />
+          </div>
+        ) : isSaving ? (
           <div className="flex justify-center items-center h-full">
             <Spin description={t('common:loading')} />
           </div>

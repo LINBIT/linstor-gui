@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { Table } from 'antd';
+import { Skeleton, Table } from 'antd';
 import type { TableProps } from 'antd';
 import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
@@ -122,12 +122,14 @@ export const FaultyList = () => {
   return (
     <div className="border-2 border-[color:var(--border-subtle)] rounded px-[34px] py-[30px] mt-[20px]">
       <h2 className="m-0 mb-4 text-[26px] font-semibold">{t('common:faulty_resource')}</h2>
-      {resources?.length ? (
+      {/* "All healthy" only once the resources are known to be. */}
+      {isLoading ? (
+        <Skeleton active title={false} paragraph={{ rows: 3 }} />
+      ) : resources?.length ? (
         <Table<ResourceDataType>
           columns={columns}
           dataSource={(resources as ResourceDataType[]) ?? []}
           pagination={false}
-          loading={isLoading}
           rowKey={(item) => item?.uuid || generateUUID()}
         />
       ) : (

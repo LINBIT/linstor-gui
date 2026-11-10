@@ -101,6 +101,15 @@ describe('resource group CreateForm', () => {
     }
   });
 
+  it('shows the shape of the two-column form while the group under edit loads', () => {
+    vi.mocked(getResourceGroups).mockReturnValue(new Promise(() => undefined) as never);
+    const { container } = renderForm({ isEdit: true, resourceGroup: 'rg-edit' });
+    const skeleton = container.querySelector('[aria-busy="true"]');
+    expect(skeleton?.querySelector('.lg\\:grid-cols-2')).not.toBeNull();
+    expect(container.querySelector('.ant-spin')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Submit' })).toBeNull();
+  });
+
   it('refuses to submit without a name', async () => {
     renderForm();
     submit();

@@ -7,10 +7,11 @@
 import { useState, useEffect, useMemo } from 'react';
 import { logger } from '@app/utils/logger';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Col, Divider, Form, message, Popover, Row, Spin } from 'antd';
+import { Col, Divider, Form, message, Popover, Row } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
+import { FormSkeleton } from '@app/components/FormSkeleton';
 import type { FormInstance } from 'antd/es/form';
 import { useNavigate } from 'react-router-dom';
 import { isEqual, uniqBy } from 'lodash';
@@ -297,7 +298,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
   const drbdLayer = layer_stack?.includes('drbd');
 
   if (isEdit && isPending) {
-    return <Spin />;
+    return <FormSkeleton fields={8} columns={2} className="max-w-[1200px]" />;
   }
 
   return (

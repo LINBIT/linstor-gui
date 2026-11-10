@@ -5,7 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
-import { Card, Descriptions, Popover } from 'antd';
+import { Card, Descriptions, Popover, Skeleton } from 'antd';
 import { Tag } from '@app/components/Tag';
 import type { DescriptionsProps } from 'antd';
 import { useTranslation } from 'react-i18next';
@@ -21,6 +21,8 @@ interface NodeSummaryProps {
   showPlatform: boolean;
   /** The node runs the active controller. */
   activeController?: boolean;
+  /** The node has not arrived yet: a skeleton stands in for the name and fields. */
+  loading?: boolean;
 }
 
 /**
@@ -68,8 +70,17 @@ const Capabilities: React.FC<{ label: string; supported?: string[]; unsupported?
 };
 
 /** The node at a glance: name and state first, then where it runs and what it can do. */
-export const NodeSummary: React.FC<NodeSummaryProps> = ({ node, showPlatform, activeController }) => {
+export const NodeSummary: React.FC<NodeSummaryProps> = ({ node, showPlatform, activeController, loading }) => {
   const { t } = useTranslation(['node_detail', 'common']);
+
+  if (loading && !node) {
+    return (
+      <Card size="small">
+        <Skeleton active title={{ width: 200 }} paragraph={{ rows: 3, width: ['90%', '60%', '50%'] }} />
+      </Card>
+    );
+  }
+
   const online = node?.connection_status === 'ONLINE' || node?.connection_status === 'CONNECTED';
   const active = node?.net_interfaces?.find((ni) => ni.is_active) ?? node?.net_interfaces?.[0];
 

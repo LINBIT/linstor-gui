@@ -6,10 +6,11 @@
 
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Empty, Skeleton } from 'antd';
+import { Empty } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 import PageBasic from '@app/components/PageBasic';
+import { FormSkeleton } from '@app/components/FormSkeleton';
 import { CreateForm as ResourceDefinitionForm, getResourceDefinition } from '@app/features/resourceDefinition';
 
 const Edit = () => {
@@ -27,7 +28,7 @@ const Edit = () => {
   // The form reads its initial values once, so it mounts only after the
   // definition has arrived.
   const content = isPending ? (
-    <Skeleton active />
+    <FormSkeleton fields={3} className="max-w-[600px]" />
   ) : definition ? (
     <ResourceDefinitionForm
       isEdit

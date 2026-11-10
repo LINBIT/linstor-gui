@@ -43,11 +43,15 @@ const NodeDetail: React.FC = () => {
   // string whenever the page changes, right after this page has rendered.
   const [requestedTab, setRequestedTab] = useState(() => searchParams.get('tab'));
 
-  const { data: nodeInfo } = useNodes({
+  const { data: nodeInfo, isPending: nodePending } = useNodes({
     nodes: [node],
   });
 
-  const { data: nodeInterfaceInfo, refetch } = useQuery({
+  const {
+    data: nodeInterfaceInfo,
+    isPending: interfacesPending,
+    refetch,
+  } = useQuery({
     queryKey: ['getNetworkByNode', node],
     queryFn: () => getNetWorkInterfaceByNode(node),
   });
@@ -120,12 +124,25 @@ const NodeDetail: React.FC = () => {
     {
       key: 'storage-pools',
       label: t('storage_pools'),
-      children: <StoragePoolCapacity node={node} pools={nodeStoragePoolInfo?.data ?? []} routePrefix={routePrefix} />,
+      children: (
+        <StoragePoolCapacity
+          node={node}
+          pools={nodeStoragePoolInfo?.data ?? []}
+          routePrefix={routePrefix}
+          loading={nodeStoragePoolInfo.isPending}
+        />
+      ),
     },
     {
       key: 'resources',
       label: t('resources'),
-      children: <NodeResources resources={resourceInfo?.data ?? []} routePrefix={routePrefix} />,
+      children: (
+        <NodeResources
+          resources={resourceInfo?.data ?? []}
+          routePrefix={routePrefix}
+          loading={resourceInfo.isPending}
+        />
+      ),
     },
     {
       key: 'network-interfaces',
@@ -134,6 +151,7 @@ const NodeDetail: React.FC = () => {
         <>
           <NetInterfaceList
             list={nodeInterfaceInfo?.data || []}
+            loading={interfacesPending}
             handleDeleteNetWorkInterface={handleDeleteNetWorkInterface}
             handleSetActiveNetWorkInterface={handleUpdateNetWorkInterface}
           />
@@ -171,6 +189,7 @@ const NodeDetail: React.FC = () => {
       <Space orientation="vertical" size="middle" className="flex">
         <NodeSummary
           node={nodeData}
+          loading={nodePending}
           showPlatform={!!platformAvailable}
           activeController={!!nodeData?.name && nodeData.name === activeController}
         />
