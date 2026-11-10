@@ -5,11 +5,12 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Link } from 'react-router-dom';
 import { FaultyList } from '../FaultyList';
+import { focusFaultyState } from '../../faultyFocus';
 
 // Mock the translation hook
 const mockT = vi.fn((key: string) => {
@@ -437,6 +438,52 @@ describe('FaultyList', () => {
 
       expect(mockT).toHaveBeenCalledWith('common:faulty_resource');
       expect(mockT).toHaveBeenCalledWith('common:all_resources_are_healthy');
+    });
+  });
+  describe('Opened from the header icon', () => {
+    const scrollIntoView = vi.fn();
+    beforeEach(() => {
+      Element.prototype.scrollIntoView = scrollIntoView;
+    });
+    afterEach(() => {
+      delete (Element.prototype as Partial<Element>).scrollIntoView;
+    });
+
+    const renderAt = (state?: unknown) =>
+      render(
+        <MemoryRouter initialEntries={[{ pathname: '/', state }]}>
+          <Link to="/" state={focusFaultyState}>
+            header icon
+          </Link>
+          <FaultyList />
+        </MemoryRouter>,
+      );
+
+    it('scrolls the list into view once it has loaded, not while it is a skeleton', () => {
+      mockQuery({ data: undefined, isLoading: true });
+      const { rerender } = renderAt(focusFaultyState);
+      expect(scrollIntoView).not.toHaveBeenCalled();
+
+      mockQuery({ data: [{ name: 'r1', node_name: 'n1', uuid: 'u1' }], isLoading: false });
+      rerender(
+        <MemoryRouter initialEntries={[{ pathname: '/', state: focusFaultyState }]}>
+          <FaultyList />
+        </MemoryRouter>,
+      );
+      expect(scrollIntoView).toHaveBeenCalledTimes(1);
+      expect(scrollIntoView).toHaveBeenCalledWith(expect.objectContaining({ block: 'start' }));
+      expect(screen.getByRole('region', { name: 'Faulty Resources' })).toBeInTheDocument();
+    });
+
+    it('scrolls to it again on every click, also when the dashboard is already open', () => {
+      mockQuery({ data: [], isLoading: false });
+      renderAt();
+      expect(scrollIntoView).not.toHaveBeenCalled();
+
+      fireEvent.click(screen.getByText('header icon'));
+      expect(scrollIntoView).toHaveBeenCalledTimes(1);
+      fireEvent.click(screen.getByText('header icon'));
+      expect(scrollIntoView).toHaveBeenCalledTimes(2);
     });
   });
 });

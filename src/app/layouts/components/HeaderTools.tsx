@@ -18,6 +18,7 @@ import { Mode } from '@app/hooks/useUIModeStorage';
 import { DEFAULT_ADMIN_USER_NAME } from '@app/const/settings';
 import { getControllerVersion } from '@app/features/node/api';
 import { useFaultyResources } from '@app/features/resource/hooks/useFaultyResources';
+import { focusFaultyState } from '@app/features/resource/faultyFocus';
 import { compareVersions } from '@app/utils/version';
 
 import LogSidebar from './LogSidebar';
@@ -65,6 +66,8 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
 
   const { data: faultyResources } = useFaultyResources();
   const hasFaultyResources = faultyResources && faultyResources.length > 0;
+  // The dashboard of this mode that lists them; VSAN's has no such list.
+  const faultyListPath = vsanModeFromSetting ? null : hciModeFromSetting ? '/hci/dashboard' : '/';
 
   const { data: linstorVersion, isFetched } = useQuery({
     queryKey: ['linstorVersion'],
@@ -184,9 +187,20 @@ const HeaderTools: React.FC<HeaderToolsProps> = ({
           <div className="flex items-center">
             {hasFaultyResources && (
               <Tooltip title={t('common:has_faulty_resources')}>
-                <Link to="/" aria-label={t('common:has_faulty_resources')} className="flex items-center">
-                  <FaultyResourceIcon />
-                </Link>
+                {faultyListPath ? (
+                  <Link
+                    to={faultyListPath}
+                    state={focusFaultyState}
+                    aria-label={t('common:has_faulty_resources')}
+                    className="flex items-center"
+                  >
+                    <FaultyResourceIcon />
+                  </Link>
+                ) : (
+                  <span role="img" aria-label={t('common:has_faulty_resources')} className="flex items-center">
+                    <FaultyResourceIcon />
+                  </span>
+                )}
               </Tooltip>
             )}
           </div>

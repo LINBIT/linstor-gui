@@ -4,6 +4,8 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
+import { useEffect, useId, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Skeleton, Table } from 'antd';
 import type { TableProps } from 'antd';
 import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
@@ -14,12 +16,23 @@ import { generateUUID } from '@app/utils/stringUtils';
 import { ResourceDataType } from '../types';
 import { getResourceState, Resource, getFaultyVolumeNumbers } from '@app/utils/resource';
 import { useFaultyResources } from '../hooks/useFaultyResources';
+import { isFocusFaulty } from '../faultyFocus';
 import { Link } from '@app/components/Link';
 
 export const FaultyList = () => {
   const { t } = useTranslation(['common', 'resource']);
 
   const { data: resources, isLoading } = useFaultyResources();
+
+  // The header's faulty-resource icon sends you here: scroll the list into view
+  // once it has its height, and again on every click (each one is a new location).
+  const location = useLocation();
+  const focused = isFocusFaulty(location.state);
+  const sectionRef = useRef<HTMLElement>(null);
+  const titleId = useId();
+  useEffect(() => {
+    if (focused && !isLoading) sectionRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
+  }, [focused, isLoading, location.key]);
 
   const handleConnectStatusDisplay = (resourceItem: ResourceDataType) => {
     let failStr = '';
@@ -120,8 +133,15 @@ export const FaultyList = () => {
   ];
 
   return (
-    <div className="border-2 border-[color:var(--border-subtle)] rounded px-[34px] py-[30px] mt-[20px]">
-      <h2 className="m-0 mb-4 text-[26px] font-semibold">{t('common:faulty_resource')}</h2>
+    <section
+      ref={sectionRef}
+      aria-labelledby={titleId}
+      // Clear of the sticky 72px header, with the page's own 24px gap above it.
+      className="border-2 border-[color:var(--border-subtle)] rounded px-[34px] py-[30px] mt-[20px] scroll-mt-[96px]"
+    >
+      <h2 id={titleId} className="m-0 mb-4 text-[26px] font-semibold">
+        {t('common:faulty_resource')}
+      </h2>
       {/* "All healthy" only once the resources are known to be. */}
       {isLoading ? (
         <Skeleton active title={false} paragraph={{ rows: 3 }} />
@@ -135,6 +155,6 @@ export const FaultyList = () => {
       ) : (
         <div className="mt-[20px] text-[var(--text-muted)]">{t('common:all_resources_are_healthy')}</div>
       )}
-    </div>
+    </section>
   );
 };

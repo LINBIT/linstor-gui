@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import HeaderTools from '../HeaderTools';
@@ -16,6 +16,7 @@ import { DEFAULT_ADMIN_USER_NAME } from '@app/const/settings';
 import type { SettingsContextValue } from '@app/features/settings/useSettings';
 import type { AuthContextValue } from '@app/features/authentication/useAuth';
 import { makeAuth, makeSettings } from '@app/__test__/helpers';
+import { isFocusFaulty } from '@app/features/resource/faultyFocus';
 
 const hoisted = vi.hoisted(() => ({
   faulty: [] as unknown[],
@@ -59,6 +60,14 @@ const mockedPassphrase = vi.mocked(getPassphraseStatus);
 
 type Props = React.ComponentProps<typeof HeaderTools>;
 
+/** Where the header's links have taken the router, and whether they asked for the faulty list. */
+const LocationProbe = () => {
+  const location = useLocation();
+  return (
+    <output data-testid="location">{`${location.pathname}${isFocusFaulty(location.state) ? ' faulty' : ''}`}</output>
+  );
+};
+
 const renderTools = (props: Partial<Props> = {}) => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
@@ -67,7 +76,8 @@ const renderTools = (props: Partial<Props> = {}) => {
   const handleSupportClick = vi.fn();
   const utils = render(
     <QueryClientProvider client={client}>
-      <MemoryRouter>
+      <MemoryRouter initialEntries={['/inventory/nodes']}>
+        <LocationProbe />
         <HeaderTools
           authInfo={{ username: 'bob' }}
           authenticationEnabled
@@ -161,7 +171,7 @@ describe('HeaderTools', () => {
     );
   });
 
-  it('links to the dashboard when there are faulty resources', async () => {
+  it('takes you to the faulty resources on the dashboard when there are some', async () => {
     hoisted.faulty = [{ name: 'r1' }];
     renderTools();
     await waitForVersion();
@@ -170,6 +180,36 @@ describe('HeaderTools', () => {
     expect(link).toHaveAttribute('href', '/');
     fireEvent.mouseEnter(link);
     expect(await screen.findByRole('tooltip')).toHaveTextContent('Has faulty resources');
+
+    fireEvent.click(link);
+    expect(screen.getByTestId('location')).toHaveTextContent('/ faulty');
+  });
+
+  it('takes you to the HCI dashboard in HCI mode', async () => {
+    hoisted.faulty = [{ name: 'r1' }];
+    renderTools({ hciModeFromSetting: true });
+    await waitForVersion();
+
+    const link = screen.getByRole('link', { name: 'Has faulty resources' });
+    expect(link).toHaveAttribute('href', '/hci/dashboard');
+    fireEvent.click(link);
+    expect(screen.getByTestId('location')).toHaveTextContent('/hci/dashboard faulty');
+  });
+
+  it('only warns in VSAN mode, whose dashboard has no list of faulty resources', async () => {
+    hoisted.faulty = [{ name: 'r1' }];
+    renderTools({ vsanModeFromSetting: true });
+    await waitForVersion();
+
+    expect(screen.getByRole('img', { name: 'Has faulty resources' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Has faulty resources' })).toBeNull();
+  });
+
+  it('shows no faulty-resource icon when every resource is healthy', async () => {
+    renderTools();
+    await waitForVersion();
+
+    expect(screen.queryByLabelText('Has faulty resources')).toBeNull();
   });
 
   it('lists the user, change password and logout in the user menu', async () => {
