@@ -6,6 +6,10 @@
 
 - HA status read every second during evict, stop and start, only from the nodes of that resource
 
+### Fixed
+
+- Spawn, Add Volume Group and schedule Edit open from anywhere on their menu row; a refused volume group keeps its dialog open, and the reply is toasted once
+
 # 2.7.0 - 2026-10-28
 
 ### Added

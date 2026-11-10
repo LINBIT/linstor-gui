@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { useState } from 'react';
+import { useState, type ComponentProps } from 'react';
 import { Form, Space, Table, Dropdown } from 'antd';
 import { Input } from '@app/components/Input';
 import type { TableProps } from 'antd';
@@ -22,6 +22,12 @@ import { ActionColumnTitle } from '@app/components/ActionColumnTitle';
 export const List = () => {
   const [form] = Form.useForm();
   const [searchName, setSearchName] = useState<string>('');
+  // The schedule whose Edit dialog is up. The menu entry opens it, so the whole
+  // menu row is the click target; the dialog lives here, out of the menu.
+  const [editing, setEditing] = useState<{
+    schedule: NonNullable<ComponentProps<typeof ScheduleModal>['schedule']>;
+    open: boolean;
+  }>();
   const { t } = useTranslation(['remote', 'common']);
 
   const {
@@ -107,7 +113,8 @@ export const List = () => {
                 items: [
                   {
                     key: 'edit',
-                    label: <ScheduleModal refetch={refetch} schedule={record} isInDropdown={true} />,
+                    label: t('common:edit'),
+                    onClick: () => setEditing({ schedule: record, open: true }),
                   },
                   {
                     key: 'delete',
@@ -160,6 +167,16 @@ export const List = () => {
         loading={isPending}
         rowClassName={(record) => (del.isDeleting(record.schedule_name) ? deletingRowClass : '')}
       />
+
+      {editing && (
+        <ScheduleModal
+          key={editing.schedule.schedule_name}
+          refetch={refetch}
+          schedule={editing.schedule}
+          open={editing.open}
+          onOpenChange={(open) => setEditing((current) => current && { ...current, open })}
+        />
+      )}
     </>
   );
 };

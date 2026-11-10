@@ -181,8 +181,6 @@ const en = {
     partial: 'Partial',
     spawn_partial: 'Partial (spawn fewer volumes than volume groups)',
     add_volume_group: 'Add Volume Group',
-    add_volume_group_success: 'Volume group added',
-    add_volume_group_failed: 'Failed to add volume group',
     volume_number: 'Volume Number',
     volume_number_hint: 'Leave blank to auto-assign the next volume number.',
     auto: 'Auto',

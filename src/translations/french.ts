@@ -144,8 +144,6 @@ const fr = {
     partial: 'Partiel',
     spawn_partial: 'Partiel (créer moins de volumes que de groupes de volumes)',
     add_volume_group: 'Ajouter un groupe de volumes',
-    add_volume_group_success: 'Groupe de volumes ajouté',
-    add_volume_group_failed: "Échec de l'ajout du groupe de volumes",
     volume_number_hint: 'Laissez vide pour attribuer automatiquement le numéro de volume suivant.',
     definition_only: 'Définition uniquement',
     definition_only_hint:

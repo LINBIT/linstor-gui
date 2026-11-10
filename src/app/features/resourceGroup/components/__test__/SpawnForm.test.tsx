@@ -57,10 +57,9 @@ describe('SpawnForm', () => {
     vi.mocked(getResourceGroupVolumeGroups).mockResolvedValue({ data: [{ volume_number: 0 }] } as never);
   });
 
-  it('renders as a plain text entry inside a dropdown', () => {
-    renderSpawn({ resource_group: 'rg-a', isInDropdown: true });
+  it('renders no Spawn button when its caller opens it', () => {
+    renderSpawn({ resource_group: 'rg-a', open: false, onOpenChange: vi.fn() });
     expect(screen.queryByRole('button', { name: 'Spawn' })).not.toBeInTheDocument();
-    expect(screen.getByText('Spawn')).toBeInTheDocument();
   });
 
   it('keeps the spawn button disabled until name and size are filled', async () => {
@@ -252,14 +251,32 @@ describe('SpawnForm', () => {
     expect(spawnResourceGroup).not.toHaveBeenCalled();
   });
 
-  it('opens from its dropdown entry and closes from the dialog corner', async () => {
-    renderSpawn({ resource_group: 'rg-a', isInDropdown: true });
+  it('opened by its caller, the dialog corner asks the caller to close it', async () => {
+    const onOpenChange = vi.fn();
+    renderSpawn({ resource_group: 'rg-a', open: true, onOpenChange });
 
-    fireEvent.click(screen.getByText('Spawn'));
     await screen.findByPlaceholderText('Please input resource name');
     fireEvent.click(screen.getByRole('button', { name: 'Close' }));
 
-    await expectModalClosed();
+    expect(onOpenChange).toHaveBeenCalledWith(false);
     expect(spawnResourceGroup).not.toHaveBeenCalled();
+  });
+
+  it('opened by its caller, a spawn that went through asks the caller to close it', async () => {
+    const onOpenChange = vi.fn();
+    renderSpawn({ resource_group: 'rg-a', open: true, onOpenChange });
+
+    fireEvent.change(await screen.findByPlaceholderText('Please input resource name'), {
+      target: { value: 'res-1' },
+    });
+    fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '1' } });
+    await waitFor(() => expect(footerSpawn()).toBeEnabled());
+    fireEvent.click(footerSpawn());
+
+    await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
+    expect(spawnResourceGroup).toHaveBeenCalledWith(
+      'rg-a',
+      expect.objectContaining({ resource_definition_name: 'res-1' }),
+    );
   });
 });

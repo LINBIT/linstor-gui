@@ -11,6 +11,8 @@ import { Select } from '@app/components/Select';
 import { convertRoundUp, sizeOptions } from '@app/utils/size';
 
 type SizeInputProps = {
+  /** From the Form.Item, so its label names the number field. */
+  id?: string;
   value?: number;
   onChange?: (value: number) => void;
   placeholder?: string;
@@ -19,7 +21,7 @@ type SizeInputProps = {
   style?: React.CSSProperties;
 };
 
-export const SizeInput = ({ value, onChange, placeholder, disabled, defaultUnit, style }: SizeInputProps) => {
+export const SizeInput = ({ id, value, onChange, placeholder, disabled, defaultUnit, style }: SizeInputProps) => {
   const [sizeUnit, setSizeUnit] = useState('GiB');
   const [inputVal, setInputVal] = useState(value || '');
   const sizeUnitSet = useRef(false);
@@ -49,6 +51,7 @@ export const SizeInput = ({ value, onChange, placeholder, disabled, defaultUnit,
     // Space.Compact rather than sitting in a (grey) addon.
     <Space.Compact block style={style}>
       <Input
+        id={id}
         type="number"
         min={0}
         placeholder={placeholder || 'Please input size'}

@@ -7,6 +7,7 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Form } from 'antd';
 import { SizeInput } from '../index';
 
 // Mock the size utility functions
@@ -51,6 +52,18 @@ describe('SizeInput', () => {
 
     // Should have GiB as default unit
     expect(screen.getByTitle('GiB')).toBeInTheDocument();
+  });
+
+  test('is named by the label of its form item', () => {
+    render(
+      <Form>
+        <Form.Item name="size" label="Size">
+          <SizeInput />
+        </Form.Item>
+      </Form>,
+    );
+
+    expect(screen.getByLabelText('Size')).toBe(screen.getByPlaceholderText('Please input size'));
   });
 
   test('renders with custom placeholder', () => {

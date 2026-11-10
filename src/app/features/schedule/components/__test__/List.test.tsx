@@ -118,11 +118,12 @@ describe('schedule List', () => {
     expect(await screen.findByText('Failed to delete nightly: in use')).toBeInTheDocument();
   });
 
-  it('opens the edit dialog for the row from its menu', async () => {
+  // The click lands on the menu row, not on its text: the whole row is the target.
+  it('opens the edit dialog for the row from anywhere on its menu row', async () => {
     renderList();
     await screen.findByText('weekly');
     const menu = await openRowMenu('weekly');
-    fireEvent.click(within(menu).getByText('Edit'));
+    fireEvent.click(within(menu).getByRole('menuitem', { name: 'Edit' }));
     expect(await screen.findByText('Edit Schedule')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Enter schedule name')).toHaveValue('weekly');
   });

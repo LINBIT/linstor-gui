@@ -199,10 +199,15 @@ describe('ScheduleModal', () => {
       await expectModalClosed();
     });
 
-    it('renders as a text entry inside a dropdown', () => {
-      renderModal({ schedule, isInDropdown: true });
+    it('opened by its caller: no Edit button, the schedule prefilled, Cancel asks the caller to close it', async () => {
+      const onOpenChange = vi.fn();
+      renderModal({ schedule, open: true, onOpenChange });
       expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument();
-      expect(screen.getByText('Edit')).toBeInTheDocument();
+      expect(await screen.findByText('Edit Schedule')).toBeInTheDocument();
+      expect(screen.getByPlaceholderText('Enter schedule name')).toHaveValue('nightly');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+      expect(onOpenChange).toHaveBeenCalledWith(false);
     });
 
     it('reports a failed modify', async () => {

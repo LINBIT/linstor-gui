@@ -144,8 +144,6 @@ const ru = {
     partial: 'Частично',
     spawn_partial: 'Частично (создать меньше томов, чем групп томов)',
     add_volume_group: 'Добавить группу томов',
-    add_volume_group_success: 'Группа томов добавлена',
-    add_volume_group_failed: 'Не удалось добавить группу томов',
     volume_number_hint: 'Оставьте пустым, чтобы номер тома был назначен автоматически.',
     definition_only: 'Только определение',
     definition_only_hint:

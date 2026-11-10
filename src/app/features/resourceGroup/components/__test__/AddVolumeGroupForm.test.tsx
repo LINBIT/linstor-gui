@@ -36,10 +36,9 @@ describe('AddVolumeGroupForm', () => {
     vi.mocked(addVolumeToResourceGroup).mockResolvedValue({ data: [{ ret_code: 1 }] } as never);
   });
 
-  it('renders as text inside a dropdown, as a button otherwise', () => {
-    const { unmount } = renderForm({ isInDropdown: true });
+  it('renders no button when its caller opens it, and a button otherwise', () => {
+    const { unmount } = renderForm({ open: false, onOpenChange: vi.fn() });
     expect(screen.queryByRole('button', { name: 'Add Volume Group' })).not.toBeInTheDocument();
-    expect(screen.getByText('Add Volume Group')).toBeInTheDocument();
     unmount();
     renderForm();
     expect(screen.getByRole('button', { name: 'Add Volume Group' })).toBeInTheDocument();
@@ -67,29 +66,41 @@ describe('AddVolumeGroupForm', () => {
     await waitFor(() => expect(addVolumeToResourceGroup).toHaveBeenCalledWith('rg-a', { volume_number: 7 }));
   });
 
-  it('keeps the modal open and shows the error when the request fails', async () => {
-    vi.mocked(addVolumeToResourceGroup).mockRejectedValue(new Error('volume number in use'));
+  it('a refused volume group keeps the dialog open with the number typed, and is not reported as added', async () => {
+    vi.mocked(addVolumeToResourceGroup).mockResolvedValueOnce({
+      error: [{ ret_code: -4611686018427387904, message: 'volume number in use' }],
+      response: new Response(null, { status: 409 }),
+    } as never);
     const refetch = vi.fn();
     renderForm({ refetch });
     await open();
+    fireEvent.change(screen.getByPlaceholderText('Auto'), { target: { value: '7' } });
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
-    expect(await screen.findByText('volume number in use')).toBeInTheDocument();
-    expect(screen.getByText('Add Volume Group — rg-a')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Submit' })).not.toHaveClass('ant-btn-loading'));
+    // Still visible while a close animates, so wait for a close that must not come.
+    await expect(
+      waitFor(
+        () => {
+          const wrap = document.querySelector('.ant-modal-wrap') as HTMLElement | null;
+          expect(!wrap || wrap.style.display === 'none').toBe(true);
+        },
+        { timeout: 500 },
+      ),
+    ).rejects.toThrow();
+    expect(screen.getByPlaceholderText('Auto')).toHaveValue('7');
+    expect(screen.queryByText('Volume group added')).not.toBeInTheDocument();
     expect(refetch).not.toHaveBeenCalled();
   });
 
-  it('opens from its dropdown entry and closes again on cancel', async () => {
-    renderForm({ isInDropdown: true });
+  it('opened by its caller, Cancel asks the caller to close it', async () => {
+    const onOpenChange = vi.fn();
+    renderForm({ open: true, onOpenChange });
 
-    fireEvent.click(screen.getByText('Add Volume Group'));
     await screen.findByText('Add Volume Group — rg-a');
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
-    await waitFor(() => {
-      const wrap = document.querySelector('.ant-modal-wrap') as HTMLElement | null;
-      expect(!wrap || wrap.style.display === 'none').toBe(true);
-    });
+    expect(onOpenChange).toHaveBeenCalledWith(false);
     expect(addVolumeToResourceGroup).not.toHaveBeenCalled();
   });
 

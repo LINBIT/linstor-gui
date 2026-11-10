@@ -144,8 +144,6 @@ const tr = {
     partial: 'Kısmi',
     spawn_partial: 'Kısmi (birim gruplarından daha az birim oluştur)',
     add_volume_group: 'Birim Grubu Ekle',
-    add_volume_group_success: 'Birim grubu eklendi',
-    add_volume_group_failed: 'Birim grubu eklenemedi',
     volume_number_hint: 'Sonraki birim numarasının otomatik atanması için boş bırakın.',
     definition_only: 'Yalnızca tanım',
     definition_only_hint:

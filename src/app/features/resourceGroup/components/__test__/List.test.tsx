@@ -98,11 +98,20 @@ const renderList = (initialEntry = '/storage-configuration/resource-groups') => 
   );
 };
 
-// Opens the row's "..." dropdown and returns the menu item with the given text.
+// Opens the row's "..." dropdown and returns its menu (an earlier row's menu
+// stays in the DOM, hidden).
 const openRowMenu = async (rowName: string) => {
   const row = screen.getByText(rowName).closest('tr') as HTMLElement;
   fireEvent.mouseEnter(within(row).getByRole('img', { name: 'more' }));
-  return await screen.findByRole('menu');
+  let menu: HTMLElement | undefined;
+  await waitFor(() => {
+    const open = screen
+      .getAllByRole('menu')
+      .filter((m) => !m.closest('.ant-dropdown')?.classList.contains('ant-dropdown-hidden'));
+    expect(open).toHaveLength(1);
+    menu = open[0];
+  });
+  return menu as HTMLElement;
 };
 
 describe('resource group List', () => {
@@ -215,6 +224,26 @@ describe('resource group List', () => {
     const menu = await openRowMenu('rg-alpha');
     fireEvent.click(within(menu).getByText('Edit'));
     expect(navigate).toHaveBeenCalledWith('/storage-configuration/resource-groups/rg-alpha/edit');
+  });
+
+  // The click lands on the menu row, not on its text: the whole row is the target.
+  it('Spawn and Add Volume Group open their dialog for the row from anywhere on the menu row', async () => {
+    renderList();
+    await screen.findByText('rg-alpha');
+
+    let menu = await openRowMenu('rg-alpha');
+    fireEvent.click(within(menu).getByRole('menuitem', { name: 'Spawn' }));
+    expect(await screen.findByPlaceholderText('Please input resource name')).toBeInTheDocument();
+    await waitFor(() => expect(getResourceGroupVolumeGroups).toHaveBeenCalledWith('rg-alpha'));
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    await waitFor(() => {
+      const wrap = document.querySelector('.ant-modal-wrap') as HTMLElement | null;
+      expect(!wrap || wrap.style.display === 'none').toBe(true);
+    });
+
+    menu = await openRowMenu('rg-beta');
+    fireEvent.click(within(menu).getByRole('menuitem', { name: 'Add Volume Group' }));
+    expect(await screen.findByText('Add Volume Group — rg-beta')).toBeInTheDocument();
   });
 
   it('deletes a group only after the confirm, then refetches', async () => {

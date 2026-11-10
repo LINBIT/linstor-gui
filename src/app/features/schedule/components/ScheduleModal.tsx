@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { logger } from '@app/utils/logger';
 import { Modal, Form, message } from 'antd';
 import { Input } from '@app/components/Input';
@@ -29,18 +29,25 @@ interface Schedule {
   max_retries?: number;
 }
 
-// 添加 isInDropdown 到组件属性
 type ScheduleModalProps = {
   refetch: () => void;
   schedule?: Schedule;
-  isInDropdown?: boolean;
+  /**
+   * Given, the dialog is opened by the caller (a row menu entry, whose whole row
+   * is the click target) and no button is rendered.
+   */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
 // A new schedule starts with a daily full backup at midnight.
 const DEFAULT_FULL_CRON = '0 0 * * *';
 
-const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModalProps) => {
-  const [isModalVisible, setIsModalVisible] = useState(false);
+const ScheduleModal = ({ refetch, schedule, open, onOpenChange }: ScheduleModalProps) => {
+  const [ownVisible, setOwnVisible] = useState(false);
+  const controlled = open !== undefined;
+  const isModalVisible = controlled ? open : ownVisible;
+  const setIsModalVisible = (next: boolean) => (controlled ? onOpenChange?.(next) : setOwnVisible(next));
   const [form] = Form.useForm();
   const { t } = useTranslation(['schedule', 'common']);
 
@@ -83,11 +90,17 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
   // Open the modal
   const showModal = () => {
     setIsModalVisible(true);
-    if (schedule) {
-      // If editing, set form values to the schedule's data
+  };
+
+  // Editing: the form starts from the schedule each time the dialog opens, and
+  // only then, so a list refresh while it is open does not undo what was typed.
+  const wasVisible = useRef(false);
+  useLayoutEffect(() => {
+    if (isModalVisible && !wasVisible.current && schedule) {
       form.setFieldsValue(schedule);
     }
-  };
+    wasVisible.current = isModalVisible;
+  }, [form, isModalVisible, schedule]);
 
   // Close the modal
   const handleCancel = () => {
@@ -117,10 +130,8 @@ const ScheduleModal = ({ refetch, schedule, isInDropdown = false }: ScheduleModa
 
   return (
     <div>
-      {/* Button or text to open the modal */}
-      {isInDropdown ? (
-        <span onClick={showModal}>{schedule ? t('common:edit') : t('common:create')}</span>
-      ) : (
+      {/* The button that opens it, unless the caller opens it */}
+      {!controlled && (
         <Button onClick={showModal} type="secondary">
           {schedule ? t('common:edit') : `+ ${t('common:create')}`}
         </Button>

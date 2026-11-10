@@ -29,11 +29,19 @@ type FormType = {
 
 type SpawnFormProps = {
   resource_group?: string;
-  isInDropdown?: boolean;
+  /**
+   * Given, the dialog is opened by the caller (a row menu entry, whose whole row
+   * is the click target) and no Spawn button is rendered.
+   */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
-const SpawnForm = ({ resource_group, isInDropdown = false }: SpawnFormProps) => {
-  const [showSpawnForm, setShowSpawnForm] = useState(false);
+const SpawnForm = ({ resource_group, open, onOpenChange }: SpawnFormProps) => {
+  const [ownOpen, setOwnOpen] = useState(false);
+  const controlled = open !== undefined;
+  const showSpawnForm = controlled ? open : ownOpen;
+  const setShowSpawnForm = (next: boolean) => (controlled ? onOpenChange?.(next) : setOwnOpen(next));
   const [form] = Form.useForm<FormType>();
   const { t } = useTranslation(['resource_group', 'common']);
 
@@ -131,9 +139,7 @@ const SpawnForm = ({ resource_group, isInDropdown = false }: SpawnFormProps) => 
 
   return (
     <>
-      {isInDropdown ? (
-        <span onClick={() => setShowSpawnForm(true)}>{t('common:spawn')}</span>
-      ) : (
+      {!controlled && (
         <Button type="primary" onClick={() => setShowSpawnForm(true)}>
           {t('common:spawn')}
         </Button>

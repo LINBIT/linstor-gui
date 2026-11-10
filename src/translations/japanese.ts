@@ -143,8 +143,6 @@ const ja = {
     partial: '部分的',
     spawn_partial: '部分的 (ボリュームグループ数より少ないボリュームを作成)',
     add_volume_group: 'ボリュームグループを追加',
-    add_volume_group_success: 'ボリュームグループを追加しました',
-    add_volume_group_failed: 'ボリュームグループの追加に失敗しました',
     volume_number_hint: '空欄にすると次のボリューム番号が自動的に割り当てられます。',
     definition_only: '定義のみ',
     definition_only_hint:

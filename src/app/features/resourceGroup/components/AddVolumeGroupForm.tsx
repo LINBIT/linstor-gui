@@ -6,12 +6,13 @@
 
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Form, Modal, message } from 'antd';
+import { Form, Modal } from 'antd';
 import { InputNumber } from '@app/components/InputNumber';
 import { Button } from '@app/components/Button';
 import { useTranslation } from 'react-i18next';
 
 import { addVolumeToResourceGroup } from '../api';
+import { unwrap } from '@app/features/requests';
 import { AddVolumeRequestBody } from '../types';
 
 type FormType = {
@@ -20,25 +21,32 @@ type FormType = {
 
 type AddVolumeGroupFormProps = {
   resource_group: string;
-  isInDropdown?: boolean;
+  /**
+   * Given, the dialog is opened by the caller (a row menu entry, whose whole row
+   * is the click target) and no button is rendered.
+   */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   refetch?: () => void;
 };
 
-const AddVolumeGroupForm = ({ resource_group, isInDropdown = false, refetch }: AddVolumeGroupFormProps) => {
-  const [open, setOpen] = useState(false);
+const AddVolumeGroupForm = ({ resource_group, open: openProp, onOpenChange, refetch }: AddVolumeGroupFormProps) => {
+  const [ownOpen, setOwnOpen] = useState(false);
+  const controlled = openProp !== undefined;
+  const open = controlled ? openProp : ownOpen;
+  const setOpen = (next: boolean) => (controlled ? onOpenChange?.(next) : setOwnOpen(next));
   const [form] = Form.useForm<FormType>();
   const { t } = useTranslation(['resource_group', 'common']);
 
+  // The dialog stays open until the controller answers: a refused volume group
+  // keeps what was typed, one that went through closes it. The reply itself is
+  // toasted by the request layer, once.
   const mutation = useMutation({
-    mutationFn: (body: AddVolumeRequestBody) => addVolumeToResourceGroup(resource_group, body),
+    mutationFn: (body: AddVolumeRequestBody) => unwrap(addVolumeToResourceGroup(resource_group, body)),
     onSuccess: () => {
-      message.success(t('common:add_volume_group_success', 'Volume group added'));
       refetch?.();
       form.resetFields();
       setOpen(false);
-    },
-    onError: (err: { message?: string }) => {
-      message.error(err?.message || t('common:add_volume_group_failed', 'Failed to add volume group'));
     },
   });
 
@@ -53,9 +61,7 @@ const AddVolumeGroupForm = ({ resource_group, isInDropdown = false, refetch }: A
 
   return (
     <>
-      {isInDropdown ? (
-        <span onClick={() => setOpen(true)}>{t('common:add_volume_group')}</span>
-      ) : (
+      {!controlled && (
         <Button type="primary" onClick={() => setOpen(true)}>
           {t('common:add_volume_group')}
         </Button>

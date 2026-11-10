@@ -140,8 +140,6 @@ const zh = {
     partial: '部分',
     spawn_partial: '部分创建（创建的卷少于卷组数量）',
     add_volume_group: '添加卷组',
-    add_volume_group_success: '卷组已添加',
-    add_volume_group_failed: '添加卷组失败',
     volume_number_hint: '留空则自动分配下一个卷编号。',
     definition_only: '仅定义',
     definition_only_hint: '仅创建资源定义和卷定义（元数据）。资源不会部署到任何节点，不分配存储，也不创建 DRBD 设备。',

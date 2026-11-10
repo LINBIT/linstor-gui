@@ -146,8 +146,6 @@ const de = {
     partial: 'Teilweise',
     spawn_partial: 'Teilweise (weniger Volumes erzeugen als Volume-Gruppen)',
     add_volume_group: 'Volume-Gruppe hinzufügen',
-    add_volume_group_success: 'Volume-Gruppe hinzugefügt',
-    add_volume_group_failed: 'Volume-Gruppe konnte nicht hinzugefügt werden',
     volume_number_hint: 'Leer lassen, um die nächste Volume-Nummer automatisch zu vergeben.',
     definition_only: 'Nur Definition',
     definition_only_hint:

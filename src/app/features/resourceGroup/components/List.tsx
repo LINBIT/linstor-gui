@@ -80,6 +80,11 @@ export const List = () => {
   const [current, setCurrent] = useState<CreateResourceGroupRequestBody>();
   const [currentProps, setCurrentProps] = useState<Record<string, unknown> | undefined>();
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  // The row whose Spawn or Add Volume Group dialog is up. The menu entry opens
+  // it, so the whole menu row is the click target; the dialog lives here, out of
+  // the menu, and stays mounted while it closes.
+  const [rowDialog, setRowDialog] = useState<{ kind: 'spawn' | 'add-volume-group'; name: string; open: boolean }>();
+  const setRowDialogOpen = (open: boolean) => setRowDialog((dialog) => dialog && { ...dialog, open });
 
   const propertyFormRef = useRef<PropertyFormRef>(null);
 
@@ -379,11 +384,13 @@ export const List = () => {
               items: [
                 {
                   key: 'spawn',
-                  label: <SpawnForm resource_group={record.name} isInDropdown={true} />,
+                  label: t('common:spawn'),
+                  onClick: () => setRowDialog({ kind: 'spawn', name: record.name ?? '', open: true }),
                 },
                 {
                   key: 'add-volume-group',
-                  label: <AddVolumeGroupForm resource_group={record.name || ''} isInDropdown refetch={refetch} />,
+                  label: t('common:add_volume_group'),
+                  onClick: () => setRowDialog({ kind: 'add-volume-group', name: record.name ?? '', open: true }),
                 },
                 {
                   key: 'edit',
@@ -507,6 +514,24 @@ export const List = () => {
         }}
         loading={isPending || isStatsLoading}
       />
+
+      {rowDialog?.kind === 'spawn' && (
+        <SpawnForm
+          key={rowDialog.name}
+          resource_group={rowDialog.name}
+          open={rowDialog.open}
+          onOpenChange={setRowDialogOpen}
+        />
+      )}
+      {rowDialog?.kind === 'add-volume-group' && (
+        <AddVolumeGroupForm
+          key={rowDialog.name}
+          resource_group={rowDialog.name}
+          open={rowDialog.open}
+          onOpenChange={setRowDialogOpen}
+          refetch={refetch}
+        />
+      )}
 
       <PropertyForm
         ref={propertyFormRef}
