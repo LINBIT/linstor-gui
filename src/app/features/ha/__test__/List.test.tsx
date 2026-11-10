@@ -29,8 +29,9 @@ vi.mock('../api', () => ({
   undeployFile: vi.fn(),
 }));
 
+const clusterNodes = vi.hoisted(() => ({ names: ['node-a', 'node-b'] }));
 vi.mock('@app/features/node/hooks/useNode', () => ({
-  useNodes: () => ({ data: [{ name: 'node-a' }, { name: 'node-b' }], isLoading: false }),
+  useNodes: () => ({ data: clusterNodes.names.map((name) => ({ name })), isLoading: false }),
 }));
 
 // Poll fast, so waiting for a node to start its services takes milliseconds, not seconds.
@@ -182,6 +183,7 @@ const report = (status: Record<string, DrbdReactorStatus>, failures: DrbdReactor
 describe('DRBD Reactor List', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    clusterNodes.names = ['node-a', 'node-b'];
     vi.mocked(getHAResourceDefinitions).mockResolvedValue({ data: resourceDefinitions } as never);
     vi.mocked(listFiles).mockResolvedValue({
       data: [{ path: MYSQL_PATH }, { path: '/etc/drbd-reactor.d/orphan.toml' }, { path: '/etc/other.conf' }],
@@ -456,6 +458,35 @@ describe('DRBD Reactor List', () => {
     expect(await screen.findByText('"ha-mysql" stopped successfully')).toBeInTheDocument();
     expect(await within(rowOf('ha-mysql')).findByText('Stopped')).toBeInTheDocument();
     expectSettled('ha-mysql');
+  });
+
+  it('while a stop settles, reads the status of only the nodes the resource is on, every poll', async () => {
+    // node-c has no replica of ha-mysql: once the page has read it, the stop never asks it again.
+    clusterNodes.names = ['node-a', 'node-b', 'node-c'];
+    const withNodeC = (status: Record<string, DrbdReactorStatus>): Record<string, DrbdReactorStatus> => ({
+      ...status,
+      'node-c': { promoter: [] },
+    });
+    vi.mocked(getDrbdReactorStatus).mockImplementation(async (nodes: string[]) => {
+      const reads = vi.mocked(getDrbdReactorStatus).mock.calls.length;
+      // The first two reads of the resource's nodes still show it running, then it is stopped.
+      const status = reads <= 3 ? withNodeC(runningStatus) : withNodeC(stoppedStatus);
+      return report(Object.fromEntries(nodes.map((node) => [node, status[node]])));
+    });
+    renderList();
+    await within(await screen.findByText('ha-mysql').then((el) => el.closest('tr') as HTMLElement)).findByText(
+      'Running',
+    );
+    expect(getDrbdReactorStatus).toHaveBeenCalledWith(['node-a', 'node-b', 'node-c']);
+    const menu = await openRowMenu('ha-mysql');
+    fireEvent.click(within(menu).getByText('Stop'));
+    fireEvent.click(await confirmDialogButton('Stop'));
+
+    expect(await screen.findByText('"ha-mysql" stopped successfully')).toBeInTheDocument();
+    const polls = vi.mocked(getDrbdReactorStatus).mock.calls.slice(1);
+    expect(polls.length).toBeGreaterThanOrEqual(2);
+    for (const [nodes] of polls) expect(nodes).toEqual(['node-a', 'node-b']);
+    expect(await within(rowOf('ha-mysql')).findByText('Stopped')).toBeInTheDocument();
   });
 
   it('start enables the config on every cluster node when the reactor does not list it', async () => {

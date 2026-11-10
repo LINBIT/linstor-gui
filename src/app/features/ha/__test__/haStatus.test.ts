@@ -7,6 +7,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  REACTOR_STATUS_POLL_MS,
   activeNodeInStatus,
   getConfigName,
   isResourceActiveInStatus,
@@ -81,5 +82,11 @@ describe('HA status helpers', () => {
 
     expect(syncEvictedResourceInStatus(status, 'other', 'nodeA')).toBe(status);
     expect(syncEvictedResourceInStatus(undefined, 'res1', 'nodeA')).toBeUndefined();
+  });
+});
+
+describe('REACTOR_STATUS_POLL_MS', () => {
+  it('reads the status every second while an evict, stop or start settles', () => {
+    expect(REACTOR_STATUS_POLL_MS).toBe(1000);
   });
 });

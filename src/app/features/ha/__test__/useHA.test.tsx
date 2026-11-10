@@ -155,7 +155,7 @@ describe('ha hooks', () => {
     expect((failure as Error).message).toBe('resource is in use');
   });
 
-  it('useCreateFile and useEvictDrbdReactor forward their arguments and refresh', async () => {
+  it('useCreateFile and useEvictDrbdReactor forward their arguments, and the evict leaves the status to the page', async () => {
     const client = makeClient();
     const invalidate = vi.spyOn(client, 'invalidateQueries');
     const { result } = renderHook(() => ({ create: useCreateFile(), evict: useEvictDrbdReactor() }), {
@@ -167,7 +167,8 @@ describe('ha hooks', () => {
     });
     expect(createFile).toHaveBeenCalledWith('/etc/drbd-reactor.d/a.toml', 'YQ==');
     expect(evictDrbdReactor).toHaveBeenCalledWith(['node-a'], 'a', true);
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['drbd-reactor-status'] });
+    // The page follows an evict by reading the resource's nodes, not by reading the whole cluster again.
+    expect(invalidate).not.toHaveBeenCalledWith({ queryKey: ['drbd-reactor-status'] });
   });
 
   it('create, deploy, manage and unmanage reject a refused request instead of reporting success', async () => {

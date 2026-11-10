@@ -31,8 +31,8 @@ export type PromoterEntry = NonNullable<DrbdReactorStatus['promoter']>[number];
 
 export type ReactorStatus = Record<string, DrbdReactorStatus>;
 
-/** How often the status is read while an evict, stop or takeover settles. */
-export const REACTOR_STATUS_POLL_MS = 5000;
+/** How often the status is read while an evict, stop, start or takeover settles: every second, so the row follows it. */
+export const REACTOR_STATUS_POLL_MS = 1000;
 
 /** How long the node that took over after an evict gets to report its services active. */
 export const TAKEOVER_WAIT_MS = 60_000;

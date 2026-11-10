@@ -17,6 +17,7 @@ import {
   useEnableDrbdReactor,
 } from './useHA';
 import { getEvictOutcome } from './evict';
+import type { DrbdReactorReport } from './api';
 import {
   type HARecord,
   type ReactorStatus,
@@ -70,18 +71,49 @@ export const useReactorActions = () => {
       return next;
     });
 
-  // Fetch reactor status once for the page, then temporarily switch to polling while an evict is in flight.
+  // The status of every node is read once for the page.
   const {
-    data: reactorStatus,
+    data: clusterStatus,
     isLoading: reactorStatusLoading,
-    dataUpdatedAt: reactorStatusUpdatedAt,
-    refetch: refetchReactorStatus,
-  } = useDrbdReactorStatus(
-    nodeNames,
-    nodeNames.length > 0,
-    evictingResource || stoppingResource || startingResource || takeover ? REACTOR_STATUS_POLL_MS : false,
-  );
+    dataUpdatedAt: clusterStatusUpdatedAt,
+  } = useDrbdReactorStatus(nodeNames, nodeNames.length > 0);
   const { data: reactorFailures } = useDrbdReactorFailures(nodeNames);
+
+  // While an evict, stop, start or takeover settles, only the nodes of the resources it concerns are asked,
+  // every second. A stopped resource is reported on no node, so its start asks every node.
+  const settlingNodes = useMemo(() => {
+    const settling = [evictingResource?.resourceName, takeover?.resourceName, stoppingResource, startingResource];
+    const asked = new Set<string>();
+    for (const resourceName of settling) {
+      if (!resourceName) continue;
+      const nodes = resourceNodesInStatus(clusterStatus, resourceName);
+      for (const node of nodes.length > 0 ? nodes : nodeNames) asked.add(node);
+    }
+    return nodeNames.filter((node) => asked.has(node));
+  }, [clusterStatus, nodeNames, evictingResource, takeover, stoppingResource, startingResource]);
+  const { data: settlingStatus, dataUpdatedAt: settlingStatusUpdatedAt } = useDrbdReactorStatus(
+    settlingNodes,
+    settlingNodes.length > 0,
+    REACTOR_STATUS_POLL_MS,
+  );
+
+  // What those nodes answer goes into the page's status of the cluster too, so it stays when the polling ends
+  // and the other nodes need no new read.
+  const settlingIsSeparate = settlingNodes.length > 0 && settlingNodes.length < nodeNames.length;
+  useEffect(() => {
+    if (!settlingIsSeparate || !settlingStatus) return;
+    queryClient.setQueryData<DrbdReactorReport | undefined>(['drbd-reactor-status', nodeNames], (report) =>
+      report ? { ...report, status: { ...report.status, ...settlingStatus } } : report,
+    );
+  }, [queryClient, nodeNames, settlingIsSeparate, settlingStatus]);
+
+  // What those nodes answered last stands in for what the page read of them before.
+  const settlingIsNewer = !!settlingStatus && settlingStatusUpdatedAt > clusterStatusUpdatedAt;
+  const reactorStatus = useMemo<ReactorStatus | undefined>(
+    () => (settlingIsNewer ? { ...clusterStatus, ...settlingStatus } : clusterStatus),
+    [settlingIsNewer, clusterStatus, settlingStatus],
+  );
+  const reactorStatusUpdatedAt = settlingIsNewer ? settlingStatusUpdatedAt : clusterStatusUpdatedAt;
 
   // Evict mutation
   const evictMutation = useEvictDrbdReactor();
@@ -111,7 +143,6 @@ export const useReactorActions = () => {
     });
     setEvictingResource(null);
     setEvictStartedAt(null);
-    queryClient.invalidateQueries({ queryKey: ['drbd-reactor-status'] });
     queryClient.invalidateQueries({ queryKey: ['resources-view'] });
     queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] });
   }, [queryClient, reactorStatus, reactorStatusUpdatedAt, evictStartedAt, evictingResource, t]);
@@ -132,7 +163,6 @@ export const useReactorActions = () => {
     message.success(t('ha:stopped', { name: stoppingResource }));
     setStoppingResource(null);
     setStopStartedAt(null);
-    queryClient.invalidateQueries({ queryKey: ['drbd-reactor-status'] });
     queryClient.invalidateQueries({ queryKey: ['resources-view'] });
     queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] });
   }, [queryClient, reactorStatus, reactorStatusUpdatedAt, stopStartedAt, stoppingResource, t]);
@@ -146,7 +176,6 @@ export const useReactorActions = () => {
     message.success(t('ha:started', { name: startingResource }));
     setStartingResource(null);
     setStartStartedAt(null);
-    queryClient.invalidateQueries({ queryKey: ['drbd-reactor-status'] });
     queryClient.invalidateQueries({ queryKey: ['resources-view'] });
     queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] });
   }, [queryClient, reactorStatus, reactorStatusUpdatedAt, startStartedAt, startingResource, t]);
@@ -217,7 +246,6 @@ export const useReactorActions = () => {
       const startedAt = Date.now();
       setStopStartedAt(startedAt);
       setStoppingResource(record.name);
-      void refetchReactorStatus();
     } catch (err) {
       setStoppingResource(null);
       setStopStartedAt(null);
@@ -260,7 +288,6 @@ export const useReactorActions = () => {
       const startedAt = Date.now();
       setStartStartedAt(startedAt);
       setStartingResource(record.name);
-      void refetchReactorStatus();
     } catch (err) {
       message.destroy('start-in-progress');
       message.error(t('ha:start_failed', { name: record.name, error: String(err) }));
@@ -310,8 +337,16 @@ export const useReactorActions = () => {
           if (result?.active_node) {
             setEvictingResource(null);
             setEvictStartedAt(null);
-            queryClient.setQueryData<ReactorStatus | undefined>(['drbd-reactor-status', nodeNames], (currentStatus) =>
-              syncEvictedResourceInStatus(currentStatus, record.name, result.active_node as string),
+            // The cache holds the whole report; the node that took over is shown at once.
+            queryClient.setQueryData<DrbdReactorReport | undefined>(['drbd-reactor-status', nodeNames], (report) =>
+              report
+                ? {
+                    ...report,
+                    status:
+                      syncEvictedResourceInStatus(report.status, record.name, result.active_node as string) ??
+                      report.status,
+                  }
+                : report,
             );
             message.success({
               key: EVICT_MESSAGE_KEY,
@@ -331,7 +366,6 @@ export const useReactorActions = () => {
           const startedAt = Date.now();
           setEvictStartedAt(startedAt);
           setEvictingResource({ resourceName: record.name, fromNode: primaryNode });
-          void refetchReactorStatus();
         },
         onError: (err) => {
           setEvictingResource(null);

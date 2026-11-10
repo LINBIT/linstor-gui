@@ -1,5 +1,11 @@
 # Changelog
 
+# Unreleased
+
+### Changed
+
+- HA status read every second during evict, stop and start, only from the nodes of that resource
+
 # 2.7.0 - 2026-10-28
 
 ### Added

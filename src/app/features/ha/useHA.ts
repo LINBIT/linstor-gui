@@ -162,41 +162,30 @@ export const useDrbdReactorFailures = (nodes: string[]) => {
   });
 };
 
-// Hook for evicting DRBD Reactor resource
+// Hook for evicting DRBD Reactor resource. The page reads the status of the resource's nodes until the
+// result shows (useReactorActions), so the status of the cluster is not read again here.
 export const useEvictDrbdReactor = () => {
-  const queryClient = useQueryClient();
   return useMutation({
     meta: { reportsErrors: true },
     mutationFn: ({ nodes, resource, wait = false }: { nodes: string[]; resource: string; wait?: boolean }) =>
       evictDrbdReactor(nodes, resource, wait),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['drbd-reactor-status'] });
-    },
   });
 };
 
 // Hook for disabling DRBD Reactor plugin
 export const useDisableDrbdReactor = () => {
-  const queryClient = useQueryClient();
   return useMutation({
     meta: { reportsErrors: true },
     mutationFn: ({ nodes, config, now = false }: { nodes: string[]; config: string; now?: boolean }) =>
       disableDrbdReactor(nodes, config, now),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['drbd-reactor-status'] });
-    },
   });
 };
 
 // Hook for enabling DRBD Reactor plugin
 export const useEnableDrbdReactor = () => {
-  const queryClient = useQueryClient();
   return useMutation({
     meta: { reportsErrors: true },
     mutationFn: ({ nodes, config }: { nodes: string[]; config: string }) => enableDrbdReactor(nodes, config),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['drbd-reactor-status'] });
-    },
   });
 };
 
