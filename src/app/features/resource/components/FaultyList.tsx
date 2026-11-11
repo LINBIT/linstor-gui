@@ -18,6 +18,8 @@ import { getResourceState, Resource, getFaultyVolumeNumbers } from '@app/utils/r
 import { useFaultyResources } from '../hooks/useFaultyResources';
 import { isFocusFaulty } from '../faultyFocus';
 import { Link } from '@app/components/Link';
+import { Tag } from '@app/components/Tag';
+import { connectionStatus } from './overview/rows';
 
 export const FaultyList = () => {
   const { t } = useTranslation(['common', 'resource']);
@@ -33,29 +35,6 @@ export const FaultyList = () => {
   useEffect(() => {
     if (focused && !isLoading) sectionRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
   }, [focused, isLoading, location.key]);
-
-  const handleConnectStatusDisplay = (resourceItem: ResourceDataType) => {
-    let failStr = '';
-    const conn = resourceItem?.layer_object?.drbd?.connections ?? {};
-    if (Object.keys(conn).length === 0) {
-      return 'OK';
-    }
-    let count = 0;
-    let fail = false;
-    for (const nodeName in conn) {
-      count++;
-      if (!conn?.[nodeName]?.connected) {
-        fail = true;
-        if (failStr !== '') {
-          failStr += ',';
-        }
-        failStr += `${nodeName} ${conn?.[nodeName]?.message}`;
-      }
-    }
-    fail = count === 0 ? true : fail;
-    failStr = fail ? failStr : 'OK';
-    return failStr;
-  };
 
   const columns: TableProps<ResourceDataType>['columns'] = [
     {
@@ -94,7 +73,6 @@ export const FaultyList = () => {
       title: t('common:usage_status'),
       key: 'in_use',
       dataIndex: 'in_use',
-      align: 'center',
       render: (_, item) => {
         const in_use = item.state?.in_use;
         const usage = in_use ? 'InUse' : 'Unused';
@@ -117,17 +95,18 @@ export const FaultyList = () => {
     {
       title: t('common:connection_status'),
       key: 'connection_status',
-      align: 'center',
+      // Tagged as in the Resource Overview's node table.
       render: (_, item) => {
-        return <span>{handleConnectStatusDisplay(item)}</span>;
+        const status = connectionStatus(item);
+        return <Tag tone={status === 'OK' ? 'success' : 'danger'}>{status}</Tag>;
       },
     },
     {
       title: t('common:state'),
       key: 'state',
-      align: 'center',
       render: (_, item) => {
-        return <span>{getResourceState(item as Resource)}</span>;
+        const state = getResourceState(item as Resource);
+        return <Tag tone={state.includes('Inconsistent') ? 'danger' : 'info'}>{state}</Tag>;
       },
     },
   ];

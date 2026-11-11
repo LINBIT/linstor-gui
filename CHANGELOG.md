@@ -16,6 +16,7 @@
 - Switches and checkboxes on the same line as their label
 - Create and Submit wording on create buttons and dialogs
 - Delete and Lost in row action menus shown as danger items
+- Connection status and state in the Dashboard's Faulty Resource list tagged as in the Resource Overview
 - Update dependencies
 
 ### Fixed

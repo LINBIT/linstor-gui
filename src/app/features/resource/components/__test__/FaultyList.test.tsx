@@ -371,6 +371,37 @@ describe('FaultyList', () => {
       expect(screen.getByText('node2 Connection timeout')).toBeInTheDocument();
     });
 
+    it('tags the connection status and the state as the Resource Overview does', () => {
+      mockQuery({
+        data: [
+          {
+            name: 'r1',
+            node_name: 'node1',
+            uuid: 'u1',
+            create_timestamp: '2024-01-01T00:00:00Z',
+            state: { in_use: false },
+            layer_object: { drbd: { connections: { node2: { connected: false, message: 'Connecting' } } } },
+          },
+          {
+            name: 'r2',
+            node_name: 'node2',
+            uuid: 'u2',
+            create_timestamp: '2024-01-01T00:00:00Z',
+            state: { in_use: false },
+            layer_object: { drbd: { connections: {} } },
+          },
+        ],
+        isLoading: false,
+      });
+
+      renderWithProviders(<FaultyList />);
+
+      const toneOf = (text: string) => screen.getByText(text).closest('.ant-tag')?.getAttribute('data-tone');
+      expect(toneOf('node2 Connecting')).toBe('danger');
+      expect(toneOf('OK')).toBe('success');
+      expect(toneOf('state-r1')).toBe('info');
+    });
+
     it('should show OK for connected resources', () => {
       const mockFaultyResources = [
         {
