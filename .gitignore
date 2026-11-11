@@ -27,3 +27,6 @@ docs/
 # Screenshots taken while checking a change land in the repo root; none belong there.
 /*.png
 /*.jpg
+
+# Local design note for agents
+/DESIGN.md
