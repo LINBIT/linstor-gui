@@ -33,7 +33,7 @@ help:
 
 .PHONY: deps
 deps: ## install dependencies
-	npm install
+	npm ci
 
 # OCF agent catalogs. Both generators only need git + node: they parse the
 # agents' meta-data XML statically, nothing is built or executed.

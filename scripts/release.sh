@@ -36,6 +36,9 @@ ocf_catalogs=(
 	src/app/components/OcfAgentEditor/all_agents.ts
 	src/app/components/OcfAgentEditor/windows_agents.ts
 )
+# Generate and type-check against the locked dependencies, not whatever
+# node_modules happens to be installed.
+npm ci
 npm run generate-agents
 npm run generate-agents:windows
 npm run type-check
