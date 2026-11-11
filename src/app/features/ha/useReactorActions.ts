@@ -80,14 +80,16 @@ export const useReactorActions = () => {
   const { data: reactorFailures } = useDrbdReactorFailures(nodeNames);
 
   // While an evict, stop, start or takeover settles, only the nodes of the resources it concerns are asked,
-  // every second. A stopped resource is reported on no node, so its start asks every node.
+  // every second. A stopped resource is reported on no node, so its start asks every node; a stop that
+  // has settled is reported on no node either, and asks none until it is marked done.
   const settlingNodes = useMemo(() => {
     const settling = [evictingResource?.resourceName, takeover?.resourceName, stoppingResource, startingResource];
     const asked = new Set<string>();
     for (const resourceName of settling) {
       if (!resourceName) continue;
       const nodes = resourceNodesInStatus(clusterStatus, resourceName);
-      for (const node of nodes.length > 0 ? nodes : nodeNames) asked.add(node);
+      const startAsksAll = nodes.length === 0 && resourceName === startingResource;
+      for (const node of startAsksAll ? nodeNames : nodes) asked.add(node);
     }
     return nodeNames.filter((node) => asked.has(node));
   }, [clusterStatus, nodeNames, evictingResource, takeover, stoppingResource, startingResource]);

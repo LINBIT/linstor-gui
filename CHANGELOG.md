@@ -25,6 +25,7 @@
 - Header faulty-resource icon opens the faulty resources list
 - Dashboard showing all resources healthy while loading
 - HA list during evict, stop and start
+- HA page reading every node once more after a stop settles
 - Spawn dialog losing a refused spawn
 - Diskless pool on an existing device refused
 - VSAN Physical Storage blanking the GUI
