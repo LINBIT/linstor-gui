@@ -18,6 +18,7 @@ import { DeleteHAModal } from './DeleteHAModal';
 import { FileContentModal } from './FileContentModal';
 import { ManageModal } from './ManageModal';
 import { useUnmanagedFiles } from './useUnmanagedFiles';
+import { DRBD_REACTOR_URL } from './useReactorInstallation';
 
 export const List = () => {
   const { t } = useTranslation(['ha']);
@@ -58,6 +59,13 @@ export const List = () => {
             installedNowhere
               ? t('ha:reactor_not_installed_anywhere')
               : t('ha:reactor_not_installed_on', { nodes: notInstalled.join(', ') })
+          }
+          description={
+            installedNowhere ? (
+              <a href={DRBD_REACTOR_URL} target="_blank" rel="noopener noreferrer">
+                {t('ha:reactor_get_it')}
+              </a>
+            ) : undefined
           }
         />
       )}

@@ -7,17 +7,19 @@
 import { useTranslation } from 'react-i18next';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { Alert } from 'antd';
+import { Alert, Tooltip } from 'antd';
 
 import PageBasic from '@app/components/PageBasic';
 import { Button } from '@app/components/Button';
-import { List } from '@app/features/ha';
+import { List, useReactorInstallation } from '@app/features/ha';
 import { useLinstorVersion, MIN_API_VERSION } from '@app/hooks';
 
 const HA = () => {
   const { t } = useTranslation(['ha', 'common']);
   const navigate = useNavigate();
   const { isFetched: versionFetched, hasMinVersion } = useLinstorVersion();
+  // A config would run nowhere without drbd-reactor on any node.
+  const { installedNowhere } = useReactorInstallation();
 
   if (versionFetched && !hasMinVersion(MIN_API_VERSION.HA)) {
     return (
@@ -36,9 +38,19 @@ const HA = () => {
     <PageBasic
       title={t('ha:list')}
       extra={
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/reactor/create')}>
-          {t('common:create')}
-        </Button>
+        <Tooltip title={installedNowhere ? t('ha:create_needs_reactor') : ''}>
+          {/* A DOM element for the tooltip to attach to (the button can be disabled). */}
+          <span>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              disabled={installedNowhere}
+              onClick={() => navigate('/reactor/create')}
+            >
+              {t('common:create')}
+            </Button>
+          </span>
+        </Tooltip>
       }
     >
       <List />

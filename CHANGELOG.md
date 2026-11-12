@@ -2,6 +2,10 @@
 
 # Unreleased
 
+### Changed
+
+- DRBD Reactor Create disabled, with a link to DRBD Reactor, when no node has it; the page names DRBD Reactor by its product name
+
 ### Fixed
 
 - HA page showing a raw error per node when a drbd-reactor config names a DRBD resource that does not exist

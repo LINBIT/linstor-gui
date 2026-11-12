@@ -1251,11 +1251,13 @@ org_role = Viewer`,
   },
   ha: {
     reactor_not_installed_anywhere:
-      'drbd-reactor no está instalado en ningún nodo. Instálelo en los nodos que deben ejecutar estos servicios.',
-    reactor_not_installed_on: 'drbd-reactor no está instalado en: {{nodes}}',
+      'DRBD Reactor no está instalado en ningún nodo. Instálelo en los nodos que deben ejecutar estos servicios.',
+    reactor_not_installed_on: 'DRBD Reactor no está instalado en: {{nodes}}',
     reactor_missing_resource_on:
-      'Una configuración de drbd-reactor nombra un recurso DRBD que no existe, por lo que no se puede leer el estado en: {{nodes}}. Elimine esa configuración de /etc/drbd-reactor.d/ o cree el recurso.',
-    reactor_status_failed: 'No se pudo leer el estado de drbd-reactor en {{node}}: {{message}}',
+      'Una configuración de DRBD Reactor nombra un recurso DRBD que no existe, por lo que no se puede leer el estado en: {{nodes}}. Elimine esa configuración de /etc/drbd-reactor.d/ o cree el recurso.',
+    reactor_get_it: 'Obtener DRBD Reactor',
+    create_needs_reactor: 'Instale primero DRBD Reactor en un nodo',
+    reactor_status_failed: 'No se pudo leer el estado de DRBD Reactor en {{node}}: {{message}}',
     manage_ha_configuration: 'Gestionar la configuración de HA',
     select_unmanaged_configuration_file: 'Seleccione un archivo de configuración no gestionado',
     primary_node: 'Nodo primario',

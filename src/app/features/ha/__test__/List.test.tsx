@@ -235,7 +235,8 @@ describe('DRBD Reactor List', () => {
         ),
       );
       renderList();
-      expect(await screen.findByText('drbd-reactor is not installed on: node-b')).toBeInTheDocument();
+      expect(await screen.findByText('DRBD Reactor is not installed on: node-b')).toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'Get DRBD Reactor' })).toBeNull();
     });
 
     it('says so when no node has drbd-reactor', async () => {
@@ -250,9 +251,13 @@ describe('DRBD Reactor List', () => {
       renderList();
       expect(
         await screen.findByText(
-          'drbd-reactor is not installed on any node. Install it on the nodes that should run these services.',
+          'DRBD Reactor is not installed on any node. Install it on the nodes that should run these services.',
         ),
       ).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: 'Get DRBD Reactor' })).toHaveAttribute(
+        'href',
+        'https://linbit.com/drbd-reactor/',
+      );
     });
 
     it('says once which nodes have a drbd-reactor config for a DRBD resource that does not exist', async () => {
@@ -268,10 +273,10 @@ describe('DRBD Reactor List', () => {
       renderList();
       expect(
         await screen.findByText(
-          'A drbd-reactor config names a DRBD resource that does not exist, so no status can be read on: node-a, node-b. Remove that config from /etc/drbd-reactor.d/ or create the resource.',
+          'A DRBD Reactor config names a DRBD resource that does not exist, so no status can be read on: node-a, node-b. Remove that config from /etc/drbd-reactor.d/ or create the resource.',
         ),
       ).toBeInTheDocument();
-      expect(screen.queryByText(/Could not read the drbd-reactor status|drbdsetup status/)).toBeNull();
+      expect(screen.queryByText(/Could not read the DRBD Reactor status|drbdsetup status/)).toBeNull();
       expect(screen.queryByText(/is not installed/)).toBeNull();
     });
 
@@ -285,7 +290,7 @@ describe('DRBD Reactor List', () => {
       );
       renderList();
       expect(
-        await screen.findByText('Could not read the drbd-reactor status on node-b: Error: cannot read config'),
+        await screen.findByText('Could not read the DRBD Reactor status on node-b: Error: cannot read config'),
       ).toBeInTheDocument();
       expect(screen.queryByText(/is not installed/)).toBeNull();
     });
@@ -294,7 +299,7 @@ describe('DRBD Reactor List', () => {
       renderList();
       await screen.findByText('ha-mysql');
       await within(rowOf('ha-mysql')).findByText('Running');
-      expect(screen.queryByText(/drbd-reactor is not installed|Could not read the drbd-reactor status/)).toBeNull();
+      expect(screen.queryByText(/DRBD Reactor is not installed|Could not read the DRBD Reactor status/)).toBeNull();
     });
   });
 
