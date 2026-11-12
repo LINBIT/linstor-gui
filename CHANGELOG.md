@@ -5,6 +5,7 @@
 ### Fixed
 
 - HA page showing a raw error per node when a drbd-reactor config names a DRBD resource that does not exist
+- Unsupported build dialog sitting far below the middle on phones
 
 # 2.7.1 - 2026-11-11
 

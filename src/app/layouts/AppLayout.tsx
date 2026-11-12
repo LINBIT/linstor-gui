@@ -271,7 +271,6 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
         footer={null}
         centered
         width={755}
-        height={200}
       >
         <div className="flex">
           <SVG className="mt-2.5 mr-[18px] h-[56px] w-[60px]" src={warning} />

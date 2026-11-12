@@ -239,6 +239,10 @@ describe('AppLayout', () => {
 
     expect(await screen.findByText('Attention! You are using an unsupported build of this software.')).toBeVisible();
     expect(headerProps()).toMatchObject({ isNotOfficialBuild: true });
+    // No fixed height: the dialog is centred on the height of its text, which wraps into many lines on a phone.
+    const dialog = screen.getByRole('dialog');
+    expect(dialog.style.height).toBe('');
+    expect(dialog.querySelector<HTMLElement>('.ant-modal-container')?.style.height ?? '').toBe('');
 
     const open = vi.spyOn(window, 'open').mockImplementation(() => null);
     fireEvent.click(screen.getByText('For Official Builds'));
