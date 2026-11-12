@@ -2,5 +2,44 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended"
+  ],
+  "schedule": [
+    "before 6am on monday"
+  ],
+  "timezone": "Europe/Vienna",
+  "updateNotScheduled": false,
+  "semanticCommits": "enabled",
+  "semanticCommitType": "build",
+  "semanticCommitScope": "deps",
+  "commitBody": null,
+  "prBodyTemplate": "{{{table}}}",
+  "labels": [
+    "Engineering"
+  ],
+  "packageRules": [
+    {
+      "description": "Minor and patch updates of everything in one MR a week",
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "groupName": "non-major dependencies"
+    },
+    {
+      "description": "The Playwright image in CI must match @playwright/test",
+      "matchPackageNames": [
+        "@playwright/test",
+        "mcr.microsoft.com/playwright"
+      ],
+      "groupName": "Playwright"
+    },
+    {
+      "description": "Node and its types stay on the Node line the project runs on",
+      "matchPackageNames": [
+        "node",
+        "@types/node"
+      ],
+      "allowedVersions": "<25"
+    }
   ]
 }
