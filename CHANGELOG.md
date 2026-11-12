@@ -1,16 +1,5 @@
 # Changelog
 
-# Unreleased
-
-### Changed
-
-- DRBD Reactor Create disabled, with a link to DRBD Reactor, when no node has it; the page names DRBD Reactor by its product name
-
-### Fixed
-
-- HA page showing a raw error per node when a drbd-reactor config names a DRBD resource that does not exist
-- Unsupported build dialog sitting far below the middle on phones
-
 # 2.7.1 - 2026-11-11
 
 ### Added
@@ -28,6 +17,7 @@
 - Create and Submit wording on create buttons and dialogs
 - Delete and Lost in row action menus shown as danger items
 - Connection status and state in the Dashboard's Faulty Resource list tagged as in the Resource Overview
+- Create on the DRBD Reactor page disabled when no node has DRBD Reactor, with a link to get it
 - Update dependencies
 
 ### Fixed
@@ -43,6 +33,8 @@
 - Refused resize, clone, remote or backup reported wrongly
 - Errors of a submit without a controller reply not shown
 - Cluster setup wizard labels and HA guide VIP
+- DRBD Reactor page showing a raw error per node for a config whose DRBD resource does not exist
+- Unsupported build dialog sitting low on phones
 
 # 2.7.0 - 2026-10-28
 
