@@ -1269,6 +1269,8 @@ org_role = Viewer`,
     reactor_not_installed_anywhere:
       'drbd-reactor ist auf keinem Knoten installiert. Installieren Sie es auf den Knoten, die diese Dienste ausführen sollen.',
     reactor_not_installed_on: 'drbd-reactor ist nicht installiert auf: {{nodes}}',
+    reactor_missing_resource_on:
+      'Eine drbd-reactor-Konfiguration nennt eine DRBD-Ressource, die nicht existiert, daher kann kein Status gelesen werden auf: {{nodes}}. Entfernen Sie diese Konfiguration aus /etc/drbd-reactor.d/ oder legen Sie die Ressource an.',
     reactor_status_failed: 'Der drbd-reactor-Status auf {{node}} konnte nicht gelesen werden: {{message}}',
     manage_ha_configuration: 'HA-Konfiguration verwalten',
     select_unmanaged_configuration_file: 'Eine nicht verwaltete Konfigurationsdatei auswählen',

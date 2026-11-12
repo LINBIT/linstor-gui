@@ -1431,6 +1431,8 @@ org_role = Viewer`,
     reactor_not_installed_anywhere:
       'drbd-reactor is not installed on any node. Install it on the nodes that should run these services.',
     reactor_not_installed_on: 'drbd-reactor is not installed on: {{nodes}}',
+    reactor_missing_resource_on:
+      'A drbd-reactor config names a DRBD resource that does not exist, so no status can be read on: {{nodes}}. Remove that config from /etc/drbd-reactor.d/ or create the resource.',
     reactor_status_failed: 'Could not read the drbd-reactor status on {{node}}: {{message}}',
     manage_ha_configuration: 'Manage HA Configuration',
     select_unmanaged_configuration_file: 'Select an unmanaged configuration file',

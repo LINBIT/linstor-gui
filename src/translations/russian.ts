@@ -1240,6 +1240,8 @@ org_role = Viewer`,
     reactor_not_installed_anywhere:
       'drbd-reactor не установлен ни на одном узле. Установите его на узлах, где должны работать эти службы.',
     reactor_not_installed_on: 'drbd-reactor не установлен на: {{nodes}}',
+    reactor_missing_resource_on:
+      'Конфигурация drbd-reactor ссылается на несуществующий ресурс DRBD, поэтому состояние не читается на: {{nodes}}. Удалите эту конфигурацию из /etc/drbd-reactor.d/ или создайте ресурс.',
     reactor_status_failed: 'Не удалось прочитать состояние drbd-reactor на {{node}}: {{message}}',
     manage_ha_configuration: 'Управление конфигурацией HA',
     select_unmanaged_configuration_file: 'Выберите неуправляемый файл конфигурации',

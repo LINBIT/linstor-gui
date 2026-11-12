@@ -1364,6 +1364,8 @@ org_role = Viewer`,
   ha: {
     reactor_not_installed_anywhere: '所有节点都没有安装 drbd-reactor。请在需要运行这些服务的节点上安装它。',
     reactor_not_installed_on: '以下节点没有安装 drbd-reactor：{{nodes}}',
+    reactor_missing_resource_on:
+      '以下节点上有 drbd-reactor 配置引用了不存在的 DRBD 资源，因此读不到状态：{{nodes}}。请从 /etc/drbd-reactor.d/ 删除该配置，或者创建该资源。',
     reactor_status_failed: '无法读取节点 {{node}} 上的 drbd-reactor 状态：{{message}}',
     manage_ha_configuration: '管理 HA 配置',
     select_unmanaged_configuration_file: '选择一个未纳管的配置文件',

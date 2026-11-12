@@ -229,7 +229,9 @@ describe('DRBD Reactor List', () => {
     it('names the nodes without drbd-reactor', async () => {
       vi.mocked(getDrbdReactorStatus).mockImplementation(
         later(
-          report({ 'node-a': runningStatus['node-a'] }, [{ node: 'node-b', notInstalled: true, message: NOT_FOUND }]),
+          report({ 'node-a': runningStatus['node-a'] }, [
+            { node: 'node-b', notInstalled: true, missingResource: false, message: NOT_FOUND },
+          ]),
         ),
       );
       renderList();
@@ -240,8 +242,8 @@ describe('DRBD Reactor List', () => {
       vi.mocked(getDrbdReactorStatus).mockImplementation(
         later(
           report({}, [
-            { node: 'node-a', notInstalled: true, message: NOT_FOUND },
-            { node: 'node-b', notInstalled: true, message: NOT_FOUND },
+            { node: 'node-a', notInstalled: true, missingResource: false, message: NOT_FOUND },
+            { node: 'node-b', notInstalled: true, missingResource: false, message: NOT_FOUND },
           ]),
         ),
       );
@@ -253,11 +255,31 @@ describe('DRBD Reactor List', () => {
       ).toBeInTheDocument();
     });
 
+    it('says once which nodes have a drbd-reactor config for a DRBD resource that does not exist', async () => {
+      const MISSING = "Error: 'drbdsetup status' not executed successfully";
+      vi.mocked(getDrbdReactorStatus).mockImplementation(
+        later(
+          report({}, [
+            { node: 'node-a', notInstalled: false, missingResource: true, message: MISSING },
+            { node: 'node-b', notInstalled: false, missingResource: true, message: MISSING },
+          ]),
+        ),
+      );
+      renderList();
+      expect(
+        await screen.findByText(
+          'A drbd-reactor config names a DRBD resource that does not exist, so no status can be read on: node-a, node-b. Remove that config from /etc/drbd-reactor.d/ or create the resource.',
+        ),
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/Could not read the drbd-reactor status|drbdsetup status/)).toBeNull();
+      expect(screen.queryByText(/is not installed/)).toBeNull();
+    });
+
     it('shows any other failure with its message', async () => {
       vi.mocked(getDrbdReactorStatus).mockImplementation(
         later(
           report({ 'node-a': runningStatus['node-a'] }, [
-            { node: 'node-b', notInstalled: false, message: 'Error: cannot read config' },
+            { node: 'node-b', notInstalled: false, missingResource: false, message: 'Error: cannot read config' },
           ]),
         ),
       );

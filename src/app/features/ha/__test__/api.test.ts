@@ -123,18 +123,32 @@ describe('ha api', () => {
             stdout_utf8: '',
             stderr_utf8: 'Cannot run program "drbd-reactorctl": Exec failed, error: 2 (No such file or directory) ',
           },
+          // A promoter config for a DRBD resource that is not configured on the node.
+          {
+            node: 'node-e',
+            exit_code: 1,
+            stdout_utf8: '',
+            stderr_utf8: "Error: 'drbdsetup status' not executed successfully\n",
+          },
         ],
       } as never);
-      const { status, failures } = await getDrbdReactorStatus(['node-a', 'node-b', 'node-c', 'node-d']);
+      const { status, failures } = await getDrbdReactorStatus(['node-a', 'node-b', 'node-c', 'node-d', 'node-e']);
       expect(Object.keys(status)).toEqual(['node-a']);
       expect(status['node-a'].promoter?.[0].drbd_resource).toBe('r');
       expect(logger.error).toHaveBeenCalledWith(expect.stringContaining('node-c'), expect.anything());
       expect(failures).toEqual([
-        { node: 'node-b', notInstalled: false, message: 'Error: cannot read config' },
+        { node: 'node-b', notInstalled: false, missingResource: false, message: 'Error: cannot read config' },
         {
           node: 'node-d',
           notInstalled: true,
+          missingResource: false,
           message: 'Cannot run program "drbd-reactorctl": Exec failed, error: 2 (No such file or directory)',
+        },
+        {
+          node: 'node-e',
+          notInstalled: false,
+          missingResource: true,
+          message: "Error: 'drbdsetup status' not executed successfully",
         },
       ]);
     });

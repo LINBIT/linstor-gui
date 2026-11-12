@@ -1244,6 +1244,8 @@ org_role = Viewer`,
     reactor_not_installed_anywhere:
       'drbd-reactor hiçbir düğümde kurulu değil. Bu hizmetleri çalıştıracak düğümlere kurun.',
     reactor_not_installed_on: 'drbd-reactor şu düğümlerde kurulu değil: {{nodes}}',
+    reactor_missing_resource_on:
+      'Bir drbd-reactor yapılandırması var olmayan bir DRBD kaynağını adlandırıyor, bu yüzden şu düğümlerde durum okunamıyor: {{nodes}}. Bu yapılandırmayı /etc/drbd-reactor.d/ dizininden kaldırın veya kaynağı oluşturun.',
     reactor_status_failed: '{{node}} üzerindeki drbd-reactor durumu okunamadı: {{message}}',
     manage_ha_configuration: 'HA Yapılandırmasını Yönet',
     select_unmanaged_configuration_file: 'Yönetilmeyen bir yapılandırma dosyası seçin',

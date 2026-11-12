@@ -110,6 +110,9 @@ interface DrbdReactorFailure {
   node: string;
   // The satellite could not start drbd-reactorctl at all: drbd-reactor is not installed there.
   notInstalled: boolean;
+  // A promoter config on the node names a DRBD resource that is not configured there, e.g. a
+  // config left behind after its resource was deleted; drbd-reactorctl then gives no status at all.
+  missingResource: boolean;
   message: string;
 }
 
@@ -121,6 +124,9 @@ interface DrbdReactorReport {
 // What the satellite reports when the program is missing, e.g.
 // `Cannot run program "drbd-reactorctl": Exec failed, error: 2 (No such file or directory)`.
 const NOT_INSTALLED = /Cannot run program "drbd-reactorctl".*No such file or directory/;
+
+// What drbd-reactorctl status prints when a promoter config names a DRBD resource that does not exist.
+const MISSING_RESOURCE = /'drbdsetup status' not executed successfully/;
 
 // Get DRBD Reactor status from nodes, with the reason for each node that gave none.
 const getDrbdReactorStatus = async (nodes: string[]): Promise<DrbdReactorReport> => {
@@ -138,7 +144,12 @@ const getDrbdReactorStatus = async (nodes: string[]): Promise<DrbdReactorReport>
       }
     } else if (result.exit_code !== 0) {
       const message = (result.stderr_utf8 || result.stdout_utf8 || '').trim();
-      report.failures.push({ node: result.node, notInstalled: NOT_INSTALLED.test(message), message });
+      report.failures.push({
+        node: result.node,
+        notInstalled: NOT_INSTALLED.test(message),
+        missingResource: MISSING_RESOURCE.test(message),
+        message,
+      });
     }
   }
 

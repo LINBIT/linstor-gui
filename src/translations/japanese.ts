@@ -1243,6 +1243,8 @@ org_role = Viewer`,
     reactor_not_installed_anywhere:
       'どのノードにも drbd-reactor がインストールされていません。これらのサービスを実行するノードにインストールしてください。',
     reactor_not_installed_on: 'drbd-reactor がインストールされていないノード: {{nodes}}',
+    reactor_missing_resource_on:
+      'drbd-reactor の設定が存在しない DRBD リソースを指定しているため、次のノードで状態を読み取れません: {{nodes}}。/etc/drbd-reactor.d/ からその設定を削除するか、リソースを作成してください。',
     reactor_status_failed: '{{node}} の drbd-reactor の状態を読み取れませんでした: {{message}}',
     manage_ha_configuration: 'HA 設定を管理',
     select_unmanaged_configuration_file: '未管理の設定ファイルを選択',

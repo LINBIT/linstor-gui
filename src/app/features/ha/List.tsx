@@ -43,7 +43,8 @@ export const List = () => {
   // Nodes that gave no status: without drbd-reactor they would otherwise just show nothing.
   const failures = reactor.reactorFailures ?? [];
   const notInstalled = failures.filter((f) => f.notInstalled).map((f) => f.node);
-  const otherFailures = failures.filter((f) => !f.notInstalled);
+  const missingResource = failures.filter((f) => f.missingResource).map((f) => f.node);
+  const otherFailures = failures.filter((f) => !f.notInstalled && !f.missingResource);
   const installedNowhere = notInstalled.length > 0 && notInstalled.length === reactor.nodeNames.length;
 
   return (
@@ -58,6 +59,14 @@ export const List = () => {
               ? t('ha:reactor_not_installed_anywhere')
               : t('ha:reactor_not_installed_on', { nodes: notInstalled.join(', ') })
           }
+        />
+      )}
+      {missingResource.length > 0 && (
+        <Alert
+          className="mb-4"
+          type="warning"
+          showIcon
+          title={t('ha:reactor_missing_resource_on', { nodes: missingResource.join(', ') })}
         />
       )}
       {otherFailures.length > 0 && (
