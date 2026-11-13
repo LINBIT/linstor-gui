@@ -4,9 +4,8 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Skeleton } from 'antd';
-import Chart from '@app/components/Chart';
 import './index.css';
 import { useWindowSize, useThemeMode } from '@app/hooks';
 import { NODE_DETAILS_PANEL_GAP, NODE_DETAILS_PANEL_PADDING, NODE_DETAILS_PANEL_ROW_HEIGHT } from './constants';
@@ -19,7 +18,12 @@ import { OverviewHeader } from './OverviewHeader';
 import { NodeTooltip } from './NodeTooltip';
 import { ChartLegend } from './ChartLegend';
 
-/** The chart's place while the pools load: as tall as the chart, so nothing below it moves. */
+// apexcharts is the largest chunk the GUI ships (~710 kB). Loaded lazily, it
+// downloads alongside the storage pool request instead of holding back the
+// whole page that shows this card.
+const Chart = lazy(() => import('@app/components/Chart'));
+
+/** The chart's place while the pools or the chart library load: as tall as the chart, so nothing below it moves. */
 const ChartSkeleton: React.FC<{ height: number }> = ({ height }) => (
   <Skeleton.Node active className="!block" style={{ width: '100%', height }} />
 );
@@ -119,7 +123,9 @@ export const StoragePoolInfo: React.FC = () => {
             />
           )}
           <div style={{ height: chartHeight, ...widthForChart }}>
-            <Chart options={options} series={chartData.series} type="bar" height={chartHeight} {...widthForChart} />
+            <Suspense fallback={<ChartSkeleton height={chartHeight} />}>
+              <Chart options={options} series={chartData.series} type="bar" height={chartHeight} {...widthForChart} />
+            </Suspense>
           </div>
           {hoveredNode && (
             <div

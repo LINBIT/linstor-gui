@@ -148,7 +148,8 @@ export default defineConfig(({ mode, command }) => {
       // Two lazy chunks sit between 500 and 720 kB and cannot be split
       // further: apexcharts (~710 kB: apexcharts 8's core, which grew by
       // ~80 kB over 7, plus the types and features @app/components/Chart
-      // registers), and the OCF agent catalog data behind the reactor editor
+      // registers; StoragePoolInfo imports it lazily, so it never holds back
+      // the Dashboard), and the OCF agent catalog data behind the reactor editor
       // (~540 kB). Anything else crossing 500 kB should still warn, which
       // fails the build (warningGate), so the limit only covers those two.
       chunkSizeWarningLimit: 720,

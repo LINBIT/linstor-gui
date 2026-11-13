@@ -1,5 +1,11 @@
 # Changelog
 
+# Unreleased
+
+### Changed
+
+- The Dashboard no longer waits for the chart library before it shows anything
+
 # 2.7.1 - 2026-11-11
 
 ### Added
