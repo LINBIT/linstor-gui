@@ -645,6 +645,7 @@ const ru = {
     diskful: 'Diskful',
     drbd_diskless: 'DRBD Diskless',
     storage_pool_required: 'Выберите пул хранения',
+    no_resources_placed: 'Нет ресурсов',
     list: 'Список ресурсов',
     overview: 'Обзор ресурсов',
     create: 'Создать ресурс',

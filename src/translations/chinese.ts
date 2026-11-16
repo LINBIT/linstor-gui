@@ -766,6 +766,7 @@ const zh = {
     diskful: '有盘',
     drbd_diskless: 'DRBD 无盘',
     storage_pool_required: '请选择存储池',
+    no_resources_placed: '没有资源',
     list: '资源列表',
     create: '创建资源',
     overview: '资源概览',

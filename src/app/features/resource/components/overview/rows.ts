@@ -17,33 +17,33 @@ export const mergeOverviewRows = (
   return resourceDefinitions.map((resource): OverviewRow => {
     const { name, volume_definitions: volumeDefinitions } = resource;
 
+    const deployed = resourcesView?.filter((e) => e.name === name) ?? [];
+
     const resourceWithVolumes: OverviewRow = {
       ...resource,
+      resourceCount: deployed.length,
       volumes: [],
       volumeDefinitions: volumeDefinitions || [],
     };
 
-    resourceWithVolumes.volumes =
-      resourcesView
-        ?.filter((e) => e.name === name)
-        ?.flatMap(
-          (e) =>
-            e.volumes?.map((v): OverviewVolume => {
-              const matchingVolume = volumeDefinitions?.find((vd) => vd.volume_number === v.volume_number);
-              return {
-                ...v,
-                size_kib: matchingVolume?.size_kib || 0,
-                node_name: e.node_name,
-                resource_name: e.name,
-                primary_node: e.state?.in_use ? (e.node_name ?? '') : '',
-                resource_group_name: resource.resource_group_name || '',
-                flags: e.flags,
-                volume_definition: matchingVolume,
-                resource: e,
-                resourceDefinition: resource,
-              };
-            }) || [],
-        ) ?? [];
+    resourceWithVolumes.volumes = deployed.flatMap(
+      (e) =>
+        e.volumes?.map((v): OverviewVolume => {
+          const matchingVolume = volumeDefinitions?.find((vd) => vd.volume_number === v.volume_number);
+          return {
+            ...v,
+            size_kib: matchingVolume?.size_kib || 0,
+            node_name: e.node_name,
+            resource_name: e.name,
+            primary_node: e.state?.in_use ? (e.node_name ?? '') : '',
+            resource_group_name: resource.resource_group_name || '',
+            flags: e.flags,
+            volume_definition: matchingVolume,
+            resource: e,
+            resourceDefinition: resource,
+          };
+        }) || [],
+    );
 
     return resourceWithVolumes;
   });

@@ -32,6 +32,14 @@ const resource = (over: Partial<ResourceDataType> = {}) =>
   }) as ResourceDataType;
 
 describe('mergeOverviewRows', () => {
+  it('counts the nodes a definition is placed on, 0 when it has no resource', () => {
+    const rows = mergeOverviewRows(
+      [definition(), definition({ name: 'res-none' })],
+      [resource(), resource({ node_name: 'node-2' }), resource({ name: 'res-b' })],
+    )!;
+    expect(rows.map((r) => r.resourceCount)).toEqual([2, 0]);
+  });
+
   it('has no rows before the definitions arrive', () => {
     expect(mergeOverviewRows(undefined, [resource()])).toBeUndefined();
   });

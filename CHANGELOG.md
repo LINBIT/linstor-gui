@@ -6,6 +6,10 @@
 
 - The Dashboard no longer waits for the chart library before it shows anything
 
+### Fixed
+
+- Resource Overview shows "No resources" instead of OK for a resource definition that is not placed on any node
+
 # 2.7.1 - 2026-11-11
 
 ### Added

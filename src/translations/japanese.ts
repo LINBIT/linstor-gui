@@ -645,6 +645,7 @@ const ja = {
     diskful: 'Diskful',
     drbd_diskless: 'DRBD Diskless',
     storage_pool_required: 'ストレージプールを選択してください',
+    no_resources_placed: 'リソースなし',
     list: 'リソースリスト',
     overview: 'リソース概要',
     create: 'リソース作成',

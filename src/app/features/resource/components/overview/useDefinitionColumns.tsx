@@ -32,7 +32,7 @@ export interface DefinitionActions {
 
 /** The definition table's columns; the last one is the per-definition menu. */
 export const useDefinitionColumns = (mode: UIMode | undefined, actions: DefinitionActions) => {
-  const { t } = useTranslation(['volume', 'common']);
+  const { t } = useTranslation(['volume', 'common', 'resource']);
 
   const columns: DefinitionColumns = [
     {
@@ -84,6 +84,11 @@ export const useDefinitionColumns = (mode: UIMode | undefined, actions: Definiti
 
         if (isResizing) {
           return <Tag tone="warning">RESIZING</Tag>;
+        }
+
+        // Nothing to be healthy yet: the definition was never placed, or lost every resource.
+        if (rd.resourceCount === 0) {
+          return <Tag>{t('resource:no_resources_placed')}</Tag>;
         }
 
         const stateOfResources = rd.volumes?.map((e) => connectionStatus(e.resource));

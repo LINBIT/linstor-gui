@@ -645,6 +645,7 @@ const tr = {
     diskful: 'Diskful',
     drbd_diskless: 'DRBD Diskless',
     storage_pool_required: 'Lütfen bir depolama havuzu seçin',
+    no_resources_placed: 'Kaynak yok',
     list: 'Kaynak Listesi',
     overview: 'Kaynak Genel Bakış',
     create: 'Kaynak Oluştur',

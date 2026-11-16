@@ -268,6 +268,9 @@ describe('resource OverviewList', () => {
     // node-2 reports its link to node-1 as down.
     await waitFor(() => expect(within(rowOf('res-a')).getByText('node-1 Connecting')).toBeInTheDocument());
     expect(within(rowOf('res-b')).getByText('RESIZING')).toBeInTheDocument();
+    // A definition without any resource is not OK, it is not placed at all.
+    expect(within(rowOf('res-empty')).getByText('No resources')).toBeInTheDocument();
+    expect(within(rowOf('res-empty')).queryByText('OK')).not.toBeInTheDocument();
     expect(screen.getByText('Total 3 items')).toBeInTheDocument();
   });
 

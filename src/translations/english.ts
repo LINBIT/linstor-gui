@@ -809,6 +809,7 @@ const en = {
     diskful: 'Diskful',
     drbd_diskless: 'DRBD Diskless',
     storage_pool_required: 'Please select a storage pool',
+    no_resources_placed: 'No resources',
   },
   volume: {
     list: 'Volume List',

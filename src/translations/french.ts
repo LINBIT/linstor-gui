@@ -652,6 +652,7 @@ const fr = {
     diskful: 'Diskful',
     drbd_diskless: 'DRBD Diskless',
     storage_pool_required: 'Veuillez sélectionner un pool de stockage',
+    no_resources_placed: 'Aucune ressource',
     list: 'Liste des ressources',
     overview: 'Aperçu des ressources',
     create: 'Créer une ressource',

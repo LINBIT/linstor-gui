@@ -24,6 +24,8 @@ export type OverviewVolume = VolumeType & {
 
 /** A resource definition with its deployed volumes, as the overview table lists it. */
 export type OverviewRow = ResourceDefinition & {
+  /** How many nodes the definition is placed on; 0 for a definition without any resource. */
+  resourceCount: number;
   volumes: OverviewVolume[];
   volumeDefinitions: VolumeDefinition[];
 };
