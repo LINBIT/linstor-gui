@@ -609,6 +609,10 @@ const de = {
       'Stellen Sie sicher, dass drbd-kmod auf den Knoten installiert ist, auf denen Sie DRBD verwenden möchten',
   },
   resource_definition: {
+    place_count_min: 'Die Anzahl der Platzierungen muss mindestens 1 sein',
+    place_count_max: 'Nur {{count}} Knoten haben einen Speicherpool, den diese Ressourcengruppe nutzen kann',
+    create_rolled_back:
+      '{{name}} konnte nicht angelegt und platziert werden, daher wurde die neue Ressourcendefinition wieder entfernt. Passen Sie das Formular an und senden Sie es erneut.',
     please_input_resource_definition_name: 'Bitte Namen der Ressourcendefinition eingeben',
     are_you_sure_delete_resource_definition: 'Ressourcendefinition {{name}} wirklich löschen?',
     delete_resource_definition: 'Ressourcendefinition löschen',

@@ -714,6 +714,9 @@ const zh = {
     drbd_kmod_hint: '请确认要使用 DRBD 的节点上已安装 drbd-kmod',
   },
   resource_definition: {
+    place_count_min: 'Place count 至少为 1',
+    place_count_max: '只有 {{count}} 个节点上有这个资源组可用的存储池',
+    create_rolled_back: '{{name}} 未能创建并放置，刚创建的资源定义已删除。请调整表单后重新提交。',
     please_input_resource_definition_name: '请输入资源定义名称',
     are_you_sure_delete_resource_definition: '确定删除资源定义 {{name}}？',
     delete_resource_definition: '删除资源定义',

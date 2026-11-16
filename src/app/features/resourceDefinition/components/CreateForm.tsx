@@ -6,7 +6,7 @@
 
 import { logger } from '@app/utils/logger';
 import { useMutation } from '@tanstack/react-query';
-import { Form } from 'antd';
+import { Form, message } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
@@ -15,7 +15,14 @@ import { useNavigate } from 'react-router-dom';
 import { useResourceGroups } from '@app/features/resourceGroup';
 import { useStoragePools } from '@app/features/storagePool';
 import { fullySuccess } from '@app/features/requests';
-import { createResourceDefinition, createVolumeDefinition, autoPlace, updateResourceDefinition } from '../api';
+import {
+  createResourceDefinition,
+  createVolumeDefinition,
+  autoPlace,
+  updateResourceDefinition,
+  deleteResourceDefinition,
+} from '../api';
+import { usableNodes } from '../usableNodes';
 import {
   CreateResourceDefinitionRequestBody,
   CreateVolumeDefinitionRequestBody,
@@ -98,6 +105,10 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
     },
   });
 
+  const deleteResourceDefinitionMutation = useMutation({
+    mutationFn: (name: string) => deleteResourceDefinition(name),
+  });
+
   const autoPlaceMutation = useMutation({
     mutationFn: (
       data: AutoPlaceRequestBody & {
@@ -158,62 +169,54 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
 
     // A request that fails without a reply rejects; the mutation cache has
     // reported it (createQueryClient), so the submit only stops here.
+    let created = false;
     try {
       const rdRes = await createResourceDefinitionMutation.mutateAsync(resourceDefinitionData);
+      if (!fullySuccess(rdRes.data)) return;
+      created = true;
 
-      if (fullySuccess(rdRes.data)) {
-        // Only create volume definition if we have a size
-        if (values.size) {
-          const vdRes = await createVolumeDefinitionMutation.mutateAsync({
-            ...volumeDefinitionData,
-            resource: values.name,
-          });
-
-          if (fullySuccess(vdRes.data)) {
-            if (values.deploy) {
-              try {
-                const autoPlaceRes = await autoPlaceMutation.mutateAsync({
-                  ...deployData,
-                  resource: values.name,
-                });
-                if (fullySuccess(autoPlaceRes.data)) {
-                  backToList();
-                } else {
-                  logger.debug('Auto-place failed:', autoPlaceRes.data);
-                  backToList();
-                }
-              } catch (error) {
-                logger.debug('Error during auto-place:', error);
-                // Still navigate back even if auto-place fails
-                backToList();
-              }
-            } else {
-              backToList();
-            }
-          }
-        } else if (values.deploy) {
-          // If no size but deploy is true, try auto-place anyway
-          try {
-            const autoPlaceRes = await autoPlaceMutation.mutateAsync({
-              ...deployData,
-              resource: values.name,
-            });
-            if (fullySuccess(autoPlaceRes.data)) {
-              backToList();
-            } else {
-              logger.debug('Auto-place failed:', autoPlaceRes.data);
-              backToList();
-            }
-          } catch (error) {
-            logger.debug('Error during auto-place:', error);
-            backToList();
-          }
-        } else {
-          backToList();
+      // A zero size spawns without a volume, as LINSTOR allows.
+      if (values.size) {
+        const vdRes = await createVolumeDefinitionMutation.mutateAsync({
+          ...volumeDefinitionData,
+          resource: values.name,
+        });
+        if (!fullySuccess(vdRes.data)) {
+          await rollBack(values.name);
+          return;
         }
       }
+
+      if (values.deploy) {
+        const placeRes = await autoPlaceMutation.mutateAsync({ ...deployData, resource: values.name });
+        if (!fullySuccess(placeRes.data)) {
+          logger.debug('Auto-place failed:', placeRes.data);
+          await rollBack(values.name);
+          return;
+        }
+      }
+
+      backToList();
     } catch (error) {
       logger.debug(error);
+      if (created) await rollBack(values.name);
+    }
+  };
+
+  /**
+   * Removes a definition this submit created when a later step failed, so a
+   * retry starts clean instead of with a definition that has no resources.
+   * The form stays open with what was entered; the failed step's error has
+   * already been toasted by the request layer.
+   */
+  const rollBack = async (name: string) => {
+    try {
+      const res = await deleteResourceDefinitionMutation.mutateAsync(name);
+      if (fullySuccess(res.data)) {
+        void message.warning(t('resource_definition:create_rolled_back', { name }));
+      }
+    } catch (error) {
+      logger.debug('Rolling back the definition failed:', error);
     }
   };
 
@@ -221,7 +224,14 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
     updateMutation.isPending ||
     createResourceDefinitionMutation.isPending ||
     createVolumeDefinitionMutation.isPending ||
-    autoPlaceMutation.isPending;
+    autoPlaceMutation.isPending ||
+    deleteResourceDefinitionMutation.isPending;
+
+  const placeCountLimit = (group: string | undefined) =>
+    usableNodes(
+      storagePools,
+      resourceGroups?.find((g) => g.name === group),
+    ).length;
 
   const isDisabled = resourceGroupsIsLoading || storagePoolsIsLoading || !resourceGroups || !storagePools;
 
@@ -307,7 +317,31 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
             </Form.Item>
           )}
 
-          <Form.Item name="place_count" label={t('common:place_count')} required>
+          <Form.Item
+            name="place_count"
+            label={t('common:place_count')}
+            required
+            // Another group may place on fewer nodes.
+            dependencies={['resource_group_name']}
+            rules={[
+              {
+                validator: (_, value) => {
+                  const count = Number(value);
+                  // Read when it runs: the item keeps the rule from an earlier render.
+                  const maxPlaceCount = placeCountLimit(form.getFieldValue('resource_group_name'));
+                  if (!Number.isInteger(count) || count < 1) {
+                    return Promise.reject(new Error(t('resource_definition:place_count_min')));
+                  }
+                  if (count > maxPlaceCount) {
+                    return Promise.reject(
+                      new Error(t('resource_definition:place_count_max', { count: maxPlaceCount })),
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+          >
             <Input placeholder={t('resource:please_input_place_count')} type="number" min={0} />
           </Form.Item>
 

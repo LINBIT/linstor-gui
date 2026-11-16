@@ -599,6 +599,10 @@ const tr = {
     drbd_kmod_hint: 'DRBD kullanmak istediğiniz düğümlerde drbd-kmod’un kurulu olduğundan emin olun',
   },
   resource_definition: {
+    place_count_min: 'Yerleştirme sayısı en az 1 olmalı',
+    place_count_max: 'Yalnızca {{count}} düğümde bu kaynak grubunun kullanabileceği bir depolama havuzu var',
+    create_rolled_back:
+      '{{name}} oluşturulup yerleştirilemedi, bu yüzden yeni kaynak tanımı yeniden kaldırıldı. Formu düzenleyip yeniden gönderin.',
     please_input_resource_definition_name: 'Lütfen kaynak tanımı adını girin',
     are_you_sure_delete_resource_definition: '{{name}} adlı kaynak tanımını silmek istediğinizden emin misiniz?',
     delete_resource_definition: 'Kaynak tanımını sil',

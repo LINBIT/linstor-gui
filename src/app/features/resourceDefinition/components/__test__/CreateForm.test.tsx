@@ -8,7 +8,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
 
 import { CreateForm } from '../CreateForm';
-import { createResourceDefinition, createVolumeDefinition, autoPlace, updateResourceDefinition } from '../../api';
+import {
+  createResourceDefinition,
+  createVolumeDefinition,
+  autoPlace,
+  updateResourceDefinition,
+  deleteResourceDefinition,
+} from '../../api';
 import { renderWithClient, selectOption, ok, failed } from './helpers';
 
 vi.mock('../../api', () => ({
@@ -16,12 +22,20 @@ vi.mock('../../api', () => ({
   createVolumeDefinition: vi.fn(),
   autoPlace: vi.fn(),
   updateResourceDefinition: vi.fn(),
+  deleteResourceDefinition: vi.fn(),
 }));
+
+const POOLS = vi.hoisted(() => [
+  { storage_pool_name: 'sp1', node_name: 'n1', provider_kind: 'LVM_THIN' },
+  { storage_pool_name: 'sp1', node_name: 'n2', provider_kind: 'LVM_THIN' },
+  { storage_pool_name: 'sp2', node_name: 'n3', provider_kind: 'LVM' },
+  { storage_pool_name: 'DfltDisklessStorPool', node_name: 'n4', provider_kind: 'DISKLESS' },
+]);
 
 const hoisted = vi.hoisted(() => ({
   navigate: vi.fn(),
   groups: { isLoading: false, data: [{ name: 'DfltRscGrp' }, { name: 'rg1' }] as unknown },
-  pools: { isLoading: false, data: [{ storage_pool_name: 'sp1' }] as unknown },
+  pools: { isLoading: false, data: POOLS as unknown },
 }));
 
 vi.mock('react-router-dom', async (importOriginal) => ({
@@ -54,11 +68,12 @@ describe('resourceDefinition CreateForm', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     hoisted.groups = { isLoading: false, data: [{ name: 'DfltRscGrp' }, { name: 'rg1' }] };
-    hoisted.pools = { isLoading: false, data: [{ storage_pool_name: 'sp1' }] };
+    hoisted.pools = { isLoading: false, data: POOLS };
     vi.mocked(createResourceDefinition).mockResolvedValue(ok as never);
     vi.mocked(createVolumeDefinition).mockResolvedValue(ok as never);
     vi.mocked(autoPlace).mockResolvedValue(ok as never);
     vi.mocked(updateResourceDefinition).mockResolvedValue(ok as never);
+    vi.mocked(deleteResourceDefinition).mockResolvedValue(ok as never);
   });
 
   it('validates the name', async () => {
@@ -125,7 +140,7 @@ describe('resourceDefinition CreateForm', () => {
     await waitFor(() => expect(hoisted.navigate).toHaveBeenCalledWith(-1));
   });
 
-  it('still leaves the page when the placement fails', async () => {
+  it('removes the new definition and stays on the form when the placement request fails', async () => {
     vi.mocked(autoPlace).mockRejectedValue(new Error('no nodes'));
     renderWithClient(<CreateForm />);
 
@@ -134,8 +149,15 @@ describe('resourceDefinition CreateForm', () => {
     fireEvent.change(await screen.findByPlaceholderText('Please input size'), { target: { value: '1' } });
     submit();
 
-    await waitFor(() => expect(autoPlace).toHaveBeenCalled());
-    await waitFor(() => expect(hoisted.navigate).toHaveBeenCalledWith(-1));
+    await waitFor(() => expect(deleteResourceDefinition).toHaveBeenCalledWith('rd9'));
+    expect(
+      await screen.findByText(
+        'rd9 could not be created and placed, so the new resource definition was removed again. Adjust the form and submit again.',
+      ),
+    ).toBeInTheDocument();
+    expect(hoisted.navigate).not.toHaveBeenCalled();
+    // What was entered is still there for the retry.
+    expect(nameInput()).toHaveValue('rd9');
   });
 
   it('stops after a failed definition create', async () => {
@@ -150,10 +172,12 @@ describe('resourceDefinition CreateForm', () => {
     await waitFor(() => expect(createResourceDefinition).toHaveBeenCalled());
     await new Promise((resolve) => setTimeout(resolve, 50));
     expect(createVolumeDefinition).not.toHaveBeenCalled();
+    // Nothing was created, so nothing is removed.
+    expect(deleteResourceDefinition).not.toHaveBeenCalled();
     expect(hoisted.navigate).not.toHaveBeenCalled();
   });
 
-  it('stops after a failed volume create', async () => {
+  it('removes the new definition after a failed volume create', async () => {
     vi.mocked(createVolumeDefinition).mockResolvedValue(failed as never);
     renderWithClient(<CreateForm />);
 
@@ -162,8 +186,7 @@ describe('resourceDefinition CreateForm', () => {
     fireEvent.change(await screen.findByPlaceholderText('Please input size'), { target: { value: '1' } });
     submit();
 
-    await waitFor(() => expect(createVolumeDefinition).toHaveBeenCalled());
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await waitFor(() => expect(deleteResourceDefinition).toHaveBeenCalledWith('rd9'));
     expect(autoPlace).not.toHaveBeenCalled();
     expect(hoisted.navigate).not.toHaveBeenCalled();
   });
@@ -249,9 +272,7 @@ describe('resourceDefinition CreateForm', () => {
     expect(hoisted.navigate).not.toHaveBeenCalled();
   });
 
-  it('leaves the page when the controller answers the placement with an error', async () => {
-    // The definition and its volume exist by then; the error toast comes from
-    // the request layer, and the new definition is on the list to retry from.
+  it('removes the new definition when the controller answers the placement with an error', async () => {
     vi.mocked(autoPlace).mockResolvedValue(failed as never);
     renderWithClient(<CreateForm />);
 
@@ -260,8 +281,56 @@ describe('resourceDefinition CreateForm', () => {
     fireEvent.change(await screen.findByPlaceholderText('Please input size'), { target: { value: '1' } });
     submit();
 
-    await waitFor(() => expect(autoPlace).toHaveBeenCalled());
-    await waitFor(() => expect(hoisted.navigate).toHaveBeenCalledWith(-1));
+    await waitFor(() => expect(deleteResourceDefinition).toHaveBeenCalledWith('rd9'));
+    expect(hoisted.navigate).not.toHaveBeenCalled();
+  });
+
+  it('stays on the form without the notice when removing the definition fails too', async () => {
+    vi.mocked(autoPlace).mockResolvedValue(failed as never);
+    vi.mocked(deleteResourceDefinition).mockResolvedValue(failed as never);
+    renderWithClient(<CreateForm />);
+
+    fireEvent.change(nameInput(), { target: { value: 'rd9' } });
+    fireEvent.click(screen.getByRole('switch'));
+    fireEvent.change(await screen.findByPlaceholderText('Please input size'), { target: { value: '1' } });
+    submit();
+
+    await waitFor(() => expect(deleteResourceDefinition).toHaveBeenCalled());
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(screen.queryByText(/was removed again/)).toBeNull();
+    expect(hoisted.navigate).not.toHaveBeenCalled();
+  });
+
+  it('limits the place count to the nodes with a storage pool the group can use', async () => {
+    hoisted.groups = {
+      isLoading: false,
+      data: [{ name: 'DfltRscGrp' }, { name: 'rg1', select_filter: { storage_pool: 'sp1' } }],
+    };
+    renderWithClient(<CreateForm />);
+
+    fireEvent.change(nameInput(), { target: { value: 'rd9' } });
+    fireEvent.click(screen.getByRole('switch'));
+    fireEvent.change(await screen.findByPlaceholderText('Please input size'), { target: { value: '1' } });
+    const placeCount = screen.getByRole('spinbutton', { name: 'Place Count' });
+
+    // n1-n3 have diskful pools; the diskless pool on n4 does not count.
+    fireEvent.change(placeCount, { target: { value: '4' } });
+    submit();
+    expect(
+      await screen.findByText('Only 3 nodes have a storage pool this resource group can place on'),
+    ).toBeInTheDocument();
+
+    fireEvent.change(placeCount, { target: { value: '0' } });
+    expect(await screen.findByText('Place count must be at least 1')).toBeInTheDocument();
+
+    // rg1 places on sp1 only, which two nodes have.
+    await selectOption(screen.getAllByRole('combobox')[0], 'rg1');
+    fireEvent.change(placeCount, { target: { value: '3' } });
+    submit();
+    expect(
+      await screen.findByText('Only 2 nodes have a storage pool this resource group can place on'),
+    ).toBeInTheDocument();
+    expect(createResourceDefinition).not.toHaveBeenCalled();
   });
 
   it('places without a volume when the size is zero', async () => {

@@ -752,6 +752,10 @@ const en = {
     drbd_kmod_hint: 'Please make sure you have drbd-kmod installed on the nodes you wish to use DRBD on',
   },
   resource_definition: {
+    place_count_min: 'Place count must be at least 1',
+    place_count_max: 'Only {{count}} nodes have a storage pool this resource group can place on',
+    create_rolled_back:
+      '{{name}} could not be created and placed, so the new resource definition was removed again. Adjust the form and submit again.',
     please_input_resource_definition_name: 'Please input resource definition name',
     are_you_sure_delete_resource_definition: 'Are you sure you want to delete resource definition {{name}}?',
     delete_resource_definition: 'Delete resource definition',

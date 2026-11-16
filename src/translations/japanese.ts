@@ -600,6 +600,10 @@ const ja = {
     drbd_kmod_hint: 'DRBD を使うノードに drbd-kmod がインストールされていることを確認してください',
   },
   resource_definition: {
+    place_count_min: '配置数は 1 以上にしてください',
+    place_count_max: 'このリソースグループが使えるストレージプールを持つノードは {{count}} 台だけです',
+    create_rolled_back:
+      '{{name}} を作成して配置できなかったため、新しいリソース定義を削除しました。フォームを調整して再送信してください。',
     please_input_resource_definition_name: 'リソース定義名を入力してください',
     are_you_sure_delete_resource_definition: 'リソース定義 {{name}} を削除してもよろしいですか。',
     delete_resource_definition: 'リソース定義を削除',

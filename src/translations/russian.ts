@@ -599,6 +599,10 @@ const ru = {
     drbd_kmod_hint: 'Убедитесь, что drbd-kmod установлен на узлах, где вы хотите использовать DRBD',
   },
   resource_definition: {
+    place_count_min: 'Количество размещений должно быть не меньше 1',
+    place_count_max: 'Только у {{count}} узлов есть пул хранения, доступный этой группе ресурсов',
+    create_rolled_back:
+      'Не удалось создать и разместить {{name}}, поэтому новое определение ресурса удалено. Измените форму и отправьте снова.',
     please_input_resource_definition_name: 'Введите имя определения ресурса',
     are_you_sure_delete_resource_definition: 'Действительно удалить определение ресурса {{name}}?',
     delete_resource_definition: 'Удалить определение ресурса',

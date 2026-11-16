@@ -603,6 +603,10 @@ const es = {
     drbd_kmod_hint: 'Asegúrese de que drbd-kmod esté instalado en los nodos donde quiera usar DRBD',
   },
   resource_definition: {
+    place_count_min: 'El número de ubicaciones debe ser al menos 1',
+    place_count_max: 'Solo {{count}} nodos tienen un pool de almacenamiento que este grupo de recursos puede usar',
+    create_rolled_back:
+      'No se pudo crear y ubicar {{name}}, así que la nueva definición de recurso se eliminó. Ajuste el formulario y envíelo de nuevo.',
     please_input_resource_definition_name: 'Introduzca el nombre de la definición de recurso',
     are_you_sure_delete_resource_definition: '¿Seguro que desea eliminar la definición de recurso {{name}}?',
     delete_resource_definition: 'Eliminar definición de recurso',

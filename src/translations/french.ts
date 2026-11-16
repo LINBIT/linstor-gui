@@ -604,6 +604,10 @@ const fr = {
     drbd_kmod_hint: 'Vérifiez que drbd-kmod est installé sur les nœuds où vous voulez utiliser DRBD',
   },
   resource_definition: {
+    place_count_min: 'Le nombre de placements doit être d’au moins 1',
+    place_count_max: 'Seuls {{count}} nœuds ont un pool de stockage utilisable par ce groupe de ressources',
+    create_rolled_back:
+      '{{name}} n’a pas pu être créé et placé, la nouvelle définition de ressource a donc été supprimée. Modifiez le formulaire et soumettez-le à nouveau.',
     please_input_resource_definition_name: 'Veuillez saisir le nom de la définition de ressource',
     are_you_sure_delete_resource_definition: 'Voulez-vous vraiment supprimer la définition de ressource {{name}} ?',
     delete_resource_definition: 'Supprimer la définition de ressource',
