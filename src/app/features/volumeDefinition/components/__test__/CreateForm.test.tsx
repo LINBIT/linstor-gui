@@ -74,6 +74,45 @@ describe('volume definition CreateForm', () => {
     expect(options.map((o) => o.textContent)).toEqual(['res-a', 'res-b']);
   });
 
+  it('filters the resource definitions as the user types, and Enter picks the typed one', async () => {
+    vi.mocked(getResourceDefinition).mockResolvedValue({
+      data: [{ name: 'grafana_ha' }, { name: 't-auto3' }, { name: 't-dl' }],
+    } as never);
+    renderForm();
+    await openModal();
+    const select = screen.getAllByRole('combobox')[0];
+    fireEvent.mouseDown(select);
+    await screen.findByText('grafana_ha', { selector: '.ant-select-item-option-content' });
+
+    fireEvent.change(select, { target: { value: 't-auto' } });
+    await waitFor(() =>
+      expect(screen.queryByText('grafana_ha', { selector: '.ant-select-item-option-content' })).not.toBeInTheDocument(),
+    );
+    expect(screen.queryByText('t-dl', { selector: '.ant-select-item-option-content' })).not.toBeInTheDocument();
+    fireEvent.keyDown(select, { key: 'Enter', code: 'Enter', keyCode: 13, which: 13 });
+    fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '1' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+    await waitFor(() =>
+      expect(createVolumeDefinition).toHaveBeenCalledWith('t-auto3', { volume_definition: { size_kib: GIB } }),
+    );
+  });
+
+  it('picks nothing on Enter when no definition matches', async () => {
+    renderForm();
+    await openModal();
+    const select = screen.getAllByRole('combobox')[0];
+    fireEvent.mouseDown(select);
+    await screen.findByText('res-a', { selector: '.ant-select-item-option-content' });
+    fireEvent.change(select, { target: { value: 'nope' } });
+    fireEvent.keyDown(select, { key: 'Enter', code: 'Enter', keyCode: 13, which: 13 });
+    fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '1' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+    expect(await screen.findByText('Please select resource definition!')).toBeInTheDocument();
+    expect(createVolumeDefinition).not.toHaveBeenCalled();
+  });
+
   it('refuses to spawn without a resource definition and a size', async () => {
     const { refetch } = renderForm();
     await openModal();

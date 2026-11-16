@@ -237,6 +237,8 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
       >
         <Select
           allowClear
+          showSearch
+          optionFilterProp="label"
           placeholder={t('resource:please_select_resource_definition_group')}
           options={resourceDefinitions?.map((e) => ({
             label: e.name,

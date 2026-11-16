@@ -89,6 +89,24 @@ describe('CreateResourceForm', () => {
     expect(autoPlace).not.toHaveBeenCalled();
   });
 
+  it('filters the resource definitions as the user types, and Enter picks the typed one', async () => {
+    renderForm();
+    const select = screen.getAllByRole('combobox')[0];
+    fireEvent.mouseDown(select);
+    await screen.findByText('res-a', { selector: '.ant-select-item-option-content' });
+    fireEvent.change(select, { target: { value: 'res-b' } });
+    await waitFor(() =>
+      expect(screen.queryByText('res-a', { selector: '.ant-select-item-option-content' })).not.toBeInTheDocument(),
+    );
+    fireEvent.keyDown(select, { key: 'Enter', code: 'Enter', keyCode: 13, which: 13 });
+    fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '2' } });
+    submit();
+
+    await waitFor(() =>
+      expect(autoPlace).toHaveBeenCalledWith('res-b', expect.objectContaining({ select_filter: expect.anything() })),
+    );
+  });
+
   it('auto-places with the place count and pool, then goes back', async () => {
     renderForm();
     await pick(screen.getAllByRole('combobox')[0], 'res-a');
