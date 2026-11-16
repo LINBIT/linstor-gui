@@ -1,7 +1,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "config:recommended",
+    ":semanticCommitTypeAll(build)"
   ],
   "schedule": [
     "before 6am on monday"
@@ -9,7 +10,6 @@
   "timezone": "Europe/Vienna",
   "updateNotScheduled": false,
   "semanticCommits": "enabled",
-  "semanticCommitType": "build",
   "semanticCommitScope": "deps",
   "commitBody": null,
   "prBodyTemplate": "{{{table}}}",
@@ -34,12 +34,37 @@
       "groupName": "Playwright"
     },
     {
-      "description": "Node and its types stay on the Node line the project runs on",
-      "matchPackageNames": [
+      "description": "Node and its types stay on the Node line the project runs on, the GitHub workflow included",
+      "matchDepNames": [
         "node",
         "@types/node"
       ],
       "allowedVersions": "<25"
+    },
+    {
+      "description": "The js-yaml override keeps openapi-typescript's YAML parser on 4.x, which it needs",
+      "matchDepNames": [
+        "js-yaml"
+      ],
+      "allowedVersions": "<5"
+    },
+    {
+      "description": "TypeScript stays below 7 until typescript-eslint supports it (typescript-eslint/typescript-eslint#10940)",
+      "matchDepNames": [
+        "typescript"
+      ],
+      "allowedVersions": "<7"
+    },
+    {
+      "description": "react-i18next majors need the matching i18next major, so both come in one MR",
+      "matchPackageNames": [
+        "i18next",
+        "react-i18next"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "groupName": "i18next"
     }
   ]
 }
