@@ -16,26 +16,10 @@ type ReplicationState = {
 type Volume = {
   node_name?: string;
   volume_number?: number;
-  allocated_size_kib?: number;
-  size_kib?: number;
-  /** Set by OverviewList when this volume's parent resource is in use (Primary). */
-  primary_node?: string;
   state?: {
     disk_state?: string;
     replication_states?: Record<string, ReplicationState | undefined>;
   };
-};
-
-const INCONSISTENT_STATES = new Set(['Inconsistent', 'Outdated']);
-
-const findPrimary = (volumes: Volume[]): Volume | undefined =>
-  volumes.find((v) => v?.primary_node && v.primary_node === v.node_name);
-
-const sizeBasedPercent = (volume?: Volume): number | null => {
-  const allocated = volume?.allocated_size_kib;
-  const total = volume?.size_kib;
-  if (typeof allocated !== 'number' || typeof total !== 'number' || total <= 0) return null;
-  return Math.max(0, Math.min(100, (allocated / total) * 100));
 };
 
 type Edge = {
@@ -107,23 +91,9 @@ const collectEdges = (volumes: Volume[]): Edge[] => {
     }
   }
 
-  // Inconsistent / Outdated targets often appear before replication_states is
-  // populated (sync hasn't started or just started). Treat the Primary row as
-  // the implicit source so the user still sees that data is about to flow.
-  const primary = findPrimary(volumes);
-  if (primary) {
-    const primaryKey = `${primary.node_name}:${primary.volume_number}`;
-    for (const volume of volumes) {
-      if (volume === primary) continue;
-      const diskState = volume?.state?.disk_state;
-      if (!diskState || !INCONSISTENT_STATES.has(diskState)) continue;
-      const targetKey = `${volume.node_name}:${volume.volume_number}`;
-      const fwdKey = `${primaryKey}->${targetKey}`;
-      if (byKey.has(fwdKey)) continue;
-      addEdge(primaryKey, targetKey, sizeBasedPercent(volume));
-    }
-  }
-
+  // No arrow without a sync DRBD reports: an Inconsistent volume that no peer
+  // syncs is not "about to receive data", and guessing a source drew arrows
+  // between unrelated rows with the allocated share passed off as progress.
   return Array.from(byKey.values());
 };
 

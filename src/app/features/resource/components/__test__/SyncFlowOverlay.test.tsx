@@ -124,24 +124,26 @@ describe('SyncFlowOverlay', () => {
     expect(labels(container)).toEqual(['10%', '90%']);
   });
 
-  it('treats the primary as the implicit source of an inconsistent peer, sized by allocation', () => {
+  it('draws nothing for an Inconsistent volume that DRBD does not sync', () => {
+    // Volume 1 on node-1 is Inconsistent while its peer link is only
+    // Established, and node-3 is Outdated: no data moves, so no arrow.
     const { container } = renderFlow(
       <Harness
         volumes={[
-          { node_name: 'node-1', volume_number: 0, primary_node: 'node-1', state: { disk_state: 'UpToDate' } },
+          { node_name: 'node-1', volume_number: 0, state: { disk_state: 'UpToDate' } },
           {
-            node_name: 'node-3',
-            volume_number: 0,
-            allocated_size_kib: 250,
-            size_kib: 1000,
-            state: { disk_state: 'Inconsistent' },
+            node_name: 'node-1',
+            volume_number: 1,
+            state: {
+              disk_state: 'Inconsistent',
+              replication_states: { 'node-3': { replication_state: 'Established' } },
+            },
           },
+          { node_name: 'node-3', volume_number: 0, state: { disk_state: 'Outdated' } },
         ]}
       />,
     );
-    expect(paths(container)).toHaveLength(1);
-    expect(paths(container)[0].getAttribute('d')).toMatch(/^M 86 20 C .* 86 120$/);
-    expect(labels(container)).toEqual(['25%']);
+    expect(container.querySelector('svg')).toBeNull();
   });
 
   it('skips edges whose rows are not on the page', () => {
