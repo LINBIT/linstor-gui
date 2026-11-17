@@ -5,7 +5,6 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { formatBytes } from '@app/utils/size';
-import { formatLegendLabel } from './chartData';
 import type { SeriesItem } from './types';
 
 type ChartLegendProps = {
@@ -33,7 +32,7 @@ export const ChartLegend = ({
         onMouseLeave={() => onItemLeave(index)}
       >
         <span className="storage-pool-custom-legend-marker" style={{ background: seriesItem.color }} />
-        <span>{formatLegendLabel(seriesItem.name)}</span>
+        <span>{seriesItem.name}</span>
         <span className="storage-pool-custom-legend-value">{formatBytes(seriesTotals[index])}</span>
       </div>
     ))}

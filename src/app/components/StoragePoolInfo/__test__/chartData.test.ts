@@ -5,13 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import { describe, it, expect } from 'vitest';
-import {
-  buildChartData,
-  formatLegendLabel,
-  getSeriesIndexByGroupAndSide,
-  hoveredChartItemOf,
-  seriesTotalsOf,
-} from '../chartData';
+import { buildChartData, getSeriesIndexByGroupAndSide, hoveredChartItemOf, seriesTotalsOf } from '../chartData';
 
 type Pool = {
   node_name: string;
@@ -52,12 +46,12 @@ describe('buildChartData', () => {
     // n1 carries more used space (210 against 200), so it comes first.
     expect(data.categories).toEqual(['n1', 'n2']);
     expect(data.series.map((s) => [s.name, s.group, s.data])).toEqual([
-      ['a - <b>Used<b>', 'a', [60, 200]],
-      ['a - <b>Free</b>', 'a', [40, 100]],
-      ['b - <b>Used<b>', 'b', [150, 0]],
-      ['b - <b>Free</b>', 'b', [50, 0]],
-      ['Node - <b>Used</b>', 'NodeAll', [210, 200]],
-      ['Node - <b>Free</b>', 'NodeAll', [90, 100]],
+      ['a - Used', 'a', [60, 200]],
+      ['a - Free', 'a', [40, 100]],
+      ['b - Used', 'b', [150, 0]],
+      ['b - Free', 'b', [50, 0]],
+      ['Node - Used', 'NodeAll', [210, 200]],
+      ['Node - Free', 'NodeAll', [90, 100]],
     ]);
   });
 
@@ -101,8 +95,8 @@ describe('buildChartData', () => {
 
 describe('series helpers', () => {
   const series = [
-    { name: 'a - <b>Used<b>', group: 'a', data: [1, 2], color: '#1' },
-    { name: 'a - <b>Free</b>', group: 'a', data: [3, 4], color: '#2' },
+    { name: 'a - Used', group: 'a', side: 'used' as const, data: [1, 2], color: '#1' },
+    { name: 'a - Free', group: 'a', side: 'free' as const, data: [3, 4], color: '#2' },
   ];
 
   it('sums every series over the nodes', () => {
@@ -121,7 +115,20 @@ describe('series helpers', () => {
     expect(hoveredChartItemOf(series, [5])).toBeNull();
   });
 
-  it('strips the markup from legend labels', () => {
-    expect(formatLegendLabel('pool1 - <b>Used<b>')).toBe('pool1 - Used');
+  it('tells free from used by the side, also for a pool whose name says Free', () => {
+    const freePool = [
+      { name: 'Free1 - Used', group: 'Free1', side: 'used' as const, data: [1], color: '#1' },
+      { name: 'Free1 - Free', group: 'Free1', side: 'free' as const, data: [2], color: '#2' },
+    ];
+    expect(getSeriesIndexByGroupAndSide(freePool, 'Free1', 'used')).toBe(0);
+    expect(hoveredChartItemOf(freePool, [0])).toEqual({ group: 'Free1', side: 'used' });
+  });
+
+  it('names the series without markup, so the chart tooltip shows plain text', () => {
+    const names = buildChartData(
+      { data: [{ node_name: 'n1', storage_pool_name: 'a', total_capacity: 10, free_capacity: 4 }] } as never,
+      'light',
+    ).series.map((s) => s.name);
+    expect(names).toEqual(['a - Used', 'a - Free']);
   });
 });

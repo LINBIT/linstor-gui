@@ -14,8 +14,6 @@ import type { ChartData, ChartItem, NodeSummaryItem, SeriesItem } from './types'
 
 type PoolsResponse = Awaited<ReturnType<typeof getStoragePool>>;
 
-export const formatLegendLabel = (seriesName: string): string => seriesName.replace(/<[^>]+>/g, '').trim();
-
 /** The stacked series (used and free per pool, plus node totals when there is
  *  more than one pool), the rendered nodes and each node's per-pool summary. */
 export const buildChartData = (poolsData: PoolsResponse | undefined, mode: ThemeMode): ChartData => {
@@ -90,16 +88,18 @@ export const buildChartData = (poolsData: PoolsResponse | undefined, mode: Theme
     });
 
     spSeries.push({
-      name: `${pool} - <b>Used<b>`, // Show Used above
+      name: `${pool} - Used`, // Show Used above
       group: pool,
+      side: 'used',
       data: totalsForPool.map((total, idx) => total - freeForPool[idx]), // Used = Total - Free
       color: colors.used,
     });
 
     // Used data should come first (on top), followed by free data
     spSeries.push({
-      name: `${pool} - <b>Free</b>`, // Show Free below
+      name: `${pool} - Free`, // Show Free below
       group: pool,
+      side: 'free',
       data: freeForPool,
       color: colors.free,
     });
@@ -128,16 +128,18 @@ export const buildChartData = (poolsData: PoolsResponse | undefined, mode: Theme
     });
   });
 
-  const nodeTotalSeries = {
-    name: 'Node - <b>Free</b>', // Change the name to indicate free space
+  const nodeTotalSeries: SeriesItem = {
+    name: 'Node - Free', // Change the name to indicate free space
     group: 'NodeAll',
+    side: 'free',
     data: allNodes.map((n) => nodeTotals[n] - nodeUsed[n]), // Free = Total - Used
     color: nodeColorPair.free,
   };
 
-  const nodeUsedSeries = {
-    name: 'Node - <b>Used</b>', // Used data should be on top
+  const nodeUsedSeries: SeriesItem = {
+    name: 'Node - Used', // Used data should be on top
     group: 'NodeAll',
+    side: 'used',
     data: allNodes.map((n) => nodeUsed[n]),
     color: nodeColorPair.used,
   };
@@ -169,7 +171,7 @@ export const seriesTotalsOf = (series: SeriesItem[]): number[] =>
   series.map((seriesItem) => seriesItem.data.reduce((sum, value) => sum + value, 0));
 
 export const getSeriesIndexByGroupAndSide = (series: SeriesItem[], group: string, side: 'free' | 'used'): number =>
-  series.findIndex((s) => s.group === group && (side === 'free') === s.name.includes('Free'));
+  series.findIndex((s) => s.group === group && s.side === side);
 
 /** The pool side the first highlighted series stands for, if any. */
 export const hoveredChartItemOf = (series: SeriesItem[], highlightedSeriesIndexes: number[]): ChartItem | null =>
@@ -177,6 +179,6 @@ export const hoveredChartItemOf = (series: SeriesItem[], highlightedSeriesIndexe
     ? (() => {
         const s = series[highlightedSeriesIndexes[0]];
         if (!s) return null;
-        return { group: s.group, side: s.name.includes('Free') ? ('free' as const) : ('used' as const) };
+        return { group: s.group, side: s.side };
       })()
     : null;

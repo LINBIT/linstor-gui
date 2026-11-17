@@ -7,6 +7,8 @@
 export type SeriesItem = {
   name: string;
   group: string;
+  /** Which side of the pool (or node total) the series stacks. */
+  side: 'free' | 'used';
   data: number[];
   color: string;
 };
