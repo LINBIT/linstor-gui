@@ -7,7 +7,14 @@
 import { describe, it, expect } from 'vitest';
 import type { ResourceDefinition } from '@app/features/resourceDefinition';
 import type { ResourceDataType } from '../../types';
-import { auxPropKeys, calculatePercentage, connectionStatus, mergeOverviewRows, resourceKey } from '../overview/rows';
+import {
+  auxPropKeys,
+  calculatePercentage,
+  connectionStatus,
+  diskProblem,
+  mergeOverviewRows,
+  resourceKey,
+} from '../overview/rows';
 import type { OverviewRow, OverviewVolume } from '../overview/types';
 
 const definition = (over: Partial<ResourceDefinition> = {}) =>
@@ -101,6 +108,52 @@ describe('connectionStatus', () => {
         }),
       ),
     ).toBe('node-2 Connecting,node-4 StandAlone');
+  });
+});
+
+describe('diskProblem', () => {
+  const vol = (state: Record<string, unknown>, flags: string[] = [], layers = ['DRBD', 'STORAGE']) =>
+    ({
+      node_name: 'node-2',
+      layer_data_list: layers.map((type) => ({ type })),
+      state,
+      resource: { flags },
+    }) as unknown as OverviewVolume;
+
+  it('is nothing for an UpToDate disk, an intended diskless replica or a volume without DRBD', () => {
+    expect(diskProblem(vol({ disk_state: 'UpToDate' }))).toBeNull();
+    expect(diskProblem(vol({ disk_state: 'Diskless' }, ['DISKLESS', 'DRBD_DISKLESS']))).toBeNull();
+    expect(diskProblem(vol({}, [], ['STORAGE']))).toBeNull();
+  });
+
+  it('is a danger for a disk that cannot serve the data', () => {
+    expect(diskProblem(vol({ disk_state: 'Inconsistent' }))).toEqual({ text: 'node-2 Inconsistent', tone: 'danger' });
+    expect(diskProblem(vol({ disk_state: 'Failed' }))).toEqual({ text: 'node-2 Failed', tone: 'danger' });
+    // Diskless without the DISKLESS flag: the disk was lost, not left out on purpose.
+    expect(diskProblem(vol({ disk_state: 'Diskless' }))).toEqual({ text: 'node-2 Diskless', tone: 'danger' });
+  });
+
+  it('is a warning for an outdated or unknown disk', () => {
+    expect(diskProblem(vol({ disk_state: 'Outdated' }))).toEqual({ text: 'node-2 Outdated', tone: 'warning' });
+    expect(diskProblem(vol({ disk_state: 'DUnknown' }))).toEqual({ text: 'node-2 Unknown', tone: 'warning' });
+  });
+
+  it('shows an Inconsistent disk that receives a sync as the sync with its progress, as a warning', () => {
+    const syncing = (done?: number) =>
+      vol({
+        disk_state: 'Inconsistent',
+        replication_states: { 'node-1': { replication_state: 'SyncTarget', done_percentage: done } },
+      });
+    expect(diskProblem(syncing(12.345))).toEqual({ text: 'node-2 SyncTarget 12.35%', tone: 'warning' });
+    expect(diskProblem(syncing())).toEqual({ text: 'node-2 SyncTarget', tone: 'warning' });
+  });
+
+  it('stays a danger for an Inconsistent disk whose peers are only Established', () => {
+    const stuck = vol({
+      disk_state: 'Inconsistent',
+      replication_states: { 'node-1': { replication_state: 'Established' } },
+    });
+    expect(diskProblem(stuck)).toEqual({ text: 'node-2 Inconsistent', tone: 'danger' });
   });
 });
 

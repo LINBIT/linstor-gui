@@ -5,6 +5,7 @@
 // Author: Liang Li <liang.li@linbit.com>
 
 import type { ResourceDefinition } from '@app/features/resourceDefinition';
+import { getVolumeState } from '@app/utils/resource';
 import type { ResourceDataType } from '../../types';
 import type { OverviewRow, OverviewVolume } from './types';
 
@@ -71,6 +72,32 @@ export const connectionStatus = (resourceItem: ResourceDataType) => {
   fail = count === 0 ? true : fail;
   failStr = fail ? failStr : 'OK';
   return failStr;
+};
+
+// Disk states that mean a replica cannot serve the data, as linstor resource list colours them red.
+const DANGER_DISK_STATES = ['Inconsistent', 'Failed', 'Diskless'];
+const SYNC_TARGET_STATE = /^(SyncTarget|PausedSyncT)$/;
+
+/**
+ * The disk problem of one deployed volume, the way linstor resource list judges it ("<node> <state>"),
+ * or null when its disk is fine. An Inconsistent disk that is receiving a sync is shown as the sync
+ * with its progress and only as a warning, since it heals by itself.
+ */
+export const diskProblem = (vol: OverviewVolume): { text: string; tone: 'danger' | 'warning' } | null => {
+  const [state, isBad] = getVolumeState(vol, vol.resource?.flags ?? []);
+  if (!isBad) return null;
+  const node = vol.node_name ?? '';
+
+  const sync = Object.values(vol.state?.replication_states ?? {}).find((peer) =>
+    SYNC_TARGET_STATE.test(peer?.replication_state ?? ''),
+  );
+  if (vol.state?.disk_state === 'Inconsistent' && sync) {
+    const done = typeof sync.done_percentage === 'number' ? ` ${sync.done_percentage.toFixed(2)}%` : '';
+    return { text: `${node} ${sync.replication_state}${done}`, tone: 'warning' };
+  }
+
+  const tone = DANGER_DISK_STATES.some((s) => state.endsWith(s)) ? 'danger' : 'warning';
+  return { text: `${node} ${state}`, tone };
 };
 
 export const calculatePercentage = (allocated: number = 0, total: number = 0): string => {

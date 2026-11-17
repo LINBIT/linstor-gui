@@ -274,6 +274,53 @@ describe('resource OverviewList', () => {
     expect(screen.getByText('Total 3 items')).toBeInTheDocument();
   });
 
+  it('is not OK while a replica disk is not UpToDate, even with every connection up', async () => {
+    const drbd = { layer_data_list: [{ type: 'DRBD' }, { type: 'STORAGE' }] };
+    const up = (peer: string) => ({ drbd: { connections: { [peer]: { connected: true } } } });
+    vi.mocked(getResources).mockResolvedValue({
+      data: [
+        { name: 'res-a', node_name: 'node-1', flags: [], layer_object: up('node-2'), volumes: [volume(drbd)] },
+        {
+          name: 'res-a',
+          node_name: 'node-2',
+          flags: [],
+          layer_object: up('node-1'),
+          volumes: [volume({ ...drbd, state: { disk_state: 'Inconsistent' } })],
+        },
+        {
+          name: 'res-b',
+          node_name: 'node-1',
+          flags: [],
+          layer_object: { drbd: { connections: {} } },
+          volumes: [
+            volume({
+              ...drbd,
+              state: {
+                disk_state: 'Inconsistent',
+                replication_states: { 'node-2': { replication_state: 'SyncTarget', done_percentage: 42.5 } },
+              },
+            }),
+          ],
+        },
+      ],
+    } as never);
+    vi.mocked(getResourceDefinition).mockResolvedValue({
+      data: definitions.map((d) => ({
+        ...d,
+        volume_definitions: d.volume_definitions.map((v) => ({ ...v, flags: [] })),
+      })),
+    } as never);
+    renderList();
+    await screen.findByText('res-a');
+
+    const stateA = await waitFor(() => within(rowOf('res-a')).getByText('node-2 Inconsistent'));
+    expect(stateA.closest('[data-tone]')).toHaveAttribute('data-tone', 'danger');
+    expect(within(rowOf('res-a')).queryByText('OK')).not.toBeInTheDocument();
+    // A sync heals by itself: shown with its progress, as a warning.
+    const stateB = within(rowOf('res-b')).getByText('node-1 SyncTarget 42.50%');
+    expect(stateB.closest('[data-tone]')).toHaveAttribute('data-tone', 'warning');
+  });
+
   it('filters by name, by aux property value and by resource group', async () => {
     renderList();
     await screen.findByText('res-a');

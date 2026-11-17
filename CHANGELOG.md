@@ -11,6 +11,7 @@
 - Resource Overview shows "No resources" instead of OK for a resource definition that is not placed on any node
 - Create Resource Definition with Spawn on create removes the new definition again when placing it fails and keeps the form open, and the place count cannot exceed the nodes the resource group can place on
 - The resource definition selects in Create Volume Definition and Create Resource filter as you type, and Enter no longer picks an unrelated definition
+- Resource Overview State no longer shows OK while a replica disk is Inconsistent, Outdated, Failed or unexpectedly Diskless; a running sync shows with its progress
 
 # 2.7.1 - 2026-11-11
 

@@ -14,7 +14,7 @@ import { Link } from '@app/components/Link';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { ActionColumnTitle } from '@app/components/ActionColumnTitle';
 import { UIMode } from '@app/features/settings/types';
-import { connectionStatus } from './rows';
+import { connectionStatus, diskProblem } from './rows';
 import type { OverviewRow } from './types';
 
 type DefinitionColumns = NonNullable<TableProps<OverviewRow>['columns']>;
@@ -91,14 +91,16 @@ export const useDefinitionColumns = (mode: UIMode | undefined, actions: Definiti
           return <Tag>{t('resource:no_resources_placed')}</Tag>;
         }
 
-        const stateOfResources = rd.volumes?.map((e) => connectionStatus(e.resource));
+        // A replica whose disk is not usable, or a broken DRBD connection, keeps the row from being OK.
+        const disks = (rd.volumes ?? []).map(diskProblem).filter((p) => p !== null);
+        const connections = (rd.volumes ?? []).map((e) => connectionStatus(e.resource)).filter((s) => s !== 'OK');
+        const problems = Array.from(new Set([...disks.map((p) => p.text), ...connections]));
 
-        const isAllOK = stateOfResources?.every((e) => e === 'OK');
-
-        // Filter out 'OK' and remove duplicates before joining
-        const uniqueNonOKStates = Array.from(new Set(stateOfResources?.filter((e) => e !== 'OK')));
-
-        return <Tag tone={isAllOK ? 'success' : 'danger'}>{isAllOK ? 'OK' : uniqueNonOKStates.join(',')}</Tag>;
+        if (problems.length === 0) {
+          return <Tag tone="success">OK</Tag>;
+        }
+        const isDanger = connections.length > 0 || disks.some((p) => p.tone === 'danger');
+        return <Tag tone={isDanger ? 'danger' : 'warning'}>{problems.join(',')}</Tag>;
       },
     },
     {
