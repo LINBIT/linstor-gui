@@ -231,6 +231,34 @@ describe('storage pool CreateForm', () => {
     expect(screen.getByText('Not a DRBD device.')).toBeInTheDocument();
   });
 
+  it('with several nodes that share no device, the empty list says so instead of the device rules', async () => {
+    const byNode: Record<string, object[]> = {
+      'node-1': [{ device: '/dev/sdb', size: 100 * GIB }],
+      'node-2': [],
+    };
+    vi.mocked(getPhysicalStoragePoolByNode).mockImplementation(
+      ({ node }) => Promise.resolve({ data: byNode[node] }) as never,
+    );
+    renderForm();
+    await pick(nodeSelect(), 'node-1');
+    await pick(nodeSelect(), 'node-2');
+    await waitFor(() => expect(getPhysicalStoragePoolByNode).toHaveBeenCalledWith({ node: 'node-2' }));
+    fireEvent.mouseDown(deviceSelect());
+    expect(await screen.findByText('The 2 chosen nodes have no device in common.')).toBeInTheDocument();
+    expect(screen.queryByText(/^No device can be used\./)).toBeNull();
+  });
+
+  it('with several nodes and no usable device on any of them, the empty list says what LINSTOR takes', async () => {
+    vi.mocked(getPhysicalStoragePoolByNode).mockResolvedValue({ data: [] } as never);
+    renderForm();
+    await pick(nodeSelect(), 'node-1');
+    await pick(nodeSelect(), 'node-2');
+    await waitFor(() => expect(getPhysicalStoragePoolByNode).toHaveBeenCalledWith({ node: 'node-2' }));
+    fireEvent.mouseDown(deviceSelect());
+    expect(await screen.findByText(/^No device can be used\./)).toBeInTheDocument();
+    expect(screen.queryByText(/no device in common/)).toBeNull();
+  });
+
   it('explains the chosen mode under the buttons', async () => {
     renderForm();
     expect(screen.getByText(/^Creates an LVM or ZFS pool on one or more empty devices/)).toBeInTheDocument();

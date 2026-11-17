@@ -505,6 +505,7 @@ const fr = {
     vdo_logical_tooltip: 'La taille logique du volume VDO.',
     common_devices_only: 'Seuls les périphériques présents sur les {{count}} nœuds choisis sont listés.',
     select_node_first: 'Choisissez d’abord un nœud.',
+    no_common_device: "Les {{count}} nœuds choisis n'ont aucun périphérique en commun.",
     no_device: 'Aucun périphérique utilisable. LINSTOR ne propose un périphérique que si tout ceci est vrai :',
     device_rule_size: 'Plus de 1 GiB.',
     device_rule_whole:

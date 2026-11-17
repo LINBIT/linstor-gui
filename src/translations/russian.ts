@@ -502,6 +502,7 @@ const ru = {
     vdo_logical_tooltip: 'Логический размер тома VDO.',
     common_devices_only: 'Показаны только устройства, которые есть на всех выбранных узлах ({{count}}).',
     select_node_first: 'Сначала выберите узел.',
+    no_common_device: 'У выбранных узлов ({{count}}) нет общих устройств.',
     no_device: 'Нет подходящих устройств. LINSTOR предлагает устройство, только если выполнено всё это:',
     device_rule_size: 'Больше 1 GiB.',
     device_rule_whole:

@@ -655,6 +655,7 @@ const en = {
     vdo_logical_tooltip: 'The logical size of the VDO volume.',
     common_devices_only: 'Only the devices that all {{count}} chosen nodes have are listed.',
     select_node_first: 'Select a node first.',
+    no_common_device: 'The {{count}} chosen nodes have no device in common.',
     no_device: 'No device can be used. LINSTOR offers a device only if all of these hold:',
     device_rule_size: 'Larger than 1 GiB.',
     device_rule_whole:

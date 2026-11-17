@@ -503,6 +503,7 @@ const tr = {
     vdo_logical_tooltip: 'VDO biriminin mantıksal boyutu.',
     common_devices_only: 'Yalnızca seçilen {{count}} düğümün hepsinde bulunan aygıtlar listelenir.',
     select_node_first: 'Önce bir düğüm seçin.',
+    no_common_device: 'Seçilen {{count}} düğümün ortak aygıtı yok.',
     no_device: 'Kullanılabilir aygıt yok. LINSTOR bir aygıtı yalnızca bunların hepsi geçerliyse sunar:',
     device_rule_size: '1 GiB’tan büyük.',
     device_rule_whole: '/dev/sda gibi üst düzey bir aygıt; bölüm değil, üzerinde bölüm ya da başka aygıt yok.',

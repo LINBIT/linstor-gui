@@ -502,6 +502,7 @@ const ja = {
     vdo_logical_tooltip: 'VDO ボリュームの論理サイズです。',
     common_devices_only: '選択した {{count}} 台のノードすべてにあるデバイスだけを表示します。',
     select_node_first: '先にノードを選択してください。',
+    no_common_device: '選択した {{count}} 台のノードに共通のデバイスはありません。',
     no_device: '使用できるデバイスがありません。LINSTOR は次の条件をすべて満たすデバイスだけを表示します:',
     device_rule_size: '1 GiB より大きい。',
     device_rule_whole:

@@ -509,6 +509,7 @@ const de = {
     vdo_logical_tooltip: 'Die logische Größe des VDO-Volumes.',
     common_devices_only: 'Es werden nur die Geräte aufgeführt, die alle {{count}} gewählten Knoten haben.',
     select_node_first: 'Wählen Sie zuerst einen Knoten.',
+    no_common_device: 'Die {{count}} gewählten Knoten haben kein gemeinsames Gerät.',
     no_device: 'Kein Gerät verwendbar. LINSTOR bietet ein Gerät nur an, wenn alles hiervon zutrifft:',
     device_rule_size: 'Größer als 1 GiB.',
     device_rule_whole:

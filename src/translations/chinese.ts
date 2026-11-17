@@ -650,6 +650,7 @@ const zh = {
     vdo_logical_tooltip: 'VDO 卷的逻辑大小。',
     common_devices_only: '只列出所选 {{count}} 个节点都有的设备。',
     select_node_first: '请先选择节点。',
+    no_common_device: '所选的 {{count}} 个节点没有共同的设备。',
     no_device: '没有可用的设备。LINSTOR 只列出同时满足以下条件的设备：',
     device_rule_size: '大于 1 GiB。',
     device_rule_whole: '顶层设备（例如 /dev/sda），不是分区，上面也没有分区或其他设备。',

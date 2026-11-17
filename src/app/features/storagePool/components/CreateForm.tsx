@@ -132,7 +132,8 @@ const CreateForm = () => {
     queryKey: ['getPhysicalStoragePoolByNode', selectedNodes],
     queryFn: async () => {
       const replies = await Promise.all(selectedNodes.map((e) => getPhysicalStoragePoolByNode({ node: e })));
-      return commonDevices(replies.map((reply) => reply.data ?? []));
+      const lists = replies.map((reply) => reply.data ?? []);
+      return { choices: commonDevices(lists), someNodeHasDevices: lists.some((list) => list.length > 0) };
     },
     enabled: selectedNodes.length > 0 && create_type === 'new',
   });
@@ -361,7 +362,7 @@ const CreateForm = () => {
               placeholder={t('storage_pool:select_path_physical_device')}
               loading={devicesLoading}
               // The chosen tags show the path; the list also says what each device is.
-              options={devices?.map((e) => ({ label: e.path, value: e.path, details: deviceDetails(e) }))}
+              options={devices?.choices.map((e) => ({ label: e.path, value: e.path, details: deviceDetails(e) }))}
               optionRender={(option) => (
                 <div className="flex justify-between gap-4">
                   <span>{option.label}</span>
@@ -371,7 +372,11 @@ const CreateForm = () => {
               notFoundContent={
                 selectedNodes.length === 0 ? (
                   t('storage_pool:select_node_first')
-                ) : devicesLoading ? undefined : (
+                ) : devicesLoading ? undefined : devices?.someNodeHasDevices ? (
+                  <div className="px-2 py-1 text-(--ant-color-text)">
+                    {t('storage_pool:no_common_device', { count: selectedNodes.length })}
+                  </div>
+                ) : (
                   <div className="px-2 py-1 text-(--ant-color-text)">
                     <p>{t('storage_pool:no_device')}</p>
                     <ul className="list-disc pl-5 mt-1">
