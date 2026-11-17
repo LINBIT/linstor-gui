@@ -69,21 +69,24 @@ describe('Settings gateway tab', () => {
   });
 
   it('reports the gateway as unreachable until the probe succeeds', async () => {
-    const { container } = renderSettings(<Gateway />);
+    const { container, unmount } = renderSettings(<Gateway />);
     fireEvent.click(switchByLabel(container, 'gateway-mode'));
 
     expect(await screen.findByText('Not Available')).toBeInTheDocument();
+    // Gone before the flip below: the settings mock is shared, so a late
+    // re-render of this copy would show Connected as well.
+    unmount();
 
     settings.current!.gatewayAvailable = true;
     const { container: reachable } = renderSettings(<Gateway />);
     fireEvent.click(switchByLabel(reachable, 'gateway-mode'));
 
     expect(await screen.findByText('Connected')).toBeInTheDocument();
-    expect(container).toBeInTheDocument();
+    expect(screen.queryByText('Not Available')).toBeNull();
   });
 
   it('says what to check when the gateway cannot be reached, and nothing once it can', async () => {
-    const { container } = renderSettings(<Gateway />);
+    const { container, unmount } = renderSettings(<Gateway />);
     fireEvent.click(switchByLabel(container, 'gateway-mode'));
 
     expect(await screen.findByText(`Cannot reach LINSTOR Gateway at ${ORIGIN_HOST}`)).toBeInTheDocument();
@@ -92,12 +95,15 @@ describe('Settings gateway tab', () => {
     // jsdom serves http, so neither the mixed-content warning nor a certificate applies.
     expect(screen.queryByText(/served over HTTPS/)).toBeNull();
     expect(screen.queryByText(/certificate/)).toBeNull();
+    // Gone before the flip below: the settings mock is shared, so a late
+    // re-render of this copy would turn it reachable too.
+    unmount();
 
     settings.current!.gatewayAvailable = true;
     const { container: reachable } = renderSettings(<Gateway />);
     fireEvent.click(switchByLabel(reachable, 'gateway-mode'));
     await screen.findByText('Connected');
-    expect(screen.getAllByText(/Cannot reach LINSTOR Gateway/)).toHaveLength(1);
+    expect(screen.queryByText(/Cannot reach LINSTOR Gateway/)).toBeNull();
   });
 
   it('re-probes the entered host on demand', async () => {
