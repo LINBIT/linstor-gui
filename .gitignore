@@ -2,6 +2,7 @@
 dist
 yarn-error.log
 stats.json
+stats.html
 coverage
 storybook-static
 .DS_Store

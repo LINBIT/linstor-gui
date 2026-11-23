@@ -9,6 +9,7 @@ import { createLogger, defineConfig, loadEnv, type Plugin } from 'vite';
 import { configDefaults } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+import { visualizer } from 'rollup-plugin-visualizer';
 import { resolve } from 'path';
 import { execSync } from 'child_process';
 import { readFileSync } from 'fs';
@@ -86,7 +87,13 @@ export default defineConfig(({ mode, command }) => {
 
   return {
     customLogger: gate.logger,
-    plugins: [react(), tailwindcss(), gate.plugin],
+    plugins: [
+      react(),
+      tailwindcss(),
+      gate.plugin,
+      // `npm run analyze`: a treemap of what the bundle is made of, outside dist so it never ships.
+      process.env.ANALYZE ? visualizer({ filename: 'stats.html', template: 'treemap', gzipSize: true }) : null,
+    ],
 
     resolve: {
       extensions: ['.js', '.ts', '.tsx', '.jsx'],
