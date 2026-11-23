@@ -10,7 +10,7 @@ import { Form, message, Modal } from 'antd';
 import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
-import { uniqBy } from 'lodash';
+import { uniqBy } from '@app/utils/collection';
 import { useTranslation } from 'react-i18next';
 
 import { useNodes } from '@app/features/node';

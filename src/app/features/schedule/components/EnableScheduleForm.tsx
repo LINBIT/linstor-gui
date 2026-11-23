@@ -8,7 +8,7 @@ import { BackupSchedule, enableSchedule, getScheduleList } from '@app/features/s
 import { getRemoteList } from '@app/features/remote';
 import type { RemoteListResponse } from '@app/features/remote/types';
 import { getResources } from '@app/features/resource';
-import _ from 'lodash';
+import { uniqBy } from '@app/utils/collection';
 import { getResourceGroups } from '@app/features/resourceGroup';
 import { useNodes } from '@app/features/node';
 
@@ -206,7 +206,7 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
               optionFilterProp="children"
               filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
               options={
-                _.uniqBy(
+                uniqBy(
                   resourceList?.map((resource) => ({
                     label: resource,
                     value: resource,

@@ -14,7 +14,7 @@ import { Button } from '@app/components/Button';
 import { FormSkeleton } from '@app/components/FormSkeleton';
 import type { FormInstance } from 'antd/es/form';
 import { useNavigate } from 'react-router-dom';
-import { isEqual, uniqBy } from 'lodash';
+import { sameList, uniqBy } from '@app/utils/collection';
 
 import { useStoragePools } from '@app/features/storagePool';
 import { getControllerVersion, useNodes } from '@app/features/node';
@@ -170,7 +170,7 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
   // and an empty list clears it: these two are sent only when changed here.
   const changed = (name: 'storage_pool_diskless_list' | 'node_name_list') => {
     const value = usedForm.getFieldValue(name) as string[] | undefined;
-    return value !== undefined && !isEqual(value, initialVal?.[name] ?? []) ? value : undefined;
+    return value !== undefined && !sameList(value, initialVal?.[name] ?? []) ? value : undefined;
   };
 
   const createResourceGroupMutation = useMutation({

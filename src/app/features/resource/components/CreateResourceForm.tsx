@@ -10,7 +10,7 @@ import { Input } from '@app/components/Input';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
 import { useNavigate, useParams } from 'react-router-dom';
-import { uniqBy } from 'lodash';
+import { uniqBy } from '@app/utils/collection';
 
 import { useStoragePools } from '@app/features/storagePool';
 import { useResourceDefinitions } from '@app/features/resourceDefinition';

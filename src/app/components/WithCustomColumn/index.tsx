@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { logger } from '@app/utils/logger';
 import { Tooltip } from 'antd';
 import AddColumnModal from './AddColumnModal';
-import { uniqBy } from 'lodash';
+import { uniqBy } from '@app/utils/collection';
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import ResetIcon from './reset.svg';
 import SVG from 'react-inlinesvg';

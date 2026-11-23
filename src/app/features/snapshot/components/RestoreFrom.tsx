@@ -11,7 +11,7 @@ import { AutoComplete, Form, message, Space } from 'antd';
 import { Button } from '@app/components/Button';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { uniqBy } from 'lodash';
+import { uniqBy } from '@app/utils/collection';
 import { getResources } from '@app/features/resource/api';
 import { createResourceDefinition } from '@app/features/resourceDefinition/api';
 import { restoreSnapshot, restoreVolumeDefinition } from '../api';

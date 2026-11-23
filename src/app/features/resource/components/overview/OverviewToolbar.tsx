@@ -9,7 +9,7 @@ import { Form, Space, Dropdown, Tooltip } from 'antd';
 import type { FormInstance } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { uniqBy } from 'lodash';
+import { uniqBy } from '@app/utils/collection';
 import { DownOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 
 import { Input } from '@app/components/Input';

@@ -37,21 +37,6 @@ vi.mock('react-inlinesvg', () => ({
   ),
 }));
 
-// Mock lodash
-vi.mock('lodash', () => ({
-  uniqBy: vi.fn((array, key) => {
-    const seen = new Set();
-    return array.filter((item: Record<string, unknown>) => {
-      const keyValue = typeof key === 'string' ? item[key] : key(item);
-      if (seen.has(keyValue)) {
-        return false;
-      }
-      seen.add(keyValue);
-      return true;
-    });
-  }),
-}));
-
 // Mock AddColumnModal component
 vi.mock('../AddColumnModal', () => ({
   default: ({

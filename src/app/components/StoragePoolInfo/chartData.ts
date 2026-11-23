@@ -4,7 +4,7 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { groupBy, union } from 'lodash';
+import { groupBy } from '@app/utils/collection';
 import type { getStoragePool } from '@app/features/storagePool';
 import { generateStoragePoolColorPairs, getNodeTotalColorPair } from '@app/utils/storagePoolColors';
 import { normalizeStoragePoolSpace } from '@app/utils/storagePoolSpace';
@@ -53,7 +53,7 @@ export const buildChartData = (poolsData: PoolsResponse | undefined, mode: Theme
     .map((entry) => entry.node);
 
   // Union of all unique storage pool names across the rendered nodes
-  const allPools = union(...allNodes.map((node) => groupedByNode[node].map((sp) => sp.storage_pool_name)));
+  const allPools = [...new Set(allNodes.flatMap((node) => groupedByNode[node].map((sp) => sp.storage_pool_name)))];
 
   const colorPairs = generateStoragePoolColorPairs(allPools.length);
   const nodeColorPair = getNodeTotalColorPair(mode);

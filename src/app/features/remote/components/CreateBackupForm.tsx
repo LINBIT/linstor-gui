@@ -17,7 +17,7 @@ import { RemoteBackupCreateRequestBody } from '../types';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getResources } from '@app/features/resource';
-import { uniqBy } from 'lodash';
+import { uniqBy } from '@app/utils/collection';
 import { Switch } from '@app/components/Switch';
 import { InlineFormItem } from '@app/components/InlineFormItem';
 

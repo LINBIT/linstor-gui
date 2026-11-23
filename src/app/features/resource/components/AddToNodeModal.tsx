@@ -7,7 +7,7 @@ import { createResourceOnNode } from '../api';
 import { useStoragePools } from '@app/features/storagePool';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@app/components/Button';
-import { uniqBy } from 'lodash';
+import { uniqBy } from '@app/utils/collection';
 import { Checkbox } from '@app/components/Checkbox';
 
 interface AddToNodeModalProps {

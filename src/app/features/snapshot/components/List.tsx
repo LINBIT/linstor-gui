@@ -12,7 +12,7 @@ import type { TableProps } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { CheckCircleFilled, CloseCircleFilled, MoreOutlined } from '@ant-design/icons';
-import { uniqBy, groupBy } from 'lodash';
+import { uniqBy, groupBy } from '@app/utils/collection';
 import { useTranslation } from 'react-i18next';
 
 import { formatBytes } from '@app/utils/size';
