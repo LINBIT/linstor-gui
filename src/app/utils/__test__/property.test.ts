@@ -376,10 +376,10 @@ describe('handlePropsToFormOption', () => {
     expect(result.some((item) => item.defaultValue === 'drbdValue')).toBe(true);
   });
 
-  it('should use camelCase title when field is empty', () => {
+  it('should use the property name as title when field is empty', () => {
     const result = handlePropsToFormOption('emptyFieldKey', {});
 
-    expect(result[0].label).toBe('EmptyFieldProp');
+    expect(result[0].label).toBe('emptyFieldProp');
   });
 
   it('should handle range with default value when no prop value provided', () => {

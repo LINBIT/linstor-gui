@@ -4,34 +4,6 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import BigNumber from 'bignumber.js';
-
-// bignumber.js throws on a string that is not a number, so the format is
-// checked before one is made.
-function checkPort(_rule: unknown, value: string, callback: (error?: Error) => void) {
-  const val = /^[0-9]{1,5}$/.test(value) ? new BigNumber(value) : null;
-  if (!val || val.isNaN() || !val.isFinite() || (val.comparedTo(0) ?? 0) <= 0 || (val.comparedTo(65534) ?? 0) > 0) {
-    callback(new Error('Port range is 1~65534'));
-  } else {
-    callback();
-  }
-}
-
-function volumeSize(_rule: unknown, value: string, callback: (error?: Error) => void): void {
-  const val = /^[0-9]+$/.test(value) ? new BigNumber(value) : null;
-  if (
-    !val ||
-    val.isNaN() ||
-    !val.isFinite() ||
-    (val.comparedTo(4) ?? 0) < 0 ||
-    (val.comparedTo(1099511627776) ?? 0) > 0
-  ) {
-    callback(new Error('Volume Size Range Error'));
-  } else {
-    callback();
-  }
-}
-
 /**
  * Change size into KiB number
  * @param name
@@ -123,4 +95,4 @@ function kibToGib(kib: number) {
   return Number(gib.toFixed(2));
 }
 
-export { convertRoundUp, volumeSize, checkPort, sizeOptions, formatBytes, kibToGib };
+export { convertRoundUp, sizeOptions, formatBytes, kibToGib };

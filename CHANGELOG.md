@@ -6,6 +6,7 @@
 
 - The Dashboard no longer waits for the chart library before it shows anything
 - lodash is no longer bundled, which makes the GUI download smaller
+- camelcase and bignumber.js are no longer bundled, which makes the GUI download smaller
 
 ### Fixed
 

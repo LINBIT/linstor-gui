@@ -4,7 +4,6 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import camelCase from 'camelcase';
 import { logger } from '@app/utils/logger';
 
 import { properties } from '@app/utils/properties/properties';
@@ -75,14 +74,13 @@ export function handlePropsToFormOption(key: string, prop: Record<string, unknow
   }
 
   return Array.from(uniqueFieldMap.values()).map((item) => {
-    const key = item.propName;
     const data = item.data;
     const field = item.field;
     const source = item.source;
 
     const value = prop[field] as FormItem['defaultValue'];
     const hide = typeof value === 'undefined'; // if this prop has value then display it as initial value
-    const title = field || camelCase(key, { pascalCase: true });
+    const title = field || item.propName;
 
     let formInfo = {
       type: '',
