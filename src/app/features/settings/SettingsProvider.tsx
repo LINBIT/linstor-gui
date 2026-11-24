@@ -76,7 +76,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setCheckingGateway(true);
     let ok: boolean;
     try {
-      const res = await service.get('/api/v2/status');
+      const res = await service.get<{ status?: string }>('/api/v2/status');
       ok = res.data?.status === 'ok';
     } catch {
       ok = false;
@@ -221,7 +221,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const getMyLinbitStatus = useCallback(async () => {
     try {
-      const res = await service.get('/api/frontend/v1/mylinbit/status');
+      const res = await service.get<{ evalMode: boolean; isEvalContract: boolean }>('/api/frontend/v1/mylinbit/status');
       setEvalStatus({ evalMode: res.data.evalMode, isEvalContract: res.data.isEvalContract });
     } catch (error) {
       logger.debug(error);

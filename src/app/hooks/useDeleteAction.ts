@@ -31,7 +31,7 @@ export interface DeleteActionOptions<T> {
   refresh?: () => unknown;
   concurrency?: number;
   /**
-   * The reply does not pass the fetch proxy (axios calls), so nothing toasts a
+   * The reply does not pass the fetch proxy (@app/requests calls), so nothing toasts a
    * single delete unless this hook does.
    */
   toastSingle?: boolean;
@@ -76,7 +76,7 @@ export function useDeleteAction<T>(options: DeleteActionOptions<T>) {
         }
       } catch (e) {
         threw = true;
-        // axios rejects with the response body ({ message } or an ApiCallRc
+        // @app/requests rejects with the response body ({ message } or an ApiCallRc
         // list), not an Error.
         result.failed.push({ item, error: e instanceof Error ? e.message : (replyError({ error: e }) ?? String(e)) });
       }

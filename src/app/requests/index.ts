@@ -8,87 +8,66 @@
 // (/api/v2) and the VSAN/HCI frontend (/api/frontend/v1). The LINSTOR
 // controller itself is only reached through the typed client in
 // @app/features/requests, which carries its auth and reply handling.
-import axios from 'axios';
-import { i18n } from '../../i18n';
+export interface ServiceResponse<T = unknown> {
+  data: T;
+  status: number;
+}
 
-// create an axios instance
-const linstorHost = typeof window !== 'undefined' ? window.localStorage.getItem('LINSTOR_HOST') : '';
-const service = axios.create({
-  baseURL: linstorHost || '/', // url = base url + request url
-  timeout: 1000 * 60 * 10, // request timeout
-});
+const TIMEOUT_MS = 1000 * 60 * 10;
 
-const handleError = (statsCode: number, res: unknown) => {
-  let errorMsg = 'Error';
-  switch (statsCode) {
-    case 400: {
-      const payload = (res ?? {}) as { msg?: string; res?: Record<string, unknown> };
-      errorMsg = String(i18n.t(payload.msg ?? '', payload.res || {}));
-      break;
-    }
-    case 500: {
-      if (Array.isArray(res)) {
-        const errorObj = (res[res.length - 1] || {}) as { message?: string; details?: string };
-        errorMsg = errorObj.message ?? errorMsg;
-        if (errorObj.details) {
-          errorMsg += '.' + errorObj.details;
-        }
-      } else {
-        errorMsg = String(i18n.t('systemError'));
-      }
-      break;
-    }
-  }
-  return errorMsg;
+// The host at load time, used when no host below applies.
+const defaultBase = (typeof window !== 'undefined' && window.localStorage.getItem('LINSTOR_HOST')) || '/';
+
+/** Gateway, VSAN and LINSTOR may each live on their own host; the dev server proxies all of them. */
+const baseFor = (url: string): string => {
+  if (process.env.NODE_ENV === 'development') return defaultBase;
+  const gatewayHost = window.localStorage.getItem('GATEWAY_HOST');
+  const vsanHost = window.localStorage.getItem('HCI_VSAN_HOST');
+  const linstorHost = window.localStorage.getItem('LINSTOR_HOST');
+  if (url.startsWith('/api/v2/') && gatewayHost) return gatewayHost;
+  if (url.startsWith('/api/frontend/v1') && vsanHost) return vsanHost;
+  return linstorHost || defaultBase;
 };
 
-// handle gateway request host
-service.interceptors.request.use((req) => {
-  const GATEWAY_HOST = window.localStorage.getItem('GATEWAY_HOST');
-  const HCI_VSAN_HOST = window.localStorage.getItem('HCI_VSAN_HOST');
-  const LINSTOR_HOST = window.localStorage.getItem('LINSTOR_HOST');
+const join = (base: string, url: string) => `${base.replace(/\/+$/, '')}/${url.replace(/^\/+/, '')}`;
 
-  if (process.env.NODE_ENV !== 'development') {
-    if (req.url?.startsWith('/api/v2/') && GATEWAY_HOST) {
-      // For gateway mode, use gateway host
-      req.baseURL = GATEWAY_HOST;
-    } else if (req.url?.startsWith('/api/frontend/v1') && HCI_VSAN_HOST) {
-      // FOR VSAN Mode, use https and hostname
-      req.baseURL = HCI_VSAN_HOST;
-    } else if (LINSTOR_HOST) {
-      // For normal Linstor API requests, use the Linstor host
-      req.baseURL = LINSTOR_HOST;
-    }
+/** A JSON body as an object, anything else as its text ('' when empty). */
+const readBody = async (response: Response): Promise<unknown> => {
+  const text = await response.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
   }
+};
 
-  return req;
-});
+/**
+ * A failed status rejects with the reply body, which callers read for
+ * { message } or an ApiCallRc list; a request that got no reply rejects with
+ * the fetch error. Of the successful statuses only 200 and 201 resolve, as
+ * they did with axios.
+ */
+const request = async <T>(method: string, url: string, body?: unknown): Promise<ServiceResponse<T>> => {
+  const response = await fetch(join(baseFor(url), url), {
+    method,
+    headers: {
+      Accept: 'application/json, text/plain, */*',
+      ...(body !== undefined && { 'Content-Type': 'application/json' }),
+    },
+    body: body === undefined ? undefined : JSON.stringify(body),
+    signal: AbortSignal.timeout(TIMEOUT_MS),
+  });
+  const data = await readBody(response);
+  if (!response.ok) throw data;
+  if (response.status !== 200 && response.status !== 201) throw new Error('Error');
+  return { data: data as T, status: response.status };
+};
 
-// response interceptor
-service.interceptors.response.use(
-  /**
-   * If you want to get http information such as headers or status
-   * Please return  response => response
-   */
-
-  /**
-   * Determine the request status by custom code
-   * Here is just an example
-   * You can also judge the status by HTTP Status Code
-   */
-  (response) => {
-    const statsCode = response.status;
-    const res = response.data;
-
-    if (statsCode !== 200 && statsCode !== 201) {
-      const errorMsg = handleError(statsCode, res);
-      return Promise.reject(new Error(errorMsg));
-    } else {
-      // normal case
-      return response;
-    }
-  },
-  (error) => Promise.reject(error?.response?.data ?? error),
-);
+const service = {
+  get: <T = unknown>(url: string) => request<T>('GET', url),
+  delete: <T = unknown>(url: string) => request<T>('DELETE', url),
+  post: <T = unknown>(url: string, body?: unknown) => request<T>('POST', url, body),
+  put: <T = unknown>(url: string, body?: unknown) => request<T>('PUT', url, body),
+};
 
 export default service;

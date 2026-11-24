@@ -79,7 +79,6 @@
     "@tanstack/react-query": "^5.105.3",
     "antd": "^6.6.8",
     "apexcharts": "^8.7.0",
-    "axios": "^1.21.0",
     "cron-parser": "^5.10.3",
     "dayjs": "^1.10.7",
     "i18next": "^27.0.0",

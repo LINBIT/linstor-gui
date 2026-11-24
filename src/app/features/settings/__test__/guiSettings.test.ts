@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// The loaders and writers against mocked axios, settings api and key-value store.
+// The loaders and writers against mocked @app/requests, settings api and key-value store.
 
 const kvWrite = vi.hoisted(() => vi.fn());
 vi.mock('@app/features/keyValueStore/api', () => ({ createOrModifyKVInstance: kvWrite }));

@@ -34,7 +34,7 @@ export const rcFailures = (list: unknown): RcLike[] =>
  * The error text of a reply, or undefined when it succeeded. Covers the shapes
  * the API calls return: openapi-fetch's `{ error }` (it does not
  * throw on HTTP errors), an ApiCallRc list with a negative ret_code, and an
- * axios response carrying such a list in `data`.
+ * @app/requests response carrying such a list in `data`.
  */
 export const replyError = (res: unknown): string | undefined => {
   if (res && typeof res === 'object' && 'error' in res && (res as { error?: unknown }).error) {

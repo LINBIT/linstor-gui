@@ -35,12 +35,12 @@ const setup = (overrides: Partial<DeleteActionOptions<Item>> = {}) => {
 };
 
 describe('replyError', () => {
-  it('reads openapi-fetch errors, ApiCallRc lists and axios bodies', () => {
+  it('reads openapi-fetch errors, ApiCallRc lists and @app/requests bodies', () => {
     expect(replyError({ data: ok })).toBeUndefined();
     expect(replyError(ok)).toBeUndefined();
     expect(replyError({ error: [{ ret_code: -1, message: 'in use' }] })).toBe('in use');
     expect(replyError([{ ret_code: -5, message: 'nope' }, ...ok])).toBe('nope');
-    expect(replyError({ data: [{ ret_code: -2, message: 'axios said no' }] })).toBe('axios said no');
+    expect(replyError({ data: [{ ret_code: -2, message: 'gateway said no' }] })).toBe('gateway said no');
     expect(replyError({ error: { message: 'plain' } })).toBe('plain');
     expect(replyError(undefined)).toBeUndefined();
   });
@@ -122,7 +122,7 @@ describe('useDeleteAction', () => {
     );
   });
 
-  it('toasts single deletes itself when asked (axios calls bypass the proxy)', async () => {
+  it('toasts single deletes itself when asked (@app/requests calls bypass the proxy)', async () => {
     const { hook } = setup({ toastSingle: true, remove: async () => ({ data: ok }) });
     await act(async () => {
       await hook.result.current.run([a]);

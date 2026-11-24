@@ -8,7 +8,7 @@ import service from '@app/requests';
 import { ISCSIResource, NFSResource, NVMEOFResource } from './types';
 
 const getNetWorkInterfaces = () => {
-  return service.get('/api/frontend/v1/system/interfaces');
+  return service.get<{ prefix: string }[]>('/api/frontend/v1/system/interfaces');
 };
 
 const getNFSList = () => {

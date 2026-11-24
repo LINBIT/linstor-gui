@@ -16,7 +16,7 @@ const useNodeNetWorkInterface = () => {
   return {
     isPending,
     error,
-    data: data?.data.filter((s: { prefix: string }) => s.prefix !== '127.'),
+    data: data?.data.filter((s) => s.prefix !== '127.'),
   };
 };
 

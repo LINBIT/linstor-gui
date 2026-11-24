@@ -60,7 +60,7 @@ export const NFSList = ({
 }: NFSListProps) => {
   const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  // Gateway calls go through axios, not the fetch proxy, so the hook toasts
+  // Gateway calls go through @app/requests, not the fetch proxy, so the hook toasts
   // single deletes as well.
   const del = useDeleteAction<string>({
     remove: (id) => handleDelete(id),

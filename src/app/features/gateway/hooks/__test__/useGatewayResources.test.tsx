@@ -47,7 +47,7 @@ const deferred = <T,>() => {
 describe('useGatewayResources', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(service.get).mockResolvedValue({ data: [{ name: 'a' }, { name: 'b' }] });
+    vi.mocked(service.get).mockResolvedValue({ data: [{ name: 'a' }, { name: 'b' }], status: 200 });
   });
 
   it.each<GatewayKind>(['nfs', 'iscsi', 'nvme-of'])('fetches the %s list from its gateway URL', async (kind) => {
@@ -62,7 +62,7 @@ describe('useGatewayResources', () => {
   });
 
   it('treats an empty response body as an empty list', async () => {
-    vi.mocked(service.get).mockResolvedValue({ data: undefined });
+    vi.mocked(service.get).mockResolvedValue({ data: undefined, status: 200 });
     const { result } = await setup();
 
     expect(result.current.list).toEqual([]);
@@ -74,7 +74,7 @@ describe('useGatewayResources', () => {
     ['stop', 'stopping', 'Stopped Successfully'],
   ] as const)('%s flags the row while in flight, then reloads and toasts', async (action, flag, message) => {
     const { result } = await setup('nfs');
-    const call = deferred<{ status: number }>();
+    const call = deferred<{ data: unknown; status: number }>();
     vi.mocked(service.post).mockReturnValue(call.promise);
 
     let done!: Promise<void>;
@@ -87,7 +87,7 @@ describe('useGatewayResources', () => {
     expect(result.current.list[1][flag]).toBe(false);
 
     await act(async () => {
-      call.resolve({ status: 200 });
+      call.resolve({ data: {}, status: 200 });
       await done;
     });
 
@@ -110,7 +110,7 @@ describe('useGatewayResources', () => {
 
   it('adds a LUN with the gateway payload and reports addingVolume while in flight', async () => {
     const { result } = await setup('nvme-of');
-    const call = deferred<{ status: number }>();
+    const call = deferred<{ data: unknown; status: number }>();
     vi.mocked(service.put).mockReturnValue(call.promise);
 
     expect(result.current.addingVolume).toBe(false);
@@ -124,7 +124,7 @@ describe('useGatewayResources', () => {
     expect(result.current.addingVolume).toBe(true);
 
     await act(async () => {
-      call.resolve({ status: 200 });
+      call.resolve({ data: {}, status: 200 });
       await done;
     });
 
@@ -135,7 +135,7 @@ describe('useGatewayResources', () => {
 
   it('deletes a LUN by id and number, then reloads and toasts', async () => {
     const { result } = await setup('iscsi');
-    vi.mocked(service.delete).mockResolvedValue({ status: 200 });
+    vi.mocked(service.delete).mockResolvedValue({ data: {}, status: 200 });
 
     await act(() => result.current.deleteLUN('iqn.x', 2));
 
@@ -146,7 +146,7 @@ describe('useGatewayResources', () => {
 
   it('remove only issues the DELETE and passes a failure to the caller', async () => {
     const { result } = await setup('nfs');
-    vi.mocked(service.delete).mockResolvedValueOnce({ status: 200 });
+    vi.mocked(service.delete).mockResolvedValueOnce({ data: {}, status: 200 });
 
     await act(async () => {
       await result.current.remove('a');

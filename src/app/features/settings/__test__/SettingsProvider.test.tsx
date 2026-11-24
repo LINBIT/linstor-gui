@@ -8,7 +8,7 @@ import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import { act, render, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// The provider on a real QueryClient; axios (gateway/VSAN), the settings
+// The provider on a real QueryClient; @app/requests (gateway/VSAN), the settings
 // writes, the settings api, the key-value store, the user api and the toast
 // are replaced.
 
