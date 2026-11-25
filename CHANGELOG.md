@@ -1,23 +1,22 @@
 # Changelog
 
-# Unreleased
+# 2.7.2 - 2026-11-25
 
 ### Changed
 
-- The Dashboard no longer waits for the chart library before it shows anything
-- lodash is no longer bundled, which makes the GUI download smaller
-- camelcase and bignumber.js are no longer bundled, which makes the GUI download smaller
-- axios is no longer bundled; gateway and VSAN calls use the browser's fetch, which makes the GUI download smaller
+- Dashboard shown before the chart library has loaded
+- Smaller download: lodash, axios, camelcase and bignumber.js no longer bundled
+- Update dependencies
 
 ### Fixed
 
-- Storage pool form says when the chosen nodes have no device in common
-- Resource Overview shows "No resources" instead of OK for a resource definition that is not placed on any node
-- Create Resource Definition with Spawn on create removes the new definition again when placing it fails and keeps the form open, and the place count cannot exceed the nodes the resource group can place on
-- The resource definition selects in Create Volume Definition and Create Resource filter as you type, and Enter no longer picks an unrelated definition
-- Resource Overview State no longer shows OK while a replica disk is Inconsistent, Outdated, Failed or unexpectedly Diskless; a running sync shows with its progress
-- Resource Overview no longer draws a sync arrow with a made-up percentage for an Inconsistent volume that DRBD is not syncing
-- The Storage Pool Overview tooltip shows "Node - Free" instead of the series name with raw <b> tags
+- Storage pool form not saying when the chosen nodes have no device in common
+- Resource Overview showing OK for a resource definition that is placed on no node
+- Spawn on create leaving the new resource definition behind when placing fails, and allowing a place count above the usable nodes
+- Resource definition selects in Create Volume Definition and Create Resource not filtering as you type, and Enter picking an unrelated definition
+- Resource Overview State showing OK while a replica disk is Inconsistent, Outdated, Failed or unexpectedly Diskless
+- Resource Overview sync arrow with a made-up percentage for a volume DRBD is not syncing
+- Storage Pool Overview tooltip showing raw <b> tags
 
 # 2.7.1 - 2026-11-11
 
