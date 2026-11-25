@@ -899,7 +899,7 @@ export const allAgents = {
             required: false,
             shortdesc: 'AWS Profile Name',
             longdesc:
-              'The name of the AWS CLI profile of the root account. This\nprofile will have to use the "text" format for CLI output.\nThe file /root/.aws/config should have an entry which looks\nlike:\n\n  [profile cluster]\n\tregion = us-east-1\n\toutput = text\n\n"cluster" is the name which has to be used in the cluster\nconfiguration. The region has to be the current one. The\noutput has to be "text".',
+              'The name of the AWS CLI profile of the root account.\nThe file /root/.aws/config should have an entry which looks\nlike:\n\n  [profile cluster]\n\tregion = us-east-1\n\n"cluster" is the name which has to be used in the cluster\nconfiguration. The region has to be the current one.',
             type: 'string',
             default: 'default',
           },
