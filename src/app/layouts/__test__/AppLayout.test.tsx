@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 import AppLayout from '../AppLayout';
 import { NavContext } from '@app/hooks/useNav';
@@ -82,6 +82,17 @@ const LocationProbe = () => {
   return <div data-testid="location">{location.pathname + location.search}</div>;
 };
 
+const PageLinks = () => {
+  const navigate = useNavigate();
+  return (
+    <>
+      <button onClick={() => navigate('/inventory/nodes')}>go-nodes</button>
+      <button onClick={() => navigate('/snapshot')}>go-snapshot</button>
+      <button onClick={() => navigate('/vsan/dashboard')}>go-vsan</button>
+    </>
+  );
+};
+
 type LayoutProps = Omit<React.ComponentProps<typeof AppLayout>, 'children'>;
 
 const renderLayout = (path = '/', props: LayoutProps = {}) => {
@@ -97,6 +108,7 @@ const renderLayout = (path = '/', props: LayoutProps = {}) => {
               <AppLayout {...props}>
                 <div data-testid="page">page content</div>
                 <LocationProbe />
+                <PageLinks />
               </AppLayout>
             }
           />
@@ -188,6 +200,21 @@ describe('AppLayout', () => {
     expect(hoisted.settings!.getMyLinbitStatus).toHaveBeenCalledTimes(1);
     expect(localStorage.getItem('__gui__mode')).toBe('HCI');
     expect(headerProps()).toMatchObject({ vsan: false, hci: true });
+  });
+
+  it('sets the settings store up again only when the mode changes, not on every page', async () => {
+    renderLayout('/');
+    expect(hoisted.settings!.initSettingStore).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByText('go-nodes'));
+    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/inventory/nodes'));
+    fireEvent.click(screen.getByText('go-snapshot'));
+    await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('/snapshot'));
+    expect(hoisted.settings!.initSettingStore).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByText('go-vsan'));
+    await waitFor(() => expect(hoisted.settings!.initSettingStore).toHaveBeenCalledTimes(2));
+    expect(hoisted.settings!.initSettingStore).toHaveBeenLastCalledWith(UIMode.VSAN);
   });
 
   it('keeps page parameters in the URL', async () => {

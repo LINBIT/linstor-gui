@@ -1,5 +1,11 @@
 # Changelog
 
+# Unreleased
+
+### Fixed
+
+- Changing pages no longer reloads and rewrites the GUI settings in the key-value store
+
 # 2.7.2 - 2026-11-25
 
 ### Changed

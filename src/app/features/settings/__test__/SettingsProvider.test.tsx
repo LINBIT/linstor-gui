@@ -141,15 +141,34 @@ describe('SettingsProvider', () => {
       await act(() => settings().initSettingStore(UIMode.HCI));
       expect(settingsApi.init).not.toHaveBeenCalled();
       expect(settingsApi.setProps).toHaveBeenCalledWith({ vsanMode: false, hciMode: true, vsanAvailable: false });
-      expect(settingsApi.getProps).toHaveBeenCalled();
+      // Once to compare, once more for the reload after the write.
+      expect(settingsApi.getProps).toHaveBeenCalledTimes(2);
     });
 
-    it('on a fresh install initialises the backend for the mode', async () => {
+    it('neither writes nor reloads when the store already holds the mode', async () => {
+      settingsApi.getProps.mockResolvedValue({ vsanMode: false, hciMode: false, vsanAvailable: false });
+      const { settings, loaded } = setup();
+      await loaded();
+      settingsApi.getProps.mockClear();
+      await act(() => settings().initSettingStore(UIMode.NORMAL));
+      expect(settingsApi.setProps).not.toHaveBeenCalled();
+      expect(settingsApi.getProps).toHaveBeenCalledTimes(1);
+    });
+
+    it('reloads after creating the store even when the defaults already match the mode', async () => {
       settingsApi.instanceExists.mockResolvedValue(false);
+      // Creating the store makes it exist for the reload that follows.
+      settingsApi.init.mockImplementation(async () => settingsApi.instanceExists.mockResolvedValue(true));
+      settingsApi.getProps.mockResolvedValue({ vsanMode: false, hciMode: false, vsanAvailable: false });
       const { settings } = setup();
-      await act(() => settings().initSettingStore(UIMode.VSAN));
-      expect(settingsApi.init).toHaveBeenCalledWith(UIMode.VSAN);
-      expect(settingsApi.setProps).toHaveBeenCalledWith({ vsanMode: true, hciMode: false, vsanAvailable: true });
+      await waitFor(() => expect(settings().loaded).toBe(true));
+      expect(settingsApi.getProps).not.toHaveBeenCalled();
+
+      await act(() => settings().initSettingStore(UIMode.NORMAL));
+      expect(settingsApi.init).toHaveBeenCalledWith(UIMode.NORMAL);
+      expect(settingsApi.setProps).not.toHaveBeenCalled();
+      // Once to compare, once for the reload.
+      expect(settingsApi.getProps).toHaveBeenCalledTimes(2);
     });
 
     it('creates the user store when authentication is on and it is missing', async () => {

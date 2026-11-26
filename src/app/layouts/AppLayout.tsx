@@ -106,23 +106,27 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
   // if authenticationEnabled is false then just enter the page
   const authenticationEnabled = KVS?.authenticationEnabled;
 
+  // The UI mode follows the URL prefix.
+  const routeMode = location.pathname.startsWith('/vsan')
+    ? SettingUIMode.VSAN
+    : location.pathname.startsWith('/hci')
+      ? SettingUIMode.HCI
+      : SettingUIMode.NORMAL;
+
   useEffect(() => {
-    // initialize store and UI mode based on URL prefix
-    if (location.pathname.startsWith('/vsan')) {
-      initSettingStore(SettingUIMode.VSAN);
-      setMode(SettingUIMode.VSAN);
+    // Only when the mode changes, not on every page: setting the store up
+    // reads and may write the settings in the key-value store.
+    initSettingStore(routeMode);
+    setMode(routeMode);
+    if (routeMode !== SettingUIMode.NORMAL) {
       getMyLinbitStatus();
-      updateUIMode('VSAN');
-    } else if (location.pathname.startsWith('/hci')) {
-      initSettingStore(SettingUIMode.HCI);
-      setMode(SettingUIMode.HCI);
-      getMyLinbitStatus();
-      updateUIMode('HCI');
-    } else {
-      initSettingStore(SettingUIMode.NORMAL);
-      setMode(SettingUIMode.NORMAL);
-      updateUIMode('NORMAL');
     }
+    updateUIMode(routeMode);
+    // updateUIMode is a new function on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeMode]);
+
+  useEffect(() => {
     // The VSAN and HCI entry links carry ?vsan=true / ?hci=true, done with once
     // the mode is set. Any other parameter is page state (an open tab, a list
     // filter) and stays, so a reload keeps it.
@@ -134,9 +138,8 @@ const AppLayout = ({ children, isSpaceTrackingUnavailable, isCheckingStatus }: I
       navigate({ pathname: location.pathname, search: rest ? `?${rest}` : '' }, { replace: true });
     }
     // On navigation to another page only. The lists write their filters into
-    // the current page's query string, and a search dependency would boot the
-    // stores again on every filter change; updateUIMode is a new function on
-    // every render.
+    // the current page's query string, so a search dependency would run this
+    // on every filter change.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 

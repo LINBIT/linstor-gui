@@ -143,15 +143,24 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         await SettingsAPI.init(nextMode);
       }
       // Mode flags are mutually exclusive.
-      await settingAPI.setProps({
+      const flags = {
         vsanMode: nextMode === UIMode.VSAN,
         hciMode: nextMode === UIMode.HCI,
         vsanAvailable: nextMode === UIMode.VSAN,
-      });
-      await refresh();
+      };
+      let settings = await settingAPI.getProps();
+      // Write only what differs: the store already holds the mode the GUI was
+      // last opened in, and a write on every start would change nothing.
+      const changed = (Object.keys(flags) as (keyof typeof flags)[]).some((key) => settings[key] !== flags[key]);
+      if (changed) {
+        await settingAPI.setProps(flags);
+        settings = { ...settings, ...flags };
+      }
+      if (!exists || changed) {
+        await refresh();
+      }
 
       // Only initialise the user store when authentication is on.
-      const settings = await settingAPI.getProps();
       if (settings.authenticationEnabled && !(await kvStore.instanceExists(authAPI.usersInstance))) {
         await authAPI.initUserStore();
       }
