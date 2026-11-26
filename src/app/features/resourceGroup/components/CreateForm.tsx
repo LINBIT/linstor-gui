@@ -20,6 +20,7 @@ import { useStoragePools } from '@app/features/storagePool';
 import { getControllerVersion, useNodes } from '@app/features/node';
 import { compareVersions } from '@app/utils/version';
 import { fullySuccess } from '@app/features/requests';
+import { useInvalidateResourcesView } from '@app/features/resource/hooks/useResourcesView';
 import {
   createResourceGroup,
   addVolumeToResourceGroup,
@@ -199,6 +200,8 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
     },
   });
 
+  const invalidateResourcesView = useInvalidateResourcesView();
+
   const spawnResourceGroupMutation = useMutation({
     mutationFn: (data: SpawnRequest & { resource_group: string }) => {
       const { resource_group, ...spawnData } = data;
@@ -274,11 +277,14 @@ const CreateForm = ({ isEdit, resourceGroup, form: externalForm }: CreateFormPro
               definitions_only: values.definition_only || false,
             };
 
+            // The list is refreshed however the spawn ended: a refused or
+            // reply-less one may still have created resources.
             try {
               await spawnResourceGroupMutation.mutateAsync(spawnData);
             } catch (error) {
               logger.debug('Error spawning resources:', error);
             }
+            invalidateResourcesView();
           }
 
           backToList();

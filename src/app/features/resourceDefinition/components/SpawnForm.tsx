@@ -14,6 +14,7 @@ import { autoPlace } from '../api';
 import { AutoPlaceRequestBody } from '../types';
 import { useTranslation } from 'react-i18next';
 import { Checkbox } from '@app/components/Checkbox';
+import { useInvalidateResourcesView } from '@app/features/resource/hooks/useResourcesView';
 
 type FormType = {
   place_count: number;
@@ -29,9 +30,16 @@ const SpawnForm = ({ resource }: SpawnFormProps) => {
   const [form] = Form.useForm<FormType>();
   const { t } = useTranslation(['common', 'resource_definitions']);
 
+  const invalidateResourcesView = useInvalidateResourcesView();
+
   const autoPlaceMutation = useMutation({
     mutationFn: (data: AutoPlaceRequestBody) => {
       return autoPlace(resource ?? '', data);
+    },
+    // Settled, not only succeeded: a placement that failed without a reply may
+    // still have placed replicas.
+    onSettled: () => {
+      invalidateResourcesView();
     },
   });
 

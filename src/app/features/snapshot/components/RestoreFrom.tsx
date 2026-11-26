@@ -12,7 +12,7 @@ import { Button } from '@app/components/Button';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { uniqBy } from '@app/utils/collection';
-import { useResourcesView } from '@app/features/resource/hooks/useResourcesView';
+import { useInvalidateResourcesView, useResourcesView } from '@app/features/resource/hooks/useResourcesView';
 import { createResourceDefinition } from '@app/features/resourceDefinition/api';
 import { restoreSnapshot, restoreVolumeDefinition } from '../api';
 import { withQuietToasts } from '@app/utils/toast';
@@ -43,6 +43,7 @@ const RestoreFrom: React.FC<RestoreFromProps> = ({ sourceResource, sourceSnapsho
   // replies are kept quiet and one progress message (same key) walks through
   // the steps and ends as the outcome. openapi-fetch resolves on HTTP errors,
   // so every step is checked and a failed one stops the restore.
+  const invalidateResourcesView = useInvalidateResourcesView();
   const restoreMutation = useMutation({
     mutationFn: () =>
       withQuietToasts(async () => {
@@ -70,6 +71,12 @@ const RestoreFrom: React.FC<RestoreFromProps> = ({ sourceResource, sourceSnapsho
           restoreSnapshot(sourceResource, sourceSnapshot, { to_resource: targetResource }),
         );
       }),
+    // Settled, not only succeeded: a restore that fails after its first step
+    // has created the target already, and the next try reads this list to
+    // decide whether to create it again.
+    onSettled: () => {
+      invalidateResourcesView();
+    },
     onSuccess: () => {
       message.success({ content: t('snapshot:restore_success', 'Restore succeeded'), key: RESTORE_MESSAGE_KEY });
       form.resetFields();

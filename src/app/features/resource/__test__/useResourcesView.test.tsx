@@ -14,7 +14,7 @@ vi.mock('../api', () => ({
 }));
 
 import { getResources } from '../api';
-import { useResourcesView } from '../hooks/useResourcesView';
+import { RESOURCES_VIEW_STALE_MS, useInvalidateResourcesView, useResourcesView } from '../hooks/useResourcesView';
 import { useFaultyResources } from '../hooks/useFaultyResources';
 import type { ResourceDataType } from '../types';
 
@@ -92,6 +92,51 @@ describe('useResourcesView', () => {
     await advance(50);
     await advance(5000);
     expect(getResources).toHaveBeenCalledTimes(1);
+  });
+
+  it('gives a view mounted after the first read the cached list without fetching again', async () => {
+    vi.mocked(getResources).mockResolvedValue({ data: [healthy, faulty] } as never);
+    // The header reads the list first...
+    renderHook(() => useFaultyResources(), { wrapper });
+    await advance(50);
+    expect(getResources).toHaveBeenCalledTimes(1);
+
+    // ...then a page mounts its own view of it.
+    await advance(1000);
+    const { result } = renderHook(() => useResourcesView(), { wrapper });
+    await advance(50);
+    expect(getResources).toHaveBeenCalledTimes(1);
+    expect(result.current.data).toHaveLength(2);
+  });
+
+  it('fetches again for a view mounted once the cached list is stale', async () => {
+    vi.mocked(getResources).mockResolvedValue({ data: [healthy] } as never);
+    const first = renderHook(() => useResourcesView(), { wrapper });
+    await advance(50);
+    first.unmount();
+
+    await advance(RESOURCES_VIEW_STALE_MS + 100);
+    renderHook(() => useResourcesView(), { wrapper });
+    await advance(50);
+    expect(getResources).toHaveBeenCalledTimes(2);
+  });
+
+  it('refetches at once when a write invalidates the list inside the stale window', async () => {
+    vi.mocked(getResources).mockResolvedValue({ data: [healthy] } as never);
+    const { result } = renderHook(() => ({ view: useResourcesView(), invalidate: useInvalidateResourcesView() }), {
+      wrapper,
+    });
+    await advance(50);
+    expect(getResources).toHaveBeenCalledTimes(1);
+
+    // Well inside the stale window, where a newly mounted view would not fetch.
+    await advance(1000);
+    expect(getResources).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      await result.current.invalidate();
+    });
+    await advance(50);
+    expect(getResources).toHaveBeenCalledTimes(2);
   });
 
   it('does not fetch while disabled', async () => {

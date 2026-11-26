@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 
 import { cloneResourceDefinition, ResourceDefinitionCloneRequest } from '@app/features/resourceDefinition';
 import { unwrap } from '@app/features/requests';
+import { useInvalidateResourcesView } from '../hooks/useResourcesView';
 import { Button } from '@app/components/Button';
 import { Checkbox } from '@app/components/Checkbox';
 
@@ -37,10 +38,17 @@ const CloneModal = ({ open, resource, isUsingZFS, onClose, onSuccess }: CloneMod
   const [form] = Form.useForm<FormType>();
   const { t } = useTranslation(['common', 'resource']);
 
+  const invalidateResourcesView = useInvalidateResourcesView();
+
   const cloneResourceMutation = useMutation({
     mutationKey: ['cloneResourceMutation'],
     mutationFn: (data: { resource: string; body: ResourceDefinitionCloneRequest }) =>
       unwrap(cloneResourceDefinition(data.resource, data.body)),
+    // Settled, not only succeeded: a refused clone may have left the new
+    // definition and some of its resources behind.
+    onSettled: () => {
+      invalidateResourcesView();
+    },
   });
 
   const onFinish = async (values: FormType) => {

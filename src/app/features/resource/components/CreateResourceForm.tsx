@@ -17,6 +17,7 @@ import { useResourceDefinitions } from '@app/features/resourceDefinition';
 import { useNodes } from '@app/features/node';
 import { fullySuccess } from '@app/features/requests';
 import { autoPlace, resourceCreateOnNode, resourceModify, getResources } from '../api';
+import { useInvalidateResourcesView } from '../hooks/useResourcesView';
 import { AutoPlaceRequestBody, ResourceCreateRequestBody, ResourceModifyRequestBody } from '../types';
 import { useTranslation } from 'react-i18next';
 import { Switch } from '@app/components/Switch';
@@ -74,6 +75,8 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
     enabled: !!name,
   });
 
+  const invalidateResourcesView = useInvalidateResourcesView();
+
   const createResourceMutation = useMutation({
     mutationFn: (
       data: ResourceCreateRequestBody & {
@@ -83,6 +86,11 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
     ) => {
       const { node, resource_name, ...rest } = data;
       return resourceCreateOnNode(resource_name, node, rest);
+    },
+    // Settled, not only succeeded: a create that failed without a reply may
+    // still have reached the controller.
+    onSettled: () => {
+      invalidateResourcesView();
     },
   });
 
@@ -106,6 +114,9 @@ const CreateResourceForm = ({ isEdit, initialValues }: CreateResourceFormProps) 
     ) => {
       const { resource, ...rest } = data;
       return autoPlace(resource, rest);
+    },
+    onSettled: () => {
+      invalidateResourcesView();
     },
   });
 

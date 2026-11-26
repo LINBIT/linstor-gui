@@ -32,6 +32,7 @@ import { useTranslation } from 'react-i18next';
 import { Popconfirm } from '@app/components/Popconfirm';
 import { useDeleteAction, deletingRowClass } from '@app/hooks/useDeleteAction';
 import { labelRowCheckbox } from '@app/utils/rowSelection';
+import { useInvalidateResourcesView } from '@app/features/resource/hooks/useResourcesView';
 
 export const List = () => {
   const [current, setCurrent] = useState<ResourceDefinition>();
@@ -106,11 +107,18 @@ export const List = () => {
     getCheckboxProps: labelRowCheckbox((rd: ResourceDefinition) => rd.name),
   };
 
+  const invalidateResourcesView = useInvalidateResourcesView();
+
   const del = useDeleteAction<ResourceDefinition>({
     remove: (rd) => deleteResourceDefinition(rd.name ?? ''),
     keyOf: (rd) => rd.uuid ?? rd.name ?? '',
     nameOf: (rd) => rd.name ?? '',
-    refresh: () => refetch(),
+    // Runs once every delete finished, failed ones included: a bulk delete
+    // with some failures has still removed resources with the others.
+    refresh: () => {
+      invalidateResourcesView();
+      return refetch();
+    },
   });
 
   const updateMutation = useMutation({

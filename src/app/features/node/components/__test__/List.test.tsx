@@ -20,6 +20,7 @@ import {
   getExternalFilesWithContent,
 } from '../../api';
 import { getResources } from '@app/features/resource/api';
+import { RESOURCES_VIEW_QUERY_KEY } from '@app/features/resource/hooks/useResourcesView';
 import { UIMode } from '@app/features/settings/types';
 
 const hoisted = vi.hoisted(() => ({
@@ -101,14 +102,24 @@ const renderList = (search = '') => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
-  return render(
-    <QueryClientProvider client={client}>
-      <MemoryRouter initialEntries={[`/inventory/nodes${search}`]}>
-        <List />
-      </MemoryRouter>
-    </QueryClientProvider>,
-  );
+  const invalidate = vi.spyOn(client, 'invalidateQueries');
+  return {
+    invalidate,
+    ...render(
+      <QueryClientProvider client={client}>
+        <MemoryRouter initialEntries={[`/inventory/nodes${search}`]}>
+          <List />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    ),
+  };
 };
+
+/** Whether the shared /v1/view/resources list was marked stale. */
+const invalidatedResourcesView = (invalidate: ReturnType<typeof renderList>['invalidate']) =>
+  invalidate.mock.calls.some(
+    ([filters]) => JSON.stringify(filters?.queryKey) === JSON.stringify(RESOURCES_VIEW_QUERY_KEY),
+  );
 
 const rows = (container: HTMLElement) =>
   Array.from(container.querySelectorAll('.ant-table-tbody tr.ant-table-row')) as HTMLElement[];
@@ -368,6 +379,35 @@ describe('node List', () => {
     await waitFor(() => expect(screen.getByRole('button', { name: 'Delete' })).toBeDisabled());
     expect(deleteNode).toHaveBeenCalledTimes(2);
     expect(getNodes).toHaveBeenCalledTimes(before + 1);
+  });
+
+  it('marks the shared resource list stale after a bulk delete, even one with a failure', async () => {
+    vi.mocked(deleteNode)
+      .mockResolvedValueOnce({ data: [] } as never)
+      .mockRejectedValueOnce(new Error('controller unreachable'));
+    const { container, invalidate } = renderList();
+    await waitFor(() => expect(rows(container)).toHaveLength(2));
+    expect(invalidatedResourcesView(invalidate)).toBe(false);
+
+    selectRow(container, 'gui01');
+    selectRow(container, 'gui02');
+    fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    await confirmPopconfirm();
+
+    await waitFor(() => expect(invalidatedResourcesView(invalidate)).toBe(true));
+    expect(deleteNode).toHaveBeenCalledTimes(2);
+  });
+
+  it('marks the shared resource list stale after losing a node', async () => {
+    const { container, invalidate } = renderList();
+    await waitFor(() => expect(rows(container)).toHaveLength(2));
+
+    selectRow(container, 'gui02');
+    fireEvent.click(screen.getByRole('button', { name: 'Lost' }));
+    await confirmPopconfirm();
+
+    await waitFor(() => expect(lostNode).toHaveBeenCalledWith('gui02'));
+    await waitFor(() => expect(invalidatedResourcesView(invalidate)).toBe(true));
   });
 
   it('loses the selected offline node', async () => {

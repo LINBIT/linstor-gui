@@ -9,6 +9,7 @@ import { message } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNodes } from '@app/features/node/hooks/useNode';
+import { RESOURCES_VIEW_QUERY_KEY } from '@app/features/resource/hooks/useResourcesView';
 import {
   useDrbdReactorStatus,
   useDrbdReactorFailures,
@@ -145,7 +146,7 @@ export const useReactorActions = () => {
     });
     setEvictingResource(null);
     setEvictStartedAt(null);
-    queryClient.invalidateQueries({ queryKey: ['resources-view'] });
+    queryClient.invalidateQueries({ queryKey: RESOURCES_VIEW_QUERY_KEY });
     queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] });
   }, [queryClient, reactorStatus, reactorStatusUpdatedAt, evictStartedAt, evictingResource, t]);
 
@@ -165,7 +166,7 @@ export const useReactorActions = () => {
     message.success(t('ha:stopped', { name: stoppingResource }));
     setStoppingResource(null);
     setStopStartedAt(null);
-    queryClient.invalidateQueries({ queryKey: ['resources-view'] });
+    queryClient.invalidateQueries({ queryKey: RESOURCES_VIEW_QUERY_KEY });
     queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] });
   }, [queryClient, reactorStatus, reactorStatusUpdatedAt, stopStartedAt, stoppingResource, t]);
 
@@ -178,7 +179,7 @@ export const useReactorActions = () => {
     message.success(t('ha:started', { name: startingResource }));
     setStartingResource(null);
     setStartStartedAt(null);
-    queryClient.invalidateQueries({ queryKey: ['resources-view'] });
+    queryClient.invalidateQueries({ queryKey: RESOURCES_VIEW_QUERY_KEY });
     queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] });
   }, [queryClient, reactorStatus, reactorStatusUpdatedAt, startStartedAt, startingResource, t]);
 
@@ -355,7 +356,7 @@ export const useReactorActions = () => {
               content: t('ha:migrated', { name: record.name, node: result.active_node }),
             });
             setTakeover({ resourceName: record.name, node: result.active_node, startedAt: Date.now() });
-            queryClient.invalidateQueries({ queryKey: ['resources-view'] });
+            queryClient.invalidateQueries({ queryKey: RESOURCES_VIEW_QUERY_KEY });
             queryClient.invalidateQueries({ queryKey: ['ha-resource-definitions'] });
             return;
           }

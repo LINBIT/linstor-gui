@@ -4,7 +4,8 @@
 //
 // Author: Liang Li <liang.li@linbit.com>
 
-import { useQuery } from '@tanstack/react-query';
+import { useCallback } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { getResources } from '../api';
 import { hasSyncingVolume } from '../components/overview/rows';
@@ -22,6 +23,12 @@ export const SYNC_POLL_MS = 1000;
 
 /** How often it is read otherwise: the view grows with the cluster (MBs at thousands of resources). */
 export const IDLE_POLL_MS = 10000;
+
+/**
+ * A view mounted this soon after the last read uses it instead of fetching the
+ * whole list again. Polls and invalidations still refetch on their own.
+ */
+export const RESOURCES_VIEW_STALE_MS = 5000;
 
 export const fetchResourcesView = async (): Promise<ResourceDataType[]> => (await getResources()).data ?? [];
 
@@ -47,6 +54,13 @@ export const useResourcesView = <T = ResourceDataType[]>({
     queryFn: fetchResourcesView,
     select,
     enabled,
+    staleTime: RESOURCES_VIEW_STALE_MS,
     refetchInterval: (q) => (fastWhileSyncing && hasSyncingVolume(q.state.data) ? SYNC_POLL_MS : IDLE_POLL_MS),
     refetchIntervalInBackground: false,
   });
+
+/** Marks the shared list stale and refetches it for the views on screen; call after a write that adds or removes resources. */
+export const useInvalidateResourcesView = () => {
+  const queryClient = useQueryClient();
+  return useCallback(() => queryClient.invalidateQueries({ queryKey: RESOURCES_VIEW_QUERY_KEY }), [queryClient]);
+};

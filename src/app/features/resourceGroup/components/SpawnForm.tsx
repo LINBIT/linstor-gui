@@ -17,6 +17,7 @@ import { SizeInput } from '@app/components/SizeInput';
 import { SpawnRequest } from '../types';
 import { spawnResourceGroup, getResourceGroups, getResourceGroupVolumeGroups } from '../api';
 import { unwrap } from '@app/features/requests';
+import { useInvalidateResourcesView } from '@app/features/resource/hooks/useResourcesView';
 import { useTranslation } from 'react-i18next';
 
 type FormType = {
@@ -95,11 +96,17 @@ const SpawnForm = ({ resource_group, open, onOpenChange }: SpawnFormProps) => {
   // what was typed to send again, a spawn that went through closes it and
   // leaves an empty form for the next one (the reply itself is toasted by the
   // request layer).
+  const invalidateResourcesView = useInvalidateResourcesView();
   const spawnMutation = useMutation({
     mutationFn: ({ rg, data }: { rg: string; data: SpawnRequest }) => unwrap(spawnResourceGroup(rg, data)),
     onSuccess: () => {
       setShowSpawnForm(false);
       form.resetFields();
+    },
+    // Settled, not only succeeded: a refused spawn may have created the
+    // definition and placed some of its resources before it failed.
+    onSettled: () => {
+      invalidateResourcesView();
     },
   });
 

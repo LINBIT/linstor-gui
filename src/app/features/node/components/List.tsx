@@ -32,6 +32,7 @@ import { Popconfirm } from '@app/components/Popconfirm';
 import { ActiveControllerTag } from './ActiveControllerTag';
 import { useDeleteAction, deletingRowClass } from '@app/hooks/useDeleteAction';
 import { labelRowCheckbox } from '@app/utils/rowSelection';
+import { useInvalidateResourcesView } from '@app/features/resource/hooks/useResourcesView';
 import { ActionColumnTitle } from '@app/components/ActionColumnTitle';
 import { useActiveController } from '../hooks/useActiveController';
 
@@ -118,11 +119,18 @@ export const List = () => {
     getCheckboxProps: labelRowCheckbox((node: NodeDataType) => node.name),
   };
 
+  const invalidateResourcesView = useInvalidateResourcesView();
+
   const del = useDeleteAction<NodeDataType>({
     remove: (node) => deleteNode(node.name ?? ''),
     keyOf: (node) => node.uuid ?? node.name ?? '',
     nameOf: (node) => node.name ?? '',
-    refresh: () => refetch(),
+    // Runs once every delete finished, failed ones included: a bulk delete
+    // with some failures has still removed resources with the others.
+    refresh: () => {
+      invalidateResourcesView();
+      return refetch();
+    },
   });
 
   const lostMutation = useMutation({
@@ -130,6 +138,11 @@ export const List = () => {
     mutationFn: (node: string) => lostNode(node),
     onSuccess: () => {
       refetch();
+    },
+    // Settled, not only succeeded: losing a node drops its resources, and one
+    // that failed without a reply may still have reached the controller.
+    onSettled: () => {
+      invalidateResourcesView();
     },
   });
 

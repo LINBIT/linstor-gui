@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import { useResourceGroups } from '@app/features/resourceGroup';
 import { useStoragePools } from '@app/features/storagePool';
 import { fullySuccess } from '@app/features/requests';
+import { useInvalidateResourcesView } from '@app/features/resource/hooks/useResourcesView';
 import {
   createResourceDefinition,
   createVolumeDefinition,
@@ -105,8 +106,16 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
     },
   });
 
+  const invalidateResourcesView = useInvalidateResourcesView();
+
+  // Both settle into a refresh of the shared list: a refused placement may have
+  // placed some replicas (and the roll-back then removes them), and a request
+  // that failed without a reply may still have reached the controller.
   const deleteResourceDefinitionMutation = useMutation({
     mutationFn: (name: string) => deleteResourceDefinition(name),
+    onSettled: () => {
+      invalidateResourcesView();
+    },
   });
 
   const autoPlaceMutation = useMutation({
@@ -117,6 +126,9 @@ const CreateForm = ({ isEdit, initialValues }: CreateFormProps) => {
     ) => {
       const { resource, ...rest } = data;
       return autoPlace(resource, rest);
+    },
+    onSettled: () => {
+      invalidateResourcesView();
     },
   });
 
