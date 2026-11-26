@@ -9,6 +9,7 @@
 ### Fixed
 
 - Changing pages no longer reloads and rewrites the GUI settings in the key-value store
+- Snapshot restore to a new resource failing for good on retry with "already exists" after a step had failed; a retry now continues from the failed step
 
 # 2.7.2 - 2026-11-25
 

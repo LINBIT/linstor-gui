@@ -13,7 +13,11 @@ import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { uniqBy } from '@app/utils/collection';
 import { useInvalidateResourcesView, useResourcesView } from '@app/features/resource/hooks/useResourcesView';
-import { createResourceDefinition } from '@app/features/resourceDefinition/api';
+import {
+  createResourceDefinition,
+  getResourceDefinition,
+  getVolumeDefinitionListByResource,
+} from '@app/features/resourceDefinition/api';
 import { restoreSnapshot, restoreVolumeDefinition } from '../api';
 import { withQuietToasts } from '@app/utils/toast';
 import { replyError } from '@app/hooks/useDeleteAction';
@@ -39,30 +43,51 @@ const RestoreFrom: React.FC<RestoreFromProps> = ({ sourceResource, sourceSnapsho
   // Fetch resource list for target dropdown
   const { data: resourceList } = useResourcesView();
 
-  // Restore snapshot mutation. Up to three requests make one restore: their
-  // replies are kept quiet and one progress message (same key) walks through
-  // the steps and ends as the outcome. openapi-fetch resolves on HTTP errors,
-  // so every step is checked and a failed one stops the restore.
+  // Restore snapshot mutation. Up to three requests make one restore: create the
+  // resource definition, restore its volume definitions, restore the data. What
+  // is already done is looked up on the target definition itself, not in the
+  // resource list (which only lists deployed resources), so a retry after a
+  // failed step continues from that step instead of failing on "already
+  // exists". The replies are kept quiet and one progress message (same key)
+  // walks through the steps and ends as the outcome. openapi-fetch resolves on
+  // HTTP errors, so every step is checked and a failed one stops the restore.
   const invalidateResourcesView = useInvalidateResourcesView();
   const restoreMutation = useMutation({
     mutationFn: () =>
       withQuietToasts(async () => {
         if (!targetResource) return;
 
-        const step = async (progress: string, call: () => Promise<unknown>) => {
-          message.loading({ content: progress, key: RESTORE_MESSAGE_KEY, duration: 0 });
-          const error = replyError(await call());
+        const progress = (content: string) => message.loading({ content, key: RESTORE_MESSAGE_KEY, duration: 0 });
+        const checked = async <T,>(call: () => Promise<T>): Promise<T> => {
+          const reply = await call();
+          const error = replyError(reply);
           if (error) {
             throw new Error(error);
           }
+          return reply;
+        };
+        const step = async (content: string, call: () => Promise<unknown>) => {
+          progress(content);
+          await checked(call);
         };
 
-        const existingResource = resourceList?.find((r) => r.name === targetResource);
-        if (!existingResource) {
+        progress(t('snapshot:restoring', 'Restoring snapshot...'));
+        const definitions = await checked(() => getResourceDefinition({ resource_definitions: [targetResource] }));
+        const definitionExists = !!definitions.data?.some(
+          (rd) => rd.name?.toLowerCase() === targetResource.toLowerCase(),
+        );
+
+        let hasVolumeDefinitions = false;
+        if (definitionExists) {
+          const volumes = await checked(() => getVolumeDefinitionListByResource(targetResource));
+          hasVolumeDefinitions = (volumes.data?.length ?? 0) > 0;
+        } else {
           logger.debug('Creating new resource definition:', targetResource);
           await step(t('snapshot:creating_resource', 'Creating resource definition...'), () =>
             createResourceDefinition({ resource_definition: { name: targetResource } }),
           );
+        }
+        if (!hasVolumeDefinitions) {
           await step(t('snapshot:restoring_volume_definition', 'Restoring volume definition...'), () =>
             restoreVolumeDefinition(sourceResource, sourceSnapshot, { to_resource: targetResource }),
           );
