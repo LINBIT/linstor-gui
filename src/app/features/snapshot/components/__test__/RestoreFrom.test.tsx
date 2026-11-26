@@ -15,6 +15,7 @@ vi.mock('../../api', () => ({
 }));
 vi.mock('@app/features/resource/api', () => ({
   getResources: vi.fn(),
+  getResourcesByResourceName: vi.fn(),
 }));
 vi.mock('@app/features/resourceDefinition/api', () => ({
   createResourceDefinition: vi.fn(),
@@ -23,7 +24,7 @@ vi.mock('@app/features/resourceDefinition/api', () => ({
 }));
 
 import { restoreSnapshot, restoreVolumeDefinition } from '../../api';
-import { getResources } from '@app/features/resource/api';
+import { getResources, getResourcesByResourceName } from '@app/features/resource/api';
 import {
   createResourceDefinition,
   getResourceDefinition,
@@ -33,9 +34,10 @@ import RestoreFrom from '../RestoreFrom';
 
 const ok = { data: [{ ret_code: 1 }] };
 
-// What the controller knows about the target: resource definitions by name and
-// how many volume definitions each has. res-b is deployed, so it has both.
+// What the controller knows about the target: resource definitions by name,
+// how many volume definitions each has, and the nodes each is deployed on.
 let definitions: Record<string, number>;
+let deployedOn: Record<string, string[]>;
 
 const renderRestore = (props: Partial<React.ComponentProps<typeof RestoreFrom>> = {}) => {
   const client = new QueryClient({
@@ -72,6 +74,10 @@ describe('RestoreFrom', () => {
     vi.mocked(restoreVolumeDefinition).mockResolvedValue(ok as never);
     vi.mocked(createResourceDefinition).mockResolvedValue(ok as never);
     definitions = { 'res-a': 1, 'res-b': 1 };
+    deployedOn = { 'res-a': ['n1'], 'res-b': ['n1', 'n2'] };
+    vi.mocked(getResourcesByResourceName).mockImplementation(
+      async (name) => ({ data: (deployedOn[name] ?? []).map((node_name) => ({ name, node_name })) }) as never,
+    );
     vi.mocked(getResourceDefinition).mockImplementation(
       async (query) =>
         ({
@@ -112,18 +118,34 @@ describe('RestoreFrom', () => {
     expect(restoreButton()).toBeEnabled();
   });
 
-  it('restores straight into an existing resource', async () => {
+  it('refuses a deployed target before writing anything', async () => {
     const onSuccess = vi.fn();
     renderRestore({ onSuccess });
     await waitFor(() => expect(getResources).toHaveBeenCalled());
     await chooseExisting('res-b');
     fireEvent.click(restoreButton());
 
-    await waitFor(() => expect(restoreSnapshot).toHaveBeenCalledWith('res-a', 'snap-1', { to_resource: 'res-b' }));
+    expect(await screen.findByText(/Restore failed: "res-b" is deployed/)).toBeInTheDocument();
+    expect(getResourcesByResourceName).toHaveBeenCalledWith('res-b');
     expect(createResourceDefinition).not.toHaveBeenCalled();
     expect(restoreVolumeDefinition).not.toHaveBeenCalled();
-    await waitFor(() => expect(onSuccess).toHaveBeenCalled());
-    expect(await screen.findByText('Restore succeeded')).toBeInTheDocument();
+    expect(restoreSnapshot).not.toHaveBeenCalled();
+    expect(onSuccess).not.toHaveBeenCalled();
+  });
+
+  it('does not add volumes to a deployed target that has none', async () => {
+    // Restoring the volume definitions would create volumes on the deployed
+    // resources, and the data restore would then be refused anyway.
+    definitions['res-bare'] = 0;
+    deployedOn['res-bare'] = ['n1'];
+    const onSuccess = vi.fn();
+    renderRestore({ onSuccess });
+    await restoreTo('res-bare');
+
+    expect(await screen.findByText(/Restore failed: "res-bare" is deployed/)).toBeInTheDocument();
+    expect(restoreVolumeDefinition).not.toHaveBeenCalled();
+    expect(restoreSnapshot).not.toHaveBeenCalled();
+    expect(onSuccess).not.toHaveBeenCalled();
   });
 
   it('creates the definition and its volumes first for a new resource name', async () => {
@@ -166,11 +188,10 @@ describe('RestoreFrom', () => {
 
   it('reports a failed restore', async () => {
     vi.mocked(restoreSnapshot).mockRejectedValue(new Error('busy'));
+    definitions['res-undeployed'] = 1;
     const onSuccess = vi.fn();
     renderRestore({ onSuccess });
-    await waitFor(() => expect(getResources).toHaveBeenCalled());
-    await chooseExisting('res-b');
-    fireEvent.click(restoreButton());
+    await restoreTo('res-undeployed');
     expect(await screen.findByText('Restore failed: busy')).toBeInTheDocument();
     expect(onSuccess).not.toHaveBeenCalled();
   });

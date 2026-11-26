@@ -828,6 +828,7 @@ const tr = {
     resource_created: 'Kaynak tanımı başarıyla oluşturuldu',
     resource_creation_failed: 'Kaynak tanımı oluşturulamadı',
     restoring_volume_definition: 'Birim tanımı geri yükleniyor...',
+    restore_target_deployed: '"{{resource}}" dağıtılmış; anlık görüntü yalnızca dağıtılmamış bir kaynağa geri yüklenir',
     volume_definition_restored: 'Birim tanımı başarıyla geri yüklendi',
     restoring: 'Anlık görüntü geri yükleniyor...',
     source_info: 'Kaynak Bilgisi',

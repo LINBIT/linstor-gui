@@ -833,6 +833,8 @@ const es = {
     resource_created: 'Definición de recurso creada con éxito',
     resource_creation_failed: 'Falló la creación de definición de recurso',
     restoring_volume_definition: 'Restaurando definición de volumen...',
+    restore_target_deployed:
+      '"{{resource}}" está desplegado; una instantánea solo se restaura en un recurso no desplegado',
     volume_definition_restored: 'Definición de volumen restaurada con éxito',
     restoring: 'Restaurando instantánea...',
     source_info: 'Información de origen',

@@ -12,6 +12,7 @@ import { Button } from '@app/components/Button';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { uniqBy } from '@app/utils/collection';
+import { getResourcesByResourceName } from '@app/features/resource/api';
 import { useInvalidateResourcesView, useResourcesView } from '@app/features/resource/hooks/useResourcesView';
 import {
   createResourceDefinition,
@@ -79,6 +80,19 @@ const RestoreFrom: React.FC<RestoreFromProps> = ({ sourceResource, sourceSnapsho
 
         let hasVolumeDefinitions = false;
         if (definitionExists) {
+          // LINSTOR restores only into a definition that is not deployed. Checked
+          // before any write: restoring the volume definitions first would add
+          // volumes to the deployed resources and only then be refused.
+          const deployed = await checked(() => getResourcesByResourceName(targetResource));
+          if ((deployed.data?.length ?? 0) > 0) {
+            throw new Error(
+              t('snapshot:restore_target_deployed', {
+                resource: targetResource,
+                defaultValue:
+                  '"{{resource}}" is deployed; a snapshot is restored only into a resource that is not deployed',
+              }),
+            );
+          }
           const volumes = await checked(() => getVolumeDefinitionListByResource(targetResource));
           hasVolumeDefinitions = (volumes.data?.length ?? 0) > 0;
         } else {

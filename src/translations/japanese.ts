@@ -826,6 +826,8 @@ const ja = {
     resource_created: 'リソース定義作成成功',
     resource_creation_failed: 'リソース定義作成失敗',
     restoring_volume_definition: 'ボリューム定義復元中...',
+    restore_target_deployed:
+      '「{{resource}}」はデプロイ済みです。スナップショットは、デプロイされていないリソースにのみ復元できます',
     volume_definition_restored: 'ボリューム定義復元成功',
     restoring: 'スナップショット復元中...',
     source_info: 'ソース情報',

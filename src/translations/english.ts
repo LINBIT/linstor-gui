@@ -977,6 +977,8 @@ const en = {
     resource_created: 'Resource definition created successfully',
     resource_creation_failed: 'Failed to create resource definition',
     restoring_volume_definition: 'Restoring volume definition...',
+    restore_target_deployed:
+      '"{{resource}}" is deployed; a snapshot is restored only into a resource that is not deployed',
     volume_definition_restored: 'Volume definition restored successfully',
     restoring: 'Restoring snapshot...',
     source_info: 'Source Information',

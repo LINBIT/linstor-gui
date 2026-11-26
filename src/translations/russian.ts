@@ -826,6 +826,7 @@ const ru = {
     resource_created: 'Определение ресурса создано успешно',
     resource_creation_failed: 'Не удалось создать определение ресурса',
     restoring_volume_definition: 'Восстановление определения тома...',
+    restore_target_deployed: '«{{resource}}» развёрнут; снимок восстанавливается только в неразвёрнутый ресурс',
     volume_definition_restored: 'Определение тома восстановлено успешно',
     restoring: 'Восстановление снимка...',
     source_info: 'Информация об источнике',

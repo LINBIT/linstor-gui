@@ -836,6 +836,8 @@ const fr = {
     resource_created: 'Définition de ressource créée avec succès',
     resource_creation_failed: 'Échec de la création de la définition de ressource',
     restoring_volume_definition: 'Restauration de la définition de volume...',
+    restore_target_deployed:
+      '« {{resource}} » est déployée ; un snapshot ne se restaure que dans une ressource non déployée',
     volume_definition_restored: 'Définition de volume restaurée avec succès',
     restoring: "Restauration de l'instantané...",
     source_info: 'Informations de la source',

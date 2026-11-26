@@ -840,6 +840,8 @@ const de = {
     resource_created: 'Ressourcendefinition erfolgreich erstellt',
     resource_creation_failed: 'Fehler beim Erstellen der Ressourcendefinition',
     restoring_volume_definition: 'Volume-Definition wird wiederhergestellt...',
+    restore_target_deployed:
+      '„{{resource}}“ ist bereitgestellt; ein Snapshot wird nur in eine nicht bereitgestellte Ressource wiederhergestellt',
     volume_definition_restored: 'Volume-Definition erfolgreich wiederhergestellt',
     restoring: 'Snapshot wird wiederhergestellt...',
     source_info: 'Quellinformationen',

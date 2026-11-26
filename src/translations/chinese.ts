@@ -895,6 +895,7 @@ const zh = {
     resource_created: '资源定义创建成功',
     resource_creation_failed: '资源定义创建失败',
     restoring_volume_definition: '正在恢复卷定义...',
+    restore_target_deployed: '“{{resource}}”已部署；快照只能恢复到未部署的资源',
     volume_definition_restored: '卷定义恢复成功',
     restoring: '正在恢复快照...',
     source_info: '源信息',
