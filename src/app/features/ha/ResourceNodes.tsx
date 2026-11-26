@@ -27,12 +27,7 @@ export const ResourceNodes: React.FC<ResourceNodesProps> = ({ resourceName, reac
     return <LoadingOutlined spin className="text-(--icon-muted)" />;
   }
 
-  const resourceNodes =
-    (resourcesView?.data as Array<{
-      name: string;
-      node_name: string;
-      state?: { in_use?: boolean };
-    }>) || [];
+  const resourceNodes = resourcesView ?? [];
 
   if (resourceNodes.length === 0) {
     return <span>-</span>;

@@ -14,7 +14,10 @@ vi.mock('../../api', () => ({
   deleteBackup: vi.fn(),
   createBackup: vi.fn(),
 }));
-vi.mock('@app/features/resource', () => ({
+vi.mock('@app/features/resource', async () => ({
+  useResourcesView: (await import('@app/features/resource/hooks/useResourcesView')).useResourcesView,
+}));
+vi.mock('@app/features/resource/api', () => ({
   getResources: vi.fn(),
 }));
 
@@ -25,7 +28,7 @@ vi.mock('react-router-dom', async () => {
 });
 
 import { getBackup, deleteBackup } from '../../api';
-import { getResources } from '@app/features/resource';
+import { getResources } from '@app/features/resource/api';
 import { List } from '../BackUpList';
 
 // finished_timestamp is in ms; TZ is pinned to UTC in setupTests.

@@ -62,18 +62,6 @@ const deployFile = (resourceName: string, filePath: string) => {
   });
 };
 
-const getResources = (resourceName?: string) => {
-  return get('/v1/view/resources', {
-    params: resourceName
-      ? {
-          query: {
-            resources: [resourceName],
-          },
-        }
-      : undefined,
-  });
-};
-
 // The controller's response shape for /v1/nodes/exec/drbd-reactorctl/*.
 // Generated from the OpenAPI spec rather than hand-written, so it tracks the
 // controller instead of drifting from it.
@@ -201,7 +189,6 @@ export {
   getFileContent,
   createFile,
   deployFile,
-  getResources,
   getDrbdReactorStatus,
   evictDrbdReactor,
   disableDrbdReactor,

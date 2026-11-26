@@ -2,6 +2,10 @@
 
 # Unreleased
 
+### Changed
+
+- The resource list is fetched once per poll for the whole page instead of once per view
+
 ### Fixed
 
 - Changing pages no longer reloads and rewrites the GUI settings in the key-value store

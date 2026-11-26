@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { BackupSchedule, enableSchedule, getScheduleList } from '@app/features/schedule';
 import { getRemoteList } from '@app/features/remote';
 import type { RemoteListResponse } from '@app/features/remote/types';
-import { getResources } from '@app/features/resource';
+import { useResourcesView } from '@app/features/resource';
 import { uniqBy } from '@app/utils/collection';
 import { getResourceGroups } from '@app/features/resourceGroup';
 import { useNodes } from '@app/features/node';
@@ -67,11 +67,7 @@ const EnableScheduleForm: React.FC<EnableScheduleFormProps> = ({ remote_name, sc
     data: resourceList,
     isPending: isResourceLoading,
     error: resourceError,
-  } = useQuery({
-    queryKey: ['getResourceListOption'],
-    queryFn: () => getResources(),
-    select: (data) => data?.data?.map((item: { name?: string }) => item.name) || [],
-  });
+  } = useResourcesView({ select: (resources) => resources.map((item) => item.name) });
 
   const {
     data: resourceGroupList,

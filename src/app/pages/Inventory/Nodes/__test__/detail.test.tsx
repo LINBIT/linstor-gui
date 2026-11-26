@@ -13,7 +13,7 @@ import NodeDetail from '../detail';
 import { getNodes, getControllerVersion } from '@app/features/node/api';
 import { getNetWorkInterfaceByNode, deleteNetWorkInterface, updateNetWorkInterface } from '@app/features/ip';
 import { getStoragePool } from '@app/features/storagePool/api';
-import { getAllResources } from '@app/features/snapshot/api';
+import { getResources } from '@app/features/resource/api';
 import { NavContext } from '@app/hooks/useNav';
 import { renderPage, confirmPopover, ok, tableRows } from '../../__test__/helpers';
 
@@ -41,9 +41,9 @@ vi.mock('@app/features/storagePool/api', async (importOriginal) => ({
   getStoragePool: vi.fn(),
 }));
 
-vi.mock('@app/features/snapshot/api', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@app/features/snapshot/api')>()),
-  getAllResources: vi.fn(),
+vi.mock('@app/features/resource/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@app/features/resource/api')>()),
+  getResources: vi.fn(),
 }));
 
 // The dialog pulls in queries of its own and has its own suite.
@@ -114,14 +114,29 @@ const drbdVolume = (diskState: string, pool = 'pool-a', device = '/dev/drbd1000'
 });
 
 const resources = [
-  { name: 'res1', flags: [], state: { in_use: true, open: true }, volumes: [drbdVolume('UpToDate')] },
-  { name: 'res2', flags: [], state: { in_use: false, open: true }, volumes: [drbdVolume('UpToDate')] },
+  {
+    name: 'res1',
+    node_name: node.name,
+    flags: [],
+    state: { in_use: true, open: true },
+    volumes: [drbdVolume('UpToDate')],
+  },
+  {
+    name: 'res2',
+    node_name: node.name,
+    flags: [],
+    state: { in_use: false, open: true },
+    volumes: [drbdVolume('UpToDate')],
+  },
   {
     name: 'res3',
+    node_name: node.name,
     flags: ['DISKLESS', 'DRBD_DISKLESS', 'TIE_BREAKER'],
     state: { in_use: false },
     volumes: [drbdVolume('Diskless', 'DfltDisklessStorPool', '/dev/drbd1002')],
   },
+  // On another node: the list is the cluster's, the page keeps this node's.
+  { name: 'elsewhere', node_name: 'other-node', flags: [], state: { in_use: true }, volumes: [drbdVolume('UpToDate')] },
 ];
 
 /** Opens a tab and hands back its panel. */
@@ -169,7 +184,7 @@ describe('NodeDetail', () => {
     vi.mocked(getControllerVersion).mockResolvedValue({ data: { rest_api_version: '1.28.0' } } as never);
     vi.mocked(getNetWorkInterfaceByNode).mockResolvedValue({ data: interfaces } as never);
     vi.mocked(getStoragePool).mockResolvedValue({ data: storagePools } as never);
-    vi.mocked(getAllResources).mockResolvedValue({ data: resources } as never);
+    vi.mocked(getResources).mockResolvedValue({ data: resources } as never);
     vi.mocked(deleteNetWorkInterface).mockResolvedValue(ok as never);
     vi.mocked(updateNetWorkInterface).mockResolvedValue(ok as never);
   });
@@ -292,7 +307,7 @@ describe('NodeDetail', () => {
 
   it('says so when the node has neither pools with storage nor resources', async () => {
     vi.mocked(getStoragePool).mockResolvedValue({ data: [storagePools[0]] } as never);
-    vi.mocked(getAllResources).mockResolvedValue({ data: [] } as never);
+    vi.mocked(getResources).mockResolvedValue({ data: [] } as never);
     await renderDetail();
 
     expect(await screen.findByText('No storage pools with storage on this node')).toBeInTheDocument();
@@ -395,11 +410,12 @@ describe('NodeDetail', () => {
   it('pages the resources ten at a time', async () => {
     const many = Array.from({ length: 12 }, (_, i) => ({
       name: `res${String(i + 1).padStart(2, '0')}`,
+      node_name: node.name,
       flags: [],
       state: { in_use: false },
       volumes: [drbdVolume('UpToDate')],
     }));
-    vi.mocked(getAllResources).mockResolvedValue({ data: many } as never);
+    vi.mocked(getResources).mockResolvedValue({ data: many } as never);
     await renderDetail();
     const panel = openTab('Resources');
     await within(panel).findByRole('link', { name: 'res01' });
@@ -415,7 +431,7 @@ describe('NodeDetail', () => {
     const never = () => new Promise(() => undefined) as never;
     vi.mocked(getNodes).mockReturnValue(never());
     vi.mocked(getStoragePool).mockReturnValue(never());
-    vi.mocked(getAllResources).mockReturnValue(never());
+    vi.mocked(getResources).mockReturnValue(never());
     vi.mocked(getNetWorkInterfaceByNode).mockReturnValue(never());
     const { container } = renderDetailPage();
 
@@ -438,7 +454,7 @@ describe('NodeDetail', () => {
   });
 
   it('fills in each section as its own data arrives', async () => {
-    vi.mocked(getAllResources).mockReturnValue(new Promise(() => undefined) as never);
+    vi.mocked(getResources).mockReturnValue(new Promise(() => undefined) as never);
     await renderDetail();
 
     expect(await screen.findByRole('meter', { name: 'Used capacity of pool-a' })).toBeInTheDocument();

@@ -24,8 +24,8 @@ vi.mock('@app/features/node', () => ({
   useNodes: () => ({ data: [{ name: 'node-1' }, { name: 'node-2' }], isLoading: false }),
 }));
 
-vi.mock('@app/features/resource', () => ({
-  getResources: vi.fn(),
+vi.mock('@app/features/resource', async () => ({
+  useResourcesView: (await import('@app/features/resource/hooks/useResourcesView')).useResourcesView,
 }));
 vi.mock('@app/features/resource/api', () => ({
   getResources: vi.fn(),
@@ -57,8 +57,7 @@ vi.mock('@app/features/settings/useSettings', async (importOriginal) => ({
   useUIMode: () => uiMode,
 }));
 import { getSnapshots, deleteSnapshot, rollbackSnapshot } from '../../api';
-import { getResources } from '@app/features/resource';
-import { getResources as getResourcesForRestore } from '@app/features/resource/api';
+import { getResources } from '@app/features/resource/api';
 import { List } from '../List';
 
 const GIB = 1024 * 1024;
@@ -137,7 +136,6 @@ describe('snapshot List', () => {
     vi.mocked(getResources).mockResolvedValue({
       data: [{ name: 'res-a' }, { name: 'res-a' }, { name: 'res-b' }],
     } as never);
-    vi.mocked(getResourcesForRestore).mockResolvedValue({ data: [] } as never);
   });
 
   it('renders every snapshot with nodes, volumes, creation time and state', async () => {

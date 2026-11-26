@@ -16,8 +16,8 @@ import {
   getControllerVersion,
   getExternalFilesWithContent,
   getNodes,
-  getResourceOnNodes,
 } from '@app/features/node/api';
+import { getResources } from '@app/features/resource/api';
 
 vi.mock('@app/features/node/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@app/features/node/api')>()),
@@ -26,7 +26,10 @@ vi.mock('@app/features/node/api', async (importOriginal) => ({
   getControllerVersion: vi.fn(),
   getExternalFilesWithContent: vi.fn(),
   getNodes: vi.fn(),
-  getResourceOnNodes: vi.fn(),
+}));
+vi.mock('@app/features/resource/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@app/features/resource/api')>()),
+  getResources: vi.fn(),
 }));
 
 const config = {
@@ -78,7 +81,7 @@ describe('ControllerOverview', () => {
     vi.mocked(getExternalFilesWithContent).mockResolvedValue({
       data: [{ path: '/etc/drbd-reactor.d/linstor_db.toml', content: btoa(reactorConfig) }],
     } as never);
-    vi.mocked(getResourceOnNodes).mockResolvedValue({
+    vi.mocked(getResources).mockResolvedValue({
       data: [
         copy('gui01', true),
         copy('gui02', false),
@@ -133,16 +136,16 @@ describe('ControllerOverview', () => {
 
   it('says so when the controller is not highly available', async () => {
     vi.mocked(getExternalFilesWithContent).mockResolvedValue({ data: [] } as never);
-    vi.mocked(getResourceOnNodes).mockResolvedValue({ data: [] } as never);
+    vi.mocked(getResources).mockResolvedValue({ data: [] } as never);
     renderOverview();
 
     expect(await screen.findByText('Single controller')).toBeInTheDocument();
     expect(screen.getByText('Not highly available')).toBeInTheDocument();
-    expect(getResourceOnNodes).toHaveBeenCalledWith('linstor_db');
+    expect(getResources).toHaveBeenCalled();
   });
 
   it('marks HA without an active node', async () => {
-    vi.mocked(getResourceOnNodes).mockResolvedValue({ data: [copy('gui01', false), copy('gui02', false)] } as never);
+    vi.mocked(getResources).mockResolvedValue({ data: [copy('gui01', false), copy('gui02', false)] } as never);
     renderOverview();
 
     expect(await screen.findByText('No node active')).toBeInTheDocument();

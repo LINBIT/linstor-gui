@@ -156,13 +156,14 @@ describe('useFaultyResources Hook', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    it('should use correct query key', async () => {
+    it('reads the shared resource list and caches it unfiltered', async () => {
       renderHook(() => useFaultyResources(), {
         wrapper: createWrapper(),
       });
 
+      // The cache keeps every resource; the faulty filter is applied on read.
       await waitFor(() => {
-        expect(queryClient.getQueriesData({ queryKey: ['getFaultyResources'] })).toBeDefined();
+        expect(queryClient.getQueryData(['resources-view'])).toBeDefined();
       });
     });
 
@@ -321,7 +322,7 @@ describe('useFaultyResources Hook', () => {
       expect(mockGetResources).toHaveBeenCalledTimes(1);
 
       // Invalidate the query
-      await queryClient.invalidateQueries({ queryKey: ['getFaultyResources'] });
+      await queryClient.invalidateQueries({ queryKey: ['resources-view'] });
 
       await waitFor(() => {
         expect(mockGetResources).toHaveBeenCalledTimes(2);

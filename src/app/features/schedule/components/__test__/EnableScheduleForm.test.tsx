@@ -18,7 +18,10 @@ vi.mock('../../api', () => ({
 vi.mock('@app/features/remote', () => ({
   getRemoteList: vi.fn(),
 }));
-vi.mock('@app/features/resource', () => ({
+vi.mock('@app/features/resource', async () => ({
+  useResourcesView: (await import('@app/features/resource/hooks/useResourcesView')).useResourcesView,
+}));
+vi.mock('@app/features/resource/api', () => ({
   getResources: vi.fn(),
 }));
 vi.mock('@app/features/resourceGroup', () => ({
@@ -30,7 +33,7 @@ vi.mock('@app/features/node', () => ({
 
 import { enableSchedule, getScheduleList } from '../../api';
 import { getRemoteList } from '@app/features/remote';
-import { getResources } from '@app/features/resource';
+import { getResources } from '@app/features/resource/api';
 import { getResourceGroups } from '@app/features/resourceGroup';
 import EnableScheduleForm from '../EnableScheduleForm';
 

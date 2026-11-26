@@ -12,7 +12,6 @@ import {
   getFileContent,
   createFile,
   deployFile,
-  getResources,
   getDrbdReactorStatus,
   evictDrbdReactor,
   disableDrbdReactor,
@@ -23,6 +22,7 @@ import {
 } from './api';
 import type { DrbdReactorStatus, ExecResponse } from './api';
 import { replyError, unwrap } from '@app/features/requests';
+import { useResourcesView } from '@app/features/resource/hooks/useResourcesView';
 import { withQuietToasts } from '@app/utils/toast';
 
 export interface HAResourceDefinition {
@@ -86,13 +86,12 @@ export const useAllResourceDefinitions = () => {
   });
 };
 
-export const useResources = (resourceName?: string) => {
-  return useQuery({
-    queryKey: ['resources-view', resourceName],
-    queryFn: () => getResources(resourceName),
+/** The copies of one resource, from the shared resource list. */
+export const useResources = (resourceName?: string) =>
+  useResourcesView({
+    select: (resources) => resources.filter((r) => r.name === resourceName),
     enabled: !!resourceName,
   });
-};
 
 export const hasHAConfig = (props?: Record<string, string>): boolean => {
   if (!props) return false;

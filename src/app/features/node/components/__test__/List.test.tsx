@@ -18,8 +18,8 @@ import {
   updateNode,
   getControllerVersion,
   getExternalFilesWithContent,
-  getResourceOnNodes,
 } from '../../api';
+import { getResources } from '@app/features/resource/api';
 import { UIMode } from '@app/features/settings/types';
 
 const hoisted = vi.hoisted(() => ({
@@ -47,7 +47,10 @@ vi.mock('../../api', async (importOriginal) => ({
   updateNode: vi.fn(),
   getControllerVersion: vi.fn(),
   getExternalFilesWithContent: vi.fn(),
-  getResourceOnNodes: vi.fn(),
+}));
+vi.mock('@app/features/resource/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@app/features/resource/api')>()),
+  getResources: vi.fn(),
 }));
 
 // The property editor has its own suite; here it only has to expose the
@@ -146,11 +149,11 @@ describe('node List', () => {
     vi.mocked(lostNode).mockResolvedValue({ data: [] } as never);
     vi.mocked(updateNode).mockResolvedValue({ data: [] } as never);
     vi.mocked(getExternalFilesWithContent).mockResolvedValue({ data: [] } as never);
-    vi.mocked(getResourceOnNodes).mockResolvedValue({ data: [] } as never);
+    vi.mocked(getResources).mockResolvedValue({ data: [] } as never);
   });
 
   it('marks the node where the controller database is Primary as running the controller', async () => {
-    vi.mocked(getResourceOnNodes).mockResolvedValue({
+    vi.mocked(getResources).mockResolvedValue({
       data: [
         { name: 'linstor_db', node_name: nodes[0].name, state: { in_use: false } },
         { name: 'linstor_db', node_name: nodes[1].name, state: { in_use: true } },
@@ -177,22 +180,26 @@ describe('node List', () => {
     vi.mocked(getExternalFilesWithContent).mockResolvedValue({
       data: [{ path: '/etc/drbd-reactor.d/ctrl_db.toml', content: btoa(config) }],
     } as never);
-    vi.mocked(getResourceOnNodes).mockResolvedValue({
-      data: [{ name: 'ctrl_db', node_name: nodes[0].name, state: { in_use: true } }],
+    vi.mocked(getResources).mockResolvedValue({
+      data: [
+        { name: 'ctrl_db', node_name: nodes[0].name, state: { in_use: true } },
+        // Another resource Primary elsewhere does not count.
+        { name: 'linstor_db', node_name: nodes[1].name, state: { in_use: true } },
+      ],
     } as never);
     const { container } = renderList();
     await screen.findByText(nodes[0].name);
 
-    await waitFor(() => expect(getResourceOnNodes).toHaveBeenCalledWith('ctrl_db'));
     expect(await within(rowOf(container, nodes[0].name)).findByText('Controller')).toBeInTheDocument();
+    expect(within(rowOf(container, nodes[1].name)).queryByText('Controller')).toBeNull();
   });
 
   it('marks no node without controller HA, or while no node is Primary', async () => {
-    vi.mocked(getResourceOnNodes).mockResolvedValue({
+    vi.mocked(getResources).mockResolvedValue({
       data: [{ name: 'linstor_db', node_name: nodes[0].name, state: { in_use: false } }],
     } as never);
     const { container } = renderList();
-    await waitFor(() => expect(getResourceOnNodes).toHaveBeenCalledWith('linstor_db'));
+    await waitFor(() => expect(getResources).toHaveBeenCalled());
     await screen.findByText(nodes[0].name);
     expect(within(container).queryByText('Controller')).toBeNull();
   });

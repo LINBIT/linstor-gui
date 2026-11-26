@@ -14,7 +14,6 @@ vi.mock('../../requests', () => ({
 
 import { get, post, del } from '../../requests';
 import {
-  getAllResources,
   getSnapshots,
   deleteSnapshot,
   createSnapshot,
@@ -35,12 +34,6 @@ describe('snapshot api', () => {
     vi.mocked(get).mockResolvedValue({ data: [] } as never);
     vi.mocked(post).mockResolvedValue(ok as never);
     vi.mocked(del).mockResolvedValue(ok as never);
-  });
-
-  it('lists resources through the resources view', async () => {
-    const query = { nodes: ['n1'] };
-    await getAllResources(query);
-    expect(get).toHaveBeenCalledWith('/v1/view/resources', { params: { query } });
   });
 
   it('lists snapshots through the snapshots view, query optional', async () => {

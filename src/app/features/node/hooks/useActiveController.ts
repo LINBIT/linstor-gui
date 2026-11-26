@@ -6,7 +6,9 @@
 
 import { useQuery } from '@tanstack/react-query';
 
-import { getExternalFilesWithContent, getResourceOnNodes } from '../api';
+import { useResourcesView } from '@app/features/resource/hooks/useResourcesView';
+
+import { getExternalFilesWithContent } from '../api';
 import { controllerHaPromoter } from '../controllerHa';
 
 export interface ControllerHa {
@@ -34,12 +36,11 @@ export const useControllerHa = (): ControllerHa => {
     staleTime: 60000,
   });
 
-  const { data: copies, isPending } = useQuery({
-    queryKey: ['controllerHaNodes', promoter?.resource],
-    queryFn: async () =>
-      (await getResourceOnNodes(promoter!.resource)).data?.filter((r) => r.name === promoter!.resource) ?? [],
-    enabled: !!promoter,
-    refetchInterval: 10000,
+  // From the shared resource list, which the header polls anyway.
+  const resource = promoter?.resource;
+  const { data: copies, isPending } = useResourcesView({
+    select: (resources) => resources.filter((r) => r.name === resource),
+    enabled: !!resource,
   });
 
   const diskful = (copies ?? []).filter((r) => !r.flags?.some((f) => f === 'DISKLESS' || f === 'DRBD_DISKLESS'));

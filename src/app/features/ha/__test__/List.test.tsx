@@ -19,7 +19,6 @@ vi.mock('../api', () => ({
   getFileContent: vi.fn(),
   createFile: vi.fn(),
   deployFile: vi.fn(),
-  getResources: vi.fn(),
   getDrbdReactorStatus: vi.fn(),
   evictDrbdReactor: vi.fn(),
   disableDrbdReactor: vi.fn(),
@@ -27,6 +26,10 @@ vi.mock('../api', () => ({
   restartDrbdReactor: vi.fn(),
   deleteFile: vi.fn(),
   undeployFile: vi.fn(),
+}));
+
+vi.mock('@app/features/resource/api', () => ({
+  getResources: vi.fn(),
 }));
 
 const clusterNodes = vi.hoisted(() => ({ names: ['node-a', 'node-b'] }));
@@ -51,7 +54,6 @@ import {
   listFiles,
   getFileContent,
   deployFile,
-  getResources,
   getDrbdReactorStatus,
   evictDrbdReactor,
   disableDrbdReactor,
@@ -59,6 +61,7 @@ import {
   deleteFile,
   undeployFile,
 } from '../api';
+import { getResources } from '@app/features/resource/api';
 import type { DrbdReactorFailure, DrbdReactorStatus } from '../api';
 import { List } from '../List';
 
@@ -189,12 +192,8 @@ describe('DRBD Reactor List', () => {
       data: [{ path: MYSQL_PATH }, { path: '/etc/drbd-reactor.d/orphan.toml' }, { path: '/etc/other.conf' }],
     } as never);
     vi.mocked(getFileContent).mockResolvedValue({ data: { path: MYSQL_PATH, content: btoa('[[promoter]]') } } as never);
-    vi.mocked(getResources).mockImplementation(
-      async (name?: string) =>
-        ({
-          data: resourcesView[name ?? ''] ?? [],
-        }) as never,
-    );
+    // The shared resource list: every resource of the cluster.
+    vi.mocked(getResources).mockImplementation(async () => ({ data: Object.values(resourcesView).flat() }) as never);
     vi.mocked(getDrbdReactorStatus).mockImplementation(later(report(runningStatus)));
     vi.mocked(evictDrbdReactor).mockResolvedValue([{ node: 'node-a', exit_code: 0, active_node: 'node-b' }] as never);
     vi.mocked(disableDrbdReactor).mockResolvedValue([{ node: 'node-a', exit_code: 0 }] as never);

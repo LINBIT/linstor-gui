@@ -9,10 +9,10 @@ import React, { useState } from 'react';
 import { logger } from '@app/utils/logger';
 import { AutoComplete, Form, message, Space } from 'antd';
 import { Button } from '@app/components/Button';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { uniqBy } from '@app/utils/collection';
-import { getResources } from '@app/features/resource/api';
+import { useResourcesView } from '@app/features/resource/hooks/useResourcesView';
 import { createResourceDefinition } from '@app/features/resourceDefinition/api';
 import { restoreSnapshot, restoreVolumeDefinition } from '../api';
 import { withQuietToasts } from '@app/utils/toast';
@@ -37,10 +37,7 @@ const RestoreFrom: React.FC<RestoreFromProps> = ({ sourceResource, sourceSnapsho
   const targetResource = targetInput.trim() || undefined;
 
   // Fetch resource list for target dropdown
-  const { data: resourceList } = useQuery({
-    queryKey: ['getResources'],
-    queryFn: () => getResources(),
-  });
+  const { data: resourceList } = useResourcesView();
 
   // Restore snapshot mutation. Up to three requests make one restore: their
   // replies are kept quiet and one progress message (same key) walks through
@@ -59,7 +56,7 @@ const RestoreFrom: React.FC<RestoreFromProps> = ({ sourceResource, sourceSnapsho
           }
         };
 
-        const existingResource = resourceList?.data?.find((r) => r.name === targetResource);
+        const existingResource = resourceList?.find((r) => r.name === targetResource);
         if (!existingResource) {
           logger.debug('Creating new resource definition:', targetResource);
           await step(t('snapshot:creating_resource', 'Creating resource definition...'), () =>
@@ -105,7 +102,7 @@ const RestoreFrom: React.FC<RestoreFromProps> = ({ sourceResource, sourceSnapsho
           placeholder={t('snapshot:select_target', 'Select target resource')}
           value={targetInput}
           onChange={setTargetInput}
-          options={uniqBy(resourceList?.data, 'name')?.map((r) => ({ label: r.name, value: r.name ?? '' }))}
+          options={uniqBy(resourceList, 'name')?.map((r) => ({ label: r.name, value: r.name ?? '' }))}
           allowClear
           filterOption={(input, option) =>
             String(option?.label ?? '')

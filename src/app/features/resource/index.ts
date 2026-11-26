@@ -7,5 +7,6 @@
 export * from './api';
 export * from './components';
 export * from './hooks/useFaultyResources';
+export * from './hooks/useResourcesView';
 export type * from './types';
 export * from './faultyFocus';

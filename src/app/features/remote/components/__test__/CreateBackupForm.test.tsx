@@ -11,7 +11,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 vi.mock('../../api', () => ({
   createBackup: vi.fn(),
 }));
-vi.mock('@app/features/resource', () => ({
+vi.mock('@app/features/resource', async () => ({
+  useResourcesView: (await import('@app/features/resource/hooks/useResourcesView')).useResourcesView,
+}));
+vi.mock('@app/features/resource/api', () => ({
   getResources: vi.fn(),
 }));
 vi.mock('react-router-dom', () => ({
@@ -19,7 +22,7 @@ vi.mock('react-router-dom', () => ({
 }));
 
 import { createBackup } from '../../api';
-import { getResources } from '@app/features/resource';
+import { getResources } from '@app/features/resource/api';
 import { CreateBackupForm } from '../CreateBackupForm';
 import { captureConsoleError } from '@app/testing/console';
 

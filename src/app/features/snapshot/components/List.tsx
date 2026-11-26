@@ -20,7 +20,7 @@ import { SnapshotListQuery, SnapshotType } from '../types';
 import { deleteSnapshot, getSnapshots } from '../api';
 import { formatTime } from '@app/utils/time';
 import { useNodes } from '@app/features/node';
-import { getResources } from '@app/features/resource';
+import { useResourcesView } from '@app/features/resource';
 
 import { SearchForm } from '@app/components/SearchForm';
 import { CreateSnapshotForm } from './CreateForm';
@@ -44,12 +44,7 @@ export const List = () => {
   const { t } = useTranslation(['common', 'snapshot']);
 
   const nodes = useNodes();
-  const { data: resourceList } = useQuery({
-    queryKey: ['getResource'],
-    queryFn: () => {
-      return getResources();
-    },
-  });
+  const { data: resourceList } = useResourcesView();
 
   const [query, setQuery] = useState<SnapshotListQuery>(() => {
     const query = new URLSearchParams(location.search);
@@ -382,7 +377,7 @@ export const List = () => {
               className="w-[180px]"
               allowClear
               placeholder={t('snapshot:please_select_resource')}
-              options={uniqBy(resourceList?.data, 'name')?.map((e) => ({
+              options={uniqBy(resourceList, 'name')?.map((e) => ({
                 label: e.name,
                 value: e.name,
               }))}

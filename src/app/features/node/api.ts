@@ -50,15 +50,6 @@ const getExternalFilesWithContent = () => {
   });
 };
 
-/** A resource on each node it is deployed on; empty when it does not exist. */
-const getResourceOnNodes = (resource: string) => {
-  return get('/v1/view/resources', {
-    params: {
-      query: { resources: [resource] },
-    },
-  });
-};
-
 const getSpaceReport = () => {
   return get('/v1/space-report');
 };
@@ -147,7 +138,6 @@ const updateNetwork = ({
 
 export {
   getExternalFilesWithContent,
-  getResourceOnNodes,
   getNodes,
   getNetworksByNode,
   createNode,

@@ -7,14 +7,10 @@
 import { useCallback, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getResourceDefinition, ResourceDefinitionListQuery } from '@app/features/resourceDefinition';
-import { getResources } from '../../api';
-import { hasSyncingVolume, mergeOverviewRows } from './rows';
+import { useResourcesView } from '../../hooks/useResourcesView';
+import { mergeOverviewRows } from './rows';
 
-/** How often the live resource state is read while a volume syncs, so its progress moves. */
-export const SYNC_POLL_MS = 1000;
-
-/** How often it is read otherwise: the full view grows with the cluster (MBs at thousands of resources). */
-export const IDLE_POLL_MS = 10000;
+export { SYNC_POLL_MS, IDLE_POLL_MS } from '../../hooks/useResourcesView';
 
 /** The overview's rows: the definitions matching `query`, each with its deployed volumes. */
 export const useOverviewData = (query: ResourceDefinitionListQuery) => {
@@ -26,8 +22,6 @@ export const useOverviewData = (query: ResourceDefinitionListQuery) => {
 
     return data?.data ?? [];
   };
-
-  const fetchResourcesView = async () => (await getResources()).data ?? [];
 
   const {
     data: resourceDefinitions,
@@ -41,21 +35,15 @@ export const useOverviewData = (query: ResourceDefinitionListQuery) => {
     refetchInterval: 10000,
   });
 
-  // Live state (disk_state, replication_states, done_percentage, in_use) is
-  // fetched separately so it can poll fast during a sync without re-pulling
-  // the resource-definition payload. Fast only while something syncs: the view
-  // holds every resource of the cluster, so at a 1s cadence a large cluster
-  // pulls megabytes a second and the controller builds the whole view each time.
+  // Live state (disk_state, replication_states, done_percentage, in_use) comes
+  // from the shared resource list, so it can poll fast during a sync without
+  // re-pulling the resource-definition payload, and the header's faulty icon
+  // reads the same request instead of a second one.
   const {
     data: resourcesView,
     isPending: rvLoading,
     refetch: refetchResourcesView,
-  } = useQuery({
-    queryKey: ['getResourcesView'],
-    queryFn: fetchResourcesView,
-    refetchInterval: (q) => (hasSyncingVolume(q.state.data) ? SYNC_POLL_MS : IDLE_POLL_MS),
-    refetchIntervalInBackground: false,
-  });
+  } = useResourcesView({ fastWhileSyncing: true });
 
   const resourceDefinitionList = useMemo(
     () => mergeOverviewRows(resourceDefinitions, resourcesView),

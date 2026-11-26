@@ -7,7 +7,7 @@
 import { useState } from 'react';
 import { logger } from '@app/utils/logger';
 import { ApiError, unwrap } from '@app/features/requests';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { Form, Modal, message } from 'antd';
 import { Select } from '@app/components/Select';
 import { Button } from '@app/components/Button';
@@ -16,7 +16,7 @@ import { createBackup } from '../api';
 import { RemoteBackupCreateRequestBody } from '../types';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { getResources } from '@app/features/resource';
+import { useResourcesView } from '@app/features/resource';
 import { uniqBy } from '@app/utils/collection';
 import { Switch } from '@app/components/Switch';
 import { InlineFormItem } from '@app/components/InlineFormItem';
@@ -39,14 +39,7 @@ const CreateBackupForm = ({ refetch }: CreateBackupFormProps) => {
   const { remote_name } = useParams<{ remote_name: string }>();
   const { t } = useTranslation(['common']);
 
-  const resourceList = useQuery({
-    queryKey: ['getResources'],
-    queryFn: async () => {
-      const res = await getResources();
-
-      return res.data;
-    },
-  });
+  const resourceList = useResourcesView();
 
   const createBackupMutation = useMutation({
     // onFinish reports a failure itself.

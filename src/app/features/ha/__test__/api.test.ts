@@ -26,7 +26,6 @@ import {
   getFileContent,
   createFile,
   deployFile,
-  getResources,
   getDrbdReactorStatus,
   evictDrbdReactor,
   disableDrbdReactor,
@@ -88,14 +87,6 @@ describe('ha api', () => {
     });
     await deleteFile(TOML);
     expect(del).toHaveBeenLastCalledWith('/v1/files/{extFileName}', { params: { path: { extFileName: TOML_ENC } } });
-  });
-
-  it('reads the resources view for one resource, or all', async () => {
-    await getResources('ha-mysql');
-    // An array, as the schema has it; on the wire it is still resources=ha-mysql.
-    expect(get).toHaveBeenCalledWith('/v1/view/resources', { params: { query: { resources: ['ha-mysql'] } } });
-    await getResources();
-    expect(get).toHaveBeenLastCalledWith('/v1/view/resources', { params: undefined });
   });
 
   describe('drbd-reactorctl exec', () => {
