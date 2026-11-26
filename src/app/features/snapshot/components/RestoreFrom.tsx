@@ -71,9 +71,8 @@ const RestoreFrom: React.FC<RestoreFromProps> = ({ sourceResource, sourceSnapsho
           restoreSnapshot(sourceResource, sourceSnapshot, { to_resource: targetResource }),
         );
       }),
-    // Settled, not only succeeded: a restore that fails after its first step
-    // has created the target already, and the next try reads this list to
-    // decide whether to create it again.
+    // Settled, not only succeeded: a restore that fails at its last step may
+    // have deployed some of the target's resources already.
     onSettled: () => {
       invalidateResourcesView();
     },
